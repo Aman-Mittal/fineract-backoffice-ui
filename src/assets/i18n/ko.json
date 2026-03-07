@@ -9,5 +9,8 @@
       "hi": "힌디어",
       "ko": "한국어"
     }
+  },
+  "dashboard": {
+    "systemStatus": "시스템 운영 상태"
   }
 }

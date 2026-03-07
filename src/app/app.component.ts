@@ -20,10 +20,11 @@
 import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SystemStatusComponent } from './features/dashboard/system-status.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TranslateModule],
+  imports: [RouterOutlet, TranslateModule, SystemStatusComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

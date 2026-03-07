@@ -43,27 +43,41 @@ This guide provides instructions for setting up the Fineract Backoffice UI devel
 
 ## Development
 
-1.  **Run the application**:
+1.  **Secure Development (SSL)**:
+    Since Fineract sandboxes often require HTTPS, run the following to set up local trusted certificates (requires `mkcert`):
+
+    ```bash
+    ./scripts/setup-ssl.sh
+    ```
+
+2.  **Run the application**:
 
     ```bash
     npm start
     ```
 
-    Access the UI at `http://localhost:4200`.
+    Access the UI at `http://localhost:4200` (or `https://localhost:4200` if using SSL).
 
-2.  **Run unit tests**:
+3.  **Connecting to a Sandbox**:
+    Update `src/environments/environment.ts` with your sandbox URL:
+
+    ```typescript
+    fineractApiUrl: 'https://demo.mifos.io/fineract-provider/api/v1';
+    ```
+
+4.  **Run unit tests**:
 
     ```bash
     npm run test
     ```
 
-3.  **Run linting**:
+5.  **Run linting**:
 
     ```bash
     npm run lint
     ```
 
-4.  **Format code**:
+6.  **Format code**:
     ```bash
     npm run format
     ```
