@@ -1,0 +1,13 @@
+{
+  "license": "Apache-2.0",
+  "app": {
+    "title": "Fineract Backoffice UI",
+    "welcome": "Welcome to Fineract Backoffice UI!",
+    "language": {
+      "select": "Select Language",
+      "en": "English",
+      "hi": "Hindi",
+      "ko": "Korean"
+    }
+  }
+}
