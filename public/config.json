@@ -1,0 +1,4 @@
+{
+  "fineractApiUrl": "https://localhost:8443/fineract-provider/api/v1",
+  "defaultTenant": "default"
+}
