@@ -1,80 +1,111 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
-import { AuthService } from '../../core/auth/auth.service';
-import { signal } from '@angular/core';
+import { AuthService, UserSession } from '../../core/services/auth.service';
+import { ConfigService } from '../../core/services/config.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { WritableSignal } from '@angular/core';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let mockAuthService: { login: ReturnType<typeof jest.fn>; logout: ReturnType<typeof jest.fn>; isAuthenticated: ReturnType<typeof signal<boolean>> };
-  let mockRouter: { navigate: ReturnType<typeof jest.fn> };
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let configServiceSpy: jasmine.SpyObj<ConfigService>;
+  let routerSpy: jasmine.SpyObj<Router>;
+  const mockApiUrl = 'https://localhost:8443/fineract-provider/api/v1';
 
   beforeEach(async () => {
-    mockAuthService = {
-      login: jest.fn(),
-      logout: jest.fn(),
-      isAuthenticated: signal(false),
-    };
-    mockRouter = { navigate: jest.fn() };
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'currentTenantId']);
+    authServiceSpy.currentTenantId.and.returnValue('default');
+
+    configServiceSpy = jasmine.createSpyObj('ConfigService', ['setApiUrl'], {
+      apiUrl: mockApiUrl,
+    });
+
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [LoginComponent],
+      imports: [ReactiveFormsModule, TranslateModule.forRoot(), LoginComponent],
       providers: [
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: Router, useValue: mockRouter },
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: ConfigService, useValue: configServiceSpy },
+        { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
-  it('should show Sign in button when not authenticated', () => {
-    mockAuthService.isAuthenticated = signal(false);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Sign in with Fineract');
-    expect(compiled.textContent).toContain('Fineract Backoffice');
+  it('should be invalid when empty', () => {
+    expect(component['loginForm'].valid).toBeFalse();
   });
 
-  it('should show authenticated state when user is signed in', () => {
-    mockAuthService.isAuthenticated = signal(true);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('You are signed in.');
-    expect(compiled.textContent).toContain('Go to Home');
-    expect(compiled.textContent).toContain('Sign Out');
+  it('should call login and navigate on success', () => {
+    authServiceSpy.login.and.returnValue(of({} as UserSession));
+
+    component['loginForm'].setValue({
+      serverUrl: mockApiUrl,
+      customUrl: '',
+      tenantId: 'default',
+      username: 'mifos',
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+      password: 'password123',
+    });
+
+    component.onSubmit();
+
+    expect(authServiceSpy.login).toHaveBeenCalledWith('mifos', 'password123', 'default');
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 
-  it('should call auth.login() when Sign in button is clicked', () => {
-    mockAuthService.isAuthenticated = signal(false);
-    fixture.detectChanges();
-    const signInButton = fixture.nativeElement.querySelector('button.primary');
-    signInButton?.click();
-    expect(mockAuthService.login).toHaveBeenCalled();
-  });
-
-  it('should call auth.logout() when Sign Out is clicked', () => {
-    mockAuthService.isAuthenticated = signal(true);
-    fixture.detectChanges();
-    const signOutButton = fixture.nativeElement.querySelector('button.secondary');
-    signOutButton?.click();
-    expect(mockAuthService.logout).toHaveBeenCalled();
-  });
-
-  it('should navigate to /home when Go to Home is clicked', () => {
-    mockAuthService.isAuthenticated = signal(true);
-    fixture.detectChanges();
-    const goToHomeButton = fixture.nativeElement.querySelector(
-      'button:not(.secondary)'
+  it('should set error on login failure', () => {
+    authServiceSpy.login.and.returnValue(
+      throwError(() => ({ error: { defaultUserMessage: 'Failed' } })),
     );
-    goToHomeButton?.click();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
+
+    component['loginForm'].setValue({
+      serverUrl: mockApiUrl,
+      customUrl: '',
+      tenantId: 'default',
+      username: 'mifos',
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+      password: 'wrongpassword',
+    });
+
+    component.onSubmit();
+
+    expect((component as unknown as { error: WritableSignal<string | null> }).error()).toBe(
+      'Failed',
+    );
+    expect(
+      (component as unknown as { isLoading: WritableSignal<boolean> }).isLoading(),
+    ).toBeFalse();
   });
 });

@@ -1,0 +1,46 @@
+{
+  "license": "Apache-2.0",
+  "app": {
+    "title": "Fineract Backoffice UI",
+    "welcome": "Welcome to Fineract Backoffice UI!",
+    "logout": "Logout",
+    "language": {
+      "select": "Select Language",
+      "en": "English",
+      "hi": "Hindi",
+      "ko": "Korean"
+    }
+  },
+  "nav": {
+    "main": "Main Navigation",
+    "dashboard": "Dashboard",
+    "clients": "Clients",
+    "loans": "Loans",
+    "organization": "Organization"
+  },
+  "dashboard": {
+    "systemStatus": "System Operational Status"
+  },
+  "login": {
+    "title": "Fineract Login",
+    "welcome": "Manage your community bank operations",
+    "serverUrl": "API Endpoint",
+    "customUrl": "Custom API URL",
+    "tenantId": "Tenant Identifier",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign In",
+    "loggingIn": "Signing in...",
+    "tooltips": {
+      "serverUrl": "The Fineract server address. Use 'Mifos Sandbox' for testing or 'Local' for your own instance.",
+      "tenantId": "A unique ID for the financial institution. Default is 'default'. This is passed via the Fineract-Platform-TenantId header."
+    }
+  },
+  "idle": {
+    "warning": {
+      "title": "Session Expiring",
+      "message": "You have been inactive for a while. Your session will expire soon. Do you want to stay logged in?",
+      "extend": "Keep me logged in"
+    }
+  }
+}

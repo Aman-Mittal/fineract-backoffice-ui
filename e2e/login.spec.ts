@@ -2,76 +2,37 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Login', () => {
   test('login page displays correctly', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/login');
 
-    await expect(page.locator('h1')).toHaveText('Fineract Backoffice');
-    await expect(page.locator('.subtitle')).toHaveText('Sign in to continue');
-    await expect(
-      page.getByRole('button', { name: 'Sign in with Fineract' })
-    ).toBeVisible();
+    await expect(page.locator('h1')).toHaveText('Fineract Backoffice UI');
+    await expect(page.locator('.subtitle')).toHaveText('Manage your community bank operations');
+    await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
   });
 
-  test('login page shows OAuth hint', async ({ page }) => {
-    await page.goto('/');
+  test('login form has required fields', async ({ page }) => {
+    await page.goto('/login');
 
-    await expect(
-      page.getByText(/redirected to the Fineract server/i)
-    ).toBeVisible();
+    await expect(page.locator('#serverUrl')).toBeVisible();
+    await expect(page.locator('#tenantId')).toBeVisible();
+    await expect(page.locator('#username')).toBeVisible();
+    await expect(page.locator('#password')).toBeVisible();
   });
 
-  test('OAuth callback with mocked token exchange completes login and redirects to home', async ({
-    page,
-  }) => {
-    // Mock the token exchange API - when the app calls POST /oauth2/token, return a valid token
-    await page.route('**/oauth2/token', async (route) => {
-      if (route.request().method() === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            access_token: 'e2e-test-token',
-            refresh_token: 'e2e-refresh-token',
-            token_type: 'Bearer',
-            expires_in: 3600,
-            scope: 'read write',
-          }),
-        });
-      } else {
-        await route.continue();
-      }
-    });
+  test('submit button is disabled when form is empty', async ({ page }) => {
+    await page.goto('/login');
 
-    // Set the code verifier in sessionStorage (required for PKCE) - we need to do this
-    // before navigating to the callback. We can do it by first going to the app, then
-    // executing JS to set sessionStorage, then navigating to the callback.
-    await page.goto('/');
-    await page.evaluate(() => {
-      sessionStorage.setItem('fineract_code_verifier', 'e2e-test-verifier');
-    });
-
-    await page.goto('/auth/callback?code=e2e-test-auth-code');
-
-    // Wait for redirect to home
-    await expect(page).toHaveURL(/\/home/);
-    await expect(page.getByText('Welcome. You are signed in.')).toBeVisible({
-      timeout: 5000,
-    });
+    const submitButton = page.getByRole('button', { name: 'Sign In' });
+    await expect(submitButton).toBeDisabled();
   });
 
-  test('OAuth callback shows error when no authorization code', async ({
-    page,
-  }) => {
-    await page.goto('/auth/callback');
+  test('submit button is enabled when form is filled', async ({ page }) => {
+    await page.goto('/login');
 
-    await expect(
-      page.getByText(/No authorization code received/i)
-    ).toBeVisible();
-  });
+    await page.locator('#tenantId').fill('default');
+    await page.locator('#username').fill('testuser');
+    await page.locator('#password').fill('password');
 
-  test('OAuth callback shows error link when auth fails', async ({ page }) => {
-    await page.goto('/auth/callback?error=access_denied');
-
-    await expect(page.getByText(/Authentication failed/i)).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Return to login' })).toBeVisible();
+    const submitButton = page.getByRole('button', { name: 'Sign In' });
+    await expect(submitButton).toBeEnabled();
   });
 });
