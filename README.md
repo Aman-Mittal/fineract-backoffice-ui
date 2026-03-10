@@ -57,7 +57,8 @@ System admins handle security, audit, and infrastructure. The UI supports:
 
 - **Framework:** Angular
 - **Backend Integration:** Fineract REST API (e.g. `/fineract-provider/api/v1/`)
-- **Authentication:** Fineract-based auth (basic auth or token-based)
+- **API Client:** Generated from Fineract Swagger/OpenAPI spec via [OpenAPI Generator](https://openapi-generator.tech/)
+- **Authentication:** OAuth2 (Authorization Code + PKCE) against Fineract's built-in authorization server
 - **Deployment:** Designed to run alongside Fineract (e.g. Docker, reverse proxy)
 
 ---
@@ -97,8 +98,9 @@ System admins handle security, audit, and infrastructure. The UI supports:
 # Install dependencies
 npm install
 
-# Configure API base URL (e.g. in environment files)
-# Default: https://localhost:8443/fineract-provider/api/v1
+# Copy Fineract Swagger spec and generate typed API client (optional)
+npm run copy-swagger   # Copies fineract.json from Fineract build (set FINERACT_SWAGGER_PATH if needed)
+npm run generate-api   # Generates Angular API services from the spec
 
 # Run development server
 ng serve
@@ -106,10 +108,25 @@ ng serve
 
 Access the app at `http://localhost:4200` (or the configured port).
 
+### OAuth2 Setup (Fineract)
+
+The login flow uses Fineract's built-in OAuth2 authorization server. Configure Fineract with:
+
+```bash
+# Enable OAuth2 (disables Basic Auth)
+export FINERACT_SECURITY_OAUTH_ENABLED=true
+export FINERACT_SECURITY_BASICAUTH_ENABLED=false
+
+# Register this app's callback URL (required for Authorization Code flow)
+export FINERACT_SECURITY_OAUTH2_CLIENTS_FRONTEND_REDIRECT="http://localhost:4200/auth/callback"
+```
+
+The default OAuth2 client `frontend-client` uses `authorization_code` and `refresh_token` grant types. Users sign in on Fineract's login page, then are redirected back to this app with an access token.
+
 ### Configuration
 
-- **API Base URL:** Point to your Fineract instance (e.g. `https://your-fineract-host:8443/fineract-provider/api/v1`)
-- **Authentication:** Use Fineract credentials; the UI will send them according to your auth strategy.
+- **API Base URL:** Edit `src/environments/environment.ts` to point to your Fineract instance.
+- **OAuth2 redirect URI:** Must match Fineract's registered redirect URIs (default: `http://localhost:4200/auth/callback`).
 
 ---
 
@@ -139,8 +156,8 @@ The UI is built as a static SPA and can be deployed together with Fineract:
 
 ## Fineract API Reference
 
-- [Fineract API Docs](https://fineract.apache.org/docs/current/)  
-- [Swagger / API Explorer](https://demo.mifos.io/api-docs/apiLive.htm) (demo instance)
+- [Fineract API Docs](https://fineract.apache.org/docs/current/)
+- [Demo API Explorer](https://demo.mifos.io/api-docs/apiLive.htm) (demo instance)
 
 ---
 
