@@ -17,7 +17,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Files to check for the full Apache header (commented)
 FILES=$(find src deploy .github scripts -type f \( -name "*.ts" -o -name "*.html" -o -name "*.scss" -o -name "*.yml" -o -name "*.sh" -o -name "Dockerfile" -o -name "nginx.conf" -o -name "eslint.config.js" -o -name ".prettierignore" \))
 
 MISSING_HEADERS=0
@@ -27,20 +26,21 @@ for FILE in $FILES; do
     continue
   fi
 
-  # Check for Apache License header
   if ! grep -q "Licensed to the Apache Software Foundation" "$FILE"; then
     echo "Missing Apache License header in $FILE"
     MISSING_HEADERS=$((MISSING_HEADERS + 1))
   fi
 done
 
-# Check for the license field in JSON configuration files
-# Exclude angular.json because the schema doesn't allow arbitrary properties
 JSON_FILES=$(find . -maxdepth 1 -name "*.json" ! -name "package-lock.json" ! -name "angular.json")
 JSON_FILES="$JSON_FILES $(find src/assets/i18n -name "*.json")"
+JSON_FILES="$JSON_FILES .asf.yaml"
 
 for FILE in $JSON_FILES; do
   if [ ! -f "$FILE" ]; then
+    continue
+  fi
+  if [[ "$FILE" == *".asf.yaml" ]]; then
     continue
   fi
   if ! grep -i -q "Apache-2.0" "$FILE" && ! grep -q "Apache License" "$FILE"; then
