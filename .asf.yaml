@@ -1,2 +1,3 @@
 notifications:
   commits: commits@fineract.apache.org
+  pullrequests: issues@fineract.apache.org
