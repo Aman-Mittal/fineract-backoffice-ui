@@ -15,9 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Exclude list for Apache RAT
-
-# Directories
 node_modules/
 dist/
 .angular/
@@ -26,12 +23,9 @@ dist/
 .idea/
 .gemini/
 coverage/
-
-# Lock files
 package-lock.json
 yarn.lock
-
-# Configuration files (often JSON or hidden files that don't support headers easily)
+.asf.yaml
 .editorconfig
 .prettierrc
 .prettierignore
@@ -41,17 +35,10 @@ tsconfig.app.json
 tsconfig.spec.json
 eslint.config.js
 sonar-project.properties
-
-# Assets
 public/favicon.png
 src/assets/i18n/*.json
-
-# Temporary/Backup
 *.bak
-
-# Context files (kept out of git scope)
 Agents.MD
 Gemini.MD
 GEMINI.md
 Claude.MD
-angular-vibecoding-context.md
