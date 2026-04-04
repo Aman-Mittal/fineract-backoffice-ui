@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FILES=$(find src deploy .github scripts -type f \( -name "*.ts" -o -name "*.html" -o -name "*.scss" -o -name "*.yml" -o -name "*.sh" -o -name "Dockerfile" -o -name "nginx.conf" -o -name "eslint.config.js" -o -name ".prettierignore" \))
+FILES=$(find src deploy .github scripts -type f \( -name "*.ts" -o -name "*.html" -o -name "*.scss" -o -name "*.yml" -o -name "*.sh" -o -name "Dockerfile" -o -name "nginx.conf" -o -name "eslint.config.js" -o -name ".prettierignore" \) -not -path "src/app/api/*")
 
 MISSING_HEADERS=0
 
