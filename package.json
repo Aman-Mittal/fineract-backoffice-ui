@@ -15,7 +15,7 @@
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "generate-api": "npm run copy-swagger && npx openapi-generator-cli generate -i ./api-spec/fineract.json -g typescript-angular -o src/app/api --additional-properties=ngVersion=20.0.0",
+    "generate-api": "npm run copy-swagger && npx openapi-generator-cli generate -i ./api-spec/fineract.json -g typescript-angular -o src/app/api -t templates/openapi-generator --additional-properties=ngVersion=20.0.0",
     "copy-swagger": "mkdir -p api-spec && cp ${FINERACT_SWAGGER_PATH:-./public/api/fineract.json} api-spec/fineract.json"
   },
   "prettier": {
