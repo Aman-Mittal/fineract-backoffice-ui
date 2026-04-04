@@ -75,7 +75,6 @@ describe('LoginComponent', () => {
       customUrl: '',
       tenantId: 'default',
       username: 'mifos',
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
       password: 'password123',
     });
 
@@ -95,7 +94,6 @@ describe('LoginComponent', () => {
       customUrl: '',
       tenantId: 'default',
       username: 'mifos',
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
       password: 'wrongpassword',
     });
 
