@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { FetchAuthenticatedUserDetailsService } from '../../api/api/fetchAuthenticatedUserDetails.service';
 import { ClientService } from '../../api/api/client.service';
@@ -29,36 +29,48 @@ export interface DashboardData {
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  constructor(
-    private userDetails: FetchAuthenticatedUserDetailsService,
-    private clientService: ClientService,
-    private loansService: LoansService,
-    private savingsService: SavingsAccountService,
-    private accountTransfersService: AccountTransfersService
-  ) {}
+  private userDetails = inject(FetchAuthenticatedUserDetailsService);
+  private clientService = inject(ClientService);
+  private loansService = inject(LoansService);
+  private savingsService = inject(SavingsAccountService);
+  private accountTransfersService = inject(AccountTransfersService);
 
   loadDashboard(): Observable<DashboardData> {
     return forkJoin({
       user: this.userDetails.fetchAuthenticatedUserData().pipe(
         map((u) => this.mapUser(u)),
-        catchError(() => of(null))
+        catchError(() => of(null)),
       ),
-      clients: this.clientService.retrieveAll21(undefined, undefined, undefined, undefined, undefined, undefined, undefined, 0, 1).pipe(
-        map((r) => r.totalFilteredRecords ?? 0),
-        catchError(() => of(0))
-      ),
+      clients: this.clientService
+        .retrieveAll21(
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          0,
+          1,
+        )
+        .pipe(
+          map((r) => r.totalFilteredRecords ?? 0),
+          catchError(() => of(0)),
+        ),
       savings: this.savingsService.retrieveAll33(undefined, 0, 1).pipe(
         map((r) => r.totalFilteredRecords ?? 0),
-        catchError(() => of(0))
+        catchError(() => of(0)),
       ),
       loans: this.loansService.retrieveAll27(undefined, 0, 1).pipe(
         map((r) => r.totalFilteredRecords ?? 0),
-        catchError(() => of(0))
+        catchError(() => of(0)),
       ),
-      transfers: this.accountTransfersService.retrieveAll18(undefined, 0, 5, 'transferDate', 'DESC').pipe(
-        map((r) => this.toArray(r.pageItems)),
-        catchError(() => of([]))
-      ),
+      transfers: this.accountTransfersService
+        .retrieveAll18(undefined, 0, 5, 'transferDate', 'DESC')
+        .pipe(
+          map((r) => this.toArray(r.pageItems)),
+          catchError(() => of([])),
+        ),
     }).pipe(
       map(({ user, clients, savings, loans, transfers }) => ({
         user,
@@ -68,7 +80,7 @@ export class DashboardService {
           loanCount: loans,
         },
         recentTransactions: transfers,
-      }))
+      })),
     );
   }
 
