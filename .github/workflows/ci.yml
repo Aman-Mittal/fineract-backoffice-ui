@@ -31,8 +31,8 @@ jobs:
     name: Dependency Integrity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -44,8 +44,8 @@ jobs:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -58,8 +58,8 @@ jobs:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -72,8 +72,8 @@ jobs:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -85,8 +85,8 @@ jobs:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -98,8 +98,8 @@ jobs:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -111,8 +111,8 @@ jobs:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -126,17 +126,26 @@ jobs:
     name: Apache RAT Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Apache RAT Check
-        uses: erisu/apache-rat-action@v2
+      - uses: actions/checkout@v6
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Download Apache RAT
+        run: |
+          curl -sL https://repo1.maven.org/maven2/org/apache/rat/apache-rat/0.17/apache-rat-0.17.jar -o apache-rat-0.17.jar
+      - name: Run Apache RAT Scan
+        run: |
+          java -jar apache-rat-0.17.jar -E .rat-excludes -d .
 
   security:
     name: Security Audit
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           cache: 'npm'
