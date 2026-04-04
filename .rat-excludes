@@ -42,3 +42,15 @@ Agents.MD
 Gemini.MD
 GEMINI.md
 Claude.MD
+DOCS/
+templates/
+.openapi-generator-ignore
+openapitools.json
+api-spec/
+public/api/
+ssl/
+jest.config.ts
+setup-jest.ts
+playwright.config.ts
+e2e/
+src/app/api/
