@@ -17,7 +17,14 @@
  * under the License.
  */
 
-export const environment = {
-  production: false,
-  fineractApiUrl: 'https://demo.mifos.io/fineract-provider/api',
-};
+import { Directive, Input, TemplateRef, inject } from '@angular/core';
+
+@Directive({
+  selector: '[appCellTemplate]',
+  standalone: true
+})
+export class CellTemplateDirective {
+  @Input('appCellTemplate') columnName!: string;
+
+  public readonly template = inject(TemplateRef<unknown>);
+}

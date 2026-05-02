@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
@@ -40,6 +40,23 @@ import { ConfigService } from '../../core/services/config.service';
   template: `
     <div class="login-page">
       <div class="login-card" role="main">
+        <div class="lang-selector">
+          <select
+            #langSelect
+            (change)="switchLanguage(langSelect.value)"
+            [attr.aria-label]="'app.language.select' | translate"
+          >
+            <option value="en" [selected]="translate.getCurrentLang() === 'en'">
+              {{ 'app.language.en' | translate }}
+            </option>
+            <option value="hi" [selected]="translate.getCurrentLang() === 'hi'">
+              {{ 'app.language.hi' | translate }}
+            </option>
+            <option value="ko" [selected]="translate.getCurrentLang() === 'ko'">
+              {{ 'app.language.ko' | translate }}
+            </option>
+          </select>
+        </div>
         <div class="login-header">
           <img src="favicon.png" alt="Fineract Logo" class="login-logo" />
           <h1>{{ 'app.title' | translate }}</h1>
@@ -52,8 +69,8 @@ import { ConfigService } from '../../core/services/config.service';
               {{ 'login.serverUrl' | translate }} ℹ️
             </label>
             <select id="serverUrl" formControlName="serverUrl" (change)="onServerChange()">
-              <option value="https://demo.mifos.io/fineract-provider/api/v1">Mifos Sandbox</option>
-              <option value="https://localhost:8443/fineract-provider/api/v1">Local Server</option>
+              <option value="https://demo.mifos.io/fineract-provider/api/v1">Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)</option>
+              <option value="https://localhost:8443/fineract-provider/api/v1">Local Server (https://localhost:8443/fineract-provider/api/v1)</option>
               <option value="custom">Custom URL...</option>
             </select>
           </div>
@@ -137,12 +154,23 @@ import { ConfigService } from '../../core/services/config.service';
         padding: 1rem;
       }
       .login-card {
+        position: relative;
         background: white;
         padding: 2rem;
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         width: 100%;
         max-width: 440px;
+      }
+      .lang-selector {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+      .lang-selector select {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 4px;
       }
       .login-header {
         text-align: center;
@@ -247,6 +275,7 @@ export class LoginComponent {
   private readonly configService = inject(ConfigService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly translate = inject(TranslateService);
 
   /** Signal indicating if a login request is in progress */
   protected readonly isLoading = signal(false);
@@ -271,6 +300,14 @@ export class LoginComponent {
     if (serverUrl !== 'custom') {
       this.configService.setApiUrl(serverUrl!);
     }
+  }
+
+  /**
+   * Switches the application language at runtime.
+   * @param lang - The target language code (e.g., 'en', 'hi', 'ko')
+   */
+  switchLanguage(lang: string) {
+    this.translate.use(lang);
   }
 
   /**

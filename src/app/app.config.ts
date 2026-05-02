@@ -32,7 +32,10 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { ConfigService } from './core/services/config.service';
+
+import { BASE_PATH } from './api/variables';
 
 /**
  * Factory function to load configuration before app bootstrap
@@ -46,7 +49,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideAnimationsAsync(),
     {
       provide: APP_INITIALIZER,
@@ -54,13 +57,18 @@ export const appConfig: ApplicationConfig = {
       deps: [ConfigService],
       multi: true,
     },
+    {
+      provide: BASE_PATH,
+      useFactory: (configService: ConfigService) => configService.apiUrl.replace(/\/v1\/?$/, ''),
+      deps: [ConfigService],
+    },
     importProvidersFrom(
       TranslateModule.forRoot({
         defaultLanguage: 'en',
       }),
     ),
     provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
+      prefix: '/assets/i18n/',
       suffix: '.json',
     }),
   ],

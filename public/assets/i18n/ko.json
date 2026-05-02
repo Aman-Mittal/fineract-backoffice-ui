@@ -1,0 +1,46 @@
+{
+  "license": "Apache-2.0",
+  "app": {
+    "title": "피너랙트 백오피스 UI",
+    "welcome": "피너랙트 백오피스 UI에 오신 것을 환영합니다!",
+    "logout": "로그아웃",
+    "language": {
+      "select": "언어 선택",
+      "en": "영어",
+      "hi": "힌디어",
+      "ko": "한국어"
+    }
+  },
+  "nav": {
+    "main": "메인 네비게이션",
+    "dashboard": "대시보드",
+    "clients": "고객",
+    "loans": "대출",
+    "organization": "조직"
+  },
+  "dashboard": {
+    "systemStatus": "시스템 운영 상태"
+  },
+  "login": {
+    "title": "피너랙트 로그인",
+    "welcome": "커뮤니티 은행 운영 관리",
+    "serverUrl": "API 엔드포인트",
+    "customUrl": "사용자 지정 API URL",
+    "tenantId": "테넌트 식별자",
+    "username": "사용자 이름",
+    "password": "비밀번호",
+    "submit": "로그인",
+    "loggingIn": "로그인 중...",
+    "tooltips": {
+      "serverUrl": "피너랙트 서버 주소입니다. 테스트에는 'Mifos Sandbox'를, 자체 인스턴스에는 'Local'을 사용하세요.",
+      "tenantId": "금융 기관의 고유 ID입니다. 기본값은 'default'입니다."
+    }
+  },
+  "idle": {
+    "warning": {
+      "title": "세션 만료 예정",
+      "message": "한동안 활동이 없었습니다. 곧 세션이 만료됩니다. 계속 로그인 상태를 유지하시겠습니까?",
+      "extend": "로그인 유지"
+    }
+  }
+}

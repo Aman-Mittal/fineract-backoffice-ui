@@ -41,17 +41,68 @@ import { TranslateModule } from '@ngx-translate/core';
           </a>
         </li>
         <li>
-          <a routerLink="/features/clients" routerLinkActive="active" class="nav-item">
+          <a routerLink="/clients" routerLinkActive="active" class="nav-item">
             <span class="nav-text">{{ 'nav.clients' | translate }}</span>
           </a>
         </li>
         <li>
-          <a routerLink="/features/loans" routerLinkActive="active" class="nav-item">
+          <a routerLink="/groups" routerLinkActive="active" class="nav-item">
+            <span class="nav-text">{{ 'nav.groups' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/centers" routerLinkActive="active" class="nav-item">
+            <span class="nav-text">{{ 'nav.centers' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/loans" routerLinkActive="active" class="nav-item">
             <span class="nav-text">{{ 'nav.loans' | translate }}</span>
           </a>
         </li>
         <li>
-          <a routerLink="/features/organization" routerLinkActive="active" class="nav-item">
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.products' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/products/loan" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.loanProducts' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/products/savings" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.savingsProducts' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.fintech' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/fintech/asset-owners" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.assetOwners' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.accounting' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/accounting/chart-of-accounts" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.chartOfAccounts' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <a routerLink="/organization" routerLinkActive="active" class="nav-item">
             <span class="nav-text">{{ 'nav.organization' | translate }}</span>
           </a>
         </li>
@@ -92,6 +143,26 @@ import { TranslateModule } from '@ngx-translate/core';
       .nav-text {
         font-size: 0.9rem;
         font-weight: 500;
+      }
+      .nav-group {
+        padding: 0.5rem 0;
+      }
+      .nav-group-header {
+        display: block;
+        padding: 0.5rem 1.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #7f8c8d;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .nav-sub-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .sub-item {
+        padding-left: 2.5rem;
       }
     `,
   ],
