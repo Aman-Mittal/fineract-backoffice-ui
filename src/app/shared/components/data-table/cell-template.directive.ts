@@ -21,7 +21,7 @@ import { Directive, Input, TemplateRef, inject } from '@angular/core';
 
 @Directive({
   selector: '[appCellTemplate]',
-  standalone: true
+  standalone: true,
 })
 export class CellTemplateDirective {
   @Input('appCellTemplate') columnName!: string;

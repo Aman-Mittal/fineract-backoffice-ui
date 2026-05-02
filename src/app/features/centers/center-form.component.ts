@@ -30,7 +30,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { CentersService, OfficesService, PostCentersRequest, PutCentersCenterIdRequest, GetOfficesResponse } from '../../api';
+import {
+  CentersService,
+  OfficesService,
+  PostCentersRequest,
+  PutCentersCenterIdRequest,
+  GetOfficesResponse,
+} from '../../api';
 
 @Component({
   selector: 'app-center-form',
@@ -46,28 +52,40 @@ import { CentersService, OfficesService, PostCentersRequest, PutCentersCenterIdR
     MatButtonModule,
     MatCheckboxModule,
     MatTooltipModule,
-    MatIconModule
+    MatIconModule,
   ],
   template: `
     <div class="form-container">
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('CENTERS.EDIT_CENTER' | translate) : ('CENTERS.CREATE_CENTER' | translate) }}
+            {{
+              isEditMode
+                ? ('CENTERS.EDIT_CENTER' | translate)
+                : ('CENTERS.CREATE_CENTER' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
-        
+
         <mat-card-content>
           <form #centerForm="ngForm" (ngSubmit)="onSubmit()" class="center-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.CENTER_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.CENTER_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'CENTERS.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="center.name" required>
+                <input matInput name="name" [(ngModel)]="center.name" required />
               </mat-form-field>
 
               <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
                 <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                <mat-select name="officeId" [(ngModel)]="center.officeId" required [disabled]="isEditMode">
+                <mat-select
+                  name="officeId"
+                  [(ngModel)]="center.officeId"
+                  required
+                  [disabled]="isEditMode"
+                >
                   @for (office of offices; track office.id) {
                     <mat-option [value]="office.id">{{ office.name }}</mat-option>
                   }
@@ -78,13 +96,22 @@ import { CentersService, OfficesService, PostCentersRequest, PutCentersCenterIdR
                 <mat-checkbox name="active" [(ngModel)]="center.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </mat-checkbox>
-                <mat-icon [matTooltip]="'HELP.ACTIVE_DESC' | translate" class="help-icon">help_outline</mat-icon>
+                <mat-icon [matTooltip]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
+                  >help_outline</mat-icon
+                >
               </div>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="centerForm.invalid || isSaving">
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="centerForm.invalid || isSaving"
+              >
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </button>
             </div>
@@ -93,45 +120,47 @@ import { CentersService, OfficesService, PostCentersRequest, PutCentersCenterIdR
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .center-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    mat-form-field {
-      width: 100%;
-    }
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: 60px;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 16px;
-    }
-    .help-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: #7f8c8d;
-      cursor: help;
-    }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .center-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 60px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .help-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #7f8c8d;
+        cursor: help;
+      }
+    `,
+  ],
 })
 export class CenterFormComponent implements OnInit {
   private readonly centersService = inject(CentersService);
@@ -144,16 +173,16 @@ export class CenterFormComponent implements OnInit {
   centerId: number | null = null;
   isEditMode = false;
   isSaving = false;
-  
+
   center: PostCentersRequest = {
-    active: true
+    active: true,
   };
-  
+
   offices: GetOfficesResponse[] = [];
 
   ngOnInit() {
     this.loadOffices();
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.centerId = +id;
@@ -164,18 +193,18 @@ export class CenterFormComponent implements OnInit {
   }
 
   loadOffices() {
-    this.officesService.retrieveOffices(true).subscribe(offices => {
+    this.officesService.retrieveOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
   loadCenterData() {
     if (!this.centerId) return;
-    this.centersService.retrieveOne14(this.centerId).subscribe(data => {
+    this.centersService.retrieveOne14(this.centerId).subscribe((data) => {
       this.center = {
         name: data.name,
         officeId: data.officeId,
-        active: (data as Record<string, unknown>)['active'] as boolean
+        active: (data as Record<string, unknown>)['active'] as boolean,
       };
     });
   }
@@ -184,16 +213,16 @@ export class CenterFormComponent implements OnInit {
     this.isSaving = true;
     if (this.isEditMode && this.centerId) {
       const payload: PutCentersCenterIdRequest = {
-        name: this.center.name
+        name: this.center.name,
       };
       this.centersService.update12(this.centerId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
+        error: () => (this.isSaving = false),
       });
     } else {
       this.centersService.create7(this.center).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
+        error: () => (this.isSaving = false),
       });
     }
   }

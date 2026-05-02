@@ -30,7 +30,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { GeneralLedgerAccountService, PostGLAccountsRequest, PutGLAccountsRequest } from '../../api';
+import {
+  GeneralLedgerAccountService,
+  PostGLAccountsRequest,
+  PutGLAccountsRequest,
+} from '../../api';
 
 @Component({
   selector: 'app-gl-account-form',
@@ -46,31 +50,41 @@ import { GeneralLedgerAccountService, PostGLAccountsRequest, PutGLAccountsReques
     MatButtonModule,
     MatCheckboxModule,
     MatTooltipModule,
-    MatIconModule
+    MatIconModule,
   ],
   template: `
     <div class="form-container">
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('ACCOUNTING.EDIT_GL_ACCOUNT' | translate) : ('ACCOUNTING.CREATE_GL_ACCOUNT' | translate) }}
+            {{
+              isEditMode
+                ? ('ACCOUNTING.EDIT_GL_ACCOUNT' | translate)
+                : ('ACCOUNTING.CREATE_GL_ACCOUNT' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
-        
+
         <mat-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="account-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.ACCOUNT_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.ACCOUNT_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="account.name" required>
+                <input matInput name="name" [(ngModel)]="account.name" required />
               </mat-form-field>
 
               <mat-form-field appearance="outline" [matTooltip]="'HELP.GL_CODE_DESC' | translate">
                 <mat-label>{{ 'ACCOUNTING.GL_CODE' | translate }}</mat-label>
-                <input matInput name="glCode" [(ngModel)]="account.glCode" required>
+                <input matInput name="glCode" [(ngModel)]="account.glCode" required />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.ACCOUNT_TYPE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.ACCOUNT_TYPE_DESC' | translate"
+              >
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
                 <mat-select name="type" [(ngModel)]="account.type" required>
                   <mat-option [value]="1">{{ 'ACCOUNTING.ASSET' | translate }}</mat-option>
@@ -81,7 +95,10 @@ import { GeneralLedgerAccountService, PostGLAccountsRequest, PutGLAccountsReques
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.ACCOUNT_USAGE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.ACCOUNT_USAGE_DESC' | translate"
+              >
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_USAGE' | translate }}</mat-label>
                 <mat-select name="usage" [(ngModel)]="account.usage" required>
                   <mat-option [value]="1">{{ 'ACCOUNTING.DETAIL' | translate }}</mat-option>
@@ -89,22 +106,45 @@ import { GeneralLedgerAccountService, PostGLAccountsRequest, PutGLAccountsReques
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.DESCRIPTION_DESC' | translate" class="full-width">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.DESCRIPTION_DESC' | translate"
+                class="full-width"
+              >
                 <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea matInput name="description" [(ngModel)]="account.description" rows="3"></textarea>
+                <textarea
+                  matInput
+                  name="description"
+                  [(ngModel)]="account.description"
+                  rows="3"
+                ></textarea>
               </mat-form-field>
 
               <div class="checkbox-container">
-                <mat-checkbox name="manualEntriesAllowed" [(ngModel)]="account.manualEntriesAllowed">
+                <mat-checkbox
+                  name="manualEntriesAllowed"
+                  [(ngModel)]="account.manualEntriesAllowed"
+                >
                   {{ 'ACCOUNTING.ALLOW_MANUAL_ENTRIES' | translate }}
                 </mat-checkbox>
-                <mat-icon [matTooltip]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate" class="help-icon">help_outline</mat-icon>
+                <mat-icon
+                  [matTooltip]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate"
+                  class="help-icon"
+                  >help_outline</mat-icon
+                >
               </div>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving">
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="accountForm.invalid || isSaving"
+              >
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </button>
             </div>
@@ -113,48 +153,50 @@ import { GeneralLedgerAccountService, PostGLAccountsRequest, PutGLAccountsReques
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .account-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    .full-width {
-      grid-column: span 2;
-    }
-    mat-form-field {
-      width: 100%;
-    }
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: 60px;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 16px;
-    }
-    .help-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: #7f8c8d;
-      cursor: help;
-    }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .account-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .full-width {
+        grid-column: span 2;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 60px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .help-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #7f8c8d;
+        cursor: help;
+      }
+    `,
+  ],
 })
 export class GLAccountFormComponent implements OnInit {
   private readonly accountService = inject(GeneralLedgerAccountService);
@@ -166,13 +208,13 @@ export class GLAccountFormComponent implements OnInit {
   accountId: number | null = null;
   isEditMode = false;
   isSaving = false;
-  
+
   account: PostGLAccountsRequest = {
-    manualEntriesAllowed: true
+    manualEntriesAllowed: true,
   };
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.accountId = +id;
@@ -184,14 +226,14 @@ export class GLAccountFormComponent implements OnInit {
 
   loadAccountData() {
     if (!this.accountId) return;
-    this.accountService.retreiveAccount(this.accountId).subscribe(data => {
+    this.accountService.retreiveAccount(this.accountId).subscribe((data) => {
       this.account = {
         name: data.name,
         glCode: data.glCode,
         type: data.type?.id,
         usage: data.usage?.id,
         description: data.description,
-        manualEntriesAllowed: data.manualEntriesAllowed
+        manualEntriesAllowed: data.manualEntriesAllowed,
       };
     });
   }
@@ -199,14 +241,16 @@ export class GLAccountFormComponent implements OnInit {
   onSubmit() {
     this.isSaving = true;
     if (this.isEditMode && this.accountId) {
-      this.accountService.updateGLAccount1(this.accountId, this.account as PutGLAccountsRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
-      });
+      this.accountService
+        .updateGLAccount1(this.accountId, this.account as PutGLAccountsRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
       this.accountService.createGLAccount1(this.account).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
+        error: () => (this.isSaving = false),
       });
     }
   }

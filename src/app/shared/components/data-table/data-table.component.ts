@@ -17,7 +17,18 @@
  * under the License.
  */
 
-import { Component, Input, Output, EventEmitter, ContentChildren, QueryList, AfterContentInit, TemplateRef, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ContentChildren,
+  QueryList,
+  AfterContentInit,
+  TemplateRef,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -52,7 +63,7 @@ export interface ColumnDef {
     MatTooltipModule,
     TranslateModule,
     HelpIconComponent,
-    SearchFilterComponent
+    SearchFilterComponent,
   ],
   template: `
     <mat-card class="data-table-card">
@@ -77,25 +88,39 @@ export interface ColumnDef {
       <mat-card-content>
         <div class="table-header">
           @if (showSearch) {
-            <app-search-filter 
-              [label]="searchLabel | translate" 
-              [placeholder]="searchPlaceholder | translate" 
-              (searchChange)="onSearch($event)">
+            <app-search-filter
+              [label]="searchLabel | translate"
+              [placeholder]="searchPlaceholder | translate"
+              (searchChange)="onSearch($event)"
+            >
             </app-search-filter>
           }
           <ng-content select="[filters]"></ng-content>
         </div>
 
         <div class="table-container">
-          <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)" class="mat-elevation-z1">
+          <table
+            mat-table
+            [dataSource]="dataSource"
+            matSort
+            (matSortChange)="onSort($event)"
+            class="mat-elevation-z1"
+          >
             @for (col of columns; track col.key) {
               <ng-container [matColumnDef]="col.key">
-                <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col.key" [disabled]="!col.sortable">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  [mat-sort-header]="col.key"
+                  [disabled]="!col.sortable"
+                >
                   {{ col.label | translate }}
                 </th>
                 <td mat-cell *matCellDef="let row">
                   @if (columnTemplates[col.key]) {
-                    <ng-container *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"></ng-container>
+                    <ng-container
+                      *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
+                    ></ng-container>
                   } @else {
                     {{ getCellValue(row, col.key) }}
                   }
@@ -104,8 +129,8 @@ export interface ColumnDef {
             }
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">
                 {{ 'COMMON.NO_DATA' | translate }}
@@ -113,51 +138,54 @@ export interface ColumnDef {
             </tr>
           </table>
 
-          <mat-paginator 
-            [length]="totalRecords" 
-            [pageSize]="pageSize" 
-            [pageSizeOptions]="pageSizeOptions" 
+          <mat-paginator
+            [length]="totalRecords"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
             (page)="onPage($event)"
-            aria-label="Select page">
+            aria-label="Select page"
+          >
           </mat-paginator>
         </div>
       </mat-card-content>
     </mat-card>
   `,
-  styles: [`
-    .data-table-card {
-      margin: 24px;
-    }
-    mat-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    mat-card-title {
-      display: flex;
-      align-items: center;
-      margin: 0;
-    }
-    .header-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 8px;
-    }
-    .table-header {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 8px;
-    }
-    .table-container {
-      overflow: auto;
-    }
-    table {
-      width: 100%;
-    }
-  `]
+  styles: [
+    `
+      .data-table-card {
+        margin: 24px;
+      }
+      mat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        margin: 0;
+      }
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+      }
+      .table-header {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 8px;
+      }
+      .table-container {
+        overflow: auto;
+      }
+      table {
+        width: 100%;
+      }
+    `,
+  ],
 })
 export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   @Input() title = '';
@@ -183,7 +211,7 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   columnTemplates: Record<string, TemplateRef<unknown>> = {};
 
   get displayedColumns(): string[] {
-    return this.columns.map(c => c.key);
+    return this.columns.map((c) => c.key);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -193,7 +221,7 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   }
 
   ngAfterContentInit() {
-    this.cellTemplates.forEach(directive => {
+    this.cellTemplates.forEach((directive) => {
       this.columnTemplates[directive.columnName] = directive.template;
     });
   }

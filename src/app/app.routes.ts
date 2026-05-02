@@ -91,67 +91,93 @@ export const routes: Routes = [
       {
         path: 'products/loan',
         loadComponent: () =>
-          import('./features/products/loan-products-list.component').then((m) => m.LoanProductsListComponent),
+          import('./features/products/loan-products-list.component').then(
+            (m) => m.LoanProductsListComponent,
+          ),
       },
       {
         path: 'products/loan/create',
         loadComponent: () =>
-          import('./features/products/loan-product-form.component').then((m) => m.LoanProductFormComponent),
+          import('./features/products/loan-product-form.component').then(
+            (m) => m.LoanProductFormComponent,
+          ),
       },
       {
         path: 'products/loan/edit/:id',
         loadComponent: () =>
-          import('./features/products/loan-product-form.component').then((m) => m.LoanProductFormComponent),
+          import('./features/products/loan-product-form.component').then(
+            (m) => m.LoanProductFormComponent,
+          ),
       },
       {
         path: 'products/savings',
         loadComponent: () =>
-          import('./features/products/savings-products-list.component').then((m) => m.SavingsProductsListComponent),
+          import('./features/products/savings-products-list.component').then(
+            (m) => m.SavingsProductsListComponent,
+          ),
       },
       {
         path: 'products/savings/create',
         loadComponent: () =>
-          import('./features/products/savings-product-form.component').then((m) => m.SavingsProductFormComponent),
+          import('./features/products/savings-product-form.component').then(
+            (m) => m.SavingsProductFormComponent,
+          ),
       },
       {
         path: 'products/savings/edit/:id',
         loadComponent: () =>
-          import('./features/products/savings-product-form.component').then((m) => m.SavingsProductFormComponent),
+          import('./features/products/savings-product-form.component').then(
+            (m) => m.SavingsProductFormComponent,
+          ),
       },
       {
         path: 'fintech/asset-owners',
         loadComponent: () =>
-          import('./features/fintech/asset-owners-list.component').then((m) => m.ExternalAssetOwnersListComponent),
+          import('./features/fintech/asset-owners-list.component').then(
+            (m) => m.ExternalAssetOwnersListComponent,
+          ),
       },
       {
         path: 'accounting/chart-of-accounts',
         loadComponent: () =>
-          import('./features/accounting/chart-of-accounts.component').then((m) => m.ChartOfAccountsComponent),
+          import('./features/accounting/chart-of-accounts.component').then(
+            (m) => m.ChartOfAccountsComponent,
+          ),
       },
       {
         path: 'accounting/chart-of-accounts/create',
         loadComponent: () =>
-          import('./features/accounting/gl-account-form.component').then((m) => m.GLAccountFormComponent),
+          import('./features/accounting/gl-account-form.component').then(
+            (m) => m.GLAccountFormComponent,
+          ),
       },
       {
         path: 'accounting/chart-of-accounts/edit/:id',
         loadComponent: () =>
-          import('./features/accounting/gl-account-form.component').then((m) => m.GLAccountFormComponent),
+          import('./features/accounting/gl-account-form.component').then(
+            (m) => m.GLAccountFormComponent,
+          ),
       },
       {
         path: 'organization/offices',
         loadComponent: () =>
-          import('./features/organization/offices/offices-list.component').then((m) => m.OfficesListComponent),
+          import('./features/organization/offices/offices-list.component').then(
+            (m) => m.OfficesListComponent,
+          ),
       },
       {
         path: 'organization/offices/create',
         loadComponent: () =>
-          import('./features/organization/offices/office-form.component').then((m) => m.OfficeFormComponent),
+          import('./features/organization/offices/office-form.component').then(
+            (m) => m.OfficeFormComponent,
+          ),
       },
       {
         path: 'organization/offices/edit/:id',
         loadComponent: () =>
-          import('./features/organization/offices/office-form.component').then((m) => m.OfficeFormComponent),
+          import('./features/organization/offices/office-form.component').then(
+            (m) => m.OfficeFormComponent,
+          ),
       },
       {
         path: 'loans',

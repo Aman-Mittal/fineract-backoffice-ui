@@ -32,7 +32,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { LoansService, PostLoansRequest, PutLoansLoanIdRequest, LoanProductsService, GetLoanProductsResponse } from '../../api';
+import {
+  LoansService,
+  PostLoansRequest,
+  PutLoansLoanIdRequest,
+  LoanProductsService,
+  GetLoanProductsResponse,
+} from '../../api';
 
 @Component({
   selector: 'app-loan-form',
@@ -50,7 +56,7 @@ import { LoansService, PostLoansRequest, PutLoansLoanIdRequest, LoanProductsServ
     MatNativeDateModule,
     MatCheckboxModule,
     MatTooltipModule,
-    MatIconModule
+    MatIconModule,
   ],
   template: `
     <div class="form-container">
@@ -60,20 +66,35 @@ import { LoansService, PostLoansRequest, PutLoansLoanIdRequest, LoanProductsServ
             {{ isEditMode ? ('LOANS.EDIT_LOAN' | translate) : ('LOANS.CREATE_LOAN' | translate) }}
           </mat-card-title>
         </mat-card-header>
-        
+
         <mat-card-content>
           <form #loanForm="ngForm" (ngSubmit)="onSubmit()" class="loan-form">
             <div class="form-grid">
               <!-- Client ID -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.CLIENT_ID_DESC' | translate">
                 <mat-label>{{ 'LOANS.CLIENT_ID' | translate }}</mat-label>
-                <input matInput type="number" name="clientId" [(ngModel)]="loan.clientId" required [disabled]="isEditMode">
+                <input
+                  matInput
+                  type="number"
+                  name="clientId"
+                  [(ngModel)]="loan.clientId"
+                  required
+                  [disabled]="isEditMode"
+                />
               </mat-form-field>
 
               <!-- Product -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.PRODUCT' | translate }}</mat-label>
-                <mat-select name="productId" [(ngModel)]="loan.productId" required [disabled]="isEditMode">
+                <mat-select
+                  name="productId"
+                  [(ngModel)]="loan.productId"
+                  required
+                  [disabled]="isEditMode"
+                >
                   @for (product of products; track product.id) {
                     <mat-option [value]="product.id">{{ product.name }}</mat-option>
                   }
@@ -83,41 +104,87 @@ import { LoansService, PostLoansRequest, PutLoansLoanIdRequest, LoanProductsServ
               <!-- Principal -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.PRINCIPAL_DESC' | translate">
                 <mat-label>{{ 'LOANS.PRINCIPAL' | translate }}</mat-label>
-                <input matInput type="number" name="principal" [(ngModel)]="loan.principal" required>
+                <input
+                  matInput
+                  type="number"
+                  name="principal"
+                  [(ngModel)]="loan.principal"
+                  required
+                />
               </mat-form-field>
 
               <!-- External ID -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="loan.externalId" [disabled]="isEditMode">
+                <input
+                  matInput
+                  name="externalId"
+                  [(ngModel)]="loan.externalId"
+                  [disabled]="isEditMode"
+                />
               </mat-form-field>
 
               <!-- Submitted On -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.SUBMITTED_ON' | translate }}</mat-label>
-                <input matInput [matDatepicker]="subPicker" name="submittedOnDate" [(ngModel)]="submittedOnDate" required [disabled]="isEditMode">
+                <input
+                  matInput
+                  [matDatepicker]="subPicker"
+                  name="submittedOnDate"
+                  [(ngModel)]="submittedOnDate"
+                  required
+                  [disabled]="isEditMode"
+                />
                 <mat-datepicker-toggle matSuffix [for]="subPicker"></mat-datepicker-toggle>
                 <mat-datepicker #subPicker></mat-datepicker>
               </mat-form-field>
 
               <!-- Expected Disbursement -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
-                <input matInput [matDatepicker]="disbPicker" name="expectedDisbursementDate" [(ngModel)]="expectedDisbursementDate" required>
+                <input
+                  matInput
+                  [matDatepicker]="disbPicker"
+                  name="expectedDisbursementDate"
+                  [(ngModel)]="expectedDisbursementDate"
+                  required
+                />
                 <mat-datepicker-toggle matSuffix [for]="disbPicker"></mat-datepicker-toggle>
                 <mat-datepicker #disbPicker></mat-datepicker>
               </mat-form-field>
 
               <!-- Term Frequency -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.TERM_FREQUENCY' | translate }}</mat-label>
-                <input matInput type="number" name="loanTermFrequency" [(ngModel)]="loan.loanTermFrequency" required>
+                <input
+                  matInput
+                  type="number"
+                  name="loanTermFrequency"
+                  [(ngModel)]="loan.loanTermFrequency"
+                  required
+                />
               </mat-form-field>
 
               <!-- Term Type -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.TERM_TYPE_DESC' | translate">
                 <mat-label>{{ 'LOANS.TERM_TYPE' | translate }}</mat-label>
-                <mat-select name="loanTermFrequencyType" [(ngModel)]="loan.loanTermFrequencyType" required>
+                <mat-select
+                  name="loanTermFrequencyType"
+                  [(ngModel)]="loan.loanTermFrequencyType"
+                  required
+                >
                   <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
                   <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
                   <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
@@ -127,8 +194,15 @@ import { LoansService, PostLoansRequest, PutLoansLoanIdRequest, LoanProductsServ
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving">
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="loanForm.invalid || isSaving"
+              >
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </button>
             </div>
@@ -137,32 +211,34 @@ import { LoansService, PostLoansRequest, PutLoansLoanIdRequest, LoanProductsServ
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .loan-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    mat-form-field {
-      width: 100%;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 16px;
-    }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .loan-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class LoanFormComponent implements OnInit {
   private readonly loansService = inject(LoansService);
@@ -175,20 +251,20 @@ export class LoanFormComponent implements OnInit {
   loanId: number | null = null;
   isEditMode = false;
   isSaving = false;
-  
+
   loan: PostLoansRequest = {
     loanTermFrequencyType: 2, // Months
     transactionProcessingStrategyCode: 'mifos-standard-strategy',
-    loanType: 'individual'
+    loanType: 'individual',
   };
-  
+
   submittedOnDate: Date = new Date();
   expectedDisbursementDate: Date = new Date();
   products: GetLoanProductsResponse[] = [];
 
   ngOnInit() {
     this.loadProducts();
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.loanId = +id;
@@ -199,20 +275,21 @@ export class LoanFormComponent implements OnInit {
   }
 
   loadProducts() {
-    this.productService.retrieveAllLoanProducts().subscribe(products => {
+    this.productService.retrieveAllLoanProducts().subscribe((products) => {
       this.products = products;
     });
   }
 
   loadLoanData() {
     if (!this.loanId) return;
-    this.loansService.retrieveLoan(this.loanId).subscribe(loanData => {
+    this.loansService.retrieveLoan(this.loanId).subscribe((loanData) => {
       const subArray = loanData.timeline?.submittedOnDate as unknown as number[];
       const disbArray = loanData.timeline?.expectedDisbursementDate as unknown as number[];
-      
+
       if (subArray) this.submittedOnDate = new Date(subArray[0], subArray[1] - 1, subArray[2]);
-      if (disbArray) this.expectedDisbursementDate = new Date(disbArray[0], disbArray[1] - 1, disbArray[2]);
-      
+      if (disbArray)
+        this.expectedDisbursementDate = new Date(disbArray[0], disbArray[1] - 1, disbArray[2]);
+
       this.loan = {
         clientId: loanData.clientId,
         productId: loanData.loanProductId,
@@ -221,15 +298,28 @@ export class LoanFormComponent implements OnInit {
         loanTermFrequency: loanData.termFrequency,
         loanTermFrequencyType: loanData.termPeriodFrequencyType?.id,
         numberOfRepayments: loanData.numberOfRepayments,
-        repaymentEvery: loanData.repaymentEvery
+        repaymentEvery: loanData.repaymentEvery,
       };
     });
   }
 
   onSubmit() {
     this.isSaving = true;
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
     const formattedSubDate = `${this.submittedOnDate.getDate()} ${months[this.submittedOnDate.getMonth()]} ${this.submittedOnDate.getFullYear()}`;
     const formattedDisbDate = `${this.expectedDisbursementDate.getDate()} ${months[this.expectedDisbursementDate.getMonth()]} ${this.expectedDisbursementDate.getFullYear()}`;
 
@@ -240,21 +330,21 @@ export class LoanFormComponent implements OnInit {
         loanTermFrequencyType: this.loan.loanTermFrequencyType,
         expectedDisbursementDate: formattedDisbDate,
         dateFormat: 'dd MMMM yyyy',
-        locale: 'en'
+        locale: 'en',
       };
       this.loansService.modifyLoanApplication(this.loanId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
+        error: () => (this.isSaving = false),
       });
     } else {
       this.loan.submittedOnDate = formattedSubDate;
       this.loan.expectedDisbursementDate = formattedDisbDate;
       this.loan.dateFormat = 'dd MMMM yyyy';
       this.loan.locale = 'en';
-      
+
       this.loansService.calculateLoanScheduleOrSubmitLoanApplication(this.loan).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
+        error: () => (this.isSaving = false),
       });
     }
   }

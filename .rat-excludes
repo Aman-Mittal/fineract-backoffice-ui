@@ -54,3 +54,4 @@ setup-jest.ts
 playwright.config.ts
 e2e/
 src/app/api/
+.gitmodules

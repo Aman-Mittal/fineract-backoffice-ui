@@ -31,7 +31,12 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { StatusBadgeComponent, DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
+import {
+  StatusBadgeComponent,
+  DataTableComponent,
+  CellTemplateDirective,
+  ColumnDef,
+} from '../../shared';
 import { LoansService, GetLoansLoanIdResponse } from '../../api';
 
 @Component({
@@ -48,7 +53,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
     MatSelectModule,
     StatusBadgeComponent,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -61,8 +66,8 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
       (create)="onCreateLoan()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
-      (pageChange)="onPage($event)">
-      
+      (pageChange)="onPage($event)"
+    >
       <div filters class="filter-row">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
@@ -81,22 +86,30 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-loan>
-        <button mat-icon-button color="primary" [attr.aria-label]="'COMMON.EDIT' | translate" matTooltip="Edit Loan Application" (click)="onEditLoan(loan)">
+        <button
+          mat-icon-button
+          color="primary"
+          [attr.aria-label]="'COMMON.EDIT' | translate"
+          matTooltip="Edit Loan Application"
+          (click)="onEditLoan(loan)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
   `,
-  styles: [`
-    .filter-row {
-      display: flex;
-      gap: 12px;
-      margin-left: 16px;
-    }
-    .filter-field {
-      width: 150px;
-    }
-  `]
+  styles: [
+    `
+      .filter-row {
+        display: flex;
+        gap: 12px;
+        margin-left: 16px;
+      }
+      .filter-field {
+        width: 150px;
+      }
+    `,
+  ],
 })
 export class LoansListComponent {
   private readonly loansService = inject(LoansService);
@@ -107,14 +120,14 @@ export class LoansListComponent {
     { key: 'clientName', label: 'LOANS.CLIENT_NAME', sortable: true },
     { key: 'loanProductName', label: 'LOANS.PRODUCT_NAME', sortable: true },
     { key: 'status', label: 'COMMON.STATUS', sortable: true },
-    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false }
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   loans: GetLoansLoanIdResponse[] = [];
   totalRecords = 0;
-  
+
   activeFilters: { status?: string } = {};
-  
+
   private searchSubject = new Subject<string>();
   private sortSubject = new Subject<Sort>();
   private pageSubject = new Subject<PageEvent>();
@@ -132,24 +145,34 @@ export class LoansListComponent {
           const offset = this.currentPage.pageIndex * this.currentPage.pageSize;
           const limit = this.currentPage.pageSize;
           const orderBy = this.currentSort.active || undefined;
-          const sortOrder = this.currentSort.direction ? this.currentSort.direction.toUpperCase() : undefined;
-          
+          const sortOrder = this.currentSort.direction
+            ? this.currentSort.direction.toUpperCase()
+            : undefined;
+
           const searchVal = this.currentFilter || undefined;
           const status = this.activeFilters.status;
 
-          return this.loansService.retrieveAll27(
-            undefined, offset, limit, orderBy, sortOrder, searchVal, undefined, undefined, status
-          ).pipe(
-            catchError(() => of(null))
-          );
+          return this.loansService
+            .retrieveAll27(
+              undefined,
+              offset,
+              limit,
+              orderBy,
+              sortOrder,
+              searchVal,
+              undefined,
+              undefined,
+              status,
+            )
+            .pipe(catchError(() => of(null)));
         }),
-        map(response => {
+        map((response) => {
           if (response === null) return [];
           this.totalRecords = response.totalFilteredRecords || 0;
           return Array.from((response.pageItems as unknown as GetLoansLoanIdResponse[]) || []);
-        })
+        }),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.loans = data;
       });
   }

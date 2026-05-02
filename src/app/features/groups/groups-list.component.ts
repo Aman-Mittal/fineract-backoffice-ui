@@ -28,7 +28,12 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { StatusBadgeComponent, DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
+import {
+  StatusBadgeComponent,
+  DataTableComponent,
+  CellTemplateDirective,
+  ColumnDef,
+} from '../../shared';
 import { GroupsService, GetGroupsPageItems } from '../../api';
 
 @Component({
@@ -42,7 +47,7 @@ import { GroupsService, GetGroupsPageItems } from '../../api';
     MatTooltipModule,
     StatusBadgeComponent,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -55,19 +60,25 @@ import { GroupsService, GetGroupsPageItems } from '../../api';
       (create)="onCreateGroup()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
-      (pageChange)="onPage($event)">
-      
+      (pageChange)="onPage($event)"
+    >
       <ng-template appCellTemplate="status" let-group>
         <app-status-badge [status]="group.status?.value"></app-status-badge>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-group>
-        <button mat-icon-button color="primary" [attr.aria-label]="'COMMON.EDIT' | translate" matTooltip="Edit Group" (click)="onEditGroup(group)">
+        <button
+          mat-icon-button
+          color="primary"
+          [attr.aria-label]="'COMMON.EDIT' | translate"
+          matTooltip="Edit Group"
+          (click)="onEditGroup(group)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
-  `
+  `,
 })
 export class GroupsListComponent {
   private readonly groupsService = inject(GroupsService);
@@ -78,12 +89,12 @@ export class GroupsListComponent {
     { key: 'name', label: 'Name', sortable: true },
     { key: 'status', label: 'Status', sortable: true },
     { key: 'officeName', label: 'Office', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'actions', label: 'Actions', sortable: false },
   ];
 
   groups: GetGroupsPageItems[] = [];
   totalRecords = 0;
-  
+
   private searchSubject = new Subject<string>();
   private sortSubject = new Subject<Sort>();
   private pageSubject = new Subject<PageEvent>();
@@ -100,25 +111,35 @@ export class GroupsListComponent {
           const offset = this.currentPage.pageIndex * this.currentPage.pageSize;
           const limit = this.currentPage.pageSize;
           const orderBy = this.currentSort.active || undefined;
-          const sortOrder = this.currentSort.direction ? this.currentSort.direction.toUpperCase() : undefined;
-          
+          const sortOrder = this.currentSort.direction
+            ? this.currentSort.direction.toUpperCase()
+            : undefined;
+
           const nameFilter = this.currentFilter || undefined;
 
           // Signature: officeId, staffId, externalId, name, underHierarchy, paged, offset, limit, orderBy, sortOrder, orphansOnly
-          return this.groupsService.retrieveAll24(
-            undefined, undefined, undefined, nameFilter, undefined, true,
-            offset, limit, orderBy, sortOrder
-          ).pipe(
-            catchError(() => of(null))
-          );
+          return this.groupsService
+            .retrieveAll24(
+              undefined,
+              undefined,
+              undefined,
+              nameFilter,
+              undefined,
+              true,
+              offset,
+              limit,
+              orderBy,
+              sortOrder,
+            )
+            .pipe(catchError(() => of(null)));
         }),
-        map(response => {
+        map((response) => {
           if (response === null) return [];
           this.totalRecords = response.totalFilteredRecords || 0;
           return response.pageItems ? Array.from(response.pageItems) : [];
-        })
+        }),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.groups = data;
       });
   }

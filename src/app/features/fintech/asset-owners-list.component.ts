@@ -39,7 +39,7 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -49,8 +49,8 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
       [data]="transfers"
       [totalRecords]="totalRecords"
       (searchChange)="onSearch($event)"
-      (pageChange)="onPage($event)">
-      
+      (pageChange)="onPage($event)"
+    >
       <ng-template appCellTemplate="status" let-transfer>
         <span class="status-tag" [ngClass]="transfer.status?.toLowerCase()">
           {{ transfer.status }}
@@ -64,17 +64,25 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
       </ng-template>
     </app-data-table>
   `,
-  styles: [`
-    .status-tag {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    .active { background-color: #e6f4ea; color: #1e8e3e; }
-    .pending { background-color: #fef7e0; color: #f29900; }
-  `]
+  styles: [
+    `
+      .status-tag {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .active {
+        background-color: #e6f4ea;
+        color: #1e8e3e;
+      }
+      .pending {
+        background-color: #fef7e0;
+        color: #f29900;
+      }
+    `,
+  ],
 })
 export class ExternalAssetOwnersListComponent {
   private readonly assetOwnersService = inject(ExternalAssetOwnersService);
@@ -85,12 +93,12 @@ export class ExternalAssetOwnersListComponent {
     { key: 'loanAccountNo', label: 'Loan Account', sortable: false },
     { key: 'purchasePriceRatio', label: 'Purchase Ratio', sortable: false },
     { key: 'status', label: 'Status', sortable: false },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'actions', label: 'Actions', sortable: false },
   ];
 
   transfers: ExternalTransferData[] = [];
   totalRecords = 0;
-  
+
   private searchSubject = new Subject<string>();
   private pageSubject = new Subject<PageEvent>();
 
@@ -107,21 +115,21 @@ export class ExternalAssetOwnersListComponent {
             page: this.currentPage.pageIndex,
             size: this.currentPage.pageSize,
             request: {
-              text: this.currentFilter || undefined
-            }
+              text: this.currentFilter || undefined,
+            },
           };
 
-          return this.assetOwnersService.searchInvestorData(request).pipe(
-            catchError(() => of(null))
-          );
+          return this.assetOwnersService
+            .searchInvestorData(request)
+            .pipe(catchError(() => of(null)));
         }),
-        map(response => {
+        map((response) => {
           if (response === null) return [];
           this.totalRecords = response.totalElements || 0;
           return response.content || [];
-        })
+        }),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.transfers = data;
       });
   }

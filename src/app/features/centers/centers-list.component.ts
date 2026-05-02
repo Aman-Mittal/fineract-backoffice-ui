@@ -28,7 +28,12 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { StatusBadgeComponent, DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
+import {
+  StatusBadgeComponent,
+  DataTableComponent,
+  CellTemplateDirective,
+  ColumnDef,
+} from '../../shared';
 import { CentersService, GetCentersPageItems } from '../../api';
 
 @Component({
@@ -42,7 +47,7 @@ import { CentersService, GetCentersPageItems } from '../../api';
     MatTooltipModule,
     StatusBadgeComponent,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -55,19 +60,25 @@ import { CentersService, GetCentersPageItems } from '../../api';
       (create)="onCreateCenter()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
-      (pageChange)="onPage($event)">
-      
+      (pageChange)="onPage($event)"
+    >
       <ng-template appCellTemplate="status" let-center>
         <app-status-badge [status]="center.status?.value"></app-status-badge>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-center>
-        <button mat-icon-button color="primary" [attr.aria-label]="'COMMON.EDIT' | translate" matTooltip="Edit Center" (click)="onEditCenter(center)">
+        <button
+          mat-icon-button
+          color="primary"
+          [attr.aria-label]="'COMMON.EDIT' | translate"
+          matTooltip="Edit Center"
+          (click)="onEditCenter(center)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
-  `
+  `,
 })
 export class CentersListComponent {
   private readonly centersService = inject(CentersService);
@@ -78,12 +89,12 @@ export class CentersListComponent {
     { key: 'name', label: 'Name', sortable: true },
     { key: 'status', label: 'Status', sortable: true },
     { key: 'officeName', label: 'Office', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'actions', label: 'Actions', sortable: false },
   ];
 
   centers: GetCentersPageItems[] = [];
   totalRecords = 0;
-  
+
   private searchSubject = new Subject<string>();
   private sortSubject = new Subject<Sort>();
   private pageSubject = new Subject<PageEvent>();
@@ -100,25 +111,35 @@ export class CentersListComponent {
           const offset = this.currentPage.pageIndex * this.currentPage.pageSize;
           const limit = this.currentPage.pageSize;
           const orderBy = this.currentSort.active || undefined;
-          const sortOrder = this.currentSort.direction ? this.currentSort.direction.toUpperCase() : undefined;
-          
+          const sortOrder = this.currentSort.direction
+            ? this.currentSort.direction.toUpperCase()
+            : undefined;
+
           const nameFilter = this.currentFilter || undefined;
 
           // Signature: officeId, staffId, externalId, name, underHierarchy, paged, offset, limit, orderBy, sortOrder, meetingDate, dateFormat, locale
-          return this.centersService.retrieveAll23(
-            undefined, undefined, undefined, nameFilter, undefined, true,
-            offset, limit, orderBy, sortOrder
-          ).pipe(
-            catchError(() => of(null))
-          );
+          return this.centersService
+            .retrieveAll23(
+              undefined,
+              undefined,
+              undefined,
+              nameFilter,
+              undefined,
+              true,
+              offset,
+              limit,
+              orderBy,
+              sortOrder,
+            )
+            .pipe(catchError(() => of(null)));
         }),
-        map(response => {
+        map((response) => {
           if (response === null) return [];
           this.totalRecords = response.totalFilteredRecords || 0;
           return response.pageItems ? Array.from(response.pageItems) : [];
-        })
+        }),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.centers = data;
       });
   }

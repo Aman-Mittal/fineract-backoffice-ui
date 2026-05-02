@@ -31,7 +31,12 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import { StatusBadgeComponent, DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
+import {
+  StatusBadgeComponent,
+  DataTableComponent,
+  CellTemplateDirective,
+  ColumnDef,
+} from '../../shared';
 import { ClientService, GetClientsPageItemsResponse } from '../../api';
 
 @Component({
@@ -48,7 +53,7 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
     MatSelectModule,
     StatusBadgeComponent,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -61,8 +66,8 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
       (create)="onCreateClient()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
-      (pageChange)="onPage($event)">
-      
+      (pageChange)="onPage($event)"
+    >
       <div filters class="filter-row">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
@@ -84,22 +89,30 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-client>
-        <button mat-icon-button color="primary" [attr.aria-label]="'COMMON.EDIT' | translate" matTooltip="Edit Client Details" (click)="onEditClient(client)">
+        <button
+          mat-icon-button
+          color="primary"
+          [attr.aria-label]="'COMMON.EDIT' | translate"
+          matTooltip="Edit Client Details"
+          (click)="onEditClient(client)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
   `,
-  styles: [`
-    .filter-row {
-      display: flex;
-      gap: 12px;
-      margin-left: 16px;
-    }
-    .filter-field {
-      width: 150px;
-    }
-  `]
+  styles: [
+    `
+      .filter-row {
+        display: flex;
+        gap: 12px;
+        margin-left: 16px;
+      }
+      .filter-field {
+        width: 150px;
+      }
+    `,
+  ],
 })
 export class ClientsListComponent {
   private readonly clientService = inject(ClientService);
@@ -110,14 +123,14 @@ export class ClientsListComponent {
     { key: 'fullname', label: 'COMMON.NAME', sortable: true },
     { key: 'status', label: 'COMMON.STATUS', sortable: true },
     { key: 'officeName', label: 'COMMON.OFFICE', sortable: true },
-    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false }
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   clients: GetClientsPageItemsResponse[] = [];
   totalRecords = 0;
-  
+
   activeFilters: { status?: string } = {};
-  
+
   private searchSubject = new Subject<string>();
   private sortSubject = new Subject<Sort>();
   private pageSubject = new Subject<PageEvent>();
@@ -135,25 +148,38 @@ export class ClientsListComponent {
           const offset = this.currentPage.pageIndex * this.currentPage.pageSize;
           const limit = this.currentPage.pageSize;
           const orderBy = this.currentSort.active || undefined;
-          const sortOrder = this.currentSort.direction ? this.currentSort.direction.toUpperCase() : undefined;
-          
+          const sortOrder = this.currentSort.direction
+            ? this.currentSort.direction.toUpperCase()
+            : undefined;
+
           const displayName = this.currentFilter ? `${this.currentFilter}%` : undefined;
           const status = this.activeFilters.status;
 
-          return this.clientService.retrieveAll21(
-            undefined, undefined, displayName, undefined, undefined, status, undefined,
-            offset, limit, orderBy, sortOrder, false, 1
-          ).pipe(
-            catchError(() => of(null))
-          );
+          return this.clientService
+            .retrieveAll21(
+              undefined,
+              undefined,
+              displayName,
+              undefined,
+              undefined,
+              status,
+              undefined,
+              offset,
+              limit,
+              orderBy,
+              sortOrder,
+              false,
+              1,
+            )
+            .pipe(catchError(() => of(null)));
         }),
-        map(response => {
+        map((response) => {
           if (response === null) return [];
           this.totalRecords = response.totalFilteredRecords || 0;
           return response.pageItems || [];
-        })
+        }),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.clients = data;
       });
   }

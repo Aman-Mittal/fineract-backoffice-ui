@@ -40,7 +40,7 @@ import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -50,8 +50,8 @@ import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
       [columns]="columns"
       [data]="accounts"
       (create)="onCreateAccount()"
-      (sortChange)="onSort($event)">
-      
+      (sortChange)="onSort($event)"
+    >
       <ng-template appCellTemplate="type" let-account>
         <span class="type-tag" [ngClass]="account.type?.value?.toLowerCase()">
           {{ account.type?.value }}
@@ -59,25 +59,47 @@ import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
-        <button mat-icon-button color="primary" matTooltip="Edit Account" (click)="onEditAccount(account)">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Edit Account"
+          (click)="onEditAccount(account)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
   `,
-  styles: [`
-    .type-tag {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .asset { background-color: #e3f2fd; color: #1976d2; }
-    .liability { background-color: #fce4ec; color: #c2185b; }
-    .equity { background-color: #f3e5f5; color: #7b1fa2; }
-    .income { background-color: #e8f5e9; color: #388e3c; }
-    .expense { background-color: #fff3e0; color: #f57c00; }
-  `]
+  styles: [
+    `
+      .type-tag {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .asset {
+        background-color: #e3f2fd;
+        color: #1976d2;
+      }
+      .liability {
+        background-color: #fce4ec;
+        color: #c2185b;
+      }
+      .equity {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+      }
+      .income {
+        background-color: #e8f5e9;
+        color: #388e3c;
+      }
+      .expense {
+        background-color: #fff3e0;
+        color: #f57c00;
+      }
+    `,
+  ],
 })
 export class ChartOfAccountsComponent {
   private readonly glAccountService = inject(GeneralLedgerAccountService);
@@ -88,18 +110,19 @@ export class ChartOfAccountsComponent {
     { key: 'name', label: 'Account Name', sortable: true },
     { key: 'type', label: 'Type', sortable: true },
     { key: 'usage', label: 'Usage', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'actions', label: 'Actions', sortable: false },
   ];
 
   accounts: GetGLAccountsResponse[] = [];
 
   constructor() {
-    this.glAccountService.retrieveAllAccounts()
+    this.glAccountService
+      .retrieveAllAccounts()
       .pipe(
         startWith([]),
-        catchError(() => of([]))
+        catchError(() => of([])),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.accounts = data;
       });
   }

@@ -28,7 +28,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LoanProductsService, PostLoanProductsRequest, PutLoanProductsProductIdRequest } from '../../api';
+import {
+  LoanProductsService,
+  PostLoanProductsRequest,
+  PutLoanProductsProductIdRequest,
+} from '../../api';
 
 @Component({
   selector: 'app-loan-product-form',
@@ -42,33 +46,58 @@ import { LoanProductsService, PostLoanProductsRequest, PutLoanProductsProductIdR
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   template: `
     <div class="form-container">
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('PRODUCTS.EDIT_LOAN_PRODUCT' | translate) : ('PRODUCTS.CREATE_LOAN_PRODUCT' | translate) }}
+            {{
+              isEditMode
+                ? ('PRODUCTS.EDIT_LOAN_PRODUCT' | translate)
+                : ('PRODUCTS.CREATE_LOAN_PRODUCT' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
-        
+
         <mat-card-content>
           <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="product-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.PRODUCT_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.PRODUCT_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="product.name" required>
+                <input matInput name="name" [(ngModel)]="product.name" required />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SHORT_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SHORT_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'PRODUCTS.SHORT_NAME' | translate }}</mat-label>
-                <input matInput name="shortName" [(ngModel)]="product.shortName" required maxlength="4">
+                <input
+                  matInput
+                  name="shortName"
+                  [(ngModel)]="product.shortName"
+                  required
+                  maxlength="4"
+                />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.DESCRIPTION_DESC' | translate" class="full-width">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.DESCRIPTION_DESC' | translate"
+                class="full-width"
+              >
                 <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea matInput name="description" [(ngModel)]="product.description" rows="3"></textarea>
+                <textarea
+                  matInput
+                  name="description"
+                  [(ngModel)]="product.description"
+                  rows="3"
+                ></textarea>
               </mat-form-field>
 
               <mat-form-field appearance="outline" [matTooltip]="'HELP.CURRENCY_DESC' | translate">
@@ -80,35 +109,84 @@ import { LoanProductsService, PostLoanProductsRequest, PutLoanProductsProductIdR
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.DECIMAL_PLACES_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.DECIMAL_PLACES_DESC' | translate"
+              >
                 <mat-label>{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</mat-label>
-                <input matInput type="number" name="digitsAfterDecimal" [(ngModel)]="product.digitsAfterDecimal" required>
+                <input
+                  matInput
+                  type="number"
+                  name="digitsAfterDecimal"
+                  [(ngModel)]="product.digitsAfterDecimal"
+                  required
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline" [matTooltip]="'HELP.PRINCIPAL_DESC' | translate">
                 <mat-label>{{ 'PRODUCTS.PRINCIPAL' | translate }}</mat-label>
-                <input matInput type="number" name="principal" [(ngModel)]="product.principal" required>
+                <input
+                  matInput
+                  type="number"
+                  name="principal"
+                  [(ngModel)]="product.principal"
+                  required
+                />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate"
+              >
                 <mat-label>{{ 'PRODUCTS.INTEREST_RATE' | translate }}</mat-label>
-                <input matInput type="number" name="interestRatePerPeriod" [(ngModel)]="product.interestRatePerPeriod" required>
+                <input
+                  matInput
+                  type="number"
+                  name="interestRatePerPeriod"
+                  [(ngModel)]="product.interestRatePerPeriod"
+                  required
+                />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</mat-label>
-                <input matInput type="number" name="numberOfRepayments" [(ngModel)]="product.numberOfRepayments" required>
+                <input
+                  matInput
+                  type="number"
+                  name="numberOfRepayments"
+                  [(ngModel)]="product.numberOfRepayments"
+                  required
+                />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.REPAYMENT_EVERY' | translate }}</mat-label>
-                <input matInput type="number" name="repaymentEvery" [(ngModel)]="product.repaymentEvery" required>
+                <input
+                  matInput
+                  type="number"
+                  name="repaymentEvery"
+                  [(ngModel)]="product.repaymentEvery"
+                  required
+                />
               </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid || isSaving">
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="productForm.invalid || isSaving"
+              >
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </button>
             </div>
@@ -117,35 +195,37 @@ import { LoanProductsService, PostLoanProductsRequest, PutLoanProductsProductIdR
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .product-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    .full-width {
-      grid-column: span 2;
-    }
-    mat-form-field {
-      width: 100%;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 16px;
-    }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .product-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .full-width {
+        grid-column: span 2;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class LoanProductFormComponent implements OnInit {
   private readonly productService = inject(LoanProductsService);
@@ -157,7 +237,7 @@ export class LoanProductFormComponent implements OnInit {
   productId: number | null = null;
   isEditMode = false;
   isSaving = false;
-  
+
   product: PostLoanProductsRequest = {
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
@@ -171,11 +251,11 @@ export class LoanProductFormComponent implements OnInit {
     accountingRule: 1, // NONE
     daysInYearType: 1,
     daysInMonthType: 1,
-    isInterestRecalculationEnabled: false
+    isInterestRecalculationEnabled: false,
   };
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
@@ -187,7 +267,7 @@ export class LoanProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveLoanProductDetails(this.productId).subscribe(data => {
+    this.productService.retrieveLoanProductDetails(this.productId).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -208,7 +288,7 @@ export class LoanProductFormComponent implements OnInit {
         accountingRule: 1,
         daysInYearType: 1,
         daysInMonthType: 1,
-        isInterestRecalculationEnabled: false
+        isInterestRecalculationEnabled: false,
       };
     });
   }
@@ -218,14 +298,16 @@ export class LoanProductFormComponent implements OnInit {
     this.product.locale = 'en';
 
     if (this.isEditMode && this.productId) {
-      this.productService.updateLoanProduct(this.productId, this.product as PutLoanProductsProductIdRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
-      });
+      this.productService
+        .updateLoanProduct(this.productId, this.product as PutLoanProductsProductIdRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
       this.productService.createLoanProduct(this.product).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving = false
+        error: () => (this.isSaving = false),
       });
     }
   }

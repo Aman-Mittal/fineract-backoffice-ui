@@ -96,14 +96,17 @@ To support vendors serving multiple MFIs and Community Banks, we will implement:
 ## 5. Implementation Summary (Completed Milestones)
 
 ### 5.1 Foundation & DevEx
+
 - [x] **SSL Dev Mode**: Configured `angular.json` for HTTPS local development.
 - [x] **Auth Layer**: Implemented Basic Auth with `AuthService`, `AuthInterceptor`, and `AuthGuard`.
 - [x] **i18n Readiness**: Absolute path routing for assets, ensuring zero 404s on deep routes.
 
 ### 5.2 Common Error Thrower (Global Error Handling)
+
 - [x] **Stacked Notifications**: Centralized HTTP Interceptor (`errorInterceptor`) that extracts Fineract's detailed validation error arrays and displays them as a stacked list of developer messages in a snackbar.
 
 ### 5.3 Architectural Shift: Metadata-Driven Design
+
 - [x] **OpenAPI Alignment**: Re-architected forms to use **Angular Template-Driven Forms** directly bound to strictly-typed OpenAPI generator request models (`Post...Request`, `Put...Request`).
 - [x] **Contextual Tooltips**: Integrated `matTooltip` on all form fields using the `HELP.XXX_DESC` naming convention to provide embedded BFSI context ("What does it do").
 - [x] **CRUD Feature Slices**: Implemented end-to-end flows for **Clients**, **Loans**, **Offices**, **Groups**, **Centers**, and **Products** using the new template-driven patterns.
@@ -115,23 +118,25 @@ To support vendors serving multiple MFIs and Community Banks, we will implement:
 To achieve a complete, vendor-ready Fineract backoffice, the following logical BFSI feature slices are pending integration.
 
 ### Phase 1: Transactions & Teller Operations (High Priority)
+
 - **Cash Management**: Integrating `tellerCashManagement.service.ts` and `cashiers.service.ts` for branch vault and teller drawer operations.
 - **Loan Lifecycle Transactions**: Implementing full support for `loanTransactions.service.ts` including disbursals, repayments, and waived charges.
 - **Savings Accounts**: Implementing operational screens for `savingsAccount.service.ts` and `savingsAccountTransactions.service.ts`.
 
 ### Phase 2: Advanced Account & Product Management
+
 - **Term Deposits**: Integration for `fixedDepositAccount.service.ts` and `recurringDepositAccount.service.ts`.
 - **Shares & Dividends**: Support for `shareAccount.service.ts` and `selfDividend.service.ts`.
 - **Collateral Management**: Centralized management via `collateralManagement.service.ts` and `loanCollateral.service.ts`.
 
 ### Phase 3: Financial Integrity & Accounting
+
 - **GL & Closures**: Automating journal entry aggregations via `journalEntries.service.ts` and handling accounting period closures with `accountingClosure.service.ts`.
 - **Loan Restructuring**: Detailed screens for `loanRescheduling.service.ts` and `rescheduleLoans.service.ts`.
 - **Dynamic Charges**: Configurable penalties and fees via `charges.service.ts` and `loanCharges.service.ts`.
 
 ### Phase 4: Identity, Reporting, & Configuration
+
 - **Security**: Full UI for managing `users.service.ts`, `roles.service.ts`, and `permissions.service.ts`.
 - **Reporting**: Dynamic report generation and data export using `reports.service.ts` and `runReports.service.ts`.
 - **System Settings**: Global configurations, holidays, and working day definitions.
-
-

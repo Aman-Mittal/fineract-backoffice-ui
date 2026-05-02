@@ -69,8 +69,12 @@ import { ConfigService } from '../../core/services/config.service';
               {{ 'login.serverUrl' | translate }} ℹ️
             </label>
             <select id="serverUrl" formControlName="serverUrl" (change)="onServerChange()">
-              <option value="https://demo.mifos.io/fineract-provider/api/v1">Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)</option>
-              <option value="https://localhost:8443/fineract-provider/api/v1">Local Server (https://localhost:8443/fineract-provider/api/v1)</option>
+              <option value="https://demo.mifos.io/fineract-provider/api/v1">
+                Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)
+              </option>
+              <option value="https://localhost:8443/fineract-provider/api/v1">
+                Local Server (https://localhost:8443/fineract-provider/api/v1)
+              </option>
               <option value="custom">Custom URL...</option>
             </select>
           </div>

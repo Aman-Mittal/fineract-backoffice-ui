@@ -43,7 +43,7 @@ import { LoanProductsService, GetLoanProductsResponse } from '../../api';
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -54,15 +54,20 @@ import { LoanProductsService, GetLoanProductsResponse } from '../../api';
       [data]="products"
       [showSearch]="false"
       (create)="onCreateProduct()"
-      (sortChange)="onSort($event)">
-      
+      (sortChange)="onSort($event)"
+    >
       <ng-template appCellTemplate="actions" let-product>
-        <button mat-icon-button color="primary" matTooltip="Edit Product" (click)="onEditProduct(product)">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Edit Product"
+          (click)="onEditProduct(product)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
-  `
+  `,
 })
 export class LoanProductsListComponent {
   private readonly loanProductsService = inject(LoanProductsService);
@@ -72,18 +77,19 @@ export class LoanProductsListComponent {
     { key: 'name', label: 'Name', sortable: true },
     { key: 'shortName', label: 'Short Name', sortable: true },
     { key: 'description', label: 'Description', sortable: false },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'actions', label: 'Actions', sortable: false },
   ];
 
   products: GetLoanProductsResponse[] = [];
 
   constructor() {
-    this.loanProductsService.retrieveAllLoanProducts()
+    this.loanProductsService
+      .retrieveAllLoanProducts()
       .pipe(
         startWith([]),
-        catchError(() => of([]))
+        catchError(() => of([])),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.products = data;
       });
   }

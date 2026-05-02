@@ -70,7 +70,11 @@ import { TranslateModule } from '@ngx-translate/core';
                 </a>
               </li>
               <li>
-                <a routerLink="/products/savings" routerLinkActive="active" class="nav-item sub-item">
+                <a
+                  routerLink="/products/savings"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
                   <span class="nav-text">{{ 'nav.savingsProducts' | translate }}</span>
                 </a>
               </li>
@@ -82,7 +86,11 @@ import { TranslateModule } from '@ngx-translate/core';
             <span class="nav-group-header">{{ 'nav.fintech' | translate }}</span>
             <ul class="nav-sub-list">
               <li>
-                <a routerLink="/fintech/asset-owners" routerLinkActive="active" class="nav-item sub-item">
+                <a
+                  routerLink="/fintech/asset-owners"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
                   <span class="nav-text">{{ 'nav.assetOwners' | translate }}</span>
                 </a>
               </li>
@@ -94,7 +102,11 @@ import { TranslateModule } from '@ngx-translate/core';
             <span class="nav-group-header">{{ 'nav.accounting' | translate }}</span>
             <ul class="nav-sub-list">
               <li>
-                <a routerLink="/accounting/chart-of-accounts" routerLinkActive="active" class="nav-item sub-item">
+                <a
+                  routerLink="/accounting/chart-of-accounts"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
                   <span class="nav-text">{{ 'nav.chartOfAccounts' | translate }}</span>
                 </a>
               </li>

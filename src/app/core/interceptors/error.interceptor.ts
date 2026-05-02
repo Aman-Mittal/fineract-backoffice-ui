@@ -38,14 +38,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else {
         if (error.status === 400 && error.error?.errors && Array.isArray(error.error.errors)) {
           errorMessage = error.error.errors
-            .map((err: Record<string, unknown>) => `• ${err['developerMessage'] || err['defaultUserMessage'] || 'Validation error'}`)
+            .map(
+              (err: Record<string, unknown>) =>
+                `• ${err['developerMessage'] || err['defaultUserMessage'] || 'Validation error'}`,
+            )
             .join('\n');
         } else if (error.error?.developerMessage) {
           errorMessage = error.error.developerMessage;
         } else if (error.error?.defaultUserMessage) {
           errorMessage = error.error.defaultUserMessage;
         } else if (error.status === 0) {
-          errorMessage = 'Unable to connect to the server. Please check your network or CORS settings.';
+          errorMessage =
+            'Unable to connect to the server. Please check your network or CORS settings.';
         } else {
           errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
         }
@@ -55,10 +59,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         duration: 10000,
         horizontalPosition: 'center',
         verticalPosition: 'bottom',
-        panelClass: ['error-snackbar']
+        panelClass: ['error-snackbar'],
       });
 
       return throwError(() => error);
-    })
+    }),
   );
 };

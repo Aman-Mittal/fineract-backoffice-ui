@@ -46,7 +46,7 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
-    CellTemplateDirective
+    CellTemplateDirective,
   ],
   template: `
     <app-data-table
@@ -57,15 +57,20 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
       [data]="products"
       [showSearch]="false"
       (create)="onCreateProduct()"
-      (sortChange)="onSort($event)">
-      
+      (sortChange)="onSort($event)"
+    >
       <ng-template appCellTemplate="actions" let-product>
-        <button mat-icon-button color="primary" matTooltip="Edit Product" (click)="onEditProduct(product)">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Edit Product"
+          (click)="onEditProduct(product)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
-  `
+  `,
 })
 export class SavingsProductsListComponent {
   private readonly savingsProductService = inject(SavingsProductService);
@@ -75,18 +80,19 @@ export class SavingsProductsListComponent {
     { key: 'name', label: 'Name', sortable: true },
     { key: 'shortName', label: 'Short Name', sortable: true },
     { key: 'description', label: 'Description', sortable: false },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'actions', label: 'Actions', sortable: false },
   ];
 
   products: GetSavingsProductsResponse[] = [];
 
   constructor() {
-    this.savingsProductService.retrieveAll34()
+    this.savingsProductService
+      .retrieveAll34()
       .pipe(
         startWith([]),
-        catchError(() => of([]))
+        catchError(() => of([])),
       )
-      .subscribe(data => {
+      .subscribe((data) => {
         this.products = data;
       });
   }
