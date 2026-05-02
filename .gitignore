@@ -71,3 +71,6 @@ Claude.MD
 run-local.sh
 cleanup-local.sh
 ssl/
+
+# Submodules
+/fineract/

@@ -17,7 +17,8 @@
  * under the License.
  */
 
-export const environment = {
-  production: false,
-  fineractApiUrl: 'https://demo.mifos.io/fineract-provider/api',
-};
+export * from './components/help-icon/help-icon.component';
+export * from './components/status-badge/status-badge.component';
+export * from './components/search-filter/search-filter.component';
+export * from './components/data-table/data-table.component';
+export * from './components/data-table/cell-template.directive';

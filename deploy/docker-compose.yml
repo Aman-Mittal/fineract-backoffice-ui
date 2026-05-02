@@ -26,7 +26,7 @@ services:
     ports:
       - '8080:80'
     environment:
-      - FINERACT_API_URL=https://demo.mifos.io/fineract-provider/api/v1
+      - FINERACT_API_URL=https://demo.mifos.io/fineract-provider/api
       - DEFAULT_TENANT=default
     restart: unless-stopped
     networks:
