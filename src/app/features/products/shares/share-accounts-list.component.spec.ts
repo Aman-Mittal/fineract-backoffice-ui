@@ -19,7 +19,11 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareAccountsListComponent } from './share-accounts-list.component';
-import { ShareAccountService, GetAccountsTypeAccountIdResponse } from '../../../api';
+import {
+  ShareAccountService,
+  GetAccountsTypeResponse,
+  GetAccountsTypeAccountIdResponse,
+} from '../../../api';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -47,7 +51,7 @@ describe('ShareAccountsListComponent', () => {
 
     shareServiceSpy.retrieveAllAccounts1.and.returnValue(
       of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
-        HttpEvent<GetAccountsTypeAccountIdResponse[]>
+        HttpEvent<GetAccountsTypeResponse>
       >,
     );
     fixture = TestBed.createComponent(ShareAccountsListComponent);
