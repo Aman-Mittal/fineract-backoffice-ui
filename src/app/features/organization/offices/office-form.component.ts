@@ -58,71 +58,42 @@ import {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{
-              isEditMode
-                ? ('OFFICES.EDIT_OFFICE' | translate)
-                : ('OFFICES.CREATE_OFFICE' | translate)
-            }}
+            {{ isEditMode ? ('OFFICES.EDIT_OFFICE' | translate) : ('OFFICES.CREATE_OFFICE' | translate) }}
           </mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
           <form #officeForm="ngForm" (ngSubmit)="onSubmit()" class="office-form">
             <div class="form-grid">
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.OFFICE_NAME_DESC' | translate"
-              >
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_NAME_DESC' | translate">
                 <mat-label>{{ 'OFFICES.NAME' | translate }}</mat-label>
                 <input matInput name="name" [(ngModel)]="office.name" required />
               </mat-form-field>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.PARENT_OFFICE_DESC' | translate"
-              >
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.PARENT_OFFICE_DESC' | translate">
                 <mat-label>{{ 'OFFICES.PARENT' | translate }}</mat-label>
-                <mat-select
-                  name="parentId"
-                  [(ngModel)]="office.parentId"
-                  required
-                  [disabled]="isEditMode"
-                >
+                <mat-select name="parentId" [(ngModel)]="office.parentId" required [disabled]="isEditMode">
                   @for (o of offices; track o.id) {
                     <mat-option [value]="o.id">{{ o.name }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
-              >
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <mat-label>{{ 'OFFICES.EXTERNAL_ID' | translate }}</mat-label>
                 <input matInput name="externalId" [(ngModel)]="office.externalId" />
               </mat-form-field>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.OPENING_DATE_DESC' | translate"
-              >
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.OPENING_DATE_DESC' | translate">
                 <mat-label>{{ 'OFFICES.OPENING_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="openingDate"
-                  [(ngModel)]="openingDate"
-                  required
-                />
+                <input matInput [matDatepicker]="picker" name="openingDate" [(ngModel)]="openingDate" required />
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
-                {{ 'COMMON.CANCEL' | translate }}
-              </button>
+              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
               <button
                 mat-raised-button
                 color="primary"
@@ -216,28 +187,16 @@ export class OfficeFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const formattedDate = `${this.openingDate.getDate()} ${months[this.openingDate.getMonth()]} ${this.openingDate.getFullYear()}`;
+    const formattedDate = `${this.openingDate.getFullYear()}-${String(
+      this.openingDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(this.openingDate.getDate()).padStart(2, '0')}`;
 
     if (this.isEditMode && this.officeId) {
       const payload: PutOfficesOfficeIdRequest = {
         name: this.office.name,
         externalId: this.office.externalId,
         openingDate: formattedDate,
-        dateFormat: 'dd MMMM yyyy',
+        dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
       this.officesService.updateOffice(this.officeId, payload).subscribe({
@@ -246,7 +205,7 @@ export class OfficeFormComponent implements OnInit {
       });
     } else {
       this.office.openingDate = formattedDate;
-      this.office.dateFormat = 'dd MMMM yyyy';
+      this.office.dateFormat = 'yyyy-MM-dd';
       this.office.locale = 'en';
       this.officesService.createOffice(this.office).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),

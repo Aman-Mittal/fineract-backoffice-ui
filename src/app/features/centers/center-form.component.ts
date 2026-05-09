@@ -30,6 +30,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import {
   CentersService,
   OfficesService,
@@ -38,6 +40,13 @@ import {
   GetOfficesResponse,
 } from '../../api';
 
+/**
+ * Component for creating and editing community centers.
+ *
+ * Centers are administrative groupings of groups in Fineract.
+ * This component handles the lifecycle of center entities, ensuring
+ * mandatory fields like activationDate are correctly handled for new entities.
+ */
 @Component({
   selector: 'app-center-form',
   standalone: true,
@@ -53,6 +62,8 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   template: `
     <div class="form-container">
@@ -70,6 +81,7 @@ import {
         <mat-card-content>
           <form #centerForm="ngForm" (ngSubmit)="onSubmit()" class="center-form">
             <div class="form-grid">
+              <!-- Name -->
               <mat-form-field
                 appearance="outline"
                 [matTooltip]="'HELP.CENTER_NAME_DESC' | translate"
@@ -78,6 +90,7 @@ import {
                 <input matInput name="name" [(ngModel)]="center.name" required />
               </mat-form-field>
 
+              <!-- Office -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
                 <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
                 <mat-select
@@ -92,6 +105,26 @@ import {
                 </mat-select>
               </mat-form-field>
 
+              <!-- Activation Date -->
+              @if (!isEditMode) {
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate"
+                >
+                  <mat-label>{{ 'COMMON.ACTIVATION_DATE' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [matDatepicker]="picker"
+                    name="activationDate"
+                    [(ngModel)]="activationDate"
+                    [required]="!!center.active"
+                  />
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              }
+
+              <!-- Active -->
               <div class="checkbox-container">
                 <mat-checkbox name="active" [(ngModel)]="center.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
@@ -163,24 +196,41 @@ import {
   ],
 })
 export class CenterFormComponent implements OnInit {
+  /** Service for center operations */
   private readonly centersService = inject(CentersService);
+  /** Service for office data retrieval */
   private readonly officesService = inject(OfficesService);
+  /** Activated route for parameter access */
   private readonly route = inject(ActivatedRoute);
+  /** Router for navigation */
   private readonly router = inject(Router);
 
+  /** Constant for Fineract date format */
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
+  /** Path for redirection */
   private readonly LIST_PATH = '/centers';
 
+  /** Center ID in edit mode */
   centerId: number | null = null;
+  /** Edit mode flag */
   isEditMode = false;
+  /** Save state */
   isSaving = false;
 
+  /** Strictly typed request model from OpenAPI */
   center: PostCentersRequest = {
     active: true,
   };
 
+  /** Activation date for new centers */
+  activationDate: Date = new Date();
+  /** Office options */
   offices: GetOfficesResponse[] = [];
 
-  ngOnInit() {
+  /**
+   * Initializes the component and loads initial data.
+   */
+  ngOnInit(): void {
     this.loadOffices();
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -192,13 +242,19 @@ export class CenterFormComponent implements OnInit {
     });
   }
 
-  loadOffices() {
+  /**
+   * Retrieves the list of available offices.
+   */
+  private loadOffices(): void {
     this.officesService.retrieveOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
-  loadCenterData() {
+  /**
+   * Loads center details for editing.
+   */
+  private loadCenterData(): void {
     if (!this.centerId) return;
     this.centersService.retrieveOne14(this.centerId).subscribe((data) => {
       this.center = {
@@ -209,8 +265,12 @@ export class CenterFormComponent implements OnInit {
     });
   }
 
-  onSubmit() {
+  /**
+   * Handles form submission, applying mandatory date formatting.
+   */
+  onSubmit(): void {
     this.isSaving = true;
+
     if (this.isEditMode && this.centerId) {
       const payload: PutCentersCenterIdRequest = {
         name: this.center.name,
@@ -220,14 +280,29 @@ export class CenterFormComponent implements OnInit {
         error: () => (this.isSaving = false),
       });
     } else {
-      this.centersService.create7(this.center).subscribe({
+      const formattedDate = `${this.activationDate.getFullYear()}-${String(
+        this.activationDate.getMonth() + 1,
+      ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+
+      // Assert as Record to include mandatory undocumented fields for activation
+      const payload: Record<string, unknown> = {
+        ...this.center,
+        activationDate: formattedDate,
+        dateFormat: this.DATE_FORMAT,
+        locale: 'en',
+      };
+
+      this.centersService.create7(payload as PostCentersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
-  onCancel() {
+  /**
+   * Navigates back to the center list.
+   */
+  onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }
 }

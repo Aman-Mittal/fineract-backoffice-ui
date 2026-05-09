@@ -24,6 +24,7 @@ Claude.MD
 *.bak
 node_modules
 dist
+coverage
 .angular
 .vscode
 .idea

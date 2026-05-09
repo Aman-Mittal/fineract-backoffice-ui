@@ -24,7 +24,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { Sort } from '@angular/material/sort';
 import { of } from 'rxjs';
 import { catchError, startWith } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
@@ -49,8 +48,8 @@ import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
       createButtonLabel="Add Ledger Account"
       [columns]="columns"
       [data]="accounts"
+      [localLogic]="true"
       (create)="onCreateAccount()"
-      (sortChange)="onSort($event)"
     >
       <ng-template appCellTemplate="type" let-account>
         <span class="type-tag" [ngClass]="account.type?.value?.toLowerCase()">
@@ -125,17 +124,6 @@ export class ChartOfAccountsComponent {
       .subscribe((data) => {
         this.accounts = data;
       });
-  }
-
-  onSort(sort: Sort) {
-    if (sort.direction) {
-      this.accounts = [...this.accounts].sort((a, b) => {
-        const isAsc = sort.direction === 'asc';
-        const aValue = (a as Record<string, unknown>)[sort.active] ?? '';
-        const bValue = (b as Record<string, unknown>)[sort.active] ?? '';
-        return (String(aValue) < String(bValue) ? -1 : 1) * (isAsc ? 1 : -1);
-      });
-    }
   }
 
   onCreateAccount() {

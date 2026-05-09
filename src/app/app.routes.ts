@@ -131,6 +131,97 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/savings-accounts',
+        loadComponent: () =>
+          import('./features/products/savings-accounts-list.component').then(
+            (m) => m.SavingsAccountsListComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/create',
+        loadComponent: () =>
+          import('./features/products/savings-account-form.component').then(
+            (m) => m.SavingsAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/edit/:id',
+        loadComponent: () =>
+          import('./features/products/savings-account-form.component').then(
+            (m) => m.SavingsAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/:accountId/transactions/:command',
+        loadComponent: () =>
+          import('./features/products/savings-account-transaction-form.component').then(
+            (m) => m.SavingsAccountTransactionFormComponent,
+          ),
+      },
+      {
+        path: 'products/fixed-deposits',
+        loadComponent: () =>
+          import('./features/products/fixed-deposits/fixed-deposits-list.component').then(
+            (m) => m.FixedDepositAccountsListComponent,
+          ),
+      },
+      {
+        path: 'products/fixed-deposits/create',
+        loadComponent: () =>
+          import('./features/products/fixed-deposits/fixed-deposit-form.component').then(
+            (m) => m.FixedDepositAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/fixed-deposits/edit/:id',
+        loadComponent: () =>
+          import('./features/products/fixed-deposits/fixed-deposit-form.component').then(
+            (m) => m.FixedDepositAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/recurring-deposits',
+        loadComponent: () =>
+          import('./features/products/recurring-deposits/recurring-deposits-list.component').then(
+            (m) => m.RecurringDepositsListComponent,
+          ),
+      },
+      {
+        path: 'products/recurring-deposits/create',
+        loadComponent: () =>
+          import('./features/products/recurring-deposits/recurring-deposit-form.component').then(
+            (m) => m.RecurringDepositAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/recurring-deposits/edit/:id',
+        loadComponent: () =>
+          import('./features/products/recurring-deposits/recurring-deposit-form.component').then(
+            (m) => m.RecurringDepositAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/shares',
+        loadComponent: () =>
+          import('./features/products/shares/share-accounts-list.component').then(
+            (m) => m.ShareAccountsListComponent,
+          ),
+      },
+      {
+        path: 'products/shares/create',
+        loadComponent: () =>
+          import('./features/products/shares/share-account-form.component').then(
+            (m) => m.ShareAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/shares/edit/:id',
+        loadComponent: () =>
+          import('./features/products/shares/share-account-form.component').then(
+            (m) => m.ShareAccountFormComponent,
+          ),
+      },
+      {
         path: 'fintech/asset-owners',
         loadComponent: () =>
           import('./features/fintech/asset-owners-list.component').then(
@@ -156,6 +247,105 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/accounting/gl-account-form.component').then(
             (m) => m.GLAccountFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/journal-entries',
+        loadComponent: () =>
+          import('./features/accounting/journal-entries-list.component').then(
+            (m) => m.JournalEntriesListComponent,
+          ),
+      },
+      {
+        path: 'accounting/journal-entries/create',
+        loadComponent: () =>
+          import('./features/accounting/journal-entry-form.component').then(
+            (m) => m.JournalEntryFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/closures',
+        loadComponent: () =>
+          import('./features/accounting/accounting-closures-list.component').then(
+            (m) => m.AccountingClosuresListComponent,
+          ),
+      },
+      {
+        path: 'accounting/closures/create',
+        loadComponent: () =>
+          import('./features/accounting/accounting-closure-form.component').then(
+            (m) => m.AccountingClosureFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/rules',
+        loadComponent: () =>
+          import('./features/accounting/accounting-rules-list.component').then(
+            (m) => m.AccountingRulesListComponent,
+          ),
+      },
+      {
+        path: 'accounting/rules/create',
+        loadComponent: () =>
+          import('./features/accounting/accounting-rule-form.component').then(
+            (m) => m.AccountingRuleFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/rules/edit/:id',
+        loadComponent: () =>
+          import('./features/accounting/accounting-rule-form.component').then(
+            (m) => m.AccountingRuleFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/financial-activity-mappings',
+        loadComponent: () =>
+          import('./features/accounting/financial-activity-mappings-list.component').then(
+            (m) => m.FinancialActivityMappingsListComponent,
+          ),
+      },
+      {
+        path: 'accounting/financial-activity-mappings/create',
+        loadComponent: () =>
+          import('./features/accounting/financial-activity-mapping-form.component').then(
+            (m) => m.FinancialActivityMappingFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/financial-activity-mappings/edit/:id',
+        loadComponent: () =>
+          import('./features/accounting/financial-activity-mapping-form.component').then(
+            (m) => m.FinancialActivityMappingFormComponent,
+          ),
+      },
+      {
+        path: 'tellers',
+        loadComponent: () =>
+          import('./features/tellers/tellers-list.component').then((m) => m.TellersListComponent),
+      },
+      {
+        path: 'tellers/create',
+        loadComponent: () =>
+          import('./features/tellers/teller-form.component').then((m) => m.TellerFormComponent),
+      },
+      {
+        path: 'tellers/edit/:id',
+        loadComponent: () =>
+          import('./features/tellers/teller-form.component').then((m) => m.TellerFormComponent),
+      },
+      {
+        path: 'tellers/:tellerId/cashiers',
+        loadComponent: () =>
+          import('./features/tellers/cashiers/cashiers-list.component').then(
+            (m) => m.CashiersListComponent,
+          ),
+      },
+      {
+        path: 'tellers/:tellerId/cashiers/create',
+        loadComponent: () =>
+          import('./features/tellers/cashiers/cashier-form.component').then(
+            (m) => m.CashierFormComponent,
           ),
       },
       {
@@ -193,6 +383,34 @@ export const routes: Routes = [
         path: 'loans/edit/:id',
         loadComponent: () =>
           import('./features/loans/loan-form.component').then((m) => m.LoanFormComponent),
+      },
+      {
+        path: 'loans/:loanId/collateral',
+        loadComponent: () =>
+          import('./features/loans/collateral/collateral-list.component').then(
+            (m) => m.CollateralListComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/collateral/create',
+        loadComponent: () =>
+          import('./features/loans/collateral/collateral-form.component').then(
+            (m) => m.CollateralFormComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/collateral/edit/:id',
+        loadComponent: () =>
+          import('./features/loans/collateral/collateral-form.component').then(
+            (m) => m.CollateralFormComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/transactions/:type',
+        loadComponent: () =>
+          import('./features/loans/loan-transaction-form.component').then(
+            (m) => m.LoanTransactionFormComponent,
+          ),
       },
     ],
   },

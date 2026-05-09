@@ -28,11 +28,13 @@ import {
   TemplateRef,
   OnChanges,
   SimpleChanges,
+  ViewChild,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -49,6 +51,12 @@ export interface ColumnDef {
   tooltip?: string;
 }
 
+/**
+ * A highly reusable, generic data table component.
+ * Supports both server-side and local pagination/sorting/filtering.
+ *
+ * @template T - The type of data to be displayed in the table.
+ */
 @Component({
   selector: 'app-data-table',
   standalone: true,
@@ -129,7 +137,7 @@ export interface ColumnDef {
             }
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">
@@ -187,18 +195,21 @@ export interface ColumnDef {
     `,
   ],
 })
-export class DataTableComponent<T> implements AfterContentInit, OnChanges {
+export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, OnChanges {
   @Input() title = '';
   @Input() helpTextKey = '';
   @Input() createButtonLabel = '';
   @Input() columns: ColumnDef[] = [];
   @Input() data: T[] = [];
+  /** Total number of records. If server-side, this comes from API response. */
   @Input() totalRecords = 0;
   @Input() pageSize = 10;
   @Input() pageSizeOptions = [5, 10, 25, 100];
   @Input() showSearch = true;
   @Input() searchLabel = 'COMMON.SEARCH';
   @Input() searchPlaceholder = 'COMMON.SEARCH_PLACEHOLDER';
+  /** If true, the component will handle pagination/sorting locally. */
+  @Input() localLogic = false;
 
   @Output() create = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
@@ -206,6 +217,9 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   @Output() pageChange = new EventEmitter<PageEvent>();
 
   @ContentChildren(CellTemplateDirective) cellTemplates!: QueryList<CellTemplateDirective>;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   dataSource = new MatTableDataSource<T>([]);
   columnTemplates: Record<string, TemplateRef<unknown>> = {};
@@ -217,6 +231,9 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data']) {
       this.dataSource.data = this.data;
+      if (this.localLogic && this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
     }
   }
 
@@ -226,11 +243,24 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
     });
   }
 
+  ngAfterViewInit() {
+    if (this.localLogic) {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }
+  }
+
   onCreate() {
     this.create.emit();
   }
 
   onSearch(value: string) {
+    if (this.localLogic) {
+      this.dataSource.filter = value.trim().toLowerCase();
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+    }
     this.searchChange.emit(value);
   }
 
