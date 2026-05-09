@@ -82,9 +82,17 @@ import {
               </app-client-search>
 
               <!-- Product -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.PRODUCT' | translate }}</mat-label>
-                <mat-select name="productId" [(ngModel)]="loan.productId" required [disabled]="isEditMode">
+                <mat-select
+                  name="productId"
+                  [(ngModel)]="loan.productId"
+                  required
+                  [disabled]="isEditMode"
+                >
                   @for (product of products; track product.id) {
                     <mat-option [value]="product.id">{{ product.name }}</mat-option>
                   }
@@ -104,13 +112,24 @@ import {
               </mat-form-field>
 
               <!-- External ID -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="loan.externalId" [disabled]="isEditMode" />
+                <input
+                  matInput
+                  name="externalId"
+                  [(ngModel)]="loan.externalId"
+                  [disabled]="isEditMode"
+                />
               </mat-form-field>
 
               <!-- Submitted On -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.SUBMITTED_ON' | translate }}</mat-label>
                 <input
                   matInput
@@ -125,7 +144,10 @@ import {
               </mat-form-field>
 
               <!-- Expected Disbursement -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
                 <input
                   matInput
@@ -139,7 +161,10 @@ import {
               </mat-form-field>
 
               <!-- Term Frequency -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate"
+              >
                 <mat-label>{{ 'LOANS.TERM_FREQUENCY' | translate }}</mat-label>
                 <input
                   matInput
@@ -153,7 +178,11 @@ import {
               <!-- Term Type -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.TERM_TYPE_DESC' | translate">
                 <mat-label>{{ 'LOANS.TERM_TYPE' | translate }}</mat-label>
-                <mat-select name="loanTermFrequencyType" [(ngModel)]="loan.loanTermFrequencyType" required>
+                <mat-select
+                  name="loanTermFrequencyType"
+                  [(ngModel)]="loan.loanTermFrequencyType"
+                  required
+                >
                   <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
                   <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
                   <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
@@ -163,7 +192,9 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
               <button
                 mat-raised-button
                 color="primary"

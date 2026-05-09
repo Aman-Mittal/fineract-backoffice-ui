@@ -28,11 +28,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
-import {
-  DataTableComponent,
-  ColumnDef,
-  CellTemplateDirective,
-} from '../../shared';
+import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { JournalEntriesService, JournalEntryTransactionItem } from '../../api';
 
 /**
@@ -66,7 +62,7 @@ import { JournalEntriesService, JournalEntryTransactionItem } from '../../api';
       (searchChange)="onSearch($event)"
     >
       <ng-template appCellTemplate="transactionDate" let-entry>
-        {{ entry.transactionDate | date:'mediumDate' }}
+        {{ entry.transactionDate | date: 'mediumDate' }}
       </ng-template>
 
       <ng-template appCellTemplate="entryType" let-entry>
@@ -76,7 +72,7 @@ import { JournalEntriesService, JournalEntryTransactionItem } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="amount" let-entry>
-        {{ entry.amount | number:'1.2-2' }}
+        {{ entry.amount | number: '1.2-2' }}
       </ng-template>
     </app-data-table>
   `,
@@ -144,7 +140,7 @@ export class JournalEntriesListComponent {
               offset,
               limit,
               orderBy,
-              sortOrder
+              sortOrder,
             )
             .pipe(catchError(() => of(null)));
         }),

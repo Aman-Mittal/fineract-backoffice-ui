@@ -58,42 +58,71 @@ import {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('OFFICES.EDIT_OFFICE' | translate) : ('OFFICES.CREATE_OFFICE' | translate) }}
+            {{
+              isEditMode
+                ? ('OFFICES.EDIT_OFFICE' | translate)
+                : ('OFFICES.CREATE_OFFICE' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
           <form #officeForm="ngForm" (ngSubmit)="onSubmit()" class="office-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.OFFICE_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'OFFICES.NAME' | translate }}</mat-label>
                 <input matInput name="name" [(ngModel)]="office.name" required />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.PARENT_OFFICE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.PARENT_OFFICE_DESC' | translate"
+              >
                 <mat-label>{{ 'OFFICES.PARENT' | translate }}</mat-label>
-                <mat-select name="parentId" [(ngModel)]="office.parentId" required [disabled]="isEditMode">
+                <mat-select
+                  name="parentId"
+                  [(ngModel)]="office.parentId"
+                  required
+                  [disabled]="isEditMode"
+                >
                   @for (o of offices; track o.id) {
                     <mat-option [value]="o.id">{{ o.name }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
+              >
                 <mat-label>{{ 'OFFICES.EXTERNAL_ID' | translate }}</mat-label>
                 <input matInput name="externalId" [(ngModel)]="office.externalId" />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.OPENING_DATE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.OPENING_DATE_DESC' | translate"
+              >
                 <mat-label>{{ 'OFFICES.OPENING_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="picker" name="openingDate" [(ngModel)]="openingDate" required />
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  name="openingDate"
+                  [(ngModel)]="openingDate"
+                  required
+                />
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
               <button
                 mat-raised-button
                 color="primary"

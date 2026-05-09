@@ -24,13 +24,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MappingFinancialActivitiesToAccountsService } from '../../api/api/mappingFinancialActivitiesToAccounts.service';
 import { GetFinancialActivityAccountsResponse } from '../../api/model/models';
-import { DataTableComponent, ColumnDef } from '../../shared/components/data-table/data-table.component';
+import {
+  DataTableComponent,
+  ColumnDef,
+} from '../../shared/components/data-table/data-table.component';
 import { CellTemplateDirective } from '../../shared/components/data-table/cell-template.directive';
 
 @Component({
   selector: 'app-financial-activity-mappings-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, DataTableComponent, CellTemplateDirective],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    DataTableComponent,
+    CellTemplateDirective,
+  ],
   template: `
     <div class="container">
       <app-data-table
@@ -42,13 +52,13 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
         (create)="onCreate()"
       >
         <ng-template appCellTemplate="financialActivity" let-row>
-          {{ (row.financialActivityData)?.name || '' }}
+          {{ row.financialActivityData?.name || '' }}
         </ng-template>
         <ng-template appCellTemplate="glAccountName" let-row>
-          {{ (row.glAccountData)?.name || '' }}
+          {{ row.glAccountData?.name || '' }}
         </ng-template>
         <ng-template appCellTemplate="glAccountCode" let-row>
-          {{ (row.glAccountData)?.glCode || '' }}
+          {{ row.glAccountData?.glCode || '' }}
         </ng-template>
         <ng-template appCellTemplate="actions" let-row>
           <button mat-icon-button color="primary" (click)="onEdit(row)">

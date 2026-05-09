@@ -222,19 +222,21 @@ export class LoanTransactionFormComponent implements OnInit {
    * Fetches the transaction template for the current loan and type.
    */
   private loadTemplate(): void {
-    this.transactionService.retrieveTransactionTemplate(this.loanId, this.transactionType).subscribe({
-      next: (template: GetLoansLoanIdTransactionsTemplateResponse) => {
-        this.transaction.transactionAmount = template.amount;
-        const dateArray = template.date as unknown as number[];
-        if (dateArray) {
-          this.transactionDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
-        }
-        this.paymentTypeOptions = template.paymentTypeOptions || [];
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load transaction template', err);
-      },
-    });
+    this.transactionService
+      .retrieveTransactionTemplate(this.loanId, this.transactionType)
+      .subscribe({
+        next: (template: GetLoansLoanIdTransactionsTemplateResponse) => {
+          this.transaction.transactionAmount = template.amount;
+          const dateArray = template.date as unknown as number[];
+          if (dateArray) {
+            this.transactionDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+          }
+          this.paymentTypeOptions = template.paymentTypeOptions || [];
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load transaction template', err);
+        },
+      });
   }
 
   /**

@@ -123,17 +123,35 @@ import {
                 <div class="entry-row">
                   <mat-form-field appearance="outline" class="account-field">
                     <mat-label>Account</mat-label>
-                    <mat-select name="debitAccount{{$index}}" [(ngModel)]="debit.glAccountId" required>
+                    <mat-select
+                      name="debitAccount{{ $index }}"
+                      [(ngModel)]="debit.glAccountId"
+                      required
+                    >
                       @for (account of glAccounts; track account.id) {
-                        <mat-option [value]="account.id">{{ account.name }} ({{ account.glCode }})</mat-option>
+                        <mat-option [value]="account.id"
+                          >{{ account.name }} ({{ account.glCode }})</mat-option
+                        >
                       }
                     </mat-select>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="amount-field">
                     <mat-label>Amount</mat-label>
-                    <input matInput type="number" name="debitAmount{{$index}}" [(ngModel)]="debit.amount" required />
+                    <input
+                      matInput
+                      type="number"
+                      name="debitAmount{{ $index }}"
+                      [(ngModel)]="debit.amount"
+                      required
+                    />
                   </mat-form-field>
-                  <button mat-icon-button color="warn" type="button" (click)="removeDebit($index)" [disabled]="debits.length === 1">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="removeDebit($index)"
+                    [disabled]="debits.length === 1"
+                  >
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -149,17 +167,35 @@ import {
                 <div class="entry-row">
                   <mat-form-field appearance="outline" class="account-field">
                     <mat-label>Account</mat-label>
-                    <mat-select name="creditAccount{{$index}}" [(ngModel)]="credit.glAccountId" required>
+                    <mat-select
+                      name="creditAccount{{ $index }}"
+                      [(ngModel)]="credit.glAccountId"
+                      required
+                    >
                       @for (account of glAccounts; track account.id) {
-                        <mat-option [value]="account.id">{{ account.name }} ({{ account.glCode }})</mat-option>
+                        <mat-option [value]="account.id"
+                          >{{ account.name }} ({{ account.glCode }})</mat-option
+                        >
                       }
                     </mat-select>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="amount-field">
                     <mat-label>Amount</mat-label>
-                    <input matInput type="number" name="creditAmount{{$index}}" [(ngModel)]="credit.amount" required />
+                    <input
+                      matInput
+                      type="number"
+                      name="creditAmount{{ $index }}"
+                      [(ngModel)]="credit.amount"
+                      required
+                    />
                   </mat-form-field>
-                  <button mat-icon-button color="warn" type="button" (click)="removeCredit($index)" [disabled]="credits.length === 1">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="removeCredit($index)"
+                    [disabled]="credits.length === 1"
+                  >
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -273,11 +309,17 @@ export class JournalEntryFormComponent implements OnInit {
   }
 
   private loadData() {
-    this.officeService.retrieveOffices().subscribe((data: GetOfficesResponse[]) => (this.offices = data));
+    this.officeService
+      .retrieveOffices()
+      .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
     this.currencyService.retrieveCurrencies().subscribe((data: CurrencyConfigurationData) => {
-       this.currencies = data.selectedCurrencyOptions ? Array.from(data.selectedCurrencyOptions) : [];
+      this.currencies = data.selectedCurrencyOptions
+        ? Array.from(data.selectedCurrencyOptions)
+        : [];
     });
-    this.glAccountService.retrieveAllAccounts().subscribe((data: GetGLAccountsResponse[]) => (this.glAccounts = data));
+    this.glAccountService
+      .retrieveAllAccounts()
+      .subscribe((data: GetGLAccountsResponse[]) => (this.glAccounts = data));
   }
 
   addDebit() {

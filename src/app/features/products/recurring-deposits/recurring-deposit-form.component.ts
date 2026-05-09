@@ -69,7 +69,9 @@ import {
         <mat-card-header>
           <mat-card-title>
             {{
-              isEditMode ? ('RECURRING_DEPOSITS.EDIT' | translate) : ('RECURRING_DEPOSITS.CREATE' | translate)
+              isEditMode
+                ? ('RECURRING_DEPOSITS.EDIT' | translate)
+                : ('RECURRING_DEPOSITS.CREATE' | translate)
             }}
           </mat-card-title>
         </mat-card-header>
@@ -157,7 +159,11 @@ import {
                 [matTooltip]="'HELP.PERIOD_FREQUENCY_DESC' | translate"
               >
                 <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
-                <mat-select name="depositPeriodFrequencyId" [(ngModel)]="account.depositPeriodFrequencyId" required>
+                <mat-select
+                  name="depositPeriodFrequencyId"
+                  [(ngModel)]="account.depositPeriodFrequencyId"
+                  required
+                >
                   <mat-option [value]="0">Days</mat-option>
                   <mat-option [value]="1">Weeks</mat-option>
                   <mat-option [value]="2">Months</mat-option>
@@ -262,10 +268,10 @@ export class RecurringDepositAccountFormComponent implements OnInit {
    */
   private loadProducts(): void {
     this.rdService.template13().subscribe({
-        next: (template: GetRecurringDepositAccountsTemplateResponse) => {
-            this.products = Array.from(template.productOptions || []);
-        },
-        error: (err: unknown) => console.error('Failed to load products', err)
+      next: (template: GetRecurringDepositAccountsTemplateResponse) => {
+        this.products = Array.from(template.productOptions || []);
+      },
+      error: (err: unknown) => console.error('Failed to load products', err),
     });
   }
 
@@ -285,7 +291,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
           productId: data.savingsProductId,
           mandatoryRecommendedDepositAmount: data.recurringDepositAmount,
           depositPeriod: data.depositPeriod,
-          depositPeriodFrequencyId: data.depositPeriodFrequency?.id
+          depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
         };
       },
       error: (err: unknown) => console.error('Failed to load account', err),
@@ -309,14 +315,14 @@ export class RecurringDepositAccountFormComponent implements OnInit {
     if (this.isEditMode && this.accountId) {
       const payload: PutRecurringDepositAccountsAccountIdRequest = {
         depositAmount: this.account.mandatoryRecommendedDepositAmount,
-        locale: 'en'
+        locale: 'en',
       };
       // Note: Fineract PUT for RD might be limited, adding Record cast for flexibility
       const fullPayload = {
-          ...payload,
-          depositPeriod: this.account.depositPeriod,
-          depositPeriodFrequencyId: this.account.depositPeriodFrequencyId,
-          dateFormat: this.DATE_FORMAT
+        ...payload,
+        depositPeriod: this.account.depositPeriod,
+        depositPeriodFrequencyId: this.account.depositPeriodFrequencyId,
+        dateFormat: this.DATE_FORMAT,
       };
 
       this.rdService.update18(this.accountId, fullPayload as Record<string, unknown>).subscribe({

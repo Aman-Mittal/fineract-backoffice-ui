@@ -30,7 +30,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TellerCashManagementService, OfficesService, PostTellersRequest, PutTellersRequest, GetOfficesResponse } from '../../api';
+import {
+  TellerCashManagementService,
+  OfficesService,
+  PostTellersRequest,
+  PutTellersRequest,
+  GetOfficesResponse,
+} from '../../api';
 
 /**
  * Component for creating and editing branch tellers.
@@ -55,30 +61,39 @@ import { TellerCashManagementService, OfficesService, PostTellersRequest, PutTel
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   template: `
     <div class="form-container">
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('TELLERS.EDIT_TELLER' | translate) : ('TELLERS.CREATE_TELLER' | translate) }}
+            {{
+              isEditMode
+                ? ('TELLERS.EDIT_TELLER' | translate)
+                : ('TELLERS.CREATE_TELLER' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
-        
+
         <mat-card-content>
           <form #tellerForm="ngForm" (ngSubmit)="onSubmit()" class="teller-form">
             <div class="form-grid">
               <!-- Name -->
               <mat-form-field appearance="outline" [matTooltip]="'TELLER_NAME_DESC' | translate">
                 <mat-label>{{ 'TELLERS.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="teller.name" required>
+                <input matInput name="name" [(ngModel)]="teller.name" required />
               </mat-form-field>
 
               <!-- Office -->
               <mat-form-field appearance="outline" [matTooltip]="'TELLER_OFFICE_DESC' | translate">
                 <mat-label>{{ 'TELLERS.OFFICE' | translate }}</mat-label>
-                <mat-select name="officeId" [(ngModel)]="teller.officeId" required [disabled]="isEditMode">
+                <mat-select
+                  name="officeId"
+                  [(ngModel)]="teller.officeId"
+                  required
+                  [disabled]="isEditMode"
+                >
                   @for (office of offices; track office.id) {
                     <mat-option [value]="office.id">{{ office.name }}</mat-option>
                   }
@@ -86,15 +101,33 @@ import { TellerCashManagementService, OfficesService, PostTellersRequest, PutTel
               </mat-form-field>
 
               <!-- Description -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLERS.DESCRIPTION' | translate" class="full-width">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'TELLERS.DESCRIPTION' | translate"
+                class="full-width"
+              >
                 <mat-label>{{ 'TELLERS.DESCRIPTION' | translate }}</mat-label>
-                <textarea matInput name="description" [(ngModel)]="teller.description" rows="3"></textarea>
+                <textarea
+                  matInput
+                  name="description"
+                  [(ngModel)]="teller.description"
+                  rows="3"
+                ></textarea>
               </mat-form-field>
 
               <!-- Start Date -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_START_DATE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'TELLER_START_DATE_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.START_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="picker" name="startDate" [(ngModel)]="startDate" required>
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  name="startDate"
+                  [(ngModel)]="startDate"
+                  required
+                />
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
@@ -118,8 +151,15 @@ import { TellerCashManagementService, OfficesService, PostTellersRequest, PutTel
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="tellerForm.invalid || isSaving">
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="tellerForm.invalid || isSaving"
+              >
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </button>
             </div>
@@ -128,35 +168,37 @@ import { TellerCashManagementService, OfficesService, PostTellersRequest, PutTel
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container {
-      padding: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .teller-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    .full-width {
-      grid-column: span 2;
-    }
-    mat-form-field {
-      width: 100%;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 16px;
-    }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .teller-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .full-width {
+        grid-column: span 2;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class TellerFormComponent implements OnInit {
   /** Service for teller management API calls */
@@ -177,15 +219,15 @@ export class TellerFormComponent implements OnInit {
   isEditMode = false;
   /** State of the save operation */
   isSaving = false;
-  
+
   /** Post request model instance for template data binding */
   teller: PostTellersRequest = {
-    status: 'ACTIVE'
+    status: 'ACTIVE',
   };
 
   /** Usage value, not in PostTellersRequest but needed for form */
   usage = 1;
-  
+
   /** Formatted start date for Fineract API */
   startDate: Date = new Date();
   /** List of available offices for teller assignment */
@@ -197,7 +239,7 @@ export class TellerFormComponent implements OnInit {
    */
   ngOnInit(): void {
     this.loadOffices();
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.tellerId = +id;
@@ -211,7 +253,7 @@ export class TellerFormComponent implements OnInit {
    * Retrieves the office list from the API.
    */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe(data => {
+    this.officesService.retrieveOffices(true).subscribe((data) => {
       this.offices = data;
     });
   }
@@ -221,7 +263,7 @@ export class TellerFormComponent implements OnInit {
    */
   private loadTellerData(): void {
     if (!this.tellerId) return;
-    this.tellerService.findTeller(this.tellerId).subscribe(data => {
+    this.tellerService.findTeller(this.tellerId).subscribe((data) => {
       const dateArray = data.startDate as unknown as number[];
       if (dateArray) {
         this.startDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
@@ -230,7 +272,7 @@ export class TellerFormComponent implements OnInit {
         name: data.name,
         officeId: data.officeId,
         description: (data as Record<string, unknown>)['description'] as string,
-        status: data.status as PostTellersRequest.StatusEnum
+        status: data.status as PostTellersRequest.StatusEnum,
       };
     });
   }
@@ -250,7 +292,7 @@ export class TellerFormComponent implements OnInit {
         startDate: formattedDate,
         status: this.teller.status === 'ACTIVE' ? 300 : 400,
         dateFormat: 'yyyy-MM-dd',
-        locale: 'en'
+        locale: 'en',
       };
       this.tellerService.updateTeller(this.tellerId, payload as PutTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
@@ -262,9 +304,9 @@ export class TellerFormComponent implements OnInit {
         startDate: formattedDate,
         status: this.teller.status === 'ACTIVE' ? 300 : 400,
         dateFormat: 'yyyy-MM-dd',
-        locale: 'en'
+        locale: 'en',
       };
-      
+
       this.tellerService.createTeller(payload as PostTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),

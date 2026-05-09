@@ -24,13 +24,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
 import { AccountingRuleData } from '../../api/model/models';
-import { DataTableComponent, ColumnDef } from '../../shared/components/data-table/data-table.component';
+import {
+  DataTableComponent,
+  ColumnDef,
+} from '../../shared/components/data-table/data-table.component';
 import { CellTemplateDirective } from '../../shared/components/data-table/cell-template.directive';
 
 @Component({
   selector: 'app-accounting-rules-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, DataTableComponent, CellTemplateDirective],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    DataTableComponent,
+    CellTemplateDirective,
+  ],
   template: `
     <div class="container">
       <app-data-table
@@ -42,10 +52,10 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
         (create)="onCreate()"
       >
         <ng-template appCellTemplate="debitAccounts" let-row>
-          {{ (row.debitAccounts)?.[0]?.name || '' }}
+          {{ row.debitAccounts?.[0]?.name || '' }}
         </ng-template>
         <ng-template appCellTemplate="creditAccounts" let-row>
-          {{ (row.creditAccounts)?.[0]?.name || '' }}
+          {{ row.creditAccounts?.[0]?.name || '' }}
         </ng-template>
         <ng-template appCellTemplate="actions" let-row>
           <button mat-icon-button color="primary" (click)="onEdit(row)">

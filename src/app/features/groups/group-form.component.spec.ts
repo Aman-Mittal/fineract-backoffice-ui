@@ -34,7 +34,11 @@ describe('GroupFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    groupsServiceSpy = jasmine.createSpyObj('GroupsService', ['retrieveOne15', 'create8', 'update13']);
+    groupsServiceSpy = jasmine.createSpyObj('GroupsService', [
+      'retrieveOne15',
+      'create8',
+      'update13',
+    ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -43,7 +47,7 @@ describe('GroupFormComponent', () => {
         GroupFormComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MatNativeDateModule
+        MatNativeDateModule,
       ],
       providers: [
         { provide: GroupsService, useValue: groupsServiceSpy },
@@ -52,10 +56,10 @@ describe('GroupFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: () => null })
-          }
-        }
-      ]
+            paramMap: of({ get: () => null }),
+          },
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,21 +82,21 @@ describe('GroupFormComponent', () => {
     component.group = { name: 'Test Group', officeId: 1, active: true };
     const testDate = new Date(2026, 4, 9); // May 9, 2026
     component.activationDate = testDate;
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     groupsServiceSpy.create8.and.returnValue(of({}) as any);
-    
+
     component.onSubmit();
-    
+
     const expectedPayload = jasmine.objectContaining({
       name: 'Test Group',
       officeId: 1,
       active: true,
       activationDate: '2026-05-09',
       dateFormat: 'yyyy-MM-dd',
-      locale: 'en'
+      locale: 'en',
     });
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(groupsServiceSpy.create8).toHaveBeenCalledWith(expectedPayload as any);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/groups']);
@@ -102,9 +106,9 @@ describe('GroupFormComponent', () => {
     component.isEditMode = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     groupsServiceSpy.create8.and.returnValue(throwError(() => new Error('API Error')) as any);
-    
+
     component.onSubmit();
-    
+
     expect(component.isSaving).toBeFalse();
   });
 });

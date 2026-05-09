@@ -24,11 +24,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  DataTableComponent,
-  ColumnDef,
-  CellTemplateDirective,
-} from '../../../shared';
+import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { LoanCollateralService, CollateralData } from '../../../api';
 
 /**
@@ -134,10 +130,14 @@ export class CollateralListComponent implements OnInit {
   }
 
   onDeleteCollateral(collateral: CollateralData): void {
-    if (this.loanId && collateral.id && confirm('Are you sure you want to delete this collateral?')) {
+    if (
+      this.loanId &&
+      collateral.id &&
+      confirm('Are you sure you want to delete this collateral?')
+    ) {
       this.collateralService.deleteCollateral(this.loanId, collateral.id).subscribe({
         next: () => this.loadCollaterals(),
-        error: (err) => console.error('Failed to delete collateral', err)
+        error: (err) => console.error('Failed to delete collateral', err),
       });
     }
   }

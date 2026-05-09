@@ -69,7 +69,9 @@ import {
         <mat-card-header>
           <mat-card-title>
             {{
-              isEditMode ? ('FIXED_DEPOSITS.EDIT' | translate) : ('FIXED_DEPOSITS.CREATE' | translate)
+              isEditMode
+                ? ('FIXED_DEPOSITS.EDIT' | translate)
+                : ('FIXED_DEPOSITS.CREATE' | translate)
             }}
           </mat-card-title>
         </mat-card-header>
@@ -157,7 +159,11 @@ import {
                 [matTooltip]="'HELP.PERIOD_FREQUENCY_DESC' | translate"
               >
                 <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
-                <mat-select name="depositPeriodFrequencyId" [(ngModel)]="account.depositPeriodFrequencyId" required>
+                <mat-select
+                  name="depositPeriodFrequencyId"
+                  [(ngModel)]="account.depositPeriodFrequencyId"
+                  required
+                >
                   <mat-option [value]="0">Days</mat-option>
                   <mat-option [value]="1">Weeks</mat-option>
                   <mat-option [value]="2">Months</mat-option>
@@ -262,10 +268,10 @@ export class FixedDepositAccountFormComponent implements OnInit {
    */
   private loadProducts(): void {
     this.fixedDepositService.template12().subscribe({
-        next: (template: GetFixedDepositAccountsTemplateResponse) => {
-            this.products = Array.from(template.productOptions || []);
-        },
-        error: (err: unknown) => console.error('Failed to load products', err)
+      next: (template: GetFixedDepositAccountsTemplateResponse) => {
+        this.products = Array.from(template.productOptions || []);
+      },
+      error: (err: unknown) => console.error('Failed to load products', err),
     });
   }
 
@@ -285,7 +291,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
           productId: data.savingsProductId,
           depositAmount: data.depositAmount,
           depositPeriod: data.depositPeriod,
-          depositPeriodFrequencyId: data.depositPeriodFrequency?.id
+          depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
         };
       },
       error: (err: unknown) => console.error('Failed to load account', err),
@@ -325,12 +331,14 @@ export class FixedDepositAccountFormComponent implements OnInit {
         depositPeriod: this.account.depositPeriod,
         depositPeriodFrequencyId: this.account.depositPeriodFrequencyId,
         locale: 'en',
-        dateFormat: this.DATE_FORMAT
+        dateFormat: this.DATE_FORMAT,
       };
-      this.fixedDepositService.update16(this.accountId, payload as PutFixedDepositAccountsAccountIdRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.fixedDepositService
+        .update16(this.accountId, payload as PutFixedDepositAccountsAccountIdRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
       this.fixedDepositService.submitApplication(this.account).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),

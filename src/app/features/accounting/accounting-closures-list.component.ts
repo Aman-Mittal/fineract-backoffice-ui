@@ -24,11 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import {
-  DataTableComponent,
-  ColumnDef,
-  CellTemplateDirective,
-} from '../../shared';
+import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { AccountingClosureService, GetGlClosureResponse } from '../../api';
 
 /**
@@ -60,7 +56,7 @@ import { AccountingClosureService, GetGlClosureResponse } from '../../api';
       (create)="onCreateClosure()"
     >
       <ng-template appCellTemplate="closingDate" let-closure>
-        {{ closure.closingDate | date:'mediumDate' }}
+        {{ closure.closingDate | date: 'mediumDate' }}
       </ng-template>
 
       <ng-template appCellTemplate="isClosed" let-closure>

@@ -135,7 +135,8 @@ export class FinancialActivityMappingFormComponent implements OnInit {
   loadTemplate() {
     this.financialActivityService.retrieveTemplate().subscribe((template) => {
       const templateData = template as Record<string, unknown>;
-      this.activities = (templateData['financialActivityOptions'] as Record<string, unknown>[]) || [];
+      this.activities =
+        (templateData['financialActivityOptions'] as Record<string, unknown>[]) || [];
       this.glAccountOptions = (templateData['glAccountOptions'] as Record<string, unknown>) || {};
       const currentActivityId = this.mappingForm.get('financialActivityId')?.value;
       if (currentActivityId) {

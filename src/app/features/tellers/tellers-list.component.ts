@@ -137,7 +137,7 @@ export class TellersListComponent implements OnInit {
 
   /**
    * Navigates to the edit form for a specific teller.
-   * 
+   *
    * @param teller - The teller entity to edit.
    */
   onEditTeller(teller: GetTellersResponse): void {
@@ -146,7 +146,7 @@ export class TellersListComponent implements OnInit {
 
   /**
    * Navigates to the cashier management view for a specific teller.
-   * 
+   *
    * @param teller - The teller entity.
    */
   onManageCashiers(teller: GetTellersResponse): void {

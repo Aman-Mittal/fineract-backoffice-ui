@@ -67,7 +67,11 @@ import {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('SHARE_ACCOUNTS.EDIT' | translate) : ('SHARE_ACCOUNTS.CREATE' | translate) }}
+            {{
+              isEditMode
+                ? ('SHARE_ACCOUNTS.EDIT' | translate)
+                : ('SHARE_ACCOUNTS.CREATE' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
 
@@ -84,7 +88,10 @@ import {
               </app-client-search>
 
               <!-- Product -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SHARE_PRODUCT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SHARE_PRODUCT_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
                 <mat-select
                   name="productId"
@@ -99,7 +106,10 @@ import {
               </mat-form-field>
 
               <!-- Requested Shares -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.REQUESTED_SHARES_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.REQUESTED_SHARES_DESC' | translate"
+              >
                 <mat-label>{{ 'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate }}</mat-label>
                 <input
                   matInput
@@ -111,7 +121,10 @@ import {
               </mat-form-field>
 
               <!-- Application Date -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.APPLICATION_DATE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.APPLICATION_DATE_DESC' | translate"
+              >
                 <mat-label>{{ 'SHARE_ACCOUNTS.APPLICATION_DATE' | translate }}</mat-label>
                 <input
                   matInput
@@ -125,7 +138,10 @@ import {
               </mat-form-field>
 
               <!-- Savings Account ID (Optional but recommended) -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SAVINGS_ACCOUNT_ID_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SAVINGS_ACCOUNT_ID_DESC' | translate"
+              >
                 <mat-label>{{ 'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate }}</mat-label>
                 <input
                   matInput

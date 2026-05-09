@@ -59,7 +59,11 @@ import {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ isEditMode ? ('LOANS.EDIT_COLLATERAL' | translate) : ('LOANS.ADD_COLLATERAL' | translate) }}
+            {{
+              isEditMode
+                ? ('LOANS.EDIT_COLLATERAL' | translate)
+                : ('LOANS.ADD_COLLATERAL' | translate)
+            }}
           </mat-card-title>
         </mat-card-header>
 
@@ -67,7 +71,10 @@ import {
           <form #collateralForm="ngForm" (ngSubmit)="onSubmit()" class="collateral-form">
             <div class="form-grid">
               <!-- Collateral Type -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.COLLATERAL_TYPE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.COLLATERAL_TYPE_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.TYPE' | translate }}</mat-label>
                 <mat-select
                   name="collateralTypeId"
@@ -82,19 +89,20 @@ import {
               </mat-form-field>
 
               <!-- Value -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.COLLATERAL_VALUE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.COLLATERAL_VALUE_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.VALUE' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="value"
-                  [(ngModel)]="collateralValue"
-                  required
-                />
+                <input matInput type="number" name="value" [(ngModel)]="collateralValue" required />
               </mat-form-field>
 
               <!-- Description -->
-              <mat-form-field appearance="outline" class="full-width" [matTooltip]="'HELP.COLLATERAL_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                class="full-width"
+                [matTooltip]="'HELP.COLLATERAL_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                 <textarea
                   matInput
@@ -167,7 +175,7 @@ export class CollateralFormComponent implements OnInit {
   isSaving = false;
 
   collateralTypes: CodeValueData[] = [];
-  
+
   // Binding variables
   selectedCollateralTypeId: number | null = null;
   collateralValue = 0;
@@ -225,7 +233,11 @@ export class CollateralFormComponent implements OnInit {
 
     if (this.isEditMode && this.collateralId) {
       this.collateralService
-        .updateCollateral(this.loanId, this.collateralId, requestPayload as LoansLoandIdCollateralsCollateralIdRequest)
+        .updateCollateral(
+          this.loanId,
+          this.collateralId,
+          requestPayload as LoansLoandIdCollateralsCollateralIdRequest,
+        )
         .subscribe({
           next: () => this.router.navigate(['/loans', this.loanId, 'collateral']),
           error: () => (this.isSaving = false),

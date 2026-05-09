@@ -19,11 +19,16 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CollateralListComponent } from './collateral-list.component';
-import { LoanCollateralService } from '../../../api';
+import {
+  LoanCollateralService,
+  CollateralData,
+  DeleteLoansLoanIdCollateralsCollateralIdResponse,
+} from '../../../api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpEvent } from '@angular/common/http';
 
 describe('CollateralListComponent', () => {
   let component: CollateralListComponent;
@@ -32,29 +37,29 @@ describe('CollateralListComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', ['retrieveCollateralDetails', 'deleteCollateral']);
+    collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', [
+      'retrieveCollateralDetails',
+      'deleteCollateral',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        CollateralListComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule
-      ],
+      imports: [CollateralListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: () => '123' })
-          }
-        }
-      ]
+            paramMap: of({ get: () => '123' }),
+          },
+        },
+      ],
     }).compileComponents();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    collateralServiceSpy.retrieveCollateralDetails.and.returnValue(of([]) as unknown);
+    collateralServiceSpy.retrieveCollateralDetails.and.returnValue(
+      of([]) as unknown as Observable<HttpEvent<CollateralData[]>>,
+    );
     fixture = TestBed.createComponent(CollateralListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -76,17 +81,18 @@ describe('CollateralListComponent', () => {
 
   it('should navigate to edit on onEditCollateral', () => {
     const mockCollateral = { id: 456 };
-    component.onEditCollateral(mockCollateral as unknown);
+    component.onEditCollateral(mockCollateral as unknown as CollateralData);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans', 123, 'collateral', 'edit', 456]);
   });
 
   it('should call delete and reload on onDeleteCollateral', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    collateralServiceSpy.deleteCollateral.and.returnValue(of({}) as unknown);
-    
-    component.onDeleteCollateral({ id: 456 } as unknown);
-    
+    collateralServiceSpy.deleteCollateral.and.returnValue(
+      of({}) as unknown as Observable<HttpEvent<DeleteLoansLoanIdCollateralsCollateralIdResponse>>,
+    );
+
+    component.onDeleteCollateral({ id: 456 } as unknown as CollateralData);
+
     expect(collateralServiceSpy.deleteCollateral).toHaveBeenCalledWith(123, 456);
     expect(collateralServiceSpy.retrieveCollateralDetails).toHaveBeenCalledTimes(2);
   });

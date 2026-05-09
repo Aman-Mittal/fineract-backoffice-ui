@@ -64,7 +64,9 @@ import {
         <mat-card-header>
           <mat-card-title>
             {{
-              isEditMode ? ('CLIENTS.EDIT_CLIENT' | translate) : ('CLIENTS.CREATE_CLIENT' | translate)
+              isEditMode
+                ? ('CLIENTS.EDIT_CLIENT' | translate)
+                : ('CLIENTS.CREATE_CLIENT' | translate)
             }}
           </mat-card-title>
         </mat-card-header>
@@ -73,7 +75,10 @@ import {
           <form #clientForm="ngForm" (ngSubmit)="onSubmit()" class="client-form">
             <div class="form-grid">
               <!-- Legal Form -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.LEGAL_FORM_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.LEGAL_FORM_DESC' | translate"
+              >
                 <mat-label>{{ 'CLIENTS.LEGAL_FORM' | translate }}</mat-label>
                 <mat-select
                   name="legalFormId"
@@ -87,7 +92,10 @@ import {
               </mat-form-field>
 
               <!-- First Name -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.FIRST_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.FIRST_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
                 <input matInput name="firstname" [(ngModel)]="client.firstname" required />
               </mat-form-field>

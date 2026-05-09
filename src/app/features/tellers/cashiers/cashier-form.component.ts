@@ -72,7 +72,10 @@ import {
           <form #cashierForm="ngForm" (ngSubmit)="onSubmit()" class="cashier-form">
             <div class="form-grid">
               <!-- Staff Selection -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.CASHIER_STAFF_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.CASHIER_STAFF_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.STAFF' | translate }}</mat-label>
                 <mat-select name="staffId" [(ngModel)]="cashier.staffId" required>
                   @for (member of staff; track member.id) {
@@ -84,7 +87,13 @@ import {
               <!-- Start Date -->
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'TELLERS.START_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="startPicker" name="startDate" [(ngModel)]="startDate" required />
+                <input
+                  matInput
+                  [matDatepicker]="startPicker"
+                  name="startDate"
+                  [(ngModel)]="startDate"
+                  required
+                />
                 <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
                 <mat-datepicker #startPicker></mat-datepicker>
               </mat-form-field>
@@ -92,7 +101,13 @@ import {
               <!-- End Date -->
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'TELLERS.END_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="endPicker" name="endDate" [(ngModel)]="endDate" required />
+                <input
+                  matInput
+                  [matDatepicker]="endPicker"
+                  name="endDate"
+                  [(ngModel)]="endDate"
+                  required
+                />
                 <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
                 <mat-datepicker #endPicker></mat-datepicker>
               </mat-form-field>
@@ -107,12 +122,19 @@ import {
               <!-- Description -->
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                <textarea matInput name="description" [(ngModel)]="cashier.description" rows="2"></textarea>
+                <textarea
+                  matInput
+                  name="description"
+                  [(ngModel)]="cashier.description"
+                  rows="2"
+                ></textarea>
               </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
               <button
                 mat-raised-button
                 color="primary"

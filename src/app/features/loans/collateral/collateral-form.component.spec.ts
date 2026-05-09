@@ -19,11 +19,17 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CollateralFormComponent } from './collateral-form.component';
-import { LoanCollateralService } from '../../../api';
+import {
+  LoanCollateralService,
+  CollateralData,
+  PostLoansLoanIdCollateralsResponse,
+  LoansLoanIdCollateralsRequest,
+} from '../../../api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpEvent } from '@angular/common/http';
 
 describe('CollateralFormComponent', () => {
   let component: CollateralFormComponent;
@@ -32,29 +38,31 @@ describe('CollateralFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', ['newCollateralTemplate', 'retrieveCollateralDetails1', 'createCollateral', 'updateCollateral']);
+    collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', [
+      'newCollateralTemplate',
+      'retrieveCollateralDetails1',
+      'createCollateral',
+      'updateCollateral',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        CollateralFormComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule
-      ],
+      imports: [CollateralFormComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: (key: string) => key === 'loanId' ? '123' : null })
-          }
-        }
-      ]
+            paramMap: of({ get: (key: string) => (key === 'loanId' ? '123' : null) }),
+          },
+        },
+      ],
     }).compileComponents();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    collateralServiceSpy.newCollateralTemplate.and.returnValue(of({ allowedCollateralTypes: [] }) as unknown);
+    collateralServiceSpy.newCollateralTemplate.and.returnValue(
+      of({ allowedCollateralTypes: [] }) as unknown as Observable<HttpEvent<CollateralData>>,
+    );
     fixture = TestBed.createComponent(CollateralFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -68,16 +76,20 @@ describe('CollateralFormComponent', () => {
     component.selectedCollateralTypeId = 1;
     component.collateralValue = 5000;
     component.collateralDescription = 'Gold jewelry';
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    collateralServiceSpy.createCollateral.and.returnValue(of({}) as unknown);
-    
+
+    collateralServiceSpy.createCollateral.and.returnValue(
+      of({}) as unknown as Observable<HttpEvent<PostLoansLoanIdCollateralsResponse>>,
+    );
+
     component.onSubmit();
-    
-    expect(collateralServiceSpy.createCollateral).toHaveBeenCalledWith(123, jasmine.objectContaining({
-      collateralTypeId: 1,
-      value: 5000,
-      description: 'Gold jewelry'
-    }) as unknown);
+
+    expect(collateralServiceSpy.createCollateral).toHaveBeenCalledWith(
+      123,
+      jasmine.objectContaining({
+        collateralTypeId: 1,
+        value: 5000,
+        description: 'Gold jewelry',
+      }) as unknown as LoansLoanIdCollateralsRequest,
+    );
   });
 });

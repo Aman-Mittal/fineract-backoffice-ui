@@ -71,7 +71,9 @@ import {
         <mat-card-header>
           <mat-card-title>
             {{
-              isEditMode ? ('SAVINGS.EDIT_ACCOUNT' | translate) : ('SAVINGS.CREATE_ACCOUNT' | translate)
+              isEditMode
+                ? ('SAVINGS.EDIT_ACCOUNT' | translate)
+                : ('SAVINGS.CREATE_ACCOUNT' | translate)
             }}
           </mat-card-title>
         </mat-card-header>
@@ -89,7 +91,10 @@ import {
               </app-client-search>
 
               <!-- Product -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
                 <mat-select
                   name="productId"
@@ -104,7 +109,10 @@ import {
               </mat-form-field>
 
               <!-- Submitted On -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
                 <input
                   matInput
@@ -118,7 +126,10 @@ import {
               </mat-form-field>
 
               <!-- Nominal Annual Interest Rate -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate"
+              >
                 <mat-label>{{ 'COMMON.INTEREST_RATE' | translate }}</mat-label>
                 <input
                   matInput

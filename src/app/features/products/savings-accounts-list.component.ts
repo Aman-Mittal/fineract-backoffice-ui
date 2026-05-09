@@ -34,11 +34,7 @@ import {
   CellTemplateDirective,
   StatusBadgeComponent,
 } from '../../shared';
-import {
-  SavingsAccountService,
-  GetSavingsAccountsResponse,
-  GetSavingsPageItems,
-} from '../../api';
+import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
 
 /**
  * Component for displaying a list of customer savings accounts.
@@ -159,7 +155,7 @@ export class SavingsAccountsListComponent implements OnInit {
             : undefined;
 
           // Note: SavingsAccountService.retrieveAll33 supports offset/limit.
-          // Fineract 1.x doesn't always support 'externalId' as a partial name search, 
+          // Fineract 1.x doesn't always support 'externalId' as a partial name search,
           // but we use it if search is provided.
           const searchVal = this.currentFilter || undefined;
 

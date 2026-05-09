@@ -91,7 +91,12 @@ import {
               <!-- Comments -->
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Comments</mat-label>
-                <textarea matInput name="comments" [(ngModel)]="request.comments" rows="3"></textarea>
+                <textarea
+                  matInput
+                  name="comments"
+                  [(ngModel)]="request.comments"
+                  rows="3"
+                ></textarea>
               </mat-form-field>
             </div>
 
@@ -153,7 +158,9 @@ export class AccountingClosureFormComponent implements OnInit {
   isSaving = false;
 
   ngOnInit() {
-    this.officeService.retrieveOffices().subscribe((data: GetOfficesResponse[]) => (this.offices = data));
+    this.officeService
+      .retrieveOffices()
+      .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
   }
 
   onSubmit() {

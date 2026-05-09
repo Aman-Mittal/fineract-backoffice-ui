@@ -24,12 +24,17 @@ import {
   GeneralLedgerAccountService,
   OfficesService,
   CurrencyService,
+  GetOfficesResponse,
+  CurrencyConfigurationData,
+  GetGLAccountsResponse,
+  PostJournalEntriesResponse,
 } from '../../api';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
+import { HttpEvent } from '@angular/common/http';
 
 describe('JournalEntryFormComponent', () => {
   let component: JournalEntryFormComponent;
@@ -42,7 +47,9 @@ describe('JournalEntryFormComponent', () => {
 
   beforeEach(async () => {
     journalServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['createGLJournalEntry']);
-    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', ['retrieveAllAccounts']);
+    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', [
+      'retrieveAllAccounts',
+    ]);
     officeServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['retrieveCurrencies']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -63,10 +70,17 @@ describe('JournalEntryFormComponent', () => {
       ],
     }).compileComponents();
 
-    officeServiceSpy.retrieveOffices.and.returnValue(of([]) as unknown);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    currencyServiceSpy.retrieveCurrencies.and.returnValue(of({ selectedCurrencyOptions: [] }) as unknown);
-    glAccountServiceSpy.retrieveAllAccounts.and.returnValue(of([]) as unknown);
+    officeServiceSpy.retrieveOffices.and.returnValue(
+      of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
+    );
+    currencyServiceSpy.retrieveCurrencies.and.returnValue(
+      of({ selectedCurrencyOptions: [] }) as unknown as Observable<
+        HttpEvent<CurrencyConfigurationData>
+      >,
+    );
+    glAccountServiceSpy.retrieveAllAccounts.and.returnValue(
+      of([]) as unknown as Observable<HttpEvent<GetGLAccountsResponse[]>>,
+    );
 
     fixture = TestBed.createComponent(JournalEntryFormComponent);
     component = fixture.componentInstance;
@@ -92,18 +106,22 @@ describe('JournalEntryFormComponent', () => {
     component.transactionDate = new Date(2026, 4, 15);
     component.debits = [{ glAccountId: 10, amount: 500 }];
     component.credits = [{ glAccountId: 20, amount: 500 }];
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    journalServiceSpy.createGLJournalEntry.and.returnValue(of({}) as unknown);
-    
+
+    journalServiceSpy.createGLJournalEntry.and.returnValue(
+      of({}) as unknown as Observable<HttpEvent<PostJournalEntriesResponse>>,
+    );
+
     component.onSubmit();
-    
-    expect(journalServiceSpy.createGLJournalEntry).toHaveBeenCalledWith(undefined, jasmine.objectContaining({
-      officeId: 1,
-      currencyCode: 'USD',
-      transactionDate: '2026-05-15',
-      debits: component.debits,
-      credits: component.credits
-    }));
+
+    expect(journalServiceSpy.createGLJournalEntry).toHaveBeenCalledWith(
+      undefined,
+      jasmine.objectContaining({
+        officeId: 1,
+        currencyCode: 'USD',
+        transactionDate: '2026-05-15',
+        debits: component.debits,
+        credits: component.credits,
+      }),
+    );
   });
 });

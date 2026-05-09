@@ -34,7 +34,11 @@ describe('CenterFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    centersServiceSpy = jasmine.createSpyObj('CentersService', ['retrieveOne14', 'create7', 'update12']);
+    centersServiceSpy = jasmine.createSpyObj('CentersService', [
+      'retrieveOne14',
+      'create7',
+      'update12',
+    ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -43,7 +47,7 @@ describe('CenterFormComponent', () => {
         CenterFormComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MatNativeDateModule
+        MatNativeDateModule,
       ],
       providers: [
         { provide: CentersService, useValue: centersServiceSpy },
@@ -52,10 +56,10 @@ describe('CenterFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: () => null })
-          }
-        }
-      ]
+            paramMap: of({ get: () => null }),
+          },
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,21 +82,21 @@ describe('CenterFormComponent', () => {
     component.center = { name: 'Test Center', officeId: 1, active: true };
     const testDate = new Date(2026, 4, 9); // May 9, 2026
     component.activationDate = testDate;
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     centersServiceSpy.create7.and.returnValue(of({}) as any);
-    
+
     component.onSubmit();
-    
+
     const expectedPayload = jasmine.objectContaining({
       name: 'Test Center',
       officeId: 1,
       active: true,
       activationDate: '2026-05-09',
       dateFormat: 'yyyy-MM-dd',
-      locale: 'en'
+      locale: 'en',
     });
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(centersServiceSpy.create7).toHaveBeenCalledWith(expectedPayload as any);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/centers']);
@@ -102,9 +106,9 @@ describe('CenterFormComponent', () => {
     component.isEditMode = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     centersServiceSpy.create7.and.returnValue(throwError(() => new Error('API Error')) as any);
-    
+
     component.onSubmit();
-    
+
     expect(component.isSaving).toBeFalse();
   });
 
@@ -112,7 +116,12 @@ describe('CenterFormComponent', () => {
     // Re-configure for edit mode test
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot(), NoopAnimationsModule, MatNativeDateModule],
+      imports: [
+        CenterFormComponent,
+        TranslateModule.forRoot(),
+        NoopAnimationsModule,
+        MatNativeDateModule,
+      ],
       providers: [
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
@@ -120,10 +129,10 @@ describe('CenterFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: (key: string) => key === 'id' ? '123' : null })
-          }
-        }
-      ]
+            paramMap: of({ get: (key: string) => (key === 'id' ? '123' : null) }),
+          },
+        },
+      ],
     });
 
     const mockCenter = { id: 123, name: 'Existing Center', officeId: 1, active: true };

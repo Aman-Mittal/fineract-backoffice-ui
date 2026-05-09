@@ -253,10 +253,12 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
       note: this.note,
     };
 
-    this.transactionService.transaction2(this.accountId, payload as PostSavingsAccountTransactionsRequest, this.command).subscribe({
-      next: () => this.router.navigate(['/products/savings-accounts']),
-      error: () => (this.isSaving = false),
-    });
+    this.transactionService
+      .transaction2(this.accountId, payload as PostSavingsAccountTransactionsRequest, this.command)
+      .subscribe({
+        next: () => this.router.navigate(['/products/savings-accounts']),
+        error: () => (this.isSaving = false),
+      });
   }
 
   /**

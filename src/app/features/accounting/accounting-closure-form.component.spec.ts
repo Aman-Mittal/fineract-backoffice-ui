@@ -19,9 +19,15 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountingClosureFormComponent } from './accounting-closure-form.component';
-import { AccountingClosureService, OfficesService } from '../../api';
+import {
+  AccountingClosureService,
+  OfficesService,
+  GetOfficesResponse,
+  PostGlClosuresResponse,
+} from '../../api';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
+import { HttpEvent } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -52,7 +58,9 @@ describe('AccountingClosureFormComponent', () => {
       ],
     }).compileComponents();
 
-    officeServiceSpy.retrieveOffices.and.returnValue(of([]) as unknown);
+    officeServiceSpy.retrieveOffices.and.returnValue(
+      of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
+    );
     fixture = TestBed.createComponent(AccountingClosureFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -66,18 +74,21 @@ describe('AccountingClosureFormComponent', () => {
     component.request.officeId = 1;
     component.closingDate = new Date(2026, 4, 31);
     component.request.comments = 'Monthly closure';
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    closureServiceSpy.createGLClosure.and.returnValue(of({}) as unknown);
-    
+
+    closureServiceSpy.createGLClosure.and.returnValue(
+      of({}) as unknown as Observable<HttpEvent<PostGlClosuresResponse>>,
+    );
+
     component.onSubmit();
-    
-    expect(closureServiceSpy.createGLClosure).toHaveBeenCalledWith(jasmine.objectContaining({
-      officeId: 1,
-      closingDate: '2026-05-31',
-      comments: 'Monthly closure',
-      dateFormat: 'yyyy-MM-dd',
-      locale: 'en'
-    }));
+
+    expect(closureServiceSpy.createGLClosure).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        officeId: 1,
+        closingDate: '2026-05-31',
+        comments: 'Monthly closure',
+        dateFormat: 'yyyy-MM-dd',
+        locale: 'en',
+      }),
+    );
   });
 });

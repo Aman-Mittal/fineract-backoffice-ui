@@ -122,10 +122,8 @@ export class ClientSearchComponent implements OnInit {
       )
       .subscribe({
         next: (response: GetClientsResponse) => {
-          this.filteredClients = (Array.from(response.pageItems || []) as Record<
-            string,
-            unknown
-          >[]) || [];
+          this.filteredClients =
+            (Array.from(response.pageItems || []) as Record<string, unknown>[]) || [];
           this.isLoading = false;
         },
         error: () => {

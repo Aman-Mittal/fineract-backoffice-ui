@@ -19,11 +19,12 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JournalEntriesListComponent } from './journal-entries-list.component';
-import { JournalEntriesService } from '../../api';
+import { JournalEntriesService, GetJournalEntriesTransactionIdResponse } from '../../api';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpEvent } from '@angular/common/http';
 
 describe('JournalEntriesListComponent', () => {
   let component: JournalEntriesListComponent;
@@ -36,19 +37,18 @@ describe('JournalEntriesListComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        JournalEntriesListComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule
-      ],
+      imports: [JournalEntriesListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         { provide: JournalEntriesService, useValue: journalServiceSpy },
-        { provide: Router, useValue: routerSpy }
-      ]
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    journalServiceSpy.retrieveAll1.and.returnValue(of({ pageItems: [], totalFilteredRecords: 0 }) as unknown);
+    journalServiceSpy.retrieveAll1.and.returnValue(
+      of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
+        HttpEvent<GetJournalEntriesTransactionIdResponse>
+      >,
+    );
     fixture = TestBed.createComponent(JournalEntriesListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

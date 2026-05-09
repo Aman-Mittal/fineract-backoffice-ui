@@ -137,7 +137,7 @@ export interface ColumnDef {
             }
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">

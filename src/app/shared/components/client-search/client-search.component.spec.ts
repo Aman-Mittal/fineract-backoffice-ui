@@ -19,10 +19,11 @@
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ClientSearchComponent } from './client-search.component';
-import { ClientService } from '../../../api';
-import { of } from 'rxjs';
+import { ClientService, GetClientsResponse } from '../../../api';
+import { Observable, of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
+import { HttpEvent } from '@angular/common/http';
 
 describe('ClientSearchComponent', () => {
   let component: ClientSearchComponent;
@@ -33,14 +34,8 @@ describe('ClientSearchComponent', () => {
     clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        ClientSearchComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot()
-      ],
-      providers: [
-        { provide: ClientService, useValue: clientServiceSpy }
-      ]
+      imports: [ClientSearchComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [{ provide: ClientService, useValue: clientServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClientSearchComponent);
@@ -54,12 +49,11 @@ describe('ClientSearchComponent', () => {
 
   it('should search for clients when input changes', fakeAsync(() => {
     const mockResponse = {
-      pageItems: [
-        { id: 1, displayName: 'John Doe', accountNo: '001' }
-      ]
+      pageItems: [{ id: 1, displayName: 'John Doe', accountNo: '001' }],
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    clientServiceSpy.retrieveAll21.and.returnValue(of(mockResponse) as any);
+    clientServiceSpy.retrieveAll21.and.returnValue(
+      of(mockResponse) as unknown as Observable<HttpEvent<GetClientsResponse>>,
+    );
 
     component.searchControl.setValue('John');
     tick(300); // Debounce time
@@ -73,18 +67,18 @@ describe('ClientSearchComponent', () => {
       undefined,
       undefined,
       0,
-      20
+      20,
     );
     expect(component.filteredClients.length).toBe(1);
-    expect(component.filteredClients[0].displayName).toBe('John Doe');
+    expect(component.filteredClients[0]['displayName']).toBe('John Doe');
   }));
 
   it('should emit selected client id', () => {
     spyOn(component.clientSelected, 'emit');
     const mockClient = { id: 123, displayName: 'Test Client' };
-    
-    component.onSelected(mockClient);
-    
+
+    component.onSelected(mockClient as unknown as Record<string, unknown>);
+
     expect(component.clientSelected.emit).toHaveBeenCalledWith(123);
   });
 });

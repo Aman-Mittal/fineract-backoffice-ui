@@ -19,11 +19,16 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountingClosuresListComponent } from './accounting-closures-list.component';
-import { AccountingClosureService } from '../../api';
+import {
+  AccountingClosureService,
+  GetGlClosureResponse,
+  DeleteGlClosuresResponse,
+} from '../../api';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpEvent } from '@angular/common/http';
 
 describe('AccountingClosuresListComponent', () => {
   let component: AccountingClosuresListComponent;
@@ -32,22 +37,23 @@ describe('AccountingClosuresListComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', ['retrieveAllClosures', 'deleteGLClosure']);
+    closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', [
+      'retrieveAllClosures',
+      'deleteGLClosure',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        AccountingClosuresListComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule
-      ],
+      imports: [AccountingClosuresListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         { provide: AccountingClosureService, useValue: closureServiceSpy },
-        { provide: Router, useValue: routerSpy }
-      ]
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
-    closureServiceSpy.retrieveAllClosures.and.returnValue(of([]) as unknown);
+    closureServiceSpy.retrieveAllClosures.and.returnValue(
+      of([]) as unknown as Observable<HttpEvent<GetGlClosureResponse[]>>,
+    );
     fixture = TestBed.createComponent(AccountingClosuresListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -68,10 +74,12 @@ describe('AccountingClosuresListComponent', () => {
 
   it('should delete closure when confirmed', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    closureServiceSpy.deleteGLClosure.and.returnValue(of({}) as unknown);
-    
-    component.onDeleteClosure({ id: 1 } as unknown);
-    
+    closureServiceSpy.deleteGLClosure.and.returnValue(
+      of({}) as unknown as Observable<HttpEvent<DeleteGlClosuresResponse>>,
+    );
+
+    component.onDeleteClosure({ id: 1 } as unknown as GetGlClosureResponse);
+
     expect(closureServiceSpy.deleteGLClosure).toHaveBeenCalledWith(1);
     expect(closureServiceSpy.retrieveAllClosures).toHaveBeenCalledTimes(2);
   });

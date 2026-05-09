@@ -34,7 +34,12 @@ describe('TellerFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    tellerServiceSpy = jasmine.createSpyObj('TellerCashManagementService', ['findTeller', 'createTeller', 'updateTeller', 'template12']);
+    tellerServiceSpy = jasmine.createSpyObj('TellerCashManagementService', [
+      'findTeller',
+      'createTeller',
+      'updateTeller',
+      'template12',
+    ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -43,7 +48,7 @@ describe('TellerFormComponent', () => {
         TellerFormComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MatNativeDateModule
+        MatNativeDateModule,
       ],
       providers: [
         { provide: TellerCashManagementService, useValue: tellerServiceSpy },
@@ -52,10 +57,10 @@ describe('TellerFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: () => null })
-          }
-        }
-      ]
+            paramMap: of({ get: () => null }),
+          },
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,21 +79,23 @@ describe('TellerFormComponent', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     component.teller = { name: 'Test Teller', officeId: 1, status: 'ACTIVE' as any };
     component.startDate = new Date(2026, 4, 9);
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tellerServiceSpy.createTeller.and.returnValue(of({}) as any);
-    
+
     component.onSubmit();
-    
+
     const expectedPayload = jasmine.objectContaining({
       name: 'Test Teller',
       officeId: 1,
       status: 300, // Numeric for Active
       startDate: '2026-05-09',
       dateFormat: 'yyyy-MM-dd',
-      locale: 'en'
+      locale: 'en',
     });
-    
-    expect(tellerServiceSpy.createTeller).toHaveBeenCalledWith(expectedPayload as PostTellersRequest);
+
+    expect(tellerServiceSpy.createTeller).toHaveBeenCalledWith(
+      expectedPayload as PostTellersRequest,
+    );
   });
 });

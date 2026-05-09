@@ -19,12 +19,13 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareAccountsListComponent } from './share-accounts-list.component';
-import { ShareAccountService } from '../../../api';
+import { ShareAccountService, GetAccountsTypeAccountIdResponse } from '../../../api';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { PageEvent } from '@angular/material/paginator';
+import { HttpEvent } from '@angular/common/http';
 
 describe('ShareAccountsListComponent', () => {
   let component: ShareAccountsListComponent;
@@ -37,19 +38,18 @@ describe('ShareAccountsListComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        ShareAccountsListComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule
-      ],
+      imports: [ShareAccountsListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         { provide: ShareAccountService, useValue: shareServiceSpy },
-        { provide: Router, useValue: routerSpy }
-      ]
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    shareServiceSpy.retrieveAllAccounts1.and.returnValue(of({ pageItems: [], totalFilteredRecords: 0 }) as any);
+    shareServiceSpy.retrieveAllAccounts1.and.returnValue(
+      of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
+        HttpEvent<GetAccountsTypeAccountIdResponse[]>
+      >,
+    );
     fixture = TestBed.createComponent(ShareAccountsListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -70,8 +70,7 @@ describe('ShareAccountsListComponent', () => {
 
   it('should navigate to edit on onEditAccount', () => {
     const mockAccount = { id: 123 };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    component.onEditAccount(mockAccount as any);
+    component.onEditAccount(mockAccount as unknown as GetAccountsTypeAccountIdResponse);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/shares/edit', 123]);
   });
 

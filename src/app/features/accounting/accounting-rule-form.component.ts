@@ -234,7 +234,8 @@ export class AccountingRuleFormComponent implements OnInit {
       this.offices = (templateData['allowedOffices'] as Record<string, unknown>[]) || [];
       this.accounts = (templateData['allowedAccounts'] as Record<string, unknown>[]) || [];
       this.debitTags = (templateData['allowedDebitTagOptions'] as Record<string, unknown>[]) || [];
-      this.creditTags = (templateData['allowedCreditTagOptions'] as Record<string, unknown>[]) || [];
+      this.creditTags =
+        (templateData['allowedCreditTagOptions'] as Record<string, unknown>[]) || [];
     });
   }
 
@@ -287,9 +288,10 @@ export class AccountingRuleFormComponent implements OnInit {
     }
 
     const obs = this.isEdit
-      ? (this.accountingRulesService.updateAccountingRule(this.ruleId!, request) as Observable<
-          unknown
-        >)
+      ? (this.accountingRulesService.updateAccountingRule(
+          this.ruleId!,
+          request,
+        ) as Observable<unknown>)
       : (this.accountingRulesService.createAccountingRule(request) as Observable<unknown>);
 
     obs.subscribe(() => {

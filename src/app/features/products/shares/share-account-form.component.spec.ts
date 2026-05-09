@@ -34,7 +34,12 @@ describe('ShareAccountFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    shareServiceSpy = jasmine.createSpyObj('ShareAccountService', ['createAccount', 'updateAccount', 'template7', 'retrieveAccount']);
+    shareServiceSpy = jasmine.createSpyObj('ShareAccountService', [
+      'createAccount',
+      'updateAccount',
+      'template7',
+      'retrieveAccount',
+    ]);
     clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -43,7 +48,7 @@ describe('ShareAccountFormComponent', () => {
         ShareAccountFormComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MatNativeDateModule
+        MatNativeDateModule,
       ],
       providers: [
         { provide: ShareAccountService, useValue: shareServiceSpy },
@@ -52,10 +57,10 @@ describe('ShareAccountFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: () => null })
-          }
-        }
-      ]
+            paramMap: of({ get: () => null }),
+          },
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,12 +80,12 @@ describe('ShareAccountFormComponent', () => {
     component.isEditMode = false;
     component.account = { clientId: 1, productId: 1, requestedShares: 100 };
     component.applicationDate = new Date(2026, 4, 15);
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     shareServiceSpy.createAccount.and.returnValue(of({}) as any);
-    
+
     component.onSubmit();
-    
+
     const expectedPayload = jasmine.objectContaining({
       clientId: 1,
       productId: 1,
@@ -88,9 +93,12 @@ describe('ShareAccountFormComponent', () => {
       applicationDate: '2026-05-15',
       submittedDate: '2026-05-15',
       dateFormat: 'yyyy-MM-dd',
-      locale: 'en'
+      locale: 'en',
     });
-    
-    expect(shareServiceSpy.createAccount).toHaveBeenCalledWith('share', expectedPayload as AccountRequest);
+
+    expect(shareServiceSpy.createAccount).toHaveBeenCalledWith(
+      'share',
+      expectedPayload as AccountRequest,
+    );
   });
 });
