@@ -83,13 +83,19 @@ For convenience, the following scripts are provided for local development (Linux
     npm run test
     ```
 
-5.  **Run linting**:
+5.  **Run end-to-end tests**:
+
+    ```bash
+    npm run test:e2e
+    ```
+
+6.  **Run linting**:
 
     ```bash
     npm run lint
     ```
 
-6.  **Format code**:
+7.  **Format code**:
     ```bash
     npm run format
     ```

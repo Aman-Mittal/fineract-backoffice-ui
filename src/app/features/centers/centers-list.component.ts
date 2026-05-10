@@ -85,11 +85,11 @@ export class CentersListComponent {
   private readonly router = inject(Router);
 
   columns: ColumnDef[] = [
-    { key: 'accountNo', label: 'Account No', sortable: true },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'status', label: 'Status', sortable: true },
-    { key: 'officeName', label: 'Office', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'accountNo', label: 'COMMON.ACCOUNT_NO', sortable: true },
+    { key: 'name', label: 'COMMON.NAME', sortable: true },
+    { key: 'status', label: 'COMMON.STATUS', sortable: true },
+    { key: 'officeName', label: 'COMMON.OFFICE', sortable: true },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   centers: GetCentersPageItems[] = [];

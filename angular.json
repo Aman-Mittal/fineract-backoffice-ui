@@ -74,17 +74,20 @@
           "options": {
             "ssl": true,
             "sslKey": "ssl/localhost.key",
-            "sslCert": "ssl/localhost.crt"
+            "sslCert": "ssl/localhost.crt",
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
               "buildTarget": "fineract-backoffice-ui:build:production"
             },
             "sandbox": {
-              "buildTarget": "fineract-backoffice-ui:build:sandbox"
+              "buildTarget": "fineract-backoffice-ui:build:sandbox",
+              "proxyConfig": "proxy.conf.json"
             },
             "development": {
-              "buildTarget": "fineract-backoffice-ui:build:development"
+              "buildTarget": "fineract-backoffice-ui:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

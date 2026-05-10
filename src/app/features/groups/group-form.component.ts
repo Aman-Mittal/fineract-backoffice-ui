@@ -36,6 +36,7 @@ import {
   GroupsService,
   OfficesService,
   PostGroupsRequest,
+  PostGroupsGroupIdRequest,
   PutGroupsGroupIdRequest,
   GetOfficesResponse,
 } from '../../api';
@@ -136,6 +137,17 @@ import {
               <button mat-button type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
+              @if (isEditMode && !originalActive) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  type="button"
+                  (click)="onActivate()"
+                  [disabled]="isSaving || !activationDate"
+                >
+                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Group' }}
+                </button>
+              }
               <button
                 mat-raised-button
                 color="primary"
@@ -213,6 +225,8 @@ export class GroupFormComponent implements OnInit {
   isEditMode = false;
   /** Save state */
   isSaving = false;
+  /** Initial active state */
+  originalActive = false;
 
   /** Strictly typed request model from OpenAPI */
   group: PostGroupsRequest = {
@@ -254,12 +268,43 @@ export class GroupFormComponent implements OnInit {
   private loadGroupData(): void {
     if (!this.groupId) return;
     this.groupsService.retrieveOne15(this.groupId).subscribe((data) => {
+      this.originalActive = !!(data as Record<string, unknown>)['active'];
       this.group = {
         name: data.name,
         officeId: data.officeId,
-        active: (data as Record<string, unknown>)['active'] as boolean,
+        active: this.originalActive,
       };
     });
+  }
+
+  onActivate(): void {
+    if (!this.groupId || !this.activationDate) return;
+    this.isSaving = true;
+
+    const formattedDate = `${this.activationDate.getFullYear()}-${String(
+      this.activationDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+
+    const payload = {
+      activationDate: formattedDate,
+      dateFormat: this.DATE_FORMAT,
+      locale: 'en',
+    };
+
+    this.groupsService
+      .activateOrGenerateCollectionSheet(
+        this.groupId,
+        payload as PostGroupsGroupIdRequest,
+        'activate',
+      )
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.originalActive = true;
+          this.group.active = true;
+        },
+        error: () => (this.isSaving = false),
+      });
   }
 
   /**

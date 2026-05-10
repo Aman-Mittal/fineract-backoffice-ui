@@ -152,7 +152,7 @@ export class ClientsListComponent {
             ? this.currentSort.direction.toUpperCase()
             : undefined;
 
-          const displayName = this.currentFilter ? `${this.currentFilter}%` : undefined;
+          const displayName = this.currentFilter ? `%${this.currentFilter}%` : undefined;
           const status = this.activeFilters.status;
 
           return this.clientService

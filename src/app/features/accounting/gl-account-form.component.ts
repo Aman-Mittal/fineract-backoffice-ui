@@ -35,6 +35,7 @@ import {
   PostGLAccountsRequest,
   PutGLAccountsRequest,
 } from '../../api';
+import { HelpIconComponent } from '../../shared';
 
 @Component({
   selector: 'app-gl-account-form',
@@ -51,6 +52,7 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    HelpIconComponent,
   ],
   template: `
     <div class="form-container">
@@ -62,6 +64,7 @@ import {
                 ? ('ACCOUNTING.EDIT_GL_ACCOUNT' | translate)
                 : ('ACCOUNTING.CREATE_GL_ACCOUNT' | translate)
             }}
+            <app-help-icon [helpTextKey]="'HELP.CHART_OF_ACCOUNTS_DESC'"></app-help-icon>
           </mat-card-title>
         </mat-card-header>
 

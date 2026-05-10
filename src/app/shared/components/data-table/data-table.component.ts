@@ -96,12 +96,15 @@ export interface ColumnDef {
       <mat-card-content>
         <div class="table-header">
           @if (showSearch) {
-            <app-search-filter
-              [label]="searchLabel | translate"
-              [placeholder]="searchPlaceholder | translate"
-              (searchChange)="onSearch($event)"
-            >
-            </app-search-filter>
+            <div class="search-container">
+              <app-search-filter
+                [label]="searchLabel | translate"
+                [placeholder]="searchPlaceholder | translate"
+                (searchChange)="onSearch($event)"
+              >
+              </app-search-filter>
+              <app-help-icon helpTextKey="HELP.SEARCH_DESC"></app-help-icon>
+            </div>
           }
           <ng-content select="[filters]"></ng-content>
         </div>
@@ -185,6 +188,10 @@ export interface ColumnDef {
         align-items: center;
         gap: 16px;
         margin-bottom: 8px;
+      }
+      .search-container {
+        display: flex;
+        align-items: center;
       }
       .table-container {
         overflow: auto;

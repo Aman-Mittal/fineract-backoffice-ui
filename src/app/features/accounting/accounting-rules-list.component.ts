@@ -44,11 +44,11 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
   template: `
     <div class="container">
       <app-data-table
-        title="Accounting Rules"
+        title="nav.accountingRules"
         [data]="rules"
         [columns]="columns"
         [localLogic]="true"
-        createButtonLabel="Create Rule"
+        createButtonLabel="ACCOUNTING_RULES.CREATE"
         (create)="onCreate()"
       >
         <ng-template appCellTemplate="debitAccounts" let-row>
@@ -82,11 +82,11 @@ export class AccountingRulesListComponent implements OnInit {
 
   rules: AccountingRuleData[] = [];
   columns: ColumnDef[] = [
-    { key: 'name', label: 'Rule Name', sortable: true },
-    { key: 'officeName', label: 'Office', sortable: true },
-    { key: 'debitAccounts', label: 'Debit Account' },
-    { key: 'creditAccounts', label: 'Credit Account' },
-    { key: 'actions', label: 'Actions' },
+    { key: 'name', label: 'COMMON.NAME', sortable: true },
+    { key: 'officeName', label: 'COMMON.OFFICE', sortable: true },
+    { key: 'debitAccounts', label: 'JOURNAL_ENTRIES.DEBITS' },
+    { key: 'creditAccounts', label: 'JOURNAL_ENTRIES.CREDITS' },
+    { key: 'actions', label: 'COMMON.ACTIONS' },
   ];
 
   ngOnInit() {

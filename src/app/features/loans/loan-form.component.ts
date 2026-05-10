@@ -32,7 +32,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { ClientSearchComponent } from '../../shared';
+import { ClientSearchComponent, HelpIconComponent } from '../../shared';
 import {
   LoansService,
   PostLoansRequest,
@@ -59,6 +59,7 @@ import {
     MatTooltipModule,
     MatIconModule,
     ClientSearchComponent,
+    HelpIconComponent,
   ],
   template: `
     <div class="form-container">
@@ -66,6 +67,7 @@ import {
         <mat-card-header>
           <mat-card-title>
             {{ isEditMode ? ('LOANS.EDIT_LOAN' | translate) : ('LOANS.CREATE_LOAN' | translate) }}
+            <app-help-icon [helpTextKey]="'HELP.LOANS_PORTFOLIO_DESC'"></app-help-icon>
           </mat-card-title>
         </mat-card-header>
 

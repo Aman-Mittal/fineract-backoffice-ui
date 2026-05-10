@@ -36,6 +36,7 @@ import {
   CentersService,
   OfficesService,
   PostCentersRequest,
+  PostCentersCenterIdRequest,
   PutCentersCenterIdRequest,
   GetOfficesResponse,
 } from '../../api';
@@ -139,6 +140,17 @@ import {
               <button mat-button type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
+              @if (isEditMode && !originalActive) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  type="button"
+                  (click)="onActivate()"
+                  [disabled]="isSaving || !activationDate"
+                >
+                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Center' }}
+                </button>
+              }
               <button
                 mat-raised-button
                 color="primary"
@@ -216,6 +228,8 @@ export class CenterFormComponent implements OnInit {
   isEditMode = false;
   /** Save state */
   isSaving = false;
+  /** Initial active state */
+  originalActive = false;
 
   /** Strictly typed request model from OpenAPI */
   center: PostCentersRequest = {
@@ -257,12 +271,39 @@ export class CenterFormComponent implements OnInit {
   private loadCenterData(): void {
     if (!this.centerId) return;
     this.centersService.retrieveOne14(this.centerId).subscribe((data) => {
+      this.originalActive = !!(data as Record<string, unknown>)['active'];
       this.center = {
         name: data.name,
         officeId: data.officeId,
-        active: (data as Record<string, unknown>)['active'] as boolean,
+        active: this.originalActive,
       };
     });
+  }
+
+  onActivate(): void {
+    if (!this.centerId || !this.activationDate) return;
+    this.isSaving = true;
+
+    const formattedDate = `${this.activationDate.getFullYear()}-${String(
+      this.activationDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+
+    const payload = {
+      activationDate: formattedDate,
+      dateFormat: this.DATE_FORMAT,
+      locale: 'en',
+    };
+
+    this.centersService
+      .activate2(this.centerId, payload as PostCentersCenterIdRequest, 'activate')
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.originalActive = true;
+          this.center.active = true;
+        },
+        error: () => (this.isSaving = false),
+      });
   }
 
   /**

@@ -43,6 +43,7 @@ import {
   CurrencyConfigurationData,
   CurrencyData,
 } from '../../api';
+import { HelpIconComponent } from '../../shared';
 
 /**
  * Component for creating manual accounting journal entries.
@@ -65,12 +66,16 @@ import {
     MatNativeDateModule,
     MatIconModule,
     MatTooltipModule,
+    HelpIconComponent,
   ],
   template: `
     <div class="form-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Add Journal Entry</mat-card-title>
+          <mat-card-title>
+            Add Journal Entry
+            <app-help-icon [helpTextKey]="'HELP.JOURNAL_ENTRIES_DESC'"></app-help-icon>
+          </mat-card-title>
         </mat-card-header>
 
         <mat-card-content>

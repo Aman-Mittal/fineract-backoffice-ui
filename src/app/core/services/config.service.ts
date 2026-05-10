@@ -97,11 +97,17 @@ export class ConfigService {
    */
   private getStoredConfig(): AppConfig {
     const stored = localStorage.getItem(this.storageKey);
-    return stored
-      ? JSON.parse(stored)
-      : {
-          fineractApiUrl: environment.fineractApiUrl,
-          defaultTenant: 'default',
-        };
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error('Error parsing stored config', e);
+      }
+    }
+
+    return {
+      fineractApiUrl: environment.fineractApiUrl,
+      defaultTenant: 'default',
+    };
   }
 }

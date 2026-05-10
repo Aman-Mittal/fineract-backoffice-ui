@@ -17,7 +17,17 @@
  * under the License.
  */
 
-export const environment = {
-  production: false,
-  fineractApiUrl: '/fineract-provider/api/v1',
-};
+import { Routes } from '@angular/router';
+
+export const TASKS_ROUTES: Routes = [
+  {
+    path: '',
+    redirectTo: 'checker-inbox',
+    pathMatch: 'full',
+  },
+  {
+    path: 'checker-inbox',
+    loadComponent: () =>
+      import('./checker-inbox/checker-inbox.component').then((m) => m.CheckerInboxComponent),
+  },
+];
