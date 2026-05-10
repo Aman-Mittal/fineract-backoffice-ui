@@ -21,11 +21,39 @@
     "products": "Products",
     "loanProducts": "Loan Products",
     "savingsProducts": "Savings Products",
+    "savingsAccounts": "Savings Accounts",
+    "fixedDeposits": "Fixed Deposits",
+    "recurringDeposits": "Recurring Deposits",
     "fintech": "Embedded Fintech",
     "assetOwners": "Asset Owners",
     "accounting": "Accounting",
     "chartOfAccounts": "Chart of Accounts",
-    "organization": "Organization"
+    "organization": "Organization",
+    "tellers": "Tellers"
+  },
+  "TELLERS": {
+    "CREATE_TELLER": "Create Teller",
+    "EDIT_TELLER": "Edit Teller",
+    "CASHIERS": "Cashiers",
+    "ALLOCATE_CASHIER": "Allocate Cashier",
+    "NAME": "Teller Name",
+    "OFFICE": "Office",
+    "START_DATE": "Start Date",
+    "END_DATE": "End Date",
+    "STATUS": "Status",
+    "DESCRIPTION": "Description",
+    "USAGE": "Usage",
+    "STAFF": "Staff Member",
+    "IS_FULL_TIME": "Full Time",
+    "REMAVAL_DATE": "Removal Date"
+  },
+  "FIXED_DEPOSITS": {
+    "CREATE": "Create Fixed Deposit",
+    "EDIT": "Edit Fixed Deposit"
+  },
+  "RECURRING_DEPOSITS": {
+    "CREATE": "Create Recurring Deposit",
+    "EDIT": "Edit Recurring Deposit"
   },
   "CLIENTS": {
     "CREATE_CLIENT": "Create Client",
@@ -37,6 +65,16 @@
     "LAST_NAME": "Last Name",
     "ACCOUNT_NO": "Account No",
     "DISPLAY_NAME": "Display Name"
+  },
+  "SAVINGS": {
+    "CREATE_ACCOUNT": "Create Savings Account",
+    "EDIT_ACCOUNT": "Edit Savings Account",
+    "DEPOSIT": "Savings Deposit",
+    "WITHDRAWAL": "Savings Withdrawal",
+    "ACCOUNT_NO": "Account No",
+    "NAME": "Client Name",
+    "PRODUCT": "Savings Product",
+    "BALANCE": "Account Balance"
   },
   "LOANS": {
     "CREATE_LOAN": "Create Loan",
@@ -51,6 +89,8 @@
     "REPAYMENTS_COUNT": "Number of Repayments",
     "REPAYMENT_EVERY": "Repayment Every",
     "ENABLE_DOWN_PAYMENT": "Enable Down Payment",
+    "REPAYMENT": "Loan Repayment",
+    "DISBURSEMENT": "Loan Disbursement",
     "ACCOUNT_NO": "Account No",
     "CLIENT_NAME": "Client Name",
     "PRODUCT_NAME": "Product Name"
@@ -98,7 +138,33 @@
     "GL_CODE_DESC": "The unique accounting code for the ledger entry.",
     "ACCOUNT_TYPE_DESC": "The classification of the account (e.g., Asset, Liability).",
     "ACCOUNT_USAGE_DESC": "Whether the account is a summary Header or a transactional Detail.",
-    "ALLOW_MANUAL_ENTRIES_DESC": "Whether users can post manual journal entries to this account."
+    "ALLOW_MANUAL_ENTRIES_DESC": "Whether users can post manual journal entries to this account.",
+    "TELLERS_DESC": "Manage tellers and cashier operations for branch offices.",
+    "TELLER_NAME_DESC": "A descriptive name for the teller (e.g. Vault, Main Teller).",
+    "TELLER_OFFICE_DESC": "The branch office where this teller is located.",
+    "TELLER_START_DATE_DESC": "The date when this teller becomes operational.",
+    "TELLER_END_DATE_DESC": "The date when this teller is closed or decommissioned.",
+    "TELLER_STATUS_DESC": "The current operational status of the teller.",
+    "TELLER_USAGE_DESC": "Indicates the primary purpose of the teller.",
+    "SAVINGS_ACCOUNTS_DESC": "View and manage customer savings and deposit accounts.",
+    "SAVINGS_PRODUCT_DESC": "The savings product that defines the rules for this account.",
+    "TRANSACTION_DATE_DESC": "The date when the financial transaction occurred.",
+    "TRANSACTION_AMOUNT_DESC": "The monetary value of the transaction.",
+    "PAYMENT_TYPE_DESC": "The mode of payment (e.g. Cash, Check, Transfer).",
+    "NOTE_DESC": "Optional remarks or internal notes regarding the transaction.",
+    "FIXED_DEPOSITS_DESC": "Manage customer term deposit and fixed investment accounts.",
+    "FIXED_DEPOSIT_PRODUCT_DESC": "The fixed deposit product that defines interest and maturity rules.",
+    "DEPOSIT_AMOUNT_DESC": "The initial amount invested in the fixed deposit.",
+    "DEPOSIT_PERIOD_DESC": "The duration for which the funds are locked.",
+    "PERIOD_FREQUENCY_DESC": "The time unit for the deposit period (e.g. Months, Years).",
+    "CENTER_NAME_DESC": "The unique name of the administrative center.",
+    "GROUP_NAME_DESC": "The unique name of the community group.",
+    "CASHIERS_DESC": "View and manage staff assigned as cashiers to this teller.",
+    "CASHIER_STAFF_DESC": "The staff member assigned to this cashier role.",
+    "CASHIER_FULL_TIME_DESC": "Whether this cashier is assigned full-time or for a specific shift.",
+    "RECURRING_DEPOSITS_DESC": "Manage customer recurring deposit and long-term savings plans.",
+    "RECURRING_DEPOSIT_PRODUCT_DESC": "The recurring deposit product that defines interest and interval rules.",
+    "RECURRING_DEPOSIT_AMOUNT_DESC": "The recommended amount to be deposited at each interval."
   },
   "OFFICES": {
     "CREATE_OFFICE": "Create Office",
@@ -153,6 +219,12 @@
     "OFFICE": "Office",
     "ACTIVE": "Active",
     "NAME": "Name",
+    "ACCOUNT_NO": "Account No",
+    "BALANCE": "Balance",
+    "TRANSACTION_DATE": "Transaction Date",
+    "TRANSACTION_AMOUNT": "Transaction Amount",
+    "PAYMENT_TYPE": "Payment Type",
+    "NOTE": "Note",
     "EXTERNAL_ID": "External ID",
     "MOBILE_NO": "Mobile No",
     "EMAIL": "Email Address",
@@ -166,7 +238,15 @@
     "YEARS": "Years",
     "PENDING": "Pending",
     "CLOSED": "Closed",
-    "OVERPAID": "Overpaid"
+    "OVERPAID": "Overpaid",
+    "AMOUNT": "Amount",
+    "MATURITY_AMOUNT": "Maturity Amount",
+    "PERIOD": "Period",
+    "FREQUENCY": "Frequency",
+    "CLIENT_ID": "Client ID",
+    "PRODUCT": "Product",
+    "SUBMITTED_ON": "Submitted On",
+    "INTEREST_RATE": "Interest Rate"
   },
   "MODULES": {
     "CLIENTS_CONTRACTS": "Clients & Contracts",

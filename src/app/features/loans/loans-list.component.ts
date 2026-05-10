@@ -95,6 +95,15 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
         >
           <mat-icon>edit</mat-icon>
         </button>
+        <button
+          mat-icon-button
+          color="accent"
+          [attr.aria-label]="'LOANS.COLLATERAL' | translate"
+          matTooltip="Manage Collateral"
+          (click)="onViewCollateral(loan)"
+        >
+          <mat-icon>security</mat-icon>
+        </button>
       </ng-template>
     </app-data-table>
   `,
@@ -205,5 +214,9 @@ export class LoansListComponent {
 
   onEditLoan(loan: GetLoansLoanIdResponse) {
     this.router.navigate(['/loans/edit', loan.id]);
+  }
+
+  onViewCollateral(loan: GetLoansLoanIdResponse) {
+    this.router.navigate(['/loans', loan.id, 'collateral']);
   }
 }

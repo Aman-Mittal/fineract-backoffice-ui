@@ -30,6 +30,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import {
   GroupsService,
   OfficesService,
@@ -38,6 +40,12 @@ import {
   GetOfficesResponse,
 } from '../../api';
 
+/**
+ * Component for creating and editing self-help groups.
+ *
+ * This component manages group lifecycle operations, including mandatory
+ * activation date handling for new active groups.
+ */
 @Component({
   selector: 'app-group-form',
   standalone: true,
@@ -53,6 +61,8 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   template: `
     <div class="form-container">
@@ -68,6 +78,7 @@ import {
         <mat-card-content>
           <form #groupForm="ngForm" (ngSubmit)="onSubmit()" class="group-form">
             <div class="form-grid">
+              <!-- Name -->
               <mat-form-field
                 appearance="outline"
                 [matTooltip]="'HELP.GROUP_NAME_DESC' | translate"
@@ -76,6 +87,7 @@ import {
                 <input matInput name="name" [(ngModel)]="group.name" required />
               </mat-form-field>
 
+              <!-- Office -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
                 <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
                 <mat-select
@@ -90,6 +102,26 @@ import {
                 </mat-select>
               </mat-form-field>
 
+              <!-- Activation Date -->
+              @if (!isEditMode) {
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate"
+                >
+                  <mat-label>{{ 'COMMON.ACTIVATION_DATE' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [matDatepicker]="picker"
+                    name="activationDate"
+                    [(ngModel)]="activationDate"
+                    [required]="!!group.active"
+                  />
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              }
+
+              <!-- Active -->
               <div class="checkbox-container">
                 <mat-checkbox name="active" [(ngModel)]="group.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
@@ -161,24 +193,41 @@ import {
   ],
 })
 export class GroupFormComponent implements OnInit {
+  /** Service for group management API calls */
   private readonly groupsService = inject(GroupsService);
+  /** Service for office data retrieval */
   private readonly officesService = inject(OfficesService);
-  private readonly route = inject(ActivatedRoute);
+  /** Router for navigation */
   private readonly router = inject(Router);
+  /** Activated route for parameter access */
+  private readonly route = inject(ActivatedRoute);
 
+  /** Constant for Fineract date format */
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
+  /** Path for redirection */
   private readonly LIST_PATH = '/groups';
 
+  /** Group ID in edit mode */
   groupId: number | null = null;
+  /** Edit mode flag */
   isEditMode = false;
+  /** Save state */
   isSaving = false;
 
+  /** Strictly typed request model from OpenAPI */
   group: PostGroupsRequest = {
     active: true,
   };
 
+  /** Activation date for new groups */
+  activationDate: Date = new Date();
+  /** Office options */
   offices: GetOfficesResponse[] = [];
 
-  ngOnInit() {
+  /**
+   * Initializes the component.
+   */
+  ngOnInit(): void {
     this.loadOffices();
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -190,13 +239,19 @@ export class GroupFormComponent implements OnInit {
     });
   }
 
-  loadOffices() {
+  /**
+   * Retrieves the list of available offices.
+   */
+  private loadOffices(): void {
     this.officesService.retrieveOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
-  loadGroupData() {
+  /**
+   * Loads group data for editing.
+   */
+  private loadGroupData(): void {
     if (!this.groupId) return;
     this.groupsService.retrieveOne15(this.groupId).subscribe((data) => {
       this.group = {
@@ -207,8 +262,12 @@ export class GroupFormComponent implements OnInit {
     });
   }
 
-  onSubmit() {
+  /**
+   * Submits the form, ensuring mandatory activationDate is formatted correctly.
+   */
+  onSubmit(): void {
     this.isSaving = true;
+
     if (this.isEditMode && this.groupId) {
       const payload: PutGroupsGroupIdRequest = {
         name: this.group.name,
@@ -218,14 +277,29 @@ export class GroupFormComponent implements OnInit {
         error: () => (this.isSaving = false),
       });
     } else {
-      this.groupsService.create8(this.group).subscribe({
+      const formattedDate = `${this.activationDate.getFullYear()}-${String(
+        this.activationDate.getMonth() + 1,
+      ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+
+      // Assert as Record to include mandatory undocumented fields for activation
+      const payload: Record<string, unknown> = {
+        ...this.group,
+        activationDate: formattedDate,
+        dateFormat: this.DATE_FORMAT,
+        locale: 'en',
+      };
+
+      this.groupsService.create8(payload as PostGroupsRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
-  onCancel() {
+  /**
+   * Navigates back to the group list.
+   */
+  onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }
 }

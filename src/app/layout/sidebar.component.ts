@@ -78,6 +78,42 @@ import { TranslateModule } from '@ngx-translate/core';
                   <span class="nav-text">{{ 'nav.savingsProducts' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/products/savings-accounts"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.savingsAccounts' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/fixed-deposits"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.fixedDeposits' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/recurring-deposits"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.recurringDeposits' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/shares"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.shares' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -108,6 +144,54 @@ import { TranslateModule } from '@ngx-translate/core';
                   class="nav-item sub-item"
                 >
                   <span class="nav-text">{{ 'nav.chartOfAccounts' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/journal-entries"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.journalEntries' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/closures"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.accountingClosures' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/rules"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.accountingRules' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/financial-activity-mappings"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.financialActivityMappings' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">Teller Operations</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/tellers" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.tellers' | translate }}</span>
                 </a>
               </li>
             </ul>

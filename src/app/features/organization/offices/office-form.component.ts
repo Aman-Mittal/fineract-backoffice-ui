@@ -216,28 +216,16 @@ export class OfficeFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const formattedDate = `${this.openingDate.getDate()} ${months[this.openingDate.getMonth()]} ${this.openingDate.getFullYear()}`;
+    const formattedDate = `${this.openingDate.getFullYear()}-${String(
+      this.openingDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(this.openingDate.getDate()).padStart(2, '0')}`;
 
     if (this.isEditMode && this.officeId) {
       const payload: PutOfficesOfficeIdRequest = {
         name: this.office.name,
         externalId: this.office.externalId,
         openingDate: formattedDate,
-        dateFormat: 'dd MMMM yyyy',
+        dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
       this.officesService.updateOffice(this.officeId, payload).subscribe({
@@ -246,7 +234,7 @@ export class OfficeFormComponent implements OnInit {
       });
     } else {
       this.office.openingDate = formattedDate;
-      this.office.dateFormat = 'dd MMMM yyyy';
+      this.office.dateFormat = 'yyyy-MM-dd';
       this.office.locale = 'en';
       this.officesService.createOffice(this.office).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
