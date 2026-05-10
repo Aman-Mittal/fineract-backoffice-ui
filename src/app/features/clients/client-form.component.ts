@@ -32,6 +32,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { HelpIconComponent } from '../../shared';
+import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import {
   ClientService,
   PostClientsRequest,
@@ -57,6 +60,8 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    HelpIconComponent,
+    MatDialogModule,
   ],
   template: `
     <div class="form-container">
@@ -68,6 +73,7 @@ import {
                 ? ('CLIENTS.EDIT_CLIENT' | translate)
                 : ('CLIENTS.CREATE_CLIENT' | translate)
             }}
+            <app-help-icon helpTextKey="HELP.CLIENTS_CONTRACTS_DESC"></app-help-icon>
           </mat-card-title>
         </mat-card-header>
 
@@ -128,19 +134,32 @@ import {
               </mat-form-field>
 
               <!-- Office -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
-                <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                <mat-select
-                  name="officeId"
-                  [(ngModel)]="client.officeId"
-                  required
-                  [disabled]="isEditMode"
-                >
-                  @for (office of offices; track office.id) {
-                    <mat-option [value]="office.id">{{ office.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <div class="office-field-container">
+                <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
+                  <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
+                  <mat-select
+                    name="officeId"
+                    [(ngModel)]="client.officeId"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (office of offices; track office.id) {
+                      <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                @if (!isEditMode) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    color="primary"
+                    matTooltip="Add New Office"
+                    (click)="addOffice()"
+                  >
+                    <mat-icon>add_circle</mat-icon>
+                  </button>
+                }
+              </div>
 
               <!-- Activation Date -->
               <mat-form-field
@@ -175,6 +194,17 @@ import {
               <button mat-button type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
+              @if (isEditMode && !originalActive) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  type="button"
+                  (click)="onActivate()"
+                  [disabled]="isSaving || !activationDate"
+                >
+                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Client' }}
+                </button>
+              }
               <button
                 mat-raised-button
                 color="primary"
@@ -206,6 +236,11 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
+      .office-field-container {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
       mat-form-field {
         width: 100%;
       }
@@ -234,6 +269,7 @@ import {
 export class ClientFormComponent implements OnInit {
   private readonly clientService = inject(ClientService);
   private readonly officesService = inject(OfficesService);
+  private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -242,6 +278,7 @@ export class ClientFormComponent implements OnInit {
   clientId: number | null = null;
   isEditMode = false;
   isSaving = false;
+  originalActive = false;
 
   // Use strictly typed OpenAPI models
   client: PostClientsRequest = {
@@ -270,6 +307,22 @@ export class ClientFormComponent implements OnInit {
     });
   }
 
+  addOffice() {
+    const dialogRef = this.dialog.open(CreateOfficeDialogComponent, {
+      width: '500px',
+    });
+
+    dialogRef.afterClosed().subscribe((newOfficeId) => {
+      if (newOfficeId) {
+        // Reload offices and select the new one
+        this.officesService.retrieveOffices(true).subscribe((offices) => {
+          this.offices = offices;
+          this.client.officeId = newOfficeId;
+        });
+      }
+    });
+  }
+
   loadClientData() {
     if (!this.clientId) return;
     this.clientService.retrieveOne11(this.clientId).subscribe((clientData) => {
@@ -277,6 +330,8 @@ export class ClientFormComponent implements OnInit {
       if (actDateArray) {
         this.activationDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
       }
+
+      this.originalActive = !!clientData.active;
 
       this.client = {
         firstname: clientData.firstname,
@@ -288,6 +343,30 @@ export class ClientFormComponent implements OnInit {
         active: clientData.active,
         legalFormId: 1, // Default to person
       };
+    });
+  }
+
+  onActivate() {
+    if (!this.clientId || !this.activationDate) return;
+    this.isSaving = true;
+
+    const formattedDate = `${this.activationDate.getFullYear()}-${String(
+      this.activationDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+
+    const activationPayload = {
+      activationDate: formattedDate,
+      dateFormat: 'yyyy-MM-dd',
+      locale: 'en',
+    };
+
+    this.clientService.activate1(this.clientId, activationPayload, 'activate').subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.originalActive = true;
+        this.client.active = true;
+      },
+      error: () => (this.isSaving = false),
     });
   }
 

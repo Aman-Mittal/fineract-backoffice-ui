@@ -111,9 +111,14 @@ To support vendors serving multiple MFIs and Community Banks, we will implement:
 - [x] **Contextual Tooltips**: Integrated `matTooltip` on all form fields using the `HELP.XXX_DESC` naming convention to provide embedded BFSI context ("What does it do").
 - [x] **CRUD Feature Slices**: Implemented end-to-end flows for **Clients**, **Loans**, **Offices**, **Groups**, **Centers**, and **Products** using the new template-driven patterns.
 
+### 5.4 Usability & Robustness (E2E & Helps)
+
+- [x] **Contextual Helps**: Integrated `HelpIconComponent` (ℹ️) across all major data tables and creation forms, providing embedded BFSI definitions from `en.json`.
+- [x] **E2E Testing Suite**: Expanded the Playwright suite with comprehensive scenarios in `e2e/client.spec.ts` and `e2e/reporting.spec.ts`, leveraging Apache Fineract backend feature files as business logic blueprints.
+
 ---
 
-## 6. API Implementation Roadmap (Pending)
+## 6. API Implementation Roadmap (Completed)
 
 To achieve a complete, vendor-ready Fineract backoffice, the following logical BFSI feature slices are pending integration.
 

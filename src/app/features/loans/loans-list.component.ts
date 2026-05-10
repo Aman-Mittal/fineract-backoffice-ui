@@ -73,10 +73,10 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
           <mat-select [(ngModel)]="activeFilters.status" (selectionChange)="onFilterChange()">
             <mat-option [value]="undefined">{{ 'COMMON.ALL' | translate }}</mat-option>
-            <mat-option value="active">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
-            <mat-option value="pending">{{ 'COMMON.PENDING' | translate }}</mat-option>
-            <mat-option value="closed">{{ 'COMMON.CLOSED' | translate }}</mat-option>
-            <mat-option value="overpaid">{{ 'COMMON.OVERPAID' | translate }}</mat-option>
+            <mat-option value="300">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
+            <mat-option value="100">{{ 'COMMON.PENDING' | translate }}</mat-option>
+            <mat-option value="600">{{ 'COMMON.CLOSED' | translate }}</mat-option>
+            <mat-option value="700">{{ 'COMMON.OVERPAID' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -103,6 +103,15 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           (click)="onViewCollateral(loan)"
         >
           <mat-icon>security</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          [attr.aria-label]="'LOANS.RESCHEDULE' | translate"
+          matTooltip="Manage Rescheduling"
+          (click)="onViewRescheduling(loan)"
+        >
+          <mat-icon>event_repeat</mat-icon>
         </button>
       </ng-template>
     </app-data-table>
@@ -218,5 +227,9 @@ export class LoansListComponent {
 
   onViewCollateral(loan: GetLoansLoanIdResponse) {
     this.router.navigate(['/loans', loan.id, 'collateral']);
+  }
+
+  onViewRescheduling(loan: GetLoansLoanIdResponse) {
+    this.router.navigate(['/loans', loan.id, 'rescheduling']);
   }
 }

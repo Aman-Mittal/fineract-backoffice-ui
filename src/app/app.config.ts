@@ -59,7 +59,11 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: BASE_PATH,
-      useFactory: (configService: ConfigService) => configService.apiUrl.replace(/\/v1\/?$/, ''),
+      useFactory: (configService: ConfigService) => {
+        const url = configService.apiUrl;
+        console.log('Initializing API BASE_PATH:', url);
+        return url.endsWith('/v1') ? url.substring(0, url.length - 3) : url;
+      },
       deps: [ConfigService],
     },
     importProvidersFrom(

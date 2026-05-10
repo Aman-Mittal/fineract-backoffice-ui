@@ -35,6 +35,7 @@ import {
   OfficesService,
   GetOfficesResponse,
 } from '../../api';
+import { HelpIconComponent } from '../../shared';
 
 /**
  * Component for closing an accounting period for an office.
@@ -53,12 +54,16 @@ import {
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    HelpIconComponent,
   ],
   template: `
     <div class="form-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Close Accounting Period</mat-card-title>
+          <mat-card-title>
+            Close Accounting Period
+            <app-help-icon [helpTextKey]="'HELP.ACCOUNTING_CLOSURES_DESC'"></app-help-icon>
+          </mat-card-title>
         </mat-card-header>
 
         <mat-card-content>

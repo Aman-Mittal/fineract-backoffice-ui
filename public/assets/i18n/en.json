@@ -28,11 +28,23 @@
     "fintech": "Embedded Fintech",
     "assetOwners": "Asset Owners",
     "accounting": "Accounting",
+    "tasks": "Tasks",
+    "checker_inbox": "Checker Inbox",
     "chartOfAccounts": "Chart of Accounts",
     "journalEntries": "Journal Entries",
     "accountingClosures": "Accounting Closures",
     "accountingRules": "Accounting Rules",
     "financialActivityMappings": "Financial Activity Mappings",
+    "charges": "Charges",
+    "security": "Security",
+    "users": "Users",
+    "roles": "Roles",
+    "reporting": "Reporting",
+    "reports": "Reports",
+    "settings": "Settings",
+    "globalConfigurations": "Global Configurations",
+    "holidays": "Holidays",
+    "workingDays": "Working Days",
     "organization": "Organization",
     "tellers": "Tellers"
   },
@@ -66,7 +78,11 @@
     "TOTAL_SHARES": "Total Shares",
     "REQUESTED_SHARES": "Requested Shares",
     "APPLICATION_DATE": "Application Date",
-    "SAVINGS_ACCOUNT_ID": "Savings Account ID"
+    "BALANCED_ERROR": "Total debits must equal total credits."
+  },
+  "CHARGES": {
+    "CREATE": "Define New Charge",
+    "EDIT": "Edit Charge Configuration"
   },
   "LOANS": {
     "ACCOUNT_NO": "Account No",
@@ -80,10 +96,32 @@
     "TERM_FREQUENCY": "Term Frequency",
     "TERM_TYPE": "Term Type",
     "CLIENT_ID": "Client ID",
-    "PRODUCT": "Product",
+    "PRODUCT": "Loan Product",
     "COLLATERAL": "Collateral",
     "ADD_COLLATERAL": "Add Collateral",
-    "EDIT_COLLATERAL": "Edit Collateral"
+    "EDIT_COLLATERAL": "Edit Collateral",
+    "RESCHEDULE": "Reschedule Loan",
+    "REQUEST_RESCHEDULE": "Request Reschedule",
+    "RESCHEDULE_FROM": "Reschedule From",
+    "REPAYMENTS_COUNT": "Number of Repayments",
+    "REPAYMENT_EVERY": "Repayment Every",
+    "ENABLE_DOWN_PAYMENT": "Enable Down Payment",
+    "REPAYMENT": "Loan Repayment",
+    "DISBURSEMENT": "Loan Disbursement"
+  },
+  "USERS": {
+    "CREATE_USER": "Create User",
+    "EDIT_USER": "Edit User",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "REPEAT_PASSWORD": "Repeat Password",
+    "ROLES": "Roles",
+    "PASSWORD_NEVER_EXPIRES": "Password Never Expires"
+  },
+  "ROLES": {
+    "CREATE_ROLE": "Create Role",
+    "EDIT_ROLE": "Edit Role",
+    "PERMISSIONS": "Granular Permissions"
   },
   "CLIENTS": {
     "CREATE_CLIENT": "Create Client",
@@ -106,30 +144,12 @@
     "PRODUCT": "Savings Product",
     "BALANCE": "Account Balance"
   },
-  "LOANS": {
-    "CREATE_LOAN": "Create Loan",
-    "EDIT_LOAN": "Edit Loan",
-    "CLIENT_ID": "Client ID",
-    "PRODUCT": "Loan Product",
-    "PRINCIPAL": "Principal",
-    "SUBMITTED_ON": "Submitted On",
-    "EXPECTED_DISBURSEMENT": "Expected Disbursement",
-    "TERM_FREQUENCY": "Term Frequency",
-    "TERM_TYPE": "Term Type",
-    "REPAYMENTS_COUNT": "Number of Repayments",
-    "REPAYMENT_EVERY": "Repayment Every",
-    "ENABLE_DOWN_PAYMENT": "Enable Down Payment",
-    "REPAYMENT": "Loan Repayment",
-    "DISBURSEMENT": "Loan Disbursement",
-    "ACCOUNT_NO": "Account No",
-    "CLIENT_NAME": "Client Name",
-    "PRODUCT_NAME": "Product Name"
-  },
   "HELP": {
     "CLIENTS_CONTRACTS_DESC": "View and manage all registered clients and their contracts.",
     "LOANS_PORTFOLIO_DESC": "Monitor the active loan portfolio and applications.",
     "GROUPS_DESC": "Manage community groups and self-help groups for micro-lending.",
     "CENTERS_DESC": "Organize groups into centers for administrative efficiency.",
+    "TASKS_DESC": "Monitor and process pending maker-checker tasks that require authorization.",
     "LOAN_PRODUCTS_DESC": "Configure and manage loan products available for lending operations.",
     "SAVINGS_PRODUCTS_DESC": "Configure and manage savings and deposit products for banking operations.",
     "ASSET_OWNERS_DESC": "Manage external asset owners and securitized loan transfers.",
@@ -207,7 +227,34 @@
     "JOURNAL_ENTRIES_DESC": "Record and review manual ledger transactions and system-generated accounting logs.",
     "ACCOUNTING_CLOSURES_DESC": "Close accounting periods for offices to prevent further manual journal entries.",
     "ACCOUNTING_RULES_DESC": "Define preset accounting entries to simplify manual journal entry posting.",
-    "FINANCIAL_ACTIVITY_MAPPINGS_DESC": "Map specific financial activities (like Main Vault) to appropriate GL accounts."
+    "FINANCIAL_ACTIVITY_MAPPINGS_DESC": "Map specific financial activities (like Main Vault) to appropriate GL accounts.",
+    "CHARGES_DESC": "Manage global configuration for fees and penalties applied to accounts.",
+    "RESCHEDULING_DESC": "Manage loan rescheduling requests to alter repayment timelines.",
+    "RESCHEDULE_FROM_DESC": "The date from which the new repayment schedule should take effect.",
+    "USERS_DESC": "Manage system users and their access to the application.",
+    "ROLES_DESC": "Define functional roles and assign granular permissions for access control.",
+    "REPORTS_DESC": "Access and run system-defined and custom business reports.",
+    "GLOBAL_CONFIG_DESC": "Enable or disable global system features and behaviors.",
+    "HOLIDAYS_DESC": "Define and manage non-working days and holiday schedules.",
+    "WORKING_DAYS_DESC": "Configure the standard operational week for the institution.",
+    "SEARCH_DESC": "Search across primary text fields. Use % as a wildcard for partial matches (e.g. 'John%').",
+    "STATUS_FILTER_DESC": "Filter results by their current lifecycle state."
+  },
+  "REPORTS": {
+    "NAME": "Report Name",
+    "TYPE": "Type",
+    "CATEGORY": "Category",
+    "RUN": "Run Report",
+    "RUN_TITLE": "Run",
+    "RESULTS": "Report Results"
+  },
+  "SETTINGS": {
+    "CONFIG_NAME": "Configuration Name",
+    "CREATE_HOLIDAY": "Create Holiday"
+  },
+  "ACCOUNTING_RULES": {
+    "CREATE": "Create Accounting Rule",
+    "EDIT": "Edit Accounting Rule"
   },
   "ACCOUNTING_CLOSURES": {
     "CREATE": "Close Period",
@@ -261,17 +308,26 @@
     "GL_CODE": "GL Code",
     "ACCOUNT_TYPE": "Account Type",
     "ACCOUNT_USAGE": "Account Usage",
-    "ALLOW_MANUAL_ENTRIES": "Allow Manual Entries"
+    "ALLOW_MANUAL_ENTRIES": "Allow Manual Entries",
+    "ASSET": "Asset",
+    "LIABILITY": "Liability",
+    "EQUITY": "Equity",
+    "INCOME": "Income",
+    "EXPENSE": "Expense",
+    "DETAIL": "Detail",
+    "HEADER": "Header"
   },
   "COMMON": {
     "SEARCH": "Search",
     "SEARCH_PLACEHOLDER": "Type to search...",
     "NO_DATA": "No records found.",
     "EDIT": "Edit",
+    "VIEW": "View",
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "STATUS": "Status",
     "ACTIONS": "Actions",
+    "ACTION": "Action",
     "SAVING": "Saving...",
     "LOADING": "Loading...",
     "REQUIRED": "This field is required",
@@ -282,6 +338,8 @@
     "CLIENT": "Client",
     "OFFICE": "Office",
     "ACTIVE": "Active",
+    "INACTIVE": "Inactive",
+    "ENABLED": "Enabled",
     "NAME": "Name",
     "ACCOUNT_NO": "Account No",
     "BALANCE": "Balance",
@@ -293,6 +351,13 @@
     "MOBILE_NO": "Mobile No",
     "EMAIL": "Email Address",
     "ACTIVATION_DATE": "Activation Date",
+    "FROM_DATE": "From Date",
+    "TO_DATE": "To Date",
+    "START_DATE": "Start Date",
+    "END_DATE": "End Date",
+    "MADE_ON": "Made On",
+    "MAKER": "Maker",
+    "ID": "ID",
     "YES": "Yes",
     "NO": "No",
     "ALL": "All",
@@ -310,7 +375,12 @@
     "CLIENT_ID": "Client ID",
     "PRODUCT": "Product",
     "SUBMITTED_ON": "Submitted On",
-    "INTEREST_RATE": "Interest Rate"
+    "INTEREST_RATE": "Interest Rate",
+    "CURRENCY": "Currency",
+    "PENALTY": "Penalty",
+    "REASON": "Reason",
+    "RUN": "Run",
+    "HELP": "Help"
   },
   "MODULES": {
     "CLIENTS_CONTRACTS": "Clients & Contracts",

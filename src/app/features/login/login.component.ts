@@ -68,13 +68,11 @@ import { ConfigService } from '../../core/services/config.service';
             <label for="serverUrl" [matTooltip]="'login.tooltips.serverUrl' | translate">
               {{ 'login.serverUrl' | translate }} ℹ️
             </label>
-            <select id="serverUrl" formControlName="serverUrl" (change)="onServerChange()">
+            <select id="serverUrl" formControlName="serverUrl">
               <option value="https://demo.mifos.io/fineract-provider/api/v1">
                 Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)
               </option>
-              <option value="https://localhost:8443/fineract-provider/api/v1">
-                Local Server (https://localhost:8443/fineract-provider/api/v1)
-              </option>
+              <option value="/fineract-provider/api/v1">Local Server (Proxied)</option>
               <option value="custom">Custom URL...</option>
             </select>
           </div>
@@ -296,17 +294,6 @@ export class LoginComponent {
   });
 
   /**
-   * Responds to server URL selection changes.
-   * Updates the global ConfigService when a non-custom preset is chosen.
-   */
-  onServerChange(): void {
-    const serverUrl = this.loginForm.get('serverUrl')?.value;
-    if (serverUrl !== 'custom') {
-      this.configService.setApiUrl(serverUrl!);
-    }
-  }
-
-  /**
    * Switches the application language at runtime.
    * @param lang - The target language code (e.g., 'en', 'hi', 'ko')
    */
@@ -324,8 +311,11 @@ export class LoginComponent {
       this.error.set(null);
 
       const { username, password, tenantId, serverUrl, customUrl } = this.loginForm.value;
-
       const finalUrl = serverUrl === 'custom' ? customUrl : serverUrl;
+
+      // CRITICAL: Check previous URL before updating it
+      const previousUrl = this.configService.apiUrl;
+
       if (finalUrl) {
         this.configService.setApiUrl(finalUrl);
       }
@@ -335,7 +325,19 @@ export class LoginComponent {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.router.navigate(['/']);
+            // Force reload only if the target API has actually changed
+            if (finalUrl && finalUrl !== previousUrl) {
+              console.log(
+                'API Target changed from',
+                previousUrl,
+                'to',
+                finalUrl,
+                '- Reloading app.',
+              );
+              window.location.href = '/';
+            } else {
+              this.router.navigate(['/']);
+            }
           },
           error: (err) => {
             this.isLoading.set(false);

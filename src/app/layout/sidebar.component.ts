@@ -182,6 +182,94 @@ import { TranslateModule } from '@ngx-translate/core';
                   <span class="nav-text">{{ 'nav.financialActivityMappings' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/accounting/charges"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.charges' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.tasks' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/tasks/checker-inbox"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.checker_inbox' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.security' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/security/users" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.users' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/security/roles" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.roles' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.reporting' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/reporting" routerLinkActive="active" class="nav-item sub-item">
+                  <span class="nav-text">{{ 'nav.reports' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.settings' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/settings/configurations"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.globalConfigurations' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/settings/holidays"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.holidays' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/settings/working-days"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'nav.workingDays' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -213,6 +301,7 @@ import { TranslateModule } from '@ngx-translate/core';
         color: #fff;
         height: calc(100vh - var(--header-height));
         padding-top: 1rem;
+        overflow-y: auto;
       }
       .nav-list {
         list-style: none;

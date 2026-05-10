@@ -320,6 +320,75 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'security/users',
+        loadComponent: () =>
+          import('./features/security/users/users-list.component').then(
+            (m) => m.UsersListComponent,
+          ),
+      },
+      {
+        path: 'security/users/create',
+        loadComponent: () =>
+          import('./features/security/users/user-form.component').then((m) => m.UserFormComponent),
+      },
+      {
+        path: 'security/users/edit/:id',
+        loadComponent: () =>
+          import('./features/security/users/user-form.component').then((m) => m.UserFormComponent),
+      },
+      {
+        path: 'security/roles',
+        loadComponent: () =>
+          import('./features/security/roles/roles-list.component').then(
+            (m) => m.RolesListComponent,
+          ),
+      },
+      {
+        path: 'security/roles/create',
+        loadComponent: () =>
+          import('./features/security/roles/role-form.component').then((m) => m.RoleFormComponent),
+      },
+      {
+        path: 'security/roles/edit/:id',
+        loadComponent: () =>
+          import('./features/security/roles/role-form.component').then((m) => m.RoleFormComponent),
+      },
+      {
+        path: 'accounting/charges',
+        loadComponent: () =>
+          import('./features/accounting/charges/charges-list.component').then(
+            (m) => m.ChargesListComponent,
+          ),
+      },
+      {
+        path: 'accounting/charges/create',
+        loadComponent: () =>
+          import('./features/accounting/charges/charge-form.component').then(
+            (m) => m.ChargeFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/charges/edit/:id',
+        loadComponent: () =>
+          import('./features/accounting/charges/charge-form.component').then(
+            (m) => m.ChargeFormComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/rescheduling',
+        loadComponent: () =>
+          import('./features/loans/rescheduling/reschedule-requests-list.component').then(
+            (m) => m.RescheduleRequestsListComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/rescheduling/create',
+        loadComponent: () =>
+          import('./features/loans/rescheduling/reschedule-form.component').then(
+            (m) => m.RescheduleFormComponent,
+          ),
+      },
+      {
         path: 'tellers',
         loadComponent: () =>
           import('./features/tellers/tellers-list.component').then((m) => m.TellersListComponent),
@@ -404,6 +473,39 @@ export const routes: Routes = [
           import('./features/loans/collateral/collateral-form.component').then(
             (m) => m.CollateralFormComponent,
           ),
+      },
+      {
+        path: 'reporting',
+        loadComponent: () =>
+          import('./features/reporting/reports-list.component').then((m) => m.ReportsListComponent),
+      },
+      {
+        path: 'reporting/run/:reportName',
+        loadComponent: () =>
+          import('./features/reporting/run-report.component').then((m) => m.RunReportComponent),
+      },
+      {
+        path: 'tasks',
+        loadChildren: () => import('./features/tasks/tasks.routes').then((m) => m.TASKS_ROUTES),
+      },
+      {
+        path: 'settings/configurations',
+        loadComponent: () =>
+          import('./features/settings/global-configurations.component').then(
+            (m) => m.GlobalConfigurationsListComponent,
+          ),
+      },
+      {
+        path: 'settings/holidays',
+        loadComponent: () =>
+          import('./features/settings/holidays-list.component').then(
+            (m) => m.HolidaysListComponent,
+          ),
+      },
+      {
+        path: 'settings/working-days',
+        loadComponent: () =>
+          import('./features/settings/working-days.component').then((m) => m.WorkingDaysComponent),
       },
       {
         path: 'loans/:loanId/transactions/:type',

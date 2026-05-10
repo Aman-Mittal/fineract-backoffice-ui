@@ -101,7 +101,7 @@ System admins handle security, audit, and infrastructure. The UI supports:
 
 ## Prerequisites
 
-- **Node.js** (v18 or later recommended) and **npm** or **yarn**
+- **Node.js** (v22 or later recommended) and **npm** or **yarn**
 - **Angular CLI** (`npm i -g @angular/cli`)
 - **Apache Fineract** instance (e.g. via Docker: `docker run -d -p 8443:8443 apache/fineract:latest`)
 - Access to Fineract REST API (default demo: `mifos` / `password` on `https://localhost:8443/fineract-provider/api/v1`)
@@ -120,10 +120,26 @@ npm install
 # Default: https://localhost:8443/fineract-provider/api/v1
 
 # Run development server
-ng serve
+npm start
 ```
 
 Access the app at `http://localhost:4200` (or the configured port).
+
+### Testing & Quality
+
+```bash
+# Run unit tests (Jest)
+npm test
+
+# Run end-to-end tests (Playwright)
+npm run test:e2e
+
+# Run linting
+npm run lint
+
+# Format code
+npm run format
+```
 
 ### Configuration
 
