@@ -20,3 +20,4 @@
 /coverage
 package-lock.json
 src/app/api/
+/fineract
