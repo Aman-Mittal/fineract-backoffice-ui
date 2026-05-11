@@ -18,7 +18,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { HttpRequest, HttpHandlerFn, HttpResponse } from '@angular/common/http';
+import { HttpHeaders, HttpRequest, HttpHandlerFn, HttpResponse } from '@angular/common/http';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 import { signal } from '@angular/core';
@@ -58,6 +58,31 @@ describe('authInterceptor', () => {
     const request = new HttpRequest('GET', testUrl);
     const next: HttpHandlerFn = (req) => {
       expect(req.headers.get('Authorization')).toBe('Basic mock-token');
+      return of(new HttpResponse({ status: 200 }));
+    };
+
+    TestBed.runInInjectionContext(() => {
+      authInterceptor(request, next).subscribe(() => done());
+    });
+  });
+
+  it('should not overwrite tenant headers when the request already specifies them', (done) => {
+    authServiceSpy.getAuthToken.and.returnValue(null);
+    const loginTenant = 'from-login-form';
+    const request = new HttpRequest(
+      'POST',
+      testUrl,
+      {},
+      {
+        headers: new HttpHeaders({
+          'Fineract-Platform-TenantId': loginTenant,
+          'X-Mifos-Platform-TenantId': loginTenant,
+        }),
+      },
+    );
+    const next: HttpHandlerFn = (req) => {
+      expect(req.headers.get('Fineract-Platform-TenantId')).toBe(loginTenant);
+      expect(req.headers.get('X-Mifos-Platform-TenantId')).toBe(loginTenant);
       return of(new HttpResponse({ status: 200 }));
     };
 

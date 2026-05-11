@@ -21,11 +21,23 @@ import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/h
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
+/** True when the request already carries a tenant (e.g. login with user-entered tenant). */
+function hasExplicitTenantHeaders(req: HttpRequest<unknown>): boolean {
+  return (
+    !!req.headers.get('Fineract-Platform-TenantId') ||
+    !!req.headers.get('X-Mifos-Platform-TenantId') ||
+    !!req.headers.get('fineract-platform-tenantid')
+  );
+}
+
 /**
  * Functional HTTP Interceptor that handles authentication and multi-tenancy.
  *
  * Injects the mandatory `Fineract-Platform-TenantId` header and the
  * `Authorization` header (if an active session exists) into every outgoing request.
+ *
+ * Requests that already specify tenant headers are left unchanged for those headers so
+ * login can send the tenant from the form before `currentTenantId` is updated.
  *
  * @param req - The outgoing HTTP request
  * @param next - The next handler in the interceptor chain
@@ -39,13 +51,15 @@ export const authInterceptor: HttpInterceptorFn = (
   const token = authService.getAuthToken();
   const tenantId = authService.currentTenantId();
 
-  // Always include Tenant headers for Fineract/Mifos compatibility
-  let authReq = req.clone({
-    setHeaders: {
-      'Fineract-Platform-TenantId': tenantId,
-      'X-Mifos-Platform-TenantId': tenantId,
-    },
-  });
+  let authReq = req;
+  if (!hasExplicitTenantHeaders(req)) {
+    authReq = req.clone({
+      setHeaders: {
+        'Fineract-Platform-TenantId': tenantId,
+        'X-Mifos-Platform-TenantId': tenantId,
+      },
+    });
+  }
 
   // Inject Basic Auth token if the user is logged in
   if (token) {
