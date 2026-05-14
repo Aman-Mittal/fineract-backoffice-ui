@@ -7,11 +7,11 @@ github:
     squash: false
     rebase: false
   rulesets:
-    - name: "Branch Protection"
+    - name: 'Branch Protection'
       type: branch
       branches:
         includes:
-          - "main"
+          - 'main'
       restrict_deletion: true
       restrict_force_push: true
       required_signatures: true
