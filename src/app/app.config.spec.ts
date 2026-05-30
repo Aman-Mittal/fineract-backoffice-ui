@@ -31,28 +31,32 @@ describe('AppConfig', () => {
   });
 
   it('should provide BASE_PATH from ConfigService', () => {
-    const basePathProvider = appConfig.providers.find(
-      (p: Record<string, unknown>) => p && p['provide'] === BASE_PATH,
-    ) as Record<string, unknown>;
+    const basePathProvider = (appConfig.providers as unknown as Record<string, unknown>[]).find(
+      (p) => p && p['provide'] === BASE_PATH,
+    );
 
     expect(basePathProvider).toBeTruthy();
 
     const configServiceSpy = jasmine.createSpyObj('ConfigService', [], {
       apiUrl: `${API_URL}/v1`,
     });
-    const result = (basePathProvider['useFactory'] as (...args: unknown[]) => unknown)(configServiceSpy);
+    const result = (basePathProvider!['useFactory'] as (...args: unknown[]) => unknown)(
+      configServiceSpy,
+    );
     expect(result).toBe(API_URL);
   });
 
   it('should not trim /v1 if apiUrl does not end with /v1', () => {
-    const basePathProvider = appConfig.providers.find(
-      (p: Record<string, unknown>) => p && p['provide'] === BASE_PATH,
-    ) as Record<string, unknown>;
+    const basePathProvider = (appConfig.providers as unknown as Record<string, unknown>[]).find(
+      (p) => p && p['provide'] === BASE_PATH,
+    );
 
     const configServiceSpy = jasmine.createSpyObj('ConfigService', [], {
       apiUrl: API_URL,
     });
-    const result = (basePathProvider['useFactory'] as (...args: unknown[]) => unknown)(configServiceSpy);
+    const result = (basePathProvider!['useFactory'] as (...args: unknown[]) => unknown)(
+      configServiceSpy,
+    );
     expect(result).toBe(API_URL);
   });
 });

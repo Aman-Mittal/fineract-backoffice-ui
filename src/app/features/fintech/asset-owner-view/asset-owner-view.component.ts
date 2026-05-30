@@ -200,7 +200,10 @@ export class AssetOwnerViewComponent implements OnInit {
       switchMap((transfer) => {
         if (transfer.transferId) {
           return this.assetOwnersService.getJournalEntriesOfTransfer(transfer.transferId).pipe(
-            map((response: ExternalOwnerTransferJournalEntryData) => response.journalEntryData?.content || []),
+            map(
+              (response: ExternalOwnerTransferJournalEntryData) =>
+                response.journalEntryData?.content || [],
+            ),
             catchError(() => of([])),
           );
         }

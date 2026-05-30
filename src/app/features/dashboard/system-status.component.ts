@@ -188,6 +188,10 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
                   <span class="value">{{ configService.apiUrl }}</span>
                 </li>
                 <li>
+                  <span class="label">{{ 'DASHBOARD.FALLBACK_API' | translate }}:</span>
+                  <span class="value">{{ environmentUrl }}</span>
+                </li>
+                <li>
                   <span class="label">{{ 'DASHBOARD.ENVIRONMENT' | translate }}:</span>
                   <span class="value badge" [ngClass]="isProd ? 'prod' : 'dev'">
                     {{ (isProd ? 'DASHBOARD.PRODUCTION' : 'DASHBOARD.DEVELOPMENT') | translate }}

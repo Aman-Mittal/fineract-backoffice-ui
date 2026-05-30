@@ -251,19 +251,21 @@ export class FixedDepositProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveOne20(this.productId).subscribe((data: GetFixedDepositProductsProductIdResponse) => {
-      this.product = {
-        name: data.name,
-        shortName: data.shortName,
-        description: data.description,
-        currencyCode: data.currency?.code,
-        digitsAfterDecimal: data.currency?.decimalPlaces,
-        minDepositTerm: data.minDepositTerm,
-        minDepositTermTypeId: data.minDepositTermType?.id,
-        depositAmount: 1000, // Fallback
-        accountingRule: 1,
-      };
-    });
+    this.productService
+      .retrieveOne20(this.productId)
+      .subscribe((data: GetFixedDepositProductsProductIdResponse) => {
+        this.product = {
+          name: data.name,
+          shortName: data.shortName,
+          description: data.description,
+          currencyCode: data.currency?.code,
+          digitsAfterDecimal: data.currency?.decimalPlaces,
+          minDepositTerm: data.minDepositTerm,
+          minDepositTermTypeId: data.minDepositTermType?.id,
+          depositAmount: 1000, // Fallback
+          accountingRule: 1,
+        };
+      });
   }
 
   onSubmit() {
@@ -297,10 +299,12 @@ export class FixedDepositProductFormComponent implements OnInit {
           error: () => (this.isSaving = false),
         });
     } else {
-      this.productService.create11(payload as unknown as PostFixedDepositProductsRequest).subscribe({
-        next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.productService
+        .create11(payload as unknown as PostFixedDepositProductsRequest)
+        .subscribe({
+          next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
+          error: () => (this.isSaving = false),
+        });
     }
   }
 

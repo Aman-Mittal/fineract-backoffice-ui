@@ -22,8 +22,9 @@ import { CreateOfficeDialogComponent } from './create-office-dialog.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { OfficesService } from '../../../api';
-import { of, throwError } from 'rxjs';
+import { OfficesService, GetOfficesResponse, PostOfficesResponse } from '../../../api';
+import { Observable, of, throwError } from 'rxjs';
+import { HttpEvent } from '@angular/common/http';
 
 describe('CreateOfficeDialogComponent', () => {
   let component: CreateOfficeDialogComponent;
@@ -39,10 +40,14 @@ describe('CreateOfficeDialogComponent', () => {
     ]);
 
     mockOfficesService.retrieveOffices.and.returnValue(
-      of([{ id: 1, name: 'Head Office' }]) as unknown as Record<string, unknown>,
+      of([{ id: 1, name: 'Head Office' }] as GetOfficesResponse[]) as unknown as Observable<
+        HttpEvent<GetOfficesResponse[]>
+      >,
     );
     mockOfficesService.createOffice.and.returnValue(
-      of({ resourceId: 10, officeId: 10 }) as unknown as Record<string, unknown>,
+      of({ resourceId: 10, officeId: 10 } as PostOfficesResponse) as unknown as Observable<
+        HttpEvent<PostOfficesResponse>
+      >,
     );
 
     await TestBed.configureTestingModule({

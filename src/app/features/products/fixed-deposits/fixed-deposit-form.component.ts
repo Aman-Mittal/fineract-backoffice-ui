@@ -40,6 +40,7 @@ import {
   GetFixedDepositAccountsAccountIdResponse,
   GetFixedDepositAccountsProductOptions,
   PostFixedDepositAccountsRequest,
+  PutFixedDepositAccountsAccountIdRequest,
 } from '../../../api';
 
 /**
@@ -360,8 +361,8 @@ export class FixedDepositAccountFormComponent implements OnInit {
     this.account['locale'] = 'en';
 
     if (this.isEditMode && this.accountId) {
-      const payload: any = {
-        depositAmount: this.account['depositAmount'],
+      const payload: PutFixedDepositAccountsAccountIdRequest & Record<string, unknown> = {
+        depositAmount: this.account['depositAmount'] as number,
         locale: 'en',
         dateFormat: this.DATE_FORMAT,
         depositPeriod: this.account['depositPeriod'],

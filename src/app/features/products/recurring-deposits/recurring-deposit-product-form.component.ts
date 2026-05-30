@@ -32,6 +32,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   RecurringDepositProductService,
   GetRecurringDepositProductsProductIdResponse,
+  PutRecurringDepositProductsRequest,
+  PostRecurringDepositProductsRequest,
 } from '../../../api';
 
 const DEFAULT_CURRENCY = 'USD';
@@ -238,18 +240,20 @@ export class RecurringDepositProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveOne23(this.productId).subscribe((data: GetRecurringDepositProductsProductIdResponse) => {
-      this.product = {
-        name: data.name,
-        shortName: data.shortName,
-        description: data.description,
-        currencyCode: data.currency?.code,
-        digitsAfterDecimal: data.currency?.decimalPlaces,
-        recurringEvery: data.recurringDepositFrequency,
-        recurringFrequencyType: data.recurringDepositFrequencyType?.id,
-        accountingRule: 1,
-      };
-    });
+    this.productService
+      .retrieveOne23(this.productId)
+      .subscribe((data: GetRecurringDepositProductsProductIdResponse) => {
+        this.product = {
+          name: data.name,
+          shortName: data.shortName,
+          description: data.description,
+          currencyCode: data.currency?.code,
+          digitsAfterDecimal: data.currency?.decimalPlaces,
+          recurringEvery: data.recurringDepositFrequency,
+          recurringFrequencyType: data.recurringDepositFrequencyType?.id,
+          accountingRule: 1,
+        };
+      });
   }
 
   onSubmit() {
@@ -257,15 +261,19 @@ export class RecurringDepositProductFormComponent implements OnInit {
     this.product['locale'] = DEFAULT_LOCALE;
 
     if (this.isEditMode && this.productId) {
-      this.productService.update19(this.productId, this.product as any).subscribe({
-        next: () => this.router.navigate([REDIRECT_URL]),
-        error: () => (this.isSaving = false),
-      });
+      this.productService
+        .update19(this.productId, this.product as unknown as PutRecurringDepositProductsRequest)
+        .subscribe({
+          next: () => this.router.navigate([REDIRECT_URL]),
+          error: () => (this.isSaving = false),
+        });
     } else {
-      this.productService.create12(this.product as any).subscribe({
-        next: () => this.router.navigate([REDIRECT_URL]),
-        error: () => (this.isSaving = false),
-      });
+      this.productService
+        .create12(this.product as unknown as PostRecurringDepositProductsRequest)
+        .subscribe({
+          next: () => this.router.navigate([REDIRECT_URL]),
+          error: () => (this.isSaving = false),
+        });
     }
   }
 

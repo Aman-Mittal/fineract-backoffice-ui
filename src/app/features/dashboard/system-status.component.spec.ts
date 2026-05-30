@@ -19,7 +19,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SystemStatusComponent } from './system-status.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ConfigService } from '../../core/services/config.service';
 
 describe('SystemStatusComponent', () => {
@@ -36,6 +36,17 @@ describe('SystemStatusComponent', () => {
       imports: [TranslateModule.forRoot(), SystemStatusComponent],
       providers: [{ provide: ConfigService, useValue: configServiceSpy }],
     }).compileComponents();
+
+    const translateService = TestBed.inject(TranslateService);
+    translateService.setTranslation('en', {
+      DASHBOARD: {
+        RUNTIME_API: 'Runtime API URL',
+        FALLBACK_API: 'Fallback API URL',
+        ENVIRONMENT: 'Environment',
+        ACTIVE_TENANT: 'Active Tenant',
+      },
+    });
+    translateService.use('en');
 
     fixture = TestBed.createComponent(SystemStatusComponent);
     component = fixture.componentInstance;
