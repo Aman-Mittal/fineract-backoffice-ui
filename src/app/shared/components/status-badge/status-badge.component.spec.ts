@@ -20,6 +20,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StatusBadgeComponent } from './status-badge.component';
 
+const ACTIVE = 'Active';
+const APPROVED = 'Approved';
+const STATUS_ACTIVE = 'status-active';
+const STATUS_CLOSED = 'status-closed';
+
 describe('StatusBadgeComponent', () => {
   let component: StatusBadgeComponent;
   let fixture: ComponentFixture<StatusBadgeComponent>;
@@ -45,13 +50,13 @@ describe('StatusBadgeComponent', () => {
     });
 
     it('should return status if status is a string', () => {
-      component.status = 'Active';
-      expect(component.statusName).toBe('Active');
+      component.status = ACTIVE;
+      expect(component.statusName).toBe(ACTIVE);
     });
 
     it('should return value from object if value is present', () => {
-      component.status = { value: 'Approved', code: 'approved' };
-      expect(component.statusName).toBe('Approved');
+      component.status = { value: APPROVED, code: 'approved' };
+      expect(component.statusName).toBe(APPROVED);
     });
 
     it('should return code from object if value is absent', () => {
@@ -67,14 +72,14 @@ describe('StatusBadgeComponent', () => {
     });
 
     it('should return status-active for active status', () => {
-      component.status = 'Active';
-      expect(component.colorClass).toBe('status-active');
+      component.status = ACTIVE;
+      expect(component.colorClass).toBe(STATUS_ACTIVE);
 
       component.status = { code: 'clientStatusType.active' };
-      expect(component.colorClass).toBe('status-active');
+      expect(component.colorClass).toBe(STATUS_ACTIVE);
 
-      component.status = { value: 'Approved' };
-      expect(component.colorClass).toBe('status-active');
+      component.status = { value: APPROVED };
+      expect(component.colorClass).toBe(STATUS_ACTIVE);
     });
 
     it('should return status-pending for pending status', () => {
@@ -87,13 +92,13 @@ describe('StatusBadgeComponent', () => {
 
     it('should return status-closed for closed/rejected/deleted status', () => {
       component.status = 'Closed';
-      expect(component.colorClass).toBe('status-closed');
+      expect(component.colorClass).toBe(STATUS_CLOSED);
 
       component.status = { value: 'Rejected' };
-      expect(component.colorClass).toBe('status-closed');
+      expect(component.colorClass).toBe(STATUS_CLOSED);
 
       component.status = { code: 'deleted' };
-      expect(component.colorClass).toBe('status-closed');
+      expect(component.colorClass).toBe(STATUS_CLOSED);
     });
 
     it('should return status-default for unmapped status', () => {

@@ -32,10 +32,10 @@ describe('ClientSearchComponent', () => {
 
   beforeEach(async () => {
     clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
-    
+
     // Provide a default return value for all calls to retrieveAll21
     clientServiceSpy.retrieveAll21.and.returnValue(
-      of({ pageItems: [] }) as unknown as Observable<HttpEvent<GetClientsResponse>>
+      of({ pageItems: [] }) as unknown as Observable<HttpEvent<GetClientsResponse>>,
     );
 
     await TestBed.configureTestingModule({
@@ -56,7 +56,7 @@ describe('ClientSearchComponent', () => {
     const mockResponse = {
       pageItems: [{ id: 1, displayName: 'John Doe', accountNo: '001' }],
     };
-    
+
     // Set mock BEFORE detectChanges to catch initial startWith call if needed,
     // but we specifically want to test the change to 'John'.
     clientServiceSpy.retrieveAll21.and.returnValue(

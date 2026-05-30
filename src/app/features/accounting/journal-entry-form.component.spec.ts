@@ -48,22 +48,22 @@ describe('JournalEntryFormComponent', () => {
   beforeEach(async () => {
     journalServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['createGLJournalEntry']);
     glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', [
-      'retrieveAllAccounts']);
+      'retrieveAllAccounts',
+    ]);
     officeServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['retrieveCurrencies']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        JournalEntryFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule],
-      providers: [provideNoopAnimations(), 
+      imports: [JournalEntryFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      providers: [
+        provideNoopAnimations(),
         { provide: JournalEntriesService, useValue: journalServiceSpy },
         { provide: GeneralLedgerAccountService, useValue: glAccountServiceSpy },
         { provide: OfficesService, useValue: officeServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: Router, useValue: routerSpy }],
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
     officeServiceSpy.retrieveOffices.and.returnValue(

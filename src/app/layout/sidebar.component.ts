@@ -79,11 +79,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 </a>
               </li>
               <li>
-                <a
-                  routerLink="/products/fixed"
-                  routerLinkActive="active"
-                  class="nav-item sub-item"
-                >
+                <a routerLink="/products/fixed" routerLinkActive="active" class="nav-item sub-item">
                   <span class="nav-text">{{ 'PRODUCTS.FIXED_DEPOSIT_PRODUCTS' | translate }}</span>
                 </a>
               </li>
@@ -93,15 +89,13 @@ import { TranslateModule } from '@ngx-translate/core';
                   routerLinkActive="active"
                   class="nav-item sub-item"
                 >
-                  <span class="nav-text">{{ 'PRODUCTS.RECURRING_DEPOSIT_PRODUCTS' | translate }}</span>
+                  <span class="nav-text">{{
+                    'PRODUCTS.RECURRING_DEPOSIT_PRODUCTS' | translate
+                  }}</span>
                 </a>
               </li>
               <li>
-                <a
-                  routerLink="/products/share"
-                  routerLinkActive="active"
-                  class="nav-item sub-item"
-                >
+                <a routerLink="/products/share" routerLinkActive="active" class="nav-item sub-item">
                   <span class="nav-text">{{ 'PRODUCTS.SHARE_PRODUCTS' | translate }}</span>
                 </a>
               </li>

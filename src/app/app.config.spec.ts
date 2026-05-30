@@ -21,6 +21,8 @@ import { initializeApp, appConfig } from './app.config';
 import { BASE_PATH } from './api/variables';
 
 describe('AppConfig', () => {
+  const API_URL = 'http://localhost/fineract-provider/api';
+
   it('should initialize app config by calling loadConfig', () => {
     const configServiceSpy = jasmine.createSpyObj('ConfigService', ['loadConfig']);
     const initFn = initializeApp(configServiceSpy);
@@ -30,27 +32,27 @@ describe('AppConfig', () => {
 
   it('should provide BASE_PATH from ConfigService', () => {
     const basePathProvider = appConfig.providers.find(
-      (p: any) => p && p.provide === BASE_PATH,
-    ) as any;
+      (p: Record<string, unknown>) => p && p['provide'] === BASE_PATH,
+    ) as Record<string, unknown>;
 
     expect(basePathProvider).toBeTruthy();
 
     const configServiceSpy = jasmine.createSpyObj('ConfigService', [], {
-      apiUrl: 'http://localhost/fineract-provider/api/v1',
+      apiUrl: `${API_URL}/v1`,
     });
-    const result = basePathProvider.useFactory(configServiceSpy);
-    expect(result).toBe('http://localhost/fineract-provider/api');
+    const result = (basePathProvider['useFactory'] as (...args: unknown[]) => unknown)(configServiceSpy);
+    expect(result).toBe(API_URL);
   });
 
   it('should not trim /v1 if apiUrl does not end with /v1', () => {
     const basePathProvider = appConfig.providers.find(
-      (p: any) => p && p.provide === BASE_PATH,
-    ) as any;
+      (p: Record<string, unknown>) => p && p['provide'] === BASE_PATH,
+    ) as Record<string, unknown>;
 
     const configServiceSpy = jasmine.createSpyObj('ConfigService', [], {
-      apiUrl: 'http://localhost/fineract-provider/api',
+      apiUrl: API_URL,
     });
-    const result = basePathProvider.useFactory(configServiceSpy);
-    expect(result).toBe('http://localhost/fineract-provider/api');
+    const result = (basePathProvider['useFactory'] as (...args: unknown[]) => unknown)(configServiceSpy);
+    expect(result).toBe(API_URL);
   });
 });

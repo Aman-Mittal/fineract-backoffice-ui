@@ -230,7 +230,7 @@ export class SavingsAccountFormComponent implements OnInit {
    */
   ngOnInit(): void {
     this.loadProducts();
-    
+
     // Check for clientId in query params for pre-population
     this.route.queryParams.subscribe((queryParams) => {
       const clientId = queryParams['clientId'];

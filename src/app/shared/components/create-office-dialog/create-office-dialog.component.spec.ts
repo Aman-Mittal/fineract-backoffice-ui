@@ -22,7 +22,7 @@ import { CreateOfficeDialogComponent } from './create-office-dialog.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { OfficesService, GetOfficesResponse } from '../../../api';
+import { OfficesService } from '../../../api';
 import { of, throwError } from 'rxjs';
 
 describe('CreateOfficeDialogComponent', () => {
@@ -35,16 +35,23 @@ describe('CreateOfficeDialogComponent', () => {
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     mockOfficesService = jasmine.createSpyObj('OfficesService', [
       'retrieveOffices',
-      'createOffice']);
+      'createOffice',
+    ]);
 
-    mockOfficesService.retrieveOffices.and.returnValue(of([{ id: 1, name: 'Head Office' }]) as any);
-    mockOfficesService.createOffice.and.returnValue(of({ resourceId: 10, officeId: 10 }) as any);
+    mockOfficesService.retrieveOffices.and.returnValue(
+      of([{ id: 1, name: 'Head Office' }]) as unknown as Record<string, unknown>,
+    );
+    mockOfficesService.createOffice.and.returnValue(
+      of({ resourceId: 10, officeId: 10 }) as unknown as Record<string, unknown>,
+    );
 
     await TestBed.configureTestingModule({
       imports: [CreateOfficeDialogComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: MatDialogRef, useValue: mockDialogRef },
-        { provide: OfficesService, useValue: mockOfficesService }],
+        { provide: OfficesService, useValue: mockOfficesService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreateOfficeDialogComponent);

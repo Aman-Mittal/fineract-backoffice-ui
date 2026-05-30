@@ -31,7 +31,9 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import {
   ExternalAssetOwnersService,
   ExternalTransferData,
-  ExternalOwnerJournalEntryData,
+  PageExternalTransferData,
+  ExternalOwnerTransferJournalEntryData,
+  JournalEntryData,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../shared';
 
@@ -172,7 +174,7 @@ export class AssetOwnerViewComponent implements OnInit {
   private readonly assetOwnersService = inject(ExternalAssetOwnersService);
 
   transfer$!: Observable<ExternalTransferData>;
-  journalEntries$!: Observable<any[]>;
+  journalEntries$!: Observable<JournalEntryData[]>;
 
   journalColumns: ColumnDef[] = [
     { key: 'id', label: 'ID', sortable: true },
@@ -189,7 +191,7 @@ export class AssetOwnerViewComponent implements OnInit {
     this.transfer$ = this.assetOwnersService
       .getTransfers(transferExternalId, undefined, undefined, 0, 1)
       .pipe(
-        map((page: any) => page.content?.[0] || {}),
+        map((page: PageExternalTransferData) => page.content?.[0] || {}),
         catchError(() => of({} as ExternalTransferData)),
       );
 
@@ -198,7 +200,7 @@ export class AssetOwnerViewComponent implements OnInit {
       switchMap((transfer) => {
         if (transfer.transferId) {
           return this.assetOwnersService.getJournalEntriesOfTransfer(transfer.transferId).pipe(
-            map((response: any) => response.pageItems || []),
+            map((response: ExternalOwnerTransferJournalEntryData) => response.journalEntryData?.content || []),
             catchError(() => of([])),
           );
         }

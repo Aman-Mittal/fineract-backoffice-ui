@@ -42,12 +42,14 @@ describe('CollateralFormComponent', () => {
       'newCollateralTemplate',
       'retrieveCollateralDetails1',
       'createCollateral',
-      'updateCollateral']);
+      'updateCollateral',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [CollateralFormComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -55,7 +57,8 @@ describe('CollateralFormComponent', () => {
           useValue: {
             paramMap: of({ get: (key: string) => (key === 'loanId' ? '123' : null) }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     collateralServiceSpy.newCollateralTemplate.and.returnValue(

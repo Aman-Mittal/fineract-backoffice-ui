@@ -38,16 +38,15 @@ describe('TellerFormComponent', () => {
       'findTeller',
       'createTeller',
       'updateTeller',
-      'template12']);
+      'template12',
+    ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        TellerFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule],
-      providers: [provideNoopAnimations(), 
+      imports: [TellerFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      providers: [
+        provideNoopAnimations(),
         { provide: TellerCashManagementService, useValue: tellerServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -56,7 +55,8 @@ describe('TellerFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

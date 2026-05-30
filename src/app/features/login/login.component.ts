@@ -72,7 +72,9 @@ import { ConfigService } from '../../core/services/config.service';
               <option value="https://demo.mifos.io/fineract-provider/api/v1">
                 Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)
               </option>
-              <option value="/fineract-provider/api/v1">Local Proxy Server (Bypass CORS/SSL)</option>
+              <option value="/fineract-provider/api/v1">
+                Local Proxy Server (Bypass CORS/SSL)
+              </option>
               <option value="https://localhost:8443/fineract-provider/api/v1">
                 Local Server (Direct https://localhost:8443/fineract-provider/api/v1)
               </option>

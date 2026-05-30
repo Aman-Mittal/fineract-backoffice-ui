@@ -17,7 +17,16 @@
  * under the License.
  */
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  Output,
+  inject,
+} from '@angular/core';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -107,7 +116,8 @@ export class ClientSearchComponent implements OnInit, OnChanges {
         filter((value) => typeof value === 'string'),
         switchMap((value) => {
           this.isLoading = true;
-          const searchTerm = typeof value === 'string' && value.length > 0 ? value + '%' : undefined;
+          const searchTerm =
+            typeof value === 'string' && value.length > 0 ? value + '%' : undefined;
           return this.clientService.retrieveAll21(
             undefined,
             undefined,

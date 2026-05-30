@@ -39,6 +39,7 @@ import {
   GetFixedDepositAccountsTemplateResponse,
   GetFixedDepositAccountsAccountIdResponse,
   GetFixedDepositAccountsProductOptions,
+  PostFixedDepositAccountsRequest,
 } from '../../../api';
 
 /**
@@ -86,7 +87,7 @@ import {
               <app-client-search
                 [label]="'COMMON.CLIENT' | translate"
                 [required]="true"
-                [initialClientId]="account.clientId || null"
+                [initialClientId]="getClientId()"
                 (clientSelected)="onClientSelected($event)"
               >
               </app-client-search>
@@ -99,12 +100,12 @@ import {
                 <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
                 <mat-select
                   name="productId"
-                  [(ngModel)]="account.productId"
+                  [(ngModel)]="account['productId']"
                   required
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product.id) {
-                    <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                  @for (product of products; track product['id']) {
+                    <mat-option [value]="product['id']">{{ product['name'] }}</mat-option>
                   }
                   <mat-divider></mat-divider>
                   <mat-option (click)="onCreateProduct()">
@@ -124,7 +125,7 @@ import {
                   matInput
                   type="number"
                   name="depositAmount"
-                  [(ngModel)]="account.depositAmount"
+                  [(ngModel)]="account['depositAmount']"
                   required
                 />
               </mat-form-field>
@@ -156,7 +157,7 @@ import {
                   matInput
                   type="number"
                   name="depositPeriod"
-                  [(ngModel)]="account.depositPeriod"
+                  [(ngModel)]="account['depositPeriod']"
                   required
                 />
               </mat-form-field>
@@ -169,7 +170,7 @@ import {
                 <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
                 <mat-select
                   name="depositPeriodFrequencyId"
-                  [(ngModel)]="account.depositPeriodFrequencyId"
+                  [(ngModel)]="account['depositPeriodFrequencyId']"
                   required
                 >
                   <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
@@ -256,7 +257,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
   isSaving = false;
 
   /** Post request model */
-  account: any = {
+  account: Record<string, unknown> = {
     depositPeriodFrequencyId: 2, // Default to Months
   };
   /** Submitted date for template binding */
@@ -271,8 +272,8 @@ export class FixedDepositAccountFormComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const clientId = params['clientId'];
       if (clientId) {
-        this.account.clientId = +clientId;
-        this.loadProducts(this.account.clientId);
+        this.account['clientId'] = +clientId;
+        this.loadProducts(this.account['clientId'] as number);
       } else {
         this.loadProducts();
       }
@@ -286,6 +287,10 @@ export class FixedDepositAccountFormComponent implements OnInit {
         this.loadAccountData();
       }
     });
+  }
+
+  getClientId(): number | null {
+    return (this.account['clientId'] as number) || null;
   }
 
   /**
@@ -309,7 +314,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
   }
 
   onClientSelected(clientId: number): void {
-    this.account.clientId = clientId;
+    this.account['clientId'] = clientId;
     this.loadProducts(clientId);
   }
 
@@ -350,27 +355,29 @@ export class FixedDepositAccountFormComponent implements OnInit {
       this.submittedOnDate.getMonth() + 1,
     ).padStart(2, '0')}-${String(this.submittedOnDate.getDate()).padStart(2, '0')}`;
 
-    this.account.submittedOnDate = formattedDate;
-    this.account.dateFormat = this.DATE_FORMAT;
-    this.account.locale = 'en';
+    this.account['submittedOnDate'] = formattedDate;
+    this.account['dateFormat'] = this.DATE_FORMAT;
+    this.account['locale'] = 'en';
 
     if (this.isEditMode && this.accountId) {
-      const payload: Record<string, unknown> = {
-        depositAmount: this.account.depositAmount,
-        depositPeriod: this.account.depositPeriod,
-        depositPeriodFrequencyId: this.account.depositPeriodFrequencyId,
+      const payload: any = {
+        depositAmount: this.account['depositAmount'],
         locale: 'en',
         dateFormat: this.DATE_FORMAT,
+        depositPeriod: this.account['depositPeriod'],
+        depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'],
       };
-      this.fixedDepositService.update16(this.accountId, payload as any).subscribe({
+      this.fixedDepositService.update16(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.fixedDepositService.submitApplication(this.account).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.fixedDepositService
+        .submitApplication(this.account as PostFixedDepositAccountsRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     }
   }
 

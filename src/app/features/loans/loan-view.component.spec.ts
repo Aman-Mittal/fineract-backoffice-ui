@@ -55,7 +55,8 @@ describe('LoanViewComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [LoanViewComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: LoansService, useValue: loansServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -66,7 +67,8 @@ describe('LoanViewComponent', () => {
               get: (key: string) => (key === 'id' ? '456' : null),
             }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     loansServiceSpy.retrieveLoan.and.returnValue(

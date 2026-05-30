@@ -43,9 +43,11 @@ describe('ShareAccountsListComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ShareAccountsListComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: ShareAccountService, useValue: shareServiceSpy },
-        { provide: Router, useValue: routerSpy }],
+        { provide: Router, useValue: routerSpy },
+      ],
     }).compileComponents();
 
     shareServiceSpy.retrieveAllAccounts1.and.returnValue(

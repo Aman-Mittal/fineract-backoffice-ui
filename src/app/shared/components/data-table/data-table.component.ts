@@ -303,13 +303,13 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
 
   getCellValue(row: T, key: string): unknown {
     const keys = key.split('.');
-    let value: any = row;
+    let value: unknown = row;
     for (const k of keys) {
       if (value === null || value === undefined) return undefined;
-      value = value[k];
+      value = (value as Record<string, unknown>)[k];
     }
     if (value && typeof value === 'object' && 'value' in value) {
-      return value.value;
+      return (value as Record<string, unknown>)['value'];
     }
     return value;
   }

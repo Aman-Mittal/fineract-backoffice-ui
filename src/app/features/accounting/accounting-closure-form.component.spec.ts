@@ -45,11 +45,7 @@ describe('AccountingClosureFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        AccountingClosureFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule,
-      ],
+      imports: [AccountingClosureFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
       providers: [
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: OfficesService, useValue: officeServiceSpy },

@@ -31,6 +31,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductsService, PostProductsTypeRequest } from '../../../api';
 
+const DEFAULT_CURRENCY = 'USD';
+const DEFAULT_LOCALE = 'en';
+const REDIRECT_URL = '/products/share';
+const PRODUCT_TYPE = 'share';
+
 @Component({
   selector: 'app-share-product-form',
   standalone: true,
@@ -52,7 +57,9 @@ import { ProductsService, PostProductsTypeRequest } from '../../../api';
         <mat-card-header>
           <mat-card-title>
             {{
-              isEditMode ? ('PRODUCTS.EDIT_SHARE_PRODUCT' | translate) : ('PRODUCTS.CREATE_SHARE_PRODUCT' | translate)
+              isEditMode
+                ? ('PRODUCTS.EDIT_SHARE_PRODUCT' | translate)
+                : ('PRODUCTS.CREATE_SHARE_PRODUCT' | translate)
             }}
           </mat-card-title>
         </mat-card-header>
@@ -67,18 +74,29 @@ import { ProductsService, PostProductsTypeRequest } from '../../../api';
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.SHORT_NAME' | translate }}</mat-label>
-                <input matInput name="shortName" [(ngModel)]="product.shortName" required maxlength="4" />
+                <input
+                  matInput
+                  name="shortName"
+                  [(ngModel)]="product.shortName"
+                  required
+                  maxlength="4"
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea matInput name="description" [(ngModel)]="product.description" rows="2"></textarea>
+                <textarea
+                  matInput
+                  name="description"
+                  [(ngModel)]="product.description"
+                  rows="2"
+                ></textarea>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.CURRENCY' | translate }}</mat-label>
                 <mat-select name="currencyCode" [(ngModel)]="product.currencyCode" required>
-                  <mat-option value="USD">USD</mat-option>
+                  <mat-option [value]="DEFAULT_CURRENCY">{{ DEFAULT_CURRENCY }}</mat-option>
                   <mat-option value="EUR">EUR</mat-option>
                   <mat-option value="INR">INR</mat-option>
                 </mat-select>
@@ -86,17 +104,35 @@ import { ProductsService, PostProductsTypeRequest } from '../../../api';
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.TOTAL_SHARES' | translate }}</mat-label>
-                <input matInput type="number" name="totalShares" [(ngModel)]="product.totalShares" required />
+                <input
+                  matInput
+                  type="number"
+                  name="totalShares"
+                  [(ngModel)]="product.totalShares"
+                  required
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.UNIT_PRICE' | translate }}</mat-label>
-                <input matInput type="number" name="unitPrice" [(ngModel)]="product.unitPrice" required />
+                <input
+                  matInput
+                  type="number"
+                  name="unitPrice"
+                  [(ngModel)]="product.unitPrice"
+                  required
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.NOMINAL_SHARES' | translate }}</mat-label>
-                <input matInput type="number" name="nominalShares" [(ngModel)]="product.nominalShares" required />
+                <input
+                  matInput
+                  type="number"
+                  name="nominalShares"
+                  [(ngModel)]="product.nominalShares"
+                  required
+                />
               </mat-form-field>
             </div>
 
@@ -104,9 +140,17 @@ import { ProductsService, PostProductsTypeRequest } from '../../../api';
               <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid || isSaving">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="productForm.invalid || isSaving"
+              >
                 @if (isSaving) {
-                  <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
@@ -118,26 +162,51 @@ import { ProductsService, PostProductsTypeRequest } from '../../../api';
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container { padding: 24px; max-width: 900px; margin: 0 auto; }
-    .product-form { display: flex; flex-direction: column; gap: 16px; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .full-width { grid-column: span 2; }
-    mat-form-field { width: 100%; }
-    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .product-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .full-width {
+        grid-column: span 2;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class ShareProductFormComponent implements OnInit {
   private readonly productService = inject(ProductsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  protected readonly DEFAULT_CURRENCY = DEFAULT_CURRENCY;
+
   productId: number | null = null;
   isEditMode = false;
   isSaving = false;
 
   product: PostProductsTypeRequest = {
-    currencyCode: 'USD',
+    currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
     inMultiplesOf: 1,
     totalShares: 1000,
@@ -160,7 +229,7 @@ export class ShareProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveProduct(this.productId, 'share').subscribe((data) => {
+    this.productService.retrieveProduct(this.productId, PRODUCT_TYPE).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -177,22 +246,22 @@ export class ShareProductFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    this.product.locale = 'en';
+    this.product.locale = DEFAULT_LOCALE;
 
     if (this.isEditMode && this.productId) {
-      this.productService.updateProduct('share', this.productId, this.product).subscribe({
-        next: () => this.router.navigate(['/products/share']),
+      this.productService.updateProduct(PRODUCT_TYPE, this.productId, this.product).subscribe({
+        next: () => this.router.navigate([REDIRECT_URL]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.productService.createProduct('share', this.product).subscribe({
-        next: () => this.router.navigate(['/products/share']),
+      this.productService.createProduct(PRODUCT_TYPE, this.product).subscribe({
+        next: () => this.router.navigate([REDIRECT_URL]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
   onCancel() {
-    this.router.navigate(['/products/share']);
+    this.router.navigate([REDIRECT_URL]);
   }
 }

@@ -39,7 +39,8 @@ describe('ClientViewComponent', () => {
   beforeEach(async () => {
     clientServiceSpy = jasmine.createSpyObj('ClientService', [
       'retrieveOne11',
-      'retrieveAssociatedAccounts']);
+      'retrieveAssociatedAccounts',
+    ]);
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
         username: 'mifos',
@@ -55,7 +56,8 @@ describe('ClientViewComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ClientViewComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: ClientService, useValue: clientServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -66,7 +68,8 @@ describe('ClientViewComponent', () => {
               get: (key: string) => (key === 'id' ? '123' : null),
             }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     clientServiceSpy.retrieveOne11.and.returnValue(

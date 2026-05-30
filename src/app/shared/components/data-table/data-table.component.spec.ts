@@ -46,7 +46,7 @@ interface TestData {
     </app-data-table>
   `,
   imports: [DataTableComponent],
-      providers: [provideNoopAnimations()],
+  providers: [provideNoopAnimations()],
   standalone: true,
 })
 class TestHostComponent {
@@ -55,14 +55,20 @@ class TestHostComponent {
   columns: ColumnDef[] = [
     { key: 'id', label: 'ID', sortable: true },
     { key: 'name', label: 'Name', sortable: true },
-    { key: 'status', label: 'Status', sortable: false }];
+    { key: 'status', label: 'Status', sortable: false },
+  ];
 
   data: TestData[] = [
     { id: 1, name: 'Alice', status: { value: 'Active', code: 'active' } },
-    { id: 2, name: 'Bob', status: { value: 'Inactive', code: 'inactive' } }];
+    { id: 2, name: 'Bob', status: { value: 'Inactive', code: 'inactive' } },
+  ];
 
-  onCreate() {}
-  onSearch(val: string) {}
+  onCreate() {
+    console.log('onCreate');
+  }
+  onSearch(val: string) {
+    console.log('onSearch', val);
+  }
 }
 
 describe('DataTableComponent', () => {
@@ -76,7 +82,8 @@ describe('DataTableComponent', () => {
         TranslateModule.forRoot(),
         MatPaginatorModule,
         MatSortModule,
-        MatTableModule],
+        MatTableModule,
+      ],
       providers: [provideNoopAnimations()],
     }).compileComponents();
 
@@ -107,7 +114,10 @@ describe('DataTableComponent', () => {
         },
       },
     };
-    const val = component.dataTable.getCellValue(nestedData as any, 'user.profile.name');
+    const val = component.dataTable.getCellValue(
+      nestedData as unknown as Record<string, unknown> as never,
+      'user.profile.name',
+    );
     expect(val).toBe('John Doe');
   });
 

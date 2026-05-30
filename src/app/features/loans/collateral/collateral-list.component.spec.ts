@@ -39,12 +39,14 @@ describe('CollateralListComponent', () => {
   beforeEach(async () => {
     collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', [
       'retrieveCollateralDetails',
-      'deleteCollateral']);
+      'deleteCollateral',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [CollateralListComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -52,7 +54,8 @@ describe('CollateralListComponent', () => {
           useValue: {
             paramMap: of({ get: () => '123' }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     collateralServiceSpy.retrieveCollateralDetails.and.returnValue(

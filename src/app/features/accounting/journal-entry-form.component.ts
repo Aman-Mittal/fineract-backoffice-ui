@@ -218,7 +218,9 @@ import { HelpIconComponent } from '../../shared';
             </mat-form-field>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">Cancel</button>
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+                Cancel
+              </button>
               <button
                 mat-raised-button
                 color="primary"
@@ -226,7 +228,10 @@ import { HelpIconComponent } from '../../shared';
                 [disabled]="entryForm.invalid || isSaving || !isBalanced()"
               >
                 @if (isSaving) {
-                  <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
                   Saving...
                 } @else {
                   Save

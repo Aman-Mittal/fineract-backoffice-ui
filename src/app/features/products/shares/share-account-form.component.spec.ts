@@ -38,16 +38,15 @@ describe('ShareAccountFormComponent', () => {
       'createAccount',
       'updateAccount',
       'template7',
-      'retrieveAccount']);
+      'retrieveAccount',
+    ]);
     clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        ShareAccountFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule],
-      providers: [provideNoopAnimations(), 
+      imports: [ShareAccountFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      providers: [
+        provideNoopAnimations(),
         { provide: ShareAccountService, useValue: shareServiceSpy },
         { provide: ClientService, useValue: clientServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -56,7 +55,8 @@ describe('ShareAccountFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

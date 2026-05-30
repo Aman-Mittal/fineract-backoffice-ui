@@ -185,18 +185,18 @@ export class AccountActionFormComponent implements OnInit {
       this.actionDate.getMonth() + 1,
     ).padStart(2, '0')}-${String(this.actionDate.getDate()).padStart(2, '0')}`;
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       dateFormat: 'yyyy-MM-dd',
       locale: 'en',
       note: this.note,
     };
 
-    if (this.command === 'approve') payload.approvedOnDate = formattedDate;
-    if (this.command === 'activate') payload.activatedOnDate = formattedDate;
-    if (this.command === 'close') payload.closedOnDate = formattedDate;
-    if (this.command === 'disburse') payload.actualDisbursementDate = formattedDate;
+    if (this.command === 'approve') payload['approvedOnDate'] = formattedDate;
+    if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
+    if (this.command === 'close') payload['closedOnDate'] = formattedDate;
+    if (this.command === 'disburse') payload['actualDisbursementDate'] = formattedDate;
 
-    let obs$: Observable<any> | null = null;
+    let obs$: Observable<unknown> | null = null;
     let redirectPath = '';
 
     if (this.accountType === 'savings') {

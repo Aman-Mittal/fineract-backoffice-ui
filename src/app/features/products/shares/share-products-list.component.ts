@@ -27,7 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
-import { ProductsService, GetProductsTypeResponse } from '../../../api';
+import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '../../../api';
 
 @Component({
   selector: 'app-share-products-list',
@@ -73,7 +73,7 @@ export class ShareProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: any[] = [];
+  products: GetProductsPageItems[] = [];
   isLoading = true;
 
   ngOnInit() {
@@ -84,8 +84,8 @@ export class ShareProductsListComponent implements OnInit {
     this.isLoading = true;
     this.productService
       .retrieveAllProducts('share')
-      .pipe(catchError(() => of({ pageItems: [] } as any)))
-      .subscribe((response: any) => {
+      .pipe(catchError(() => of({ pageItems: [] } as unknown as GetProductsTypeResponse)))
+      .subscribe((response: GetProductsTypeResponse) => {
         this.products = Array.from(response.pageItems || []);
         this.isLoading = false;
       });
@@ -95,7 +95,7 @@ export class ShareProductsListComponent implements OnInit {
     this.router.navigate(['/products/share/create']);
   }
 
-  onEdit(product: any) {
+  onEdit(product: GetProductsPageItems) {
     this.router.navigate(['/products/share/edit', product.id]);
   }
 }

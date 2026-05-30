@@ -36,10 +36,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.error instanceof ErrorEvent) {
         errorMessage = `Error: ${error.error.message}`;
       } else {
-        if (error.error?.errors && Array.isArray(error.error.errors) && error.error.errors.length > 0) {
+        if (
+          error.error?.errors &&
+          Array.isArray(error.error.errors) &&
+          error.error.errors.length > 0
+        ) {
           errorMessage = error.error.errors
             .map((err: Record<string, unknown>) => {
-              const msg = err['developerMessage'] || err['defaultUserMessage'] || 'Validation error';
+              const msg =
+                err['developerMessage'] || err['defaultUserMessage'] || 'Validation error';
               const param = err['parameterName'] ? `[${err['parameterName']}] ` : '';
               return `• ${param}${msg}`;
             })

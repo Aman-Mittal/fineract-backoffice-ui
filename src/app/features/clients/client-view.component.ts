@@ -57,364 +57,370 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
     HasPermissionDirective,
   ],
   template: `
-    <div class="view-container" *ngIf="client()">
-      <div class="breadcrumb">
-        <a routerLink="/clients">Clients</a> /
-        <span>{{ client()?.displayName }}</span>
-      </div>
+    <div class="view-container">
+      @if (client()) {
+        <div class="breadcrumb">
+          <a routerLink="/clients">Clients</a> /
+          <span>{{ client()?.displayName }}</span>
+        </div>
 
-      <mat-card class="header-card">
-        <mat-card-content class="header-content">
-          <div class="client-title-area">
-            <div class="avatar-circle">
-              <mat-icon>person</mat-icon>
-            </div>
-            <div class="title-details">
-              <h2>{{ client()?.displayName }}</h2>
-              <div class="subtitle-row">
-                <span class="account-no">#{{ client()?.accountNo }}</span>
-                <span class="divider">|</span>
-                <span class="office-name">{{ client()?.officeName }}</span>
-                <app-status-badge [status]="client()?.status"></app-status-badge>
+        <mat-card class="header-card">
+          <mat-card-content class="header-content">
+            <div class="client-title-area">
+              <div class="avatar-circle">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="title-details">
+                <h2>{{ client()?.displayName }}</h2>
+                <div class="subtitle-row">
+                  <span class="account-no">#{{ client()?.accountNo }}</span>
+                  <span class="divider">|</span>
+                  <span class="office-name">{{ client()?.officeName }}</span>
+                  <app-status-badge [status]="client()?.status"></app-status-badge>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="actions-area">
-            <button
-              mat-stroked-button
-              color="primary"
-              (click)="onEditClient()"
-              *appHasPermission="'UPDATE_CLIENT'"
-            >
-              <mat-icon>edit</mat-icon>
-              {{ 'COMMON.EDIT' | translate }}
-            </button>
-
-            <button mat-raised-button color="primary" [matMenuTriggerFor]="createMenu">
-              <mat-icon>add</mat-icon>
-              {{ 'ACTIONS.NEW_ACCOUNT' | translate }}
-            </button>
-
-            <mat-menu #createMenu="matMenu">
-              <button mat-menu-item (click)="onCreateLoan()" *appHasPermission="'CREATE_LOAN'">
-                <mat-icon>account_balance</mat-icon>
-                <span>{{ 'ACTIONS.LOAN_ACCOUNT' | translate }}</span>
-              </button>
+            <div class="actions-area">
               <button
-                mat-menu-item
-                (click)="onCreateSavings()"
-                *appHasPermission="'CREATE_SAVINGSACCOUNT'"
+                mat-stroked-button
+                color="primary"
+                (click)="onEditClient()"
+                *appHasPermission="'UPDATE_CLIENT'"
               >
-                <mat-icon>account_balance_wallet</mat-icon>
-                <span>{{ 'ACTIONS.SAVINGS_ACCOUNT' | translate }}</span>
+                <mat-icon>edit</mat-icon>
+                {{ 'COMMON.EDIT' | translate }}
               </button>
-              <button
-                mat-menu-item
-                (click)="onCreateFixed()"
-                *appHasPermission="'CREATE_FIXEDDEPOSITACCOUNT'"
-              >
-                <mat-icon>lock_clock</mat-icon>
-                <span>{{ 'ACTIONS.FIXED_DEPOSIT' | translate }}</span>
+
+              <button mat-raised-button color="primary" [matMenuTriggerFor]="createMenu">
+                <mat-icon>add</mat-icon>
+                {{ 'ACTIONS.NEW_ACCOUNT' | translate }}
               </button>
-              <button
-                mat-menu-item
-                (click)="onCreateRecurring()"
-                *appHasPermission="'CREATE_RECURRINGDEPOSITACCOUNT'"
-              >
-                <mat-icon>replay_circle_filled</mat-icon>
-                <span>{{ 'ACTIONS.RECURRING_DEPOSIT' | translate }}</span>
+
+              <mat-menu #createMenu="matMenu">
+                <button mat-menu-item (click)="onCreateLoan()" *appHasPermission="'CREATE_LOAN'">
+                  <mat-icon>account_balance</mat-icon>
+                  <span>{{ 'ACTIONS.LOAN_ACCOUNT' | translate }}</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="onCreateSavings()"
+                  *appHasPermission="'CREATE_SAVINGSACCOUNT'"
+                >
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <span>{{ 'ACTIONS.SAVINGS_ACCOUNT' | translate }}</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="onCreateFixed()"
+                  *appHasPermission="'CREATE_FIXEDDEPOSITACCOUNT'"
+                >
+                  <mat-icon>lock_clock</mat-icon>
+                  <span>{{ 'ACTIONS.FIXED_DEPOSIT' | translate }}</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="onCreateRecurring()"
+                  *appHasPermission="'CREATE_RECURRINGDEPOSITACCOUNT'"
+                >
+                  <mat-icon>replay_circle_filled</mat-icon>
+                  <span>{{ 'ACTIONS.RECURRING_DEPOSIT' | translate }}</span>
+                </button>
+              </mat-menu>
+
+              <button mat-button (click)="onBack()">
+                <mat-icon>arrow_back</mat-icon>
+                {{ 'COMMON.BACK' | translate }}
               </button>
-            </mat-menu>
-
-            <button mat-button (click)="onBack()">
-              <mat-icon>arrow_back</mat-icon>
-              {{ 'COMMON.BACK' | translate }}
-            </button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <div class="content-body">
-        <mat-tab-group class="tab-group" animationDuration="0ms">
-          <!-- Client Details Tab -->
-          <mat-tab [label]="'CLIENTS.DETAILS' | translate">
-            <div class="tab-content">
-              <div class="info-grid">
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>badge</mat-icon>
-                      {{ 'CLIENTS.GENERAL_PROFILE' | translate }}
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">{{ 'CLIENTS.FIRST_NAME' | translate }}</span>
-                      <span class="value">{{ client()?.firstname || '-' }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'CLIENTS.LAST_NAME' | translate }}</span>
-                      <span class="value">{{ client()?.lastname || '-' }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'COMMON.EXTERNAL_ID' | translate }}</span>
-                      <span class="value">{{ client()?.externalId || '-' }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'CLIENTS.LEGAL_FORM' | translate }}</span>
-                      <span class="value">{{ 'CLIENTS.PERSON' | translate }}</span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>contact_mail</mat-icon>
-                      {{ 'CLIENTS.CONTACT_STATUS' | translate }}
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">{{ 'COMMON.EMAIL' | translate }}</span>
-                      <span class="value">{{ client()?.emailAddress || '-' }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
-                      <span class="value">{{ formattedActivationDate }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
-                      <span class="value">{{ formattedSubmissionDate }}</span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              </div>
             </div>
-          </mat-tab>
+          </mat-card-content>
+        </mat-card>
 
-          <!-- Savings Accounts Tab -->
-          <mat-tab label="{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}">
-            <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
-                  @if (savingsAccounts().length > 0) {
-                    <table mat-table [dataSource]="savingsAccounts()" class="full-width-table">
-                      <ng-container matColumnDef="accountNo">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.ACCOUNT_NO' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">{{ account.accountNo }}</td>
-                      </ng-container>
+        <div class="content-body">
+          <mat-tab-group class="tab-group" animationDuration="0ms">
+            <!-- Client Details Tab -->
+            <mat-tab [label]="'CLIENTS.DETAILS' | translate">
+              <div class="tab-content">
+                <div class="info-grid">
+                  <mat-card class="info-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>badge</mat-icon>
+                        {{ 'CLIENTS.GENERAL_PROFILE' | translate }}
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="details-list">
+                      <div class="detail-item">
+                        <span class="label">{{ 'CLIENTS.FIRST_NAME' | translate }}</span>
+                        <span class="value">{{ client()?.firstname || '-' }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">{{ 'CLIENTS.LAST_NAME' | translate }}</span>
+                        <span class="value">{{ client()?.lastname || '-' }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">{{ 'COMMON.EXTERNAL_ID' | translate }}</span>
+                        <span class="value">{{ client()?.externalId || '-' }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">{{ 'CLIENTS.LEGAL_FORM' | translate }}</span>
+                        <span class="value">{{ 'CLIENTS.PERSON' | translate }}</span>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
 
-                      <ng-container matColumnDef="productName">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.PRODUCT' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">{{ account.productName }}</td>
-                      </ng-container>
+                  <mat-card class="info-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>contact_mail</mat-icon>
+                        {{ 'CLIENTS.CONTACT_STATUS' | translate }}
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content class="details-list">
+                      <div class="detail-item">
+                        <span class="label">{{ 'COMMON.EMAIL' | translate }}</span>
+                        <span class="value">{{ client()?.emailAddress || '-' }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
+                        <span class="value">{{ formattedActivationDate }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
+                        <span class="value">{{ formattedSubmissionDate }}</span>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </div>
+            </mat-tab>
 
-                      <ng-container matColumnDef="balance">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.BALANCE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">
-                          {{ account.currency?.displaySymbol }}
-                          {{ account.accountBalance || 0 | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
+            <!-- Savings Accounts Tab -->
+            <mat-tab label="{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}">
+              <div class="tab-content">
+                <mat-card class="table-card">
+                  <mat-card-content>
+                    @if (savingsAccounts().length > 0) {
+                      <table mat-table [dataSource]="savingsAccounts()" class="full-width-table">
+                        <ng-container matColumnDef="accountNo">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.ACCOUNT_NO' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">{{ account.accountNo }}</td>
+                        </ng-container>
 
-                      <ng-container matColumnDef="status">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.STATUS' | translate }}</th>
-                        <td mat-cell *matCellDef="let account">
-                          <app-status-badge [status]="account.status"></app-status-badge>
-                        </td>
-                      </ng-container>
+                        <ng-container matColumnDef="productName">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.PRODUCT' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">{{ account.productName }}</td>
+                        </ng-container>
 
-                      <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.ACTIONS' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">
-                          <button
-                            mat-icon-button
-                            color="primary"
-                            (click)="onSavingsTransaction(account.id, 'deposit')"
-                            *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
-                            [matTooltip]="'SAVINGS.DEPOSIT' | translate"
-                          >
-                            <mat-icon>add_circle_outline</mat-icon>
-                          </button>
-                          
-                          @if (account.status?.value === 'Submitted and pending approval') {
-                            <button
-                              mat-icon-button
-                              color="accent"
-                              (click)="onSavingsAction(account.id, 'approve', account)"
-                              *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
-                              [matTooltip]="'LOANS.APPROVE' | translate"
-                            >
-                              <mat-icon>check_circle</mat-icon>
-                            </button>
-                          }
-                          
-                          @if (account.status?.value === 'Approved') {
+                        <ng-container matColumnDef="balance">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.BALANCE' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">
+                            {{ account.currency?.displaySymbol }}
+                            {{ account.accountBalance || 0 | number: '1.2-2' }}
+                          </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.STATUS' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">
+                            <app-status-badge [status]="account.status"></app-status-badge>
+                          </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="actions">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.ACTIONS' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">
                             <button
                               mat-icon-button
                               color="primary"
-                              (click)="onSavingsAction(account.id, 'activate', account)"
-                              *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
-                              [matTooltip]="'LOANS.ACTIVATE' | translate"
+                              (click)="onSavingsTransaction(account.id, 'deposit')"
+                              *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
+                              [matTooltip]="'SAVINGS.DEPOSIT' | translate"
                             >
-                              <mat-icon>play_circle</mat-icon>
+                              <mat-icon>add_circle_outline</mat-icon>
                             </button>
-                          }
 
-                          @if (account.status?.value === 'Active') {
-                            <button
-                              mat-icon-button
-                              color="warn"
-                              (click)="onSavingsAction(account.id, 'close', account)"
-                              *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
-                              [matTooltip]="'LOANS.CLOSE' | translate"
-                            >
-                              <mat-icon>cancel</mat-icon>
-                            </button>
-                          }
+                            @if (account.status?.value === 'Submitted and pending approval') {
+                              <button
+                                mat-icon-button
+                                color="accent"
+                                (click)="onSavingsAction(account.id, 'approve', account)"
+                                *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
+                                [matTooltip]="'LOANS.APPROVE' | translate"
+                              >
+                                <mat-icon>check_circle</mat-icon>
+                              </button>
+                            }
 
-                          <button
-                            mat-icon-button
-                            color="warn"
-                            (click)="onSavingsTransaction(account.id, 'withdrawal')"
-                            *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
-                            [matTooltip]="'SAVINGS.WITHDRAWAL' | translate"
-                          >
-                            <mat-icon>remove_circle_outline</mat-icon>
-                          </button>
-                        </td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="savingsColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: savingsColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>account_balance_wallet</mat-icon>
-                      <p>{{ 'CLIENTS.NO_SAVINGS_ACCOUNTS' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-
-          <!-- Loan Accounts Tab -->
-          <mat-tab label="{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}">
-            <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
-                  @if (loanAccounts().length > 0) {
-                    <table mat-table [dataSource]="loanAccounts()" class="full-width-table">
-                      <ng-container matColumnDef="accountNo">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.ACCOUNT_NO' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">{{ account.accountNo }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="productName">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.PRODUCT' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">{{ account.productName }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="principal">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.PRINCIPAL' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">
-                          {{ account.currency?.displaySymbol }}
-                          {{ account.originalPrincipal || 0 | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="status">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.STATUS' | translate }}</th>
-                        <td mat-cell *matCellDef="let account">
-                          <app-status-badge [status]="account.status"></app-status-badge>
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.ACTIONS' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let account">
-                          <button
-                            mat-icon-button
-                            color="primary"
-                            (click)="onLoanTransaction(account.id, 'repayment')"
-                            *appHasPermission="'REPAYMENT_LOAN'"
-                            [matTooltip]="'LOANS.REPAYMENT' | translate"
-                          >
-                            <mat-icon>payment</mat-icon>
-                          </button>
-
-                          @if (account.status?.value === 'Submitted and pending approval') {
-                            <button
-                              mat-icon-button
-                              color="accent"
-                              (click)="onLoanAction(account.id, 'approve')"
-                              *appHasPermission="'APPROVE_LOAN'"
-                              [matTooltip]="'LOANS.APPROVE' | translate"
-                            >
-                              <mat-icon>check_circle</mat-icon>
-                            </button>
-                          }
-
-                          <ng-container *appHasPermission="'DISBURSE_LOAN'">
                             @if (account.status?.value === 'Approved') {
                               <button
                                 mat-icon-button
-                                (click)="onLoanAction(account.id, 'disburse')"
-                                [matTooltip]="'LOANS.DISBURSE' | translate"
+                                color="primary"
+                                (click)="onSavingsAction(account.id, 'activate', account)"
+                                *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
+                                [matTooltip]="'LOANS.ACTIVATE' | translate"
                               >
-                                <mat-icon>launch</mat-icon>
+                                <mat-icon>play_circle</mat-icon>
                               </button>
                             }
-                          </ng-container>
 
-                          @if (account.status?.active) {
+                            @if (account.status?.value === 'Active') {
+                              <button
+                                mat-icon-button
+                                color="warn"
+                                (click)="onSavingsAction(account.id, 'close', account)"
+                                *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
+                                [matTooltip]="'LOANS.CLOSE' | translate"
+                              >
+                                <mat-icon>cancel</mat-icon>
+                              </button>
+                            }
+
                             <button
                               mat-icon-button
                               color="warn"
-                              (click)="onLoanAction(account.id, 'close')"
-                              *appHasPermission="'CLOSE_LOAN'"
-                              [matTooltip]="'LOANS.CLOSE' | translate"
+                              (click)="onSavingsTransaction(account.id, 'withdrawal')"
+                              *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
+                              [matTooltip]="'SAVINGS.WITHDRAWAL' | translate"
                             >
-                              <mat-icon>cancel</mat-icon>
+                              <mat-icon>remove_circle_outline</mat-icon>
                             </button>
-                          }
-                        </td>
-                      </ng-container>
+                          </td>
+                        </ng-container>
 
-                      <tr mat-header-row *matHeaderRowDef="loanColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: loanColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>credit_score</mat-icon>
-                      <p>{{ 'CLIENTS.NO_LOAN_ACCOUNTS' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </div>
+                        <tr mat-header-row *matHeaderRowDef="savingsColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: savingsColumns"></tr>
+                      </table>
+                    } @else {
+                      <div class="empty-state">
+                        <mat-icon>account_balance_wallet</mat-icon>
+                        <p>{{ 'CLIENTS.NO_SAVINGS_ACCOUNTS' | translate }}</p>
+                      </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </mat-tab>
+
+            <!-- Loan Accounts Tab -->
+            <mat-tab label="{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}">
+              <div class="tab-content">
+                <mat-card class="table-card">
+                  <mat-card-content>
+                    @if (loanAccounts().length > 0) {
+                      <table mat-table [dataSource]="loanAccounts()" class="full-width-table">
+                        <ng-container matColumnDef="accountNo">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.ACCOUNT_NO' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">{{ account.accountNo }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="productName">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.PRODUCT' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">{{ account.productName }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="principal">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'LOANS.PRINCIPAL' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">
+                            {{ account.currency?.displaySymbol }}
+                            {{ account.originalPrincipal || 0 | number: '1.2-2' }}
+                          </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.STATUS' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">
+                            <app-status-badge [status]="account.status"></app-status-badge>
+                          </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="actions">
+                          <th mat-header-cell *matHeaderCellDef>
+                            {{ 'COMMON.ACTIONS' | translate }}
+                          </th>
+                          <td mat-cell *matCellDef="let account">
+                            <button
+                              mat-icon-button
+                              color="primary"
+                              (click)="onLoanTransaction(account.id, 'repayment')"
+                              *appHasPermission="'REPAYMENT_LOAN'"
+                              [matTooltip]="'LOANS.REPAYMENT' | translate"
+                            >
+                              <mat-icon>payment</mat-icon>
+                            </button>
+
+                            @if (account.status?.value === 'Submitted and pending approval') {
+                              <button
+                                mat-icon-button
+                                color="accent"
+                                (click)="onLoanAction(account.id, 'approve')"
+                                *appHasPermission="'APPROVE_LOAN'"
+                                [matTooltip]="'LOANS.APPROVE' | translate"
+                              >
+                                <mat-icon>check_circle</mat-icon>
+                              </button>
+                            }
+
+                            <ng-container *appHasPermission="'DISBURSE_LOAN'">
+                              @if (account.status?.value === 'Approved') {
+                                <button
+                                  mat-icon-button
+                                  (click)="onLoanAction(account.id, 'disburse')"
+                                  [matTooltip]="'LOANS.DISBURSE' | translate"
+                                >
+                                  <mat-icon>launch</mat-icon>
+                                </button>
+                              }
+                            </ng-container>
+
+                            @if (account.status?.active) {
+                              <button
+                                mat-icon-button
+                                color="warn"
+                                (click)="onLoanAction(account.id, 'close')"
+                                *appHasPermission="'CLOSE_LOAN'"
+                                [matTooltip]="'LOANS.CLOSE' | translate"
+                              >
+                                <mat-icon>cancel</mat-icon>
+                              </button>
+                            }
+                          </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="loanColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: loanColumns"></tr>
+                      </table>
+                    } @else {
+                      <div class="empty-state">
+                        <mat-icon>credit_score</mat-icon>
+                        <p>{{ 'CLIENTS.NO_LOAN_ACCOUNTS' | translate }}</p>
+                      </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -656,10 +662,11 @@ export class ClientViewComponent implements OnInit {
     this.router.navigate([`/products/savings-accounts/${accountId}/transactions/${command}`]);
   }
 
-  onSavingsAction(accountId: number, command: string, account: any) {
+  onSavingsAction(accountId: number, command: string, account: Record<string, unknown>) {
     let type = 'savings';
-    if (account.depositType?.value === 'Fixed Deposit') type = 'fixed';
-    if (account.depositType?.value === 'Recurring Deposit') type = 'recurring';
+    const depositType = (account['depositType'] as Record<string, unknown>)?.['value'];
+    if (depositType === 'Fixed Deposit') type = 'fixed';
+    if (depositType === 'Recurring Deposit') type = 'recurring';
 
     this.router.navigate([`/products/${type}/${accountId}/action/${command}`]);
   }

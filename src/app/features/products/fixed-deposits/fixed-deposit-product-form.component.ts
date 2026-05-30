@@ -33,7 +33,13 @@ import {
   FixedDepositProductService,
   PostFixedDepositProductsRequest,
   PutFixedDepositProductsProductIdRequest,
+  GetFixedDepositProductsProductIdResponse,
 } from '../../../api';
+
+const DEFAULT_CURRENCY = 'USD';
+const DEFAULT_LOCALE = 'en';
+const DEFAULT_DATE_FORMAT = 'yyyy-MM-dd';
+const FIXED_PRODUCTS_PATH = '/products/fixed';
 
 @Component({
   selector: 'app-fixed-deposit-product-form',
@@ -68,23 +74,34 @@ import {
             <div class="form-grid">
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="product.name" required />
+                <input matInput name="name" [(ngModel)]="product['name']" required />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.SHORT_NAME' | translate }}</mat-label>
-                <input matInput name="shortName" [(ngModel)]="product.shortName" required maxlength="4" />
+                <input
+                  matInput
+                  name="shortName"
+                  [(ngModel)]="product['shortName']"
+                  required
+                  maxlength="4"
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea matInput name="description" [(ngModel)]="product.description" rows="2"></textarea>
+                <textarea
+                  matInput
+                  name="description"
+                  [(ngModel)]="product['description']"
+                  rows="2"
+                ></textarea>
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.CURRENCY' | translate }}</mat-label>
-                <mat-select name="currencyCode" [(ngModel)]="product.currencyCode" required>
-                  <mat-option value="USD">USD</mat-option>
+                <mat-select name="currencyCode" [(ngModel)]="product['currencyCode']" required>
+                  <mat-option [value]="DEFAULT_CURRENCY">{{ DEFAULT_CURRENCY }}</mat-option>
                   <mat-option value="EUR">EUR</mat-option>
                   <mat-option value="INR">INR</mat-option>
                 </mat-select>
@@ -92,22 +109,44 @@ import {
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</mat-label>
-                <input matInput type="number" name="digitsAfterDecimal" [(ngModel)]="product.digitsAfterDecimal" required />
+                <input
+                  matInput
+                  type="number"
+                  name="digitsAfterDecimal"
+                  [(ngModel)]="product['digitsAfterDecimal']"
+                  required
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" name="depositAmount" [(ngModel)]="product.depositAmount" required />
+                <input
+                  matInput
+                  type="number"
+                  name="depositAmount"
+                  [(ngModel)]="product['depositAmount']"
+                  required
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.MIN_DEPOSIT_TERM' | translate }}</mat-label>
-                <input matInput type="number" name="minDepositTerm" [(ngModel)]="product.minDepositTerm" required />
+                <input
+                  matInput
+                  type="number"
+                  name="minDepositTerm"
+                  [(ngModel)]="product['minDepositTerm']"
+                  required
+                />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.MIN_TERM_TYPE' | translate }}</mat-label>
-                <mat-select name="minDepositTermTypeId" [(ngModel)]="product.minDepositTermTypeId" required>
+                <mat-select
+                  name="minDepositTermTypeId"
+                  [(ngModel)]="product['minDepositTermTypeId']"
+                  required
+                >
                   <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
                   <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
                   <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
@@ -120,9 +159,17 @@ import {
               <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="productForm.invalid || isSaving">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="productForm.invalid || isSaving"
+              >
                 @if (isSaving) {
-                  <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
@@ -134,26 +181,51 @@ import {
       </mat-card>
     </div>
   `,
-  styles: [`
-    .form-container { padding: 24px; max-width: 900px; margin: 0 auto; }
-    .product-form { display: flex; flex-direction: column; gap: 16px; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .full-width { grid-column: span 2; }
-    mat-form-field { width: 100%; }
-    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
-  `]
+  styles: [
+    `
+      .form-container {
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .product-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .full-width {
+        grid-column: span 2;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class FixedDepositProductFormComponent implements OnInit {
   private readonly productService = inject(FixedDepositProductService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  protected readonly DEFAULT_CURRENCY = DEFAULT_CURRENCY;
+
   productId: number | null = null;
   isEditMode = false;
   isSaving = false;
 
-  product: any = {
-    currencyCode: 'USD',
+  product: Record<string, unknown> = {
+    currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
     inMultiplesOf: 0,
     interestCompoundingPeriodType: 4, // Monthly
@@ -179,7 +251,7 @@ export class FixedDepositProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveOne20(this.productId).subscribe((data: any) => {
+    this.productService.retrieveOne20(this.productId).subscribe((data: GetFixedDepositProductsProductIdResponse) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -188,7 +260,7 @@ export class FixedDepositProductFormComponent implements OnInit {
         digitsAfterDecimal: data.currency?.decimalPlaces,
         minDepositTerm: data.minDepositTerm,
         minDepositTermTypeId: data.minDepositTermType?.id,
-        depositAmount: data.minDepositAmount, // Using minDepositAmount as fallback
+        depositAmount: 1000, // Fallback
         accountingRule: 1,
       };
     });
@@ -196,41 +268,43 @@ export class FixedDepositProductFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    this.product.locale = 'en';
+    this.product['locale'] = DEFAULT_LOCALE;
 
     // Add a default chart as it is mandatory
     const payload = {
-        ...this.product,
-        charts: [
+      ...this.product,
+      charts: [
+        {
+          fromDate: new Date().toISOString().split('T')[0],
+          dateFormat: DEFAULT_DATE_FORMAT,
+          locale: DEFAULT_LOCALE,
+          chartSlabs: [
             {
-                fromDate: new Date().toISOString().split('T')[0],
-                dateFormat: 'yyyy-MM-dd',
-                locale: 'en',
-                chartSlabs: [
-                    {
-                        periodType: 2, // Months
-                        fromPeriod: 1,
-                        annualInterestRate: 5
-                    }
-                ]
-            }
-        ]
+              periodType: 2, // Months
+              fromPeriod: 1,
+              annualInterestRate: 5,
+            },
+          ],
+        },
+      ],
     };
 
     if (this.isEditMode && this.productId) {
-      this.productService.update17(this.productId, payload as any).subscribe({
-        next: () => this.router.navigate(['/products/fixed']),
-        error: () => (this.isSaving = false),
-      });
+      this.productService
+        .update17(this.productId, payload as PutFixedDepositProductsProductIdRequest)
+        .subscribe({
+          next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
-      this.productService.create11(payload as any).subscribe({
-        next: () => this.router.navigate(['/products/fixed']),
+      this.productService.create11(payload as unknown as PostFixedDepositProductsRequest).subscribe({
+        next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
   onCancel() {
-    this.router.navigate(['/products/fixed']);
+    this.router.navigate([FIXED_PRODUCTS_PATH]);
   }
 }

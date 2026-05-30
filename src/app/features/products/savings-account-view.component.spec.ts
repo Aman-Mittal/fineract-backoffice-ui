@@ -53,7 +53,8 @@ describe('SavingsAccountViewComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [SavingsAccountViewComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), 
+      providers: [
+        provideNoopAnimations(),
         { provide: SavingsAccountService, useValue: savingsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -64,7 +65,8 @@ describe('SavingsAccountViewComponent', () => {
               get: (key: string) => (key === 'id' ? '789' : null),
             }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     savingsServiceSpy.retrieveOne25.and.returnValue(

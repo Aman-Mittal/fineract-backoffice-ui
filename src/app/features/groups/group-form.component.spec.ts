@@ -37,16 +37,15 @@ describe('GroupFormComponent', () => {
     groupsServiceSpy = jasmine.createSpyObj('GroupsService', [
       'retrieveOne15',
       'create8',
-      'update13']);
+      'update13',
+    ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        GroupFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule],
-      providers: [provideNoopAnimations(), 
+      imports: [GroupFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      providers: [
+        provideNoopAnimations(),
         { provide: GroupsService, useValue: groupsServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -55,7 +54,8 @@ describe('GroupFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

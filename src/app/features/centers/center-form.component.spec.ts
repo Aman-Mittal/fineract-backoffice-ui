@@ -37,16 +37,15 @@ describe('CenterFormComponent', () => {
     centersServiceSpy = jasmine.createSpyObj('CentersService', [
       'retrieveOne14',
       'create7',
-      'update12']);
+      'update12',
+    ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        CenterFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule],
-      providers: [provideNoopAnimations(), 
+      imports: [CenterFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      providers: [
+        provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -55,7 +54,8 @@ describe('CenterFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        }],
+        },
+      ],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,11 +112,9 @@ describe('CenterFormComponent', () => {
     // Re-configure for edit mode test
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [
-        CenterFormComponent,
-        TranslateModule.forRoot(),
-        MatNativeDateModule],
-      providers: [provideNoopAnimations(), 
+      imports: [CenterFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      providers: [
+        provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -125,7 +123,8 @@ describe('CenterFormComponent', () => {
           useValue: {
             paramMap: of({ get: (key: string) => (key === 'id' ? '123' : null) }),
           },
-        }],
+        },
+      ],
     });
 
     const mockCenter = { id: 123, name: 'Existing Center', officeId: 1, active: true };

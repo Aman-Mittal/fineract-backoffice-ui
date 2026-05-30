@@ -139,29 +139,29 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
                 </div>
               } @else {
                 <div class="approval-list">
-                  @for (loan of pendingLoans(); track loan.id) {
+                  @for (loan of pendingLoans(); track loan['id']) {
                     <div class="approval-item">
                       <div class="item-info">
                         <span class="item-type loan">LOAN</span>
-                        <span class="item-id">#{{ loan.accountNo }}</span>
-                        <span class="item-detail">{{ loan.clientName }}</span>
+                        <span class="item-id">#{{ loan['accountNo'] }}</span>
+                        <span class="item-detail">{{ loan['clientName'] }}</span>
                       </div>
-                      <button mat-button color="primary" [routerLink]="['/loans/view', loan.id]">
+                      <button mat-button color="primary" [routerLink]="['/loans/view', loan['id']]">
                         {{ 'COMMON.VIEW' | translate }}
                       </button>
                     </div>
                   }
-                  @for (savings of pendingSavings(); track savings.id) {
+                  @for (savings of pendingSavings(); track savings['id']) {
                     <div class="approval-item">
                       <div class="item-info">
                         <span class="item-type savings">SAVINGS</span>
-                        <span class="item-id">#{{ savings.accountNo }}</span>
-                        <span class="item-detail">{{ savings.clientName }}</span>
+                        <span class="item-id">#{{ savings['accountNo'] }}</span>
+                        <span class="item-detail">{{ savings['clientName'] }}</span>
                       </div>
                       <button
                         mat-button
                         color="primary"
-                        [routerLink]="['/products/savings-accounts/view', savings.id]"
+                        [routerLink]="['/products/savings-accounts/view', savings['id']]"
                       >
                         {{ 'COMMON.VIEW' | translate }}
                       </button>
@@ -208,11 +208,11 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
     `
       .dashboard-container {
         padding: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
         display: flex;
         flex-direction: column;
         gap: 24px;
-        max-width: 1400px;
-        margin: 0 auto;
       }
       .widgets-grid {
         display: grid;
@@ -223,7 +223,9 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         border-radius: 12px;
         border: none;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
       }
       .widget-card:hover {
         transform: translateY(-4px);
@@ -275,7 +277,8 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         grid-template-columns: 2fr 1fr;
         gap: 24px;
       }
-      .main-column, .side-column {
+      .main-column,
+      .side-column {
         display: flex;
         flex-direction: column;
         gap: 24px;
@@ -313,8 +316,14 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         padding: 2px 6px;
         border-radius: 4px;
       }
-      .item-type.loan { background: #e3f2fd; color: #1976d2; }
-      .item-type.savings { background: #e8f5e9; color: #2e7d32; }
+      .item-type.loan {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+      .item-type.savings {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
       .item-id {
         font-weight: 600;
         color: #34495e;
@@ -368,8 +377,14 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         text-align: center;
         width: fit-content;
       }
-      .prod { background: #fee2e2; color: #b91c1c; }
-      .dev { background: #dcfce7; color: #15803d; }
+      .prod {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .dev {
+        background: #dcfce7;
+        color: #15803d;
+      }
     `,
   ],
 })
@@ -389,8 +404,8 @@ export class SystemStatusComponent implements OnInit {
   activeLoans = signal(0);
   savingsCount = signal(0);
 
-  pendingLoans = signal<any[]>([]);
-  pendingSavings = signal<any[]>([]);
+  pendingLoans = signal<Record<string, unknown>[]>([]);
+  pendingSavings = signal<Record<string, unknown>[]>([]);
 
   ngOnInit(): void {
     this.loadMetrics();
@@ -399,28 +414,58 @@ export class SystemStatusComponent implements OnInit {
   private loadMetrics(): void {
     this.isLoading.set(true);
     forkJoin({
-      clients: this.clientService.retrieveAll21(undefined, undefined, undefined, undefined, undefined, undefined, undefined, 0, 1),
+      clients: this.clientService.retrieveAll21(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        0,
+        1,
+      ),
       loans: this.loansService.retrieveAll27(undefined, 0, 100),
-      savings: this.savingsService.retrieveAll33(undefined, 0, 100)
-    }).pipe(
-      catchError(() => of({ clients: null, loans: null, savings: null }))
-    ).subscribe(data => {
-      this.isLoading.set(false);
-      if (data.clients) {
-        this.clientCount.set((data.clients as any).totalFilteredRecords || 0);
-      }
-      
-      if (data.loans) {
-        const loans = (data.loans as any).pageItems || [];
-        this.activeLoans.set(loans.filter((l: any) => l.status?.active).length);
-        this.pendingLoans.set(loans.filter((l: any) => l.status?.pendingApproval));
-      }
+      savings: this.savingsService.retrieveAll33(undefined, 0, 100),
+    })
+      .pipe(catchError(() => of({ clients: null, loans: null, savings: null })))
+      .subscribe((data: Record<string, unknown>) => {
+        this.isLoading.set(false);
+        if (data['clients']) {
+          this.clientCount.set(
+            ((data['clients'] as Record<string, unknown>)['totalFilteredRecords'] as number) || 0,
+          );
+        }
 
-      if (data.savings) {
-        const accounts = (data.savings as any).pageItems || [];
-        this.savingsCount.set((data.savings as any).totalFilteredRecords || 0);
-        this.pendingSavings.set(accounts.filter((a: any) => a.status?.submittedAndPendingApproval));
-      }
-    });
+        if (data['loans']) {
+          const loans =
+            ((data['loans'] as Record<string, unknown>)['pageItems'] as Record<
+              string,
+              unknown
+            >[]) || [];
+          this.activeLoans.set(
+            loans.filter((l) => (l['status'] as Record<string, unknown>)?.['active']).length,
+          );
+          this.pendingLoans.set(
+            loans.filter((l) => (l['status'] as Record<string, unknown>)?.['pendingApproval']),
+          );
+        }
+
+        if (data['savings']) {
+          const accounts =
+            ((data['savings'] as Record<string, unknown>)['pageItems'] as Record<
+              string,
+              unknown
+            >[]) || [];
+          this.savingsCount.set(
+            ((data['savings'] as Record<string, unknown>)['totalFilteredRecords'] as number) || 0,
+          );
+          this.pendingSavings.set(
+            accounts.filter(
+              (a) => (a['status'] as Record<string, unknown>)?.['submittedAndPendingApproval'],
+            ),
+          );
+        }
+      });
   }
 }

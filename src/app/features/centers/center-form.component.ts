@@ -150,7 +150,10 @@ import {
                   [disabled]="isSaving || !activationDate"
                 >
                   @if (isSaving) {
-                    <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                    <mat-spinner
+                      diameter="20"
+                      style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                    ></mat-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
                     Activate Center
@@ -164,7 +167,10 @@ import {
                 [disabled]="centerForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
