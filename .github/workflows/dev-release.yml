@@ -48,7 +48,7 @@ jobs:
         run: npm run test -- --watch=false --browsers=ChromeHeadless
 
       - name: Build
-        run: npm run build -- --configuration production --base-href /fineract-backoffice-ui/dev/
+        run: npm run build -- --configuration production --base-href /fineract-backoffice-ui/
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -56,10 +56,9 @@ jobs:
           name: dev-release-build
           path: dist/fineract-backoffice-ui/browser
 
-      - name: Deploy to GitHub Pages (dev subdirectory)
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist/fineract-backoffice-ui/browser
-          destination_dir: dev
-          keep_files: true
+          force_orphan: true
