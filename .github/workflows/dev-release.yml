@@ -50,6 +50,9 @@ jobs:
       - name: Build
         run: npm run build -- --configuration production --base-href /fineract-backoffice-ui/
 
+      - name: Copy index.html to 404.html for GitHub Pages routing fallback
+        run: cp dist/fineract-backoffice-ui/browser/index.html dist/fineract-backoffice-ui/browser/404.html
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
