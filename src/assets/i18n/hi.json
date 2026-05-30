@@ -176,5 +176,9 @@
     "UNIT_PRICE": "इकाई मूल्य",
     "NOMINAL_SHARES": "नाममात्र शेयर",
     "CREATE_NEW_PRODUCT": "नया उत्पाद बनाएं"
+  },
+  "CHARGES": {
+    "CREATE": "शुल्क बनाएं",
+    "EDIT": "शुल्क संपादित करें"
   }
 }

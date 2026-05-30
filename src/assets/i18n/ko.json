@@ -176,5 +176,9 @@
     "UNIT_PRICE": "단가",
     "NOMINAL_SHARES": "액면 주식",
     "CREATE_NEW_PRODUCT": "새 상품 생성"
+  },
+  "CHARGES": {
+    "CREATE": "수수료 생성",
+    "EDIT": "수수료 수정"
   }
 }

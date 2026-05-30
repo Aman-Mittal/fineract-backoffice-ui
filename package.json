@@ -50,6 +50,8 @@
     "@angular/build": "^21.2.13",
     "@angular/cli": "^21.2.13",
     "@angular/compiler-cli": "^21.2.15",
+    "@emnapi/core": "1.10.0",
+    "@emnapi/runtime": "1.10.0",
     "@openapitools/openapi-generator-cli": "^2.32.0",
     "@playwright/test": "^1.58.2",
     "@types/jasmine": "~6.0.0",

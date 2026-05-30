@@ -177,6 +177,10 @@
     "NOMINAL_SHARES": "Nominal Shares",
     "CREATE_NEW_PRODUCT": "Create New Product"
   },
+  "CHARGES": {
+    "CREATE": "Create Charge",
+    "EDIT": "Edit Charge"
+  },
   "LOANS": {
     "ACCOUNT_NO": "Account No",
     "CLIENT_NAME": "Client Name",
