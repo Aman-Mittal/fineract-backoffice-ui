@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -33,6 +33,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import {
@@ -47,7 +48,6 @@ import {
   selector: 'app-client-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -60,6 +60,7 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     HelpIconComponent,
     MatDialogModule,
   ],
@@ -191,7 +192,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               @if (isEditMode && !originalActive) {
@@ -202,7 +203,12 @@ import {
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"
                 >
-                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Client' }}
+                  @if (isSaving) {
+                    <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                    {{ 'COMMON.SAVING' | translate }}
+                  } @else {
+                    Activate Client
+                  }
                 </button>
               }
               <button
@@ -211,7 +217,12 @@ import {
                 type="submit"
                 [disabled]="clientForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>

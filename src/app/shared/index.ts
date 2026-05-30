@@ -23,3 +23,5 @@ export * from './components/search-filter/search-filter.component';
 export * from './components/data-table/data-table.component';
 export * from './components/data-table/cell-template.directive';
 export * from './components/client-search/client-search.component';
+export * from './directives/has-permission.directive';
+export * from './components/guidance-tour/guidance-tour.component';

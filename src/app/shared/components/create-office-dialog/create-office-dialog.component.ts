@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -38,7 +38,6 @@ import { OfficesService, PostOfficesRequest, GetOfficesResponse } from '../../..
   selector: 'app-create-office-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatDialogModule,

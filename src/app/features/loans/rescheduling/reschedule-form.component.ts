@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   RescheduleLoansService,
   PostCreateRescheduleLoansRequest,
@@ -43,7 +44,6 @@ import {
   selector: 'app-reschedule-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -54,6 +54,7 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -65,7 +66,6 @@ import {
         <mat-card-content>
           <form #rescheduleForm="ngForm" (ngSubmit)="onSubmit()" class="reschedule-form">
             <div class="form-grid">
-              <!-- Reschedule From Date -->
               <mat-form-field
                 appearance="outline"
                 [matTooltip]="'HELP.RESCHEDULE_FROM_DESC' | translate"
@@ -80,6 +80,7 @@ import {
                 />
                 <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
                 <mat-datepicker #fromPicker></mat-datepicker>
+                <mat-hint>Must be an existing installment date</mat-hint>
               </mat-form-field>
 
               <!-- Reason -->
@@ -120,10 +121,57 @@ import {
                   rows="2"
                 ></textarea>
               </mat-form-field>
+
+              <!-- Grace on Principal -->
+              <mat-form-field appearance="outline">
+                <mat-label>Grace on Principal</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="graceOnPrincipal"
+                  [(ngModel)]="request.graceOnPrincipal"
+                  required
+                />
+              </mat-form-field>
+
+              <!-- Grace on Interest -->
+              <mat-form-field appearance="outline">
+                <mat-label>Grace on Interest</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="graceOnInterest"
+                  [(ngModel)]="request.graceOnInterest"
+                  required
+                />
+              </mat-form-field>
+
+              <!-- Extra Terms -->
+              <mat-form-field appearance="outline">
+                <mat-label>Extra Terms</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="extraTerms"
+                  [(ngModel)]="request.extraTerms"
+                  required
+                />
+              </mat-form-field>
+
+              <!-- New Interest Rate -->
+              <mat-form-field appearance="outline">
+                <mat-label>New Interest Rate</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="newInterestRate"
+                  [(ngModel)]="request.newInterestRate"
+                />
+              </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -132,7 +180,15 @@ import {
                 type="submit"
                 [disabled]="rescheduleForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -180,7 +236,11 @@ export class RescheduleFormComponent implements OnInit {
   loanId: number | null = null;
   isSaving = false;
 
-  request: PostCreateRescheduleLoansRequest = {};
+  request: PostCreateRescheduleLoansRequest = {
+    graceOnPrincipal: 0,
+    graceOnInterest: 0,
+    extraTerms: 0,
+  };
   rescheduleFromDate = new Date();
   submittedOnDate = new Date();
   reasons: Record<string, unknown>[] = [];

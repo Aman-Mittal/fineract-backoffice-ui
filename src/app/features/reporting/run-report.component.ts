@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,8 +30,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
 import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
 import { HelpIconComponent } from '../../shared';
 
@@ -42,7 +44,6 @@ import { HelpIconComponent } from '../../shared';
   selector: 'app-run-report',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -55,6 +56,8 @@ import { HelpIconComponent } from '../../shared';
     MatTooltipModule,
     MatTableModule,
     MatDividerModule,
+    MatPaginatorModule,
+    MatIconModule,
     HelpIconComponent,
   ],
   template: `
@@ -103,19 +106,29 @@ import { HelpIconComponent } from '../../shared';
           @if (reportData) {
             <div class="report-results mt-4">
               <mat-divider></mat-divider>
-              <h3 class="mt-2">{{ 'REPORTS.RESULTS' | translate }}</h3>
+              <div class="results-header">
+                <h3 class="mt-2">{{ 'REPORTS.RESULTS' | translate }}</h3>
+                <button mat-raised-button color="primary" (click)="downloadCSV()">
+                  <mat-icon>download</mat-icon>
+                  {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
+                </button>
+              </div>
 
               <div class="table-container mat-elevation-z1">
-                <table mat-table [dataSource]="dataRows">
-                  @for (col of displayedColumns; track col) {
+                <table mat-table [dataSource]="dataSource">
+                  @for (col of displayedColumns; track col; let i = $index) {
                     <ng-container [matColumnDef]="col">
                       <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
-                      <td mat-cell *matCellDef="let row">{{ row[col] }}</td>
+                      <td mat-cell *matCellDef="let row">{{ getReportCellValue(row, i) }}</td>
                     </ng-container>
                   }
                   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
                 </table>
+                <mat-paginator
+                  [pageSizeOptions]="[10, 20, 50, 100]"
+                  showFirstLastButtons
+                ></mat-paginator>
               </div>
             </div>
           }
@@ -140,6 +153,13 @@ import { HelpIconComponent } from '../../shared';
         justify-content: flex-end;
         gap: 12px;
         margin-top: 16px;
+      }
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        margin-bottom: 8px;
       }
       .table-container {
         overflow-x: auto;
@@ -172,6 +192,14 @@ export class RunReportComponent implements OnInit {
   reportData: Record<string, unknown> | null = null;
   displayedColumns: string[] = [];
   dataRows: Record<string, unknown>[] = [];
+  dataSource = new MatTableDataSource<Record<string, unknown>>([]);
+
+  private paginator!: MatPaginator;
+
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    this.paginator = mp;
+    this.dataSource.paginator = this.paginator;
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -217,6 +245,7 @@ export class RunReportComponent implements OnInit {
           const columnHeaders = (result['columnHeaders'] as Record<string, unknown>[]) || [];
           this.displayedColumns = columnHeaders.map((h) => h['columnName'] as string);
           this.dataRows = (result['data'] as Record<string, unknown>[]) || [];
+          this.dataSource.data = this.dataRows;
           this.isLoading = false;
         },
         error: (err) => {
@@ -226,7 +255,48 @@ export class RunReportComponent implements OnInit {
       });
   }
 
+  downloadCSV(): void {
+    if (!this.displayedColumns.length || !this.dataRows.length) {
+      return;
+    }
+    const csvRows: string[] = [];
+    csvRows.push(this.displayedColumns.map((col) => `"${col.replace(/"/g, '""')}"`).join(','));
+
+    for (const row of this.dataRows) {
+      const values = this.displayedColumns.map((_, i) => {
+        const val = this.getReportCellValue(row, i);
+        return `"${val.replace(/"/g, '""')}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+
+    const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${this.reportName.replace(/\s+/g, '_')}_Report.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   onCancel(): void {
     this.router.navigate(['/reporting']);
+  }
+
+  getReportCellValue(row: Record<string, unknown>, index: number): string {
+    const rowData = row['row'];
+    if (rowData && Array.isArray(rowData)) {
+      const val = rowData[index];
+      if (val === null || val === undefined) {
+        return '';
+      }
+      if (Array.isArray(val) && val.length >= 3) {
+        return new Date(val[0], val[1] - 1, val[2]).toLocaleDateString();
+      }
+      return String(val);
+    }
+    return '';
   }
 }

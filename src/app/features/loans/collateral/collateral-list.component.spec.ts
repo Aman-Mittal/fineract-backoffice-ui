@@ -27,7 +27,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('CollateralListComponent', () => {
@@ -39,13 +39,12 @@ describe('CollateralListComponent', () => {
   beforeEach(async () => {
     collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', [
       'retrieveCollateralDetails',
-      'deleteCollateral',
-    ]);
+      'deleteCollateral']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [CollateralListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [
+      imports: [CollateralListComponent, TranslateModule.forRoot()],
+      providers: [provideNoopAnimations(), 
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -53,8 +52,7 @@ describe('CollateralListComponent', () => {
           useValue: {
             paramMap: of({ get: () => '123' }),
           },
-        },
-      ],
+        }],
     }).compileComponents();
 
     collateralServiceSpy.retrieveCollateralDetails.and.returnValue(

@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output, inject } from '@angular/core';
+
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
-import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, switchMap, startWith } from 'rxjs/operators';
 import { ClientService, GetClientsResponse } from '../../../api';
 
 /**
@@ -37,7 +37,6 @@ import { ClientService, GetClientsResponse } from '../../../api';
   selector: 'app-client-search',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatFormFieldModule,
@@ -86,7 +85,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
     `,
   ],
 })
-export class ClientSearchComponent implements OnInit {
+export class ClientSearchComponent implements OnInit, OnChanges {
   private readonly clientService = inject(ClientService);
 
   @Input() label = 'COMMON.CLIENT';
@@ -102,15 +101,17 @@ export class ClientSearchComponent implements OnInit {
   ngOnInit(): void {
     this.searchControl.valueChanges
       .pipe(
+        startWith(''),
         debounceTime(300),
         distinctUntilChanged(),
-        filter((value): value is string => typeof value === 'string' && value.length >= 2),
+        filter((value) => typeof value === 'string'),
         switchMap((value) => {
           this.isLoading = true;
+          const searchTerm = typeof value === 'string' && value.length > 0 ? value + '%' : undefined;
           return this.clientService.retrieveAll21(
             undefined,
             undefined,
-            `${value}%`,
+            searchTerm,
             undefined,
             undefined,
             undefined,
@@ -132,6 +133,16 @@ export class ClientSearchComponent implements OnInit {
         },
       });
 
+    this.loadInitialClient();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialClientId'] && !changes['initialClientId'].isFirstChange()) {
+      this.loadInitialClient();
+    }
+  }
+
+  private loadInitialClient(): void {
     if (this.initialClientId) {
       this.clientService.retrieveOne11(this.initialClientId).subscribe((client) => {
         this.searchControl.setValue(client as Record<string, unknown>, { emitEvent: false });
@@ -139,7 +150,10 @@ export class ClientSearchComponent implements OnInit {
     }
   }
 
-  displayFn(client: Record<string, unknown> | null): string {
+  displayFn(client: Record<string, unknown> | string | null): string {
+    if (typeof client === 'string') {
+      return client;
+    }
     return client && client['displayName'] ? (client['displayName'] as string) : '';
   }
 

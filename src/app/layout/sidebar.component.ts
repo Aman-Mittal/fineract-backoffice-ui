@@ -18,7 +18,7 @@
  */
 
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -31,7 +31,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [RouterModule, TranslateModule],
   template: `
     <nav class="sidebar" role="navigation" [attr.aria-label]="'nav.main' | translate">
       <ul class="nav-list">
@@ -78,6 +78,34 @@ import { TranslateModule } from '@ngx-translate/core';
                   <span class="nav-text">{{ 'nav.savingsProducts' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/products/fixed"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'PRODUCTS.FIXED_DEPOSIT_PRODUCTS' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/recurring"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'PRODUCTS.RECURRING_DEPOSIT_PRODUCTS' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/share"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <span class="nav-text">{{ 'PRODUCTS.SHARE_PRODUCTS' | translate }}</span>
+                </a>
+              </li>
+              <li class="nav-divider"></li>
               <li>
                 <a
                   routerLink="/products/savings-accounts"
@@ -302,6 +330,21 @@ import { TranslateModule } from '@ngx-translate/core';
         height: calc(100vh - var(--header-height));
         padding-top: 1rem;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+      }
+      .sidebar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+      .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
       }
       .nav-list {
         list-style: none;
@@ -348,6 +391,11 @@ import { TranslateModule } from '@ngx-translate/core';
       }
       .sub-item {
         padding-left: 2.5rem;
+      }
+      .nav-divider {
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin: 0.5rem 1.5rem;
       }
     `,
   ],

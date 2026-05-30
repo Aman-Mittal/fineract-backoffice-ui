@@ -39,6 +39,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpIconComponent } from '../help-icon/help-icon.component';
 import { SearchFilterComponent } from '../search-filter/search-filter.component';
@@ -69,12 +70,18 @@ export interface ColumnDef {
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     TranslateModule,
     HelpIconComponent,
     SearchFilterComponent,
   ],
   template: `
     <mat-card class="data-table-card">
+      @if (isLoading) {
+        <div class="loading-overlay">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
       <mat-card-header>
         <mat-card-title>
           {{ title | translate }}
@@ -165,6 +172,7 @@ export interface ColumnDef {
     `
       .data-table-card {
         margin: 24px;
+        position: relative;
       }
       mat-card-header {
         display: flex;
@@ -199,6 +207,19 @@ export interface ColumnDef {
       table {
         width: 100%;
       }
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.6);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+      }
     `,
   ],
 })
@@ -217,6 +238,7 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
   @Input() searchPlaceholder = 'COMMON.SEARCH_PLACEHOLDER';
   /** If true, the component will handle pagination/sorting locally. */
   @Input() localLogic = false;
+  @Input() isLoading = false;
 
   @Output() create = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
@@ -280,9 +302,14 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
   }
 
   getCellValue(row: T, key: string): unknown {
-    const value = (row as Record<string, unknown>)[key];
+    const keys = key.split('.');
+    let value: any = row;
+    for (const k of keys) {
+      if (value === null || value === undefined) return undefined;
+      value = value[k];
+    }
     if (value && typeof value === 'object' && 'value' in value) {
-      return (value as Record<string, unknown>)['value'];
+      return value.value;
     }
     return value;
   }

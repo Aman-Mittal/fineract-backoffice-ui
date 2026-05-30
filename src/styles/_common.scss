@@ -89,3 +89,14 @@
     background-color: var(--primary-dark);
   }
 }
+
+.error-snackbar {
+  white-space: pre-wrap;
+  .mdc-snackbar__surface {
+    background-color: #e74c3c;
+    color: white;
+  }
+  .mdc-button {
+    color: white;
+  }
+}

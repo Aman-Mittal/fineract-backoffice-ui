@@ -29,7 +29,7 @@ import { Router } from '@angular/router';
 import { of, Observable } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
 
 describe('AccountingClosureFormComponent', () => {
@@ -48,16 +48,15 @@ describe('AccountingClosureFormComponent', () => {
       imports: [
         AccountingClosureFormComponent,
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
         MatNativeDateModule,
       ],
       providers: [
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: OfficesService, useValue: officeServiceSpy },
         { provide: Router, useValue: routerSpy },
+        provideNoopAnimations(),
       ],
     }).compileComponents();
-
     officeServiceSpy.retrieveOffices.and.returnValue(
       of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
     );

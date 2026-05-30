@@ -17,11 +17,14 @@
  * under the License.
  */
 
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+
 import { RouterModule } from '@angular/router';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
+import { GuidanceTourComponent } from '../shared';
+import { LoadingService } from '../core/services/loading.service';
 
 /**
  * The primary application layout component (App Shell).
@@ -32,9 +35,18 @@ import { SidebarComponent } from './sidebar.component';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent],
+  imports: [
+    RouterModule,
+    MatProgressBarModule,
+    HeaderComponent,
+    SidebarComponent,
+    GuidanceTourComponent,
+  ],
   template: `
     <div class="app-container">
+      @if (loadingService.isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="global-loader"></mat-progress-bar>
+      }
       <app-header />
       <div class="main-wrapper">
         <app-sidebar />
@@ -42,6 +54,7 @@ import { SidebarComponent } from './sidebar.component';
           <router-outlet />
         </main>
       </div>
+      <app-guidance-tour />
     </div>
   `,
   styles: [
@@ -51,6 +64,15 @@ import { SidebarComponent } from './sidebar.component';
         flex-direction: column;
         height: 100vh;
         overflow: hidden;
+        position: relative;
+      }
+      .global-loader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 3px;
       }
       .main-wrapper {
         display: flex;
@@ -66,4 +88,6 @@ import { SidebarComponent } from './sidebar.component';
     `,
   ],
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent {
+  protected readonly loadingService = inject(LoadingService);
+}

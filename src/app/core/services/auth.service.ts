@@ -155,4 +155,35 @@ export class AuthService {
   getAuthToken(): string | null {
     return this.currentUser()?.base64EncodedAuthenticationKey || null;
   }
+
+  /**
+   * Checks if the authenticated user has a specific permission or any/all of a list of permissions.
+   *
+   * @param permission - A single permission string or an array of permissions
+   * @param matchAll - If true, the user must have all permissions in the array. Default is false.
+   * @returns boolean indicating if the user has the required permission(s)
+   */
+  hasPermission(permission: string | string[], matchAll = false): boolean {
+    const user = this.currentUser();
+    if (!user || !user.permissions) {
+      return false;
+    }
+
+    // Special superuser permission "ALL_FUNCTIONS" bypasses check
+    if (
+      user.permissions.includes('ALL_FUNCTIONS') ||
+      user.permissions.includes('ALL_FUNCTIONS_READ')
+    ) {
+      return true;
+    }
+
+    if (Array.isArray(permission)) {
+      if (matchAll) {
+        return permission.every((p) => user.permissions.includes(p));
+      }
+      return permission.some((p) => user.permissions.includes(p));
+    }
+
+    return user.permissions.includes(permission);
+  }
 }

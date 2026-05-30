@@ -23,7 +23,7 @@ import { CentersService, OfficesService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
 
 describe('CenterFormComponent', () => {
@@ -37,8 +37,7 @@ describe('CenterFormComponent', () => {
     centersServiceSpy = jasmine.createSpyObj('CentersService', [
       'retrieveOne14',
       'create7',
-      'update12',
-    ]);
+      'update12']);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -46,10 +45,8 @@ describe('CenterFormComponent', () => {
       imports: [
         CenterFormComponent,
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        MatNativeDateModule,
-      ],
-      providers: [
+        MatNativeDateModule],
+      providers: [provideNoopAnimations(), 
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -58,8 +55,7 @@ describe('CenterFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        },
-      ],
+        }],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,10 +115,8 @@ describe('CenterFormComponent', () => {
       imports: [
         CenterFormComponent,
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        MatNativeDateModule,
-      ],
-      providers: [
+        MatNativeDateModule],
+      providers: [provideNoopAnimations(), 
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -131,8 +125,7 @@ describe('CenterFormComponent', () => {
           useValue: {
             paramMap: of({ get: (key: string) => (key === 'id' ? '123' : null) }),
           },
-        },
-      ],
+        }],
     });
 
     const mockCenter = { id: 123, name: 'Existing Center', officeId: 1, active: true };

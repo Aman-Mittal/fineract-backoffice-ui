@@ -23,7 +23,7 @@ import { ShareAccountService, AccountRequest, ClientService } from '../../../api
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
 
 describe('ShareAccountFormComponent', () => {
@@ -38,8 +38,7 @@ describe('ShareAccountFormComponent', () => {
       'createAccount',
       'updateAccount',
       'template7',
-      'retrieveAccount',
-    ]);
+      'retrieveAccount']);
     clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -47,10 +46,8 @@ describe('ShareAccountFormComponent', () => {
       imports: [
         ShareAccountFormComponent,
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        MatNativeDateModule,
-      ],
-      providers: [
+        MatNativeDateModule],
+      providers: [provideNoopAnimations(), 
         { provide: ShareAccountService, useValue: shareServiceSpy },
         { provide: ClientService, useValue: clientServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -59,8 +56,7 @@ describe('ShareAccountFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        },
-      ],
+        }],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

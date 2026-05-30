@@ -23,7 +23,7 @@ import { TellerCashManagementService, OfficesService, PostTellersRequest } from 
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
 
 describe('TellerFormComponent', () => {
@@ -38,8 +38,7 @@ describe('TellerFormComponent', () => {
       'findTeller',
       'createTeller',
       'updateTeller',
-      'template12',
-    ]);
+      'template12']);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -47,10 +46,8 @@ describe('TellerFormComponent', () => {
       imports: [
         TellerFormComponent,
         TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        MatNativeDateModule,
-      ],
-      providers: [
+        MatNativeDateModule],
+      providers: [provideNoopAnimations(), 
         { provide: TellerCashManagementService, useValue: tellerServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -59,8 +56,7 @@ describe('TellerFormComponent', () => {
           useValue: {
             paramMap: of({ get: () => null }),
           },
-        },
-      ],
+        }],
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

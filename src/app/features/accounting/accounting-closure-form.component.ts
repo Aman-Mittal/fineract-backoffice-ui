@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   AccountingClosureService,
   PostGlClosuresRequest,
@@ -44,7 +45,6 @@ import { HelpIconComponent } from '../../shared';
   selector: 'app-accounting-closure-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -54,6 +54,7 @@ import { HelpIconComponent } from '../../shared';
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatProgressSpinnerModule,
     HelpIconComponent,
   ],
   template: `
@@ -106,14 +107,19 @@ import { HelpIconComponent } from '../../shared';
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">Cancel</button>
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">Cancel</button>
               <button
                 mat-raised-button
                 color="primary"
                 type="submit"
                 [disabled]="closureForm.invalid || isSaving"
               >
-                {{ isSaving ? 'Saving...' : 'Close Period' }}
+                @if (isSaving) {
+                  <mat-spinner diameter="20" style="margin-right: 8px; display: inline-block; vertical-align: middle;"></mat-spinner>
+                  Saving...
+                } @else {
+                  Close Period
+                }
               </button>
             </div>
           </form>

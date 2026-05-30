@@ -18,10 +18,12 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
 import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { GuidanceService } from '../core/services/guidance.service';
 
 /**
  * Top-level application header component.
@@ -32,7 +34,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule, MatIconModule],
   template: `
     <header class="header" role="banner">
       <div class="logo-section">
@@ -41,6 +43,11 @@ import { Router } from '@angular/router';
       </div>
 
       <div class="header-actions">
+        <button class="tour-btn" (click)="startTour()" [attr.aria-label]="'Help Tour'">
+          <mat-icon>explore</mat-icon>
+          Guide
+        </button>
+
         <div class="user-info">
           <span class="username">{{ authService.username() }}</span>
           <span class="office">{{ authService.officeName() }}</span>
@@ -131,12 +138,35 @@ import { Router } from '@angular/router';
       .logout-btn:hover {
         background-color: #d32f2f;
       }
+      .tour-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.5rem 0.75rem;
+        background-color: #3f51b5;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
+      .tour-btn:hover {
+        background-color: #303f9f;
+      }
+      .tour-btn mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     `,
   ],
 })
 export class HeaderComponent {
   protected readonly authService = inject(AuthService);
   protected readonly translate = inject(TranslateService);
+  protected readonly guidanceService = inject(GuidanceService);
   private readonly router = inject(Router);
 
   /**
@@ -145,6 +175,13 @@ export class HeaderComponent {
    */
   switchLanguage(lang: string) {
     this.translate.use(lang);
+  }
+
+  /**
+   * Triggers the tour on the current active route.
+   */
+  startTour() {
+    this.guidanceService.startTour(this.router.url);
   }
 
   /**

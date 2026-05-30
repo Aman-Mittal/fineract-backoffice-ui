@@ -18,8 +18,8 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -33,6 +33,7 @@ import {
   ColumnDef,
   CellTemplateDirective,
   StatusBadgeComponent,
+  HasPermissionDirective,
 } from '../../shared';
 import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
 
@@ -49,7 +50,7 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
   selector: 'app-savings-accounts-list',
   standalone: true,
   imports: [
-    CommonModule,
+    RouterModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -57,32 +58,61 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    HasPermissionDirective,
   ],
   template: `
     <app-data-table
       title="nav.savingsAccounts"
       helpTextKey="HELP.SAVINGS_ACCOUNTS_DESC"
-      createButtonLabel="SAVINGS.CREATE_ACCOUNT"
       [columns]="columns"
       [data]="accounts"
       [totalRecords]="totalRecords"
       [showSearch]="true"
-      (create)="onCreateAccount()"
+      [isLoading]="isLoading"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
     >
+      <button
+        headerActions
+        mat-raised-button
+        color="primary"
+        *appHasPermission="'CREATE_SAVINGSACCOUNT'"
+        (click)="onCreateAccount()"
+      >
+        <mat-icon>add</mat-icon>
+        {{ 'SAVINGS.CREATE_ACCOUNT' | translate }}
+      </button>
+
+      <ng-template appCellTemplate="accountNo" let-account>
+        <a class="clickable-link" [routerLink]="['/products/savings-accounts/view', account.id]">{{
+          account.accountNo
+        }}</a>
+      </ng-template>
+
       <ng-template appCellTemplate="status" let-account>
         <app-status-badge [status]="account.status"></app-status-badge>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
+        @if (account.status?.submittedAndPendingApproval) {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.APPROVE' | translate"
+            (click)="onApprove(account)"
+            *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+        }
         <button
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
           matTooltip="Edit Account"
           (click)="onEditAccount(account)"
+          *appHasPermission="'UPDATE_SAVINGSACCOUNT'"
         >
           <mat-icon>edit</mat-icon>
         </button>
@@ -92,6 +122,7 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
           [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
           matTooltip="Deposit Cash"
           (click)="onTransaction(account, 'deposit')"
+          *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
         >
           <mat-icon>add_circle_outline</mat-icon>
         </button>
@@ -101,6 +132,7 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
           [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
           matTooltip="Withdraw Cash"
           (click)="onTransaction(account, 'withdrawal')"
+          *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
         >
           <mat-icon>remove_circle_outline</mat-icon>
         </button>
@@ -128,6 +160,8 @@ export class SavingsAccountsListComponent implements OnInit {
   accounts: GetSavingsPageItems[] = [];
   /** Total count for pagination */
   totalRecords = 0;
+  /** Loading state flag */
+  isLoading = false;
 
   /** Subjects for managing reactive data stream */
   private searchSubject = new Subject<string>();
@@ -147,6 +181,7 @@ export class SavingsAccountsListComponent implements OnInit {
       .pipe(
         startWith({}),
         switchMap(() => {
+          this.isLoading = true;
           const offset = this.currentPage.pageIndex * this.currentPage.pageSize;
           const limit = this.currentPage.pageSize;
           const orderBy = this.currentSort.active || undefined;
@@ -164,6 +199,7 @@ export class SavingsAccountsListComponent implements OnInit {
             .pipe(catchError(() => of(null)));
         }),
         map((response: GetSavingsAccountsResponse | null) => {
+          this.isLoading = false;
           if (!response) return [];
           this.totalRecords = response.totalFilteredRecords || 0;
           return Array.from(response.pageItems || []);
@@ -230,5 +266,9 @@ export class SavingsAccountsListComponent implements OnInit {
    */
   onTransaction(account: GetSavingsPageItems, command: string): void {
     this.router.navigate(['/products/savings-accounts', account.id, 'transactions', command]);
+  }
+
+  onApprove(account: GetSavingsPageItems): void {
+    this.router.navigate([`/products/savings/${account.id}/approve`]);
   }
 }

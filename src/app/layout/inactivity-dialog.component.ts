@@ -18,7 +18,7 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,7 +31,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-inactivity-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, TranslateModule],
+  imports: [MatDialogModule, MatButtonModule, TranslateModule],
   template: `
     <h2 mat-dialog-title>{{ 'idle.warning.title' | translate }}</h2>
     <mat-dialog-content>

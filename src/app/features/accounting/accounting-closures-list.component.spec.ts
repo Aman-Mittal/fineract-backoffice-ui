@@ -27,7 +27,7 @@ import {
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('AccountingClosuresListComponent', () => {
@@ -44,10 +44,11 @@ describe('AccountingClosuresListComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [AccountingClosuresListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [AccountingClosuresListComponent, TranslateModule.forRoot()],
       providers: [
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: Router, useValue: routerSpy },
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 

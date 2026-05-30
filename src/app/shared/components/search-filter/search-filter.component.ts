@@ -18,7 +18,7 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-search-filter',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatTooltipModule],
+  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatTooltipModule],
   template: `
     <mat-form-field appearance="outline" class="search-field" [matTooltip]="tooltipText">
       <mat-label>{{ label }}</mat-label>

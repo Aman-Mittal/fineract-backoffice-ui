@@ -59,6 +59,11 @@ export const routes: Routes = [
           import('./features/clients/client-form.component').then((m) => m.ClientFormComponent),
       },
       {
+        path: 'clients/view/:id',
+        loadComponent: () =>
+          import('./features/clients/client-view.component').then((m) => m.ClientViewComponent),
+      },
+      {
         path: 'groups',
         loadComponent: () =>
           import('./features/groups/groups-list.component').then((m) => m.GroupsListComponent),
@@ -131,6 +136,69 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/fixed',
+        loadComponent: () =>
+          import('./features/products/fixed-deposits/fixed-deposit-products-list.component').then(
+            (m) => m.FixedDepositProductsListComponent,
+          ),
+      },
+      {
+        path: 'products/fixed/create',
+        loadComponent: () =>
+          import('./features/products/fixed-deposits/fixed-deposit-product-form.component').then(
+            (m) => m.FixedDepositProductFormComponent,
+          ),
+      },
+      {
+        path: 'products/fixed/edit/:id',
+        loadComponent: () =>
+          import('./features/products/fixed-deposits/fixed-deposit-product-form.component').then(
+            (m) => m.FixedDepositProductFormComponent,
+          ),
+      },
+      {
+        path: 'products/recurring',
+        loadComponent: () =>
+          import('./features/products/recurring-deposits/recurring-deposit-products-list.component').then(
+            (m) => m.RecurringDepositProductsListComponent,
+          ),
+      },
+      {
+        path: 'products/recurring/create',
+        loadComponent: () =>
+          import('./features/products/recurring-deposits/recurring-deposit-product-form.component').then(
+            (m) => m.RecurringDepositProductFormComponent,
+          ),
+      },
+      {
+        path: 'products/recurring/edit/:id',
+        loadComponent: () =>
+          import('./features/products/recurring-deposits/recurring-deposit-product-form.component').then(
+            (m) => m.RecurringDepositProductFormComponent,
+          ),
+      },
+      {
+        path: 'products/share',
+        loadComponent: () =>
+          import('./features/products/shares/share-products-list.component').then(
+            (m) => m.ShareProductsListComponent,
+          ),
+      },
+      {
+        path: 'products/share/create',
+        loadComponent: () =>
+          import('./features/products/shares/share-product-form.component').then(
+            (m) => m.ShareProductFormComponent,
+          ),
+      },
+      {
+        path: 'products/share/edit/:id',
+        loadComponent: () =>
+          import('./features/products/shares/share-product-form.component').then(
+            (m) => m.ShareProductFormComponent,
+          ),
+      },
+      {
         path: 'products/savings-accounts',
         loadComponent: () =>
           import('./features/products/savings-accounts-list.component').then(
@@ -149,6 +217,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/products/savings-account-form.component').then(
             (m) => m.SavingsAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/view/:id',
+        loadComponent: () =>
+          import('./features/products/savings-account-view.component').then(
+            (m) => m.SavingsAccountViewComponent,
           ),
       },
       {
@@ -222,10 +297,24 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/:accountType/:accountId/action/:command',
+        loadComponent: () =>
+          import('./features/products/account-action-form.component').then(
+            (m) => m.AccountActionFormComponent,
+          ),
+      },
+      {
         path: 'fintech/asset-owners',
         loadComponent: () =>
           import('./features/fintech/asset-owners-list.component').then(
             (m) => m.ExternalAssetOwnersListComponent,
+          ),
+      },
+      {
+        path: 'fintech/asset-owners/view/:id',
+        loadComponent: () =>
+          import('./features/fintech/asset-owner-view/asset-owner-view.component').then(
+            (m) => m.AssetOwnerViewComponent,
           ),
       },
       {
@@ -452,6 +541,11 @@ export const routes: Routes = [
         path: 'loans/edit/:id',
         loadComponent: () =>
           import('./features/loans/loan-form.component').then((m) => m.LoanFormComponent),
+      },
+      {
+        path: 'loans/view/:id',
+        loadComponent: () =>
+          import('./features/loans/loan-view.component').then((m) => m.LoanViewComponent),
       },
       {
         path: 'loans/:loanId/collateral',

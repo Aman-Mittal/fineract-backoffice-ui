@@ -27,7 +27,7 @@ import {
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PageEvent } from '@angular/material/paginator';
 import { HttpEvent } from '@angular/common/http';
 
@@ -42,11 +42,10 @@ describe('ShareAccountsListComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ShareAccountsListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [
+      imports: [ShareAccountsListComponent, TranslateModule.forRoot()],
+      providers: [provideNoopAnimations(), 
         { provide: ShareAccountService, useValue: shareServiceSpy },
-        { provide: Router, useValue: routerSpy },
-      ],
+        { provide: Router, useValue: routerSpy }],
     }).compileComponents();
 
     shareServiceSpy.retrieveAllAccounts1.and.returnValue(

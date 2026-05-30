@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,7 +42,6 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
   selector: 'app-fixed-deposits-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -68,6 +67,16 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
+        @if (account.status?.value === 'Submitted and pending approval') {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.APPROVE' | translate"
+            (click)="onApprove(account)"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+        }
         <button
           mat-icon-button
           color="primary"
@@ -135,5 +144,9 @@ export class FixedDepositAccountsListComponent implements OnInit {
    */
   onEditAccount(account: GetFixedDepositAccountsResponse): void {
     this.router.navigate(['/products/fixed-deposits/edit', account.id]);
+  }
+
+  onApprove(account: GetFixedDepositAccountsResponse): void {
+    this.router.navigate([`/products/fixed/${account.id}/approve`]);
   }
 }
