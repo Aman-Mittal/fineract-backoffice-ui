@@ -36,10 +36,15 @@ import {
   ShareAccountService,
   AccountRequest,
   PutAccountsTypeAccountIdRequest,
-  GetAccountsTypeTemplateResponse,
   GetAccountsTypeAccountIdResponse,
   GetAccountsTypeProductOptions,
+  SavingsAccountData,
 } from '../../../api';
+
+interface ShareAccountTemplateResponse {
+  productOptions?: Set<GetAccountsTypeProductOptions>;
+  clientSavingsAccounts?: SavingsAccountData[];
+}
 
 /**
  * Component for creating and managing share accounts.
@@ -144,12 +149,30 @@ import {
                 [matTooltip]="'HELP.SAVINGS_ACCOUNT_ID_DESC' | translate"
               >
                 <mat-label>{{ 'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="savingsAccountId"
-                  [(ngModel)]="account.savingsAccountId"
-                />
+                <mat-select name="savingsAccountId" [(ngModel)]="account.savingsAccountId">
+                  <div
+                    class="select-search-container"
+                    (click)="$event.stopPropagation()"
+                    (keydown)="$event.stopPropagation()"
+                    tabindex="-1"
+                  >
+                    <input
+                      matInput
+                      placeholder="Search accounts..."
+                      (input)="onSavingsSearch($event)"
+                      class="select-search-input"
+                    />
+                  </div>
+                  <mat-option [value]="null">-- None --</mat-option>
+                  @for (sa of filteredSavingsAccounts; track sa.id) {
+                    <mat-option [value]="sa.id">
+                      {{ sa.accountNo }} - {{ sa.savingsProductName }}
+                    </mat-option>
+                  }
+                  @if (filteredSavingsAccounts.length === 0) {
+                    <mat-option disabled>No savings accounts found</mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
             </div>
 
@@ -205,6 +228,22 @@ import {
         gap: 12px;
         margin-top: 16px;
       }
+      .select-search-container {
+        padding: 8px 16px;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+        border-bottom: 1px solid #ccc;
+      }
+      .select-search-input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+      }
     `,
   ],
 })
@@ -234,6 +273,12 @@ export class ShareAccountFormComponent implements OnInit {
   applicationDate: Date = new Date();
   /** Available products list */
   products: GetAccountsTypeProductOptions[] = [];
+  /** Available savings accounts list */
+  savingsAccounts: SavingsAccountData[] = [];
+  /** Filtered savings accounts list for search */
+  filteredSavingsAccounts: SavingsAccountData[] = [];
+  /** Search term for savings accounts */
+  savingsSearchVal = '';
 
   /**
    * Component initialization.
@@ -258,16 +303,33 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   /**
+   * Handles filtering of savings accounts.
+   */
+  onSavingsSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.savingsSearchVal = input.value.toLowerCase();
+    this.filteredSavingsAccounts = this.savingsAccounts.filter(
+      (sa) =>
+        sa.accountNo?.toLowerCase().includes(this.savingsSearchVal) ||
+        sa.savingsProductName?.toLowerCase().includes(this.savingsSearchVal),
+    );
+  }
+
+  /**
    * Fetches the list of share products.
    */
   private loadProducts(clientId?: number): void {
     if (!clientId) {
       this.products = [];
+      this.savingsAccounts = [];
+      this.filteredSavingsAccounts = [];
       return;
     }
     this.shareService.template7('share', clientId).subscribe({
-      next: (template: GetAccountsTypeTemplateResponse) => {
+      next: (template: ShareAccountTemplateResponse) => {
         this.products = Array.from(template.productOptions || []);
+        this.savingsAccounts = Array.from(template.clientSavingsAccounts || []);
+        this.filteredSavingsAccounts = this.savingsAccounts;
       },
       error: (err: unknown) => console.error('Failed to load products', err),
     });

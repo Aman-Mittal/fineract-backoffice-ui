@@ -38,6 +38,7 @@ import {
 
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_LOCALE = 'en';
+const DEFAULT_DATE_FORMAT = 'yyyy-MM-dd';
 const REDIRECT_URL = '/products/recurring';
 
 @Component({
@@ -225,6 +226,7 @@ export class RecurringDepositProductFormComponent implements OnInit {
     recurringFrequencyType: 2, // Months
     minDepositTerm: 1,
     minDepositTermTypeId: 2,
+    depositAmount: 1000,
   };
 
   ngOnInit() {
@@ -252,6 +254,7 @@ export class RecurringDepositProductFormComponent implements OnInit {
           recurringEvery: data.recurringDepositFrequency,
           recurringFrequencyType: data.recurringDepositFrequencyType?.id,
           accountingRule: 1,
+          depositAmount: 1000, // Fallback
         };
       });
   }
@@ -262,11 +265,25 @@ export class RecurringDepositProductFormComponent implements OnInit {
 
     const payload = {
       ...this.product,
-      recurringDepositFrequency: this.product['recurringEvery'],
-      recurringDepositFrequencyTypeId: this.product['recurringFrequencyType'],
+      charts: [
+        {
+          fromDate: new Date().toISOString().split('T')[0],
+          dateFormat: DEFAULT_DATE_FORMAT,
+          locale: DEFAULT_LOCALE,
+          chartSlabs: [
+            {
+              periodType: 2, // Months
+              fromPeriod: 1,
+              annualInterestRate: 5,
+            },
+          ],
+        },
+      ],
     };
     delete (payload as Record<string, unknown>)['recurringEvery'];
     delete (payload as Record<string, unknown>)['recurringFrequencyType'];
+    delete (payload as Record<string, unknown>)['recurringDepositFrequency'];
+    delete (payload as Record<string, unknown>)['recurringDepositFrequencyTypeId'];
 
     if (this.isEditMode && this.productId) {
       this.productService

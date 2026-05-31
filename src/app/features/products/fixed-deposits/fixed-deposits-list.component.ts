@@ -147,6 +147,6 @@ export class FixedDepositAccountsListComponent implements OnInit {
   }
 
   onApprove(account: GetFixedDepositAccountsResponse): void {
-    this.router.navigate([`/products/fixed/${account.id}/approve`]);
+    this.router.navigate([`/products/fixed/${account.id}/action/approve`]);
   }
 }

@@ -146,6 +146,6 @@ export class RecurringDepositsListComponent implements OnInit {
   }
 
   onApprove(account: GetRecurringDepositAccountsResponse): void {
-    this.router.navigate([`/products/recurring/${account.id}/approve`]);
+    this.router.navigate([`/products/recurring/${account.id}/action/approve`]);
   }
 }

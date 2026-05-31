@@ -269,6 +269,6 @@ export class SavingsAccountsListComponent implements OnInit {
   }
 
   onApprove(account: GetSavingsPageItems): void {
-    this.router.navigate([`/products/savings/${account.id}/approve`]);
+    this.router.navigate([`/products/savings/${account.id}/action/approve`]);
   }
 }
