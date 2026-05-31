@@ -452,6 +452,14 @@
     "CLIENTS_CONTRACTS": "Clients & Contracts",
     "LOANS_PORTFOLIO": "Loans Portfolio"
   },
+  "SHARE_ACCOUNTS": {
+    "CREATE": "Create Share Account",
+    "EDIT": "Edit Share Account",
+    "TOTAL_SHARES": "Total Shares",
+    "REQUESTED_SHARES": "Requested Shares",
+    "APPLICATION_DATE": "Application Date",
+    "SAVINGS_ACCOUNT_ID": "Savings Account ID"
+  },
   "login": {
     "title": "Fineract Login",
     "welcome": "Manage your community bank operations",

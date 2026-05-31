@@ -260,16 +260,24 @@ export class RecurringDepositProductFormComponent implements OnInit {
     this.isSaving = true;
     this.product['locale'] = DEFAULT_LOCALE;
 
+    const payload = {
+      ...this.product,
+      recurringDepositFrequency: this.product['recurringEvery'],
+      recurringDepositFrequencyTypeId: this.product['recurringFrequencyType'],
+    };
+    delete (payload as Record<string, unknown>)['recurringEvery'];
+    delete (payload as Record<string, unknown>)['recurringFrequencyType'];
+
     if (this.isEditMode && this.productId) {
       this.productService
-        .update19(this.productId, this.product as unknown as PutRecurringDepositProductsRequest)
+        .update19(this.productId, payload as unknown as PutRecurringDepositProductsRequest)
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
           error: () => (this.isSaving = false),
         });
     } else {
       this.productService
-        .create12(this.product as unknown as PostRecurringDepositProductsRequest)
+        .create12(payload as unknown as PostRecurringDepositProductsRequest)
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
           error: () => (this.isSaving = false),

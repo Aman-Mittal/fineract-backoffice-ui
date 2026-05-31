@@ -180,5 +180,13 @@
   "CHARGES": {
     "CREATE": "शुल्क बनाएं",
     "EDIT": "शुल्क संपादित करें"
+  },
+  "SHARE_ACCOUNTS": {
+    "CREATE": "शेयर खाता बनाएं",
+    "EDIT": "शेयर खाता संपादित करें",
+    "TOTAL_SHARES": "कुल शेयर",
+    "REQUESTED_SHARES": "अनुरोधित शेयर",
+    "APPLICATION_DATE": "आवेदन तिथि",
+    "SAVINGS_ACCOUNT_ID": "बचत खाता आईडी"
   }
 }

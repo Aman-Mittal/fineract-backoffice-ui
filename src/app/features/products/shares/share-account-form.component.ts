@@ -84,7 +84,7 @@ import {
                 [label]="'COMMON.CLIENT' | translate"
                 [required]="true"
                 [initialClientId]="account.clientId || null"
-                (clientSelected)="account.clientId = $event"
+                (clientSelected)="onClientSelected($event)"
               >
               </app-client-search>
 
@@ -239,7 +239,6 @@ export class ShareAccountFormComponent implements OnInit {
    * Component initialization.
    */
   ngOnInit(): void {
-    this.loadProducts();
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -251,10 +250,22 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   /**
+   * Handles client selection and updates available products.
+   */
+  onClientSelected(clientId: number): void {
+    this.account.clientId = clientId;
+    this.loadProducts(clientId);
+  }
+
+  /**
    * Fetches the list of share products.
    */
-  private loadProducts(): void {
-    this.shareService.template7('share').subscribe({
+  private loadProducts(clientId?: number): void {
+    if (!clientId) {
+      this.products = [];
+      return;
+    }
+    this.shareService.template7('share', clientId).subscribe({
       next: (template: GetAccountsTypeTemplateResponse) => {
         this.products = Array.from(template.productOptions || []);
       },
@@ -279,6 +290,9 @@ export class ShareAccountFormComponent implements OnInit {
           requestedShares: data.summary?.totalApprovedShares,
           savingsAccountId: data.savingsAccountId,
         };
+        if (data.clientId) {
+          this.loadProducts(data.clientId);
+        }
       },
       error: (err: unknown) => console.error('Failed to load account', err),
     });

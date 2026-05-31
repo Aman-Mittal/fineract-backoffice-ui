@@ -180,5 +180,13 @@
   "CHARGES": {
     "CREATE": "수수료 생성",
     "EDIT": "수수료 수정"
+  },
+  "SHARE_ACCOUNTS": {
+    "CREATE": "주식 계좌 생성",
+    "EDIT": "주식 계좌 수정",
+    "TOTAL_SHARES": "총 주식 수",
+    "REQUESTED_SHARES": "신청 주식 수",
+    "APPLICATION_DATE": "신청 일자",
+    "SAVINGS_ACCOUNT_ID": "예금 계좌 ID"
   }
 }
