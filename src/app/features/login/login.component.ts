@@ -342,7 +342,7 @@ export class LoginComponent {
                 finalUrl,
                 '- Reloading app.',
               );
-              window.location.href = '/';
+              window.location.href = document.baseURI || '/';
             } else {
               this.router.navigate(['/']);
             }
