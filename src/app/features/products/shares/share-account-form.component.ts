@@ -102,6 +102,7 @@ interface ShareAccountTemplateResponse {
                 <mat-select
                   name="productId"
                   [(ngModel)]="account.productId"
+                  (selectionChange)="onProductSelected($event.value)"
                   required
                   [disabled]="isEditMode"
                 >
@@ -302,11 +303,27 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   /**
-   * Handles client selection and updates available products.
+   * Handles client selection and resets/updates products list.
    */
   onClientSelected(clientId: number): void {
     this.account.clientId = clientId;
+    this.account.productId = undefined;
+    this.account.savingsAccountId = undefined;
+    this.products = [];
+    this.savingsAccounts = [];
+    this.filteredSavingsAccounts = [];
     this.loadProducts(clientId);
+  }
+
+  /**
+   * Handles product selection and updates available savings accounts.
+   */
+  onProductSelected(productId: number): void {
+    this.account.productId = productId;
+    this.account.savingsAccountId = undefined;
+    if (this.account.clientId) {
+      this.loadProducts(this.account.clientId, productId);
+    }
   }
 
   /**
@@ -333,18 +350,20 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   /**
-   * Fetches the list of share products.
+   * Fetches the list of share products and client savings accounts.
    */
-  private loadProducts(clientId?: number): void {
+  private loadProducts(clientId?: number, productId?: number): void {
     if (!clientId) {
       this.products = [];
       this.savingsAccounts = [];
       this.filteredSavingsAccounts = [];
       return;
     }
-    this.shareService.template7('share', clientId).subscribe({
+    this.shareService.template7('share', clientId, productId).subscribe({
       next: (template: ShareAccountTemplateResponse) => {
-        this.products = Array.from(template.productOptions || []);
+        if (template.productOptions) {
+          this.products = Array.from(template.productOptions);
+        }
         this.savingsAccounts = Array.from(template.clientSavingsAccounts || []);
         this.filteredSavingsAccounts = this.savingsAccounts;
       },
@@ -370,7 +389,7 @@ export class ShareAccountFormComponent implements OnInit {
           savingsAccountId: data.savingsAccountId,
         };
         if (data.clientId) {
-          this.loadProducts(data.clientId);
+          this.loadProducts(data.clientId, data.productId);
         }
       },
       error: (err: unknown) => console.error('Failed to load account', err),

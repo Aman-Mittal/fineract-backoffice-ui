@@ -192,7 +192,10 @@
   },
   "RECURRING_DEPOSITS": {
     "CREATE": "आवर्ती जमा खाता बनाएं",
-    "EDIT": "आवर्ती जमा खाता संपादित करें"
+    "EDIT": "आवर्ती जमा खाता संपादित करें",
+    "INHERIT_CALENDAR": "कैलेंडर इनहेरिट करें",
+    "RECURRING_FREQUENCY": "आवर्ती आवृत्ति",
+    "FREQUENCY_TYPE": "आवृत्ति प्रकार"
   },
   "FIXED_DEPOSITS": {
     "CREATE": "सावधि जमा खाता बनाएं",

@@ -365,6 +365,9 @@
     "RECURRING_DEPOSITS_DESC": "Manage customer recurring deposit and long-term savings plans.",
     "RECURRING_DEPOSIT_PRODUCT_DESC": "The recurring deposit product that defines interest and interval rules.",
     "RECURRING_DEPOSIT_AMOUNT_DESC": "The recommended amount to be deposited at each interval.",
+    "INHERIT_CALENDAR_DESC": "Inherit meeting calendar from group/center for deposit schedule.",
+    "RECURRING_FREQUENCY_DESC": "The interval frequency for making recurring deposits.",
+    "FREQUENCY_TYPE_DESC": "The time unit for recurring deposit frequency (e.g. Days, Weeks, Months, Years).",
     "SHARE_ACCOUNTS_DESC": "View and manage customer share capital and equity investment accounts.",
     "SHARE_PRODUCT_DESC": "The share product that defines unit price and lock-in period rules.",
     "REQUESTED_SHARES_DESC": "The number of shares the client is applying to purchase.",
@@ -463,7 +466,10 @@
   },
   "RECURRING_DEPOSITS": {
     "CREATE": "Create Recurring Deposit Account",
-    "EDIT": "Edit Recurring Deposit Account"
+    "EDIT": "Edit Recurring Deposit Account",
+    "INHERIT_CALENDAR": "Inherit Calendar",
+    "RECURRING_FREQUENCY": "Recurring Frequency",
+    "FREQUENCY_TYPE": "Frequency Type"
   },
   "FIXED_DEPOSITS": {
     "CREATE": "Create Fixed Deposit Account",

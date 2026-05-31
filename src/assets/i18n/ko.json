@@ -192,7 +192,10 @@
   },
   "RECURRING_DEPOSITS": {
     "CREATE": "적금 계좌 생성",
-    "EDIT": "적금 계좌 수정"
+    "EDIT": "적금 계좌 수정",
+    "INHERIT_CALENDAR": "일정 상속",
+    "RECURRING_FREQUENCY": "적립 주기",
+    "FREQUENCY_TYPE": "주기 유형"
   },
   "FIXED_DEPOSITS": {
     "CREATE": "정기 예금 계좌 생성",

@@ -33,6 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import {
   RecurringDepositAccountService,
@@ -67,6 +68,7 @@ const DEFAULT_LOCALE = 'en';
     MatIconModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MatCheckboxModule,
     ClientSearchComponent,
   ],
   template: `
@@ -181,6 +183,56 @@ const DEFAULT_LOCALE = 'en';
                   <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
                 </mat-select>
               </mat-form-field>
+
+              @if (!isEditMode) {
+                <!-- Is Calendar Inherited -->
+                <div class="checkbox-container">
+                  <mat-checkbox name="isCalendarInherited" [(ngModel)]="isCalendarInherited">
+                    {{ 'RECURRING_DEPOSITS.INHERIT_CALENDAR' | translate }}
+                  </mat-checkbox>
+                  <mat-icon
+                    [matTooltip]="'HELP.INHERIT_CALENDAR_DESC' | translate"
+                    class="help-icon"
+                    >help_outline</mat-icon
+                  >
+                </div>
+
+                <!-- Recurring Frequency (only if NOT inherited) -->
+                @if (!isCalendarInherited) {
+                  <mat-form-field
+                    appearance="outline"
+                    [matTooltip]="'HELP.RECURRING_FREQUENCY_DESC' | translate"
+                  >
+                    <mat-label>{{
+                      'RECURRING_DEPOSITS.RECURRING_FREQUENCY' | translate
+                    }}</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="recurringFrequency"
+                      [(ngModel)]="account['recurringFrequency']"
+                      [required]="!isCalendarInherited"
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field
+                    appearance="outline"
+                    [matTooltip]="'HELP.FREQUENCY_TYPE_DESC' | translate"
+                  >
+                    <mat-label>{{ 'RECURRING_DEPOSITS.FREQUENCY_TYPE' | translate }}</mat-label>
+                    <mat-select
+                      name="recurringFrequencyType"
+                      [(ngModel)]="account['recurringFrequencyType']"
+                      [required]="!isCalendarInherited"
+                    >
+                      <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
+                      <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
+                      <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
+                      <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                }
+              }
             </div>
 
             <div class="form-actions">
@@ -229,6 +281,19 @@ const DEFAULT_LOCALE = 'en';
       mat-form-field {
         width: 100%;
       }
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 60px;
+      }
+      .help-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #7f8c8d;
+        cursor: help;
+      }
       .form-actions {
         display: flex;
         justify-content: flex-end;
@@ -261,7 +326,10 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   /** Post request model */
   account: Record<string, unknown> = {
     depositPeriodFrequencyId: 2, // Default to Months
+    recurringFrequency: 1, // Default to 1
+    recurringFrequencyType: 2, // Default to Months
   };
+  isCalendarInherited = false;
   /** Submitted date for template binding */
   submittedOnDate: Date = new Date();
   /** Available products list */
@@ -375,12 +443,27 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         error: () => (this.isSaving = false),
       });
     } else {
-      this.rdService
-        .submitApplication1(this.account as PostRecurringDepositAccountsRequest)
-        .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
-        });
+      const payload: Record<string, unknown> = {
+        ...this.account,
+        isCalendarInherited: this.isCalendarInherited,
+      };
+
+      if (this.isCalendarInherited) {
+        delete payload['recurringFrequency'];
+        delete payload['recurringFrequencyType'];
+      } else {
+        if (payload['recurringFrequency'] != null) {
+          payload['recurringFrequency'] = Number(payload['recurringFrequency']);
+        }
+        if (payload['recurringFrequencyType'] != null) {
+          payload['recurringFrequencyType'] = Number(payload['recurringFrequencyType']);
+        }
+      }
+
+      this.rdService.submitApplication1(payload as PostRecurringDepositAccountsRequest).subscribe({
+        next: () => this.router.navigate([this.LIST_PATH]),
+        error: () => (this.isSaving = false),
+      });
     }
   }
 

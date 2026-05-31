@@ -98,6 +98,15 @@ import { HelpIconComponent } from '../../shared';
 
           <div class="form-actions">
             <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="onDownloadCSV()"
+              [disabled]="isLoading"
+            >
+              <mat-icon>download</mat-icon>
+              {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
+            </button>
             <button mat-raised-button color="primary" (click)="onRun()" [disabled]="isLoading">
               {{ isLoading ? ('COMMON.LOADING' | translate) : ('REPORTS.RUN' | translate) }}
             </button>
@@ -113,7 +122,6 @@ import { HelpIconComponent } from '../../shared';
                   {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
                 </button>
               </div>
-
               <div class="table-container mat-elevation-z1">
                 <table mat-table [dataSource]="dataSource">
                   @for (col of displayedColumns; track col; let i = $index) {
@@ -215,6 +223,52 @@ export class RunReportComponent implements OnInit {
     this.officesService.retrieveOffices(true).subscribe((data) => {
       this.offices = data;
     });
+  }
+
+  onDownloadCSV(): void {
+    this.isLoading = true;
+    const formattedFrom = this.fromDate
+      ? `${this.fromDate.getFullYear()}-${String(this.fromDate.getMonth() + 1).padStart(2, '0')}-${String(this.fromDate.getDate()).padStart(2, '0')}`
+      : undefined;
+    const formattedTo = this.toDate
+      ? `${this.toDate.getFullYear()}-${String(this.toDate.getMonth() + 1).padStart(2, '0')}-${String(this.toDate.getDate()).padStart(2, '0')}`
+      : undefined;
+
+    this.runReportsService
+      .runReport(
+        this.reportName,
+        false, // isSelfServiceUserReport
+        true, // exportCSV
+        undefined, // parameterType
+        'CSV', // outputType
+        this.officeId?.toString(),
+        undefined, // rLoanOfficerId
+        formattedFrom,
+        formattedTo,
+        undefined,
+        undefined,
+        'body',
+        false,
+        { httpHeaderAccept: 'text/csv' },
+      )
+      .subscribe({
+        next: (data) => {
+          const blob = new Blob([data as unknown as string], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.setAttribute('href', url);
+          link.setAttribute('download', `${this.reportName.replace(/\s+/g, '_')}_Report.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Failed to download CSV', err);
+          this.isLoading = false;
+        },
+      });
   }
 
   onRun(): void {
