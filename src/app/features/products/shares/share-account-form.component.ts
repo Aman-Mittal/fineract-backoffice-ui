@@ -149,7 +149,14 @@ interface ShareAccountTemplateResponse {
                 [matTooltip]="'HELP.SAVINGS_ACCOUNT_ID_DESC' | translate"
               >
                 <mat-label>{{ 'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate }}</mat-label>
-                <mat-select name="savingsAccountId" [(ngModel)]="account.savingsAccountId">
+                <mat-select
+                  name="savingsAccountId"
+                  [(ngModel)]="account.savingsAccountId"
+                  [disabled]="!account.clientId"
+                >
+                  <mat-select-trigger>
+                    {{ getSelectedSavingsAccountLabel() }}
+                  </mat-select-trigger>
                   <div
                     class="select-search-container"
                     (click)="$event.stopPropagation()"
@@ -316,6 +323,16 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   /**
+   * Returns the display label for the selected savings account.
+   */
+  getSelectedSavingsAccountLabel(): string {
+    const selectedId = this.account.savingsAccountId;
+    if (!selectedId) return '';
+    const sa = this.savingsAccounts.find((a) => a.id === selectedId);
+    return sa ? `${sa.accountNo} - ${sa.savingsProductName}` : '';
+  }
+
+  /**
    * Fetches the list of share products.
    */
   private loadProducts(clientId?: number): void {
@@ -376,11 +393,12 @@ export class ShareAccountFormComponent implements OnInit {
     this.account.submittedDate = formattedDate; // Often required by Fineract
 
     if (this.isEditMode && this.accountId) {
-      const payload: PutAccountsTypeAccountIdRequest = {
+      const payload: PutAccountsTypeAccountIdRequest & { savingsAccountId?: number } = {
         applicationDate: formattedDate,
         requestedShares: this.account.requestedShares,
         dateFormat: this.DATE_FORMAT,
         locale: 'en',
+        savingsAccountId: this.account.savingsAccountId,
       };
 
       this.shareService.updateAccount('share', this.accountId, payload).subscribe({
