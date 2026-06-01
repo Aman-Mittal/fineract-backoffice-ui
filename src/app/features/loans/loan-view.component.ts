@@ -250,14 +250,14 @@ import {
                     <table mat-table [dataSource]="periods()" class="full-width-table">
                       <!-- Category Headers -->
                       <ng-container matColumnDef="empty-header">
-                        <th mat-header-cell *matHeaderCellDef [attr.colspan]="4"></th>
+                        <th mat-header-cell *matHeaderCellDef [attr.colspan]="5"></th>
                       </ng-container>
 
                       <ng-container matColumnDef="balance-header">
                         <th
                           mat-header-cell
                           *matHeaderCellDef
-                          [attr.colspan]="1"
+                          [attr.colspan]="2"
                           style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                         >
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE' | translate }}
@@ -268,7 +268,7 @@ import {
                         <th
                           mat-header-cell
                           *matHeaderCellDef
-                          [attr.colspan]="4"
+                          [attr.colspan]="3"
                           style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                         >
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.COST' | translate }}
@@ -317,6 +317,16 @@ import {
                         <td mat-footer-cell *matFooterCellDef></td>
                       </ng-container>
 
+                      <ng-container matColumnDef="check">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let p">
+                          @if (p.obligationsMetOnDate) {
+                            <mat-icon style="color: #2ecc71">check</mat-icon>
+                          }
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef></td>
+                      </ng-container>
+
                       <ng-container matColumnDef="balance">
                         <th mat-header-cell *matHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | translate }}
@@ -357,7 +367,7 @@ import {
                         </th>
                         <td mat-cell *matCellDef="let p">
                           {{
-                            p.interestDue !== undefined && p.interestDue !== null && p.period
+                            p.interestDue !== undefined && p.interestDue !== null
                               ? (p.interestDue | number: '1.2-2')
                               : ''
                           }}
@@ -435,9 +445,7 @@ import {
                         </th>
                         <td mat-cell *matCellDef="let p">
                           {{
-                            p.totalPaidForPeriod !== undefined &&
-                            p.totalPaidForPeriod !== null &&
-                            p.period
+                            p.totalPaidForPeriod !== undefined && p.totalPaidForPeriod !== null
                               ? (p.totalPaidForPeriod | number: '1.2-2')
                               : ''
                           }}
@@ -499,7 +507,8 @@ import {
                         <td mat-cell *matCellDef="let p">
                           {{
                             p.totalOutstandingForPeriod !== undefined &&
-                            p.totalOutstandingForPeriod !== null
+                            p.totalOutstandingForPeriod !== null &&
+                            p.period
                               ? (p.totalOutstandingForPeriod | number: '1.2-2')
                               : ''
                           }}
@@ -603,7 +612,7 @@ import {
 
                       <ng-container matColumnDef="due">
                         <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.PRINCIPAL' | translate }}
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
                         </th>
                         <td mat-cell *matCellDef="let c">
                           {{ loan()?.currency?.displaySymbol }} {{ c.amountDue | number: '1.2-2' }}
@@ -612,7 +621,7 @@ import {
 
                       <ng-container matColumnDef="outstanding">
                         <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.TOTAL_OUTSTANDING' | translate }}
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
                         </th>
                         <td mat-cell *matCellDef="let c">
                           {{ loan()?.currency?.displaySymbol }}
@@ -822,6 +831,7 @@ export class LoanViewComponent implements OnInit {
     'days',
     'dueDate',
     'paidDate',
+    'check',
     'balance',
     'principal',
     'interest',
@@ -884,7 +894,7 @@ export class LoanViewComponent implements OnInit {
     if (dates && Array.isArray(dates)) {
       return new Date(dates[0], dates[1] - 1, dates[2]).toLocaleDateString();
     }
-    return '-';
+    return '';
   }
 
   ngOnInit() {
