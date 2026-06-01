@@ -27,6 +27,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
+import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import {
   LoansService,
   GetLoansLoanIdResponse,
@@ -34,7 +37,6 @@ import {
   GetLoansLoanIdTransactions,
   GetLoansLoanIdLoanChargeData,
 } from '../../api';
-import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
 
 @Component({
   selector: 'app-loan-view',
@@ -49,6 +51,7 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
+    MatMenuModule,
     StatusBadgeComponent,
     HasPermissionDirective,
   ],
@@ -79,26 +82,81 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
               <button
                 mat-raised-button
                 color="primary"
-                *appHasPermission="'REPAYMENT_LOAN'"
                 (click)="onRepayment()"
                 [matTooltip]="'LOANS.REPAYMENT' | translate"
               >
                 <mat-icon>payment</mat-icon>
                 {{ 'LOANS.REPAYMENT' | translate }}
               </button>
-              <ng-container *appHasPermission="'DISBURSE_LOAN'">
-                @if (isLoanApproved) {
-                  <button
-                    mat-raised-button
-                    color="accent"
-                    (click)="onDisburse()"
-                    [matTooltip]="'LOANS.DISBURSE' | translate"
-                  >
-                    <mat-icon>launch</mat-icon>
-                    {{ 'LOANS.DISBURSE' | translate }}
+
+              @if (isLoanPendingApproval) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="onLoanAction('approve')"
+                  [matTooltip]="'LOANS.APPROVE' | translate"
+                >
+                  <mat-icon>check_circle</mat-icon>
+                  {{ 'LOANS.APPROVE' | translate }}
+                </button>
+              }
+
+              @if (isLoanApproved) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="onLoanAction('disburse')"
+                  [matTooltip]="'LOANS.DISBURSE' | translate"
+                >
+                  <mat-icon>launch</mat-icon>
+                  {{ 'LOANS.DISBURSE' | translate }}
+                </button>
+              }
+
+              <!-- Actions Dropdown Menu -->
+              <button mat-raised-button color="primary" [matMenuTriggerFor]="loanMenu">
+                <mat-icon>arrow_drop_down</mat-icon>
+                {{ 'COMMON.ACTIONS' | translate }}
+              </button>
+              <mat-menu #loanMenu="matMenu">
+                <button mat-menu-item (click)="onAddCharge()">
+                  <mat-icon>add</mat-icon>
+                  <span>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</span>
+                </button>
+
+                @if (isLoanPendingApproval) {
+                  <button mat-menu-item (click)="onModifyLoan()">
+                    <mat-icon>edit</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onLoanAction('reject')">
+                    <mat-icon>cancel</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.REJECT' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onLoanAction('withdrawnByClient')">
+                    <mat-icon>reply</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onDeleteLoan()">
+                    <mat-icon>delete</mat-icon>
+                    <span>{{ 'COMMON.DELETE' | translate }}</span>
                   </button>
                 }
-              </ng-container>
+
+                <button mat-menu-item (click)="onAddCollateral()">
+                  <mat-icon>security</mat-icon>
+                  <span>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</span>
+                </button>
+
+                <button mat-menu-item (click)="onAssignLoanOfficer()">
+                  <mat-icon>person_add</mat-icon>
+                  <span>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</span>
+                </button>
+              </mat-menu>
+
               <button mat-button (click)="onBack()">
                 <mat-icon>arrow_back</mat-icon>
                 {{ 'COMMON.BACK' | translate }}
@@ -135,7 +193,8 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
                     <div class="detail-item">
                       <span class="label">{{ 'LOANS.REPAYMENTS' | translate }}</span>
                       <span class="value">
-                        {{ loan()?.numberOfRepayments }} every {{ loan()?.repaymentEvery }}
+                        {{ loan()?.numberOfRepayments }} {{ 'COMMON.EVERY' | translate }}
+                        {{ loan()?.repaymentEvery }}
                         {{ repaymentFrequencyValue }}
                       </span>
                     </div>
@@ -185,70 +244,278 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
           <!-- Repayment Schedule -->
           <mat-tab [label]="'LOANS.REPAYMENT_SCHEDULE' | translate">
             <div class="tab-content">
-              <mat-card class="table-card">
+              <mat-card class="table-card" style="overflow-x: auto;">
                 <mat-card-content>
                   @if (periods().length > 0) {
                     <table mat-table [dataSource]="periods()" class="full-width-table">
+                      <!-- Category Headers -->
+                      <ng-container matColumnDef="empty-header">
+                        <th mat-header-cell *matHeaderCellDef [attr.colspan]="4"></th>
+                      </ng-container>
+
+                      <ng-container matColumnDef="balance-header">
+                        <th
+                          mat-header-cell
+                          *matHeaderCellDef
+                          [attr.colspan]="1"
+                          style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
+                        >
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE' | translate }}
+                        </th>
+                      </ng-container>
+
+                      <ng-container matColumnDef="cost-header">
+                        <th
+                          mat-header-cell
+                          *matHeaderCellDef
+                          [attr.colspan]="4"
+                          style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
+                        >
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.COST' | translate }}
+                        </th>
+                      </ng-container>
+
+                      <ng-container matColumnDef="totals-header">
+                        <th
+                          mat-header-cell
+                          *matHeaderCellDef
+                          [attr.colspan]="5"
+                          style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
+                        >
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.TOTALS' | translate }}
+                        </th>
+                      </ng-container>
+
+                      <!-- Column Containers -->
                       <ng-container matColumnDef="period">
-                        <th mat-header-cell *matHeaderCellDef>#</th>
-                        <td mat-cell *matCellDef="let p">{{ p.period }}</td>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.HASH' | translate }}</th>
+                        <td mat-cell *matCellDef="let p">{{ p.period || '' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong>{{ 'COMMON.TOTAL' | translate }}</strong>
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="days">
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DAYS' | translate }}</th>
+                        <td mat-cell *matCellDef="let p">{{ p.daysInPeriod || '' }}</td>
+                        <td mat-footer-cell *matFooterCellDef></td>
                       </ng-container>
 
                       <ng-container matColumnDef="dueDate">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.TRANSACTION_DATE' | translate }}
-                        </th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
                         <td mat-cell *matCellDef="let p">{{ formatPeriodDate(p.dueDate) }}</td>
+                        <td mat-footer-cell *matFooterCellDef></td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="paidDate">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID_DATE' | translate }}
+                        </th>
+                        <td mat-cell *matCellDef="let p">
+                          {{ formatPeriodDate(p.obligationsMetOnDate) }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef></td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="balance">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | translate }}
+                        </th>
+                        <td mat-cell *matCellDef="let p">
+                          {{
+                            p.principalLoanBalanceOutstanding !== undefined &&
+                            p.principalLoanBalanceOutstanding !== null
+                              ? (p.principalLoanBalanceOutstanding | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef></td>
                       </ng-container>
 
                       <ng-container matColumnDef="principal">
                         <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.PRINCIPAL' | translate }}
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
                         </th>
                         <td mat-cell *matCellDef="let p">
-                          {{ loan()?.currency?.displaySymbol }}
-                          {{ p.principalDue | number: '1.2-2' }}
+                          {{
+                            p.principalDue !== undefined && p.principalDue !== null && p.period
+                              ? (p.principalDue | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalPrincipalDue | number: '1.2-2' }}</strong
+                          >
                         </td>
                       </ng-container>
 
                       <ng-container matColumnDef="interest">
                         <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.INTEREST_RATE' | translate }}
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}
                         </th>
                         <td mat-cell *matCellDef="let p">
-                          {{ loan()?.currency?.displaySymbol }}
-                          {{ p.interestDue | number: '1.2-2' }}
+                          {{
+                            p.interestDue !== undefined && p.interestDue !== null && p.period
+                              ? (p.interestDue | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalInterestDue | number: '1.2-2' }}</strong
+                          >
                         </td>
                       </ng-container>
 
                       <ng-container matColumnDef="fees">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'LOANS.CHARGES' | translate }}</th>
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}
+                        </th>
                         <td mat-cell *matCellDef="let p">
-                          {{ loan()?.currency?.displaySymbol }}
-                          {{ p.feeChargesDue | number: '1.2-2' }}
+                          {{
+                            p.feeChargesDue !== undefined && p.feeChargesDue !== null
+                              ? (p.feeChargesDue | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalFeesDue | number: '1.2-2' }}</strong
+                          >
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="total">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <ng-container matColumnDef="penalties">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}
+                        </th>
                         <td mat-cell *matCellDef="let p">
-                          {{ loan()?.currency?.displaySymbol }}
-                          {{ p.totalDueForPeriod | number: '1.2-2' }}
+                          {{
+                            p.penaltyChargesDue !== undefined &&
+                            p.penaltyChargesDue !== null &&
+                            p.period
+                              ? (p.penaltyChargesDue | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalPenaltiesDue | number: '1.2-2' }}</strong
+                          >
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="due">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
+                        </th>
+                        <td mat-cell *matCellDef="let p">
+                          {{
+                            p.totalDueForPeriod !== undefined && p.totalDueForPeriod !== null
+                              ? (p.totalDueForPeriod | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalDue | number: '1.2-2' }}</strong
+                          >
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="paid">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID' | translate }}
+                        </th>
+                        <td mat-cell *matCellDef="let p">
+                          {{
+                            p.totalPaidForPeriod !== undefined &&
+                            p.totalPaidForPeriod !== null &&
+                            p.period
+                              ? (p.totalPaidForPeriod | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalPaid | number: '1.2-2' }}</strong
+                          >
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="inAdvance">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.IN_ADVANCE' | translate }}
+                        </th>
+                        <td mat-cell *matCellDef="let p">
+                          {{
+                            p.totalPaidInAdvanceForPeriod !== undefined &&
+                            p.totalPaidInAdvanceForPeriod !== null &&
+                            p.period
+                              ? (p.totalPaidInAdvanceForPeriod | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalPaidInAdvance | number: '1.2-2' }}</strong
+                          >
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="late">
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.LATE' | translate }}
+                        </th>
+                        <td mat-cell *matCellDef="let p">
+                          {{
+                            p.totalPaidLateForPeriod !== undefined &&
+                            p.totalPaidLateForPeriod !== null &&
+                            p.period
+                              ? (p.totalPaidLateForPeriod | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalPaidLate | number: '1.2-2' }}</strong
+                          >
                         </td>
                       </ng-container>
 
                       <ng-container matColumnDef="outstanding">
                         <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.TOTAL_OUTSTANDING' | translate }}
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
                         </th>
                         <td mat-cell *matCellDef="let p">
-                          {{ loan()?.currency?.displaySymbol }}
-                          {{ p.totalOutstandingForPeriod | number: '1.2-2' }}
+                          {{
+                            p.totalOutstandingForPeriod !== undefined &&
+                            p.totalOutstandingForPeriod !== null
+                              ? (p.totalOutstandingForPeriod | number: '1.2-2')
+                              : ''
+                          }}
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef>
+                          <strong
+                            >{{ loan()?.currency?.displaySymbol
+                            }}{{ totalOutstanding | number: '1.2-2' }}</strong
+                          >
                         </td>
                       </ng-container>
 
+                      <tr mat-header-row *matHeaderRowDef="categoryHeaderColumns"></tr>
                       <tr mat-header-row *matHeaderRowDef="scheduleColumns"></tr>
                       <tr mat-row *matRowDef="let row; columns: scheduleColumns"></tr>
+                      <tr mat-footer-row *matFooterRowDef="scheduleColumns"></tr>
                     </table>
                   } @else {
                     <div class="empty-state">
@@ -269,7 +536,7 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
                   @if (transactions().length > 0) {
                     <table mat-table [dataSource]="transactions()" class="full-width-table">
                       <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>ID</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
                         <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
                       </ng-container>
 
@@ -288,7 +555,16 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
                       <ng-container matColumnDef="amount">
                         <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
                         <td mat-cell *matCellDef="let tx">
-                          {{ loan()?.currency?.displaySymbol }} {{ tx.amount | number: '1.2-2' }}
+                          <span
+                            [ngClass]="{
+                              'debit-amount': isDebitTransaction(tx) && !tx.manuallyReversed,
+                              'credit-amount': isCreditTransaction(tx) && !tx.manuallyReversed,
+                              'reversed-amount': tx.manuallyReversed,
+                            }"
+                          >
+                            {{ isDebitTransaction(tx) ? '-' : isCreditTransaction(tx) ? '+' : '' }}
+                            {{ loan()?.currency?.displaySymbol }}{{ tx.amount | number: '1.2-2' }}
+                          </span>
                         </td>
                       </ng-container>
 
@@ -496,6 +772,19 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
         margin: 0;
         font-size: 16px;
       }
+      .debit-amount {
+        color: #e74c3c;
+        font-weight: 600;
+      }
+      .credit-amount {
+        color: #2ecc71;
+        font-weight: 600;
+      }
+      .reversed-amount {
+        text-decoration: line-through;
+        opacity: 0.6;
+        color: #7f8c8d;
+      }
     `,
   ],
 })
@@ -515,14 +804,65 @@ export class LoanViewComponent implements OnInit {
     return (status as unknown as Record<string, unknown>)?.['value'] === 'Approved';
   }
 
+  get isLoanPendingApproval(): boolean {
+    const status = this.loan()?.status;
+    return (
+      (status as unknown as Record<string, unknown>)?.['value'] === 'Submitted and pending approval'
+    );
+  }
+
   get repaymentFrequencyValue(): string {
     const freq = this.loan()?.repaymentFrequencyType;
     return ((freq as unknown as Record<string, unknown>)?.['value'] as string) || '';
   }
 
-  scheduleColumns = ['period', 'dueDate', 'principal', 'interest', 'fees', 'total', 'outstanding'];
+  categoryHeaderColumns = ['empty-header', 'balance-header', 'cost-header', 'totals-header'];
+  scheduleColumns = [
+    'period',
+    'days',
+    'dueDate',
+    'paidDate',
+    'balance',
+    'principal',
+    'interest',
+    'fees',
+    'penalties',
+    'due',
+    'paid',
+    'inAdvance',
+    'late',
+    'outstanding',
+  ];
   transactionColumns = ['id', 'date', 'type', 'amount'];
   chargeColumns = ['name', 'amount', 'due', 'outstanding'];
+
+  get totalPrincipalDue(): number {
+    return this.periods().reduce((acc, p) => acc + (p.principalDue || 0), 0);
+  }
+  get totalInterestDue(): number {
+    return this.periods().reduce((acc, p) => acc + (p.interestDue || 0), 0);
+  }
+  get totalFeesDue(): number {
+    return this.periods().reduce((acc, p) => acc + (p.feeChargesDue || 0), 0);
+  }
+  get totalPenaltiesDue(): number {
+    return this.periods().reduce((acc, p) => acc + (p.penaltyChargesDue || 0), 0);
+  }
+  get totalDue(): number {
+    return this.periods().reduce((acc, p) => acc + (p.totalDueForPeriod || 0), 0);
+  }
+  get totalPaid(): number {
+    return this.periods().reduce((acc, p) => acc + (p.totalPaidForPeriod || 0), 0);
+  }
+  get totalPaidInAdvance(): number {
+    return this.periods().reduce((acc, p) => acc + (p.totalPaidInAdvanceForPeriod || 0), 0);
+  }
+  get totalPaidLate(): number {
+    return this.periods().reduce((acc, p) => acc + (p.totalPaidLateForPeriod || 0), 0);
+  }
+  get totalOutstanding(): number {
+    return this.periods().reduce((acc, p) => acc + (p.totalOutstandingForPeriod || 0), 0);
+  }
 
   get formattedSubmittedDate(): string {
     const dates = this.loan()?.timeline?.submittedOnDate as unknown as number[];
@@ -576,6 +916,55 @@ export class LoanViewComponent implements OnInit {
 
   onDisburse() {
     this.router.navigate([`/loans/${this.loanId}/transactions/disburse`]);
+  }
+
+  onLoanAction(command: string) {
+    this.router.navigate([`/products/loan/${this.loanId}/action/${command}`]);
+  }
+
+  onAddCharge() {
+    this.router.navigate([`/products/loan/${this.loanId}/action/applycharges`]);
+  }
+
+  onAddCollateral() {
+    this.router.navigate([`/loans/${this.loanId}/collateral/create`]);
+  }
+
+  onAssignLoanOfficer() {
+    this.router.navigate([`/products/loan/${this.loanId}/action/assignloanofficer`]);
+  }
+
+  onModifyLoan() {
+    this.router.navigate([`/loans/edit/${this.loanId}`]);
+  }
+
+  onDeleteLoan() {
+    if (confirm('Are you sure you want to delete this loan application?')) {
+      this.loansService.deleteLoanApplication(this.loanId).subscribe({
+        next: () => this.router.navigate(['/loans']),
+        error: (err) => console.error('Failed to delete loan', err),
+      });
+    }
+  }
+
+  isDebitTransaction(tx: GetLoansLoanIdTransactions): boolean {
+    return !!tx.type?.disbursement;
+  }
+
+  isCreditTransaction(tx: GetLoansLoanIdTransactions): boolean {
+    return !!(
+      tx.type?.repayment ||
+      tx.type?.recoveryRepayment ||
+      tx.type?.waiveInterest ||
+      tx.type?.waiveCharges ||
+      tx.type?.writeOff ||
+      tx.type?.chargePayment ||
+      tx.type?.refund ||
+      tx.type?.creditBalanceRefund ||
+      tx.type?.goodwillCredit ||
+      tx.type?.merchantIssuedRefund ||
+      tx.type?.payoutRefund
+    );
   }
 
   onBack() {

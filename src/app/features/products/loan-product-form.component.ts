@@ -176,6 +176,94 @@ import {
                   required
                 />
               </mat-form-field>
+
+              <!-- Repayment Frequency Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
+                <mat-select
+                  name="repaymentFrequencyType"
+                  [(ngModel)]="product.repaymentFrequencyType"
+                  required
+                >
+                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
+                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
+                  <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Interest Rate Frequency Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate }}</mat-label>
+                <mat-select
+                  name="interestRateFrequencyType"
+                  [(ngModel)]="product.interestRateFrequencyType"
+                  required
+                >
+                  <mat-option [value]="2">{{ 'COMMON.PER_MONTH' | translate }}</mat-option>
+                  <mat-option [value]="3">{{ 'COMMON.PER_YEAR' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Amortization Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</mat-label>
+                <mat-select name="amortizationType" [(ngModel)]="product.amortizationType" required>
+                  <mat-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</mat-option>
+                  <mat-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Interest Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</mat-label>
+                <mat-select name="interestType" [(ngModel)]="product.interestType" required>
+                  <mat-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'LOANS.FLAT' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Interest Calculation Period Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</mat-label>
+                <mat-select
+                  name="interestCalculationPeriodType"
+                  [(ngModel)]="product.interestCalculationPeriodType"
+                  required
+                >
+                  <mat-option [value]="0">{{ 'LOANS.DAILY' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Transaction Processing Strategy Code -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate }}</mat-label>
+                <mat-select
+                  name="transactionProcessingStrategyCode"
+                  [(ngModel)]="product.transactionProcessingStrategyCode"
+                  required
+                >
+                  <mat-option value="mifos-standard-strategy">{{
+                    'PRODUCTS.STRATEGIES.MIFOS_STYLE' | translate
+                  }}</mat-option>
+                  <mat-option value="heavensfamily-strategy">{{
+                    'PRODUCTS.STRATEGIES.HEAVENSFAMILY' | translate
+                  }}</mat-option>
+                  <mat-option value="creocore-strategy">{{
+                    'PRODUCTS.STRATEGIES.CREOCORE' | translate
+                  }}</mat-option>
+                  <mat-option value="interest-principal-grace-strategy">{{
+                    'PRODUCTS.STRATEGIES.GRACE_ON_INTEREST_AND_PRINCIPAL' | translate
+                  }}</mat-option>
+                  <mat-option value="principal-interest-grace-strategy">{{
+                    'PRODUCTS.STRATEGIES.PRINCIPAL_INTEREST_GRACE' | translate
+                  }}</mat-option>
+                  <mat-option value="penalty-fee-interest-principal-strategy">{{
+                    'PRODUCTS.STRATEGIES.PENALTIES_FEES_INTEREST_PRINCIPAL' | translate
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
 
             <div class="form-actions">
@@ -288,16 +376,17 @@ export class LoanProductFormComponent implements OnInit {
         numberOfRepayments: data.numberOfRepayments,
         repaymentEvery: data.repaymentEvery,
         inMultiplesOf: 0,
-        repaymentFrequencyType: 2,
-        interestRateFrequencyType: 3,
-        amortizationType: 1,
-        interestType: 0,
-        interestCalculationPeriodType: 1,
-        transactionProcessingStrategyCode: 'mifos-standard-strategy',
-        accountingRule: 1,
-        daysInYearType: 1,
-        daysInMonthType: 1,
-        isInterestRecalculationEnabled: false,
+        repaymentFrequencyType: data.repaymentFrequencyType?.id ?? 2,
+        interestRateFrequencyType: data.interestRateFrequencyType?.id ?? 3,
+        amortizationType: data.amortizationType?.id ?? 1,
+        interestType: data.interestType?.id ?? 0,
+        interestCalculationPeriodType: data.interestCalculationPeriodType?.id ?? 1,
+        transactionProcessingStrategyCode:
+          data.transactionProcessingStrategyCode ?? 'mifos-standard-strategy',
+        accountingRule: data.accountingRule?.id ?? 1,
+        daysInYearType: data.daysInYearType?.id ?? 1,
+        daysInMonthType: data.daysInMonthType?.id ?? 1,
+        isInterestRecalculationEnabled: data.isInterestRecalculationEnabled ?? false,
       };
     });
   }

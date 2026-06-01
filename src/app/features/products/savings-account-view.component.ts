@@ -174,36 +174,48 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
           </mat-tab>
 
           <!-- Transactions -->
-          <mat-tab label="Transactions">
+          <mat-tab [label]="'COMMON.TRANSACTIONS' | translate">
             <div class="tab-content">
               <mat-card class="table-card">
                 <mat-card-content>
                   @if (transactions().length > 0) {
                     <table mat-table [dataSource]="transactions()" class="full-width-table">
                       <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>ID</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
                         <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef>Date</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
                         <td mat-cell *matCellDef="let tx">{{ formatDate(tx.date) }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef>Type</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
                         <td mat-cell *matCellDef="let tx">{{ tx.transactionType?.value }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>Amount</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
                         <td mat-cell *matCellDef="let tx">
-                          {{ account()?.currency?.displaySymbol }} {{ tx.amount | number: '1.2-2' }}
+                          <span
+                            [ngClass]="{
+                              'debit-amount': tx.debit && !tx.reversed,
+                              'credit-amount': tx.credit && !tx.reversed,
+                              'reversed-amount': tx.reversed,
+                            }"
+                          >
+                            {{ tx.debit ? '-' : tx.credit ? '+' : '' }}
+                            {{ account()?.currency?.displaySymbol
+                            }}{{ tx.amount | number: '1.2-2' }}
+                          </span>
                         </td>
                       </ng-container>
 
                       <ng-container matColumnDef="runningBalance">
-                        <th mat-header-cell *matHeaderCellDef>Running Balance</th>
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'COMMON.RUNNING_BALANCE' | translate }}
+                        </th>
                         <td mat-cell *matCellDef="let tx">
                           {{ account()?.currency?.displaySymbol }}
                           {{ tx.runningBalance || 0 | number: '1.2-2' }}
@@ -216,7 +228,7 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
                   } @else {
                     <div class="empty-state">
                       <mat-icon>receipt</mat-icon>
-                      <p>No transactions found.</p>
+                      <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
                     </div>
                   }
                 </mat-card-content>
@@ -225,26 +237,28 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
           </mat-tab>
 
           <!-- Charges -->
-          <mat-tab label="Charges">
+          <mat-tab [label]="'LOANS.CHARGES' | translate">
             <div class="tab-content">
               <mat-card class="table-card">
                 <mat-card-content>
                   @if (charges().length > 0) {
                     <table mat-table [dataSource]="charges()" class="full-width-table">
                       <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>Name</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
                         <td mat-cell *matCellDef="let c">{{ c.name }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>Amount</th>
+                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
                         <td mat-cell *matCellDef="let c">
                           {{ account()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
                       <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>Outstanding</th>
+                        <th mat-header-cell *matHeaderCellDef>
+                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                        </th>
                         <td mat-cell *matCellDef="let c">
                           {{ account()?.currency?.displaySymbol }}
                           {{ c.amountOutstanding | number: '1.2-2' }}
@@ -257,7 +271,7 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
                   } @else {
                     <div class="empty-state">
                       <mat-icon>monetization_on</mat-icon>
-                      <p>No charges found.</p>
+                      <p>{{ 'SAVINGS.NO_CHARGES' | translate }}</p>
                     </div>
                   }
                 </mat-card-content>
@@ -402,6 +416,19 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
       .empty-state p {
         margin: 0;
         font-size: 16px;
+      }
+      .debit-amount {
+        color: #e74c3c;
+        font-weight: 600;
+      }
+      .credit-amount {
+        color: #2ecc71;
+        font-weight: 600;
+      }
+      .reversed-amount {
+        text-decoration: line-through;
+        opacity: 0.6;
+        color: #7f8c8d;
       }
     `,
   ],

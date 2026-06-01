@@ -129,7 +129,14 @@
     "MAKER": "Maker",
     "ACTION": "Action",
     "ENTITY": "Entity",
-    "DATE": "Date"
+    "DATE": "Date",
+    "TOTAL": "Total",
+    "EVERY": "every",
+    "PER_MONTH": "Per Month",
+    "PER_YEAR": "Per Year",
+    "RUNNING_BALANCE": "Running Balance",
+    "TRANSACTIONS": "Transactions",
+    "HASH": "#"
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "New Account",
@@ -176,7 +183,20 @@
     "TOTAL_SHARES": "Total Shares",
     "UNIT_PRICE": "Unit Price",
     "NOMINAL_SHARES": "Nominal Shares",
-    "CREATE_NEW_PRODUCT": "Create New Product"
+    "CREATE_NEW_PRODUCT": "Create New Product",
+    "INTEREST_RATE_FREQUENCY_TYPE": "Interest Rate Frequency Type",
+    "AMORTIZATION_TYPE": "Amortization Type",
+    "INTEREST_TYPE": "Interest Type",
+    "INTEREST_CALCULATION_PERIOD_TYPE": "Interest Calculation Period Type",
+    "TRANSACTION_PROCESSING_STRATEGY": "Transaction Processing Strategy",
+    "STRATEGIES": {
+      "MIFOS_STYLE": "Mifos style",
+      "HEAVENSFAMILY": "HeavensFamily",
+      "CREOCORE": "Creocore",
+      "GRACE_ON_INTEREST_AND_PRINCIPAL": "Grace on interest & principal",
+      "PRINCIPAL_INTEREST_GRACE": "Principal interest grace",
+      "PENALTIES_FEES_INTEREST_PRINCIPAL": "Penalties, Fees, Interest, Principal"
+    }
   },
   "CHARGES": {
     "CREATE": "Create Charge",
@@ -231,7 +251,37 @@
     "EQUAL_INSTALLMENTS": "Equal Installments",
     "EQUAL_PRINCIPAL": "Equal Principal Payments",
     "DAILY": "Daily",
-    "SAME_AS_REPAYMENT": "Same as repayment period"
+    "SAME_AS_REPAYMENT": "Same as repayment period",
+    "REPAYMENT_SCHEDULE_HEADERS": {
+      "BALANCE": "Loan Amount and Balance",
+      "COST": "Total Cost of Loan",
+      "TOTALS": "Installment Totals",
+      "PAID_DATE": "Paid Date",
+      "BALANCE_OF_LOAN": "Balance Of Loan",
+      "PRINCIPAL_DUE": "Principal Due",
+      "INTEREST": "Interest",
+      "FEES": "Fees",
+      "PENALTIES": "Penalties",
+      "DUE": "Due",
+      "PAID": "Paid",
+      "IN_ADVANCE": "In Advance",
+      "LATE": "Late",
+      "OUTSTANDING": "Outstanding"
+    },
+    "ACTIONS": {
+      "ADD_CHARGE": "Add Loan Charge",
+      "MODIFY_APPLICATION": "Modify Application",
+      "REJECT": "Reject",
+      "WITHDRAWN_BY_CLIENT": "Withdrawn by Client",
+      "ADD_COLLATERAL": "Add Collateral",
+      "ASSIGN_LOAN_OFFICER": "Assign Loan Officer"
+    },
+    "CREATE_LOAN_ACCOUNT": "Create Loan Account",
+    "EDIT_LOAN_APPLICATION": "Edit Loan Application",
+    "MANAGE_COLLATERAL": "Manage Collateral",
+    "MANAGE_RESCHEDULING": "Manage Rescheduling",
+    "APPROVE_LOAN_APPLICATION": "Approve Loan Application",
+    "DISBURSE_LOAN": "Disburse Loan"
   },
   "TELLERS": {
     "CREATE_TELLER": "Create Teller",
@@ -266,7 +316,12 @@
     "NO_SAVINGS_ACCOUNTS": "No savings accounts found",
     "GENERAL_PROFILE": "General Profile",
     "CONTACT_STATUS": "Contact & Status",
-    "TIMELINE_SUBMITTED": "Timeline (Submitted)"
+    "TIMELINE_SUBMITTED": "Timeline (Submitted)",
+    "ADD_NEW_OFFICE": "Add New Office",
+    "COMPANY_NAME": "Company/Entity Name",
+    "MIDDLE_NAME": "Middle Name",
+    "DATE_OF_BIRTH": "Date of Birth",
+    "ACTIVATE_CLIENT": "Activate Client"
   },
   "SAVINGS": {
     "CREATE_ACCOUNT": "Create Savings Account",
@@ -276,7 +331,8 @@
     "ACCOUNT_NO": "Account No",
     "NAME": "Client Name",
     "PRODUCT": "Savings Product",
-    "BALANCE": "Account Balance"
+    "BALANCE": "Account Balance",
+    "NO_CHARGES": "No charges found."
   },
   "USERS": {
     "CREATE": "Create User",

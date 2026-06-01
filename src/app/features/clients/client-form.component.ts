@@ -98,42 +98,6 @@ import {
                 </mat-select>
               </mat-form-field>
 
-              <!-- First Name -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.FIRST_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
-                <input matInput name="firstname" [(ngModel)]="client.firstname" required />
-              </mat-form-field>
-
-              <!-- Last Name -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.LAST_NAME_DESC' | translate">
-                <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
-                <input matInput name="lastname" [(ngModel)]="client.lastname" required />
-              </mat-form-field>
-
-              <!-- External ID -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="client.externalId" />
-              </mat-form-field>
-
-              <!-- Mobile No -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.MOBILE_NO_DESC' | translate">
-                <mat-label>{{ 'COMMON.MOBILE_NO' | translate }}</mat-label>
-                <input matInput name="mobileNo" [(ngModel)]="client.mobileNo" />
-              </mat-form-field>
-
-              <!-- Email -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EMAIL_DESC' | translate">
-                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
-                <input matInput name="emailAddress" [(ngModel)]="client.emailAddress" />
-              </mat-form-field>
-
               <!-- Office -->
               <div class="office-field-container">
                 <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
@@ -154,13 +118,31 @@ import {
                     mat-icon-button
                     type="button"
                     color="primary"
-                    matTooltip="Add New Office"
+                    [matTooltip]="'CLIENTS.ADD_NEW_OFFICE' | translate"
                     (click)="addOffice()"
                   >
                     <mat-icon>add_circle</mat-icon>
                   </button>
                 }
               </div>
+
+              <!-- Submitted On Date -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+              >
+                <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="subPicker"
+                  name="submittedOnDate"
+                  [(ngModel)]="submittedOnDate"
+                  required
+                  [disabled]="isEditMode"
+                />
+                <mat-datepicker-toggle matSuffix [for]="subPicker"></mat-datepicker-toggle>
+                <mat-datepicker #subPicker></mat-datepicker>
+              </mat-form-field>
 
               <!-- Activation Date -->
               <mat-form-field
@@ -189,6 +171,79 @@ import {
                   >help_outline</mat-icon
                 >
               </div>
+
+              <!-- Entity fields -->
+              @if (client.legalFormId === 2) {
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.FULL_NAME_DESC' | translate"
+                  class="full-width"
+                >
+                  <mat-label>{{ 'CLIENTS.COMPANY_NAME' | translate }}</mat-label>
+                  <input matInput name="fullname" [(ngModel)]="client.fullname" required />
+                </mat-form-field>
+              }
+
+              <!-- Person fields -->
+              @if (client.legalFormId === 1) {
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.FIRST_NAME_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
+                  <input matInput name="firstname" [(ngModel)]="client.firstname" required />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.MIDDLE_NAME_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.MIDDLE_NAME' | translate }}</mat-label>
+                  <input matInput name="middlename" [(ngModel)]="client.middlename" />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.LAST_NAME_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
+                  <input matInput name="lastname" [(ngModel)]="client.lastname" required />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.DATE_OF_BIRTH_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.DATE_OF_BIRTH' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [matDatepicker]="dobPicker"
+                    name="dateOfBirth"
+                    [(ngModel)]="dateOfBirth"
+                  />
+                  <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #dobPicker></mat-datepicker>
+                </mat-form-field>
+              }
+
+              <!-- Common fields -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
+              >
+                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
+                <input matInput name="externalId" [(ngModel)]="client.externalId" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.MOBILE_NO_DESC' | translate">
+                <mat-label>{{ 'COMMON.MOBILE_NO' | translate }}</mat-label>
+                <input matInput name="mobileNo" [(ngModel)]="client.mobileNo" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.EMAIL_DESC' | translate">
+                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
+                <input matInput name="emailAddress" [(ngModel)]="client.emailAddress" />
+              </mat-form-field>
             </div>
 
             <div class="form-actions">
@@ -210,7 +265,7 @@ import {
                     ></mat-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
-                    Activate Client
+                    {{ 'CLIENTS.ACTIVATE_CLIENT' | translate }}
                   }
                 </button>
               }
@@ -258,6 +313,9 @@ import {
         align-items: center;
         gap: 4px;
       }
+      .full-width {
+        grid-column: span 2;
+      }
       mat-form-field {
         width: 100%;
       }
@@ -303,7 +361,9 @@ export class ClientFormComponent implements OnInit {
     active: true,
   };
 
+  submittedOnDate: Date = new Date();
   activationDate: Date = new Date();
+  dateOfBirth: Date | null = null;
   offices: GetOfficesResponse[] = [];
 
   ngOnInit() {
@@ -342,23 +402,41 @@ export class ClientFormComponent implements OnInit {
 
   loadClientData() {
     if (!this.clientId) return;
-    this.clientService.retrieveOne11(this.clientId).subscribe((clientData) => {
+    this.clientService.retrieveOne11(this.clientId).subscribe((data) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const clientData = data as any;
       const actDateArray = clientData.activationDate as unknown as number[];
       if (actDateArray) {
         this.activationDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
       }
 
+      const subDateArray = clientData.submittedOnDate as unknown as number[];
+      if (subDateArray) {
+        this.submittedOnDate = new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]);
+      } else if (actDateArray) {
+        this.submittedOnDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
+      }
+
+      const dobArray = clientData.dateOfBirth as unknown as number[];
+      if (dobArray) {
+        this.dateOfBirth = new Date(dobArray[0], dobArray[1] - 1, dobArray[2]);
+      }
+
       this.originalActive = !!clientData.active;
+
+      const legalFormId = clientData.legalForm?.id || 1;
 
       this.client = {
         firstname: clientData.firstname,
         lastname: clientData.lastname,
+        middlename: clientData.middlename,
+        fullname: clientData.fullname,
         externalId: clientData.externalId,
-        mobileNo: (clientData as Record<string, unknown>)['mobileNo'] as string,
+        mobileNo: clientData.mobileNo,
         emailAddress: clientData.emailAddress,
         officeId: clientData.officeId,
         active: clientData.active,
-        legalFormId: 1, // Default to person
+        legalFormId: legalFormId,
       };
     });
   }
@@ -389,9 +467,13 @@ export class ClientFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formattedDate = `${this.activationDate.getFullYear()}-${String(
-      this.activationDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+    const formatDate = (date: Date) =>
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+        date.getDate(),
+      ).padStart(2, '0')}`;
+
+    const formattedActivationDate = formatDate(this.activationDate);
+    const formattedSubmittedDate = formatDate(this.submittedOnDate);
 
     if (this.isEditMode && this.clientId) {
       // Use PutClientsClientIdRequest strictly
@@ -405,9 +487,26 @@ export class ClientFormComponent implements OnInit {
       });
     } else {
       // Post mode
-      this.client.activationDate = formattedDate;
+      this.client.activationDate = formattedActivationDate;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.client as any).submittedOnDate = formattedSubmittedDate;
       this.client.dateFormat = 'yyyy-MM-dd';
       this.client.locale = 'en';
+
+      if (this.dateOfBirth) {
+        this.client.dateOfBirth = formatDate(this.dateOfBirth);
+      }
+
+      if (this.client.legalFormId === 2) {
+        // Entity: omit person name fields
+        delete this.client.firstname;
+        delete this.client.lastname;
+        delete this.client.middlename;
+        delete this.client.dateOfBirth;
+      } else {
+        // Person: omit entity name field
+        delete this.client.fullname;
+      }
 
       this.clientService.create6(this.client).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),

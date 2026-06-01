@@ -76,7 +76,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
         (click)="onCreateLoan()"
       >
         <mat-icon>add</mat-icon>
-        Create Loan Account
+        {{ 'LOANS.CREATE_LOAN_ACCOUNT' | translate }}
       </button>
 
       <div filters class="filter-row">
@@ -105,7 +105,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Loan Application"
+          [matTooltip]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
           (click)="onEditLoan(loan)"
           *appHasPermission="'UPDATE_LOAN'"
         >
@@ -115,7 +115,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           mat-icon-button
           color="accent"
           [attr.aria-label]="'LOANS.COLLATERAL' | translate"
-          matTooltip="Manage Collateral"
+          [matTooltip]="'LOANS.MANAGE_COLLATERAL' | translate"
           (click)="onViewCollateral(loan)"
           *appHasPermission="'READ_LOANCOLLATERAL'"
         >
@@ -125,11 +125,32 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'LOANS.RESCHEDULE' | translate"
-          matTooltip="Manage Rescheduling"
+          [matTooltip]="'LOANS.MANAGE_RESCHEDULING' | translate"
           (click)="onViewRescheduling(loan)"
         >
           <mat-icon>event_repeat</mat-icon>
         </button>
+
+        @if (loan.status?.value === 'Submitted and pending approval') {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
+            (click)="onLoanAction(loan, 'approve')"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+        }
+        @if (loan.status?.value === 'Approved') {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.DISBURSE_LOAN' | translate"
+            (click)="onLoanAction(loan, 'disburse')"
+          >
+            <mat-icon>launch</mat-icon>
+          </button>
+        }
       </ng-template>
     </app-data-table>
   `,
@@ -248,5 +269,9 @@ export class LoansListComponent {
 
   onViewRescheduling(loan: GetLoansLoanIdResponse) {
     this.router.navigate(['/loans', loan.id, 'rescheduling']);
+  }
+
+  onLoanAction(loan: GetLoansLoanIdResponse, command: string) {
+    this.router.navigate([`/products/loan/${loan.id}/action/${command}`]);
   }
 }

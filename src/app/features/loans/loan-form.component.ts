@@ -257,7 +257,7 @@ import { CommonModule } from '@angular/common';
 
               <!-- Interest Type -->
               <mat-form-field appearance="outline">
-                <mat-label>Interest Type</mat-label>
+                <mat-label>{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</mat-label>
                 <mat-select name="interestType" [(ngModel)]="loan.interestType" required>
                   <mat-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</mat-option>
                   <mat-option [value]="1">{{ 'LOANS.FLAT' | translate }}</mat-option>
@@ -266,7 +266,7 @@ import { CommonModule } from '@angular/common';
 
               <!-- Amortization Type -->
               <mat-form-field appearance="outline">
-                <mat-label>Amortization Type</mat-label>
+                <mat-label>{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</mat-label>
                 <mat-select name="amortizationType" [(ngModel)]="loan.amortizationType" required>
                   <mat-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</mat-option>
                   <mat-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</mat-option>
@@ -275,7 +275,7 @@ import { CommonModule } from '@angular/common';
 
               <!-- Interest Calculation Period Type -->
               <mat-form-field appearance="outline">
-                <mat-label>Interest Calculation Period Type</mat-label>
+                <mat-label>{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</mat-label>
                 <mat-select
                   name="interestCalculationPeriodType"
                   [(ngModel)]="loan.interestCalculationPeriodType"
@@ -427,6 +427,7 @@ export class LoanFormComponent implements OnInit {
           interestType: data.interestType?.id,
           amortizationType: data.amortizationType?.id,
           interestCalculationPeriodType: data.interestCalculationPeriodType?.id,
+          transactionProcessingStrategyCode: data.transactionProcessingStrategyCode,
         };
       },
       error: (err: unknown) => console.error('Failed to load loan details', err),
@@ -449,7 +450,13 @@ export class LoanFormComponent implements OnInit {
     this.loan.expectedDisbursementDate = formatDate(this.expectedDisbursementDate);
     this.loan.dateFormat = 'yyyy-MM-dd';
     this.loan.locale = 'en';
-    this.loan.transactionProcessingStrategyCode = 'mifos-standard-strategy';
+
+    const selectedProduct = this.products.find((p) => p.id === this.loan.productId);
+    if (selectedProduct && selectedProduct.transactionProcessingStrategy) {
+      this.loan.transactionProcessingStrategyCode = selectedProduct.transactionProcessingStrategy;
+    } else if (!this.loan.transactionProcessingStrategyCode) {
+      this.loan.transactionProcessingStrategyCode = 'mifos-standard-strategy';
+    }
 
     if (this.isEditMode && this.loanId) {
       this.loansService

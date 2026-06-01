@@ -372,24 +372,22 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
                                 mat-icon-button
                                 color="accent"
                                 (click)="onLoanAction(account.id, 'approve')"
-                                *appHasPermission="'APPROVE_LOAN'"
                                 [matTooltip]="'LOANS.APPROVE' | translate"
                               >
                                 <mat-icon>check_circle</mat-icon>
                               </button>
                             }
 
-                            <ng-container *appHasPermission="'DISBURSE_LOAN'">
-                              @if (account.status?.value === 'Approved') {
-                                <button
-                                  mat-icon-button
-                                  (click)="onLoanAction(account.id, 'disburse')"
-                                  [matTooltip]="'LOANS.DISBURSE' | translate"
-                                >
-                                  <mat-icon>launch</mat-icon>
-                                </button>
-                              }
-                            </ng-container>
+                            @if (account.status?.value === 'Approved') {
+                              <button
+                                mat-icon-button
+                                color="accent"
+                                (click)="onLoanAction(account.id, 'disburse')"
+                                [matTooltip]="'LOANS.DISBURSE' | translate"
+                              >
+                                <mat-icon>launch</mat-icon>
+                              </button>
+                            }
 
                             @if (account.status?.active) {
                               <button
