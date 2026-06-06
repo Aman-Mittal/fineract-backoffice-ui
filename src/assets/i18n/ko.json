@@ -21,6 +21,9 @@
     "products": "상품",
     "loanProducts": "대출 상품",
     "savingsProducts": "예금 상품",
+    "fixedDepositProducts": "정기 예금 상품",
+    "recurringDepositProducts": "적금 상품",
+    "shareProducts": "주식 상품",
     "savingsAccounts": "예금 계좌",
     "fixedDeposits": "정기 예금",
     "recurringDeposits": "적금",
@@ -46,7 +49,8 @@
     "holidays": "휴일",
     "workingDays": "영업일",
     "organization": "조직",
-    "tellers": "텔러"
+    "tellers": "텔러",
+    "tellerOperations": "텔러 운영"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "시스템 운영 상태",
@@ -93,6 +97,7 @@
     "TRANSACTION_DATE": "거래 일자",
     "TRANSACTION_AMOUNT": "거래 금액",
     "PAYMENT_TYPE": "결제 방식",
+    "CHARGE": "수수료",
     "NOTE": "비고",
     "EXTERNAL_ID": "외부 ID",
     "MOBILE_NO": "휴대폰 번호",
@@ -144,7 +149,13 @@
     "APPROVAL_DATE": "승인 일자",
     "ACTIVATION_DATE": "활성화 일자",
     "CLOSURE_DATE": "종료 일자",
-    "DISBURSEMENT_DATE": "집행 일자"
+    "DISBURSEMENT_DATE": "집행 일자",
+    "ASSIGN_LOAN_OFFICER": "대출 담당자 지정",
+    "UNASSIGN_LOAN_OFFICER": "대출 담당자 해임",
+    "APPLY_CHARGES": "수수료 적용",
+    "ASSIGNMENT_DATE": "지정 일자",
+    "UNASSIGNMENT_DATE": "해임 일자",
+    "DUE_DATE": "납기일"
   },
   "PRODUCTS": {
     "LOAN_PRODUCTS": "대출 상품",
@@ -200,6 +211,16 @@
   "FIXED_DEPOSITS": {
     "CREATE": "정기 예금 계좌 생성",
     "EDIT": "정기 예금 계좌 수정"
+  },
+  "ROLES": {
+    "CREATE": "역할 생성",
+    "CREATE_ROLE": "역할 생성",
+    "EDIT_ROLE": "역할 수정",
+    "PERMISSIONS": "상세 권한"
+  },
+  "HELP": {
+    "SEARCH_DESC": "테이블 레코드를 검색하거나 필터링하려면 이 필드를 사용하십시오.",
+    "ROLES_DESC": "기능적 역할을 정의하고 액세스 제어를 위해 세부 권한을 할당합니다."
   },
   "GUIDE": {
     "DASHBOARD_WELCOME_TITLE": "Fineract 백오피스에 오신 것을 환영합니다",

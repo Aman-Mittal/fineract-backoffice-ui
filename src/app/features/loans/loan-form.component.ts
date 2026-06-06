@@ -44,6 +44,11 @@ import {
   GetLoansLoanIdResponse,
 } from '../../api';
 import { CommonModule } from '@angular/common';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 
 /**
  * Component for creating and editing loan applications.
@@ -87,32 +92,57 @@ import { CommonModule } from '@angular/common';
         <mat-card-content>
           <form #loanForm="ngForm" (ngSubmit)="onSubmit()" class="loan-form">
             <div class="form-grid">
-              <!-- Client Search -->
-              <app-client-search
-                [label]="'COMMON.CLIENT_ID' | translate"
-                [required]="true"
-                [initialClientId]="loan.clientId || null"
-                (clientSelected)="loan.clientId = $event"
-              >
-              </app-client-search>
+              <!-- Client Search with Create Option -->
+              <div class="field-container-row">
+                <app-client-search
+                  [label]="'COMMON.CLIENT_ID' | translate"
+                  [required]="true"
+                  [initialClientId]="loan.clientId || null"
+                  (clientSelected)="loan.clientId = $event"
+                  class="flex-grow"
+                >
+                </app-client-search>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  (click)="onCreateClient()"
+                  style="margin-top: 4px;"
+                >
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
-              <!-- Product Selection -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.PRODUCT' | translate }}</mat-label>
-                <mat-select
-                  name="productId"
-                  [(ngModel)]="loan.productId"
-                  required
+              <!-- Product Selection with Create Option -->
+              <div class="field-container-row">
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate"
+                  class="flex-grow"
+                >
+                  <mat-label>{{ 'LOANS.PRODUCT' | translate }}</mat-label>
+                  <mat-select
+                    name="productId"
+                    [(ngModel)]="loan.productId"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (product of products; track product.id) {
+                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
+                  (click)="onCreateProduct()"
+                  style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product.id) {
-                    <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
               <!-- Principal -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.PRINCIPAL_DESC' | translate">
@@ -339,6 +369,14 @@ import { CommonModule } from '@angular/common';
         gap: 12px;
         margin-top: 16px;
       }
+      .field-container-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .flex-grow {
+        flex-grow: 1;
+      }
     `,
   ],
 })
@@ -397,6 +435,20 @@ export class LoanFormComponent implements OnInit {
   }
 
   /**
+   * Navigates to the client registration page.
+   */
+  onCreateClient() {
+    this.router.navigate(['/clients/create']);
+  }
+
+  /**
+   * Navigates to the loan product creation page.
+   */
+  onCreateProduct() {
+    this.router.navigate(['/products/loan/create']);
+  }
+
+  /**
    * Fetches loan products from the API.
    */
   private loadProducts() {
@@ -413,6 +465,19 @@ export class LoanFormComponent implements OnInit {
     if (!this.loanId) return;
     this.loansService.retrieveLoan(this.loanId).subscribe({
       next: (data: GetLoansLoanIdResponse) => {
+        const subDateArray = data.timeline?.submittedOnDate as unknown as number[];
+        if (subDateArray) {
+          this.submittedOnDate = new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]);
+        }
+        const expDisbDateArray = data.timeline?.expectedDisbursementDate as unknown as number[];
+        if (expDisbDateArray) {
+          this.expectedDisbursementDate = new Date(
+            expDisbDateArray[0],
+            expDisbDateArray[1] - 1,
+            expDisbDateArray[2],
+          );
+        }
+
         this.loan = {
           clientId: data.clientId,
           productId: data.loanProductId,
@@ -440,16 +505,10 @@ export class LoanFormComponent implements OnInit {
   onSubmit() {
     this.isSaving = true;
 
-    // Format dates for Fineract API
-    const formatDate = (date: Date) =>
-      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
-        date.getDate(),
-      ).padStart(2, '0')}`;
-
-    this.loan.submittedOnDate = formatDate(this.submittedOnDate);
-    this.loan.expectedDisbursementDate = formatDate(this.expectedDisbursementDate);
-    this.loan.dateFormat = 'yyyy-MM-dd';
-    this.loan.locale = 'en';
+    this.loan.submittedOnDate = formatDateToFineract(this.submittedOnDate);
+    this.loan.expectedDisbursementDate = formatDateToFineract(this.expectedDisbursementDate);
+    this.loan.dateFormat = FINERACT_DATE_FORMAT;
+    this.loan.locale = FINERACT_LOCALE;
 
     const selectedProduct = this.products.find((p) => p.id === this.loan.productId);
     if (selectedProduct && selectedProduct.transactionProcessingStrategy) {

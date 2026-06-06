@@ -36,7 +36,20 @@ import {
   FixedDepositAccountService,
   RecurringDepositAccountService,
   LoansService,
+  StaffService,
+  ChargesService,
+  LoanChargesService,
+  PostLoansLoanIdChargesRequest,
+  PostLoansLoanIdRequest,
+  StaffData,
+  ChargeData,
 } from '../../api';
+import { MatSelectModule } from '@angular/material/select';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-account-action-form',
@@ -53,6 +66,7 @@ import {
     MatNativeDateModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
   ],
   template: `
     <div class="form-container">
@@ -63,25 +77,59 @@ import {
 
         <mat-card-content>
           <form #actionForm="ngForm" (ngSubmit)="onSubmit()" class="action-form">
-            <div class="form-grid">
+            <!-- Staff selection (only for assignloanofficer) -->
+            @if (command === 'assignloanofficer') {
               <mat-form-field appearance="outline">
-                <mat-label>{{ dateLabel | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="actionDate"
-                  [(ngModel)]="actionDate"
+                <mat-label>{{ 'LOANS.LOAN_OFFICER' | translate }}</mat-label>
+                <mat-select name="toLoanOfficerId" [(ngModel)]="toLoanOfficerId" required>
+                  @for (staff of staffOptions; track staff.id) {
+                    <mat-option [value]="staff.id">{{ staff.displayName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            <!-- Charge selection (only for applycharges) -->
+            @if (command === 'applycharges') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'LOANS.CHARGE' | translate }}</mat-label>
+                <mat-select
+                  name="chargeId"
+                  [(ngModel)]="chargeId"
+                  (valueChange)="onChargeSelected($event)"
                   required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
+                >
+                  @for (charge of chargeOptions; track charge.id) {
+                    <mat-option [value]="charge.id">{{ charge.name }}</mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                <textarea matInput name="note" [(ngModel)]="note" rows="3"></textarea>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
+                <input matInput type="number" name="amount" [(ngModel)]="amount" required />
               </mat-form-field>
-            </div>
+            }
+
+            <!-- Action Date -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ dateLabel | translate }}</mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                name="actionDate"
+                [(ngModel)]="actionDate"
+                required
+              />
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Note -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
+              <textarea matInput name="note" [(ngModel)]="note" rows="4"></textarea>
+            </mat-form-field>
 
             <div class="form-actions">
               <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -121,11 +169,6 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
       mat-form-field {
         width: 100%;
       }
@@ -139,16 +182,19 @@ import {
   ],
 })
 export class AccountActionFormComponent implements OnInit {
+  private readonly loansService = inject(LoansService);
+  private readonly loanChargesService = inject(LoanChargesService);
   private readonly savingsService = inject(SavingsAccountService);
   private readonly fixedDepositService = inject(FixedDepositAccountService);
   private readonly recurringDepositService = inject(RecurringDepositAccountService);
-  private readonly loansService = inject(LoansService);
+  private readonly staffService = inject(StaffService);
+  private readonly chargesService = inject(ChargesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   accountId = 0;
   accountType = ''; // 'savings', 'fixed', 'recurring', 'loan'
-  command = ''; // 'approve', 'activate', 'close', 'disburse'
+  command = ''; // 'approve', 'activate', 'close', 'disburse', 'assignloanofficer', 'unassignloanofficer', 'applycharges'
   isSaving = false;
 
   actionDate: Date = new Date();
@@ -157,12 +203,24 @@ export class AccountActionFormComponent implements OnInit {
   title = '';
   dateLabel = '';
 
+  staffOptions: StaffData[] = [];
+  chargeOptions: ChargeData[] = [];
+  toLoanOfficerId?: number;
+  chargeId?: number;
+  amount?: number;
+
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.accountId = +params['accountId'];
       this.accountType = params['accountType'];
       this.command = params['command'] || 'approve';
       this.setupLabels();
+
+      if (this.command === 'assignloanofficer') {
+        this.loadStaffOptions();
+      } else if (this.command === 'applycharges') {
+        this.loadChargeOptions();
+      }
     });
   }
 
@@ -172,6 +230,12 @@ export class AccountActionFormComponent implements OnInit {
       activate: { title: 'ACTIONS.ACTIVATE_ACCOUNT', date: 'ACTIONS.ACTIVATION_DATE' },
       close: { title: 'ACTIONS.CLOSE_ACCOUNT', date: 'ACTIONS.CLOSURE_DATE' },
       disburse: { title: 'ACTIONS.DISBURSE_FUNDS', date: 'ACTIONS.DISBURSEMENT_DATE' },
+      assignloanofficer: { title: 'ACTIONS.ASSIGN_LOAN_OFFICER', date: 'ACTIONS.ASSIGNMENT_DATE' },
+      unassignloanofficer: {
+        title: 'ACTIONS.UNASSIGN_LOAN_OFFICER',
+        date: 'ACTIONS.UNASSIGNMENT_DATE',
+      },
+      applycharges: { title: 'ACTIONS.APPLY_CHARGES', date: 'ACTIONS.DUE_DATE' },
     };
 
     const entry = config[this.command] || config['approve'];
@@ -179,38 +243,48 @@ export class AccountActionFormComponent implements OnInit {
     this.dateLabel = entry.date;
   }
 
+  loadStaffOptions(): void {
+    this.staffService.retrieveAll16(undefined, undefined, true, 'Active').subscribe({
+      next: (data) => {
+        this.staffOptions = data;
+      },
+      error: (err) => console.error('Failed to load staff options', err),
+    });
+  }
+
+  loadChargeOptions(): void {
+    this.chargesService.retrieveAllCharges().subscribe({
+      next: (data) => {
+        this.chargeOptions = data.filter(
+          (c) => c.active && (c.chargeAppliesTo?.id === 1 || c.chargeAppliesTo?.value === 'Loan'),
+        );
+      },
+      error: (err) => console.error('Failed to load charge options', err),
+    });
+  }
+
+  onChargeSelected(chargeId: number): void {
+    const selected = this.chargeOptions.find((c) => c.id === chargeId);
+    if (selected) {
+      this.amount = selected.amount;
+    }
+  }
+
   onSubmit(): void {
     this.isSaving = true;
-    const formattedDate = `${this.actionDate.getFullYear()}-${String(
-      this.actionDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.actionDate.getDate()).padStart(2, '0')}`;
-
-    const payload: Record<string, unknown> = {
-      dateFormat: 'yyyy-MM-dd',
-      locale: 'en',
-      note: this.note,
-    };
-
-    if (this.command === 'approve') payload['approvedOnDate'] = formattedDate;
-    if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
-    if (this.command === 'close') payload['closedOnDate'] = formattedDate;
-    if (this.command === 'disburse') payload['actualDisbursementDate'] = formattedDate;
+    const formattedDate = formatDateToFineract(this.actionDate);
 
     let obs$: Observable<unknown> | null = null;
     let redirectPath = '';
 
-    if (this.accountType === 'savings') {
-      obs$ = this.savingsService.handleCommands6(this.accountId, payload, this.command);
-      redirectPath = '/products/savings-accounts';
-    } else if (this.accountType === 'fixed') {
-      obs$ = this.fixedDepositService.handleCommands4(this.accountId, payload, this.command);
-      redirectPath = '/products/fixed-deposits';
-    } else if (this.accountType === 'recurring') {
-      obs$ = this.recurringDepositService.handleCommands5(this.accountId, payload, this.command);
-      redirectPath = '/products/recurring-deposits';
-    } else if (this.accountType === 'loan') {
-      obs$ = this.loansService.stateTransitions(this.accountId, payload, this.command);
-      redirectPath = '/loans';
+    if (this.accountType === 'loan') {
+      const res = this.handleLoanAction(formattedDate);
+      obs$ = res.obs$;
+      redirectPath = res.redirectPath;
+    } else {
+      const res = this.handleDepositAction(formattedDate);
+      obs$ = res.obs$;
+      redirectPath = res.redirectPath;
     }
 
     if (obs$) {
@@ -221,12 +295,96 @@ export class AccountActionFormComponent implements OnInit {
     }
   }
 
+  private handleLoanAction(formattedDate: string): {
+    obs$: Observable<unknown> | null;
+    redirectPath: string;
+  } {
+    const redirectPath = `/loans/view/${this.accountId}`;
+    let obs$: Observable<unknown> | null = null;
+
+    if (this.command === 'applycharges') {
+      const chargePayload: PostLoansLoanIdChargesRequest = {
+        chargeId: this.chargeId,
+        amount: this.amount,
+        dueDate: formattedDate,
+        dateFormat: FINERACT_DATE_FORMAT,
+        locale: FINERACT_LOCALE,
+      };
+      obs$ = this.loanChargesService.executeLoanCharge(this.accountId, chargePayload);
+    } else if (this.command === 'assignloanofficer') {
+      const assignPayload: PostLoansLoanIdRequest = {
+        toLoanOfficerId: this.toLoanOfficerId,
+        assignmentDate: formattedDate,
+        locale: FINERACT_LOCALE,
+        dateFormat: FINERACT_DATE_FORMAT,
+      };
+      obs$ = this.loansService.stateTransitions(this.accountId, assignPayload, this.command);
+    } else if (this.command === 'unassignloanofficer') {
+      const unassignPayload: PostLoansLoanIdRequest = {
+        unassignedDate: formattedDate,
+        locale: FINERACT_LOCALE,
+        dateFormat: FINERACT_DATE_FORMAT,
+      };
+      obs$ = this.loansService.stateTransitions(this.accountId, unassignPayload, this.command);
+    } else {
+      const payload: Record<string, unknown> = {
+        dateFormat: FINERACT_DATE_FORMAT,
+        locale: FINERACT_LOCALE,
+        note: this.note,
+      };
+      if (this.command === 'approve') payload['approvedOnDate'] = formattedDate;
+      if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
+      if (this.command === 'close') payload['closedOnDate'] = formattedDate;
+      if (this.command === 'disburse') payload['actualDisbursementDate'] = formattedDate;
+
+      obs$ = this.loansService.stateTransitions(
+        this.accountId,
+        payload as PostLoansLoanIdRequest,
+        this.command,
+      );
+    }
+
+    return { obs$, redirectPath };
+  }
+
+  private handleDepositAction(formattedDate: string): {
+    obs$: Observable<unknown> | null;
+    redirectPath: string;
+  } {
+    let obs$: Observable<unknown> | null = null;
+    let redirectPath = '';
+
+    const payload: Record<string, unknown> = {
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    };
+    if (this.note && this.command !== 'activate') {
+      payload['note'] = this.note;
+    }
+    if (this.command === 'approve') payload['approvedOnDate'] = formattedDate;
+    if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
+    if (this.command === 'close') payload['closedOnDate'] = formattedDate;
+
+    if (this.accountType === 'savings') {
+      obs$ = this.savingsService.handleCommands6(this.accountId, payload, this.command);
+      redirectPath = '/products/savings-accounts';
+    } else if (this.accountType === 'fixed') {
+      obs$ = this.fixedDepositService.handleCommands4(this.accountId, payload, this.command);
+      redirectPath = '/products/fixed-deposits';
+    } else if (this.accountType === 'recurring') {
+      obs$ = this.recurringDepositService.handleCommands5(this.accountId, payload, this.command);
+      redirectPath = '/products/recurring-deposits';
+    }
+
+    return { obs$, redirectPath };
+  }
+
   onCancel(): void {
     const paths: Record<string, string> = {
       savings: '/products/savings-accounts',
       fixed: '/products/fixed-deposits',
       recurring: '/products/recurring-deposits',
-      loan: '/loans',
+      loan: `/loans/view/${this.accountId}`,
     };
     this.router.navigate([paths[this.accountType] || '/dashboard']);
   }

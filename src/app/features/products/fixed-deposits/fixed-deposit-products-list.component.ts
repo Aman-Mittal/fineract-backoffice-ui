@@ -44,7 +44,7 @@ import { FixedDepositProductService, GetFixedDepositProductsResponse } from '../
   ],
   template: `
     <app-data-table
-      title="nav.fixedDeposits"
+      title="nav.fixedDepositProducts"
       createButtonLabel="PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT"
       [columns]="columns"
       [data]="products"

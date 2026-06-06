@@ -42,8 +42,11 @@ import {
   GetRecurringProductOptions,
   PostRecurringDepositAccountsRequest,
 } from '../../../api';
-
-const DEFAULT_LOCALE = 'en';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../../core/utils/date-formatter';
 
 /**
  * Component for creating and managing individual recurring deposit accounts.
@@ -87,37 +90,62 @@ const DEFAULT_LOCALE = 'en';
         <mat-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="recurring-deposit-form">
             <div class="form-grid">
-              <!-- Client Search -->
-              <app-client-search
-                [label]="'COMMON.CLIENT' | translate"
-                [required]="true"
-                [initialClientId]="getClientId()"
-                (clientSelected)="onClientSelected($event)"
-              >
-              </app-client-search>
+              <!-- Client Search with Create Option -->
+              <div class="field-container-row">
+                <app-client-search
+                  [label]="'COMMON.CLIENT' | translate"
+                  [required]="true"
+                  [initialClientId]="getClientId()"
+                  (clientSelected)="onClientSelected($event)"
+                  class="flex-grow"
+                >
+                </app-client-search>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  (click)="onCreateClient()"
+                  style="margin-top: 4px;"
+                >
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
-              <!-- Product -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.RECURRING_DEPOSIT_PRODUCT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                <mat-select
-                  name="productId"
-                  [(ngModel)]="account['productId']"
-                  required
+              <!-- Product with Create Option -->
+              <div class="field-container-row">
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.RECURRING_DEPOSIT_PRODUCT_DESC' | translate"
+                  class="flex-grow"
+                >
+                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
+                  <mat-select
+                    name="productId"
+                    [(ngModel)]="account['productId']"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (product of products; track product['id']) {
+                      <mat-option [value]="product['id']">{{ product['name'] }}</mat-option>
+                    }
+                    <mat-divider></mat-divider>
+                    <mat-option (click)="onCreateProduct()">
+                      <mat-icon color="primary" style="margin-right: 8px;">add_circle</mat-icon>
+                      <span>{{ 'PRODUCTS.CREATE_NEW_PRODUCT' | translate }}</span>
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT' | translate"
+                  (click)="onCreateProduct()"
+                  style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product['id']) {
-                    <mat-option [value]="product['id']">{{ product['name'] }}</mat-option>
-                  }
-                  <mat-divider></mat-divider>
-                  <mat-option (click)="onCreateProduct()">
-                    <mat-icon color="primary" style="margin-right: 8px;">add_circle</mat-icon>
-                    <span>{{ 'PRODUCTS.CREATE_NEW_PRODUCT' | translate }}</span>
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
               <!-- Mandatory Deposit Amount -->
               <mat-form-field
@@ -300,6 +328,14 @@ const DEFAULT_LOCALE = 'en';
         gap: 12px;
         margin-top: 16px;
       }
+      .field-container-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .flex-grow {
+        flex-grow: 1;
+      }
     `,
   ],
 })
@@ -311,8 +347,6 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
 
-  /** Date format constant for Fineract */
-  private readonly DATE_FORMAT = 'yyyy-MM-dd';
   /** Base path for redirection */
   private readonly LIST_PATH = '/products/recurring-deposits';
 
@@ -364,13 +398,19 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   }
 
   /**
+   * Navigates to client registration page.
+   */
+  onCreateClient() {
+    this.router.navigate(['/clients/create']);
+  }
+
+  /**
    * Fetches the list of eligible recurring deposit products for the client.
    */
   private loadProducts(clientId?: number): void {
     this.rdService.template13(clientId).subscribe({
       next: (template: GetRecurringDepositAccountsTemplateResponse) => {
         if (template && template.productOptions) {
-          // Explicitly convert from Set or Array to ensure dropdown rendering
           this.products = Array.from(template.productOptions);
         } else {
           this.products = [];
@@ -421,21 +461,17 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   onSubmit(): void {
     this.isSaving = true;
 
-    const formattedDate = `${this.submittedOnDate.getFullYear()}-${String(
-      this.submittedOnDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.submittedOnDate.getDate()).padStart(2, '0')}`;
-
-    this.account['submittedOnDate'] = formattedDate;
-    this.account['dateFormat'] = this.DATE_FORMAT;
-    this.account['locale'] = DEFAULT_LOCALE;
+    this.account['submittedOnDate'] = formatDateToFineract(this.submittedOnDate);
+    this.account['dateFormat'] = FINERACT_DATE_FORMAT;
+    this.account['locale'] = FINERACT_LOCALE;
 
     if (this.isEditMode && this.accountId) {
       const payload: Record<string, unknown> = {
         depositAmount: this.account['mandatoryRecommendedDepositAmount'],
         depositPeriod: this.account['depositPeriod'],
         depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'],
-        locale: DEFAULT_LOCALE,
-        dateFormat: this.DATE_FORMAT,
+        locale: FINERACT_LOCALE,
+        dateFormat: FINERACT_DATE_FORMAT,
       };
 
       this.rdService.update18(this.accountId, payload).subscribe({

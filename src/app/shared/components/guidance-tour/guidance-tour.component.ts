@@ -74,10 +74,10 @@ import { GuidanceService } from '../../../core/services/guidance.service';
   `,
   styles: [
     `
-      :host {
+      app-guidance-tour {
         display: none;
       }
-      :host.active {
+      app-guidance-tour.active {
         display: block;
         position: fixed;
         z-index: 10000;

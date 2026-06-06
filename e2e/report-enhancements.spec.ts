@@ -128,8 +128,8 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
 
   test('should run report, show paginated data, and download CSV', async ({ page }) => {
     // Navigate to Reporting
-    await page.getByRole('link', { name: 'Reporting' }).click();
-    await expect(page.locator('h1')).toContainText('Reports');
+    await page.getByRole('link', { name: 'Reports' }).click();
+    await expect(page.locator('mat-card-title')).toContainText('Reports');
 
     // Run the report
     await page.locator('button[matTooltip="Run Report"]').first().click();

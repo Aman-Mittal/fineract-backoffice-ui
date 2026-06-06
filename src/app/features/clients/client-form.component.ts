@@ -43,6 +43,11 @@ import {
   OfficesService,
   GetOfficesResponse,
 } from '../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-client-form',
@@ -349,6 +354,8 @@ export class ClientFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   private readonly LIST_PATH = '/clients';
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
+  private readonly LOCALE_EN = 'en';
 
   clientId: number | null = null;
   isEditMode = false;
@@ -445,14 +452,10 @@ export class ClientFormComponent implements OnInit {
     if (!this.clientId || !this.activationDate) return;
     this.isSaving = true;
 
-    const formattedDate = `${this.activationDate.getFullYear()}-${String(
-      this.activationDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
-
     const activationPayload = {
-      activationDate: formattedDate,
-      dateFormat: 'yyyy-MM-dd',
-      locale: 'en',
+      activationDate: formatDateToFineract(this.activationDate),
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
     };
 
     this.clientService.activate1(this.clientId, activationPayload, 'activate').subscribe({
@@ -467,34 +470,42 @@ export class ClientFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formatDate = (date: Date) =>
-      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
-        date.getDate(),
-      ).padStart(2, '0')}`;
-
-    const formattedActivationDate = formatDate(this.activationDate);
-    const formattedSubmittedDate = formatDate(this.submittedOnDate);
 
     if (this.isEditMode && this.clientId) {
-      // Use PutClientsClientIdRequest strictly
-      const payload: PutClientsClientIdRequest = {
+      // Use Record<string, unknown> to bypass OpenAPI schema restrictions on update
+      const payload: Record<string, unknown> = {
         externalId: this.client.externalId,
+        mobileNo: this.client.mobileNo,
+        emailAddress: this.client.emailAddress,
       };
 
-      this.clientService.update10(this.clientId, payload).subscribe({
+      if (this.client.legalFormId === 2) {
+        payload['fullname'] = this.client.fullname;
+      } else {
+        payload['firstname'] = this.client.firstname;
+        payload['lastname'] = this.client.lastname;
+        payload['middlename'] = this.client.middlename;
+        if (this.dateOfBirth) {
+          payload['dateOfBirth'] = formatDateToFineract(this.dateOfBirth);
+          payload['locale'] = FINERACT_LOCALE;
+          payload['dateFormat'] = FINERACT_DATE_FORMAT;
+        }
+      }
+
+      this.clientService.update10(this.clientId, payload as PutClientsClientIdRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
       // Post mode
-      this.client.activationDate = formattedActivationDate;
+      this.client.activationDate = formatDateToFineract(this.activationDate);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.client as any).submittedOnDate = formattedSubmittedDate;
-      this.client.dateFormat = 'yyyy-MM-dd';
-      this.client.locale = 'en';
+      (this.client as any).submittedOnDate = formatDateToFineract(this.submittedOnDate);
+      this.client.dateFormat = FINERACT_DATE_FORMAT;
+      this.client.locale = FINERACT_LOCALE;
 
       if (this.dateOfBirth) {
-        this.client.dateOfBirth = formatDate(this.dateOfBirth);
+        this.client.dateOfBirth = formatDateToFineract(this.dateOfBirth);
       }
 
       if (this.client.legalFormId === 2) {

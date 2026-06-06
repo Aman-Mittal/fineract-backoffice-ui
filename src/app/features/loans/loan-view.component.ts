@@ -105,7 +105,7 @@ import {
                 <button
                   mat-raised-button
                   color="accent"
-                  (click)="onLoanAction('disburse')"
+                  (click)="onDisburse()"
                   [matTooltip]="'LOANS.DISBURSE' | translate"
                 >
                   <mat-icon>launch</mat-icon>

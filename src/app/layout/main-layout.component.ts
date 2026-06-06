@@ -25,6 +25,7 @@ import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
 import { GuidanceTourComponent } from '../shared';
 import { LoadingService } from '../core/services/loading.service';
+import { SidebarService } from '../core/services/sidebar.service';
 
 /**
  * The primary application layout component (App Shell).
@@ -43,7 +44,7 @@ import { LoadingService } from '../core/services/loading.service';
     GuidanceTourComponent,
   ],
   template: `
-    <div class="app-container">
+    <div class="app-container" [class.sidebar-collapsed]="sidebarService.isCollapsed()">
       @if (loadingService.isLoading()) {
         <mat-progress-bar mode="indeterminate" class="global-loader"></mat-progress-bar>
       }
@@ -65,6 +66,9 @@ import { LoadingService } from '../core/services/loading.service';
         height: 100vh;
         overflow: hidden;
         position: relative;
+      }
+      .app-container.sidebar-collapsed {
+        --sidebar-width: 64px;
       }
       .global-loader {
         position: absolute;
@@ -90,4 +94,5 @@ import { LoadingService } from '../core/services/loading.service';
 })
 export class MainLayoutComponent {
   protected readonly loadingService = inject(LoadingService);
+  protected readonly sidebarService = inject(SidebarService);
 }

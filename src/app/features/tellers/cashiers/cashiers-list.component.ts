@@ -26,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
-import { CashiersService, CashierData } from '../../../api';
+import { CashiersService, CashierData, TellerCashManagementService } from '../../../api';
 
 /**
  * Component for listing cashiers assigned to a specific branch teller.
@@ -85,6 +85,8 @@ import { CashiersService, CashierData } from '../../../api';
 export class CashiersListComponent implements OnInit {
   /** Service for cashier lifecycle management */
   private readonly cashiersService = inject(CashiersService);
+  /** Service for teller cash management */
+  private readonly tellerService = inject(TellerCashManagementService);
   /** Router for navigation */
   private readonly router = inject(Router);
   /** Activated route for teller ID */
@@ -144,9 +146,16 @@ export class CashiersListComponent implements OnInit {
    * @param cashier - The cashier record to delete.
    */
   onRemoveCashier(cashier: CashierData): void {
-    // Implementation for removal (DELETE /tellers/{tellerId}/cashiers/{cashierId})
-    // For now, we log the intent.
-    console.log('Remove cashier allocation', cashier.id);
+    if (confirm('Are you sure you want to remove this cashier allocation?')) {
+      this.tellerService.deleteCashier(this.tellerId, cashier.id!).subscribe({
+        next: () => {
+          this.loadCashiers();
+        },
+        error: (err: unknown) => {
+          console.error('Failed to remove cashier allocation', err);
+        },
+      });
+    }
   }
 
   /**

@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/* Import global common styles */
 @use 'styles/common' as *;
+
+:root {
+  --sidebar-width: 260px;
+}
+
 
 /* Foundation Resets & Defaults */
 * {

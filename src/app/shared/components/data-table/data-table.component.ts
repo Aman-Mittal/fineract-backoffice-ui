@@ -140,7 +140,9 @@ export interface ColumnDef {
                       *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
                     ></ng-container>
                   } @else {
-                    {{ getCellValue(row, col.key) }}
+                    <span class="truncate-text" [matTooltip]="getTooltipText(row, col.key)">
+                      {{ getCellValue(row, col.key) }}
+                    </span>
                   }
                 </td>
               </ng-container>
@@ -219,6 +221,14 @@ export interface ColumnDef {
         align-items: center;
         justify-content: center;
         border-radius: 12px;
+      }
+      .truncate-text {
+        display: inline-block;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
       }
     `,
   ],
@@ -312,5 +322,11 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
       return (value as Record<string, unknown>)['value'];
     }
     return value;
+  }
+
+  getTooltipText(row: T, key: string): string {
+    const val = this.getCellValue(row, key);
+    if (val === null || val === undefined) return '';
+    return String(val);
   }
 }

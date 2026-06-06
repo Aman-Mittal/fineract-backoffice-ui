@@ -75,6 +75,42 @@ import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
               </div>
             </div>
             <div class="actions-area">
+              @if (account()?.status?.submittedAndPendingApproval) {
+                <button
+                  mat-raised-button
+                  color="accent"
+                  *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
+                  (click)="onSavingsAction('approve')"
+                  matTooltip="Approve Savings Account"
+                >
+                  <mat-icon>check_circle</mat-icon>
+                  Approve
+                </button>
+              }
+              @if (account()?.status?.approved) {
+                <button
+                  mat-raised-button
+                  color="primary"
+                  *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
+                  (click)="onSavingsAction('activate')"
+                  matTooltip="Activate Savings Account"
+                >
+                  <mat-icon>play_circle_outline</mat-icon>
+                  Activate
+                </button>
+              }
+              @if (account()?.status?.active) {
+                <button
+                  mat-raised-button
+                  color="warn"
+                  *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
+                  (click)="onSavingsAction('close')"
+                  matTooltip="Close Savings Account"
+                >
+                  <mat-icon>power_settings_new</mat-icon>
+                  Close
+                </button>
+              }
               <button
                 mat-raised-button
                 color="primary"
@@ -492,6 +528,10 @@ export class SavingsAccountViewComponent implements OnInit {
 
   onTransaction(command: string) {
     this.router.navigate([`/products/savings-accounts/${this.accountId}/transactions/${command}`]);
+  }
+
+  onSavingsAction(command: string) {
+    this.router.navigate([`/products/savings/${this.accountId}/action/${command}`]);
   }
 
   onBack() {

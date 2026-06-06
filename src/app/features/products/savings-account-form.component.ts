@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
@@ -39,6 +40,11 @@ import {
   GetSavingsProductsResponse,
   SavingsAccountData,
 } from '../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 
 /**
  * Component for creating and managing individual savings accounts.
@@ -63,6 +69,7 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     ClientSearchComponent,
   ],
@@ -82,32 +89,57 @@ import {
         <mat-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="savings-form">
             <div class="form-grid">
-              <!-- Client Search -->
-              <app-client-search
-                [label]="'COMMON.CLIENT_ID' | translate"
-                [required]="true"
-                [initialClientId]="account.clientId || null"
-                (clientSelected)="account.clientId = $event"
-              >
-              </app-client-search>
+              <!-- Client Search with Create Option -->
+              <div class="field-container-row">
+                <app-client-search
+                  [label]="'COMMON.CLIENT_ID' | translate"
+                  [required]="true"
+                  [initialClientId]="account.clientId || null"
+                  (clientSelected)="account.clientId = $event"
+                  class="flex-grow"
+                >
+                </app-client-search>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  (click)="onCreateClient()"
+                  style="margin-top: 4px;"
+                >
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
-              <!-- Product -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                <mat-select
-                  name="productId"
-                  [(ngModel)]="account.productId"
-                  required
+              <!-- Product Selection with Create Option -->
+              <div class="field-container-row">
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
+                  class="flex-grow"
+                >
+                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
+                  <mat-select
+                    name="productId"
+                    [(ngModel)]="account.productId"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (product of products; track product.id) {
+                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
+                  (click)="onCreateProduct()"
+                  style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product.id) {
-                    <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
               <!-- Submitted On -->
               <mat-form-field
@@ -193,6 +225,14 @@ import {
         gap: 12px;
         margin-top: 16px;
       }
+      .field-container-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .flex-grow {
+        flex-grow: 1;
+      }
     `,
   ],
 })
@@ -250,12 +290,26 @@ export class SavingsAccountFormComponent implements OnInit {
   }
 
   /**
+   * Navigates to client registration page.
+   */
+  onCreateClient() {
+    this.router.navigate(['/clients/create']);
+  }
+
+  /**
+   * Navigates to savings product creation page.
+   */
+  onCreateProduct() {
+    this.router.navigate(['/products/savings/create']);
+  }
+
+  /**
    * Fetches the savings products list using current API method.
    */
   private loadProducts(): void {
     this.productService.retrieveAll34().subscribe({
       next: (data: GetSavingsProductsResponse[]) => {
-        this.products = data;
+        this.products = data || [];
       },
       error: (err: unknown) => console.error('Failed to load products', err),
     });
@@ -287,13 +341,10 @@ export class SavingsAccountFormComponent implements OnInit {
    */
   onSubmit(): void {
     this.isSaving = true;
-    const formattedDate = `${this.submittedOnDate.getFullYear()}-${String(
-      this.submittedOnDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.submittedOnDate.getDate()).padStart(2, '0')}`;
 
-    this.account.submittedOnDate = formattedDate;
-    this.account.dateFormat = 'yyyy-MM-dd';
-    this.account.locale = 'en';
+    this.account.submittedOnDate = formatDateToFineract(this.submittedOnDate);
+    this.account.dateFormat = FINERACT_DATE_FORMAT;
+    this.account.locale = FINERACT_LOCALE;
 
     // Cast to Record to add missing properties to the payload
     const payload: Record<string, unknown> = {

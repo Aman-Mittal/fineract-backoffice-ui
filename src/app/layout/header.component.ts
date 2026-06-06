@@ -24,6 +24,7 @@ import { AuthService } from '../core/services/auth.service';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { GuidanceService } from '../core/services/guidance.service';
+import { SidebarService } from '../core/services/sidebar.service';
 
 /**
  * Top-level application header component.
@@ -38,6 +39,13 @@ import { GuidanceService } from '../core/services/guidance.service';
   template: `
     <header class="header" role="banner">
       <div class="logo-section">
+        <button
+          class="toggle-btn"
+          (click)="sidebarService.toggle()"
+          [attr.aria-label]="'Toggle Sidebar'"
+        >
+          <mat-icon>{{ sidebarService.isCollapsed() ? 'menu' : 'menu_open' }}</mat-icon>
+        </button>
         <img src="favicon.png" alt="Fineract Logo" class="logo" />
         <span class="app-title">{{ 'app.title' | translate }}</span>
       </div>
@@ -92,6 +100,29 @@ import { GuidanceService } from '../core/services/guidance.service';
         display: flex;
         align-items: center;
         gap: 1rem;
+      }
+      .toggle-btn {
+        background: none;
+        border: none;
+        color: #555;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition:
+          background-color 0.2s,
+          color 0.2s;
+      }
+      .toggle-btn:hover {
+        background-color: #f0f2f5;
+        color: #111;
+      }
+      .toggle-btn mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
       }
       .logo {
         height: 32px;
@@ -167,6 +198,7 @@ export class HeaderComponent {
   protected readonly authService = inject(AuthService);
   protected readonly translate = inject(TranslateService);
   protected readonly guidanceService = inject(GuidanceService);
+  protected readonly sidebarService = inject(SidebarService);
   private readonly router = inject(Router);
 
   /**

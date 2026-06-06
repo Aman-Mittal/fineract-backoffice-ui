@@ -21,6 +21,9 @@
     "products": "Products",
     "loanProducts": "Loan Products",
     "savingsProducts": "Savings Products",
+    "fixedDepositProducts": "Fixed Deposit Products",
+    "recurringDepositProducts": "Recurring Deposit Products",
+    "shareProducts": "Share Products",
     "savingsAccounts": "Savings Accounts",
     "fixedDeposits": "Fixed Deposits",
     "recurringDeposits": "Recurring Deposits",
@@ -46,7 +49,8 @@
     "holidays": "Holidays",
     "workingDays": "Working Days",
     "organization": "Organization",
-    "tellers": "Tellers"
+    "tellers": "Tellers",
+    "tellerOperations": "Teller Operations"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "System Operational Status",
@@ -93,6 +97,7 @@
     "TRANSACTION_DATE": "Transaction Date",
     "TRANSACTION_AMOUNT": "Transaction Amount",
     "PAYMENT_TYPE": "Payment Type",
+    "CHARGE": "Charge",
     "NOTE": "Note",
     "EXTERNAL_ID": "External ID",
     "MOBILE_NO": "Mobile No",
@@ -151,7 +156,13 @@
     "APPROVAL_DATE": "Approval Date",
     "ACTIVATION_DATE": "Activation Date",
     "CLOSURE_DATE": "Closure Date",
-    "DISBURSEMENT_DATE": "Disbursement Date"
+    "DISBURSEMENT_DATE": "Disbursement Date",
+    "ASSIGN_LOAN_OFFICER": "Assign Loan Officer",
+    "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
+    "APPLY_CHARGES": "Apply Charge",
+    "ASSIGNMENT_DATE": "Assignment Date",
+    "UNASSIGNMENT_DATE": "Unassignment Date",
+    "DUE_DATE": "Due Date"
   },
   "PRODUCTS": {
     "LOAN_PRODUCTS": "Loan Products",
@@ -353,11 +364,13 @@
     "CREDITS": "Credit Accounts"
   },
   "ROLES": {
+    "CREATE": "Create Role",
     "CREATE_ROLE": "Create Role",
     "EDIT_ROLE": "Edit Role",
     "PERMISSIONS": "Granular Permissions"
   },
   "HELP": {
+    "SEARCH_DESC": "Use this field to search or filter the table records.",
     "CLIENTS_CONTRACTS_DESC": "View and manage all registered clients and their contracts.",
     "LOANS_PORTFOLIO_DESC": "Monitor the active loan portfolio and applications.",
     "GROUPS_DESC": "Manage community groups and self-help groups for micro-lending.",
@@ -413,8 +426,6 @@
     "DEPOSIT_AMOUNT_DESC": "The initial amount invested in the fixed deposit.",
     "DEPOSIT_PERIOD_DESC": "The duration for which the funds are locked.",
     "PERIOD_FREQUENCY_DESC": "The time unit for the deposit period (e.g. Months, Years).",
-    "CENTER_NAME_DESC": "The unique name of the administrative center.",
-    "GROUP_NAME_DESC": "The unique name of the community group.",
     "CASHIERS_DESC": "View and manage staff assigned as cashiers to this teller.",
     "CASHIER_STAFF_DESC": "The staff member assigned to this cashier role.",
     "CASHIER_FULL_TIME_DESC": "Whether this cashier is assigned full-time or for a specific shift.",
@@ -432,7 +443,6 @@
     "COLLATERAL_DESC": "Collateral assets pledged by the borrower to secure the loan.",
     "COLLATERAL_TYPE_DESC": "The category of collateral asset (e.g., Gold, Property, Vehicle).",
     "COLLATERAL_VALUE_DESC": "The estimated market value of the collateral asset.",
-    "CHART_OF_ACCOUNTS_DESC": "View and manage the ledger accounts of the organization.",
     "JOURNAL_ENTRIES_DESC": "Record and review manual ledger transactions and system-generated accounting logs.",
     "ACCOUNTING_CLOSURES_DESC": "Close accounting periods for offices to prevent further manual journal entries.",
     "ACCOUNTING_RULES_DESC": "Define preset accounting entries to simplify manual journal entry posting.",

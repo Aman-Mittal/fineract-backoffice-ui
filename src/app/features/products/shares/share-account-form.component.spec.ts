@@ -54,6 +54,7 @@ describe('ShareAccountFormComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             paramMap: of({ get: () => null }),
+            queryParams: of({}),
           },
         },
       ],
@@ -72,7 +73,7 @@ describe('ShareAccountFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should format payload with yyyy-MM-dd date on submission', () => {
+  it('should format payload with dd MMMM yyyy date on submission', () => {
     component.isEditMode = false;
     component.account = { clientId: 1, productId: 1, requestedShares: 100 };
     component.applicationDate = new Date(2026, 4, 15);
@@ -86,9 +87,9 @@ describe('ShareAccountFormComponent', () => {
       clientId: 1,
       productId: 1,
       requestedShares: 100,
-      applicationDate: '2026-05-15',
-      submittedDate: '2026-05-15',
-      dateFormat: 'yyyy-MM-dd',
+      applicationDate: '15 May 2026',
+      submittedDate: '15 May 2026',
+      dateFormat: 'dd MMMM yyyy',
       locale: 'en',
     });
 

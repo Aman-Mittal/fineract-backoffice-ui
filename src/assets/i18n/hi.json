@@ -21,6 +21,9 @@
     "products": "उत्पाद",
     "loanProducts": "ऋण उत्पाद",
     "savingsProducts": "बचत उत्पाद",
+    "fixedDepositProducts": "सावधि जमा उत्पाद",
+    "recurringDepositProducts": "आवर्ती जमा उत्पाद",
+    "shareProducts": "शेयर उत्पाद",
     "savingsAccounts": "बचत खाते",
     "fixedDeposits": "सावधि जमा",
     "recurringDeposits": "आवर्ती जमा",
@@ -46,7 +49,8 @@
     "holidays": "अवकाश",
     "workingDays": "कार्य दिवस",
     "organization": "संगठन",
-    "tellers": "टेलर"
+    "tellers": "टेलर",
+    "tellerOperations": "टेलर संचालन"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "सिस्टम परिचालन स्थिति",
@@ -93,6 +97,7 @@
     "TRANSACTION_DATE": "लेन-देन की तारीख",
     "TRANSACTION_AMOUNT": "लेन-देन की राशि",
     "PAYMENT_TYPE": "भुगतान प्रकार",
+    "CHARGE": "शुल्क",
     "NOTE": "नोट",
     "EXTERNAL_ID": "बाहरी आईडी",
     "MOBILE_NO": "मोबाइल नंबर",
@@ -144,7 +149,13 @@
     "APPROVAL_DATE": "अनुमोदन तिथि",
     "ACTIVATION_DATE": "सक्रियण तिथि",
     "CLOSURE_DATE": "बंदी तिथि",
-    "DISBURSEMENT_DATE": "संवितरण तिथि"
+    "DISBURSEMENT_DATE": "संवितरण तिथि",
+    "ASSIGN_LOAN_OFFICER": "ऋण अधिकारी सौंपें",
+    "UNASSIGN_LOAN_OFFICER": "ऋण अधिकारी हटाएं",
+    "APPLY_CHARGES": "शुल्क लागू करें",
+    "ASSIGNMENT_DATE": "सौंपने की तिथि",
+    "UNASSIGNMENT_DATE": "हटाने की तिथि",
+    "DUE_DATE": "देय तिथि"
   },
   "PRODUCTS": {
     "LOAN_PRODUCTS": "ऋण उत्पाद",
@@ -200,6 +211,16 @@
   "FIXED_DEPOSITS": {
     "CREATE": "सावधि जमा खाता बनाएं",
     "EDIT": "सावधि जमा खाता संपादित करें"
+  },
+  "ROLES": {
+    "CREATE": "भूमिका बनाएं",
+    "CREATE_ROLE": "भूमिका बनाएं",
+    "EDIT_ROLE": "भूमिका संपादित करें",
+    "PERMISSIONS": "विस्तृत अनुमतियाँ"
+  },
+  "HELP": {
+    "SEARCH_DESC": "तालिका अभिलेखों को खोजने या फ़िल्टर करने के लिए इस फ़ील्ड का उपयोग करें।",
+    "ROLES_DESC": "पहुंच नियंत्रण के लिए कार्यात्मक भूमिकाओं को परिभाषित करें और विस्तृत अनुमतियां आवंटित करें।"
   },
   "GUIDE": {
     "DASHBOARD_WELCOME_TITLE": "फिनरैक्ट बैकोफिस में आपका स्वागत है",
