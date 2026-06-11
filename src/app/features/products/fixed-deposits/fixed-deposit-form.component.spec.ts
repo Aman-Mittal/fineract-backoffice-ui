@@ -1,0 +1,266 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FixedDepositAccountFormComponent } from './fixed-deposit-form.component';
+import {
+  FixedDepositAccountService,
+  GetFixedDepositAccountsTemplateResponse,
+  GetFixedDepositAccountsAccountIdResponse,
+  PostFixedDepositAccountsResponse,
+} from '../../../api';
+import { Observable, of, throwError } from 'rxjs';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { TranslateModule } from '@ngx-translate/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
+describe('FixedDepositAccountFormComponent', () => {
+  let component: FixedDepositAccountFormComponent;
+  let fixture: ComponentFixture<FixedDepositAccountFormComponent>;
+  let fixedDepositServiceSpy: jasmine.SpyObj<FixedDepositAccountService>;
+  let routerSpy: jasmine.SpyObj<Router>;
+  let activatedRouteStub: {
+    queryParams: Observable<Record<string, unknown>>;
+    paramMap: Observable<{ get: (key: string) => string | null }>;
+  };
+
+  const FIXED_DEPOSITS_PATH = '/products/fixed-deposits';
+  const API_ERROR = 'API Error';
+
+  beforeEach(async () => {
+    fixedDepositServiceSpy = jasmine.createSpyObj('FixedDepositAccountService', [
+      'template12',
+      'retrieveOne19',
+      'submitApplication',
+      'update16',
+    ]);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    activatedRouteStub = {
+      queryParams: of({}),
+      paramMap: of({ get: () => null }),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [FixedDepositAccountFormComponent, TranslateModule.forRoot()],
+      providers: [
+        provideNoopAnimations(),
+        { provide: FixedDepositAccountService, useValue: fixedDepositServiceSpy },
+        { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteStub },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FixedDepositAccountFormComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    fixedDepositServiceSpy.template12.and.returnValue(
+      of({} as GetFixedDepositAccountsTemplateResponse),
+    );
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize with clientId from query parameters', () => {
+    activatedRouteStub.queryParams = of({ clientId: '123' });
+    fixedDepositServiceSpy.template12.and.returnValue(
+      of({} as GetFixedDepositAccountsTemplateResponse),
+    );
+
+    component.ngOnInit();
+
+    expect(component.account['clientId']).toBe(123);
+    expect(fixedDepositServiceSpy.template12).toHaveBeenCalledWith(123);
+  });
+
+  it('should load product options on client selection', () => {
+    fixedDepositServiceSpy.template12.and.returnValue(
+      of({
+        productOptions: [{ id: 1, name: 'Product 1' }],
+      } as GetFixedDepositAccountsTemplateResponse),
+    );
+
+    component.onClientSelected(456);
+
+    expect(component.account['clientId']).toBe(456);
+    expect(fixedDepositServiceSpy.template12).toHaveBeenCalledWith(456);
+    expect(component.products.length).toBe(1);
+  });
+
+  it('should handle missing product options in template', () => {
+    fixedDepositServiceSpy.template12.and.returnValue(
+      of({} as GetFixedDepositAccountsTemplateResponse),
+    );
+
+    (component as unknown as Record<string, () => void>)['loadProducts']();
+
+    expect(component.products).toEqual([]);
+  });
+
+  it('should load product defaults when a product is selected', () => {
+    const mockTemplate = {
+      depositAmount: 5000,
+      depositPeriod: 12,
+      depositPeriodFrequency: { id: 2 },
+      nominalAnnualInterestRate: 5.5,
+    };
+    fixedDepositServiceSpy.template12.and.returnValue(
+      of(mockTemplate as GetFixedDepositAccountsTemplateResponse),
+    );
+    component.account['clientId'] = 1;
+
+    component.onProductSelected(101);
+
+    expect(fixedDepositServiceSpy.template12).toHaveBeenCalledWith(1, undefined, 101);
+    expect(component.account['depositAmount']).toBe(5000);
+    expect(component.account['depositPeriod']).toBe(12);
+    expect(component.account['depositPeriodFrequencyId']).toBe(2);
+    expect(component.account['nominalAnnualInterestRate']).toBe(5.5);
+  });
+
+  it('should handle error when loading product defaults', () => {
+    spyOn(console, 'error');
+    fixedDepositServiceSpy.template12.and.returnValue(
+      throwError(() => new Error(API_ERROR)) as Observable<GetFixedDepositAccountsTemplateResponse>,
+    );
+    component.account['clientId'] = 1;
+
+    component.onProductSelected(101);
+
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('should load existing account data in edit mode', () => {
+    const mockAccount = {
+      clientId: 1,
+      savingsProductId: 101,
+      depositAmount: 1000,
+      depositPeriod: 6,
+      depositPeriodFrequency: { id: 2 },
+      nominalAnnualInterestRate: 4.5,
+      timeline: {
+        submittedOnDate: [2026, 6, 11],
+      },
+    };
+    fixedDepositServiceSpy.retrieveOne19.and.returnValue(
+      of(mockAccount as GetFixedDepositAccountsAccountIdResponse),
+    );
+    component.accountId = 123;
+    component.isEditMode = true;
+
+    (component as unknown as Record<string, () => void>)['loadAccountData']();
+
+    expect(fixedDepositServiceSpy.retrieveOne19).toHaveBeenCalledWith(123);
+    expect(component.account['clientId']).toBe(1);
+    expect(component.account['productId']).toBe(101);
+    expect(component.account['nominalAnnualInterestRate']).toBe(4.5);
+    expect(component.submittedOnDate).toEqual(new Date(2026, 5, 11));
+  });
+
+  it('should handle error when loading account data', () => {
+    spyOn(console, 'error');
+    fixedDepositServiceSpy.retrieveOne19.and.returnValue(
+      throwError(
+        () => new Error(API_ERROR),
+      ) as Observable<GetFixedDepositAccountsAccountIdResponse>,
+    );
+    component.accountId = 123;
+
+    (component as unknown as Record<string, () => void>)['loadAccountData']();
+
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('should submit application in create mode', () => {
+    fixedDepositServiceSpy.template12.and.returnValue(
+      of({} as GetFixedDepositAccountsTemplateResponse),
+    );
+    fixedDepositServiceSpy.submitApplication.and.returnValue(
+      of({} as PostFixedDepositAccountsResponse),
+    );
+    fixture.detectChanges();
+
+    component.account = {
+      clientId: 1,
+      productId: 101,
+      depositAmount: 1000,
+      depositPeriod: 12,
+      depositPeriodFrequencyId: 2,
+      nominalAnnualInterestRate: 5.0,
+    };
+    component.submittedOnDate = new Date(2026, 5, 11);
+
+    component.onSubmit();
+
+    expect(fixedDepositServiceSpy.submitApplication).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
+  });
+
+  it('should update application in edit mode', () => {
+    fixedDepositServiceSpy.update16.and.returnValue(of({} as PostFixedDepositAccountsResponse));
+    component.accountId = 123;
+    component.isEditMode = true;
+    component.account = {
+      depositAmount: 2000,
+      depositPeriod: 24,
+      depositPeriodFrequencyId: 2,
+      nominalAnnualInterestRate: 6.0,
+    };
+    component.submittedOnDate = new Date(2026, 5, 11);
+
+    component.onSubmit();
+
+    expect(fixedDepositServiceSpy.update16).toHaveBeenCalledWith(123, jasmine.any(Object));
+    expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
+  });
+
+  it('should handle submission error', () => {
+    fixedDepositServiceSpy.submitApplication.and.returnValue(
+      throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositAccountsResponse>,
+    );
+    component.onSubmit();
+    expect(component.isSaving).toBeFalse();
+  });
+
+  it('should navigate on cancel', () => {
+    component.onCancel();
+    expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
+  });
+
+  it('should navigate to create client', () => {
+    component.onCreateClient();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients/create']);
+  });
+
+  it('should navigate to create product', () => {
+    component.onCreateProduct();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed/create']);
+  });
+
+  it('should return clientId from account', () => {
+    component.account['clientId'] = 789;
+    expect(component.getClientId()).toBe(789);
+  });
+
+  it('should return null if clientId is missing', () => {
+    component.account['clientId'] = undefined;
+    expect(component.getClientId()).toBeNull();
+  });
+});

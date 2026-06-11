@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -36,6 +37,7 @@ import { ChargesService, ChargeData } from '../../../api';
   selector: 'app-charges-list',
   standalone: true,
   imports: [
+    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -55,6 +57,17 @@ import { ChargesService, ChargeData } from '../../../api';
       [localLogic]="true"
       (create)="onCreateCharge()"
     >
+      <ng-template appCellTemplate="amount" let-charge>
+        @if (
+          charge.chargeCalculationType?.id === 1 ||
+          charge.chargeCalculationType?.code === 'chargeCalculationType.flat'
+        ) {
+          {{ charge.amount | currency: charge.currency?.code }}
+        } @else {
+          {{ charge.amount | number: '1.2-2' }}%
+        }
+      </ng-template>
+
       <ng-template appCellTemplate="penalty" let-charge>
         {{ (charge.penalty ? 'COMMON.YES' : 'COMMON.NO') | translate }}
       </ng-template>

@@ -199,7 +199,12 @@
     "TOTAL_SHARES": "총 주식 수",
     "REQUESTED_SHARES": "신청 주식 수",
     "APPLICATION_DATE": "신청 일자",
-    "SAVINGS_ACCOUNT_ID": "예금 계좌 ID"
+    "SAVINGS_ACCOUNT_ID": "예금 계좌 ID",
+    "PREREQUISITES_TITLE": "시작하기 전에",
+    "PREREQ_CLIENT": "주식 계좌를 소유할 고객을 선택하거나 생성합니다.",
+    "PREREQ_SAVINGS": "고객은 주식 상품과 동일한 통화로 활성화된 예금 계좌가 있어야 합니다 (배당금 지급 및 구매 자금에 사용).",
+    "PREREQ_PRODUCT": "주식 상품을 선택하세요 — 사용 가능한 예금 계좌가 상품 통화에 맞게 필터링됩니다.",
+    "NO_SAVINGS_HINT": "일치하는 예금 계좌가 없습니다. 고객이 선택한 주식 상품과 동일한 통화의 예금 계좌를 가지고 있는지 확인하세요."
   },
   "RECURRING_DEPOSITS": {
     "CREATE": "적금 계좌 생성",
@@ -258,6 +263,30 @@
     "SAVINGS_SEARCH_TITLE": "예금 계좌 검색",
     "SAVINGS_SEARCH_DESC": "검색 매개변수 또는 특정 상태별로 예금 계좌 레코드를 필터링합니다.",
     "SAVINGS_CREATE_TITLE": "예금 계좌 생성",
-    "SAVINGS_CREATE_DESC": "고객에 대한 예금 계좌 신청을 시작하려면 여기를 클릭하십시오."
+    "SAVINGS_CREATE_DESC": "고객에 대한 예금 계좌 신청을 시작하려면 여기를 클릭하십시오.",
+    "SHARES_TITLE": "주식 계좌",
+    "SHARES_DESC": "이 페이지에는 고객 주식 자본 계좌가 모두 나열됩니다. 주식 계좌는 기관에 대한 지분 투자를 나타냅니다.",
+    "SHARES_CREATE_TITLE": "주식 계좌 생성",
+    "SHARES_CREATE_DESC": "주식 계좌 신청서를 열려면 이 버튼을 클릭하세요. 주식 상품과 동일한 통화의 예금 계좌를 보유한 고객이 필요합니다.",
+    "SHARES_CREATE_FORM_TITLE": "주식 계좌 신청",
+    "SHARES_CREATE_FORM_DESC": "이 양식을 작성하여 주식 구매 신청을 제출하세요. 계좌는 '제출 및 승인 대기 중' 상태로 시작됩니다.",
+    "SHARES_PREREQ_TITLE": "전제 조건",
+    "SHARES_PREREQ_DESC": "이 배너는 필수 단계를 설명합니다. 가장 흔한 문제는 통화 불일치입니다 — 고객은 주식 상품과 동일한 통화의 예금 계좌가 필요합니다.",
+    "SHARES_CLIENT_TITLE": "고객 선택",
+    "SHARES_CLIENT_DESC": "이 주식 계좌를 소유할 고객을 검색하고 선택합니다. 선택 후 사용 가능한 주식 상품이 로드됩니다.",
+    "SHARES_PRODUCT_TITLE": "주식 상품 선택",
+    "SHARES_PRODUCT_DESC": "주식 상품을 선택하세요. 이것은 단가, 통화 및 규칙을 결정합니다. 예금 계좌는 상품 통화에 맞게 필터링됩니다.",
+    "SHARES_SAVINGS_TITLE": "예금 계좌 연결",
+    "SHARES_SAVINGS_DESC": "배당금 지급 및 주식 구매 자금에 사용할 고객의 예금 계좌를 선택합니다. 상품 통화와 일치하는 계좌만 표시됩니다."
+  },
+  "REPORTS": {
+    "NAME": "보고서 이름",
+    "TYPE": "유형",
+    "CATEGORY": "카테고리",
+    "RUN": "보고서 실행",
+    "RUN_TITLE": "실행",
+    "RESULTS": "보고서 결과",
+    "DOWNLOAD_CSV": "CSV 다운로드",
+    "DOWNLOAD_RESULTS_CSV": "결과를 CSV로 다운로드"
   }
 }

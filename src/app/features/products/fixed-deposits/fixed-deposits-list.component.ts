@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,6 +43,7 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
   selector: 'app-fixed-deposits-list',
   standalone: true,
   imports: [
+    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -62,6 +64,14 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
       [localLogic]="true"
       (create)="onCreateAccount()"
     >
+      <ng-template appCellTemplate="depositAmount" let-account>
+        {{ account.depositAmount | currency: account.currency?.code }}
+      </ng-template>
+
+      <ng-template appCellTemplate="maturityAmount" let-account>
+        {{ account.maturityAmount | currency: account.currency?.code }}
+      </ng-template>
+
       <ng-template appCellTemplate="status" let-account>
         <app-status-badge [status]="account.status"></app-status-badge>
       </ng-template>

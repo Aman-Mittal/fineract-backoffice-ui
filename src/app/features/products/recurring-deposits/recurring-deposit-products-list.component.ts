@@ -53,6 +53,10 @@ import { RecurringDepositProductService, GetRecurringDepositProductsResponse } f
       [isLoading]="isLoading"
       (create)="onCreate()"
     >
+      <ng-template appCellTemplate="nominalAnnualInterestRate" let-product>
+        {{ product.nominalAnnualInterestRate | number: '1.2-2' }}%
+      </ng-template>
+
       <ng-template appCellTemplate="actions" let-product>
         <button mat-icon-button color="primary" matTooltip="Edit Product" (click)="onEdit(product)">
           <mat-icon>edit</mat-icon>
@@ -67,9 +71,13 @@ export class RecurringDepositProductsListComponent implements OnInit {
 
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
-    { key: 'shortName', label: 'COMMON.DESCRIPTION', sortable: true },
-    { key: 'currency.code', label: 'COMMON.TYPE', sortable: true },
-    { key: 'nominalAnnualInterestRate', label: 'COMMON.INTEREST_RATE', sortable: true },
+    { key: 'shortName', label: 'PRODUCTS.SHORT_NAME', sortable: true },
+    { key: 'currency.code', label: 'PRODUCTS.CURRENCY', sortable: true },
+    {
+      key: 'nominalAnnualInterestRate',
+      label: 'PRODUCTS.NOMINAL_ANNUAL_INTEREST_RATE',
+      sortable: true,
+    },
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 

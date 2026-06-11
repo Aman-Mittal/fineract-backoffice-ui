@@ -129,7 +129,8 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
   test('should run report, show paginated data, and download CSV', async ({ page }) => {
     // Navigate to Reporting
     await page.getByRole('link', { name: 'Reports' }).click();
-    await expect(page.locator('mat-card-title')).toContainText('Reports');
+    await expect(page).toHaveURL('/reporting');
+    await expect(page.locator('mat-card-title').first()).toContainText('Reports');
 
     // Run the report
     await page.locator('button[matTooltip="Run Report"]').first().click();
@@ -181,7 +182,9 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Verify tour card is visible
     const tourCard = page.locator('app-guidance-tour');
     await expect(tourCard).toBeVisible();
-    await expect(tourCard.locator('mat-card-title')).toContainText('Dashboard Walkthrough');
+    await expect(tourCard.locator('mat-card-title')).toContainText(
+      'Welcome to Fineract Backoffice',
+    );
 
     // Click Next to proceed
     const nextBtn = page.getByRole('button', { name: 'Next' });
@@ -189,7 +192,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await nextBtn.click();
 
     // Card should update its header
-    await expect(tourCard.locator('mat-card-title')).toContainText('System Configuration');
+    await expect(tourCard.locator('mat-card-title')).toContainText('System Overview & Status');
 
     // Click Exit to close the tour
     const exitBtn = page.getByRole('button', { name: 'Exit' });

@@ -29,7 +29,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import {
   LoansService,
   GetLoansLoanIdResponse,
@@ -53,7 +52,6 @@ import {
     MatTooltipModule,
     MatMenuModule,
     StatusBadgeComponent,
-    HasPermissionDirective,
   ],
   template: `
     @if (loan()) {

@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,6 +43,7 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
   selector: 'app-recurring-deposits-list',
   standalone: true,
   imports: [
+    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -62,6 +64,10 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
       [localLogic]="true"
       (create)="onCreateAccount()"
     >
+      <ng-template appCellTemplate="recurringDepositAmount" let-account>
+        {{ account.recurringDepositAmount | currency: account.currency?.code }}
+      </ng-template>
+
       <ng-template appCellTemplate="status" let-account>
         <app-status-badge [status]="account.status"></app-status-badge>
       </ng-template>

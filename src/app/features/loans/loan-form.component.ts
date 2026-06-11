@@ -34,7 +34,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
-import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
 import {
   LoansService,
   PostLoansRequest,
@@ -78,7 +77,6 @@ import {
     MatIconModule,
     MatProgressSpinnerModule,
     ClientSearchComponent,
-    HelpIconComponent,
   ],
   template: `
     <div class="form-container">

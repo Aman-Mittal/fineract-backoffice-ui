@@ -53,6 +53,10 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
       [isLoading]="isLoading"
       (create)="onCreate()"
     >
+      <ng-template appCellTemplate="unitPrice" let-product>
+        {{ product.unitPrice | currency: product.currency?.code }}
+      </ng-template>
+
       <ng-template appCellTemplate="actions" let-product>
         <button mat-icon-button color="primary" matTooltip="Edit Product" (click)="onEdit(product)">
           <mat-icon>edit</mat-icon>
@@ -67,9 +71,9 @@ export class ShareProductsListComponent implements OnInit {
 
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
-    { key: 'shortName', label: 'COMMON.DESCRIPTION', sortable: true },
-    { key: 'currency.code', label: 'COMMON.TYPE', sortable: true },
-    { key: 'unitPrice', label: 'COMMON.AMOUNT', sortable: true },
+    { key: 'shortName', label: 'PRODUCTS.SHORT_NAME', sortable: true },
+    { key: 'currency.code', label: 'PRODUCTS.CURRENCY', sortable: true },
+    { key: 'unitPrice', label: 'PRODUCTS.UNIT_PRICE', sortable: true },
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 

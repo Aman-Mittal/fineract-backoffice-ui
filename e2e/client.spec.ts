@@ -117,11 +117,13 @@ test.describe('Client Management', () => {
   test('should create a new client', async ({ page }) => {
     // Navigate to Clients
     await page.getByRole('link', { name: 'Clients' }).click();
-    await expect(page.locator('mat-card-title')).toContainText('Clients');
+    await expect(page).toHaveURL('/clients');
+    await expect(page.locator('mat-card-title').first()).toContainText('Clients');
 
     // Click Create Client
-    await page.getByRole('button', { name: 'add Create Client' }).click();
-    await expect(page.locator('mat-card-title')).toContainText('Create Client');
+    await page.getByRole('button', { name: 'Create Client', exact: true }).click();
+    await expect(page).toHaveURL('/clients/create');
+    await expect(page.locator('mat-card-title').first()).toContainText('Create Client');
 
     // Fill Client Form
     await page.locator('mat-select[name="legalFormId"]').click();
@@ -135,7 +137,7 @@ test.describe('Client Management', () => {
 
     // Select Office (assuming 'Head Office' is available)
     await page.locator('mat-select[name="officeId"]').click();
-    await page.getByRole('option').first().click();
+    await page.locator('mat-option').first().click();
 
     // Submit
     await page.getByRole('button', { name: 'Save' }).click();

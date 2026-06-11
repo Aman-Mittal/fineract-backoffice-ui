@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -50,6 +51,7 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
   selector: 'app-savings-accounts-list',
   standalone: true,
   imports: [
+    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,
@@ -88,6 +90,10 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
         <a class="clickable-link" [routerLink]="['/products/savings-accounts/view', account.id]">{{
           account.accountNo
         }}</a>
+      </ng-template>
+
+      <ng-template appCellTemplate="summary.accountBalance" let-account>
+        {{ account.summary?.accountBalance | currency: account.currency?.code }}
       </ng-template>
 
       <ng-template appCellTemplate="status" let-account>
@@ -151,7 +157,7 @@ export class SavingsAccountsListComponent implements OnInit {
     { key: 'accountNo', label: 'COMMON.ACCOUNT_NO', sortable: true },
     { key: 'clientName', label: 'COMMON.NAME', sortable: true },
     { key: 'savingsProductName', label: 'COMMON.PRODUCT', sortable: true },
-    { key: 'accountBalance', label: 'COMMON.BALANCE', sortable: true },
+    { key: 'summary.accountBalance', label: 'COMMON.BALANCE', sortable: true },
     { key: 'status', label: 'COMMON.STATUS', sortable: true },
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];

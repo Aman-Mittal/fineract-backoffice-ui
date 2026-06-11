@@ -464,7 +464,8 @@
     "RUN": "Run Report",
     "RUN_TITLE": "Run",
     "RESULTS": "Report Results",
-    "DOWNLOAD_CSV": "Download CSV"
+    "DOWNLOAD_CSV": "Download CSV",
+    "DOWNLOAD_RESULTS_CSV": "Download Results as CSV"
   },
   "SETTINGS": {
     "CONFIG_NAME": "Configuration Name",
@@ -528,7 +529,12 @@
     "TOTAL_SHARES": "Total Shares",
     "REQUESTED_SHARES": "Requested Shares",
     "APPLICATION_DATE": "Application Date",
-    "SAVINGS_ACCOUNT_ID": "Savings Account ID"
+    "SAVINGS_ACCOUNT_ID": "Savings Account ID",
+    "PREREQUISITES_TITLE": "Before you begin",
+    "PREREQ_CLIENT": "Select or create a Client who will own the share account.",
+    "PREREQ_SAVINGS": "The client must have an active Savings Account in the same currency as the Share Product (used for dividends and purchase funding).",
+    "PREREQ_PRODUCT": "Select a Share Product — the available savings accounts will be filtered to match the product currency.",
+    "NO_SAVINGS_HINT": "No matching savings accounts. Ensure the client has a savings account in the same currency as the selected share product."
   },
   "RECURRING_DEPOSITS": {
     "CREATE": "Create Recurring Deposit Account",
@@ -577,7 +583,21 @@
     "SAVINGS_SEARCH_TITLE": "Search Savings Accounts",
     "SAVINGS_SEARCH_DESC": "Filter savings account records by search parameters or specific statuses.",
     "SAVINGS_CREATE_TITLE": "Create Savings Account",
-    "SAVINGS_CREATE_DESC": "Click here to initiate a savings account application for a client."
+    "SAVINGS_CREATE_DESC": "Click here to initiate a savings account application for a client.",
+    "SHARES_TITLE": "Share Accounts",
+    "SHARES_DESC": "This page lists all customer share capital accounts. Share accounts represent equity investments in the institution.",
+    "SHARES_CREATE_TITLE": "Create a Share Account",
+    "SHARES_CREATE_DESC": "Click this button to open the share account application form. You will need a client with a savings account in the same currency as the share product.",
+    "SHARES_CREATE_FORM_TITLE": "Share Account Application",
+    "SHARES_CREATE_FORM_DESC": "Fill in this form to submit a share purchase application. The account will start in 'Submitted and pending approval' status.",
+    "SHARES_PREREQ_TITLE": "Prerequisites",
+    "SHARES_PREREQ_DESC": "This banner explains the required steps. The most common issue is a currency mismatch — the client needs a savings account in the same currency as the share product.",
+    "SHARES_CLIENT_TITLE": "Select Client",
+    "SHARES_CLIENT_DESC": "Search for and select the client who will own this share account. After selection, the available share products will load.",
+    "SHARES_PRODUCT_TITLE": "Select Share Product",
+    "SHARES_PRODUCT_DESC": "Choose the share product. This determines the unit price, currency, and rules. Savings accounts will be filtered to match the product currency.",
+    "SHARES_SAVINGS_TITLE": "Link Savings Account",
+    "SHARES_SAVINGS_DESC": "Select the client's savings account for dividend payments and share purchase funding. Only accounts matching the product currency are shown."
   },
   "login": {
     "title": "Fineract Login",

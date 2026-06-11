@@ -82,7 +82,8 @@ test.describe('Reporting', () => {
   test('should display list of reports', async ({ page }) => {
     // Navigate to Reporting
     await page.getByRole('link', { name: 'Reports' }).click();
-    await expect(page.locator('mat-card-title')).toContainText('Reports');
+    await expect(page).toHaveURL('/reporting');
+    await expect(page.locator('mat-card-title').first()).toContainText('Reports');
 
     // Verify some report types are visible
     await expect(page.locator('table')).toContainText('Client');
@@ -91,12 +92,13 @@ test.describe('Reporting', () => {
 
   test('should navigate to run report page', async ({ page }) => {
     await page.getByRole('link', { name: 'Reports' }).click();
+    await expect(page).toHaveURL('/reporting');
 
     // Click on the first report's 'play_arrow' button
     await page.locator('button[matTooltip="Run Report"]').first().click();
 
     // Should be on run-report page
-    await expect(page.url()).toContain('/reporting/run/');
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page).toHaveURL(/\/reporting\/run\//);
+    await expect(page.locator('mat-card-title')).toContainText('Active Clients Summary');
   });
 });

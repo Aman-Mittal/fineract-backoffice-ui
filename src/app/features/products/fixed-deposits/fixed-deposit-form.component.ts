@@ -121,6 +121,7 @@ import {
                   <mat-select
                     name="productId"
                     [(ngModel)]="account['productId']"
+                    (ngModelChange)="onProductSelected($event)"
                     required
                     [disabled]="isEditMode"
                   >
@@ -204,6 +205,22 @@ import {
                   <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
                   <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
                 </mat-select>
+              </mat-form-field>
+
+              <!-- Nominal Annual Interest Rate -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.NOMINAL_ANNUAL_INTEREST_RATE_DESC' | translate"
+              >
+                <mat-label>{{ 'COMMON.INTEREST_RATE' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="nominalAnnualInterestRate"
+                  [(ngModel)]="account['nominalAnnualInterestRate']"
+                  required
+                />
+                <span matSuffix>%</span>
               </mat-form-field>
             </div>
 
@@ -350,6 +367,27 @@ export class FixedDepositAccountFormComponent implements OnInit {
     this.loadProducts(clientId);
   }
 
+  onProductSelected(productId: number): void {
+    if (productId) {
+      this.fixedDepositService
+        .template12(this.account['clientId'] as number, undefined, productId)
+        .subscribe({
+          next: (template: GetFixedDepositAccountsTemplateResponse) => {
+            if (template) {
+              const templateData = template as unknown as Record<string, unknown>;
+              this.account['depositAmount'] = templateData['depositAmount'];
+              this.account['depositPeriod'] = templateData['depositPeriod'];
+              this.account['depositPeriodFrequencyId'] = (
+                templateData['depositPeriodFrequency'] as Record<string, unknown>
+              )?.['id'];
+              this.account['nominalAnnualInterestRate'] = templateData['nominalAnnualInterestRate'];
+            }
+          },
+          error: (err: unknown) => console.error('Failed to load product defaults', err),
+        });
+    }
+  }
+
   onCreateClient(): void {
     this.router.navigate(['/clients/create']);
   }
@@ -375,6 +413,9 @@ export class FixedDepositAccountFormComponent implements OnInit {
           depositAmount: data.depositAmount,
           depositPeriod: data.depositPeriod,
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
+          nominalAnnualInterestRate: (data as unknown as Record<string, unknown>)[
+            'nominalAnnualInterestRate'
+          ],
         };
       },
       error: (err: unknown) => console.error('Failed to load account', err),
@@ -398,8 +439,9 @@ export class FixedDepositAccountFormComponent implements OnInit {
         depositAmount: this.account['depositAmount'] as number,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
-        depositPeriod: this.account['depositPeriod'],
-        depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'],
+        depositPeriod: this.account['depositPeriod'] as number,
+        depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'] as number,
+        nominalAnnualInterestRate: this.account['nominalAnnualInterestRate'] as number,
       };
       this.fixedDepositService.update16(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),

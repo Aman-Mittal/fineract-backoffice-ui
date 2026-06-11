@@ -26,6 +26,7 @@ export interface TourStep {
 }
 
 const TAB_GROUP_SELECTOR = '.tab-group';
+const HEADER_ACTIONS_SELECTOR = 'button[headerActions]';
 
 @Injectable({
   providedIn: 'root',
@@ -66,7 +67,7 @@ export class GuidanceService {
       {
         titleKey: 'GUIDE.CLIENTS_CREATE_TITLE',
         descriptionKey: 'GUIDE.CLIENTS_CREATE_DESC',
-        targetSelector: 'button[headerActions]',
+        targetSelector: HEADER_ACTIONS_SELECTOR,
       },
     ],
     'clients-view': [
@@ -136,7 +137,44 @@ export class GuidanceService {
       {
         titleKey: 'GUIDE.SAVINGS_CREATE_TITLE',
         descriptionKey: 'GUIDE.SAVINGS_CREATE_DESC',
-        targetSelector: 'button[headerActions]',
+        targetSelector: HEADER_ACTIONS_SELECTOR,
+      },
+    ],
+    shares: [
+      {
+        titleKey: 'GUIDE.SHARES_TITLE',
+        descriptionKey: 'GUIDE.SHARES_DESC',
+      },
+      {
+        titleKey: 'GUIDE.SHARES_CREATE_TITLE',
+        descriptionKey: 'GUIDE.SHARES_CREATE_DESC',
+        targetSelector: HEADER_ACTIONS_SELECTOR,
+      },
+    ],
+    'shares-create': [
+      {
+        titleKey: 'GUIDE.SHARES_CREATE_FORM_TITLE',
+        descriptionKey: 'GUIDE.SHARES_CREATE_FORM_DESC',
+      },
+      {
+        titleKey: 'GUIDE.SHARES_PREREQ_TITLE',
+        descriptionKey: 'GUIDE.SHARES_PREREQ_DESC',
+        targetSelector: '.info-banner',
+      },
+      {
+        titleKey: 'GUIDE.SHARES_CLIENT_TITLE',
+        descriptionKey: 'GUIDE.SHARES_CLIENT_DESC',
+        targetSelector: 'app-client-search',
+      },
+      {
+        titleKey: 'GUIDE.SHARES_PRODUCT_TITLE',
+        descriptionKey: 'GUIDE.SHARES_PRODUCT_DESC',
+        targetSelector: 'mat-select[name="productId"]',
+      },
+      {
+        titleKey: 'GUIDE.SHARES_SAVINGS_TITLE',
+        descriptionKey: 'GUIDE.SHARES_SAVINGS_DESC',
+        targetSelector: 'mat-select[name="savingsAccountId"]',
       },
     ],
   };
@@ -156,6 +194,10 @@ export class GuidanceService {
       matchedTourKey = 'savings-view';
     } else if (routeUrl.includes('/products/savings-accounts')) {
       matchedTourKey = 'savings';
+    } else if (routeUrl.includes('/products/shares/create')) {
+      matchedTourKey = 'shares-create';
+    } else if (routeUrl.includes('/products/shares')) {
+      matchedTourKey = 'shares';
     }
 
     const steps = this.tours[matchedTourKey] || [];

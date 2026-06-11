@@ -80,14 +80,13 @@ import { GuidanceService } from '../../../core/services/guidance.service';
       app-guidance-tour.active {
         display: block;
         position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 360px;
+        max-width: calc(100vw - 48px);
         z-index: 10000;
       }
       .guidance-overlay {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 10000;
-        max-width: 360px;
         animation: guidanceSlideUp 0.3s ease-out;
       }
       .guidance-card {

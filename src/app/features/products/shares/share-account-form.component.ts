@@ -32,7 +32,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ClientSearchComponent } from '../../../shared';
+import { ClientSearchComponent, HelpIconComponent } from '../../../shared';
 import {
   ShareAccountService,
   AccountRequest,
@@ -74,6 +74,7 @@ interface ShareAccountTemplateResponse {
     MatIconModule,
     MatProgressSpinnerModule,
     ClientSearchComponent,
+    HelpIconComponent,
   ],
   template: `
     <div class="form-container">
@@ -85,10 +86,25 @@ interface ShareAccountTemplateResponse {
                 ? ('SHARE_ACCOUNTS.EDIT' | translate)
                 : ('SHARE_ACCOUNTS.CREATE' | translate)
             }}
+            <app-help-icon [helpTextKey]="'HELP.SHARE_ACCOUNTS_DESC'"></app-help-icon>
           </mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
+          @if (!isEditMode) {
+            <div class="info-banner">
+              <mat-icon class="info-banner-icon">info_outline</mat-icon>
+              <div class="info-banner-content">
+                <strong>{{ 'SHARE_ACCOUNTS.PREREQUISITES_TITLE' | translate }}</strong>
+                <ol class="prereq-list">
+                  <li>{{ 'SHARE_ACCOUNTS.PREREQ_CLIENT' | translate }}</li>
+                  <li>{{ 'SHARE_ACCOUNTS.PREREQ_SAVINGS' | translate }}</li>
+                  <li>{{ 'SHARE_ACCOUNTS.PREREQ_PRODUCT' | translate }}</li>
+                </ol>
+              </div>
+            </div>
+          }
+
           <form #shareForm="ngForm" (ngSubmit)="onSubmit()" class="share-account-form">
             <div class="form-grid">
               <!-- Client Search with Create Option -->
@@ -209,8 +225,15 @@ interface ShareAccountTemplateResponse {
                       {{ sa.accountNo }} - {{ sa.savingsProductName }}
                     </mat-option>
                   }
-                  @if (filteredSavingsAccounts.length === 0) {
-                    <mat-option disabled>No savings accounts found</mat-option>
+                  @if (filteredSavingsAccounts.length === 0 && savingsAccounts.length === 0) {
+                    <mat-option disabled>
+                      {{ 'SHARE_ACCOUNTS.NO_SAVINGS_HINT' | translate }}
+                    </mat-option>
+                  }
+                  @if (filteredSavingsAccounts.length === 0 && savingsAccounts.length > 0) {
+                    <mat-option disabled>
+                      {{ 'COMMON.NO_DATA' | translate }}
+                    </mat-option>
                   }
                 </mat-select>
               </mat-form-field>
@@ -291,6 +314,36 @@ interface ShareAccountTemplateResponse {
       }
       .flex-grow {
         flex-grow: 1;
+      }
+      .info-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #1976d2;
+      }
+      .info-banner-icon {
+        color: #1976d2;
+        margin-top: 2px;
+      }
+      .info-banner-content {
+        font-size: 13px;
+        color: #37474f;
+        line-height: 1.6;
+      }
+      .info-banner-content strong {
+        font-size: 14px;
+        color: #1a237e;
+      }
+      .prereq-list {
+        margin: 6px 0 0 0;
+        padding-left: 20px;
+      }
+      .prereq-list li {
+        margin-bottom: 2px;
       }
     `,
   ],

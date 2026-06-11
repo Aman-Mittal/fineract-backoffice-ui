@@ -119,7 +119,7 @@ import { HelpIconComponent } from '../../shared';
                 <h3 class="mt-2">{{ 'REPORTS.RESULTS' | translate }}</h3>
                 <button mat-raised-button color="primary" (click)="downloadCSV()">
                   <mat-icon>download</mat-icon>
-                  {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
+                  {{ 'REPORTS.DOWNLOAD_RESULTS_CSV' | translate }}
                 </button>
               </div>
               <div class="table-container mat-elevation-z1">
