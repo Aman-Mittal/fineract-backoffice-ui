@@ -79,7 +79,7 @@ describe('FixedDepositProductFormComponent', () => {
       minDepositTerm: 6,
       minDepositTermType: { id: 2 },
     } as GetFixedDepositProductsProductIdResponse;
-    productServiceSpy.retrieveOne20.and.returnValue(of(mockProduct));
+    (productServiceSpy.retrieveOne20 as jasmine.Spy).and.returnValue(of(mockProduct));
     component.productId = 1;
     component.isEditMode = true;
 
@@ -91,7 +91,9 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should create product on submit', () => {
-    productServiceSpy.create11.and.returnValue(of({} as PostFixedDepositProductsResponse));
+    (productServiceSpy.create11 as jasmine.Spy).and.returnValue(
+      of({} as PostFixedDepositProductsResponse),
+    );
     component.product = {
       name: 'New Product',
       shortName: 'NP',
@@ -106,7 +108,9 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should update product on submit in edit mode', () => {
-    productServiceSpy.update17.and.returnValue(of({} as PostFixedDepositProductsResponse));
+    (productServiceSpy.update17 as jasmine.Spy).and.returnValue(
+      of({} as PostFixedDepositProductsResponse),
+    );
     component.productId = 123;
     component.isEditMode = true;
     component.product = {
@@ -121,7 +125,7 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should handle submission error', () => {
-    productServiceSpy.create11.and.returnValue(
+    (productServiceSpy.create11 as jasmine.Spy).and.returnValue(
       throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositProductsResponse>,
     );
     component.onSubmit();

@@ -20,7 +20,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositAccountsListComponent } from './fixed-deposits-list.component';
 import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
-import { Observable, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -49,7 +49,7 @@ describe('FixedDepositAccountsListComponent', () => {
   });
 
   it('should create', () => {
-    fixedDepositServiceSpy.retrieveAll29.and.returnValue(
+    (fixedDepositServiceSpy.retrieveAll29 as jasmine.Spy).and.returnValue(
       of([] as GetFixedDepositAccountsResponse[]),
     );
     fixture.detectChanges();
@@ -60,7 +60,7 @@ describe('FixedDepositAccountsListComponent', () => {
     const mockAccounts = [
       { id: 1, accountNo: 1001, clientName: 'John Doe' } as GetFixedDepositAccountsResponse,
     ];
-    fixedDepositServiceSpy.retrieveAll29.and.returnValue(of(mockAccounts));
+    (fixedDepositServiceSpy.retrieveAll29 as jasmine.Spy).and.returnValue(of(mockAccounts));
 
     fixture.detectChanges();
 
@@ -71,8 +71,8 @@ describe('FixedDepositAccountsListComponent', () => {
 
   it('should handle error when loading accounts', () => {
     spyOn(console, 'error');
-    fixedDepositServiceSpy.retrieveAll29.and.returnValue(
-      throwError(() => new Error('API Error')) as Observable<GetFixedDepositAccountsResponse[]>,
+    (fixedDepositServiceSpy.retrieveAll29 as jasmine.Spy).and.returnValue(
+      throwError(() => new Error('API Error')),
     );
 
     fixture.detectChanges();

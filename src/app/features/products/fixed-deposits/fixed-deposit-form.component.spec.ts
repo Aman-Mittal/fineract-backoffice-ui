@@ -24,6 +24,7 @@ import {
   GetFixedDepositAccountsTemplateResponse,
   GetFixedDepositAccountsAccountIdResponse,
   PostFixedDepositAccountsResponse,
+  GetFixedDepositAccountsProductOptions,
 } from '../../../api';
 import { Observable, of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -71,7 +72,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should create', () => {
-    fixedDepositServiceSpy.template12.and.returnValue(
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
     fixture.detectChanges();
@@ -80,7 +81,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should initialize with clientId from query parameters', () => {
     activatedRouteStub.queryParams = of({ clientId: '123' });
-    fixedDepositServiceSpy.template12.and.returnValue(
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
 
@@ -91,9 +92,12 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should load product options on client selection', () => {
-    fixedDepositServiceSpy.template12.and.returnValue(
+    const productOptions = new Set<GetFixedDepositAccountsProductOptions>([
+      { id: 1, name: 'Product 1' } as GetFixedDepositAccountsProductOptions,
+    ]);
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
       of({
-        productOptions: [{ id: 1, name: 'Product 1' }],
+        productOptions,
       } as GetFixedDepositAccountsTemplateResponse),
     );
 
@@ -105,7 +109,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should handle missing product options in template', () => {
-    fixedDepositServiceSpy.template12.and.returnValue(
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
 
@@ -121,8 +125,8 @@ describe('FixedDepositAccountFormComponent', () => {
       depositPeriodFrequency: { id: 2 },
       nominalAnnualInterestRate: 5.5,
     };
-    fixedDepositServiceSpy.template12.and.returnValue(
-      of(mockTemplate as GetFixedDepositAccountsTemplateResponse),
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+      of(mockTemplate as unknown as GetFixedDepositAccountsTemplateResponse),
     );
     component.account['clientId'] = 1;
 
@@ -137,8 +141,8 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should handle error when loading product defaults', () => {
     spyOn(console, 'error');
-    fixedDepositServiceSpy.template12.and.returnValue(
-      throwError(() => new Error(API_ERROR)) as Observable<GetFixedDepositAccountsTemplateResponse>,
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+      throwError(() => new Error(API_ERROR)),
     );
     component.account['clientId'] = 1;
 
@@ -156,11 +160,11 @@ describe('FixedDepositAccountFormComponent', () => {
       depositPeriodFrequency: { id: 2 },
       nominalAnnualInterestRate: 4.5,
       timeline: {
-        submittedOnDate: [2026, 6, 11],
+        submittedOnDate: [2026, 6, 11] as unknown as string,
       },
     };
-    fixedDepositServiceSpy.retrieveOne19.and.returnValue(
-      of(mockAccount as GetFixedDepositAccountsAccountIdResponse),
+    (fixedDepositServiceSpy.retrieveOne19 as jasmine.Spy).and.returnValue(
+      of(mockAccount as unknown as GetFixedDepositAccountsAccountIdResponse),
     );
     component.accountId = 123;
     component.isEditMode = true;
@@ -176,10 +180,8 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should handle error when loading account data', () => {
     spyOn(console, 'error');
-    fixedDepositServiceSpy.retrieveOne19.and.returnValue(
-      throwError(
-        () => new Error(API_ERROR),
-      ) as Observable<GetFixedDepositAccountsAccountIdResponse>,
+    (fixedDepositServiceSpy.retrieveOne19 as jasmine.Spy).and.returnValue(
+      throwError(() => new Error(API_ERROR)),
     );
     component.accountId = 123;
 
@@ -189,10 +191,10 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should submit application in create mode', () => {
-    fixedDepositServiceSpy.template12.and.returnValue(
+    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
-    fixedDepositServiceSpy.submitApplication.and.returnValue(
+    (fixedDepositServiceSpy.submitApplication as jasmine.Spy).and.returnValue(
       of({} as PostFixedDepositAccountsResponse),
     );
     fixture.detectChanges();
@@ -214,7 +216,9 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should update application in edit mode', () => {
-    fixedDepositServiceSpy.update16.and.returnValue(of({} as PostFixedDepositAccountsResponse));
+    (fixedDepositServiceSpy.update16 as jasmine.Spy).and.returnValue(
+      of({} as PostFixedDepositAccountsResponse),
+    );
     component.accountId = 123;
     component.isEditMode = true;
     component.account = {
@@ -232,8 +236,8 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should handle submission error', () => {
-    fixedDepositServiceSpy.submitApplication.and.returnValue(
-      throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositAccountsResponse>,
+    (fixedDepositServiceSpy.submitApplication as jasmine.Spy).and.returnValue(
+      throwError(() => new Error(API_ERROR)),
     );
     component.onSubmit();
     expect(component.isSaving).toBeFalse();

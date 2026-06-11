@@ -20,7 +20,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositProductsListComponent } from './fixed-deposit-products-list.component';
 import { FixedDepositProductService, GetFixedDepositProductsResponse } from '../../../api';
-import { Observable, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -49,7 +49,9 @@ describe('FixedDepositProductsListComponent', () => {
   });
 
   it('should create', () => {
-    productServiceSpy.retrieveAll30.and.returnValue(of([] as GetFixedDepositProductsResponse[]));
+    (productServiceSpy.retrieveAll30 as jasmine.Spy).and.returnValue(
+      of([] as GetFixedDepositProductsResponse[]),
+    );
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
@@ -58,7 +60,7 @@ describe('FixedDepositProductsListComponent', () => {
     const mockProducts = [
       { id: 1, name: 'Product A', shortName: 'PA' } as GetFixedDepositProductsResponse,
     ];
-    productServiceSpy.retrieveAll30.and.returnValue(of(mockProducts));
+    (productServiceSpy.retrieveAll30 as jasmine.Spy).and.returnValue(of(mockProducts));
 
     fixture.detectChanges();
 
@@ -68,8 +70,8 @@ describe('FixedDepositProductsListComponent', () => {
   });
 
   it('should handle error when loading products', () => {
-    productServiceSpy.retrieveAll30.and.returnValue(
-      throwError(() => new Error('API Error')) as Observable<GetFixedDepositProductsResponse[]>,
+    (productServiceSpy.retrieveAll30 as jasmine.Spy).and.returnValue(
+      throwError(() => new Error('API Error')),
     );
 
     fixture.detectChanges();
