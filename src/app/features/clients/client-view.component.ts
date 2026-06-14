@@ -37,6 +37,7 @@ import {
 } from '../../api';
 import { StatusBadgeComponent } from '../../shared';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
+import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 
 @Component({
   selector: 'app-client-view',
@@ -206,7 +207,14 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
                           <th mat-header-cell *matHeaderCellDef>
                             {{ 'COMMON.ACCOUNT_NO' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">{{ account.accountNo }}</td>
+                          <td mat-cell *matCellDef="let account">
+                            <a
+                              class="clickable-link"
+                              [routerLink]="['/products/savings-accounts/view', account.id]"
+                            >
+                              {{ account.accountNo }}
+                            </a>
+                          </td>
                         </ng-container>
 
                         <ng-container matColumnDef="productName">
@@ -323,7 +331,11 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
                           <th mat-header-cell *matHeaderCellDef>
                             {{ 'COMMON.ACCOUNT_NO' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">{{ account.accountNo }}</td>
+                          <td mat-cell *matCellDef="let account">
+                            <a class="clickable-link" [routerLink]="['/loans/view', account.id]">
+                              {{ account.accountNo }}
+                            </a>
+                          </td>
                         </ng-container>
 
                         <ng-container matColumnDef="productName">
@@ -564,6 +576,15 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
         margin: 0;
         font-size: 16px;
       }
+      .clickable-link {
+        color: #3f51b5;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .clickable-link:hover {
+        text-decoration: underline;
+      }
     `,
   ],
 })
@@ -661,11 +682,7 @@ export class ClientViewComponent implements OnInit {
   }
 
   onSavingsAction(accountId: number, command: string, account: Record<string, unknown>) {
-    let type = 'savings';
-    const depositType = (account['depositType'] as Record<string, unknown>)?.['value'];
-    if (depositType === 'Fixed Deposit') type = 'fixed';
-    if (depositType === 'Recurring Deposit') type = 'recurring';
-
+    const type = resolveAccountActionType(account);
     this.router.navigate([`/products/${type}/${accountId}/action/${command}`]);
   }
 

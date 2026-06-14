@@ -448,6 +448,39 @@ export class AccountActionFormComponent implements OnInit {
     }
   }
 
+  private buildLoanApprovePayload(formattedDate: string): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+      note: this.note,
+      approvedOnDate: formattedDate,
+    };
+    if (!this.accountDetails) return payload;
+
+    if (this.accountDetails['principal'] !== undefined) {
+      payload['approvedLoanAmount'] = this.accountDetails['principal'];
+    }
+    const timeline = this.accountDetails['timeline'] as Record<string, unknown>;
+    if (timeline?.['expectedDisbursementDate']) {
+      payload['expectedDisbursementDate'] = formatDateToFineract(
+        this.getFineractDate(timeline['expectedDisbursementDate']) as Date,
+      );
+    }
+    return payload;
+  }
+
+  private buildLoanStatePayload(formattedDate: string): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+      note: this.note,
+    };
+    if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
+    if (this.command === 'close') payload['closedOnDate'] = formattedDate;
+    if (this.command === 'disburse') payload['actualDisbursementDate'] = formattedDate;
+    return payload;
+  }
+
   private handleLoanAction(formattedDate: string): {
     obs$: Observable<unknown> | null;
     redirectPath: string;
@@ -465,34 +498,28 @@ export class AccountActionFormComponent implements OnInit {
       };
       obs$ = this.loanChargesService.executeLoanCharge(this.accountId, chargePayload);
     } else if (this.command === 'assignloanofficer') {
-      const assignPayload: PostLoansLoanIdRequest = {
+      const payload: PostLoansLoanIdRequest = {
         toLoanOfficerId: this.toLoanOfficerId,
         assignmentDate: formattedDate,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
-      obs$ = this.loansService.stateTransitions(this.accountId, assignPayload, this.command);
+      obs$ = this.loansService.stateTransitions(this.accountId, payload, this.command);
     } else if (this.command === 'unassignloanofficer') {
-      const unassignPayload: PostLoansLoanIdRequest = {
+      const payload: PostLoansLoanIdRequest = {
         unassignedDate: formattedDate,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
-      obs$ = this.loansService.stateTransitions(this.accountId, unassignPayload, this.command);
+      obs$ = this.loansService.stateTransitions(this.accountId, payload, this.command);
     } else {
-      const payload: Record<string, unknown> = {
-        dateFormat: FINERACT_DATE_FORMAT,
-        locale: FINERACT_LOCALE,
-        note: this.note,
-      };
-      if (this.command === 'approve') payload['approvedOnDate'] = formattedDate;
-      if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
-      if (this.command === 'close') payload['closedOnDate'] = formattedDate;
-      if (this.command === 'disburse') payload['actualDisbursementDate'] = formattedDate;
-
+      const raw =
+        this.command === 'approve'
+          ? this.buildLoanApprovePayload(formattedDate)
+          : this.buildLoanStatePayload(formattedDate);
       obs$ = this.loansService.stateTransitions(
         this.accountId,
-        payload as PostLoansLoanIdRequest,
+        raw as PostLoansLoanIdRequest,
         this.command,
       );
     }

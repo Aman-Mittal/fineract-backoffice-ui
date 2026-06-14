@@ -34,6 +34,10 @@ import {
   SavingsAccountChargeData,
 } from '../../api';
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
+import {
+  resolveAccountActionType,
+  resolveAccountRoutePrefix,
+} from '../../core/utils/account-type-resolver';
 
 @Component({
   selector: 'app-savings-account-view',
@@ -531,10 +535,14 @@ export class SavingsAccountViewComponent implements OnInit {
   }
 
   onSavingsAction(command: string) {
-    this.router.navigate([`/products/savings/${this.accountId}/action/${command}`]);
+    const rawAccount = this.account() as unknown as Record<string, unknown>;
+    const type = resolveAccountActionType(rawAccount);
+    this.router.navigate([`/products/${type}/${this.accountId}/action/${command}`]);
   }
 
   onBack() {
-    this.router.navigate(['/products/savings-accounts']);
+    const rawAccount = this.account() as unknown as Record<string, unknown>;
+    const routePrefix = resolveAccountRoutePrefix(rawAccount);
+    this.router.navigate([`/products/${routePrefix}`]);
   }
 }

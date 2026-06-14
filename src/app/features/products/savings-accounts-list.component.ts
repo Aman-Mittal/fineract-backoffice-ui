@@ -37,6 +37,10 @@ import {
   HasPermissionDirective,
 } from '../../shared';
 import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
+import {
+  resolveAccountActionType,
+  resolveAccountRoutePrefix,
+} from '../../core/utils/account-type-resolver';
 
 /**
  * Component for displaying a list of customer savings accounts.
@@ -261,24 +265,14 @@ export class SavingsAccountsListComponent implements OnInit {
    * Helper to get the correct URL prefix based on the deposit type.
    */
   getAccountRoutePrefix(account: GetSavingsPageItems): string {
-    const rawAccount = account as Record<string, unknown>;
-    const depositType = rawAccount['depositType'] as Record<string, unknown> | undefined;
-    const depositTypeId = depositType?.['id'] as number | undefined;
-    if (depositTypeId === 200) return 'fixed-deposits';
-    if (depositTypeId === 300) return 'recurring-deposits';
-    return 'savings-accounts';
+    return resolveAccountRoutePrefix(account as Record<string, unknown>);
   }
 
   /**
    * Helper to get the action route type based on the deposit type.
    */
   getAccountActionType(account: GetSavingsPageItems): string {
-    const rawAccount = account as Record<string, unknown>;
-    const depositType = rawAccount['depositType'] as Record<string, unknown> | undefined;
-    const depositTypeId = depositType?.['id'] as number | undefined;
-    if (depositTypeId === 200) return 'fixed';
-    if (depositTypeId === 300) return 'recurring';
-    return 'savings';
+    return resolveAccountActionType(account as Record<string, unknown>);
   }
 
   /**
