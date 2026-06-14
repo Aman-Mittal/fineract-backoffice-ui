@@ -218,7 +218,6 @@ import {
                   type="number"
                   name="nominalAnnualInterestRate"
                   [(ngModel)]="account['nominalAnnualInterestRate']"
-                  required
                 />
                 <span matSuffix>%</span>
               </mat-form-field>
@@ -380,7 +379,8 @@ export class FixedDepositAccountFormComponent implements OnInit {
               this.account['depositPeriodFrequencyId'] = (
                 templateData['depositPeriodFrequency'] as Record<string, unknown>
               )?.['id'];
-              this.account['nominalAnnualInterestRate'] = templateData['nominalAnnualInterestRate'];
+              this.account['nominalAnnualInterestRate'] =
+                templateData['nominalAnnualInterestRate'] || undefined;
             }
           },
           error: (err: unknown) => console.error('Failed to load product defaults', err),
@@ -441,7 +441,10 @@ export class FixedDepositAccountFormComponent implements OnInit {
         dateFormat: FINERACT_DATE_FORMAT,
         depositPeriod: this.account['depositPeriod'] as number,
         depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'] as number,
-        nominalAnnualInterestRate: this.account['nominalAnnualInterestRate'] as number,
+        nominalAnnualInterestRate:
+          this.account['nominalAnnualInterestRate'] != null
+            ? (this.account['nominalAnnualInterestRate'] as number)
+            : undefined,
       };
       this.fixedDepositService.update16(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),

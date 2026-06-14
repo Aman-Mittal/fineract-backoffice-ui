@@ -597,6 +597,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'settings/holidays/create',
+        loadComponent: () =>
+          import('./features/settings/holiday-form.component').then((m) => m.HolidayFormComponent),
+      },
+      {
         path: 'settings/working-days',
         loadComponent: () =>
           import('./features/settings/working-days.component').then((m) => m.WorkingDaysComponent),

@@ -30,6 +30,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
 import { Observable } from 'rxjs';
 import {
   SavingsAccountService,
@@ -67,6 +68,7 @@ import {
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    MatDividerModule,
   ],
   template: `
     <div class="form-container">
@@ -76,6 +78,74 @@ import {
         </mat-card-header>
 
         <mat-card-content>
+          @if (accountDetails) {
+            <div class="account-summary-panel">
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="label">{{ 'COMMON.ACCOUNT_NO' | translate }}:</span>
+                  <span class="value">{{ accountDetails['accountNo'] }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">{{ 'COMMON.NAME' | translate }}:</span>
+                  <span class="value">{{
+                    accountDetails['clientName'] || accountDetails['groupName']
+                  }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">{{ 'COMMON.PRODUCT' | translate }}:</span>
+                  <span class="value">{{
+                    accountDetails['savingsProductName'] ||
+                      accountDetails['productName'] ||
+                      accountDetails['loanProductName']
+                  }}</span>
+                </div>
+
+                @if (getAmount(accountDetails['depositAmount'], accountDetails['principal'])) {
+                  <div class="summary-item">
+                    <span class="label">{{ 'COMMON.AMOUNT' | translate }}:</span>
+                    <span class="value">{{
+                      getAmount(accountDetails['depositAmount'], accountDetails['principal'])
+                        | currency: getCurrencyCode(accountDetails['currency'])
+                    }}</span>
+                  </div>
+                }
+
+                @if (accountDetails['nominalAnnualInterestRate'] !== undefined) {
+                  <div class="summary-item">
+                    <span class="label">{{ 'COMMON.INTEREST_RATE' | translate }}:</span>
+                    <span class="value">{{ accountDetails['nominalAnnualInterestRate'] }}%</span>
+                  </div>
+                }
+
+                @if (accountDetails['depositPeriod'] || accountDetails['numberOfRepayments']) {
+                  <div class="summary-item">
+                    <span class="label">{{ 'COMMON.TERM' | translate }}:</span>
+                    <span class="value">
+                      {{ accountDetails['depositPeriod'] || accountDetails['numberOfRepayments'] }}
+                      {{
+                        getFrequencyValue(
+                          accountDetails['depositPeriodFrequency'] ||
+                            accountDetails['repaymentFrequencyType']
+                        )
+                      }}
+                    </span>
+                  </div>
+                }
+
+                @if (getTimelineSubmittedOnDate(accountDetails['timeline'])) {
+                  <div class="summary-item full-width">
+                    <span class="label">{{ 'COMMON.SUBMITTED_ON' | translate }}:</span>
+                    <span class="value">{{
+                      getFineractDate(getTimelineSubmittedOnDate(accountDetails['timeline']))
+                        | date: 'longDate'
+                    }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+            <mat-divider style="margin: 16px 0;"></mat-divider>
+          }
+
           <form #actionForm="ngForm" (ngSubmit)="onSubmit()" class="action-form">
             <!-- Staff selection (only for assignloanofficer) -->
             @if (command === 'assignloanofficer') {
@@ -178,6 +248,38 @@ import {
         gap: 12px;
         margin-top: 16px;
       }
+      .account-summary-panel {
+        padding: 16px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3f51b5;
+        margin-bottom: 8px;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .summary-item.full-width {
+        grid-column: 1 / -1;
+      }
+      .summary-item .label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .summary-item .value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
     `,
   ],
 })
@@ -209,6 +311,8 @@ export class AccountActionFormComponent implements OnInit {
   chargeId?: number;
   amount?: number;
 
+  accountDetails: Record<string, unknown> | null = null;
+
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.accountId = +params['accountId'];
@@ -221,7 +325,56 @@ export class AccountActionFormComponent implements OnInit {
       } else if (this.command === 'applycharges') {
         this.loadChargeOptions();
       }
+
+      this.loadAccountDetails();
     });
+  }
+
+  getFineractDate(dateArray: unknown): Date | null {
+    if (Array.isArray(dateArray) && dateArray.length >= 3) {
+      return new Date(dateArray[0] as number, (dateArray[1] as number) - 1, dateArray[2] as number);
+    }
+    return dateArray ? new Date(dateArray as string | number | Date) : null;
+  }
+
+  getCurrencyCode(currency: unknown): string | undefined {
+    return (currency as Record<string, string>)?.['code'];
+  }
+
+  getFrequencyValue(frequency: unknown): string | undefined {
+    return (frequency as Record<string, string>)?.['value'];
+  }
+
+  getTimelineSubmittedOnDate(timeline: unknown): unknown {
+    return (timeline as Record<string, unknown>)?.['submittedOnDate'];
+  }
+
+  getAmount(depositAmount: unknown, principal: unknown): number | undefined {
+    return (depositAmount as number) || (principal as number) || undefined;
+  }
+
+  private loadAccountDetails(): void {
+    if (this.accountType === 'loan') {
+      this.loansService.retrieveLoan(this.accountId).subscribe({
+        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        error: (err) => console.error('Failed to load loan details', err),
+      });
+    } else if (this.accountType === 'savings') {
+      this.savingsService.retrieveOne25(this.accountId).subscribe({
+        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        error: (err) => console.error('Failed to load savings details', err),
+      });
+    } else if (this.accountType === 'fixed') {
+      this.fixedDepositService.retrieveOne19(this.accountId).subscribe({
+        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        error: (err) => console.error('Failed to load fixed deposit details', err),
+      });
+    } else if (this.accountType === 'recurring') {
+      this.recurringDepositService.retrieveOne22(this.accountId).subscribe({
+        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        error: (err) => console.error('Failed to load recurring deposit details', err),
+      });
+    }
   }
 
   private setupLabels(): void {

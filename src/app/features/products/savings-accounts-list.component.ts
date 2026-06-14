@@ -87,9 +87,11 @@ import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems 
       </button>
 
       <ng-template appCellTemplate="accountNo" let-account>
-        <a class="clickable-link" [routerLink]="['/products/savings-accounts/view', account.id]">{{
-          account.accountNo
-        }}</a>
+        <a
+          class="clickable-link"
+          [routerLink]="['/products', getAccountRoutePrefix(account), 'view', account.id]"
+          >{{ account.accountNo }}</a
+        >
       </ng-template>
 
       <ng-template appCellTemplate="summary.accountBalance" let-account>
@@ -256,12 +258,36 @@ export class SavingsAccountsListComponent implements OnInit {
   }
 
   /**
+   * Helper to get the correct URL prefix based on the deposit type.
+   */
+  getAccountRoutePrefix(account: GetSavingsPageItems): string {
+    const rawAccount = account as Record<string, unknown>;
+    const depositType = rawAccount['depositType'] as Record<string, unknown> | undefined;
+    const depositTypeId = depositType?.['id'] as number | undefined;
+    if (depositTypeId === 200) return 'fixed-deposits';
+    if (depositTypeId === 300) return 'recurring-deposits';
+    return 'savings-accounts';
+  }
+
+  /**
+   * Helper to get the action route type based on the deposit type.
+   */
+  getAccountActionType(account: GetSavingsPageItems): string {
+    const rawAccount = account as Record<string, unknown>;
+    const depositType = rawAccount['depositType'] as Record<string, unknown> | undefined;
+    const depositTypeId = depositType?.['id'] as number | undefined;
+    if (depositTypeId === 200) return 'fixed';
+    if (depositTypeId === 300) return 'recurring';
+    return 'savings';
+  }
+
+  /**
    * Navigates to the edit form for a specific savings account.
    *
    * @param account - The account entity to edit.
    */
   onEditAccount(account: GetSavingsPageItems): void {
-    this.router.navigate(['/products/savings-accounts/edit', account.id]);
+    this.router.navigate(['/products', this.getAccountRoutePrefix(account), 'edit', account.id]);
   }
 
   /**
@@ -271,10 +297,18 @@ export class SavingsAccountsListComponent implements OnInit {
    * @param command - The transaction type (deposit/withdrawal).
    */
   onTransaction(account: GetSavingsPageItems, command: string): void {
-    this.router.navigate(['/products/savings-accounts', account.id, 'transactions', command]);
+    this.router.navigate([
+      '/products',
+      this.getAccountRoutePrefix(account),
+      account.id,
+      'transactions',
+      command,
+    ]);
   }
 
   onApprove(account: GetSavingsPageItems): void {
-    this.router.navigate([`/products/savings/${account.id}/action/approve`]);
+    this.router.navigate([
+      `/products/${this.getAccountActionType(account)}/${account.id}/action/approve`,
+    ]);
   }
 }

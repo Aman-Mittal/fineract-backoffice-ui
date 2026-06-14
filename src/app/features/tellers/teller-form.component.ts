@@ -81,13 +81,19 @@ import {
           <form #tellerForm="ngForm" (ngSubmit)="onSubmit()" class="teller-form">
             <div class="form-grid">
               <!-- Name -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.NAME' | translate }}</mat-label>
                 <input matInput name="name" [(ngModel)]="teller.name" required />
               </mat-form-field>
 
               <!-- Office -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_OFFICE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_OFFICE_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.OFFICE' | translate }}</mat-label>
                 <mat-select
                   name="officeId"
@@ -104,7 +110,7 @@ import {
               <!-- Description -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'TELLERS.DESCRIPTION' | translate"
+                [matTooltip]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
                 class="full-width"
               >
                 <mat-label>{{ 'TELLERS.DESCRIPTION' | translate }}</mat-label>
@@ -119,7 +125,7 @@ import {
               <!-- Start Date -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'TELLER_START_DATE_DESC' | translate"
+                [matTooltip]="'HELP.TELLER_START_DATE_DESC' | translate"
               >
                 <mat-label>{{ 'TELLERS.START_DATE' | translate }}</mat-label>
                 <input
@@ -134,7 +140,10 @@ import {
               </mat-form-field>
 
               <!-- Status -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_STATUS_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_STATUS_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.STATUS' | translate }}</mat-label>
                 <mat-select name="status" [(ngModel)]="teller.status" required>
                   <mat-option value="ACTIVE">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
@@ -143,7 +152,10 @@ import {
               </mat-form-field>
 
               <!-- Usage -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_USAGE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_USAGE_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.USAGE' | translate }}</mat-label>
                 <mat-select name="usage" [(ngModel)]="usage" required>
                   <mat-option [value]="1">Cashier</mat-option>

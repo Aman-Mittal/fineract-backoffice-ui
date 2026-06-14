@@ -77,6 +77,7 @@
     "EDIT": "Edit",
     "SAVE": "Save",
     "CANCEL": "Cancel",
+    "CONFIRM": "Confirm",
     "STATUS": "Status",
     "ACTIONS": "Actions",
     "ENABLED": "Enabled",
@@ -455,7 +456,20 @@
     "REPORTS_DESC": "Access and run system-defined and custom business reports.",
     "GLOBAL_CONFIG_DESC": "Enable or disable global system features and behaviors.",
     "HOLIDAYS_DESC": "Define and manage non-working days and holiday schedules.",
-    "WORKING_DAYS_DESC": "Configure the standard operational week for the institution."
+    "WORKING_DAYS_DESC": "Configure the standard operational week for the institution.",
+    "TELLER_NAME_DESC": "A unique name to identify this teller.",
+    "TELLER_OFFICE_DESC": "The branch office this teller belongs to.",
+    "TELLER_START_DATE_DESC": "The date from when the teller becomes active.",
+    "TELLER_STATUS_DESC": "The current operational status of the teller.",
+    "TELLER_USAGE_DESC": "The usage category for this teller.",
+    "TELLER_DESCRIPTION_DESC": "A detailed description of this branch teller.",
+    "HOLIDAY_NAME_DESC": "A unique name for the holiday.",
+    "APPLICABLE_OFFICES_DESC": "Select the branch offices to which this holiday applies.",
+    "FROM_DATE_DESC": "The start date of the holiday period.",
+    "TO_DATE_DESC": "The end date of the holiday period.",
+    "REPAYMENTS_RESCHEDULED_TO_DESC": "The target date to reschedule any loan repayments falling on this holiday.",
+    "HOLIDAY_DESCRIPTION_DESC": "Optional details or comments about this holiday.",
+    "RESCHEDULING_TYPE_DESC": "Specify how repayments falling on this holiday should be rescheduled."
   },
   "REPORTS": {
     "NAME": "Report Name",
@@ -469,7 +483,21 @@
   },
   "SETTINGS": {
     "CONFIG_NAME": "Configuration Name",
-    "CREATE_HOLIDAY": "Create Holiday"
+    "CREATE_HOLIDAY": "Create Holiday",
+    "EDIT_CONFIG_TITLE": "Edit Configuration: {{name}}"
+  },
+  "HOLIDAYS": {
+    "CREATE_HOLIDAY": "Create Holiday",
+    "NAME": "Holiday Name",
+    "FROM_DATE": "From Date",
+    "TO_DATE": "To Date",
+    "REPAYMENTS_RESCHEDULED_TO": "Repayments Rescheduled To",
+    "APPLICABLE_OFFICES": "Applicable Offices",
+    "DESCRIPTION": "Description",
+    "RESCHEDULING_TYPE": "Rescheduling Type",
+    "ACTIVATE": "Activate Holiday",
+    "ACTIVATE_TITLE": "Activate Holiday",
+    "ACTIVATE_CONFIRM": "Are you sure you want to activate the holiday '{{name}}'?"
   },
   "ACCOUNTING_CLOSURES": {
     "CREATE": "Close Period",
