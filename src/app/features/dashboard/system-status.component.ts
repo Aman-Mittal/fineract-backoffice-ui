@@ -31,6 +31,10 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ConfigService } from '../../core/services/config.service';
 import { ClientService, LoansService, SavingsAccountService } from '../../api';
+import {
+  DonutChartComponent,
+  ChartData,
+} from '../../shared/components/charts/donut-chart.component';
 
 /**
  * Dashboard component that displays system status and key performance metrics.
@@ -47,6 +51,7 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
     MatButtonModule,
     MatProgressSpinnerModule,
     RouterModule,
+    DonutChartComponent,
   ],
   template: `
     <div class="dashboard-container">
@@ -174,6 +179,30 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         </div>
 
         <div class="side-column">
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pie_chart</mat-icon>
+                {{ 'DASHBOARD.LOAN_DISTRIBUTION' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-donut-chart [data]="loanChartData()"></app-donut-chart>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pie_chart</mat-icon>
+                {{ 'DASHBOARD.SAVINGS_DISTRIBUTION' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-donut-chart [data]="savingsChartData()"></app-donut-chart>
+            </mat-card-content>
+          </mat-card>
+
           <mat-card class="system-card">
             <mat-card-header>
               <mat-card-title>
@@ -287,6 +316,11 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         flex-direction: column;
         gap: 24px;
       }
+      .chart-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
       mat-card-title {
         display: flex;
         align-items: center;
@@ -347,6 +381,10 @@ import { ClientService, LoansService, SavingsAccountService } from '../../api';
         width: 48px;
         height: 48px;
         margin-bottom: 12px;
+      }
+      .empty-approvals p {
+        margin: 0;
+        font-size: 16px;
       }
       .status-list {
         list-style: none;
@@ -411,13 +449,17 @@ export class SystemStatusComponent implements OnInit {
   pendingLoans = signal<Record<string, unknown>[]>([]);
   pendingSavings = signal<Record<string, unknown>[]>([]);
 
+  loanChartData = signal<ChartData[]>([]);
+  savingsChartData = signal<ChartData[]>([]);
+
   ngOnInit(): void {
     this.loadMetrics();
   }
 
   private loadMetrics(): void {
     this.isLoading.set(true);
-    forkJoin({
+
+    const metrics$ = forkJoin({
       clients: this.clientService.retrieveAll21(
         undefined,
         undefined,
@@ -429,46 +471,100 @@ export class SystemStatusComponent implements OnInit {
         0,
         1,
       ),
-      loans: this.loansService.retrieveAll27(undefined, 0, 100),
+      loanActive: this.loansService.retrieveAll27(
+        undefined,
+        0,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        '300',
+      ),
+      loanPending: this.loansService.retrieveAll27(
+        undefined,
+        0,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        '100',
+      ),
+      loanClosed: this.loansService.retrieveAll27(
+        undefined,
+        0,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        '600',
+      ),
       savings: this.savingsService.retrieveAll33(undefined, 0, 100),
-    })
-      .pipe(catchError(() => of({ clients: null, loans: null, savings: null })))
-      .subscribe((data: Record<string, unknown>) => {
-        this.isLoading.set(false);
-        if (data['clients']) {
-          this.clientCount.set(
-            ((data['clients'] as Record<string, unknown>)['totalFilteredRecords'] as number) || 0,
-          );
-        }
+    });
 
-        if (data['loans']) {
-          const loans =
-            ((data['loans'] as Record<string, unknown>)['pageItems'] as Record<
-              string,
-              unknown
-            >[]) || [];
-          this.activeLoans.set(
-            loans.filter((l) => (l['status'] as Record<string, unknown>)?.['active']).length,
-          );
-          this.pendingLoans.set(
-            loans.filter((l) => (l['status'] as Record<string, unknown>)?.['pendingApproval']),
-          );
-        }
+    metrics$.pipe(catchError(() => of(null))).subscribe((data: Record<string, unknown> | null) => {
+      this.isLoading.set(false);
+      if (!data) return;
 
-        if (data['savings']) {
-          const accounts =
-            ((data['savings'] as Record<string, unknown>)['pageItems'] as Record<
-              string,
-              unknown
-            >[]) || [];
-          this.savingsCount.set(
-            ((data['savings'] as Record<string, unknown>)['totalFilteredRecords'] as number) || 0,
-          );
-          this.pendingSavings.set(
-            accounts.filter(
-              (a) => (a['status'] as Record<string, unknown>)?.['submittedAndPendingApproval'],
-            ),
-          );
+      // Clients
+      const clients = data['clients'] as Record<string, unknown>;
+      this.clientCount.set((clients?.['totalFilteredRecords'] as number) || 0);
+
+      // Loans (Accurate System Totals using Fineract Status Codes)
+      const loanActive = data['loanActive'] as Record<string, unknown>;
+      const loanPending = data['loanPending'] as Record<string, unknown>;
+      const loanClosed = data['loanClosed'] as Record<string, unknown>;
+
+      const active = (loanActive?.['totalFilteredRecords'] as number) || 0;
+      const pending = (loanPending?.['totalFilteredRecords'] as number) || 0;
+      const closed = (loanClosed?.['totalFilteredRecords'] as number) || 0;
+
+      this.activeLoans.set(active);
+      this.loanChartData.set([
+        { label: 'Active', value: active, color: '#2ecc71' },
+        { label: 'Pending', value: pending, color: '#f39c12' },
+        { label: 'Closed', value: closed, color: '#95a5a6' },
+      ]);
+
+      // Savings
+      const savings = data['savings'] as Record<string, unknown>;
+      if (savings) {
+        const accounts = Array.from((savings['pageItems'] as unknown[]) || []) as Record<
+          string,
+          unknown
+        >[];
+        const sActive = accounts.filter(
+          (a) => (a['status'] as Record<string, unknown>)?.['active'],
+        ).length;
+        const sPending = accounts.filter(
+          (a) => (a['status'] as Record<string, unknown>)?.['submittedAndPendingApproval'],
+        ).length;
+
+        this.savingsCount.set((savings['totalFilteredRecords'] as number) || 0);
+        this.pendingSavings.set(
+          accounts.filter(
+            (a) => (a['status'] as Record<string, unknown>)?.['submittedAndPendingApproval'],
+          ),
+        );
+
+        this.savingsChartData.set([
+          { label: 'Active', value: sActive, color: '#3498db' },
+          { label: 'Pending', value: sPending, color: '#f39c12' },
+        ]);
+      }
+    });
+
+    // Separately fetch real pending list for the list widget (first 50) using status code 100
+    this.loansService
+      .retrieveAll27(undefined, 0, 50, undefined, undefined, undefined, undefined, undefined, '100')
+      .subscribe((data) => {
+        if (data.pageItems) {
+          this.pendingLoans.set(Array.from(data.pageItems as unknown as Record<string, unknown>[]));
         }
       });
   }

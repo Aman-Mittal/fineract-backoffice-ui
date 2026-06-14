@@ -22,22 +22,35 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   ClientService,
   GetClientsClientIdResponse,
   GetClientsLoanAccounts,
   GetClientsSavingsAccounts,
+  PostClientsClientIdRequest,
 } from '../../api';
 import { StatusBadgeComponent } from '../../shared';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
+import { ClientActionDialogComponent } from './client-action-dialog.component';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
+import { ClientIdentifiersListComponent } from './tabs/client-identifiers-list.component';
+import { ClientAddressesListComponent } from './tabs/client-addresses-list.component';
+import { ClientFamilyMembersListComponent } from './tabs/client-family-members-list.component';
+import { ClientNotesListComponent } from './tabs/client-notes-list.component';
+import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
+import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 
 @Component({
   selector: 'app-client-view',
@@ -47,15 +60,21 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
     RouterModule,
     TranslateModule,
     MatCardModule,
-    MatDividerModule,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
     MatTabsModule,
     MatTableModule,
     MatTooltipModule,
+    MatDialogModule,
     StatusBadgeComponent,
     HasPermissionDirective,
+    ClientIdentifiersListComponent,
+    ClientAddressesListComponent,
+    ClientFamilyMembersListComponent,
+    ClientNotesListComponent,
+    ClientDocumentsListComponent,
+    EntityDatatablesComponent,
   ],
   template: `
     <div class="view-container">
@@ -92,6 +111,102 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
                 <mat-icon>edit</mat-icon>
                 {{ 'COMMON.EDIT' | translate }}
               </button>
+
+              <button
+                mat-stroked-button
+                color="accent"
+                [matMenuTriggerFor]="clientActionsMenu"
+                *appHasPermission="[
+                  'ACTIVATE_CLIENT',
+                  'CLOSE_CLIENT',
+                  'REJECT_CLIENT',
+                  'WITHDRAW_CLIENT',
+                  'DELETE_CLIENT',
+                  'REACTIVATE_CLIENT',
+                  'UNDOREJECT_CLIENT',
+                  'UNDOWITHDRAW_CLIENT',
+                ]"
+              >
+                <mat-icon>settings</mat-icon>
+                {{ 'COMMON.ACTIONS' | translate }}
+              </button>
+
+              <mat-menu #clientActionsMenu="matMenu">
+                @if (client()?.status?.id === 100) {
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('activate')"
+                    *appHasPermission="'ACTIVATE_CLIENT'"
+                  >
+                    <mat-icon>play_circle</mat-icon>
+                    <span>{{ 'ACTIONS.ACTIVATE_CLIENT' | translate }}</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('reject')"
+                    *appHasPermission="'REJECT_CLIENT'"
+                  >
+                    <mat-icon>report_off</mat-icon>
+                    <span>{{ 'ACTIONS.REJECT_CLIENT' | translate }}</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('withdraw')"
+                    *appHasPermission="'WITHDRAW_CLIENT'"
+                  >
+                    <mat-icon>cancel</mat-icon>
+                    <span>{{ 'ACTIONS.WITHDRAW_CLIENT' | translate }}</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    (click)="onDeleteClient()"
+                    *appHasPermission="'DELETE_CLIENT'"
+                  >
+                    <mat-icon>delete</mat-icon>
+                    <span>{{ 'COMMON.DELETE' | translate }}</span>
+                  </button>
+                }
+                @if (client()?.status?.id === 300) {
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('close')"
+                    *appHasPermission="'CLOSE_CLIENT'"
+                  >
+                    <mat-icon>close</mat-icon>
+                    <span>{{ 'ACTIONS.CLOSE_CLIENT' | translate }}</span>
+                  </button>
+                }
+                @if (client()?.status?.id === 600) {
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('reactivate')"
+                    *appHasPermission="'REACTIVATE_CLIENT'"
+                  >
+                    <mat-icon>replay</mat-icon>
+                    <span>{{ 'ACTIONS.REACTIVATE_CLIENT' | translate }}</span>
+                  </button>
+                }
+                @if (client()?.status?.id === 500) {
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('undoReject')"
+                    *appHasPermission="'UNDOREJECT_CLIENT'"
+                  >
+                    <mat-icon>undo</mat-icon>
+                    <span>{{ 'ACTIONS.UNDO_REJECT_CLIENT' | translate }}</span>
+                  </button>
+                }
+                @if (client()?.status?.id === 400) {
+                  <button
+                    mat-menu-item
+                    (click)="onClientAction('undoWithdraw')"
+                    *appHasPermission="'UNDOWITHDRAW_CLIENT'"
+                  >
+                    <mat-icon>undo</mat-icon>
+                    <span>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | translate }}</span>
+                  </button>
+                }
+              </mat-menu>
 
               <button mat-raised-button color="primary" [matMenuTriggerFor]="createMenu">
                 <mat-icon>add</mat-icon>
@@ -428,6 +543,47 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
                 </mat-card>
               </div>
             </mat-tab>
+
+            <mat-tab label="{{ 'CLIENTS.IDENTIFIERS' | translate }}">
+              <div class="tab-content">
+                <app-client-identifiers-list [clientId]="clientId"></app-client-identifiers-list>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="{{ 'CLIENTS.ADDRESSES' | translate }}">
+              <div class="tab-content">
+                <app-client-addresses-list [clientId]="clientId"></app-client-addresses-list>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="{{ 'CLIENTS.FAMILY_MEMBERS' | translate }}">
+              <div class="tab-content">
+                <app-client-family-members-list
+                  [clientId]="clientId"
+                ></app-client-family-members-list>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="{{ 'CLIENTS.NOTES' | translate }}">
+              <div class="tab-content">
+                <app-client-notes-list [clientId]="clientId"></app-client-notes-list>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="{{ 'CLIENTS.DOCUMENTS' | translate }}">
+              <div class="tab-content">
+                <app-client-documents-list [clientId]="clientId"></app-client-documents-list>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}">
+              <div class="tab-content">
+                <app-entity-datatables
+                  apptableName="m_client"
+                  [entityId]="clientId"
+                ></app-entity-datatables>
+              </div>
+            </mat-tab>
           </mat-tab-group>
         </div>
       }
@@ -486,7 +642,7 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
         margin: 0 0 4px 0;
         font-size: 24px;
         font-weight: 600;
-        color: #2c3e50;
+        color: var(--text-color);
       }
       .subtitle-row {
         display: flex;
@@ -504,9 +660,9 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
         align-items: center;
       }
       .tab-group {
-        background-color: #fff;
+        background-color: var(--card-bg);
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-sm);
       }
       .tab-content {
         padding: 24px;
@@ -518,7 +674,7 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
       }
       .info-card {
         border-radius: 8px;
-        border: 1px solid #eaedf1;
+        border: 1px solid var(--border-color);
       }
       .info-card mat-card-header {
         margin-bottom: 12px;
@@ -529,7 +685,7 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
         gap: 8px;
         font-size: 16px;
         font-weight: 600;
-        color: #34495e;
+        color: var(--secondary-color);
       }
       .details-list {
         display: flex;
@@ -540,15 +696,15 @@ import { resolveAccountActionType } from '../../core/utils/account-type-resolver
         display: flex;
         justify-content: space-between;
         padding-bottom: 8px;
-        border-bottom: 1px solid #f5f7fa;
+        border-bottom: 1px solid var(--border-color);
       }
       .detail-item .label {
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
         font-weight: 500;
       }
       .detail-item .value {
-        color: #2c3e50;
+        color: var(--text-color);
         font-size: 14px;
         font-weight: 600;
       }
@@ -592,6 +748,7 @@ export class ClientViewComponent implements OnInit {
   private readonly clientService = inject(ClientService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   clientId = 0;
   client = signal<GetClientsClientIdResponse | null>(null);
@@ -651,6 +808,66 @@ export class ClientViewComponent implements OnInit {
 
   onEditClient() {
     this.router.navigate(['/clients/edit', this.clientId]);
+  }
+
+  onClientAction(command: string) {
+    const dialogRef = this.dialog.open(ClientActionDialogComponent, {
+      width: '400px',
+      data: {
+        title: `ACTIONS.${command.toUpperCase()}_CLIENT`,
+        command: command,
+        clientId: this.clientId,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const payload: Record<string, unknown> = {
+          locale: FINERACT_LOCALE,
+          dateFormat: FINERACT_DATE_FORMAT,
+          note: result.note,
+        };
+
+        const formattedDate = formatDateToFineract(result.actionDate);
+
+        if (command === 'activate') payload['activationDate'] = formattedDate;
+        if (command === 'close') {
+          payload['closedOnDate'] = formattedDate;
+          payload['closureReasonId'] = result.reasonId;
+        }
+        if (command === 'reject') {
+          payload['rejectionDate'] = formattedDate;
+          payload['rejectionReasonId'] = result.reasonId;
+        }
+        if (command === 'withdraw') {
+          payload['withdrawalDate'] = formattedDate;
+          payload['withdrawalReasonId'] = result.reasonId;
+        }
+        if (command === 'reactivate') payload['reactivationDate'] = formattedDate;
+        if (command === 'undoReject') payload['reopenedDate'] = formattedDate;
+        if (command === 'undoWithdraw') payload['reopenedDate'] = formattedDate;
+
+        this.clientService
+          .activate1(this.clientId, payload as PostClientsClientIdRequest, command)
+          .subscribe({
+            next: () => {
+              this.loadClientData();
+            },
+            error: (err) => console.error(`Failed to execute ${command}`, err),
+          });
+      }
+    });
+  }
+
+  onDeleteClient() {
+    if (confirm('Are you sure you want to delete this client? This action cannot be undone.')) {
+      this.clientService.delete8(this.clientId).subscribe({
+        next: () => {
+          this.router.navigate(['/clients']);
+        },
+        error: (err) => console.error('Failed to delete client', err),
+      });
+    }
   }
 
   onCreateLoan() {

@@ -161,6 +161,7 @@ export interface ColumnDef {
           <mat-paginator
             [length]="totalRecords"
             [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
             [pageSizeOptions]="pageSizeOptions"
             (page)="onPage($event)"
             aria-label="Select page"
@@ -242,6 +243,7 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
   /** Total number of records. If server-side, this comes from API response. */
   @Input() totalRecords = 0;
   @Input() pageSize = 10;
+  @Input() pageIndex = 0;
   @Input() pageSizeOptions = [5, 10, 25, 100];
   @Input() showSearch = true;
   @Input() searchLabel = 'COMMON.SEARCH';

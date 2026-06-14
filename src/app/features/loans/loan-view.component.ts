@@ -29,6 +29,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
+import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import {
   LoansService,
   GetLoansLoanIdResponse,
@@ -52,6 +53,7 @@ import {
     MatTooltipModule,
     MatMenuModule,
     StatusBadgeComponent,
+    EntityDatatablesComponent,
   ],
   template: `
     @if (loan()) {
@@ -640,6 +642,16 @@ import {
               </mat-card>
             </div>
           </mat-tab>
+
+          <!-- Custom Fields -->
+          <mat-tab [label]="'SYSTEM.CUSTOM_FIELDS' | translate">
+            <div class="tab-content">
+              <app-entity-datatables
+                apptableName="m_loan"
+                [entityId]="loanId"
+              ></app-entity-datatables>
+            </div>
+          </mat-tab>
         </mat-tab-group>
       </div>
     }
@@ -689,7 +701,7 @@ import {
         margin: 0 0 4px 0;
         font-size: 24px;
         font-weight: 600;
-        color: #2c3e50;
+        color: var(--text-color);
       }
       .subtitle-row {
         display: flex;
@@ -707,9 +719,9 @@ import {
         align-items: center;
       }
       .tab-group {
-        background-color: #fff;
+        background-color: var(--card-bg);
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-sm);
       }
       .tab-content {
         padding: 24px;
@@ -721,7 +733,7 @@ import {
       }
       .info-card {
         border-radius: 8px;
-        border: 1px solid #eaedf1;
+        border: 1px solid var(--border-color);
       }
       .info-card mat-card-header {
         margin-bottom: 12px;
@@ -732,7 +744,7 @@ import {
         gap: 8px;
         font-size: 16px;
         font-weight: 600;
-        color: #34495e;
+        color: var(--secondary-color);
       }
       .details-list {
         display: flex;
@@ -743,20 +755,20 @@ import {
         display: flex;
         justify-content: space-between;
         padding-bottom: 8px;
-        border-bottom: 1px solid #f5f7fa;
+        border-bottom: 1px solid var(--border-color);
       }
       .detail-item .label {
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
         font-weight: 500;
       }
       .detail-item .value {
-        color: #2c3e50;
+        color: var(--text-color);
         font-size: 14px;
         font-weight: 600;
       }
       .table-card {
-        border: 1px solid #eaedf1;
+        border: 1px solid var(--border-color);
         box-shadow: none;
       }
       .full-width-table {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -93,15 +93,33 @@ import {
               <mat-divider></mat-divider>
               <div class="permissions-section">
                 <h3>{{ 'ROLES.PERMISSIONS' | translate }}</h3>
-                <div class="permissions-grid">
-                  @for (perm of permissions; track perm['code']) {
-                    <div class="permission-item">
-                      <mat-checkbox
-                        [name]="'perm_' + perm['code']"
-                        [(ngModel)]="permissionMappings[perm['code'] + '']"
-                      >
-                        {{ perm['code'] }}
-                      </mat-checkbox>
+
+                <div class="matrix-container">
+                  @for (group of groupedPermissions(); track group.prefix) {
+                    <div class="permission-group">
+                      <div class="group-header">
+                        <strong>{{ group.prefix }}</strong>
+                        <div class="group-actions">
+                          <button mat-button type="button" (click)="toggleGroup(group, true)">
+                            Check All
+                          </button>
+                          <button mat-button type="button" (click)="toggleGroup(group, false)">
+                            Uncheck All
+                          </button>
+                        </div>
+                      </div>
+                      <div class="group-items">
+                        @for (perm of group.items; track perm['code']) {
+                          <div class="permission-item">
+                            <mat-checkbox
+                              [name]="'perm_' + perm['code']"
+                              [(ngModel)]="permissionMappings[perm['code'] + '']"
+                            >
+                              {{ perm['code'] }}
+                            </mat-checkbox>
+                          </div>
+                        }
+                      </div>
                     </div>
                   }
                 </div>
@@ -152,15 +170,49 @@ import {
       .permissions-section {
         margin-top: 16px;
       }
-      .permissions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 8px;
-        max-height: 400px;
+      .matrix-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        max-height: 600px;
         overflow-y: auto;
-        padding: 8px;
+        padding: 16px;
         border: 1px solid #eee;
         border-radius: 4px;
+      }
+      .permission-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 16px;
+      }
+      .permission-group:last-child {
+        border-bottom: none;
+      }
+      .group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 4px 12px;
+        border-radius: 4px;
+      }
+      .group-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .group-actions button {
+        font-size: 11px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 8px;
+      }
+      .group-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 8px;
+        padding: 0 12px;
       }
       .form-actions {
         display: flex;
@@ -185,6 +237,8 @@ export class RoleFormComponent implements OnInit {
   role: PostRolesRequest = {};
   permissions: Record<string, unknown>[] = [];
   permissionMappings: Record<string, boolean> = {};
+
+  groupedPermissions = signal<{ prefix: string; items: Record<string, unknown>[] }[]>([]);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -217,7 +271,33 @@ export class RoleFormComponent implements OnInit {
         this.permissions.forEach((p) => {
           this.permissionMappings[p['code'] + ''] = (p['selected'] as boolean) || false;
         });
+        this.groupPermissions();
       });
+  }
+
+  private groupPermissions(): void {
+    const groups: Record<string, Record<string, unknown>[]> = {};
+    this.permissions.forEach((p) => {
+      const code = p['code'] as string;
+      const prefix = code.split('_')[1] || 'GENERAL';
+      if (!groups[prefix]) groups[prefix] = [];
+      groups[prefix].push(p);
+    });
+
+    const sortedGroups = Object.keys(groups)
+      .sort()
+      .map((prefix) => ({
+        prefix,
+        items: groups[prefix],
+      }));
+
+    this.groupedPermissions.set(sortedGroups);
+  }
+
+  toggleGroup(group: { items: Record<string, unknown>[] }, value: boolean): void {
+    group.items.forEach((p) => {
+      this.permissionMappings[p['code'] + ''] = value;
+    });
   }
 
   onSubmit(): void {

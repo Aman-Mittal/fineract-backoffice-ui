@@ -74,6 +74,43 @@ import { SidebarService } from '../core/services/sidebar.service';
         </li>
         <li>
           <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.transfers' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/transfers/account-transfer"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">swap_horiz</mat-icon>
+                  <span class="nav-text">{{ 'nav.accountTransfer' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/transfers/standing-instructions"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">schedule_send</mat-icon>
+                  <span class="nav-text">{{ 'nav.standingInstructions' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/transfers/standing-instructions/history"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">history</mat-icon>
+                  <span class="nav-text">{{ 'nav.standingInstructionsHistory' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
             <span class="nav-group-header">{{ 'nav.products' | translate }}</span>
             <ul class="nav-sub-list">
               <li>
@@ -275,6 +312,16 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.roles' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/security/audits"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">history_edits</mat-icon>
+                  <span class="nav-text">{{ 'nav.audits' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -342,10 +389,68 @@ import { SidebarService } from '../core/services/sidebar.service';
           </div>
         </li>
         <li>
-          <a routerLink="/organization/offices" routerLinkActive="active" class="nav-item">
-            <mat-icon class="nav-icon">corporate_fare</mat-icon>
-            <span class="nav-text">{{ 'nav.organization' | translate }}</span>
-          </a>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.organization' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/organization/offices"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">corporate_fare</mat-icon>
+                  <span class="nav-text">{{ 'nav.offices' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/organization/staff"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">badge</mat-icon>
+                  <span class="nav-text">{{ 'nav.staff' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.system' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/system/data-tables"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">table_chart</mat-icon>
+                  <span class="nav-text">{{ 'nav.dataTables' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/bulk-import"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">publish</mat-icon>
+                  <span class="nav-text">{{ 'nav.bulkImport' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/delinquency"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">gavel</mat-icon>
+                  <span class="nav-text">{{ 'nav.delinquency' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     </nav>
@@ -363,6 +468,10 @@ import { SidebarService } from '../core/services/sidebar.service';
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
         transition: width 0.2s ease-in-out;
+      }
+      :host-context([data-theme='dark']) .sidebar {
+        background-color: var(--card-bg);
+        border-right: 1px solid var(--border-color);
       }
       .sidebar.collapsed {
         width: 64px;
@@ -393,14 +502,26 @@ import { SidebarService } from '../core/services/sidebar.service';
         text-decoration: none;
         transition: all 0.2s;
       }
+      :host-context([data-theme='dark']) .nav-item {
+        color: rgba(255, 255, 255, 0.7);
+      }
       .nav-item:hover {
         background-color: #34495e;
+        color: #fff;
+      }
+      :host-context([data-theme='dark']) .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
         color: #fff;
       }
       .nav-item.active {
         background-color: var(--primary-color);
         color: #fff;
         border-left: 4px solid #fff;
+      }
+      :host-context([data-theme='dark']) .nav-item.active {
+        border-left-color: var(--primary-color);
+        background-color: rgba(52, 152, 219, 0.25);
+        color: #fff;
       }
       .nav-icon {
         font-size: 20px;
@@ -440,6 +561,9 @@ import { SidebarService } from '../core/services/sidebar.service';
         font-weight: 700;
         letter-spacing: 1px;
         white-space: nowrap;
+      }
+      :host-context([data-theme='dark']) .nav-group-header {
+        color: rgba(255, 255, 255, 0.4);
       }
       .sidebar.collapsed .nav-group-header {
         display: none;

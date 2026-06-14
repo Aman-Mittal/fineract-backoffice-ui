@@ -64,6 +64,76 @@ export const routes: Routes = [
           import('./features/clients/client-view.component').then((m) => m.ClientViewComponent),
       },
       {
+        path: 'clients/:clientId/identifiers/create',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-identifier-form.component').then(
+            (m) => m.ClientIdentifierFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/identifiers/edit/:id',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-identifier-form.component').then(
+            (m) => m.ClientIdentifierFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/addresses/create',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-address-form.component').then(
+            (m) => m.ClientAddressFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/addresses/edit/:id',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-address-form.component').then(
+            (m) => m.ClientAddressFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/family-members/create',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-family-member-form.component').then(
+            (m) => m.ClientFamilyMemberFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/family-members/edit/:id',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-family-member-form.component').then(
+            (m) => m.ClientFamilyMemberFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/notes/create',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-note-form.component').then(
+            (m) => m.ClientNoteFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/notes/edit/:id',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-note-form.component').then(
+            (m) => m.ClientNoteFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/documents/create',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-document-form.component').then(
+            (m) => m.ClientDocumentFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/documents/edit/:id',
+        loadComponent: () =>
+          import('./features/clients/kyc/client-document-form.component').then(
+            (m) => m.ClientDocumentFormComponent,
+          ),
+      },
+      {
         path: 'groups',
         loadComponent: () =>
           import('./features/groups/groups-list.component').then((m) => m.GroupsListComponent),
@@ -255,6 +325,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/fixed-deposits/view/:id',
+        loadComponent: () =>
+          import('./features/products/deposit-account-view.component').then(
+            (m) => m.DepositAccountViewComponent,
+          ),
+      },
+      {
         path: 'products/recurring-deposits',
         loadComponent: () =>
           import('./features/products/recurring-deposits/recurring-deposits-list.component').then(
@@ -273,6 +350,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/products/recurring-deposits/recurring-deposit-form.component').then(
             (m) => m.RecurringDepositAccountFormComponent,
+          ),
+      },
+      {
+        path: 'products/recurring-deposits/view/:id',
+        loadComponent: () =>
+          import('./features/products/deposit-account-view.component').then(
+            (m) => m.DepositAccountViewComponent,
           ),
       },
       {
@@ -315,6 +399,41 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/fintech/asset-owner-view/asset-owner-view.component').then(
             (m) => m.AssetOwnerViewComponent,
+          ),
+      },
+      {
+        path: 'transfers/account-transfer',
+        loadComponent: () =>
+          import('./features/transfers/account-transfer-form.component').then(
+            (m) => m.AccountTransferFormComponent,
+          ),
+      },
+      {
+        path: 'transfers/standing-instructions',
+        loadComponent: () =>
+          import('./features/transfers/standing-instructions-list.component').then(
+            (m) => m.StandingInstructionsListComponent,
+          ),
+      },
+      {
+        path: 'transfers/standing-instructions/create',
+        loadComponent: () =>
+          import('./features/transfers/standing-instruction-form.component').then(
+            (m) => m.StandingInstructionFormComponent,
+          ),
+      },
+      {
+        path: 'transfers/standing-instructions/edit/:id',
+        loadComponent: () =>
+          import('./features/transfers/standing-instruction-form.component').then(
+            (m) => m.StandingInstructionFormComponent,
+          ),
+      },
+      {
+        path: 'transfers/standing-instructions/history',
+        loadComponent: () =>
+          import('./features/transfers/standing-instruction-history.component').then(
+            (m) => m.StandingInstructionHistoryComponent,
           ),
       },
       {
@@ -525,6 +644,69 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/organization/offices/office-form.component').then(
             (m) => m.OfficeFormComponent,
+          ),
+      },
+      {
+        path: 'organization/staff',
+        loadComponent: () =>
+          import('./features/organization/staff/staff-list.component').then(
+            (m) => m.StaffListComponent,
+          ),
+      },
+      {
+        path: 'organization/staff/create',
+        loadComponent: () =>
+          import('./features/organization/staff/staff-form.component').then(
+            (m) => m.StaffFormComponent,
+          ),
+      },
+      {
+        path: 'organization/staff/edit/:id',
+        loadComponent: () =>
+          import('./features/organization/staff/staff-form.component').then(
+            (m) => m.StaffFormComponent,
+          ),
+      },
+      {
+        path: 'security/audits',
+        loadComponent: () =>
+          import('./features/security/audit-logs/audit-logs-list.component').then(
+            (m) => m.AuditLogsListComponent,
+          ),
+      },
+      {
+        path: 'system/data-tables',
+        loadComponent: () =>
+          import('./features/system/data-tables/datatables-list.component').then(
+            (m) => m.DatatablesListComponent,
+          ),
+      },
+      {
+        path: 'system/data-tables/create',
+        loadComponent: () =>
+          import('./features/system/data-tables/datatables-form.component').then(
+            (m) => m.DatatablesFormComponent,
+          ),
+      },
+      {
+        path: 'system/data-tables/edit/:name',
+        loadComponent: () =>
+          import('./features/system/data-tables/datatables-form.component').then(
+            (m) => m.DatatablesFormComponent,
+          ),
+      },
+      {
+        path: 'system/bulk-import',
+        loadComponent: () =>
+          import('./features/system/bulk-import/bulk-import.component').then(
+            (m) => m.BulkImportComponent,
+          ),
+      },
+      {
+        path: 'system/delinquency',
+        loadComponent: () =>
+          import('./features/system/delinquency/delinquency-management.component').then(
+            (m) => m.DelinquencyManagementComponent,
           ),
       },
       {

@@ -29,12 +29,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ConfigService } from './core/services/config.service';
+import { CustomPaginatorIntl } from './core/utils/custom-paginator-intl';
 
 import { BASE_PATH } from './api/variables';
 
@@ -76,5 +78,9 @@ export const appConfig: ApplicationConfig = {
       prefix: 'assets/i18n/',
       suffix: '.json',
     }),
+    {
+      provide: MatPaginatorIntl,
+      useClass: CustomPaginatorIntl,
+    },
   ],
 };
