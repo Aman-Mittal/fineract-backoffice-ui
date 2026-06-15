@@ -125,7 +125,7 @@ export class RecurringDepositsListComponent implements OnInit {
    * Fetches RD accounts from the API.
    */
   private loadAccounts(): void {
-    this.rdService.retrieveAll31().subscribe({
+    this.rdService.getRecurringdepositaccounts().subscribe({
       next: (data: GetRecurringDepositAccountsResponse[]) => {
         this.accounts = data || [];
       },

@@ -74,150 +74,6 @@ export class InterOperationService extends BaseService {
     }
 
     /**
-     * Calculate Interoperation Quote
-     * @endpoint post /v1/interoperation/quotes
-     * @param interopQuoteRequestData 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createQuote(interopQuoteRequestData: InteropQuoteRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropQuoteResponseData>;
-    public createQuote(interopQuoteRequestData: InteropQuoteRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropQuoteResponseData>>;
-    public createQuote(interopQuoteRequestData: InteropQuoteRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropQuoteResponseData>>;
-    public createQuote(interopQuoteRequestData: InteropQuoteRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (interopQuoteRequestData === null || interopQuoteRequestData === undefined) {
-            throw new Error('Required parameter interopQuoteRequestData was null or undefined when calling createQuote.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/quotes`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<InteropQuoteResponseData>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: interopQuoteRequestData,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Allow Interoperation Transaction Request
-     * @endpoint post /v1/interoperation/requests
-     * @param interopTransactionRequestData 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createTransactionRequest(interopTransactionRequestData: InteropTransactionRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransactionRequestResponseData>;
-    public createTransactionRequest(interopTransactionRequestData: InteropTransactionRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransactionRequestResponseData>>;
-    public createTransactionRequest(interopTransactionRequestData: InteropTransactionRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransactionRequestResponseData>>;
-    public createTransactionRequest(interopTransactionRequestData: InteropTransactionRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (interopTransactionRequestData === null || interopTransactionRequestData === undefined) {
-            throw new Error('Required parameter interopTransactionRequestData was null or undefined when calling createTransactionRequest.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/requests`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<InteropTransactionRequestResponseData>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: interopTransactionRequestData,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Allow Interoperation Identifier registration
      * @endpoint delete /v1/interoperation/parties/{idType}/{idValue}
      * @param idType idType
@@ -227,18 +83,18 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
-    public deleteAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
-    public deleteAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
-    public deleteAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
+    public deleteInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
+    public deleteInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
+    public deleteInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (idType === null || idType === undefined) {
-            throw new Error('Required parameter idType was null or undefined when calling deleteAccountIdentifier.');
+            throw new Error('Required parameter idType was null or undefined when calling deleteInteroperationPartiesIdTypeIdValue.');
         }
         if (idValue === null || idValue === undefined) {
-            throw new Error('Required parameter idValue was null or undefined when calling deleteAccountIdentifier.');
+            throw new Error('Required parameter idValue was null or undefined when calling deleteInteroperationPartiesIdTypeIdValue.');
         }
         if (interopIdentifierRequestData === null || interopIdentifierRequestData === undefined) {
-            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling deleteAccountIdentifier.');
+            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling deleteInteroperationPartiesIdTypeIdValue.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -263,7 +119,6 @@ export class InterOperationService extends BaseService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
         ];
         const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected !== undefined) {
@@ -308,21 +163,21 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
-    public deleteAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
-    public deleteAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
-    public deleteAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
+    public deleteInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
+    public deleteInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
+    public deleteInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (idType === null || idType === undefined) {
-            throw new Error('Required parameter idType was null or undefined when calling deleteAccountIdentifier1.');
+            throw new Error('Required parameter idType was null or undefined when calling deleteInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
         if (idValue === null || idValue === undefined) {
-            throw new Error('Required parameter idValue was null or undefined when calling deleteAccountIdentifier1.');
+            throw new Error('Required parameter idValue was null or undefined when calling deleteInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
         if (subIdOrType === null || subIdOrType === undefined) {
-            throw new Error('Required parameter subIdOrType was null or undefined when calling deleteAccountIdentifier1.');
+            throw new Error('Required parameter subIdOrType was null or undefined when calling deleteInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
         if (interopIdentifierRequestData === null || interopIdentifierRequestData === undefined) {
-            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling deleteAccountIdentifier1.');
+            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling deleteInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -347,7 +202,6 @@ export class InterOperationService extends BaseService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
         ];
         const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected !== undefined) {
@@ -382,204 +236,6 @@ export class InterOperationService extends BaseService {
     }
 
     /**
-     * Disburse Loan by Account Id
-     * @endpoint post /v1/interoperation/transactions/{accountId}/disburse
-     * @param accountId accountId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public disburseLoan(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public disburseLoan(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public disburseLoan(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public disburseLoan(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling disburseLoan.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/transactions/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/disburse`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Query Interoperation Account by secondary identifier
-     * @endpoint get /v1/interoperation/parties/{idType}/{idValue}
-     * @param idType idType
-     * @param idValue idValue
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getAccountByIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
-    public getAccountByIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
-    public getAccountByIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
-    public getAccountByIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (idType === null || idType === undefined) {
-            throw new Error('Required parameter idType was null or undefined when calling getAccountByIdentifier.');
-        }
-        if (idValue === null || idValue === undefined) {
-            throw new Error('Required parameter idValue was null or undefined when calling getAccountByIdentifier.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/parties/${this.configuration.encodeParam({name: "idType", value: idType, in: "path", style: "simple", explode: false, dataType: "'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "idValue", value: idValue, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<InteropIdentifierAccountResponseData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Query Interoperation Account by secondary identifier
-     * @endpoint get /v1/interoperation/parties/{idType}/{idValue}/{subIdOrType}
-     * @param idType idType
-     * @param idValue idValue
-     * @param subIdOrType subIdOrType
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getAccountByIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
-    public getAccountByIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
-    public getAccountByIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
-    public getAccountByIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (idType === null || idType === undefined) {
-            throw new Error('Required parameter idType was null or undefined when calling getAccountByIdentifier1.');
-        }
-        if (idValue === null || idValue === undefined) {
-            throw new Error('Required parameter idValue was null or undefined when calling getAccountByIdentifier1.');
-        }
-        if (subIdOrType === null || subIdOrType === undefined) {
-            throw new Error('Required parameter subIdOrType was null or undefined when calling getAccountByIdentifier1.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/parties/${this.configuration.encodeParam({name: "idType", value: idType, in: "path", style: "simple", explode: false, dataType: "'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "idValue", value: idValue, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "subIdOrType", value: subIdOrType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<InteropIdentifierAccountResponseData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Query Interoperation Account details
      * @endpoint get /v1/interoperation/accounts/{accountId}
      * @param accountId accountId
@@ -587,12 +243,12 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAccountDetails(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropAccountData>;
-    public getAccountDetails(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropAccountData>>;
-    public getAccountDetails(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropAccountData>>;
-    public getAccountDetails(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInteroperationAccountsAccountId(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropAccountData>;
+    public getInteroperationAccountsAccountId(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropAccountData>>;
+    public getInteroperationAccountsAccountId(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropAccountData>>;
+    public getInteroperationAccountsAccountId(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling getAccountDetails.');
+            throw new Error('Required parameter accountId was null or undefined when calling getInteroperationAccountsAccountId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -649,12 +305,12 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAccountIdentifiers(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifiersResponseData>;
-    public getAccountIdentifiers(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifiersResponseData>>;
-    public getAccountIdentifiers(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifiersResponseData>>;
-    public getAccountIdentifiers(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInteroperationAccountsAccountIdIdentifiers(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifiersResponseData>;
+    public getInteroperationAccountsAccountIdIdentifiers(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifiersResponseData>>;
+    public getInteroperationAccountsAccountIdIdentifiers(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifiersResponseData>>;
+    public getInteroperationAccountsAccountIdIdentifiers(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling getAccountIdentifiers.');
+            throw new Error('Required parameter accountId was null or undefined when calling getInteroperationAccountsAccountIdIdentifiers.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -704,6 +360,68 @@ export class InterOperationService extends BaseService {
     }
 
     /**
+     * Query KYC by Account Id
+     * @endpoint get /v1/interoperation/accounts/{accountId}/kyc
+     * @param accountId accountId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getInteroperationAccountsAccountIdKyc(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropKycResponseData>;
+    public getInteroperationAccountsAccountIdKyc(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropKycResponseData>>;
+    public getInteroperationAccountsAccountIdKyc(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropKycResponseData>>;
+    public getInteroperationAccountsAccountIdKyc(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountId === null || accountId === undefined) {
+            throw new Error('Required parameter accountId was null or undefined when calling getInteroperationAccountsAccountIdKyc.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/accounts/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/kyc`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<InteropKycResponseData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Query transactions by Account Id
      * @endpoint get /v1/interoperation/accounts/{accountId}/transactions
      * @param accountId accountId
@@ -715,12 +433,12 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAccountTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransactionsData>;
-    public getAccountTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransactionsData>>;
-    public getAccountTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransactionsData>>;
-    public getAccountTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInteroperationAccountsAccountIdTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransactionsData>;
+    public getInteroperationAccountsAccountIdTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransactionsData>>;
+    public getInteroperationAccountsAccountIdTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransactionsData>>;
+    public getInteroperationAccountsAccountIdTransactions(accountId: string, debit?: boolean, credit?: boolean, fromBookingDateTime?: string, toBookingDateTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling getAccountTransactions.');
+            throw new Error('Required parameter accountId was null or undefined when calling getInteroperationAccountsAccountIdTransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -809,19 +527,80 @@ export class InterOperationService extends BaseService {
     }
 
     /**
-     * Query KYC by Account Id
-     * @endpoint get /v1/interoperation/accounts/{accountId}/kyc
-     * @param accountId accountId
+     * Query Interoperation Health Request
+     * @endpoint get /v1/interoperation/health
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getClientKyc(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropKycResponseData>;
-    public getClientKyc(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropKycResponseData>>;
-    public getClientKyc(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropKycResponseData>>;
-    public getClientKyc(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling getClientKyc.');
+    public getInteroperationHealth(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public getInteroperationHealth(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public getInteroperationHealth(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public getInteroperationHealth(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/health`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Query Interoperation Account by secondary identifier
+     * @endpoint get /v1/interoperation/parties/{idType}/{idValue}
+     * @param idType idType
+     * @param idValue idValue
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
+    public getInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
+    public getInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
+    public getInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (idType === null || idType === undefined) {
+            throw new Error('Required parameter idType was null or undefined when calling getInteroperationPartiesIdTypeIdValue.');
+        }
+        if (idValue === null || idValue === undefined) {
+            throw new Error('Required parameter idValue was null or undefined when calling getInteroperationPartiesIdTypeIdValue.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -855,9 +634,79 @@ export class InterOperationService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/interoperation/accounts/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/kyc`;
+        let localVarPath = `/v1/interoperation/parties/${this.configuration.encodeParam({name: "idType", value: idType, in: "path", style: "simple", explode: false, dataType: "'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "idValue", value: idValue, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<InteropKycResponseData>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<InteropIdentifierAccountResponseData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Query Interoperation Account by secondary identifier
+     * @endpoint get /v1/interoperation/parties/{idType}/{idValue}/{subIdOrType}
+     * @param idType idType
+     * @param idValue idValue
+     * @param subIdOrType subIdOrType
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
+    public getInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
+    public getInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
+    public getInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (idType === null || idType === undefined) {
+            throw new Error('Required parameter idType was null or undefined when calling getInteroperationPartiesIdTypeIdValueSubIdOrType.');
+        }
+        if (idValue === null || idValue === undefined) {
+            throw new Error('Required parameter idValue was null or undefined when calling getInteroperationPartiesIdTypeIdValueSubIdOrType.');
+        }
+        if (subIdOrType === null || subIdOrType === undefined) {
+            throw new Error('Required parameter subIdOrType was null or undefined when calling getInteroperationPartiesIdTypeIdValueSubIdOrType.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/parties/${this.configuration.encodeParam({name: "idType", value: idType, in: "path", style: "simple", explode: false, dataType: "'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN'", dataFormat: undefined})}/${this.configuration.encodeParam({name: "idValue", value: idValue, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "subIdOrType", value: subIdOrType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<InteropIdentifierAccountResponseData>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -879,15 +728,15 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getQuote(transactionCode: string, quoteCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropQuoteResponseData>;
-    public getQuote(transactionCode: string, quoteCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropQuoteResponseData>>;
-    public getQuote(transactionCode: string, quoteCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropQuoteResponseData>>;
-    public getQuote(transactionCode: string, quoteCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInteroperationTransactionsTransactionCodeQuotesQuoteCode(transactionCode: string, quoteCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropQuoteResponseData>;
+    public getInteroperationTransactionsTransactionCodeQuotesQuoteCode(transactionCode: string, quoteCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropQuoteResponseData>>;
+    public getInteroperationTransactionsTransactionCodeQuotesQuoteCode(transactionCode: string, quoteCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropQuoteResponseData>>;
+    public getInteroperationTransactionsTransactionCodeQuotesQuoteCode(transactionCode: string, quoteCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (transactionCode === null || transactionCode === undefined) {
-            throw new Error('Required parameter transactionCode was null or undefined when calling getQuote.');
+            throw new Error('Required parameter transactionCode was null or undefined when calling getInteroperationTransactionsTransactionCodeQuotesQuoteCode.');
         }
         if (quoteCode === null || quoteCode === undefined) {
-            throw new Error('Required parameter quoteCode was null or undefined when calling getQuote.');
+            throw new Error('Required parameter quoteCode was null or undefined when calling getInteroperationTransactionsTransactionCodeQuotesQuoteCode.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -945,15 +794,15 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getTransactionRequest(transactionCode: string, requestCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransactionRequestResponseData>;
-    public getTransactionRequest(transactionCode: string, requestCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransactionRequestResponseData>>;
-    public getTransactionRequest(transactionCode: string, requestCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransactionRequestResponseData>>;
-    public getTransactionRequest(transactionCode: string, requestCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInteroperationTransactionsTransactionCodeRequestsRequestCode(transactionCode: string, requestCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransactionRequestResponseData>;
+    public getInteroperationTransactionsTransactionCodeRequestsRequestCode(transactionCode: string, requestCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransactionRequestResponseData>>;
+    public getInteroperationTransactionsTransactionCodeRequestsRequestCode(transactionCode: string, requestCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransactionRequestResponseData>>;
+    public getInteroperationTransactionsTransactionCodeRequestsRequestCode(transactionCode: string, requestCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (transactionCode === null || transactionCode === undefined) {
-            throw new Error('Required parameter transactionCode was null or undefined when calling getTransactionRequest.');
+            throw new Error('Required parameter transactionCode was null or undefined when calling getInteroperationTransactionsTransactionCodeRequestsRequestCode.');
         }
         if (requestCode === null || requestCode === undefined) {
-            throw new Error('Required parameter requestCode was null or undefined when calling getTransactionRequest.');
+            throw new Error('Required parameter requestCode was null or undefined when calling getInteroperationTransactionsTransactionCodeRequestsRequestCode.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1011,15 +860,15 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getTransfer(transactionCode: string, transferCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransferResponseData>;
-    public getTransfer(transactionCode: string, transferCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransferResponseData>>;
-    public getTransfer(transactionCode: string, transferCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransferResponseData>>;
-    public getTransfer(transactionCode: string, transferCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInteroperationTransactionsTransactionCodeTransfersTransferCode(transactionCode: string, transferCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransferResponseData>;
+    public getInteroperationTransactionsTransactionCodeTransfersTransferCode(transactionCode: string, transferCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransferResponseData>>;
+    public getInteroperationTransactionsTransactionCodeTransfersTransferCode(transactionCode: string, transferCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransferResponseData>>;
+    public getInteroperationTransactionsTransactionCodeTransfersTransferCode(transactionCode: string, transferCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (transactionCode === null || transactionCode === undefined) {
-            throw new Error('Required parameter transactionCode was null or undefined when calling getTransfer.');
+            throw new Error('Required parameter transactionCode was null or undefined when calling getInteroperationTransactionsTransactionCodeTransfersTransferCode.');
         }
         if (transferCode === null || transferCode === undefined) {
-            throw new Error('Required parameter transferCode was null or undefined when calling getTransfer.');
+            throw new Error('Required parameter transferCode was null or undefined when calling getInteroperationTransactionsTransactionCodeTransfersTransferCode.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1069,210 +918,6 @@ export class InterOperationService extends BaseService {
     }
 
     /**
-     * Query Interoperation Health Request
-     * @endpoint get /v1/interoperation/health
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public health(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public health(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public health(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public health(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/health`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Disburse Loan by Account Id
-     * @endpoint post /v1/interoperation/transactions/{accountId}/loanrepayment
-     * @param accountId accountId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public loanRepayment(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public loanRepayment(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public loanRepayment(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public loanRepayment(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling loanRepayment.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/transactions/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/loanrepayment`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Prepare Interoperation Transfer
-     * @endpoint post /v1/interoperation/transfers
-     * @param interopTransferRequestData 
-     * @param action action
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public performTransfer(interopTransferRequestData: InteropTransferRequestData, action?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransferResponseData>;
-    public performTransfer(interopTransferRequestData: InteropTransferRequestData, action?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransferResponseData>>;
-    public performTransfer(interopTransferRequestData: InteropTransferRequestData, action?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransferResponseData>>;
-    public performTransfer(interopTransferRequestData: InteropTransferRequestData, action?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (interopTransferRequestData === null || interopTransferRequestData === undefined) {
-            throw new Error('Required parameter interopTransferRequestData was null or undefined when calling performTransfer.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'action',
-            <any>action,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interoperation/transfers`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<InteropTransferResponseData>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: interopTransferRequestData,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Interoperation Identifier registration
      * @endpoint post /v1/interoperation/parties/{idType}/{idValue}
      * @param idType idType
@@ -1282,18 +927,18 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public registerAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
-    public registerAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
-    public registerAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
-    public registerAccountIdentifier(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
+    public postInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
+    public postInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
+    public postInteroperationPartiesIdTypeIdValue(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (idType === null || idType === undefined) {
-            throw new Error('Required parameter idType was null or undefined when calling registerAccountIdentifier.');
+            throw new Error('Required parameter idType was null or undefined when calling postInteroperationPartiesIdTypeIdValue.');
         }
         if (idValue === null || idValue === undefined) {
-            throw new Error('Required parameter idValue was null or undefined when calling registerAccountIdentifier.');
+            throw new Error('Required parameter idValue was null or undefined when calling postInteroperationPartiesIdTypeIdValue.');
         }
         if (interopIdentifierRequestData === null || interopIdentifierRequestData === undefined) {
-            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling registerAccountIdentifier.');
+            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling postInteroperationPartiesIdTypeIdValue.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1363,21 +1008,21 @@ export class InterOperationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public registerAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
-    public registerAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
-    public registerAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
-    public registerAccountIdentifier1(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropIdentifierAccountResponseData>;
+    public postInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropIdentifierAccountResponseData>>;
+    public postInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropIdentifierAccountResponseData>>;
+    public postInteroperationPartiesIdTypeIdValueSubIdOrType(idType: 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN', idValue: string, subIdOrType: string, interopIdentifierRequestData: InteropIdentifierRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (idType === null || idType === undefined) {
-            throw new Error('Required parameter idType was null or undefined when calling registerAccountIdentifier1.');
+            throw new Error('Required parameter idType was null or undefined when calling postInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
         if (idValue === null || idValue === undefined) {
-            throw new Error('Required parameter idValue was null or undefined when calling registerAccountIdentifier1.');
+            throw new Error('Required parameter idValue was null or undefined when calling postInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
         if (subIdOrType === null || subIdOrType === undefined) {
-            throw new Error('Required parameter subIdOrType was null or undefined when calling registerAccountIdentifier1.');
+            throw new Error('Required parameter subIdOrType was null or undefined when calling postInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
         if (interopIdentifierRequestData === null || interopIdentifierRequestData === undefined) {
-            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling registerAccountIdentifier1.');
+            throw new Error('Required parameter interopIdentifierRequestData was null or undefined when calling postInteroperationPartiesIdTypeIdValueSubIdOrType.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1426,6 +1071,359 @@ export class InterOperationService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: interopIdentifierRequestData,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Calculate Interoperation Quote
+     * @endpoint post /v1/interoperation/quotes
+     * @param interopQuoteRequestData 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postInteroperationQuotes(interopQuoteRequestData: InteropQuoteRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropQuoteResponseData>;
+    public postInteroperationQuotes(interopQuoteRequestData: InteropQuoteRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropQuoteResponseData>>;
+    public postInteroperationQuotes(interopQuoteRequestData: InteropQuoteRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropQuoteResponseData>>;
+    public postInteroperationQuotes(interopQuoteRequestData: InteropQuoteRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (interopQuoteRequestData === null || interopQuoteRequestData === undefined) {
+            throw new Error('Required parameter interopQuoteRequestData was null or undefined when calling postInteroperationQuotes.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/quotes`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<InteropQuoteResponseData>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: interopQuoteRequestData,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Allow Interoperation Transaction Request
+     * @endpoint post /v1/interoperation/requests
+     * @param interopTransactionRequestData 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postInteroperationRequests(interopTransactionRequestData: InteropTransactionRequestData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransactionRequestResponseData>;
+    public postInteroperationRequests(interopTransactionRequestData: InteropTransactionRequestData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransactionRequestResponseData>>;
+    public postInteroperationRequests(interopTransactionRequestData: InteropTransactionRequestData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransactionRequestResponseData>>;
+    public postInteroperationRequests(interopTransactionRequestData: InteropTransactionRequestData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (interopTransactionRequestData === null || interopTransactionRequestData === undefined) {
+            throw new Error('Required parameter interopTransactionRequestData was null or undefined when calling postInteroperationRequests.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/requests`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<InteropTransactionRequestResponseData>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: interopTransactionRequestData,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Disburse Loan by Account Id
+     * @endpoint post /v1/interoperation/transactions/{accountId}/disburse
+     * @param accountId accountId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postInteroperationTransactionsAccountIdDisburse(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public postInteroperationTransactionsAccountIdDisburse(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public postInteroperationTransactionsAccountIdDisburse(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public postInteroperationTransactionsAccountIdDisburse(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountId === null || accountId === undefined) {
+            throw new Error('Required parameter accountId was null or undefined when calling postInteroperationTransactionsAccountIdDisburse.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/transactions/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/disburse`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Disburse Loan by Account Id
+     * @endpoint post /v1/interoperation/transactions/{accountId}/loanrepayment
+     * @param accountId accountId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postInteroperationTransactionsAccountIdLoanrepayment(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public postInteroperationTransactionsAccountIdLoanrepayment(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public postInteroperationTransactionsAccountIdLoanrepayment(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public postInteroperationTransactionsAccountIdLoanrepayment(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountId === null || accountId === undefined) {
+            throw new Error('Required parameter accountId was null or undefined when calling postInteroperationTransactionsAccountIdLoanrepayment.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/transactions/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/loanrepayment`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Prepare Interoperation Transfer
+     * @endpoint post /v1/interoperation/transfers
+     * @param interopTransferRequestData 
+     * @param action action
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postInteroperationTransfers(interopTransferRequestData: InteropTransferRequestData, action?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InteropTransferResponseData>;
+    public postInteroperationTransfers(interopTransferRequestData: InteropTransferRequestData, action?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InteropTransferResponseData>>;
+    public postInteroperationTransfers(interopTransferRequestData: InteropTransferRequestData, action?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InteropTransferResponseData>>;
+    public postInteroperationTransfers(interopTransferRequestData: InteropTransferRequestData, action?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (interopTransferRequestData === null || interopTransferRequestData === undefined) {
+            throw new Error('Required parameter interopTransferRequestData was null or undefined when calling postInteroperationTransfers.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'action',
+            <any>action,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interoperation/transfers`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<InteropTransferResponseData>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: interopTransferRequestData,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

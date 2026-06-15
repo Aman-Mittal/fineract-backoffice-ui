@@ -33,13 +33,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { GetWorkingDaysTemplateResponse } from '../model/getWorkingDaysTemplateResponse';
-// @ts-ignore
-import { PutWorkingDaysRequest } from '../model/putWorkingDaysRequest';
-// @ts-ignore
-import { PutWorkingDaysResponse } from '../model/putWorkingDaysResponse';
-// @ts-ignore
 import { WorkingDaysData } from '../model/workingDaysData';
+// @ts-ignore
+import { WorkingDaysUpdateRequest } from '../model/workingDaysUpdateRequest';
+// @ts-ignore
+import { WorkingDaysUpdateResponse } from '../model/workingDaysUpdateResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -65,10 +63,10 @@ export class WorkingDaysService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll17(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<WorkingDaysData>;
-    public retrieveAll17(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WorkingDaysData>>;
-    public retrieveAll17(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WorkingDaysData>>;
-    public retrieveAll17(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getWorkingdays(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<WorkingDaysData>;
+    public getWorkingdays(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WorkingDaysData>>;
+    public getWorkingdays(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WorkingDaysData>>;
+    public getWorkingdays(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -124,10 +122,10 @@ export class WorkingDaysService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public template4(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetWorkingDaysTemplateResponse>;
-    public template4(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetWorkingDaysTemplateResponse>>;
-    public template4(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetWorkingDaysTemplateResponse>>;
-    public template4(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getWorkingdaysTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<WorkingDaysData>;
+    public getWorkingdaysTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WorkingDaysData>>;
+    public getWorkingdaysTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WorkingDaysData>>;
+    public getWorkingdaysTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -162,7 +160,7 @@ export class WorkingDaysService extends BaseService {
 
         let localVarPath = `/v1/workingdays/template`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetWorkingDaysTemplateResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<WorkingDaysData>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -179,18 +177,15 @@ export class WorkingDaysService extends BaseService {
      * Update a Working Day
      * Mandatory Fields recurrence,repaymentRescheduleType,extendTermForDailyRepayments,locale
      * @endpoint put /v1/workingdays
-     * @param putWorkingDaysRequest 
+     * @param workingDaysUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update8(putWorkingDaysRequest: PutWorkingDaysRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutWorkingDaysResponse>;
-    public update8(putWorkingDaysRequest: PutWorkingDaysRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutWorkingDaysResponse>>;
-    public update8(putWorkingDaysRequest: PutWorkingDaysRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutWorkingDaysResponse>>;
-    public update8(putWorkingDaysRequest: PutWorkingDaysRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (putWorkingDaysRequest === null || putWorkingDaysRequest === undefined) {
-            throw new Error('Required parameter putWorkingDaysRequest was null or undefined when calling update8.');
-        }
+    public putWorkingdays(workingDaysUpdateRequest?: WorkingDaysUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<WorkingDaysUpdateResponse>;
+    public putWorkingdays(workingDaysUpdateRequest?: WorkingDaysUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<WorkingDaysUpdateResponse>>;
+    public putWorkingdays(workingDaysUpdateRequest?: WorkingDaysUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<WorkingDaysUpdateResponse>>;
+    public putWorkingdays(workingDaysUpdateRequest?: WorkingDaysUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -234,10 +229,10 @@ export class WorkingDaysService extends BaseService {
 
         let localVarPath = `/v1/workingdays`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutWorkingDaysResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<WorkingDaysUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: putWorkingDaysRequest,
+                body: workingDaysUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

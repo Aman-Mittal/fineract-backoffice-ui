@@ -33,6 +33,8 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { CommandProcessingResult } from '../model/commandProcessingResult';
+// @ts-ignore
 import { PostAddAndDeleteDisbursementDetailRequest } from '../model/postAddAndDeleteDisbursementDetailRequest';
 
 // @ts-ignore
@@ -52,81 +54,6 @@ export class LoanDisbursementDetailsService extends BaseService {
     }
 
     /**
-     * @endpoint put /v1/loans/{loanId}/disbursements/editDisbursements
-     * @param loanId 
-     * @param postAddAndDeleteDisbursementDetailRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public addAndDeleteDisbursementDetail(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public addAndDeleteDisbursementDetail(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public addAndDeleteDisbursementDetail(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public addAndDeleteDisbursementDetail(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling addAndDeleteDisbursementDetail.');
-        }
-        if (postAddAndDeleteDisbursementDetailRequest === null || postAddAndDeleteDisbursementDetailRequest === undefined) {
-            throw new Error('Required parameter postAddAndDeleteDisbursementDetailRequest was null or undefined when calling addAndDeleteDisbursementDetail.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/disbursements/editDisbursements`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('put', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postAddAndDeleteDisbursementDetailRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * @endpoint get /v1/loans/{loanId}/disbursements/{disbursementId}
      * @param loanId 
      * @param disbursementId 
@@ -134,15 +61,15 @@ export class LoanDisbursementDetailsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retriveDetail(loanId: number, disbursementId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retriveDetail(loanId: number, disbursementId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retriveDetail(loanId: number, disbursementId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retriveDetail(loanId: number, disbursementId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling retriveDetail.');
+            throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdDisbursementsDisbursementId.');
         }
         if (disbursementId === null || disbursementId === undefined) {
-            throw new Error('Required parameter disbursementId was null or undefined when calling retriveDetail.');
+            throw new Error('Required parameter disbursementId was null or undefined when calling getLoansLoanIdDisbursementsDisbursementId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -200,15 +127,15 @@ export class LoanDisbursementDetailsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateDisbursementDate(loanId: number, disbursementId: number, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public updateDisbursementDate(loanId: number, disbursementId: number, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public updateDisbursementDate(loanId: number, disbursementId: number, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public updateDisbursementDate(loanId: number, disbursementId: number, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putLoansLoanIdDisbursementsDisbursementId(loanId: number, disbursementId: number, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling updateDisbursementDate.');
+            throw new Error('Required parameter loanId was null or undefined when calling putLoansLoanIdDisbursementsDisbursementId.');
         }
         if (disbursementId === null || disbursementId === undefined) {
-            throw new Error('Required parameter disbursementId was null or undefined when calling updateDisbursementDate.');
+            throw new Error('Required parameter disbursementId was null or undefined when calling putLoansLoanIdDisbursementsDisbursementId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -253,10 +180,85 @@ export class LoanDisbursementDetailsService extends BaseService {
 
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/disbursements/${this.configuration.encodeParam({name: "disbursementId", value: disbursementId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: body,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint put /v1/loans/{loanId}/disbursements/editDisbursements
+     * @param loanId 
+     * @param postAddAndDeleteDisbursementDetailRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putLoansLoanIdDisbursementsEditDisbursements(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putLoansLoanIdDisbursementsEditDisbursements(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putLoansLoanIdDisbursementsEditDisbursements(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putLoansLoanIdDisbursementsEditDisbursements(loanId: number, postAddAndDeleteDisbursementDetailRequest: PostAddAndDeleteDisbursementDetailRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling putLoansLoanIdDisbursementsEditDisbursements.');
+        }
+        if (postAddAndDeleteDisbursementDetailRequest === null || postAddAndDeleteDisbursementDetailRequest === undefined) {
+            throw new Error('Required parameter postAddAndDeleteDisbursementDetailRequest was null or undefined when calling putLoansLoanIdDisbursementsEditDisbursements.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/disbursements/editDisbursements`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postAddAndDeleteDisbursementDetailRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

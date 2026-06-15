@@ -23,12 +23,12 @@
  * Do not edit the class manually.
  */
 
-import { Field } from './field';
+import { HookFieldData } from './hookFieldData';
 
 
 export interface HookTemplateData { 
     id?: number;
     name?: string;
-    schema?: Array<Field>;
+    schema?: Array<HookFieldData>;
 }
 

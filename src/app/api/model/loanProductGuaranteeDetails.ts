@@ -27,7 +27,7 @@ import { LoanProduct } from './loanProduct';
 
 
 export interface LoanProductGuaranteeDetails { 
-    id?: number;
+    id?: number | null;
     loanProduct?: LoanProduct;
     mandatoryGuarantee?: number;
     minimumGuaranteeFromGuarantor?: number;

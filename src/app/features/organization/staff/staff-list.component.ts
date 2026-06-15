@@ -136,7 +136,7 @@ export class StaffListComponent implements OnInit {
 
   loadStaff(): void {
     this.isLoading.set(true);
-    this.staffService.retrieveAll16(undefined, undefined, undefined, 'all').subscribe({
+    this.staffService.getStaff(undefined, undefined, undefined, 'all').subscribe({
       next: (data) => {
         this.staff.set(data);
         this.isLoading.set(false);

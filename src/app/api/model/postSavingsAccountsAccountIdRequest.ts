@@ -34,6 +34,8 @@ export interface PostSavingsAccountsAccountIdRequest {
     closedOnDate?: string;
     dateFormat?: string;
     locale?: string;
+    rejectedOnDate?: string;
     withdrawBalance?: boolean;
+    withdrawnOnDate?: string;
 }
 

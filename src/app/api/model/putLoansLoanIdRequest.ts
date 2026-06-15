@@ -25,15 +25,19 @@
 
 import { PutLoansLoanIdDisbursementData } from './putLoansLoanIdDisbursementData';
 import { PutLoansLoanIdCollateral } from './putLoansLoanIdCollateral';
-import { PutLoansLoanIdChanges } from './putLoansLoanIdChanges';
+import { PutLoansLoanIdChargeData } from './putLoansLoanIdChargeData';
 
 
 /**
  * PutLoansLoanIdRequest
  */
 export interface PutLoansLoanIdRequest { 
+    /**
+     * Allow full term length for each tranche disbursement
+     */
+    allowFullTermForTranche?: boolean;
     amortizationType?: number;
-    charges?: Array<PutLoansLoanIdChanges>;
+    charges?: Array<PutLoansLoanIdChargeData>;
     clientId?: number;
     collateral?: Array<PutLoansLoanIdCollateral>;
     createStandingInstructionAtDisbursement?: boolean;

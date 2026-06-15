@@ -345,7 +345,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
    * Fetches the list of eligible fixed deposit products for the client.
    */
   private loadProducts(clientId?: number): void {
-    this.fixedDepositService.template12(clientId).subscribe({
+    this.fixedDepositService.getFixeddepositaccountsTemplate(clientId).subscribe({
       next: (template: GetFixedDepositAccountsTemplateResponse) => {
         if (template && template.productOptions) {
           // Explicitly convert from Set or Array to ensure dropdown rendering
@@ -369,7 +369,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
   onProductSelected(productId: number): void {
     if (productId) {
       this.fixedDepositService
-        .template12(this.account['clientId'] as number, undefined, productId)
+        .getFixeddepositaccountsTemplate(this.account['clientId'] as number, undefined, productId)
         .subscribe({
           next: (template: GetFixedDepositAccountsTemplateResponse) => {
             if (template) {
@@ -401,7 +401,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
    */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.fixedDepositService.retrieveOne19(this.accountId).subscribe({
+    this.fixedDepositService.getFixeddepositaccountsAccountId(this.accountId).subscribe({
       next: (data: GetFixedDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -446,13 +446,13 @@ export class FixedDepositAccountFormComponent implements OnInit {
             ? (this.account['nominalAnnualInterestRate'] as number)
             : undefined,
       };
-      this.fixedDepositService.update16(this.accountId, payload).subscribe({
+      this.fixedDepositService.putFixeddepositaccountsAccountId(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
       this.fixedDepositService
-        .submitApplication(this.account as PostFixedDepositAccountsRequest)
+        .postFixeddepositaccounts(this.account as PostFixedDepositAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),

@@ -326,15 +326,15 @@ export class JournalEntryFormComponent implements OnInit {
 
   private loadData() {
     this.officeService
-      .retrieveOffices()
+      .getOffices()
       .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
-    this.currencyService.retrieveCurrencies().subscribe((data: CurrencyConfigurationData) => {
+    this.currencyService.getCurrencies().subscribe((data: CurrencyConfigurationData) => {
       this.currencies = data.selectedCurrencyOptions
         ? Array.from(data.selectedCurrencyOptions)
         : [];
     });
     this.glAccountService
-      .retrieveAllAccounts()
+      .getGlaccounts()
       .subscribe((data: GetGLAccountsResponse[]) => (this.glAccounts = data));
   }
 
@@ -373,7 +373,7 @@ export class JournalEntryFormComponent implements OnInit {
     this.command.debits = this.debits;
     this.command.credits = this.credits;
 
-    this.journalService.createGLJournalEntry(undefined, this.command).subscribe({
+    this.journalService.postJournalentries(undefined, this.command).subscribe({
       next: () => this.router.navigate(['/accounting/journal-entries']),
       error: () => (this.isSaving = false),
     });

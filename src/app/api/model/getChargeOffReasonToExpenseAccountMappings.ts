@@ -23,12 +23,12 @@
  * Do not edit the class manually.
  */
 
-import { GetCodeValueData } from './getCodeValueData';
 import { GetGLAccountData } from './getGLAccountData';
+import { GetCodeValuesDataResponse } from './getCodeValuesDataResponse';
 
 
 export interface GetChargeOffReasonToExpenseAccountMappings { 
-    chargeOffReasonCodeValue?: GetCodeValueData;
     expenseAccount?: GetGLAccountData;
+    reasonCodeValue?: GetCodeValuesDataResponse;
 }
 

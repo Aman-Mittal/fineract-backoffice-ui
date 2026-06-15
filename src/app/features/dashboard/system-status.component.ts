@@ -460,7 +460,7 @@ export class SystemStatusComponent implements OnInit {
     this.isLoading.set(true);
 
     const metrics$ = forkJoin({
-      clients: this.clientService.retrieveAll21(
+      clients: this.clientService.getClients(
         undefined,
         undefined,
         undefined,
@@ -471,7 +471,7 @@ export class SystemStatusComponent implements OnInit {
         0,
         1,
       ),
-      loanActive: this.loansService.retrieveAll27(
+      loanActive: this.loansService.getLoans(
         undefined,
         0,
         1,
@@ -482,7 +482,7 @@ export class SystemStatusComponent implements OnInit {
         undefined,
         '300',
       ),
-      loanPending: this.loansService.retrieveAll27(
+      loanPending: this.loansService.getLoans(
         undefined,
         0,
         1,
@@ -493,7 +493,7 @@ export class SystemStatusComponent implements OnInit {
         undefined,
         '100',
       ),
-      loanClosed: this.loansService.retrieveAll27(
+      loanClosed: this.loansService.getLoans(
         undefined,
         0,
         1,
@@ -504,7 +504,7 @@ export class SystemStatusComponent implements OnInit {
         undefined,
         '600',
       ),
-      savings: this.savingsService.retrieveAll33(undefined, 0, 100),
+      savings: this.savingsService.getSavingsaccounts(undefined, 0, 100),
     });
 
     metrics$.pipe(catchError(() => of(null))).subscribe((data: Record<string, unknown> | null) => {
@@ -561,7 +561,7 @@ export class SystemStatusComponent implements OnInit {
 
     // Separately fetch real pending list for the list widget (first 50) using status code 100
     this.loansService
-      .retrieveAll27(undefined, 0, 50, undefined, undefined, undefined, undefined, undefined, '100')
+      .getLoans(undefined, 0, 50, undefined, undefined, undefined, undefined, undefined, '100')
       .subscribe((data) => {
         if (data.pageItems) {
           this.pendingLoans.set(Array.from(data.pageItems as unknown as Record<string, unknown>[]));

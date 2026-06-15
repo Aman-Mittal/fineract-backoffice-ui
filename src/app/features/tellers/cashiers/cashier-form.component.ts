@@ -235,7 +235,7 @@ export class CashierFormComponent implements OnInit {
    * Retrieves active staff members.
    */
   private loadStaff(): void {
-    this.staffService.retrieveAll16().subscribe({
+    this.staffService.getStaff().subscribe({
       next: (data: StaffData[]) => {
         this.staff = data || [];
       },
@@ -259,7 +259,7 @@ export class CashierFormComponent implements OnInit {
     this.cashier.dateFormat = 'yyyy-MM-dd';
     this.cashier.locale = 'en';
 
-    this.tellerService.createCashier(this.tellerId, this.cashier).subscribe({
+    this.tellerService.postTellersTellerIdCashiers(this.tellerId, this.cashier).subscribe({
       next: () => this.router.navigate(['/tellers', this.tellerId, 'cashiers']),
       error: () => (this.isSaving = false),
     });

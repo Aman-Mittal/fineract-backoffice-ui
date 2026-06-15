@@ -26,7 +26,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { WorkingDaysService, WorkingDaysData, PutWorkingDaysRequest } from '../../api';
+import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
 
 /**
  * Component for configuring system-wide working days and repayment reschedule rules.
@@ -138,7 +138,7 @@ export class WorkingDaysComponent implements OnInit {
   }
 
   private loadWorkingDays(): void {
-    this.workingDaysService.retrieveAll17().subscribe((data: WorkingDaysData) => {
+    this.workingDaysService.getWorkingdays().subscribe((data: WorkingDaysData) => {
       this.workingDays = data as unknown as Record<string, unknown>;
       const rescheduleType = this.workingDays['repaymentRescheduleType'] as Record<string, unknown>;
       this.rescheduleId = rescheduleType?.['id'] as number;
@@ -156,7 +156,7 @@ export class WorkingDaysComponent implements OnInit {
       }
 
       // Load reschedule options from the API template
-      this.workingDaysService.template4().subscribe({
+      this.workingDaysService.getWorkingdaysTemplate().subscribe({
         next: (templateData) => {
           this.rescheduleOptions = (templateData.repaymentRescheduleOptions ||
             []) as unknown as Record<string, unknown>[];
@@ -186,9 +186,9 @@ export class WorkingDaysComponent implements OnInit {
       repaymentRescheduleType: this.rescheduleId,
       extendTermForDailyRepayments: this.extendTerm,
       locale: 'en',
-    } as unknown as PutWorkingDaysRequest;
+    } as unknown as WorkingDaysUpdateRequest;
 
-    this.workingDaysService.update8(request).subscribe({
+    this.workingDaysService.putWorkingdays(request).subscribe({
       next: () => {
         this.isSaving = false;
         this.snackBar.open('Working days updated successfully', 'Close', { duration: 3000 });

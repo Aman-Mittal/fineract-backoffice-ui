@@ -386,7 +386,7 @@ export class ClientFormComponent implements OnInit {
   }
 
   loadOffices() {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
@@ -399,7 +399,7 @@ export class ClientFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe((newOfficeId) => {
       if (newOfficeId) {
         // Reload offices and select the new one
-        this.officesService.retrieveOffices(true).subscribe((offices) => {
+        this.officesService.getOffices(true).subscribe((offices) => {
           this.offices = offices;
           this.client.officeId = newOfficeId;
         });
@@ -409,7 +409,7 @@ export class ClientFormComponent implements OnInit {
 
   loadClientData() {
     if (!this.clientId) return;
-    this.clientService.retrieveOne11(this.clientId).subscribe((data) => {
+    this.clientService.getClientsClientId(this.clientId).subscribe((data) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clientData = data as any;
       const actDateArray = clientData.activationDate as unknown as number[];
@@ -458,7 +458,7 @@ export class ClientFormComponent implements OnInit {
       locale: FINERACT_LOCALE,
     };
 
-    this.clientService.activate1(this.clientId, activationPayload, 'activate').subscribe({
+    this.clientService.postClientsClientId(this.clientId, activationPayload, 'activate').subscribe({
       next: () => {
         this.isSaving = false;
         this.originalActive = true;
@@ -492,10 +492,12 @@ export class ClientFormComponent implements OnInit {
         }
       }
 
-      this.clientService.update10(this.clientId, payload as PutClientsClientIdRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.clientService
+        .putClientsClientId(this.clientId, payload as PutClientsClientIdRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
       // Post mode
       this.client.activationDate = formatDateToFineract(this.activationDate);
@@ -519,7 +521,7 @@ export class ClientFormComponent implements OnInit {
         delete this.client.fullname;
       }
 
-      this.clientService.create6(this.client).subscribe({
+      this.clientService.postClients(this.client).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

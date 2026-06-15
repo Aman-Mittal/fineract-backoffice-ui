@@ -56,12 +56,12 @@ export class PovertyLineService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll12(ppiName: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveAll12(ppiName: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveAll12(ppiName: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveAll12(ppiName: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPovertyLinePpiName(ppiName: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getPovertyLinePpiName(ppiName: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getPovertyLinePpiName(ppiName: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getPovertyLinePpiName(ppiName: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (ppiName === null || ppiName === undefined) {
-            throw new Error('Required parameter ppiName was null or undefined when calling retrieveAll12.');
+            throw new Error('Required parameter ppiName was null or undefined when calling getPovertyLinePpiName.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -118,15 +118,15 @@ export class PovertyLineService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll13(ppiName: string, likelihoodId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveAll13(ppiName: string, likelihoodId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveAll13(ppiName: string, likelihoodId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveAll13(ppiName: string, likelihoodId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPovertyLinePpiNameLikelihoodId(ppiName: string, likelihoodId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getPovertyLinePpiNameLikelihoodId(ppiName: string, likelihoodId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getPovertyLinePpiNameLikelihoodId(ppiName: string, likelihoodId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getPovertyLinePpiNameLikelihoodId(ppiName: string, likelihoodId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (ppiName === null || ppiName === undefined) {
-            throw new Error('Required parameter ppiName was null or undefined when calling retrieveAll13.');
+            throw new Error('Required parameter ppiName was null or undefined when calling getPovertyLinePpiNameLikelihoodId.');
         }
         if (likelihoodId === null || likelihoodId === undefined) {
-            throw new Error('Required parameter likelihoodId was null or undefined when calling retrieveAll13.');
+            throw new Error('Required parameter likelihoodId was null or undefined when calling getPovertyLinePpiNameLikelihoodId.');
         }
 
         let localVarHeaders = this.defaultHeaders;

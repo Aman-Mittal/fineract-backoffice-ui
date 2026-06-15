@@ -248,7 +248,7 @@ export class LoanTransactionFormComponent implements OnInit {
       return;
     }
     this.transactionService
-      .retrieveTransactionTemplate(this.loanId, this.transactionType)
+      .getLoansLoanIdTransactionsTemplate(this.loanId, this.transactionType)
       .subscribe({
         next: (template: GetLoansLoanIdTransactionsTemplateResponse) => {
           this.transaction.transactionAmount = template.amount;
@@ -281,7 +281,7 @@ export class LoanTransactionFormComponent implements OnInit {
         locale: 'en',
         note: this.transaction.note,
       };
-      this.loansService.stateTransitions(this.loanId, payload, 'approve').subscribe({
+      this.loansService.postLoansLoanId(this.loanId, payload, 'approve').subscribe({
         next: () => this.router.navigate(['/loans']),
         error: () => (this.isSaving = false),
       });
@@ -291,7 +291,7 @@ export class LoanTransactionFormComponent implements OnInit {
       this.transaction.locale = 'en';
 
       this.transactionService
-        .executeLoanTransaction(this.loanId, this.transaction, this.transactionType)
+        .postLoansLoanIdTransactions(this.loanId, this.transaction, this.transactionType)
         .subscribe({
           next: () => this.router.navigate(['/loans']),
           error: () => (this.isSaving = false),

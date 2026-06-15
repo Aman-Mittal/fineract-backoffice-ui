@@ -33,17 +33,17 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { DeletePaymentTypesPaymentTypeIdResponse } from '../model/deletePaymentTypesPaymentTypeIdResponse';
+import { PaymentTypeCreateRequest } from '../model/paymentTypeCreateRequest';
+// @ts-ignore
+import { PaymentTypeCreateResponse } from '../model/paymentTypeCreateResponse';
 // @ts-ignore
 import { PaymentTypeData } from '../model/paymentTypeData';
 // @ts-ignore
-import { PaymentTypeRequest } from '../model/paymentTypeRequest';
+import { PaymentTypeDeleteResponse } from '../model/paymentTypeDeleteResponse';
 // @ts-ignore
-import { PostPaymentTypesResponse } from '../model/postPaymentTypesResponse';
+import { PaymentTypeUpdateRequest } from '../model/paymentTypeUpdateRequest';
 // @ts-ignore
-import { PutPaymentTypesPaymentTypeIdRequest } from '../model/putPaymentTypesPaymentTypeIdRequest';
-// @ts-ignore
-import { PutPaymentTypesPaymentTypeIdResponse } from '../model/putPaymentTypesPaymentTypeIdResponse';
+import { PaymentTypeUpdateResponse } from '../model/paymentTypeUpdateResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -62,93 +62,20 @@ export class PaymentTypeService extends BaseService {
     }
 
     /**
-     * Create a Payment Type
-     * Creates a new Payment type  Mandatory Fields: name  Optional Fields: Description, isCashPayment,Position
-     * @endpoint post /v1/paymenttypes
-     * @param paymentTypeRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createPaymentType(paymentTypeRequest: PaymentTypeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostPaymentTypesResponse>;
-    public createPaymentType(paymentTypeRequest: PaymentTypeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostPaymentTypesResponse>>;
-    public createPaymentType(paymentTypeRequest: PaymentTypeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostPaymentTypesResponse>>;
-    public createPaymentType(paymentTypeRequest: PaymentTypeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (paymentTypeRequest === null || paymentTypeRequest === undefined) {
-            throw new Error('Required parameter paymentTypeRequest was null or undefined when calling createPaymentType.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/paymenttypes`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostPaymentTypesResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: paymentTypeRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete a Payment Type
      * Deletes payment type
      * @endpoint delete /v1/paymenttypes/{paymentTypeId}
-     * @param paymentTypeId paymentTypeId
+     * @param paymentTypeId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteCode1(paymentTypeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeletePaymentTypesPaymentTypeIdResponse>;
-    public deleteCode1(paymentTypeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeletePaymentTypesPaymentTypeIdResponse>>;
-    public deleteCode1(paymentTypeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeletePaymentTypesPaymentTypeIdResponse>>;
-    public deleteCode1(paymentTypeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deletePaymenttypesPaymentTypeId(paymentTypeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaymentTypeDeleteResponse>;
+    public deletePaymenttypesPaymentTypeId(paymentTypeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaymentTypeDeleteResponse>>;
+    public deletePaymenttypesPaymentTypeId(paymentTypeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaymentTypeDeleteResponse>>;
+    public deletePaymenttypesPaymentTypeId(paymentTypeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (paymentTypeId === null || paymentTypeId === undefined) {
-            throw new Error('Required parameter paymentTypeId was null or undefined when calling deleteCode1.');
+            throw new Error('Required parameter paymentTypeId was null or undefined when calling deletePaymenttypesPaymentTypeId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -184,7 +111,7 @@ export class PaymentTypeService extends BaseService {
 
         let localVarPath = `/v1/paymenttypes/${this.configuration.encodeParam({name: "paymentTypeId", value: paymentTypeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeletePaymentTypesPaymentTypeIdResponse>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaymentTypeDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -201,15 +128,15 @@ export class PaymentTypeService extends BaseService {
      * Retrieve all Payment Types
      * Retrieve list of payment types
      * @endpoint get /v1/paymenttypes
-     * @param onlyWithCode onlyWithCode
+     * @param onlyWithCode 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllPaymentTypes(onlyWithCode?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PaymentTypeData>>;
-    public getAllPaymentTypes(onlyWithCode?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PaymentTypeData>>>;
-    public getAllPaymentTypes(onlyWithCode?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PaymentTypeData>>>;
-    public getAllPaymentTypes(onlyWithCode?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPaymenttypes(onlyWithCode?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PaymentTypeData>>;
+    public getPaymenttypes(onlyWithCode?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PaymentTypeData>>>;
+    public getPaymenttypes(onlyWithCode?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PaymentTypeData>>>;
+    public getPaymenttypes(onlyWithCode?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -273,17 +200,17 @@ export class PaymentTypeService extends BaseService {
      * Retrieve a Payment Type
      * Retrieves a payment type
      * @endpoint get /v1/paymenttypes/{paymentTypeId}
-     * @param paymentTypeId paymentTypeId
+     * @param paymentTypeId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveOnePaymentType(paymentTypeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaymentTypeData>;
-    public retrieveOnePaymentType(paymentTypeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaymentTypeData>>;
-    public retrieveOnePaymentType(paymentTypeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaymentTypeData>>;
-    public retrieveOnePaymentType(paymentTypeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPaymenttypesPaymentTypeId(paymentTypeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaymentTypeData>;
+    public getPaymenttypesPaymentTypeId(paymentTypeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaymentTypeData>>;
+    public getPaymenttypesPaymentTypeId(paymentTypeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaymentTypeData>>;
+    public getPaymenttypesPaymentTypeId(paymentTypeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (paymentTypeId === null || paymentTypeId === undefined) {
-            throw new Error('Required parameter paymentTypeId was null or undefined when calling retrieveOnePaymentType.');
+            throw new Error('Required parameter paymentTypeId was null or undefined when calling getPaymenttypesPaymentTypeId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -333,24 +260,91 @@ export class PaymentTypeService extends BaseService {
     }
 
     /**
-     * Update a Payment Type
-     * Updates a Payment Type
-     * @endpoint put /v1/paymenttypes/{paymentTypeId}
-     * @param paymentTypeId paymentTypeId
-     * @param putPaymentTypesPaymentTypeIdRequest 
+     * Create a Payment Type
+     * Creates a new Payment type
+     * @endpoint post /v1/paymenttypes
+     * @param paymentTypeCreateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updatePaymentType(paymentTypeId: number, putPaymentTypesPaymentTypeIdRequest: PutPaymentTypesPaymentTypeIdRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutPaymentTypesPaymentTypeIdResponse>;
-    public updatePaymentType(paymentTypeId: number, putPaymentTypesPaymentTypeIdRequest: PutPaymentTypesPaymentTypeIdRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutPaymentTypesPaymentTypeIdResponse>>;
-    public updatePaymentType(paymentTypeId: number, putPaymentTypesPaymentTypeIdRequest: PutPaymentTypesPaymentTypeIdRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutPaymentTypesPaymentTypeIdResponse>>;
-    public updatePaymentType(paymentTypeId: number, putPaymentTypesPaymentTypeIdRequest: PutPaymentTypesPaymentTypeIdRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (paymentTypeId === null || paymentTypeId === undefined) {
-            throw new Error('Required parameter paymentTypeId was null or undefined when calling updatePaymentType.');
+    public postPaymenttypes(paymentTypeCreateRequest?: PaymentTypeCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaymentTypeCreateResponse>;
+    public postPaymenttypes(paymentTypeCreateRequest?: PaymentTypeCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaymentTypeCreateResponse>>;
+    public postPaymenttypes(paymentTypeCreateRequest?: PaymentTypeCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaymentTypeCreateResponse>>;
+    public postPaymenttypes(paymentTypeCreateRequest?: PaymentTypeCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
-        if (putPaymentTypesPaymentTypeIdRequest === null || putPaymentTypesPaymentTypeIdRequest === undefined) {
-            throw new Error('Required parameter putPaymentTypesPaymentTypeIdRequest was null or undefined when calling updatePaymentType.');
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/paymenttypes`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PaymentTypeCreateResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: paymentTypeCreateRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a Payment Type
+     * Updates a Payment Type
+     * @endpoint put /v1/paymenttypes/{paymentTypeId}
+     * @param paymentTypeId 
+     * @param paymentTypeUpdateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putPaymenttypesPaymentTypeId(paymentTypeId: number, paymentTypeUpdateRequest?: PaymentTypeUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaymentTypeUpdateResponse>;
+    public putPaymenttypesPaymentTypeId(paymentTypeId: number, paymentTypeUpdateRequest?: PaymentTypeUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaymentTypeUpdateResponse>>;
+    public putPaymenttypesPaymentTypeId(paymentTypeId: number, paymentTypeUpdateRequest?: PaymentTypeUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaymentTypeUpdateResponse>>;
+    public putPaymenttypesPaymentTypeId(paymentTypeId: number, paymentTypeUpdateRequest?: PaymentTypeUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (paymentTypeId === null || paymentTypeId === undefined) {
+            throw new Error('Required parameter paymentTypeId was null or undefined when calling putPaymenttypesPaymentTypeId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -395,10 +389,10 @@ export class PaymentTypeService extends BaseService {
 
         let localVarPath = `/v1/paymenttypes/${this.configuration.encodeParam({name: "paymentTypeId", value: paymentTypeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutPaymentTypesPaymentTypeIdResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaymentTypeUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: putPaymentTypesPaymentTypeIdRequest,
+                body: paymentTypeUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -170,12 +170,14 @@ export class ClientDocumentFormComponent implements OnInit {
   }
 
   loadDocumentData(): void {
-    this.documentService.getDocument('clients', this.clientId, this.docId!).subscribe((data) => {
-      this.document = {
-        name: data.name || '',
-        description: data.description || '',
-      };
-    });
+    this.documentService
+      .getEntityTypeEntityIdDocumentsDocumentId('clients', this.clientId, this.docId!)
+      .subscribe((data) => {
+        this.document = {
+          name: data.name || '',
+          description: data.description || '',
+        };
+      });
   }
 
   onFileSelected(event: Event): void {
@@ -188,16 +190,14 @@ export class ClientDocumentFormComponent implements OnInit {
   onSubmit(): void {
     if (this.isEditMode) {
       this.documentService
-        .updateDocument(
+        .putEntityTypeEntityIdDocumentsDocumentId(
           'clients',
           this.clientId,
           this.docId!,
-          undefined,
-          undefined,
+          undefined, // contentLength
           this.document.description,
-          undefined,
+          undefined, // file
           this.document.name,
-          undefined,
         )
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
@@ -205,15 +205,13 @@ export class ClientDocumentFormComponent implements OnInit {
         });
     } else {
       this.documentService
-        .createDocument(
+        .postEntityTypeEntityIdDocuments(
           'clients',
           this.clientId,
           this.selectedFile!.size,
-          undefined,
           this.document.description,
-          undefined,
-          this.document.name,
           this.selectedFile!,
+          this.document.name,
         )
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),

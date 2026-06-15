@@ -203,14 +203,14 @@ export class OfficeFormComponent implements OnInit {
   }
 
   loadOffices() {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
   loadOfficeData() {
     if (!this.officeId) return;
-    this.officesService.retrieveOffice(this.officeId).subscribe((data) => {
+    this.officesService.getOfficesOfficeId(this.officeId).subscribe((data) => {
       const dateArray = data.openingDate as unknown as number[];
       if (dateArray) {
         this.openingDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
@@ -237,7 +237,7 @@ export class OfficeFormComponent implements OnInit {
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
-      this.officesService.updateOffice(this.officeId, payload).subscribe({
+      this.officesService.putOfficesOfficeId(this.officeId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -245,7 +245,7 @@ export class OfficeFormComponent implements OnInit {
       this.office.openingDate = formattedDate;
       this.office.dateFormat = 'yyyy-MM-dd';
       this.office.locale = 'en';
-      this.officesService.createOffice(this.office).subscribe({
+      this.officesService.postOffices(this.office).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

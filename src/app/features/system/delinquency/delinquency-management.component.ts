@@ -34,7 +34,7 @@ import {
 import {
   DelinquencyRangeAndBucketsManagementService,
   DelinquencyRangeData,
-  DelinquencyBucketData,
+  DelinquencyBucketResponse,
 } from '../../../api';
 
 @Component({
@@ -172,7 +172,7 @@ export class DelinquencyManagementComponent implements OnInit {
   private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
 
   ranges = signal<DelinquencyRangeData[]>([]);
-  buckets = signal<DelinquencyBucketData[]>([]);
+  buckets = signal<DelinquencyBucketResponse[]>([]);
   isLoadingRanges = signal<boolean>(false);
   isLoadingBuckets = signal<boolean>(false);
 
@@ -224,7 +224,7 @@ export class DelinquencyManagementComponent implements OnInit {
 
   onDeleteRange(id: number): void {
     if (confirm('Are you sure you want to delete this delinquency range?')) {
-      this.delinquencyService.deleteDelinquencyRange(id).subscribe({
+      this.delinquencyService.deleteDelinquencyRangesDelinquencyRangeId(id).subscribe({
         next: () => this.loadRanges(),
         error: (err) => console.error('Delete range failed', err),
       });
@@ -233,7 +233,7 @@ export class DelinquencyManagementComponent implements OnInit {
 
   onDeleteBucket(id: number): void {
     if (confirm('Are you sure you want to delete this delinquency bucket?')) {
-      this.delinquencyService.deleteDelinquencyBucket(id).subscribe({
+      this.delinquencyService.deleteDelinquencyBucketsDelinquencyBucketId(id).subscribe({
         next: () => this.loadBuckets(),
         error: (err) => console.error('Delete bucket failed', err),
       });

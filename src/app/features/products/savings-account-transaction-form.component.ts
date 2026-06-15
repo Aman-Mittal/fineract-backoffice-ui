@@ -227,19 +227,21 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
    * Fetches the transaction template for the current account.
    */
   private loadTemplate(): void {
-    this.transactionService.retrieveTemplate19(this.accountId).subscribe({
-      next: (template: string) => {
-        // Handle template parsing if necessary (OpenAPI sometimes returns generic string/any)
-        const data = typeof template === 'string' ? JSON.parse(template) : template;
-        this.paymentTypeOptions = data.paymentTypeOptions || [];
-        if (data.date) {
-          this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
-        }
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load savings transaction template', err);
-      },
-    });
+    this.transactionService
+      .getSavingsaccountsSavingsIdTransactionsTemplate(this.accountId)
+      .subscribe({
+        next: (template: string) => {
+          // Handle template parsing if necessary (OpenAPI sometimes returns generic string/any)
+          const data = typeof template === 'string' ? JSON.parse(template) : template;
+          this.paymentTypeOptions = data.paymentTypeOptions || [];
+          if (data.date) {
+            this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
+          }
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load savings transaction template', err);
+        },
+      });
   }
 
   /**
@@ -263,7 +265,11 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
     };
 
     this.transactionService
-      .transaction2(this.accountId, payload as PostSavingsAccountTransactionsRequest, this.command)
+      .postSavingsaccountsSavingsIdTransactions(
+        this.accountId,
+        payload as PostSavingsAccountTransactionsRequest,
+        this.command,
+      )
       .subscribe({
         next: () => this.router.navigate(['/products/savings-accounts']),
         error: () => (this.isSaving = false),

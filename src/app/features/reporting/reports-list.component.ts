@@ -83,7 +83,7 @@ export class ReportsListComponent implements OnInit {
   }
 
   private loadReports(): void {
-    this.reportsService.retrieveReportList().subscribe({
+    this.reportsService.getReports().subscribe({
       next: (data) => {
         this.reports = data || [];
       },

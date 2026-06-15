@@ -34,17 +34,14 @@ describe('CreateOfficeDialogComponent', () => {
 
   beforeEach(async () => {
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
-    mockOfficesService = jasmine.createSpyObj('OfficesService', [
-      'retrieveOffices',
-      'createOffice',
-    ]);
+    mockOfficesService = jasmine.createSpyObj('OfficesService', ['getOffices', 'postOffices']);
 
-    mockOfficesService.retrieveOffices.and.returnValue(
+    mockOfficesService.getOffices.and.returnValue(
       of([{ id: 1, name: 'Head Office' }] as GetOfficesResponse[]) as unknown as Observable<
         HttpEvent<GetOfficesResponse[]>
       >,
     );
-    mockOfficesService.createOffice.and.returnValue(
+    mockOfficesService.postOffices.and.returnValue(
       of({ resourceId: 10, officeId: 10 } as PostOfficesResponse) as unknown as Observable<
         HttpEvent<PostOfficesResponse>
       >,
@@ -66,7 +63,7 @@ describe('CreateOfficeDialogComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-    expect(mockOfficesService.retrieveOffices).toHaveBeenCalledWith(true);
+    expect(mockOfficesService.getOffices).toHaveBeenCalledWith(true);
     expect(component.offices.length).toBe(1);
   });
 
@@ -82,8 +79,8 @@ describe('CreateOfficeDialogComponent', () => {
     component.onSubmit();
 
     expect(component.isSaving).toBe(true);
-    expect(mockOfficesService.createOffice).toHaveBeenCalled();
-    const args = mockOfficesService.createOffice.calls.mostRecent().args[0];
+    expect(mockOfficesService.postOffices).toHaveBeenCalled();
+    const args = mockOfficesService.postOffices.calls.mostRecent().args[0];
     expect(args.name).toBe('Test Office');
     expect(args.openingDate).toBe('2026-01-15');
 
@@ -91,7 +88,7 @@ describe('CreateOfficeDialogComponent', () => {
   });
 
   it('should reset isSaving to false on error during submit', () => {
-    mockOfficesService.createOffice.and.returnValue(throwError(() => new Error('Error')));
+    mockOfficesService.postOffices.and.returnValue(throwError(() => new Error('Error')));
 
     component.onSubmit();
 

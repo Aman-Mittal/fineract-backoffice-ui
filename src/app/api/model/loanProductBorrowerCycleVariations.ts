@@ -28,7 +28,7 @@
 export interface LoanProductBorrowerCycleVariations { 
     borrowerCycleNumber?: number;
     defaultValue?: number;
-    id?: number;
+    id?: number | null;
     maxValue?: number;
     minValue?: number;
     'new'?: boolean;

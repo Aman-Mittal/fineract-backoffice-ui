@@ -39,7 +39,7 @@ describe('LoanViewComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    loansServiceSpy = jasmine.createSpyObj('LoansService', ['retrieveLoan']);
+    loansServiceSpy = jasmine.createSpyObj('LoansService', ['getLoansLoanId']);
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
         username: 'mifos',
@@ -71,7 +71,7 @@ describe('LoanViewComponent', () => {
       ],
     }).compileComponents();
 
-    loansServiceSpy.retrieveLoan.and.returnValue(
+    loansServiceSpy.getLoansLoanId.and.returnValue(
       of({
         id: 456,
         accountNo: 'L000456',
@@ -96,7 +96,7 @@ describe('LoanViewComponent', () => {
   });
 
   it('should load loan details on init', () => {
-    expect(loansServiceSpy.retrieveLoan).toHaveBeenCalledWith(456, false, 'all');
+    expect(loansServiceSpy.getLoansLoanId).toHaveBeenCalledWith(456, false, 'all');
     expect(component.loan()?.loanProductName).toBe('Micro Loan Product');
   });
 });

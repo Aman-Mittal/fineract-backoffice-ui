@@ -150,7 +150,7 @@ export class ClientAddressesListComponent implements OnInit {
 
   loadAddresses(): void {
     this.isLoading.set(true);
-    this.addressService.getAddresses1(this.clientId).subscribe({
+    this.addressService.getClientClientidAddresses(this.clientId).subscribe({
       next: (data) => {
         this.addresses.set(data);
         this.isLoading.set(false);

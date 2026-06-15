@@ -26,7 +26,7 @@
 
 
 /**
- * PostGLCLosuresRequest
+ * PostGLClosuresRequest
  */
 export interface PostGlClosuresRequest { 
     closingDate?: string;

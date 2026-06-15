@@ -110,7 +110,7 @@ export class EditConfigurationDialogComponent implements OnInit {
     };
 
     const configId = this.config['id'] as number;
-    this.configService.updateConfiguration1(configId, request).subscribe({
+    this.configService.putConfigurationsConfigId(configId, request).subscribe({
       next: () => this.dialogRef.close({ ...this.config, value: this.value }),
       error: () => (this.isSaving = false),
     });

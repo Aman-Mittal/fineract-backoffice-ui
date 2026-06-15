@@ -355,22 +355,22 @@ export class AccountActionFormComponent implements OnInit {
 
   private loadAccountDetails(): void {
     if (this.accountType === 'loan') {
-      this.loansService.retrieveLoan(this.accountId).subscribe({
+      this.loansService.getLoansLoanId(this.accountId).subscribe({
         next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load loan details', err),
       });
     } else if (this.accountType === 'savings') {
-      this.savingsService.retrieveOne25(this.accountId).subscribe({
+      this.savingsService.getSavingsaccountsAccountId(this.accountId).subscribe({
         next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load savings details', err),
       });
     } else if (this.accountType === 'fixed') {
-      this.fixedDepositService.retrieveOne19(this.accountId).subscribe({
+      this.fixedDepositService.getFixeddepositaccountsAccountId(this.accountId).subscribe({
         next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load fixed deposit details', err),
       });
     } else if (this.accountType === 'recurring') {
-      this.recurringDepositService.retrieveOne22(this.accountId).subscribe({
+      this.recurringDepositService.getRecurringdepositaccountsAccountId(this.accountId).subscribe({
         next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load recurring deposit details', err),
       });
@@ -397,7 +397,7 @@ export class AccountActionFormComponent implements OnInit {
   }
 
   loadStaffOptions(): void {
-    this.staffService.retrieveAll16(undefined, undefined, true, 'Active').subscribe({
+    this.staffService.getStaff(undefined, undefined, true, 'Active').subscribe({
       next: (data) => {
         this.staffOptions = data;
       },
@@ -406,7 +406,7 @@ export class AccountActionFormComponent implements OnInit {
   }
 
   loadChargeOptions(): void {
-    this.chargesService.retrieveAllCharges().subscribe({
+    this.chargesService.getCharges().subscribe({
       next: (data) => {
         this.chargeOptions = data.filter(
           (c) => c.active && (c.chargeAppliesTo?.id === 1 || c.chargeAppliesTo?.value === 'Loan'),
@@ -496,7 +496,7 @@ export class AccountActionFormComponent implements OnInit {
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
       };
-      obs$ = this.loanChargesService.executeLoanCharge(this.accountId, chargePayload);
+      obs$ = this.loanChargesService.postLoansLoanIdCharges(this.accountId, chargePayload);
     } else if (this.command === 'assignloanofficer') {
       const payload: PostLoansLoanIdRequest = {
         toLoanOfficerId: this.toLoanOfficerId,
@@ -504,20 +504,20 @@ export class AccountActionFormComponent implements OnInit {
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
-      obs$ = this.loansService.stateTransitions(this.accountId, payload, this.command);
+      obs$ = this.loansService.postLoansLoanId(this.accountId, payload, this.command);
     } else if (this.command === 'unassignloanofficer') {
       const payload: PostLoansLoanIdRequest = {
         unassignedDate: formattedDate,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
-      obs$ = this.loansService.stateTransitions(this.accountId, payload, this.command);
+      obs$ = this.loansService.postLoansLoanId(this.accountId, payload, this.command);
     } else {
       const raw =
         this.command === 'approve'
           ? this.buildLoanApprovePayload(formattedDate)
           : this.buildLoanStatePayload(formattedDate);
-      obs$ = this.loansService.stateTransitions(
+      obs$ = this.loansService.postLoansLoanId(
         this.accountId,
         raw as PostLoansLoanIdRequest,
         this.command,
@@ -546,13 +546,25 @@ export class AccountActionFormComponent implements OnInit {
     if (this.command === 'close') payload['closedOnDate'] = formattedDate;
 
     if (this.accountType === 'savings') {
-      obs$ = this.savingsService.handleCommands6(this.accountId, payload, this.command);
+      obs$ = this.savingsService.postSavingsaccountsAccountId(
+        this.accountId,
+        payload,
+        this.command,
+      );
       redirectPath = '/products/savings-accounts';
     } else if (this.accountType === 'fixed') {
-      obs$ = this.fixedDepositService.handleCommands4(this.accountId, payload, this.command);
+      obs$ = this.fixedDepositService.postFixeddepositaccountsAccountId(
+        this.accountId,
+        payload,
+        this.command,
+      );
       redirectPath = '/products/fixed-deposits';
     } else if (this.accountType === 'recurring') {
-      obs$ = this.recurringDepositService.handleCommands5(this.accountId, payload, this.command);
+      obs$ = this.recurringDepositService.postRecurringdepositaccountsAccountId(
+        this.accountId,
+        payload,
+        this.command,
+      );
       redirectPath = '/products/recurring-deposits';
     }
 

@@ -91,7 +91,7 @@ export class RecurringDepositProductsListComponent implements OnInit {
   loadProducts() {
     this.isLoading = true;
     this.productService
-      .retrieveAll32()
+      .getRecurringdepositproducts()
       .pipe(catchError(() => of([])))
       .subscribe((data) => {
         this.products = data;

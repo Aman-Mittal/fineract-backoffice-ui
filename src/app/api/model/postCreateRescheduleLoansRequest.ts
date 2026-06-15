@@ -31,6 +31,8 @@
 export interface PostCreateRescheduleLoansRequest { 
     adjustedDueDate?: string;
     dateFormat?: string;
+    emi?: number;
+    endDate?: string;
     extraTerms?: number;
     graceOnInterest?: number;
     graceOnPrincipal?: number;

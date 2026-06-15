@@ -102,7 +102,7 @@ export class LoanProductsListComponent implements OnInit {
    */
   private loadProducts(): void {
     this.loanProductsService
-      .retrieveAllLoanProducts()
+      .getLoanproducts()
       .pipe(catchError(() => of([])))
       .subscribe((data: GetLoanProductsResponse[]) => {
         this.products = data || [];

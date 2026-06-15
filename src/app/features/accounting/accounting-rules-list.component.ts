@@ -93,7 +93,7 @@ export class AccountingRulesListComponent implements OnInit {
   }
 
   loadRules() {
-    this.accountingRulesService.retrieveAllAccountingRules().subscribe((rules) => {
+    this.accountingRulesService.getAccountingrules().subscribe((rules) => {
       this.rules = rules;
     });
   }
@@ -108,7 +108,7 @@ export class AccountingRulesListComponent implements OnInit {
 
   onDelete(rule: AccountingRuleData) {
     if (confirm('Are you sure you want to delete this accounting rule?')) {
-      this.accountingRulesService.deleteAccountingRule(rule.id!).subscribe(() => {
+      this.accountingRulesService.deleteAccountingrulesAccountingRuleId(rule.id!).subscribe(() => {
         this.loadRules();
       });
     }

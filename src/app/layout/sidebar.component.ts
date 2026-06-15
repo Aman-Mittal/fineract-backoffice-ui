@@ -151,6 +151,36 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.shareProducts' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/products/tax-components"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">percent</mat-icon>
+                  <span class="nav-text">{{ 'nav.taxComponents' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/tax-groups"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">receipt_long</mat-icon>
+                  <span class="nav-text">{{ 'nav.taxGroups' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/floating-rates"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">trending_up</mat-icon>
+                  <span class="nav-text">{{ 'nav.floatingRates' | translate }}</span>
+                </a>
+              </li>
               <li class="nav-divider"></li>
               <li>
                 <a
@@ -410,6 +440,26 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">badge</mat-icon>
                   <span class="nav-text">{{ 'nav.staff' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/organization/funds"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">savings</mat-icon>
+                  <span class="nav-text">{{ 'nav.funds' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/organization/payment-types"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">payments</mat-icon>
+                  <span class="nav-text">{{ 'nav.paymentTypes' | translate }}</span>
                 </a>
               </li>
             </ul>

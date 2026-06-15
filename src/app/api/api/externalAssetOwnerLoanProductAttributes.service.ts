@@ -67,12 +67,12 @@ export class ExternalAssetOwnerLoanProductAttributesService extends BaseService 
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getExternalAssetOwnerLoanProductAttributes(loanProductId: number, attributeKey?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageExternalTransferLoanProductAttributesData>;
-    public getExternalAssetOwnerLoanProductAttributes(loanProductId: number, attributeKey?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageExternalTransferLoanProductAttributesData>>;
-    public getExternalAssetOwnerLoanProductAttributes(loanProductId: number, attributeKey?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageExternalTransferLoanProductAttributesData>>;
-    public getExternalAssetOwnerLoanProductAttributes(loanProductId: number, attributeKey?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, attributeKey?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageExternalTransferLoanProductAttributesData>;
+    public getExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, attributeKey?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageExternalTransferLoanProductAttributesData>>;
+    public getExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, attributeKey?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageExternalTransferLoanProductAttributesData>>;
+    public getExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, attributeKey?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanProductId === null || loanProductId === undefined) {
-            throw new Error('Required parameter loanProductId was null or undefined when calling getExternalAssetOwnerLoanProductAttributes.');
+            throw new Error('Required parameter loanProductId was null or undefined when calling getExternalAssetOwnersLoanProductLoanProductIdAttributes.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -134,6 +134,7 @@ export class ExternalAssetOwnerLoanProductAttributesService extends BaseService 
     }
 
     /**
+     * Create External Asset Owner Loan Product Attribute
      * @endpoint post /v1/external-asset-owners/loan-product/{loanProductId}/attributes
      * @param loanProductId loanProductId
      * @param postExternalAssetOwnerLoanProductAttributeRequest 
@@ -141,15 +142,15 @@ export class ExternalAssetOwnerLoanProductAttributesService extends BaseService 
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postExternalAssetOwnerLoanProductAttribute(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public postExternalAssetOwnerLoanProductAttribute(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public postExternalAssetOwnerLoanProductAttribute(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public postExternalAssetOwnerLoanProductAttribute(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public postExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public postExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public postExternalAssetOwnersLoanProductLoanProductIdAttributes(loanProductId: number, postExternalAssetOwnerLoanProductAttributeRequest: PostExternalAssetOwnerLoanProductAttributeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanProductId === null || loanProductId === undefined) {
-            throw new Error('Required parameter loanProductId was null or undefined when calling postExternalAssetOwnerLoanProductAttribute.');
+            throw new Error('Required parameter loanProductId was null or undefined when calling postExternalAssetOwnersLoanProductLoanProductIdAttributes.');
         }
         if (postExternalAssetOwnerLoanProductAttributeRequest === null || postExternalAssetOwnerLoanProductAttributeRequest === undefined) {
-            throw new Error('Required parameter postExternalAssetOwnerLoanProductAttributeRequest was null or undefined when calling postExternalAssetOwnerLoanProductAttribute.');
+            throw new Error('Required parameter postExternalAssetOwnerLoanProductAttributeRequest was null or undefined when calling postExternalAssetOwnersLoanProductLoanProductIdAttributes.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -219,18 +220,18 @@ export class ExternalAssetOwnerLoanProductAttributesService extends BaseService 
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateLoanProductAttribute(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public updateLoanProductAttribute(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public updateLoanProductAttribute(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public updateLoanProductAttribute(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, putExternalAssetOwnerLoanProductAttributeRequest: PutExternalAssetOwnerLoanProductAttributeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanProductId === null || loanProductId === undefined) {
-            throw new Error('Required parameter loanProductId was null or undefined when calling updateLoanProductAttribute.');
+            throw new Error('Required parameter loanProductId was null or undefined when calling putExternalAssetOwnersLoanProductLoanProductIdAttributesId.');
         }
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling updateLoanProductAttribute.');
+            throw new Error('Required parameter id was null or undefined when calling putExternalAssetOwnersLoanProductLoanProductIdAttributesId.');
         }
         if (putExternalAssetOwnerLoanProductAttributeRequest === null || putExternalAssetOwnerLoanProductAttributeRequest === undefined) {
-            throw new Error('Required parameter putExternalAssetOwnerLoanProductAttributeRequest was null or undefined when calling updateLoanProductAttribute.');
+            throw new Error('Required parameter putExternalAssetOwnerLoanProductAttributeRequest was null or undefined when calling putExternalAssetOwnersLoanProductLoanProductIdAttributesId.');
         }
 
         let localVarHeaders = this.defaultHeaders;

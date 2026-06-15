@@ -37,7 +37,9 @@ describe('SavingsAccountViewComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    savingsServiceSpy = jasmine.createSpyObj('SavingsAccountService', ['retrieveOne25']);
+    savingsServiceSpy = jasmine.createSpyObj('SavingsAccountService', [
+      'getSavingsaccountsAccountId',
+    ]);
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
         username: 'mifos',
@@ -69,7 +71,7 @@ describe('SavingsAccountViewComponent', () => {
       ],
     }).compileComponents();
 
-    savingsServiceSpy.retrieveOne25.and.returnValue(
+    savingsServiceSpy.getSavingsaccountsAccountId.and.returnValue(
       of({
         id: 789,
         accountNo: 'SA000789',
@@ -92,7 +94,12 @@ describe('SavingsAccountViewComponent', () => {
   });
 
   it('should load savings details on init', () => {
-    expect(savingsServiceSpy.retrieveOne25).toHaveBeenCalledWith(789, false, undefined, 'all');
+    expect(savingsServiceSpy.getSavingsaccountsAccountId).toHaveBeenCalledWith(
+      789,
+      false,
+      undefined,
+      'all',
+    );
     expect(component.account()?.savingsProductName).toBe('Regular Savings');
   });
 });

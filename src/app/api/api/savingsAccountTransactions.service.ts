@@ -60,37 +60,234 @@ export class SavingsAccountTransactionsService extends BaseService {
     }
 
     /**
-     * Undo/Reverse/Modify/Release Amount transaction API
-     * Undo/Reverse/Modify/Release Amount transaction API  Example Requests:   savingsaccounts/{savingsId}/transactions/{transactionId}?command&#x3D;reverse  Accepted command &#x3D; undo, reverse, modify, releaseAmount
-     * @endpoint post /v1/savingsaccounts/{savingsId}/transactions/{transactionId}
-     * @param savingsId 
-     * @param transactionId 
-     * @param postSavingsAccountBulkReversalTransactionsRequest 
-     * @param command 
+     * Retrieve a savings account transaction by external ID
+     * @endpoint get /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/external-id/{transactionExternalId}
+     * @param savingsExternalId 
+     * @param transactionExternalId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public adjustTransaction1(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PostSavingsAccountBulkReversalTransactionsRequest>>;
-    public adjustTransaction1(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
-    public adjustTransaction1(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
-    public adjustTransaction1(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling adjustTransaction1.');
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling getSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId.');
         }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling adjustTransaction1.');
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling getSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId.');
         }
-        if (postSavingsAccountBulkReversalTransactionsRequest === null || postSavingsAccountBulkReversalTransactionsRequest === undefined) {
-            throw new Error('Required parameter postSavingsAccountBulkReversalTransactionsRequest was null or undefined when calling adjustTransaction1.');
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Search Savings Account Transactions
+     * @endpoint get /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/search
+     * @param savingsExternalId savings account external ID
+     * @param fromDate minimum value date (inclusive)
+     * @param toDate maximum value date (inclusive)
+     * @param fromSubmittedDate minimum booking date (inclusive)
+     * @param toSubmittedDate maximum booking date (inclusive)
+     * @param fromAmount minimum transaction amount (inclusive)
+     * @param toAmount maximum transaction amount (inclusive)
+     * @param types transaction types
+     * @param credit credit
+     * @param debit debit
+     * @param offset offset
+     * @param limit limit
+     * @param orderBy sort properties
+     * @param sortOrder sort direction
+     * @param locale locale
+     * @param dateFormat date format
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsSearch(savingsExternalId: string, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SavingsAccountTransactionsSearchResponse>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsSearch(savingsExternalId: string, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SavingsAccountTransactionsSearchResponse>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsSearch(savingsExternalId: string, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SavingsAccountTransactionsSearchResponse>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsSearch(savingsExternalId: string, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling getSavingsaccountsExternalIdSavingsExternalIdTransactionsSearch.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
-            'command',
-            <any>command,
+            'fromDate',
+            <any>fromDate,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'toDate',
+            <any>toDate,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'fromSubmittedDate',
+            <any>fromSubmittedDate,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'toSubmittedDate',
+            <any>toSubmittedDate,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'fromAmount',
+            <any>fromAmount,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'toAmount',
+            <any>toAmount,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'types',
+            <any>types,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'credit',
+            <any>credit,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'debit',
+            <any>debit,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'offset',
+            <any>offset,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'limit',
+            <any>limit,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'orderBy',
+            <any>orderBy,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'sortOrder',
+            <any>sortOrder,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'locale',
+            <any>locale,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'dateFormat',
+            <any>dateFormat,
             QueryParamStyle.Form,
             true,
         );
@@ -116,15 +313,6 @@ export class SavingsAccountTransactionsService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -136,12 +324,11 @@ export class SavingsAccountTransactionsService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/search`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<PostSavingsAccountBulkReversalTransactionsRequest>>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SavingsAccountTransactionsSearchResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: postSavingsAccountBulkReversalTransactionsRequest,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
@@ -154,95 +341,19 @@ export class SavingsAccountTransactionsService extends BaseService {
     }
 
     /**
-     * Advanced search Savings Account Transactions
-     * @endpoint post /v1/savingsaccounts/{savingsId}/transactions/query
-     * @param savingsId savingsId
-     * @param pagedLocalRequestAdvancedQueryRequest 
+     * Retrieve a savings account transaction template
+     * @endpoint get /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/template
+     * @param savingsExternalId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public advancedQuery1(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public advancedQuery1(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public advancedQuery1(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public advancedQuery1(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling advancedQuery1.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/query`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: pagedLocalRequestAdvancedQueryRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/savingsaccounts/{savingsId}/transactions/{transactionId}
-     * @param savingsId 
-     * @param transactionId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveOne24(savingsId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveOne24(savingsId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveOne24(savingsId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveOne24(savingsId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling retrieveOne24.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling retrieveOne24.');
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTemplate(savingsExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTemplate(savingsExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTemplate(savingsExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTemplate(savingsExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling getSavingsaccountsExternalIdSavingsExternalIdTransactionsTemplate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -276,7 +387,7 @@ export class SavingsAccountTransactionsService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/template`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
             {
@@ -292,18 +403,23 @@ export class SavingsAccountTransactionsService extends BaseService {
     }
 
     /**
-     * @endpoint get /v1/savingsaccounts/{savingsId}/transactions/template
-     * @param savingsId 
+     * Retrieve a savings account transaction
+     * @endpoint get /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/{transactionId}
+     * @param savingsExternalId 
+     * @param transactionId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveTemplate19(savingsId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveTemplate19(savingsId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveTemplate19(savingsId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveTemplate19(savingsId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling retrieveTemplate19.');
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling getSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling getSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -337,7 +453,73 @@ export class SavingsAccountTransactionsService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/template`;
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a savings account transaction by external ID
+     * @endpoint get /v1/savingsaccounts/{savingsId}/transactions/external-id/{transactionExternalId}
+     * @param savingsId 
+     * @param transactionExternalId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsId === null || savingsId === undefined) {
+            throw new Error('Required parameter savingsId was null or undefined when calling getSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling getSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
             {
@@ -375,12 +557,12 @@ export class SavingsAccountTransactionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public searchTransactions(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SavingsAccountTransactionsSearchResponse>;
-    public searchTransactions(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SavingsAccountTransactionsSearchResponse>>;
-    public searchTransactions(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SavingsAccountTransactionsSearchResponse>>;
-    public searchTransactions(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getSavingsaccountsSavingsIdTransactionsSearch(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SavingsAccountTransactionsSearchResponse>;
+    public getSavingsaccountsSavingsIdTransactionsSearch(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SavingsAccountTransactionsSearchResponse>>;
+    public getSavingsaccountsSavingsIdTransactionsSearch(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SavingsAccountTransactionsSearchResponse>>;
+    public getSavingsaccountsSavingsIdTransactionsSearch(savingsId: number, fromDate?: string, toDate?: string, fromSubmittedDate?: string, toSubmittedDate?: string, fromAmount?: number, toAmount?: number, types?: string, credit?: boolean, debit?: boolean, offset?: number, limit?: number, orderBy?: string, sortOrder?: 'ASC' | 'DESC', locale?: string, dateFormat?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling searchTransactions.');
+            throw new Error('Required parameter savingsId was null or undefined when calling getSavingsaccountsSavingsIdTransactionsSearch.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -568,6 +750,485 @@ export class SavingsAccountTransactionsService extends BaseService {
     }
 
     /**
+     * Retrieve a savings account transaction template
+     * @endpoint get /v1/savingsaccounts/{savingsId}/transactions/template
+     * @param savingsId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getSavingsaccountsSavingsIdTransactionsTemplate(savingsId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsSavingsIdTransactionsTemplate(savingsId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsSavingsIdTransactionsTemplate(savingsId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsSavingsIdTransactionsTemplate(savingsId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsId === null || savingsId === undefined) {
+            throw new Error('Required parameter savingsId was null or undefined when calling getSavingsaccountsSavingsIdTransactionsTemplate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/template`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a savings account transaction
+     * @endpoint get /v1/savingsaccounts/{savingsId}/transactions/{transactionId}
+     * @param savingsId 
+     * @param transactionId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsId === null || savingsId === undefined) {
+            throw new Error('Required parameter savingsId was null or undefined when calling getSavingsaccountsSavingsIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling getSavingsaccountsSavingsIdTransactionsTransactionId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a savings account transaction
+     * @endpoint post /v1/savingsaccounts/external-id/{savingsExternalId}/transactions
+     * @param savingsExternalId 
+     * @param postSavingsAccountTransactionsRequest 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactions(savingsExternalId: string, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostSavingsAccountTransactionsResponse>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactions(savingsExternalId: string, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostSavingsAccountTransactionsResponse>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactions(savingsExternalId: string, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostSavingsAccountTransactionsResponse>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactions(savingsExternalId: string, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactions.');
+        }
+        if (postSavingsAccountTransactionsRequest === null || postSavingsAccountTransactionsRequest === undefined) {
+            throw new Error('Required parameter postSavingsAccountTransactionsRequest was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactions.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostSavingsAccountTransactionsResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postSavingsAccountTransactionsRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Undo/Reverse/Modify/Release Amount transaction API by external ID
+     * Undo/Reverse/Modify/Release Amount transaction API by external ID  Example Requests:   savingsaccounts/external-id/{savingsExternalId}/transactions/external-id/{transactionExternalId}?command&#x3D;reverse  Accepted command &#x3D; undo, reverse, modify, releaseAmount
+     * @endpoint post /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/external-id/{transactionExternalId}
+     * @param savingsExternalId 
+     * @param transactionExternalId 
+     * @param postSavingsAccountBulkReversalTransactionsRequest 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PostSavingsAccountBulkReversalTransactionsRequest>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId(savingsExternalId: string, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (postSavingsAccountBulkReversalTransactionsRequest === null || postSavingsAccountBulkReversalTransactionsRequest === undefined) {
+            throw new Error('Required parameter postSavingsAccountBulkReversalTransactionsRequest was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<PostSavingsAccountBulkReversalTransactionsRequest>>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postSavingsAccountBulkReversalTransactionsRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Advanced search Savings Account Transactions
+     * @endpoint post /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/query
+     * @param savingsExternalId savings account external ID
+     * @param pagedLocalRequestAdvancedQueryRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsQuery(savingsExternalId: string, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsQuery(savingsExternalId: string, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsQuery(savingsExternalId: string, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsQuery(savingsExternalId: string, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsQuery.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/query`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: pagedLocalRequestAdvancedQueryRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Undo/Reverse/Modify/Release Amount transaction API
+     * Undo/Reverse/Modify/Release Amount transaction API  Example Requests:   savingsaccounts/external-id/{savingsExternalId}/transactions/{transactionId}?command&#x3D;reverse  Accepted command &#x3D; undo, reverse, modify, releaseAmount
+     * @endpoint post /v1/savingsaccounts/external-id/{savingsExternalId}/transactions/{transactionId}
+     * @param savingsExternalId 
+     * @param transactionId 
+     * @param postSavingsAccountBulkReversalTransactionsRequest 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PostSavingsAccountBulkReversalTransactionsRequest>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId(savingsExternalId: string, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsExternalId === null || savingsExternalId === undefined) {
+            throw new Error('Required parameter savingsExternalId was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId.');
+        }
+        if (postSavingsAccountBulkReversalTransactionsRequest === null || postSavingsAccountBulkReversalTransactionsRequest === undefined) {
+            throw new Error('Required parameter postSavingsAccountBulkReversalTransactionsRequest was null or undefined when calling postSavingsaccountsExternalIdSavingsExternalIdTransactionsTransactionId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/external-id/${this.configuration.encodeParam({name: "savingsExternalId", value: savingsExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<PostSavingsAccountBulkReversalTransactionsRequest>>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postSavingsAccountBulkReversalTransactionsRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a savings account transaction
      * @endpoint post /v1/savingsaccounts/{savingsId}/transactions
      * @param savingsId 
      * @param postSavingsAccountTransactionsRequest 
@@ -576,15 +1237,15 @@ export class SavingsAccountTransactionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public transaction2(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostSavingsAccountTransactionsResponse>;
-    public transaction2(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostSavingsAccountTransactionsResponse>>;
-    public transaction2(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostSavingsAccountTransactionsResponse>>;
-    public transaction2(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postSavingsaccountsSavingsIdTransactions(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostSavingsAccountTransactionsResponse>;
+    public postSavingsaccountsSavingsIdTransactions(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostSavingsAccountTransactionsResponse>>;
+    public postSavingsaccountsSavingsIdTransactions(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostSavingsAccountTransactionsResponse>>;
+    public postSavingsaccountsSavingsIdTransactions(savingsId: number, postSavingsAccountTransactionsRequest: PostSavingsAccountTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling transaction2.');
+            throw new Error('Required parameter savingsId was null or undefined when calling postSavingsaccountsSavingsIdTransactions.');
         }
         if (postSavingsAccountTransactionsRequest === null || postSavingsAccountTransactionsRequest === undefined) {
-            throw new Error('Required parameter postSavingsAccountTransactionsRequest was null or undefined when calling transaction2.');
+            throw new Error('Required parameter postSavingsAccountTransactionsRequest was null or undefined when calling postSavingsaccountsSavingsIdTransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -644,6 +1305,267 @@ export class SavingsAccountTransactionsService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: postSavingsAccountTransactionsRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Undo/Reverse/Modify/Release Amount transaction API by external ID
+     * Undo/Reverse/Modify/Release Amount transaction API by external ID  Example Requests:   savingsaccounts/{savingsId}/transactions/external-id/{transactionExternalId}?command&#x3D;reverse  Accepted command &#x3D; undo, reverse, modify, releaseAmount
+     * @endpoint post /v1/savingsaccounts/{savingsId}/transactions/external-id/{transactionExternalId}
+     * @param savingsId 
+     * @param transactionExternalId 
+     * @param postSavingsAccountBulkReversalTransactionsRequest 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PostSavingsAccountBulkReversalTransactionsRequest>>;
+    public postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId(savingsId: number, transactionExternalId: string, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsId === null || savingsId === undefined) {
+            throw new Error('Required parameter savingsId was null or undefined when calling postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (postSavingsAccountBulkReversalTransactionsRequest === null || postSavingsAccountBulkReversalTransactionsRequest === undefined) {
+            throw new Error('Required parameter postSavingsAccountBulkReversalTransactionsRequest was null or undefined when calling postSavingsaccountsSavingsIdTransactionsExternalIdTransactionExternalId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<PostSavingsAccountBulkReversalTransactionsRequest>>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postSavingsAccountBulkReversalTransactionsRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Advanced search Savings Account Transactions
+     * @endpoint post /v1/savingsaccounts/{savingsId}/transactions/query
+     * @param savingsId savingsId
+     * @param pagedLocalRequestAdvancedQueryRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsSavingsIdTransactionsQuery(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public postSavingsaccountsSavingsIdTransactionsQuery(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public postSavingsaccountsSavingsIdTransactionsQuery(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public postSavingsaccountsSavingsIdTransactionsQuery(savingsId: number, pagedLocalRequestAdvancedQueryRequest?: PagedLocalRequestAdvancedQueryRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsId === null || savingsId === undefined) {
+            throw new Error('Required parameter savingsId was null or undefined when calling postSavingsaccountsSavingsIdTransactionsQuery.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/query`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: pagedLocalRequestAdvancedQueryRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Undo/Reverse/Modify/Release Amount transaction API
+     * Undo/Reverse/Modify/Release Amount transaction API  Example Requests:   savingsaccounts/{savingsId}/transactions/{transactionId}?command&#x3D;reverse  Accepted command &#x3D; undo, reverse, modify, releaseAmount
+     * @endpoint post /v1/savingsaccounts/{savingsId}/transactions/{transactionId}
+     * @param savingsId 
+     * @param transactionId 
+     * @param postSavingsAccountBulkReversalTransactionsRequest 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<PostSavingsAccountBulkReversalTransactionsRequest>>;
+    public postSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<PostSavingsAccountBulkReversalTransactionsRequest>>>;
+    public postSavingsaccountsSavingsIdTransactionsTransactionId(savingsId: number, transactionId: number, postSavingsAccountBulkReversalTransactionsRequest: PostSavingsAccountBulkReversalTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (savingsId === null || savingsId === undefined) {
+            throw new Error('Required parameter savingsId was null or undefined when calling postSavingsaccountsSavingsIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling postSavingsaccountsSavingsIdTransactionsTransactionId.');
+        }
+        if (postSavingsAccountBulkReversalTransactionsRequest === null || postSavingsAccountBulkReversalTransactionsRequest === undefined) {
+            throw new Error('Required parameter postSavingsAccountBulkReversalTransactionsRequest was null or undefined when calling postSavingsaccountsSavingsIdTransactionsTransactionId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/savingsaccounts/${this.configuration.encodeParam({name: "savingsId", value: savingsId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<PostSavingsAccountBulkReversalTransactionsRequest>>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postSavingsAccountBulkReversalTransactionsRequest,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),

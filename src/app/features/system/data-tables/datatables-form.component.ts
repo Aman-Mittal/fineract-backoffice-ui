@@ -314,11 +314,11 @@ export class DatatablesFormComponent implements OnInit {
   }
 
   loadCodes(): void {
-    this.codesService.retrieveCodes().subscribe((data) => this.codes.set(data));
+    this.codesService.getCodes().subscribe((data) => this.codes.set(data));
   }
 
   loadDatatableData(): void {
-    this.datatablesService.getDatatable(this.datatableName!).subscribe((data) => {
+    this.datatablesService.getDatatablesDatatable(this.datatableName!).subscribe((data) => {
       this.datatable = {
         datatableName: data.registeredTableName!,
         apptableName: data.applicationTableName!,
@@ -350,12 +350,14 @@ export class DatatablesFormComponent implements OnInit {
     if (this.isEditMode) {
       // Fineract only supports changing column names/types/codes in specific ways via updateDatatable
       // but usually definitions are somewhat immutable. We use the service's updateDatatable.
-      this.datatablesService.updateDatatable(this.datatableName!, this.datatable).subscribe({
-        next: () => this.router.navigate([this.dtListPath]),
-        error: (err) => console.error('Failed to update datatable', err),
-      });
+      this.datatablesService
+        .putDatatablesDatatableName(this.datatableName!, this.datatable)
+        .subscribe({
+          next: () => this.router.navigate([this.dtListPath]),
+          error: (err) => console.error('Failed to update datatable', err),
+        });
     } else {
-      this.datatablesService.createDatatable(this.datatable).subscribe({
+      this.datatablesService.postDatatables(this.datatable).subscribe({
         next: () => this.router.navigate([this.dtListPath]),
         error: (err) => console.error('Failed to create datatable', err),
       });

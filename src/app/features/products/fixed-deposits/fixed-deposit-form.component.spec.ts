@@ -46,10 +46,10 @@ describe('FixedDepositAccountFormComponent', () => {
 
   beforeEach(async () => {
     fixedDepositServiceSpy = jasmine.createSpyObj('FixedDepositAccountService', [
-      'template12',
-      'retrieveOne19',
-      'submitApplication',
-      'update16',
+      'getFixeddepositaccountsTemplate',
+      'getFixeddepositaccountsAccountId',
+      'postFixeddepositaccounts',
+      'putFixeddepositaccountsAccountId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     activatedRouteStub = {
@@ -72,7 +72,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should create', () => {
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
     fixture.detectChanges();
@@ -81,21 +81,21 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should initialize with clientId from query parameters', () => {
     activatedRouteStub.queryParams = of({ clientId: '123' });
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
 
     component.ngOnInit();
 
     expect(component.account['clientId']).toBe(123);
-    expect(fixedDepositServiceSpy.template12).toHaveBeenCalledWith(123);
+    expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(123);
   });
 
   it('should load product options on client selection', () => {
     const productOptions = new Set<GetFixedDepositAccountsProductOptions>([
       { id: 1, name: 'Product 1' } as GetFixedDepositAccountsProductOptions,
     ]);
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of({
         productOptions,
       } as GetFixedDepositAccountsTemplateResponse),
@@ -104,12 +104,12 @@ describe('FixedDepositAccountFormComponent', () => {
     component.onClientSelected(456);
 
     expect(component.account['clientId']).toBe(456);
-    expect(fixedDepositServiceSpy.template12).toHaveBeenCalledWith(456);
+    expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(456);
     expect(component.products.length).toBe(1);
   });
 
   it('should handle missing product options in template', () => {
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
 
@@ -125,14 +125,18 @@ describe('FixedDepositAccountFormComponent', () => {
       depositPeriodFrequency: { id: 2 },
       nominalAnnualInterestRate: 5.5,
     };
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of(mockTemplate as unknown as GetFixedDepositAccountsTemplateResponse),
     );
     component.account['clientId'] = 1;
 
     component.onProductSelected(101);
 
-    expect(fixedDepositServiceSpy.template12).toHaveBeenCalledWith(1, undefined, 101);
+    expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(
+      1,
+      undefined,
+      101,
+    );
     expect(component.account['depositAmount']).toBe(5000);
     expect(component.account['depositPeriod']).toBe(12);
     expect(component.account['depositPeriodFrequencyId']).toBe(2);
@@ -141,7 +145,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should handle error when loading product defaults', () => {
     spyOn(console, 'error');
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       throwError(() => new Error(API_ERROR)),
     );
     component.account['clientId'] = 1;
@@ -163,7 +167,7 @@ describe('FixedDepositAccountFormComponent', () => {
         submittedOnDate: [2026, 6, 11] as unknown as string,
       },
     };
-    (fixedDepositServiceSpy.retrieveOne19 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as jasmine.Spy).and.returnValue(
       of(mockAccount as unknown as GetFixedDepositAccountsAccountIdResponse),
     );
     component.accountId = 123;
@@ -171,7 +175,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
     (component as unknown as Record<string, () => void>)['loadAccountData']();
 
-    expect(fixedDepositServiceSpy.retrieveOne19).toHaveBeenCalledWith(123);
+    expect(fixedDepositServiceSpy.getFixeddepositaccountsAccountId).toHaveBeenCalledWith(123);
     expect(component.account['clientId']).toBe(1);
     expect(component.account['productId']).toBe(101);
     expect(component.account['nominalAnnualInterestRate']).toBe(4.5);
@@ -180,7 +184,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should handle error when loading account data', () => {
     spyOn(console, 'error');
-    (fixedDepositServiceSpy.retrieveOne19 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as jasmine.Spy).and.returnValue(
       throwError(() => new Error(API_ERROR)),
     );
     component.accountId = 123;
@@ -191,10 +195,10 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should submit application in create mode', () => {
-    (fixedDepositServiceSpy.template12 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
-    (fixedDepositServiceSpy.submitApplication as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.postFixeddepositaccounts as jasmine.Spy).and.returnValue(
       of({} as PostFixedDepositAccountsResponse),
     );
     fixture.detectChanges();
@@ -211,12 +215,12 @@ describe('FixedDepositAccountFormComponent', () => {
 
     component.onSubmit();
 
-    expect(fixedDepositServiceSpy.submitApplication).toHaveBeenCalled();
+    expect(fixedDepositServiceSpy.postFixeddepositaccounts).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
   });
 
   it('should update application in edit mode', () => {
-    (fixedDepositServiceSpy.update16 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.putFixeddepositaccountsAccountId as jasmine.Spy).and.returnValue(
       of({} as PostFixedDepositAccountsResponse),
     );
     component.accountId = 123;
@@ -231,12 +235,15 @@ describe('FixedDepositAccountFormComponent', () => {
 
     component.onSubmit();
 
-    expect(fixedDepositServiceSpy.update16).toHaveBeenCalledWith(123, jasmine.any(Object));
+    expect(fixedDepositServiceSpy.putFixeddepositaccountsAccountId).toHaveBeenCalledWith(
+      123,
+      jasmine.any(Object),
+    );
     expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
   });
 
   it('should handle submission error', () => {
-    (fixedDepositServiceSpy.submitApplication as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.postFixeddepositaccounts as jasmine.Spy).and.returnValue(
       throwError(() => new Error(API_ERROR)),
     );
     component.onSubmit();

@@ -60,167 +60,6 @@ export class RecurringDepositAccountTransactionsService extends BaseService {
     }
 
     /**
-     * Adjust Transaction | Undo transaction
-     * Adjust Transaction:  This command modifies the given transaction.  Undo transaction:  This command reverses the given transaction.  Showing request/response for \&#39;Adjust Transaction\&#39;
-     * @endpoint post /v1/recurringdepositaccounts/{recurringDepositAccountId}/transactions/{transactionId}
-     * @param recurringDepositAccountId recurringDepositAccountId
-     * @param transactionId transactionId
-     * @param postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest 
-     * @param command command
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public handleTransactionCommands(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>;
-    public handleTransactionCommands(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
-    public handleTransactionCommands(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
-    public handleTransactionCommands(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (recurringDepositAccountId === null || recurringDepositAccountId === undefined) {
-            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling handleTransactionCommands.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling handleTransactionCommands.');
-        }
-        if (postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest === null || postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest === undefined) {
-            throw new Error('Required parameter postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest was null or undefined when calling handleTransactionCommands.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'command',
-            <any>command,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/recurringdepositaccounts/${this.configuration.encodeParam({name: "recurringDepositAccountId", value: recurringDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Recurring Deposit Account Transaction
-     * Retrieves Recurring Deposit Account Transaction  Example Requests:  recurringdepositaccounts/1/transactions/1
-     * @endpoint get /v1/recurringdepositaccounts/{recurringDepositAccountId}/transactions/{transactionId}
-     * @param recurringDepositAccountId recurringDepositAccountId
-     * @param transactionId transactionId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveOne21(recurringDepositAccountId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>;
-    public retrieveOne21(recurringDepositAccountId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
-    public retrieveOne21(recurringDepositAccountId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
-    public retrieveOne21(recurringDepositAccountId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (recurringDepositAccountId === null || recurringDepositAccountId === undefined) {
-            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling retrieveOne21.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling retrieveOne21.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/recurringdepositaccounts/${this.configuration.encodeParam({name: "recurringDepositAccountId", value: recurringDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Retrieve Recurring Deposit Account Transaction Template
      * This is a convenience resource. It can be useful when building maintenance user interface screens for client applications. The template data returned consists of any or all of:  Field Defaults Allowed Value Lists Example Requests:  recurringdepositaccounts/1/transactions/template?command&#x3D;deposit  recurringdepositaccounts/1/transactions/template?command&#x3D;withdrawal
      * @endpoint get /v1/recurringdepositaccounts/{recurringDepositAccountId}/transactions/template
@@ -230,12 +69,12 @@ export class RecurringDepositAccountTransactionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveTemplate16(recurringDepositAccountId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTemplateResponse>;
-    public retrieveTemplate16(recurringDepositAccountId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTemplateResponse>>;
-    public retrieveTemplate16(recurringDepositAccountId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTemplateResponse>>;
-    public retrieveTemplate16(recurringDepositAccountId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(recurringDepositAccountId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTemplateResponse>;
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(recurringDepositAccountId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTemplateResponse>>;
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(recurringDepositAccountId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTemplateResponse>>;
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(recurringDepositAccountId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (recurringDepositAccountId === null || recurringDepositAccountId === undefined) {
-            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling retrieveTemplate16.');
+            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -297,6 +136,73 @@ export class RecurringDepositAccountTransactionsService extends BaseService {
     }
 
     /**
+     * Retrieve Recurring Deposit Account Transaction
+     * Retrieves Recurring Deposit Account Transaction  Example Requests:  recurringdepositaccounts/1/transactions/1
+     * @endpoint get /v1/recurringdepositaccounts/{recurringDepositAccountId}/transactions/{transactionId}
+     * @param recurringDepositAccountId recurringDepositAccountId
+     * @param transactionId transactionId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>;
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
+    public getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (recurringDepositAccountId === null || recurringDepositAccountId === undefined) {
+            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/recurringdepositaccounts/${this.configuration.encodeParam({name: "recurringDepositAccountId", value: recurringDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Deposit Transaction | Withdrawal Transaction
      * Deposit Transaction:  Used for a deposit transaction  Withdrawal Transaction:  Used for a Withdrawal Transaction  Showing request/response for Deposit Transaction
      * @endpoint post /v1/recurringdepositaccounts/{recurringDepositAccountId}/transactions
@@ -307,15 +213,15 @@ export class RecurringDepositAccountTransactionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public transaction1(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>;
-    public transaction1(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>>;
-    public transaction1(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>>;
-    public transaction1(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactions(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>;
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactions(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>>;
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactions(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>>;
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactions(recurringDepositAccountId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (recurringDepositAccountId === null || recurringDepositAccountId === undefined) {
-            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling transaction1.');
+            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling postRecurringdepositaccountsRecurringDepositAccountIdTransactions.');
         }
         if (postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest === null || postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest === undefined) {
-            throw new Error('Required parameter postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest was null or undefined when calling transaction1.');
+            throw new Error('Required parameter postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest was null or undefined when calling postRecurringdepositaccountsRecurringDepositAccountIdTransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -372,6 +278,100 @@ export class RecurringDepositAccountTransactionsService extends BaseService {
         let localVarPath = `/v1/recurringdepositaccounts/${this.configuration.encodeParam({name: "recurringDepositAccountId", value: recurringDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Adjust Transaction | Undo transaction
+     * Adjust Transaction:  This command modifies the given transaction.  Undo transaction:  This command reverses the given transaction.  Showing request/response for \&#39;Adjust Transaction\&#39;
+     * @endpoint post /v1/recurringdepositaccounts/{recurringDepositAccountId}/transactions/{transactionId}
+     * @param recurringDepositAccountId recurringDepositAccountId
+     * @param transactionId transactionId
+     * @param postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest 
+     * @param command command
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>;
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>>;
+    public postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(recurringDepositAccountId: number, transactionId: number, postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (recurringDepositAccountId === null || recurringDepositAccountId === undefined) {
+            throw new Error('Required parameter recurringDepositAccountId was null or undefined when calling postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId.');
+        }
+        if (postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest === null || postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest === undefined) {
+            throw new Error('Required parameter postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest was null or undefined when calling postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/recurringdepositaccounts/${this.configuration.encodeParam({name: "recurringDepositAccountId", value: recurringDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest,

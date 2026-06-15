@@ -520,14 +520,16 @@ export class SavingsAccountViewComponent implements OnInit {
   }
 
   loadAccountData() {
-    this.savingsService.retrieveOne25(this.accountId, false, undefined, 'all').subscribe({
-      next: (data) => {
-        this.account.set(data);
-        this.transactions.set(data.transactions || []);
-        this.charges.set(data.charges || []);
-      },
-      error: (err) => console.error('Failed to load savings account details', err),
-    });
+    this.savingsService
+      .getSavingsaccountsAccountId(this.accountId, false, undefined, 'all')
+      .subscribe({
+        next: (data) => {
+          this.account.set(data);
+          this.transactions.set(data.transactions || []);
+          this.charges.set(data.charges || []);
+        },
+        error: (err) => console.error('Failed to load savings account details', err),
+      });
   }
 
   onTransaction(command: string) {

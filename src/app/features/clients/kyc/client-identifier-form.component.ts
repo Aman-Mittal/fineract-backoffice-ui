@@ -171,14 +171,16 @@ export class ClientIdentifierFormComponent implements OnInit {
   }
 
   loadTemplate(): void {
-    this.identifierService.newClientIdentifierDetails(this.clientId).subscribe((data) => {
-      this.documentTypes.set(data.allowedDocumentTypes || []);
-    });
+    this.identifierService
+      .getClientsClientIdIdentifiersTemplate(this.clientId)
+      .subscribe((data) => {
+        this.documentTypes.set(data.allowedDocumentTypes || []);
+      });
   }
 
   loadIdentifierData(): void {
     this.identifierService
-      .retrieveClientIdentifiers(this.clientId, this.identifierId!)
+      .getClientsClientIdIdentifiersIdentifierId(this.clientId, this.identifierId!)
       .subscribe((data) => {
         this.identifier = {
           documentTypeId: data.documentType?.id,
@@ -192,16 +194,22 @@ export class ClientIdentifierFormComponent implements OnInit {
   onSubmit(): void {
     if (this.isEditMode) {
       this.identifierService
-        .updateClientIdentifer(this.clientId, this.identifierId!, this.identifier)
+        .putClientsClientIdIdentifiersIdentifierId(
+          this.clientId,
+          this.identifierId!,
+          this.identifier,
+        )
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to update identifier', err),
         });
     } else {
-      this.identifierService.createClientIdentifier(this.clientId, this.identifier).subscribe({
-        next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-        error: (err) => console.error('Failed to create identifier', err),
-      });
+      this.identifierService
+        .postClientsClientIdIdentifiers(this.clientId, this.identifier)
+        .subscribe({
+          next: () => this.router.navigate([this.clientViewPath, this.clientId]),
+          error: (err) => console.error('Failed to create identifier', err),
+        });
     }
   }
 

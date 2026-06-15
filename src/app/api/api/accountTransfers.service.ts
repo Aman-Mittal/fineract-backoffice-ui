@@ -35,6 +35,8 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { AccountTransferRequest } from '../model/accountTransferRequest';
 // @ts-ignore
+import { CommandProcessingResult } from '../model/commandProcessingResult';
+// @ts-ignore
 import { GetAccountTransfersPageItems } from '../model/getAccountTransfersPageItems';
 // @ts-ignore
 import { GetAccountTransfersResponse } from '../model/getAccountTransfersResponse';
@@ -64,79 +66,6 @@ export class AccountTransfersService extends BaseService {
     }
 
     /**
-     * Create new Transfer
-     * Ability to create new transfer of monetary funds from one account to another.
-     * @endpoint post /v1/accounttransfers
-     * @param accountTransferRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public create4(accountTransferRequest: AccountTransferRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostAccountTransfersResponse>;
-    public create4(accountTransferRequest: AccountTransferRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostAccountTransfersResponse>>;
-    public create4(accountTransferRequest: AccountTransferRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostAccountTransfersResponse>>;
-    public create4(accountTransferRequest: AccountTransferRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (accountTransferRequest === null || accountTransferRequest === undefined) {
-            throw new Error('Required parameter accountTransferRequest was null or undefined when calling create4.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/accounttransfers`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostAccountTransfersResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: accountTransferRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * List account transfers
      * Lists account\&#39;s transfers  Example Requests:    accounttransfers
      * @endpoint get /v1/accounttransfers
@@ -150,10 +79,10 @@ export class AccountTransfersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll18(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersResponse>;
-    public retrieveAll18(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersResponse>>;
-    public retrieveAll18(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersResponse>>;
-    public retrieveAll18(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAccounttransfers(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersResponse>;
+    public getAccounttransfers(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersResponse>>;
+    public getAccounttransfers(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersResponse>>;
+    public getAccounttransfers(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, accountDetailId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -259,69 +188,6 @@ export class AccountTransfersService extends BaseService {
     }
 
     /**
-     * Retrieve account transfer
-     * Retrieves account transfer  Example Requests :    accounttransfers/1
-     * @endpoint get /v1/accounttransfers/{transferId}
-     * @param transferId transferId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveOne9(transferId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersPageItems>;
-    public retrieveOne9(transferId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersPageItems>>;
-    public retrieveOne9(transferId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersPageItems>>;
-    public retrieveOne9(transferId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (transferId === null || transferId === undefined) {
-            throw new Error('Required parameter transferId was null or undefined when calling retrieveOne9.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/accounttransfers/${this.configuration.encodeParam({name: "transferId", value: transferId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetAccountTransfersPageItems>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Retrieve Account Transfer Template
      * This is a convenience resource. It can be useful when building maintenance user interface screens for client applications. The template data returned consists of any or all of:    Field Defaults  Allowed Value Lists  Example Requests:    accounttransfers/template?fromAccountType&#x3D;2&amp;fromOfficeId&#x3D;1    accounttransfers/template?fromAccountType&#x3D;2&amp;fromOfficeId&#x3D;1&amp;fromClientId&#x3D;1    accounttransfers/template?fromClientId&#x3D;1&amp;fromAccountType&#x3D;2&amp;fromAccountId&#x3D;1
      * @endpoint get /v1/accounttransfers/template
@@ -337,10 +203,10 @@ export class AccountTransfersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public template5(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersTemplateResponse>;
-    public template5(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersTemplateResponse>>;
-    public template5(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersTemplateResponse>>;
-    public template5(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAccounttransfersTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersTemplateResponse>;
+    public getAccounttransfersTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersTemplateResponse>>;
+    public getAccounttransfersTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersTemplateResponse>>;
+    public getAccounttransfersTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -479,10 +345,10 @@ export class AccountTransfersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public templateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersTemplateRefundByTransferResponse>;
-    public templateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersTemplateRefundByTransferResponse>>;
-    public templateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersTemplateRefundByTransferResponse>>;
-    public templateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getAccounttransfersTemplateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersTemplateRefundByTransferResponse>;
+    public getAccounttransfersTemplateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersTemplateRefundByTransferResponse>>;
+    public getAccounttransfersTemplateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersTemplateRefundByTransferResponse>>;
+    public getAccounttransfersTemplateRefundByTransfer(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -606,6 +472,218 @@ export class AccountTransfersService extends BaseService {
     }
 
     /**
+     * Retrieve account transfer
+     * Retrieves account transfer  Example Requests :    accounttransfers/1
+     * @endpoint get /v1/accounttransfers/{transferId}
+     * @param transferId transferId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getAccounttransfersTransferId(transferId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetAccountTransfersPageItems>;
+    public getAccounttransfersTransferId(transferId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetAccountTransfersPageItems>>;
+    public getAccounttransfersTransferId(transferId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetAccountTransfersPageItems>>;
+    public getAccounttransfersTransferId(transferId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (transferId === null || transferId === undefined) {
+            throw new Error('Required parameter transferId was null or undefined when calling getAccounttransfersTransferId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/accounttransfers/${this.configuration.encodeParam({name: "transferId", value: transferId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetAccountTransfersPageItems>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create new Transfer
+     * Ability to create new transfer of monetary funds from one account to another.
+     * @endpoint post /v1/accounttransfers
+     * @param accountTransferRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postAccounttransfers(accountTransferRequest: AccountTransferRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostAccountTransfersResponse>;
+    public postAccounttransfers(accountTransferRequest: AccountTransferRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostAccountTransfersResponse>>;
+    public postAccounttransfers(accountTransferRequest: AccountTransferRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostAccountTransfersResponse>>;
+    public postAccounttransfers(accountTransferRequest: AccountTransferRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountTransferRequest === null || accountTransferRequest === undefined) {
+            throw new Error('Required parameter accountTransferRequest was null or undefined when calling postAccounttransfers.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/accounttransfers`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostAccountTransfersResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: accountTransferRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Operation on active account transfer
+     * In case of command&#x3D;&#x60;undo&#x60;: Ability to undo a transfer of monetary funds from one account to another.
+     * @endpoint post /v1/accounttransfers/{accountTransferId}
+     * @param accountTransferId accountTransferId
+     * @param command command
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postAccounttransfersAccountTransferId(accountTransferId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public postAccounttransfersAccountTransferId(accountTransferId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public postAccounttransfersAccountTransferId(accountTransferId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public postAccounttransfersAccountTransferId(accountTransferId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountTransferId === null || accountTransferId === undefined) {
+            throw new Error('Required parameter accountTransferId was null or undefined when calling postAccounttransfersAccountTransferId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/accounttransfers/${this.configuration.encodeParam({name: "accountTransferId", value: accountTransferId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Refund of an Active Loan by Transfer
      * Ability to refund an active loan by transferring to a savings account.
      * @endpoint post /v1/accounttransfers/refundByTransfer
@@ -614,12 +692,12 @@ export class AccountTransfersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public templateRefundByTransferPost(accountTransferRequest: AccountTransferRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostAccountTransfersRefundByTransferResponse>;
-    public templateRefundByTransferPost(accountTransferRequest: AccountTransferRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostAccountTransfersRefundByTransferResponse>>;
-    public templateRefundByTransferPost(accountTransferRequest: AccountTransferRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostAccountTransfersRefundByTransferResponse>>;
-    public templateRefundByTransferPost(accountTransferRequest: AccountTransferRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postAccounttransfersRefundByTransfer(accountTransferRequest: AccountTransferRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostAccountTransfersRefundByTransferResponse>;
+    public postAccounttransfersRefundByTransfer(accountTransferRequest: AccountTransferRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostAccountTransfersRefundByTransferResponse>>;
+    public postAccounttransfersRefundByTransfer(accountTransferRequest: AccountTransferRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostAccountTransfersRefundByTransferResponse>>;
+    public postAccounttransfersRefundByTransfer(accountTransferRequest: AccountTransferRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountTransferRequest === null || accountTransferRequest === undefined) {
-            throw new Error('Required parameter accountTransferRequest was null or undefined when calling templateRefundByTransferPost.');
+            throw new Error('Required parameter accountTransferRequest was null or undefined when calling postAccounttransfersRefundByTransfer.');
         }
 
         let localVarHeaders = this.defaultHeaders;

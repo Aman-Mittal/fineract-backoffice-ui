@@ -27,36 +27,40 @@ import { Office } from './office';
 import { Role } from './role';
 import { GrantedAuthority } from './grantedAuthority';
 import { Staff } from './staff';
-import { AppUserClientMapping } from './appUserClientMapping';
 
 
 export interface AppUser { 
     accountNonExpired?: boolean;
     accountNonLocked?: boolean;
-    appUserClientMappings?: Set<AppUserClientMapping>;
     authorities?: Array<GrantedAuthority>;
     bypassUser?: boolean;
+    cannotChangePassword?: boolean;
     checkerSuperUser?: boolean;
     credentialsNonExpired?: boolean;
     deleted?: boolean;
     displayName?: string;
     email?: string;
     enabled?: boolean;
+    failedLoginAttempts?: number;
     firstname?: string;
-    id?: number;
+    id?: number | null;
     lastTimePasswordUpdated?: string;
     lastname?: string;
+    loginRetryLimitEnabled?: boolean;
     'new'?: boolean;
     notEnabled?: boolean;
     office?: Office;
     password?: string;
     passwordNeverExpires?: boolean;
+    passwordResetAllowed?: boolean;
+    passwordResetRequired?: boolean;
     roles?: Set<Role>;
-    selfServiceUser?: boolean;
     staff?: Staff;
     staffDisplayName?: string;
     staffId?: number;
     systemUser?: boolean;
+    temporaryPassword?: string;
+    temporaryPasswordExpired?: boolean;
     username?: string;
 }
 

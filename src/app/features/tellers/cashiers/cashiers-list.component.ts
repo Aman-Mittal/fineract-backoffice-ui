@@ -123,7 +123,7 @@ export class CashiersListComponent implements OnInit {
   private loadCashiers(): void {
     // Note: getCashierData signature usually needs officeId but can work with just tellerId in some versions.
     // Defaulting to undefined for officeId to fetch based on teller context.
-    this.cashiersService.getCashierData(undefined, this.tellerId).subscribe({
+    this.cashiersService.getCashiers(undefined, this.tellerId).subscribe({
       next: (data: CashierData[]) => {
         this.cashiers = data || [];
       },
@@ -147,14 +147,16 @@ export class CashiersListComponent implements OnInit {
    */
   onRemoveCashier(cashier: CashierData): void {
     if (confirm('Are you sure you want to remove this cashier allocation?')) {
-      this.tellerService.deleteCashier(this.tellerId, cashier.id!).subscribe({
-        next: () => {
-          this.loadCashiers();
-        },
-        error: (err: unknown) => {
-          console.error('Failed to remove cashier allocation', err);
-        },
-      });
+      this.tellerService
+        .deleteTellersTellerIdCashiersCashierId(this.tellerId, cashier.id!)
+        .subscribe({
+          next: () => {
+            this.loadCashiers();
+          },
+          error: (err: unknown) => {
+            console.error('Failed to remove cashier allocation', err);
+          },
+        });
     }
   }
 

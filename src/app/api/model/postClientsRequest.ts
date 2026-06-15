@@ -54,5 +54,6 @@ export interface PostClientsRequest {
     middlename?: string;
     mobileNo?: string;
     officeId?: number;
+    submittedOnDate?: string;
 }
 

@@ -74,299 +74,8 @@ export class DataTablesService extends BaseService {
     }
 
     /**
-     * Query Data Table values
-     * Query values from a registered data table.
-     * @endpoint post /v1/datatables/{datatable}/query
-     * @param datatable datatable
-     * @param pagedLocalRequestAdvancedQueryData 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public advancedQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public advancedQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public advancedQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public advancedQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling advancedQuery.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/query`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: pagedLocalRequestAdvancedQueryData,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Create Data Table
-     * Create a new data table and registers it with the Apache Fineract Core application table.  Field Descriptions  Mandatory - datatableName :   The name of the Data Table.  Mandatory - apptableName  Application table name. Must be one of the following:  m_client  m_group  m_loan  m_office  m_saving_account  m_product_loan  m_savings_product  Mandatory - columns   An array of columns in the new Data Table.  Optional - multiRow  Allows to create multiple entries in the Data Table. Optional, defaults to false. If this property is not provided Data Table will allow only one entry.  Field Descriptions - columns  Mandatory - name  Name of the created column. Can contain only alphanumeric characters, underscores and spaces, but cannot start with a number. Cannot start or end with an underscore or space.  Mandatory - type  Column type. Must be one of the following:  Boolean  Date  DateTime  Decimal  Dropdown   Number  String  Text  Mandatory [type &#x3D; Dropdown] - code  Used in Code description fields. Column name becomes: code_cd_name. Mandatory if using type Dropdown, otherwise an error is returned.  Optional - mandatory  Determines whether this column must have a value in every entry. Optional, defaults to false.  Mandatory [type &#x3D; String] - length  Length of the text field. Mandatory if type String is used, otherwise an error is returned.
-     * @endpoint post /v1/datatables
-     * @param postDataTablesRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createDatatable(postDataTablesRequest: PostDataTablesRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostDataTablesResponse>;
-    public createDatatable(postDataTablesRequest: PostDataTablesRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostDataTablesResponse>>;
-    public createDatatable(postDataTablesRequest: PostDataTablesRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostDataTablesResponse>>;
-    public createDatatable(postDataTablesRequest: PostDataTablesRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (postDataTablesRequest === null || postDataTablesRequest === undefined) {
-            throw new Error('Required parameter postDataTablesRequest was null or undefined when calling createDatatable.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostDataTablesResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postDataTablesRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Create Entry in Data Table
-     * Adds a row to the data table.  Note that the default datatable UI functionality converts any field name containing spaces to underscores when using the API. This means the field name \&quot;Business Description\&quot; is considered the same as \&quot;Business_Description\&quot;. So you shouldn\&#39;t have both \&quot;versions\&quot; in any data table.
-     * @endpoint post /v1/datatables/{datatable}/{apptableId}
-     * @param datatable datatable
-     * @param apptableId apptableId
-     * @param body {   \&quot;BusinessDescription\&quot;: \&quot;Livestock sales\&quot;,   \&quot;Comment\&quot;: \&quot;First comment made\&quot;,   \&quot;Education_cv\&quot;: \&quot;Primary\&quot;,   \&quot;Gender_cd\&quot;: 6,   \&quot;HighestRatePaid\&quot;: 8.5,   \&quot;NextVisit\&quot;: \&quot;01 October 2012\&quot;,   \&quot;YearsinBusiness\&quot;: 5,   \&quot;dateFormat\&quot;: \&quot;dd MMMM yyyy\&quot;,   \&quot;locale\&quot;: \&quot;en\&quot; }
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createDatatableEntry(datatable: string, apptableId: number, body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostDataTablesAppTableIdResponse>;
-    public createDatatableEntry(datatable: string, apptableId: number, body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostDataTablesAppTableIdResponse>>;
-    public createDatatableEntry(datatable: string, apptableId: number, body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostDataTablesAppTableIdResponse>>;
-    public createDatatableEntry(datatable: string, apptableId: number, body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling createDatatableEntry.');
-        }
-        if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling createDatatableEntry.');
-        }
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling createDatatableEntry.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostDataTablesAppTableIdResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: body,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Delete Data Table
-     * Deletes a data table and deregisters it from the Apache Fineract Core application table.
-     * @endpoint delete /v1/datatables/{datatableName}
-     * @param datatableName datatableName
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public deleteDatatable(datatableName: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteDataTablesResponse>;
-    public deleteDatatable(datatableName: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteDataTablesResponse>>;
-    public deleteDatatable(datatableName: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteDataTablesResponse>>;
-    public deleteDatatable(datatableName: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatableName === null || datatableName === undefined) {
-            throw new Error('Required parameter datatableName was null or undefined when calling deleteDatatable.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatableName", value: datatableName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteDataTablesResponse>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete Entry(s) in Data Table
-     * Deletes the entry (if it exists) for data tables that are one-to-one with the application table.  Deletes the entries (if they exist) for data tables that are one-to-many with the application table.
+     * Deletes the entry (if it exists) for data tables that are one-to-one with the application table. Deletes the entries (if they exist) for data tables that are one-to-many with the application table.
      * @endpoint delete /v1/datatables/{datatable}/{apptableId}
      * @param datatable datatable
      * @param apptableId apptableId
@@ -374,15 +83,15 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteDatatableEntries(datatable: string, apptableId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteDataTablesDatatableAppTableIdResponse>;
-    public deleteDatatableEntries(datatable: string, apptableId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteDataTablesDatatableAppTableIdResponse>>;
-    public deleteDatatableEntries(datatable: string, apptableId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteDataTablesDatatableAppTableIdResponse>>;
-    public deleteDatatableEntries(datatable: string, apptableId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteDatatablesDatatableApptableId(datatable: string, apptableId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteDataTablesDatatableAppTableIdResponse>;
+    public deleteDatatablesDatatableApptableId(datatable: string, apptableId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteDataTablesDatatableAppTableIdResponse>>;
+    public deleteDatatablesDatatableApptableId(datatable: string, apptableId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteDataTablesDatatableAppTableIdResponse>>;
+    public deleteDatatablesDatatableApptableId(datatable: string, apptableId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling deleteDatatableEntries.');
+            throw new Error('Required parameter datatable was null or undefined when calling deleteDatatablesDatatableApptableId.');
         }
         if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling deleteDatatableEntries.');
+            throw new Error('Required parameter apptableId was null or undefined when calling deleteDatatablesDatatableApptableId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -433,7 +142,7 @@ export class DataTablesService extends BaseService {
 
     /**
      * Delete Entry in Datatable (One to Many)
-     * Deletes the entry (if it exists) for data tables that are one to many with the application table.  
+     * Deletes the entry (if it exists) for data tables that are one to many with the application table.
      * @endpoint delete /v1/datatables/{datatable}/{apptableId}/{datatableId}
      * @param datatable datatable
      * @param apptableId apptableId
@@ -442,18 +151,18 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteDatatableEntry(datatable: string, apptableId: number, datatableId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteDataTablesDatatableAppTableIdDatatableIdResponse>;
-    public deleteDatatableEntry(datatable: string, apptableId: number, datatableId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteDataTablesDatatableAppTableIdDatatableIdResponse>>;
-    public deleteDatatableEntry(datatable: string, apptableId: number, datatableId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteDataTablesDatatableAppTableIdDatatableIdResponse>>;
-    public deleteDatatableEntry(datatable: string, apptableId: number, datatableId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteDataTablesDatatableAppTableIdDatatableIdResponse>;
+    public deleteDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteDataTablesDatatableAppTableIdDatatableIdResponse>>;
+    public deleteDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteDataTablesDatatableAppTableIdDatatableIdResponse>>;
+    public deleteDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling deleteDatatableEntry.');
+            throw new Error('Required parameter datatable was null or undefined when calling deleteDatatablesDatatableApptableIdDatatableId.');
         }
         if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling deleteDatatableEntry.');
+            throw new Error('Required parameter apptableId was null or undefined when calling deleteDatatablesDatatableApptableIdDatatableId.');
         }
         if (datatableId === null || datatableId === undefined) {
-            throw new Error('Required parameter datatableId was null or undefined when calling deleteDatatableEntry.');
+            throw new Error('Required parameter datatableId was null or undefined when calling deleteDatatablesDatatableApptableIdDatatableId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -503,20 +212,20 @@ export class DataTablesService extends BaseService {
     }
 
     /**
-     * Deregister Data Table
-     * Deregisters a data table. It will no longer be available through the API.
-     * @endpoint post /v1/datatables/deregister/{datatable}
-     * @param datatable datatable
+     * Delete Data Table
+     * Deletes a data table and deregisters it from the Apache Fineract Core application table.
+     * @endpoint delete /v1/datatables/{datatableName}
+     * @param datatableName datatableName
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deregisterDatatable(datatable: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesResponse>;
-    public deregisterDatatable(datatable: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesResponse>>;
-    public deregisterDatatable(datatable: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesResponse>>;
-    public deregisterDatatable(datatable: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling deregisterDatatable.');
+    public deleteDatatablesDatatableName(datatableName: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteDataTablesResponse>;
+    public deleteDatatablesDatatableName(datatableName: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteDataTablesResponse>>;
+    public deleteDatatablesDatatableName(datatableName: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteDataTablesResponse>>;
+    public deleteDatatablesDatatableName(datatableName: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatableName === null || datatableName === undefined) {
+            throw new Error('Required parameter datatableName was null or undefined when calling deleteDatatablesDatatableName.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -550,246 +259,11 @@ export class DataTablesService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/datatables/deregister/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatableName", value: datatableName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutDataTablesResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DeleteDataTablesResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Data Table Details
-     * Lists a registered data table details and the Apache Fineract Core application table they are registered to.
-     * @endpoint get /v1/datatables/{datatable}
-     * @param datatable datatable
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getDatatable(datatable: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetDataTablesResponse>;
-    public getDatatable(datatable: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetDataTablesResponse>>;
-    public getDatatable(datatable: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetDataTablesResponse>>;
-    public getDatatable(datatable: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling getDatatable.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetDataTablesResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Entry(s) from Data Table
-     * Gets the entry (if it exists) for data tables that are one to one with the application table.  Gets the entries (if they exist) for data tables that are one to many with the application table.  Note: The \&#39;fields\&#39; parameter is not available for datatables.  ARGUMENTS orderoptional Specifies the order in which data is returned.genericResultSetoptional, defaults to false If \&#39;true\&#39; an optimised JSON format is returned suitable for tabular display of data. This format is used by the default data tables UI functionality. Example Requests:  datatables/extra_client_details/1   datatables/extra_family_details/1?order&#x3D;&#x60;Date of Birth&#x60; desc   datatables/extra_client_details/1?genericResultSet&#x3D;true
-     * @endpoint get /v1/datatables/{datatable}/{apptableId}
-     * @param datatable datatable
-     * @param apptableId apptableId
-     * @param order order
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getDatatable1(datatable: string, apptableId: number, order?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public getDatatable1(datatable: string, apptableId: number, order?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public getDatatable1(datatable: string, apptableId: number, order?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public getDatatable1(datatable: string, apptableId: number, order?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling getDatatable1.');
-        }
-        if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling getDatatable1.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'order',
-            <any>order,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/datatables/{datatable}/{apptableId}/{datatableId}
-     * @param datatable 
-     * @param apptableId 
-     * @param datatableId 
-     * @param order 
-     * @param genericResultSet Optional flag to format the response
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getDatatableManyEntry(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public getDatatableManyEntry(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public getDatatableManyEntry(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public getDatatableManyEntry(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling getDatatableManyEntry.');
-        }
-        if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling getDatatableManyEntry.');
-        }
-        if (datatableId === null || datatableId === undefined) {
-            throw new Error('Required parameter datatableId was null or undefined when calling getDatatableManyEntry.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'order',
-            <any>order,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'genericResultSet',
-            <any>genericResultSet,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/${this.configuration.encodeParam({name: "datatableId", value: datatableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -802,7 +276,7 @@ export class DataTablesService extends BaseService {
 
     /**
      * List Data Tables
-     * Lists registered data tables and the Apache Fineract Core application table they are registered to.  ARGUMENTS  apptable  - optional The Apache Fineract core application table.  Example Requests:  datatables?apptable&#x3D;m_client   datatables
+     * Lists registered data tables and the Apache Fineract Core application table they are registered to.  ARGUMENTS  apptable  - optional The Apache Fineract core application table.  Example Requests:  datatables?apptable&#x3D;m_client  datatables
      * @endpoint get /v1/datatables
      * @param apptable apptable
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -873,6 +347,243 @@ export class DataTablesService extends BaseService {
     }
 
     /**
+     * Retrieve Data Table Details
+     * Lists a registered data table details and the Apache Fineract Core application table they are registered to.
+     * @endpoint get /v1/datatables/{datatable}
+     * @param datatable datatable
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getDatatablesDatatable(datatable: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetDataTablesResponse>;
+    public getDatatablesDatatable(datatable: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetDataTablesResponse>>;
+    public getDatatablesDatatable(datatable: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetDataTablesResponse>>;
+    public getDatatablesDatatable(datatable: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling getDatatablesDatatable.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetDataTablesResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Entry(s) from Data Table
+     * Gets the entry (if it exists) for data tables that are one to one with the application table. Gets the entries (if they exist) for data tables that are one to many with the application table.  Note: The \&#39;fields\&#39; parameter is not available for datatables.  ARGUMENTS orderoptional Specifies the order in which data is returned.genericResultSetoptional, defaults to false If \&#39;true\&#39; an optimised JSON format is returned suitable for tabular display of data. This format is used by the default data tables UI functionality.  Example Requests:  datatables/extra_client_details/1  datatables/extra_family_details/1?order&#x3D;&#x60;Date of Birth&#x60; desc  datatables/extra_client_details/1?genericResultSet&#x3D;true
+     * @endpoint get /v1/datatables/{datatable}/{apptableId}
+     * @param datatable datatable
+     * @param apptableId apptableId
+     * @param order order
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<object>;
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<object>>;
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<object>>;
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling getDatatablesDatatableApptableId.');
+        }
+        if (apptableId === null || apptableId === undefined) {
+            throw new Error('Required parameter apptableId was null or undefined when calling getDatatablesDatatableApptableId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'order',
+            <any>order,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<object>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Entry from Data Table (One to Many)
+     * Gets the entry (if it exists) for data tables that are one-to-many with the application table, by the datatable entry id. Returns the stored row as a JSON object keyed by column name.
+     * @endpoint get /v1/datatables/{datatable}/{apptableId}/{datatableId}
+     * @param datatable 
+     * @param apptableId 
+     * @param datatableId 
+     * @param order 
+     * @param genericResultSet Optional flag to format the response
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<object>;
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<object>>;
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<object>>;
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling getDatatablesDatatableApptableIdDatatableId.');
+        }
+        if (apptableId === null || apptableId === undefined) {
+            throw new Error('Required parameter apptableId was null or undefined when calling getDatatablesDatatableApptableIdDatatableId.');
+        }
+        if (datatableId === null || datatableId === undefined) {
+            throw new Error('Required parameter datatableId was null or undefined when calling getDatatablesDatatableApptableIdDatatableId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'order',
+            <any>order,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'genericResultSet',
+            <any>genericResultSet,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/${this.configuration.encodeParam({name: "datatableId", value: datatableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<object>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Query Data Table values
      * Query values from a registered data table.
      * @endpoint get /v1/datatables/{datatable}/query
@@ -884,12 +595,12 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public queryValues(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public queryValues(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public queryValues(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public queryValues(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getDatatablesDatatableQuery(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getDatatablesDatatableQuery(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getDatatablesDatatableQuery(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getDatatablesDatatableQuery(datatable: string, columnFilter?: string, valueFilter?: string, resultColumns?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling queryValues.');
+            throw new Error('Required parameter datatable was null or undefined when calling getDatatablesDatatableQuery.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -969,6 +680,297 @@ export class DataTablesService extends BaseService {
     }
 
     /**
+     * Create Data Table
+     * Create a new data table and registers it with the Apache Fineract Core application table.  Field Descriptions  Mandatory - datatableName : The name of the Data Table.  Mandatory - apptableName Application table name. Must be one of the following: m_client, m_group, m_loan, m_office, m_saving_account, m_product_loan, m_savings_product, m_wc_loan_product, m_wc_loan  Mandatory - columns An array of columns in the new Data Table.  Optional - multiRow Allows to create multiple entries in the Data Table. Optional, defaults to false. If this property is not provided Data Table will allow only one entry.  Field Descriptions - columns  Mandatory - name Name of the created column. Can contain only alphanumeric characters, underscores and spaces, but cannot start with a number. Cannot start or end with an underscore or space.  Mandatory - type Column type. Must be one of the following: Boolean, Date, DateTime, Decimal, Dropdown, Number, String, Text  Mandatory [type &#x3D; Dropdown] - code Used in Code description fields. Column name becomes: code_cd_name. Mandatory if using type Dropdown, otherwise an error is returned.  Optional - mandatory Determines whether this column must have a value in every entry. Optional, defaults to false.  Mandatory [type &#x3D; String] - length Length of the text field. Mandatory if type String is used, otherwise an error is returned.
+     * @endpoint post /v1/datatables
+     * @param postDataTablesRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postDatatables(postDataTablesRequest: PostDataTablesRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostDataTablesResponse>;
+    public postDatatables(postDataTablesRequest: PostDataTablesRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostDataTablesResponse>>;
+    public postDatatables(postDataTablesRequest: PostDataTablesRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostDataTablesResponse>>;
+    public postDatatables(postDataTablesRequest: PostDataTablesRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (postDataTablesRequest === null || postDataTablesRequest === undefined) {
+            throw new Error('Required parameter postDataTablesRequest was null or undefined when calling postDatatables.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostDataTablesResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postDataTablesRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create Entry in Data Table
+     * Adds a row to the data table.  Note that the default datatable UI functionality converts any field name containing spaces to underscores when using the API. This means the field name \&quot;Business Description\&quot; is considered the same as \&quot;Business_Description\&quot;. So you shouldn\&#39;t have both \&quot;versions\&quot; in any data table.
+     * @endpoint post /v1/datatables/{datatable}/{apptableId}
+     * @param datatable datatable
+     * @param apptableId apptableId
+     * @param body {   \&quot;BusinessDescription\&quot;: \&quot;Livestock sales\&quot;,   \&quot;Comment\&quot;: \&quot;First comment made\&quot;,   \&quot;Education_cv\&quot;: \&quot;Primary\&quot;,   \&quot;Gender_cd\&quot;: 6,   \&quot;HighestRatePaid\&quot;: 8.5,   \&quot;NextVisit\&quot;: \&quot;01 October 2012\&quot;,   \&quot;YearsinBusiness\&quot;: 5,   \&quot;dateFormat\&quot;: \&quot;dd MMMM yyyy\&quot;,   \&quot;locale\&quot;: \&quot;en\&quot; }
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostDataTablesAppTableIdResponse>;
+    public postDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostDataTablesAppTableIdResponse>>;
+    public postDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostDataTablesAppTableIdResponse>>;
+    public postDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling postDatatablesDatatableApptableId.');
+        }
+        if (apptableId === null || apptableId === undefined) {
+            throw new Error('Required parameter apptableId was null or undefined when calling postDatatablesDatatableApptableId.');
+        }
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling postDatatablesDatatableApptableId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostDataTablesAppTableIdResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: body,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Query Data Table values
+     * Query values from a registered data table.
+     * @endpoint post /v1/datatables/{datatable}/query
+     * @param datatable datatable
+     * @param pagedLocalRequestAdvancedQueryData 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postDatatablesDatatableQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public postDatatablesDatatableQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public postDatatablesDatatableQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public postDatatablesDatatableQuery(datatable: string, pagedLocalRequestAdvancedQueryData?: PagedLocalRequestAdvancedQueryData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling postDatatablesDatatableQuery.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/query`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: pagedLocalRequestAdvancedQueryData,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Deregister Data Table
+     * Deregisters a data table. It will no longer be available through the API.
+     * @endpoint post /v1/datatables/deregister/{datatable}
+     * @param datatable datatable
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postDatatablesDeregisterDatatable(datatable: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesResponse>;
+    public postDatatablesDeregisterDatatable(datatable: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesResponse>>;
+    public postDatatablesDeregisterDatatable(datatable: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesResponse>>;
+    public postDatatablesDeregisterDatatable(datatable: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling postDatatablesDeregisterDatatable.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/datatables/deregister/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PutDataTablesResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Register Data Table
      * Registers a data table with the Apache Fineract Core application table. This allows the data table to be maintained through the API. In case the datatable is a PPI (survey table), a parameter category should be pass along with the request. The API currently support one category (200)
      * @endpoint post /v1/datatables/register/{datatable}/{apptable}
@@ -979,15 +981,15 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public registerDatatable(datatable: string, apptable: string, body?: object, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesResponse>;
-    public registerDatatable(datatable: string, apptable: string, body?: object, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesResponse>>;
-    public registerDatatable(datatable: string, apptable: string, body?: object, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesResponse>>;
-    public registerDatatable(datatable: string, apptable: string, body?: object, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postDatatablesRegisterDatatableApptable(datatable: string, apptable: string, body?: object, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesResponse>;
+    public postDatatablesRegisterDatatableApptable(datatable: string, apptable: string, body?: object, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesResponse>>;
+    public postDatatablesRegisterDatatableApptable(datatable: string, apptable: string, body?: object, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesResponse>>;
+    public postDatatablesRegisterDatatableApptable(datatable: string, apptable: string, body?: object, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling registerDatatable.');
+            throw new Error('Required parameter datatable was null or undefined when calling postDatatablesRegisterDatatableApptable.');
         }
         if (apptable === null || apptable === undefined) {
-            throw new Error('Required parameter apptable was null or undefined when calling registerDatatable.');
+            throw new Error('Required parameter apptable was null or undefined when calling postDatatablesRegisterDatatableApptable.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1047,24 +1049,28 @@ export class DataTablesService extends BaseService {
     }
 
     /**
-     * Update Data Table
-     * Modifies fields of a data table. If the apptableName parameter is passed, data table is deregistered and registered with the new application table.
-     * @endpoint put /v1/datatables/{datatableName}
-     * @param datatableName datatableName
-     * @param putDataTablesRequest 
+     * Update Entry in Data Table (One to One)
+     * Updates the row (if it exists) of the data table.
+     * @endpoint put /v1/datatables/{datatable}/{apptableId}
+     * @param datatable datatable
+     * @param apptableId apptableId
+     * @param body 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateDatatable(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesResponse>;
-    public updateDatatable(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesResponse>>;
-    public updateDatatable(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesResponse>>;
-    public updateDatatable(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatableName === null || datatableName === undefined) {
-            throw new Error('Required parameter datatableName was null or undefined when calling updateDatatable.');
+    public putDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesAppTableIdResponse>;
+    public putDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesAppTableIdResponse>>;
+    public putDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesAppTableIdResponse>>;
+    public putDatatablesDatatableApptableId(datatable: string, apptableId: number, body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatable === null || datatable === undefined) {
+            throw new Error('Required parameter datatable was null or undefined when calling putDatatablesDatatableApptableId.');
         }
-        if (putDataTablesRequest === null || putDataTablesRequest === undefined) {
-            throw new Error('Required parameter putDataTablesRequest was null or undefined when calling updateDatatable.');
+        if (apptableId === null || apptableId === undefined) {
+            throw new Error('Required parameter apptableId was null or undefined when calling putDatatablesDatatableApptableId.');
+        }
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling putDatatablesDatatableApptableId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1107,12 +1113,12 @@ export class DataTablesService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatableName", value: datatableName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutDataTablesResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PutDataTablesAppTableIdResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: putDataTablesRequest,
+                body: body,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1135,21 +1141,21 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateDatatableEntryOneToMany(datatable: string, apptableId: number, datatableId: number, body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesAppTableIdDatatableIdResponse>;
-    public updateDatatableEntryOneToMany(datatable: string, apptableId: number, datatableId: number, body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesAppTableIdDatatableIdResponse>>;
-    public updateDatatableEntryOneToMany(datatable: string, apptableId: number, datatableId: number, body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesAppTableIdDatatableIdResponse>>;
-    public updateDatatableEntryOneToMany(datatable: string, apptableId: number, datatableId: number, body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesAppTableIdDatatableIdResponse>;
+    public putDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesAppTableIdDatatableIdResponse>>;
+    public putDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesAppTableIdDatatableIdResponse>>;
+    public putDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling updateDatatableEntryOneToMany.');
+            throw new Error('Required parameter datatable was null or undefined when calling putDatatablesDatatableApptableIdDatatableId.');
         }
         if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling updateDatatableEntryOneToMany.');
+            throw new Error('Required parameter apptableId was null or undefined when calling putDatatablesDatatableApptableIdDatatableId.');
         }
         if (datatableId === null || datatableId === undefined) {
-            throw new Error('Required parameter datatableId was null or undefined when calling updateDatatableEntryOneToMany.');
+            throw new Error('Required parameter datatableId was null or undefined when calling putDatatablesDatatableApptableIdDatatableId.');
         }
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling updateDatatableEntryOneToMany.');
+            throw new Error('Required parameter body was null or undefined when calling putDatatablesDatatableApptableIdDatatableId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1209,28 +1215,24 @@ export class DataTablesService extends BaseService {
     }
 
     /**
-     * Update Entry in Data Table (One to One)
-     * Updates the row (if it exists) of the data table.
-     * @endpoint put /v1/datatables/{datatable}/{apptableId}
-     * @param datatable datatable
-     * @param apptableId apptableId
-     * @param body 
+     * Update Data Table
+     * Modifies fields of a data table. If the apptableName parameter is passed, data table is deregistered and registered with the new application table.
+     * @endpoint put /v1/datatables/{datatableName}
+     * @param datatableName datatableName
+     * @param putDataTablesRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateDatatableEntryOnetoOne(datatable: string, apptableId: number, body: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesAppTableIdResponse>;
-    public updateDatatableEntryOnetoOne(datatable: string, apptableId: number, body: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesAppTableIdResponse>>;
-    public updateDatatableEntryOnetoOne(datatable: string, apptableId: number, body: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesAppTableIdResponse>>;
-    public updateDatatableEntryOnetoOne(datatable: string, apptableId: number, body: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (datatable === null || datatable === undefined) {
-            throw new Error('Required parameter datatable was null or undefined when calling updateDatatableEntryOnetoOne.');
+    public putDatatablesDatatableName(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutDataTablesResponse>;
+    public putDatatablesDatatableName(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutDataTablesResponse>>;
+    public putDatatablesDatatableName(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutDataTablesResponse>>;
+    public putDatatablesDatatableName(datatableName: string, putDataTablesRequest: PutDataTablesRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (datatableName === null || datatableName === undefined) {
+            throw new Error('Required parameter datatableName was null or undefined when calling putDatatablesDatatableName.');
         }
-        if (apptableId === null || apptableId === undefined) {
-            throw new Error('Required parameter apptableId was null or undefined when calling updateDatatableEntryOnetoOne.');
-        }
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling updateDatatableEntryOnetoOne.');
+        if (putDataTablesRequest === null || putDataTablesRequest === undefined) {
+            throw new Error('Required parameter putDataTablesRequest was null or undefined when calling putDatatablesDatatableName.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1273,12 +1275,12 @@ export class DataTablesService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatableName", value: datatableName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutDataTablesAppTableIdResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PutDataTablesResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: body,
+                body: putDataTablesRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

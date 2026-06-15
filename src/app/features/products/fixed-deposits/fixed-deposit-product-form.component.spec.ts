@@ -40,9 +40,9 @@ describe('FixedDepositProductFormComponent', () => {
 
   beforeEach(async () => {
     productServiceSpy = jasmine.createSpyObj('FixedDepositProductService', [
-      'retrieveOne20',
-      'create11',
-      'update17',
+      'getFixeddepositproductsProductId',
+      'postFixeddepositproducts',
+      'putFixeddepositproductsProductId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -79,19 +79,21 @@ describe('FixedDepositProductFormComponent', () => {
       minDepositTerm: 6,
       minDepositTermType: { id: 2 },
     } as GetFixedDepositProductsProductIdResponse;
-    (productServiceSpy.retrieveOne20 as jasmine.Spy).and.returnValue(of(mockProduct));
+    (productServiceSpy.getFixeddepositproductsProductId as jasmine.Spy).and.returnValue(
+      of(mockProduct),
+    );
     component.productId = 1;
     component.isEditMode = true;
 
     component.loadProductData();
 
-    expect(productServiceSpy.retrieveOne20).toHaveBeenCalledWith(1);
+    expect(productServiceSpy.getFixeddepositproductsProductId).toHaveBeenCalledWith(1);
     expect(component.product['name']).toBe('Fixed Deposit A');
     expect(component.product['minDepositTerm']).toBe(6);
   });
 
   it('should create product on submit', () => {
-    (productServiceSpy.create11 as jasmine.Spy).and.returnValue(
+    (productServiceSpy.postFixeddepositproducts as jasmine.Spy).and.returnValue(
       of({} as PostFixedDepositProductsResponse),
     );
     component.product = {
@@ -103,12 +105,12 @@ describe('FixedDepositProductFormComponent', () => {
 
     component.onSubmit();
 
-    expect(productServiceSpy.create11).toHaveBeenCalled();
+    expect(productServiceSpy.postFixeddepositproducts).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith([PRODUCTS_FIXED_PATH]);
   });
 
   it('should update product on submit in edit mode', () => {
-    (productServiceSpy.update17 as jasmine.Spy).and.returnValue(
+    (productServiceSpy.putFixeddepositproductsProductId as jasmine.Spy).and.returnValue(
       of({} as PostFixedDepositProductsResponse),
     );
     component.productId = 123;
@@ -120,12 +122,12 @@ describe('FixedDepositProductFormComponent', () => {
 
     component.onSubmit();
 
-    expect(productServiceSpy.update17).toHaveBeenCalled();
+    expect(productServiceSpy.putFixeddepositproductsProductId).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith([PRODUCTS_FIXED_PATH]);
   });
 
   it('should handle submission error', () => {
-    (productServiceSpy.create11 as jasmine.Spy).and.returnValue(
+    (productServiceSpy.postFixeddepositproducts as jasmine.Spy).and.returnValue(
       throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositProductsResponse>,
     );
     component.onSubmit();

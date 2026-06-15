@@ -115,7 +115,7 @@ export class AccountingClosuresListComponent implements OnInit {
   }
 
   private loadClosures() {
-    this.closureService.retrieveAllClosures().subscribe({
+    this.closureService.getGlclosures().subscribe({
       next: (data) => (this.closures = data),
       error: (err) => console.error('Failed to load closures', err),
     });
@@ -127,7 +127,9 @@ export class AccountingClosuresListComponent implements OnInit {
 
   onDeleteClosure(closure: GetGlClosureResponse) {
     if (closure.id && confirm('Are you sure you want to re-open this period?')) {
-      this.closureService.deleteGLClosure(closure.id).subscribe(() => this.loadClosures());
+      this.closureService
+        .deleteGlclosuresGlClosureId(closure.id)
+        .subscribe(() => this.loadClosures());
     }
   }
 }

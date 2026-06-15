@@ -141,7 +141,7 @@ export class ClientIdentifiersListComponent implements OnInit {
 
   loadIdentifiers(): void {
     this.isLoading.set(true);
-    this.identifierService.retrieveAllClientIdentifiers(this.clientId).subscribe({
+    this.identifierService.getClientsClientIdIdentifiers(this.clientId).subscribe({
       next: (data) => {
         this.identifiers.set(data);
         this.isLoading.set(false);
@@ -155,10 +155,12 @@ export class ClientIdentifiersListComponent implements OnInit {
 
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this identifier?')) {
-      this.identifierService.deleteClientIdentifier(this.clientId, id).subscribe({
-        next: () => this.loadIdentifiers(),
-        error: (err) => console.error('Failed to delete identifier', err),
-      });
+      this.identifierService
+        .deleteClientsClientIdIdentifiersIdentifierId(this.clientId, id)
+        .subscribe({
+          next: () => this.loadIdentifiers(),
+          error: (err) => console.error('Failed to delete identifier', err),
+        });
     }
   }
 }

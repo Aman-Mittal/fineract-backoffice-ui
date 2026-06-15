@@ -31,7 +31,7 @@ export interface LoanProductPaymentAllocationRule {
     createdBy: number;
     createdDate: string;
     futureInstallmentAllocationRule?: LoanProductPaymentAllocationRule.FutureInstallmentAllocationRuleEnum;
-    id?: number;
+    id?: number | null;
     lastModifiedBy: number;
     lastModifiedDate: string;
     loanProduct?: LoanProduct;

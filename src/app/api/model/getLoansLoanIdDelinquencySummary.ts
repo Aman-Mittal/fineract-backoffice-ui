@@ -54,6 +54,7 @@ export interface GetLoansLoanIdDelinquencySummary {
     lastRepaymentDate?: string;
     nextPaymentAmount?: number;
     nextPaymentDueDate?: string;
+    pastDueDate?: string;
     pastDueDays?: number;
 }
 

@@ -38,8 +38,8 @@ describe('ClientViewComponent', () => {
 
   beforeEach(async () => {
     clientServiceSpy = jasmine.createSpyObj('ClientService', [
-      'retrieveOne11',
-      'retrieveAssociatedAccounts',
+      'getClientsClientId',
+      'getClientsClientIdAccounts',
     ]);
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
@@ -72,7 +72,7 @@ describe('ClientViewComponent', () => {
       ],
     }).compileComponents();
 
-    clientServiceSpy.retrieveOne11.and.returnValue(
+    clientServiceSpy.getClientsClientId.and.returnValue(
       of({
         id: 123,
         accountNo: 'CL00123',
@@ -84,7 +84,7 @@ describe('ClientViewComponent', () => {
       }) as any,
     );
 
-    clientServiceSpy.retrieveAssociatedAccounts.and.returnValue(
+    clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
       of({
         loanAccounts: [] as any,
         savingsAccounts: [] as any,
@@ -101,8 +101,8 @@ describe('ClientViewComponent', () => {
   });
 
   it('should load client details and accounts on init', () => {
-    expect(clientServiceSpy.retrieveOne11).toHaveBeenCalledWith(123);
-    expect(clientServiceSpy.retrieveAssociatedAccounts).toHaveBeenCalledWith(123);
+    expect(clientServiceSpy.getClientsClientId).toHaveBeenCalledWith(123);
+    expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(123);
     expect(component.client()?.displayName).toBe('John Doe');
   });
 });

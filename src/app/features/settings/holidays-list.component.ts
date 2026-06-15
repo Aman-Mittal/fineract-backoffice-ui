@@ -175,7 +175,7 @@ export class HolidaysListComponent implements OnInit {
 
   private loadOffices(): void {
     this.isLoading = true;
-    this.officesService.retrieveOffices(true).subscribe({
+    this.officesService.getOffices(true).subscribe({
       next: (data) => {
         this.offices = data || [];
         if (this.offices.length > 0) {
@@ -193,7 +193,7 @@ export class HolidaysListComponent implements OnInit {
 
   private loadHolidays(): void {
     this.isLoading = true;
-    this.holidaysService.retrieveAllHolidays(this.selectedOfficeId).subscribe({
+    this.holidaysService.getHolidays(this.selectedOfficeId).subscribe({
       next: (data) => {
         this.holidays = data || [];
         this.isLoading = false;
@@ -227,7 +227,7 @@ export class HolidaysListComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.isLoading = true;
-        this.holidaysService.handleCommands1(holiday.id!, {}, 'activate').subscribe({
+        this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
           next: () => {
             this.snackBar.open('Holiday activated successfully', 'Close', { duration: 3000 });
             this.loadHolidays();

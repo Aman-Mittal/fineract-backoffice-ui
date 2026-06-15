@@ -210,7 +210,7 @@ export class CollateralFormComponent implements OnInit {
 
   private loadTemplate(): void {
     if (!this.loanId) return;
-    this.collateralService.newCollateralTemplate(this.loanId).subscribe({
+    this.collateralService.getLoansLoanIdCollateralsTemplate(this.loanId).subscribe({
       next: (template: CollateralData) => {
         this.collateralTypes = template.allowedCollateralTypes || [];
       },
@@ -220,14 +220,16 @@ export class CollateralFormComponent implements OnInit {
 
   private loadCollateral(): void {
     if (!this.loanId || !this.collateralId) return;
-    this.collateralService.retrieveCollateralDetails1(this.loanId, this.collateralId).subscribe({
-      next: (data: GetLoansLoanIdCollateralsResponse) => {
-        this.selectedCollateralTypeId = data.type?.id || null;
-        this.collateralValue = data.value || 0;
-        this.collateralDescription = data.description || '';
-      },
-      error: (err) => console.error('Failed to load collateral details', err),
-    });
+    this.collateralService
+      .getLoansLoanIdCollateralsCollateralId(this.loanId, this.collateralId)
+      .subscribe({
+        next: (data: GetLoansLoanIdCollateralsResponse) => {
+          this.selectedCollateralTypeId = data.type?.id || null;
+          this.collateralValue = data.value || 0;
+          this.collateralDescription = data.description || '';
+        },
+        error: (err) => console.error('Failed to load collateral details', err),
+      });
   }
 
   onSubmit(): void {
@@ -242,7 +244,7 @@ export class CollateralFormComponent implements OnInit {
 
     if (this.isEditMode && this.collateralId) {
       this.collateralService
-        .updateCollateral(
+        .putLoansLoanIdCollateralsCollateralId(
           this.loanId,
           this.collateralId,
           requestPayload as LoansLoandIdCollateralsCollateralIdRequest,
@@ -253,7 +255,7 @@ export class CollateralFormComponent implements OnInit {
         });
     } else {
       this.collateralService
-        .createCollateral(this.loanId, requestPayload as LoansLoanIdCollateralsRequest)
+        .postLoansLoanIdCollaterals(this.loanId, requestPayload as LoansLoanIdCollateralsRequest)
         .subscribe({
           next: () => this.router.navigate(['/loans', this.loanId, 'collateral']),
           error: () => (this.isSaving = false),

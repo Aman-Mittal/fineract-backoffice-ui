@@ -33,13 +33,9 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { DeleteEntityTypeEntityIdDocumentsResponse } from '../model/deleteEntityTypeEntityIdDocumentsResponse';
-// @ts-ignore
 import { DocumentData } from '../model/documentData';
 // @ts-ignore
-import { PostEntityTypeEntityIdDocumentsResponse } from '../model/postEntityTypeEntityIdDocumentsResponse';
-// @ts-ignore
-import { PutEntityTypeEntityIdDocumentsResponse } from '../model/putEntityTypeEntityIdDocumentsResponse';
+import { FormDataBodyPart } from '../model/formDataBodyPart';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -58,138 +54,27 @@ export class DocumentsService extends BaseService {
     }
 
     /**
-     * Create a Document
-     * Note: A document is created using a Multi-part form upload   Body Parts  name :  Name or summary of the document  description :  Description of the document  file :  The file to be uploaded  Mandatory Fields :  file and description
-     * @endpoint post /v1/{entityType}/{entityId}/documents
-     * @param entityType entityType
-     * @param entityId entityId
-     * @param contentLength Content-Length
-     * @param dateFormat 
-     * @param description 
-     * @param locale 
-     * @param name 
-     * @param uploadedInputStream 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createDocument(entityType: string, entityId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostEntityTypeEntityIdDocumentsResponse>;
-    public createDocument(entityType: string, entityId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostEntityTypeEntityIdDocumentsResponse>>;
-    public createDocument(entityType: string, entityId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostEntityTypeEntityIdDocumentsResponse>>;
-    public createDocument(entityType: string, entityId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling createDocument.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling createDocument.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-        if (contentLength !== undefined && contentLength !== null) {
-            localVarHeaders = localVarHeaders.set('Content-Length', String(contentLength));
-        }
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'multipart/form-data'
-        ];
-
-        const canConsumeForm = this.canConsumeForm(consumes);
-
-        let localVarFormParams: { append(param: string, value: any): any; };
-        let localVarUseForm = false;
-        let localVarConvertFormParamsToString = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
-        localVarUseForm = canConsumeForm;
-        if (localVarUseForm) {
-            localVarFormParams = new FormData();
-        } else {
-            localVarFormParams = new HttpParams({encoder: this.encoder});
-        }
-
-        if (dateFormat !== undefined) {
-            localVarFormParams = localVarFormParams.append('dateFormat', <any>dateFormat) as any || localVarFormParams;
-        }
-        if (description !== undefined) {
-            localVarFormParams = localVarFormParams.append('description', <any>description) as any || localVarFormParams;
-        }
-        if (locale !== undefined) {
-            localVarFormParams = localVarFormParams.append('locale', <any>locale) as any || localVarFormParams;
-        }
-        if (name !== undefined) {
-            localVarFormParams = localVarFormParams.append('name', <any>name) as any || localVarFormParams;
-        }
-        if (uploadedInputStream !== undefined) {
-            localVarFormParams = localVarFormParams.append('uploadedInputStream', <any>uploadedInputStream) as any || localVarFormParams;
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostEntityTypeEntityIdDocumentsResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Remove a Document
      * @endpoint delete /v1/{entityType}/{entityId}/documents/{documentId}
-     * @param entityType entityType
-     * @param entityId entityId
-     * @param documentId documentId
+     * @param entityType 
+     * @param entityId 
+     * @param documentId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteDocument(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteEntityTypeEntityIdDocumentsResponse>;
-    public deleteDocument(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteEntityTypeEntityIdDocumentsResponse>>;
-    public deleteDocument(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteEntityTypeEntityIdDocumentsResponse>>;
-    public deleteDocument(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling deleteDocument.');
+            throw new Error('Required parameter entityType was null or undefined when calling deleteEntityTypeEntityIdDocumentsDocumentId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling deleteDocument.');
+            throw new Error('Required parameter entityId was null or undefined when calling deleteEntityTypeEntityIdDocumentsDocumentId.');
         }
         if (documentId === null || documentId === undefined) {
-            throw new Error('Required parameter documentId was null or undefined when calling deleteDocument.');
+            throw new Error('Required parameter documentId was null or undefined when calling deleteEntityTypeEntityIdDocumentsDocumentId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -201,7 +86,6 @@ export class DocumentsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -225,148 +109,7 @@ export class DocumentsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteEntityTypeEntityIdDocumentsResponse>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Binary File associated with Document
-     * Request used to download the file associated with the document  Example Requests:  clients/1/documents/1/attachment   loans/1/documents/1/attachment
-     * @endpoint get /v1/{entityType}/{entityId}/documents/{documentId}/attachment
-     * @param entityType entityType
-     * @param entityId entityId
-     * @param documentId documentId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public downloadFile(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public downloadFile(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public downloadFile(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public downloadFile(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling downloadFile.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling downloadFile.');
-        }
-        if (documentId === null || documentId === undefined) {
-            throw new Error('Required parameter documentId was null or undefined when calling downloadFile.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/attachment`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve a Document
-     * Example Requests:  clients/1/documents/1   loans/1/documents/1   client_identifiers/1/documents/1?fields&#x3D;name,description
-     * @endpoint get /v1/{entityType}/{entityId}/documents/{documentId}
-     * @param entityType entityType
-     * @param entityId entityId
-     * @param documentId documentId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getDocument(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DocumentData>;
-    public getDocument(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DocumentData>>;
-    public getDocument(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DocumentData>>;
-    public getDocument(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling getDocument.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling getDocument.');
-        }
-        if (documentId === null || documentId === undefined) {
-            throw new Error('Required parameter documentId was null or undefined when calling getDocument.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DocumentData>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -381,23 +124,23 @@ export class DocumentsService extends BaseService {
 
     /**
      * List documents
-     * Example Requests:  clients/1/documents  client_identifiers/1/documents  loans/1/documents?fields&#x3D;name,description
+     * Example Requests:  - clients/1/documents - client_identifiers/1/documents - loans/1/documents?fields&#x3D;name,description 
      * @endpoint get /v1/{entityType}/{entityId}/documents
-     * @param entityType entityType
-     * @param entityId entityId
+     * @param entityType 
+     * @param entityId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAllDocuments(entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DocumentData>>;
-    public retrieveAllDocuments(entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DocumentData>>>;
-    public retrieveAllDocuments(entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DocumentData>>>;
-    public retrieveAllDocuments(entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getEntityTypeEntityIdDocuments(entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DocumentData>>;
+    public getEntityTypeEntityIdDocuments(entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DocumentData>>>;
+    public getEntityTypeEntityIdDocuments(entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DocumentData>>>;
+    public getEntityTypeEntityIdDocuments(entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling retrieveAllDocuments.');
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdDocuments.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveAllDocuments.');
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdDocuments.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -447,34 +190,169 @@ export class DocumentsService extends BaseService {
     }
 
     /**
-     * Update a Document
-     * Note: A document is updated using a Multi-part form upload  Body Parts name Name or summary of the document description Description of the document file The file to be uploaded
-     * @endpoint put /v1/{entityType}/{entityId}/documents/{documentId}
-     * @param entityType entityType
-     * @param entityId entityId
-     * @param documentId documentId
-     * @param contentLength Content-Length
-     * @param dateFormat 
-     * @param description 
-     * @param locale 
-     * @param name 
-     * @param uploadedInputStream 
+     * Retrieve a Document
+     * Example Requests:  - clients/1/documents/1 - loans/1/documents/1 - client_identifiers/1/documents/1?fields&#x3D;name,description 
+     * @endpoint get /v1/{entityType}/{entityId}/documents/{documentId}
+     * @param entityType 
+     * @param entityId 
+     * @param documentId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateDocument(entityType: string, entityId: number, documentId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutEntityTypeEntityIdDocumentsResponse>;
-    public updateDocument(entityType: string, entityId: number, documentId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutEntityTypeEntityIdDocumentsResponse>>;
-    public updateDocument(entityType: string, entityId: number, documentId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutEntityTypeEntityIdDocumentsResponse>>;
-    public updateDocument(entityType: string, entityId: number, documentId: number, contentLength?: number, dateFormat?: string, description?: string, locale?: string, name?: string, uploadedInputStream?: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DocumentData>;
+    public getEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DocumentData>>;
+    public getEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DocumentData>>;
+    public getEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling updateDocument.');
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdDocumentsDocumentId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling updateDocument.');
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdDocumentsDocumentId.');
         }
         if (documentId === null || documentId === undefined) {
-            throw new Error('Required parameter documentId was null or undefined when calling updateDocument.');
+            throw new Error('Required parameter documentId was null or undefined when calling getEntityTypeEntityIdDocumentsDocumentId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DocumentData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Binary File associated with Document
+     * Request used to download the file associated with the document  Example Requests:  - clients/1/documents/1/attachment - loans/1/documents/1/inline 
+     * @endpoint get /v1/{entityType}/{entityId}/documents/{documentId}/attachment
+     * @param entityType 
+     * @param entityId 
+     * @param documentId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getEntityTypeEntityIdDocumentsDocumentIdAttachment(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public getEntityTypeEntityIdDocumentsDocumentIdAttachment(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public getEntityTypeEntityIdDocumentsDocumentIdAttachment(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public getEntityTypeEntityIdDocumentsDocumentIdAttachment(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdDocumentsDocumentIdAttachment.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdDocumentsDocumentIdAttachment.');
+        }
+        if (documentId === null || documentId === undefined) {
+            throw new Error('Required parameter documentId was null or undefined when calling getEntityTypeEntityIdDocumentsDocumentIdAttachment.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/attachment`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a Document
+     * Note: A document is created using a Multi-part form upload  Body parts  - name : name or summary of the document - description : description of the document - file : the file to be uploaded  Mandatory fields :  - file - description 
+     * @endpoint post /v1/{entityType}/{entityId}/documents
+     * @param entityType 
+     * @param entityId 
+     * @param contentLength 
+     * @param description 
+     * @param file 
+     * @param name 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling postEntityTypeEntityIdDocuments.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling postEntityTypeEntityIdDocuments.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -489,7 +367,6 @@ export class DocumentsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -509,29 +386,123 @@ export class DocumentsService extends BaseService {
         let localVarFormParams: { append(param: string, value: any): any; };
         let localVarUseForm = false;
         let localVarConvertFormParamsToString = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
-        localVarUseForm = canConsumeForm;
         if (localVarUseForm) {
             localVarFormParams = new FormData();
         } else {
             localVarFormParams = new HttpParams({encoder: this.encoder});
         }
 
-        if (dateFormat !== undefined) {
-            localVarFormParams = localVarFormParams.append('dateFormat', <any>dateFormat) as any || localVarFormParams;
-        }
         if (description !== undefined) {
             localVarFormParams = localVarFormParams.append('description', <any>description) as any || localVarFormParams;
         }
-        if (locale !== undefined) {
-            localVarFormParams = localVarFormParams.append('locale', <any>locale) as any || localVarFormParams;
+        if (file !== undefined) {
+            localVarFormParams = localVarFormParams.append('file', localVarUseForm ? new Blob([JSON.stringify(file)], {type: 'application/json'}) : <any>file) as any || localVarFormParams;
         }
         if (name !== undefined) {
             localVarFormParams = localVarFormParams.append('name', <any>name) as any || localVarFormParams;
         }
-        if (uploadedInputStream !== undefined) {
-            localVarFormParams = localVarFormParams.append('uploadedInputStream', <any>uploadedInputStream) as any || localVarFormParams;
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a Document
+     * Note: A document is updated using a Multi-part form upload  Body Parts  - name: name or summary of the document - description: description of the document - file: the file to be uploaded 
+     * @endpoint put /v1/{entityType}/{entityId}/documents/{documentId}
+     * @param entityType 
+     * @param entityId 
+     * @param documentId 
+     * @param contentLength 
+     * @param description 
+     * @param file 
+     * @param name 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling putEntityTypeEntityIdDocumentsDocumentId.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling putEntityTypeEntityIdDocumentsDocumentId.');
+        }
+        if (documentId === null || documentId === undefined) {
+            throw new Error('Required parameter documentId was null or undefined when calling putEntityTypeEntityIdDocumentsDocumentId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+        if (contentLength !== undefined && contentLength !== null) {
+            localVarHeaders = localVarHeaders.set('Content-Length', String(contentLength));
+        }
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'multipart/form-data'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let localVarFormParams: { append(param: string, value: any): any; };
+        let localVarUseForm = false;
+        let localVarConvertFormParamsToString = false;
+        if (localVarUseForm) {
+            localVarFormParams = new FormData();
+        } else {
+            localVarFormParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (description !== undefined) {
+            localVarFormParams = localVarFormParams.append('description', <any>description) as any || localVarFormParams;
+        }
+        if (file !== undefined) {
+            localVarFormParams = localVarFormParams.append('file', localVarUseForm ? new Blob([JSON.stringify(file)], {type: 'application/json'}) : <any>file) as any || localVarFormParams;
+        }
+        if (name !== undefined) {
+            localVarFormParams = localVarFormParams.append('name', <any>name) as any || localVarFormParams;
         }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
@@ -547,7 +518,7 @@ export class DocumentsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutEntityTypeEntityIdDocumentsResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,

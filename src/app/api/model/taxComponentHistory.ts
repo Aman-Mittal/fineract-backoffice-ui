@@ -28,7 +28,7 @@
 export interface TaxComponentHistory { 
     createdBy?: number;
     createdDate?: string;
-    id?: number;
+    id?: number | null;
     lastModifiedBy?: number;
     lastModifiedDate?: string;
     'new'?: boolean;

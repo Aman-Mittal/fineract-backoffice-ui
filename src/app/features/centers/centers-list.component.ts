@@ -118,7 +118,7 @@ export class CentersListComponent {
 
           // Signature: officeId, staffId, externalId, name, underHierarchy, paged, offset, limit, orderBy, sortOrder, meetingDate, dateFormat, locale
           return this.centersService
-            .retrieveAll23(
+            .getCenters(
               undefined,
               undefined,
               undefined,

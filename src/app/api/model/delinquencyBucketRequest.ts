@@ -23,9 +23,12 @@
  * Do not edit the class manually.
  */
 
+import { MinimumPaymentPeriodAndRule } from './minimumPaymentPeriodAndRule';
 
 
 export interface DelinquencyBucketRequest { 
+    bucketType?: string;
+    minimumPaymentPeriodAndRule?: MinimumPaymentPeriodAndRule;
     name?: string;
     ranges?: Array<number>;
 }

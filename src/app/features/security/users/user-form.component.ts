@@ -236,7 +236,7 @@ export class UserFormComponent implements OnInit {
   }
 
   private loadMetadata(): void {
-    this.usersService.template22().subscribe((template: GetUsersTemplateResponse) => {
+    this.usersService.getUsersTemplate().subscribe((template: GetUsersTemplateResponse) => {
       this.offices = (template.allowedOffices as unknown as Record<string, unknown>[]) || [];
       this.availableRoles = template.availableRoles || [];
     });
@@ -244,7 +244,7 @@ export class UserFormComponent implements OnInit {
 
   private loadUserData(): void {
     if (!this.userId) return;
-    this.usersService.retrieveOne31(this.userId).subscribe((data) => {
+    this.usersService.getUsersUserId(this.userId).subscribe((data) => {
       this.user = {
         username: data.username,
         firstname: data.firstname,
@@ -269,12 +269,12 @@ export class UserFormComponent implements OnInit {
         roles: this.user.roles,
       };
 
-      this.usersService.update26(this.userId, putRequest).subscribe({
+      this.usersService.putUsersUserId(this.userId, putRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.usersService.create15(this.user).subscribe({
+      this.usersService.postUsers(this.user).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

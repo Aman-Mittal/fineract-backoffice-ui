@@ -31,6 +31,7 @@ export interface ProgressiveLoanInterestScheduleModel {
     copy?: boolean;
     emirecalculationEnabled?: boolean;
     empty?: boolean;
+    interestPauseForEmiCalculationEnabled?: boolean;
     lastRepaymentPeriod: RepaymentPeriod;
     loanTermInDays?: number;
     maturityDate?: string;

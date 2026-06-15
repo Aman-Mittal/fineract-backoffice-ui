@@ -245,11 +245,11 @@ export class ChargeFormComponent implements OnInit {
   }
 
   private loadMetadata(): void {
-    this.currencyService.retrieveCurrencies().subscribe((data: CurrencyConfigurationData) => {
+    this.currencyService.getCurrencies().subscribe((data: CurrencyConfigurationData) => {
       this.currencies = Array.from(data.selectedCurrencyOptions || []);
     });
 
-    this.chargesService.retrieveNewChargeDetails().subscribe((data: ChargeData) => {
+    this.chargesService.getChargesTemplate().subscribe((data: ChargeData) => {
       const record = data as unknown as Record<string, unknown>;
       this.timeTypeOptions = (record['chargeTimeTypeOptions'] as Record<string, unknown>[]) || [];
       this.calculationTypeOptions =
@@ -259,7 +259,7 @@ export class ChargeFormComponent implements OnInit {
 
   private loadChargeData(): void {
     if (!this.chargeId) return;
-    this.chargesService.retrieveCharge(this.chargeId).subscribe((data: GetChargesResponse) => {
+    this.chargesService.getChargesChargeId(this.chargeId).subscribe((data: GetChargesResponse) => {
       const record = data as unknown as Record<string, unknown>;
       this.charge = {
         name: record['name'] as string,
@@ -281,12 +281,12 @@ export class ChargeFormComponent implements OnInit {
     this.charge.locale = 'en';
 
     if (this.isEditMode && this.chargeId) {
-      this.chargesService.updateCharge(this.chargeId, this.charge).subscribe({
+      this.chargesService.putChargesChargeId(this.chargeId, this.charge).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.chargesService.createCharge(this.charge).subscribe({
+      this.chargesService.postCharges(this.charge).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

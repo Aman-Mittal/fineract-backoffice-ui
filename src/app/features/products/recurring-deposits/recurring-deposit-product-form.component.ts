@@ -243,7 +243,7 @@ export class RecurringDepositProductFormComponent implements OnInit {
   loadProductData() {
     if (!this.productId) return;
     this.productService
-      .retrieveOne23(this.productId)
+      .getRecurringdepositproductsProductId(this.productId)
       .subscribe((data: GetRecurringDepositProductsProductIdResponse) => {
         this.product = {
           name: data.name,
@@ -287,14 +287,17 @@ export class RecurringDepositProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService
-        .update19(this.productId, payload as unknown as PutRecurringDepositProductsRequest)
+        .putRecurringdepositproductsProductId(
+          this.productId,
+          payload as unknown as PutRecurringDepositProductsRequest,
+        )
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
           error: () => (this.isSaving = false),
         });
     } else {
       this.productService
-        .create12(payload as unknown as PostRecurringDepositProductsRequest)
+        .postRecurringdepositproducts(payload as unknown as PostRecurringDepositProductsRequest)
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
           error: () => (this.isSaving = false),

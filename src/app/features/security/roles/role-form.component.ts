@@ -253,7 +253,7 @@ export class RoleFormComponent implements OnInit {
 
   private loadRoleData(): void {
     if (!this.roleId) return;
-    this.rolesService.retrieveRole(this.roleId).subscribe((data) => {
+    this.rolesService.getRolesRoleId(this.roleId).subscribe((data) => {
       this.role = {
         name: data.name,
         description: data.description,
@@ -265,7 +265,7 @@ export class RoleFormComponent implements OnInit {
   private loadPermissions(): void {
     if (!this.roleId) return;
     this.rolesService
-      .retrieveRolePermissions(this.roleId)
+      .getRolesRoleIdPermissions(this.roleId)
       .subscribe((data: GetRolesRoleIdPermissionsResponse) => {
         this.permissions = (data.permissionUsageData as unknown as Record<string, unknown>[]) || [];
         this.permissions.forEach((p) => {
@@ -309,13 +309,13 @@ export class RoleFormComponent implements OnInit {
       };
 
       // Update role description
-      this.rolesService.updateRole(this.roleId, roleUpdate).subscribe({
+      this.rolesService.putRolesRoleId(this.roleId, roleUpdate).subscribe({
         next: () => {
           // Then update permissions
           const permUpdate: PutRolesRoleIdPermissionsRequest = {
             permissions: this.permissionMappings,
           };
-          this.rolesService.updateRolePermissions(this.roleId!, permUpdate).subscribe({
+          this.rolesService.putRolesRoleIdPermissions(this.roleId!, permUpdate).subscribe({
             next: () => this.router.navigate([this.LIST_PATH]),
             error: () => (this.isSaving = false),
           });
@@ -323,7 +323,7 @@ export class RoleFormComponent implements OnInit {
         error: () => (this.isSaving = false),
       });
     } else {
-      this.rolesService.createRole(this.role).subscribe({
+      this.rolesService.postRoles(this.role).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

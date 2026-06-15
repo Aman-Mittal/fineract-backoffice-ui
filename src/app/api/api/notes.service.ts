@@ -33,15 +33,17 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { DeleteResourceTypeResourceIdNotesNoteIdResponse } from '../model/deleteResourceTypeResourceIdNotesNoteIdResponse';
+import { NoteCreateRequest } from '../model/noteCreateRequest';
+// @ts-ignore
+import { NoteCreateResponse } from '../model/noteCreateResponse';
 // @ts-ignore
 import { NoteData } from '../model/noteData';
 // @ts-ignore
-import { NoteRequest } from '../model/noteRequest';
+import { NoteDeleteResponse } from '../model/noteDeleteResponse';
 // @ts-ignore
-import { PostResourceTypeResourceIdNotesResponse } from '../model/postResourceTypeResourceIdNotesResponse';
+import { NoteUpdateRequest } from '../model/noteUpdateRequest';
 // @ts-ignore
-import { PutResourceTypeResourceIdNotesNoteIdResponse } from '../model/putResourceTypeResourceIdNotesNoteIdResponse';
+import { NoteUpdateResponse } from '../model/noteUpdateResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -60,109 +62,28 @@ export class NotesService extends BaseService {
     }
 
     /**
-     * Add a Resource Note
-     * Adds a new note to a supported resource.  Example Requests:  clients/1/notes   groups/1/notes
-     * @endpoint post /v1/{resourceType}/{resourceId}/notes
-     * @param resourceType resourceType
-     * @param resourceId resourceId
-     * @param noteRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public addNewNote(resourceType: string, resourceId: number, noteRequest: NoteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostResourceTypeResourceIdNotesResponse>;
-    public addNewNote(resourceType: string, resourceId: number, noteRequest: NoteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostResourceTypeResourceIdNotesResponse>>;
-    public addNewNote(resourceType: string, resourceId: number, noteRequest: NoteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostResourceTypeResourceIdNotesResponse>>;
-    public addNewNote(resourceType: string, resourceId: number, noteRequest: NoteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (resourceType === null || resourceType === undefined) {
-            throw new Error('Required parameter resourceType was null or undefined when calling addNewNote.');
-        }
-        if (resourceId === null || resourceId === undefined) {
-            throw new Error('Required parameter resourceId was null or undefined when calling addNewNote.');
-        }
-        if (noteRequest === null || noteRequest === undefined) {
-            throw new Error('Required parameter noteRequest was null or undefined when calling addNewNote.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "resourceType", value: resourceType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "resourceId", value: resourceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostResourceTypeResourceIdNotesResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: noteRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete a Resource Note
-     * Deletes a Resource Note
+     * Deletes a Resource Note 
      * @endpoint delete /v1/{resourceType}/{resourceId}/notes/{noteId}
-     * @param resourceType resourceType
-     * @param resourceId resourceId
-     * @param noteId noteId
+     * @param resourceType 
+     * @param resourceId 
+     * @param noteId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteNote(resourceType: string, resourceId: number, noteId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteResourceTypeResourceIdNotesNoteIdResponse>;
-    public deleteNote(resourceType: string, resourceId: number, noteId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteResourceTypeResourceIdNotesNoteIdResponse>>;
-    public deleteNote(resourceType: string, resourceId: number, noteId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteResourceTypeResourceIdNotesNoteIdResponse>>;
-    public deleteNote(resourceType: string, resourceId: number, noteId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<NoteDeleteResponse>;
+    public deleteResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<NoteDeleteResponse>>;
+    public deleteResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<NoteDeleteResponse>>;
+    public deleteResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (resourceType === null || resourceType === undefined) {
-            throw new Error('Required parameter resourceType was null or undefined when calling deleteNote.');
+            throw new Error('Required parameter resourceType was null or undefined when calling deleteResourceTypeResourceIdNotesNoteId.');
         }
         if (resourceId === null || resourceId === undefined) {
-            throw new Error('Required parameter resourceId was null or undefined when calling deleteNote.');
+            throw new Error('Required parameter resourceId was null or undefined when calling deleteResourceTypeResourceIdNotesNoteId.');
         }
         if (noteId === null || noteId === undefined) {
-            throw new Error('Required parameter noteId was null or undefined when calling deleteNote.');
+            throw new Error('Required parameter noteId was null or undefined when calling deleteResourceTypeResourceIdNotesNoteId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -198,78 +119,7 @@ export class NotesService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "resourceType", value: resourceType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "resourceId", value: resourceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes/${this.configuration.encodeParam({name: "noteId", value: noteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteResourceTypeResourceIdNotesNoteIdResponse>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve a Resource Note
-     * Retrieves a Resource Note  Example Requests:  clients/1/notes/76   groups/1/notes/20   clients/1/notes/76?fields&#x3D;note,createdOn,createdByUsername   groups/1/notes/20?fields&#x3D;note,createdOn,createdByUsername
-     * @endpoint get /v1/{resourceType}/{resourceId}/notes/{noteId}
-     * @param resourceType resourceType
-     * @param resourceId resourceId
-     * @param noteId noteId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveNote(resourceType: string, resourceId: number, noteId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<NoteData>;
-    public retrieveNote(resourceType: string, resourceId: number, noteId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<NoteData>>;
-    public retrieveNote(resourceType: string, resourceId: number, noteId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<NoteData>>;
-    public retrieveNote(resourceType: string, resourceId: number, noteId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (resourceType === null || resourceType === undefined) {
-            throw new Error('Required parameter resourceType was null or undefined when calling retrieveNote.');
-        }
-        if (resourceId === null || resourceId === undefined) {
-            throw new Error('Required parameter resourceId was null or undefined when calling retrieveNote.');
-        }
-        if (noteId === null || noteId === undefined) {
-            throw new Error('Required parameter noteId was null or undefined when calling retrieveNote.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "resourceType", value: resourceType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "resourceId", value: resourceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes/${this.configuration.encodeParam({name: "noteId", value: noteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<NoteData>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<NoteDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -284,23 +134,23 @@ export class NotesService extends BaseService {
 
     /**
      * Retrieve a Resource\&#39;s description
-     * Retrieves a Resource\&#39;s Notes  Note: Notes are returned in descending createOn order.  Example Requests:  clients/2/notes   groups/2/notes?fields&#x3D;note,createdOn,createdByUsername
+     * Retrieves a resource\&#39;s notes  Note: results are returned in descending createOn order.  Example Requests:  - clients/2/notes - groups/2/notes?fields&#x3D;note,createdOn,createdByUsername 
      * @endpoint get /v1/{resourceType}/{resourceId}/notes
-     * @param resourceType resourceType
-     * @param resourceId resourceId
+     * @param resourceType 
+     * @param resourceId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveNotesByResource(resourceType: string, resourceId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<NoteData>>;
-    public retrieveNotesByResource(resourceType: string, resourceId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<NoteData>>>;
-    public retrieveNotesByResource(resourceType: string, resourceId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<NoteData>>>;
-    public retrieveNotesByResource(resourceType: string, resourceId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getResourceTypeResourceIdNotes(resourceType: string, resourceId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<NoteData>>;
+    public getResourceTypeResourceIdNotes(resourceType: string, resourceId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<NoteData>>>;
+    public getResourceTypeResourceIdNotes(resourceType: string, resourceId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<NoteData>>>;
+    public getResourceTypeResourceIdNotes(resourceType: string, resourceId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (resourceType === null || resourceType === undefined) {
-            throw new Error('Required parameter resourceType was null or undefined when calling retrieveNotesByResource.');
+            throw new Error('Required parameter resourceType was null or undefined when calling getResourceTypeResourceIdNotes.');
         }
         if (resourceId === null || resourceId === undefined) {
-            throw new Error('Required parameter resourceId was null or undefined when calling retrieveNotesByResource.');
+            throw new Error('Required parameter resourceId was null or undefined when calling getResourceTypeResourceIdNotes.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -350,32 +200,178 @@ export class NotesService extends BaseService {
     }
 
     /**
-     * Update a Resource Note
-     * Updates a Resource Note
-     * @endpoint put /v1/{resourceType}/{resourceId}/notes/{noteId}
-     * @param resourceType resourceType
-     * @param resourceId resourceId
-     * @param noteId noteId
-     * @param noteRequest 
+     * Retrieve a Resource Note
+     * Retrieves a resource Note  Example Requests:  - clients/1/notes/76 - groups/1/notes/20 - clients/1/notes/76?fields&#x3D;note,createdOn,createdByUsername - groups/1/notes/20?fields&#x3D;note,createdOn,createdByUsername 
+     * @endpoint get /v1/{resourceType}/{resourceId}/notes/{noteId}
+     * @param resourceType 
+     * @param resourceId 
+     * @param noteId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateNote(resourceType: string, resourceId: number, noteId: number, noteRequest: NoteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutResourceTypeResourceIdNotesNoteIdResponse>;
-    public updateNote(resourceType: string, resourceId: number, noteId: number, noteRequest: NoteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutResourceTypeResourceIdNotesNoteIdResponse>>;
-    public updateNote(resourceType: string, resourceId: number, noteId: number, noteRequest: NoteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutResourceTypeResourceIdNotesNoteIdResponse>>;
-    public updateNote(resourceType: string, resourceId: number, noteId: number, noteRequest: NoteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<NoteData>;
+    public getResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<NoteData>>;
+    public getResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<NoteData>>;
+    public getResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (resourceType === null || resourceType === undefined) {
-            throw new Error('Required parameter resourceType was null or undefined when calling updateNote.');
+            throw new Error('Required parameter resourceType was null or undefined when calling getResourceTypeResourceIdNotesNoteId.');
         }
         if (resourceId === null || resourceId === undefined) {
-            throw new Error('Required parameter resourceId was null or undefined when calling updateNote.');
+            throw new Error('Required parameter resourceId was null or undefined when calling getResourceTypeResourceIdNotesNoteId.');
         }
         if (noteId === null || noteId === undefined) {
-            throw new Error('Required parameter noteId was null or undefined when calling updateNote.');
+            throw new Error('Required parameter noteId was null or undefined when calling getResourceTypeResourceIdNotesNoteId.');
         }
-        if (noteRequest === null || noteRequest === undefined) {
-            throw new Error('Required parameter noteRequest was null or undefined when calling updateNote.');
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "resourceType", value: resourceType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "resourceId", value: resourceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes/${this.configuration.encodeParam({name: "noteId", value: noteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<NoteData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Add a Resource Note
+     * Adds a new note to a supported resource.  Example Requests:  - clients/1/notes - groups/1/notes 
+     * @endpoint post /v1/{resourceType}/{resourceId}/notes
+     * @param resourceType 
+     * @param resourceId 
+     * @param noteCreateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postResourceTypeResourceIdNotes(resourceType: string, resourceId: number, noteCreateRequest?: NoteCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<NoteCreateResponse>;
+    public postResourceTypeResourceIdNotes(resourceType: string, resourceId: number, noteCreateRequest?: NoteCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<NoteCreateResponse>>;
+    public postResourceTypeResourceIdNotes(resourceType: string, resourceId: number, noteCreateRequest?: NoteCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<NoteCreateResponse>>;
+    public postResourceTypeResourceIdNotes(resourceType: string, resourceId: number, noteCreateRequest?: NoteCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (resourceType === null || resourceType === undefined) {
+            throw new Error('Required parameter resourceType was null or undefined when calling postResourceTypeResourceIdNotes.');
+        }
+        if (resourceId === null || resourceId === undefined) {
+            throw new Error('Required parameter resourceId was null or undefined when calling postResourceTypeResourceIdNotes.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "resourceType", value: resourceType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "resourceId", value: resourceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<NoteCreateResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: noteCreateRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a Resource Note
+     * Updates a Resource Note 
+     * @endpoint put /v1/{resourceType}/{resourceId}/notes/{noteId}
+     * @param resourceType 
+     * @param resourceId 
+     * @param noteId 
+     * @param noteUpdateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, noteUpdateRequest?: NoteUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<NoteUpdateResponse>;
+    public putResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, noteUpdateRequest?: NoteUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<NoteUpdateResponse>>;
+    public putResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, noteUpdateRequest?: NoteUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<NoteUpdateResponse>>;
+    public putResourceTypeResourceIdNotesNoteId(resourceType: string, resourceId: number, noteId: number, noteUpdateRequest?: NoteUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (resourceType === null || resourceType === undefined) {
+            throw new Error('Required parameter resourceType was null or undefined when calling putResourceTypeResourceIdNotesNoteId.');
+        }
+        if (resourceId === null || resourceId === undefined) {
+            throw new Error('Required parameter resourceId was null or undefined when calling putResourceTypeResourceIdNotesNoteId.');
+        }
+        if (noteId === null || noteId === undefined) {
+            throw new Error('Required parameter noteId was null or undefined when calling putResourceTypeResourceIdNotesNoteId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -420,10 +416,10 @@ export class NotesService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "resourceType", value: resourceType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "resourceId", value: resourceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/notes/${this.configuration.encodeParam({name: "noteId", value: noteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutResourceTypeResourceIdNotesNoteIdResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<NoteUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: noteRequest,
+                body: noteUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

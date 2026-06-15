@@ -27,6 +27,7 @@ import { ExternalId } from './externalId';
 
 
 export interface OfficeData { 
+    allowedParents?: Array<OfficeData>;
     dateFormat?: string;
     externalId?: ExternalId;
     hierarchy?: string;

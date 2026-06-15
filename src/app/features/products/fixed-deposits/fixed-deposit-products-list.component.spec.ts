@@ -32,7 +32,9 @@ describe('FixedDepositProductsListComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    productServiceSpy = jasmine.createSpyObj('FixedDepositProductService', ['retrieveAll30']);
+    productServiceSpy = jasmine.createSpyObj('FixedDepositProductService', [
+      'getFixeddepositproducts',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -49,7 +51,7 @@ describe('FixedDepositProductsListComponent', () => {
   });
 
   it('should create', () => {
-    (productServiceSpy.retrieveAll30 as jasmine.Spy).and.returnValue(
+    (productServiceSpy.getFixeddepositproducts as jasmine.Spy).and.returnValue(
       of([] as GetFixedDepositProductsResponse[]),
     );
     fixture.detectChanges();
@@ -60,17 +62,17 @@ describe('FixedDepositProductsListComponent', () => {
     const mockProducts = [
       { id: 1, name: 'Product A', shortName: 'PA' } as GetFixedDepositProductsResponse,
     ];
-    (productServiceSpy.retrieveAll30 as jasmine.Spy).and.returnValue(of(mockProducts));
+    (productServiceSpy.getFixeddepositproducts as jasmine.Spy).and.returnValue(of(mockProducts));
 
     fixture.detectChanges();
 
-    expect(productServiceSpy.retrieveAll30).toHaveBeenCalled();
+    expect(productServiceSpy.getFixeddepositproducts).toHaveBeenCalled();
     expect(component.products.length).toBe(1);
     expect(component.isLoading).toBeFalse();
   });
 
   it('should handle error when loading products', () => {
-    (productServiceSpy.retrieveAll30 as jasmine.Spy).and.returnValue(
+    (productServiceSpy.getFixeddepositproducts as jasmine.Spy).and.returnValue(
       throwError(() => new Error('API Error')),
     );
 

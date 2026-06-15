@@ -228,7 +228,7 @@ export class AccountingRuleFormComponent implements OnInit {
   }
 
   loadTemplate() {
-    this.accountingRulesService.retrieveTemplate1().subscribe((template) => {
+    this.accountingRulesService.getAccountingrulesTemplate().subscribe((template) => {
       const templateData = template as Record<string, unknown>;
       this.offices = (templateData['allowedOffices'] as Record<string, unknown>[]) || [];
       this.accounts = (templateData['allowedAccounts'] as Record<string, unknown>[]) || [];
@@ -239,27 +239,29 @@ export class AccountingRuleFormComponent implements OnInit {
   }
 
   loadRule() {
-    this.accountingRulesService.retreiveAccountingRule(this.ruleId!).subscribe((rule) => {
-      const ruleData = rule as Record<string, unknown>;
-      const debitAccounts = (ruleData['debitAccounts'] as Record<string, unknown>[]) || [];
-      const creditAccounts = (ruleData['creditAccounts'] as Record<string, unknown>[]) || [];
-      const debitTags = (ruleData['debitTags'] as Record<string, unknown>[]) || [];
-      const creditTags = (ruleData['creditTags'] as Record<string, unknown>[]) || [];
+    this.accountingRulesService
+      .getAccountingrulesAccountingRuleId(this.ruleId!)
+      .subscribe((rule) => {
+        const ruleData = rule as Record<string, unknown>;
+        const debitAccounts = (ruleData['debitAccounts'] as Record<string, unknown>[]) || [];
+        const creditAccounts = (ruleData['creditAccounts'] as Record<string, unknown>[]) || [];
+        const debitTags = (ruleData['debitTags'] as Record<string, unknown>[]) || [];
+        const creditTags = (ruleData['creditTags'] as Record<string, unknown>[]) || [];
 
-      this.ruleForm.patchValue({
-        name: ruleData['name'],
-        officeId: ruleData['officeId'],
-        description: ruleData['description'],
-        allowMultipleDebitEntries: ruleData['allowMultipleDebitEntries'],
-        allowMultipleCreditEntries: ruleData['allowMultipleCreditEntries'],
-        debitRuleType: debitAccounts.length ? 'fixedAccount' : 'tags',
-        creditRuleType: creditAccounts.length ? 'fixedAccount' : 'tags',
-        accountToDebit: debitAccounts[0]?.['id'],
-        accountToCredit: creditAccounts[0]?.['id'],
-        debitTags: debitTags.map((t) => (t['tag'] as Record<string, unknown>)?.['id']),
-        creditTags: creditTags.map((t) => (t['tag'] as Record<string, unknown>)?.['id']),
+        this.ruleForm.patchValue({
+          name: ruleData['name'],
+          officeId: ruleData['officeId'],
+          description: ruleData['description'],
+          allowMultipleDebitEntries: ruleData['allowMultipleDebitEntries'],
+          allowMultipleCreditEntries: ruleData['allowMultipleCreditEntries'],
+          debitRuleType: debitAccounts.length ? 'fixedAccount' : 'tags',
+          creditRuleType: creditAccounts.length ? 'fixedAccount' : 'tags',
+          accountToDebit: debitAccounts[0]?.['id'],
+          accountToCredit: creditAccounts[0]?.['id'],
+          debitTags: debitTags.map((t) => (t['tag'] as Record<string, unknown>)?.['id']),
+          creditTags: creditTags.map((t) => (t['tag'] as Record<string, unknown>)?.['id']),
+        });
       });
-    });
   }
 
   onSubmit() {
@@ -287,11 +289,11 @@ export class AccountingRuleFormComponent implements OnInit {
     }
 
     const obs = this.isEdit
-      ? (this.accountingRulesService.updateAccountingRule(
+      ? (this.accountingRulesService.putAccountingrulesAccountingRuleId(
           this.ruleId!,
           request,
         ) as Observable<unknown>)
-      : (this.accountingRulesService.createAccountingRule(request) as Observable<unknown>);
+      : (this.accountingRulesService.postAccountingrules(request) as Observable<unknown>);
 
     obs.subscribe(() => {
       this.router.navigate(['/accounting/rules']);

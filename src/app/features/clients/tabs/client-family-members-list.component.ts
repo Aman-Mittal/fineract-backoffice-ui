@@ -148,7 +148,7 @@ export class ClientFamilyMembersListComponent implements OnInit {
 
   loadFamilyMembers(): void {
     this.isLoading.set(true);
-    this.familyMemberService.getFamilyMembers(this.clientId).subscribe({
+    this.familyMemberService.getClientsClientIdFamilymembers(this.clientId).subscribe({
       next: (data) => {
         this.familyMembers.set(data);
         this.isLoading.set(false);
@@ -162,10 +162,12 @@ export class ClientFamilyMembersListComponent implements OnInit {
 
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this family member?')) {
-      this.familyMemberService.deleteClientFamilyMembers(id, this.clientId).subscribe({
-        next: () => this.loadFamilyMembers(),
-        error: (err) => console.error('Failed to delete family member', err),
-      });
+      this.familyMemberService
+        .deleteClientsClientIdFamilymembersFamilyMemberId(id, this.clientId)
+        .subscribe({
+          next: () => this.loadFamilyMembers(),
+          error: (err) => console.error('Failed to delete family member', err),
+        });
     }
   }
 }

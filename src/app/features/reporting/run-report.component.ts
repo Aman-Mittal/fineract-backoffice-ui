@@ -220,7 +220,7 @@ export class RunReportComponent implements OnInit {
   }
 
   private loadMetadata(): void {
-    this.officesService.retrieveOffices(true).subscribe((data) => {
+    this.officesService.getOffices(true).subscribe((data) => {
       this.offices = data;
     });
   }
@@ -235,9 +235,8 @@ export class RunReportComponent implements OnInit {
       : undefined;
 
     this.runReportsService
-      .runReport(
+      .getRunreportsReportName(
         this.reportName,
-        false, // isSelfServiceUserReport
         true, // exportCSV
         undefined, // parameterType
         'CSV', // outputType
@@ -281,9 +280,8 @@ export class RunReportComponent implements OnInit {
       : undefined;
 
     this.runReportsService
-      .runReport(
+      .getRunreportsReportName(
         this.reportName,
-        false, // isSelfServiceUserReport
         false, // exportCSV
         undefined, // parameterType
         'HTML', // outputType

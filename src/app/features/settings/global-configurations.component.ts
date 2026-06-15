@@ -103,7 +103,7 @@ export class GlobalConfigurationsListComponent implements OnInit {
   }
 
   private loadConfigurations(): void {
-    this.configService.retrieveConfiguration().subscribe({
+    this.configService.getConfigurations().subscribe({
       next: (data: GetGlobalConfigurationsResponse) => {
         this.configurations =
           (data.globalConfiguration as unknown as Record<string, unknown>[]) || [];
@@ -119,7 +119,7 @@ export class GlobalConfigurationsListComponent implements OnInit {
     };
     const configId = config['id'] as number;
 
-    this.configService.updateConfiguration1(configId, request).subscribe({
+    this.configService.putConfigurationsConfigId(configId, request).subscribe({
       next: () => {
         config['enabled'] = newEnabledState;
         this.snackBar.open('Configuration updated successfully', 'Close', { duration: 3000 });

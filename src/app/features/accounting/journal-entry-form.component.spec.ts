@@ -46,12 +46,10 @@ describe('JournalEntryFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    journalServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['createGLJournalEntry']);
-    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', [
-      'retrieveAllAccounts',
-    ]);
-    officeServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
-    currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['retrieveCurrencies']);
+    journalServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['postJournalentries']);
+    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', ['getGlaccounts']);
+    officeServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
+    currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getCurrencies']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -66,15 +64,15 @@ describe('JournalEntryFormComponent', () => {
       ],
     }).compileComponents();
 
-    officeServiceSpy.retrieveOffices.and.returnValue(
+    officeServiceSpy.getOffices.and.returnValue(
       of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
     );
-    currencyServiceSpy.retrieveCurrencies.and.returnValue(
+    currencyServiceSpy.getCurrencies.and.returnValue(
       of({ selectedCurrencyOptions: [] }) as unknown as Observable<
         HttpEvent<CurrencyConfigurationData>
       >,
     );
-    glAccountServiceSpy.retrieveAllAccounts.and.returnValue(
+    glAccountServiceSpy.getGlaccounts.and.returnValue(
       of([]) as unknown as Observable<HttpEvent<GetGLAccountsResponse[]>>,
     );
 
@@ -103,13 +101,13 @@ describe('JournalEntryFormComponent', () => {
     component.debits = [{ glAccountId: 10, amount: 500 }];
     component.credits = [{ glAccountId: 20, amount: 500 }];
 
-    journalServiceSpy.createGLJournalEntry.and.returnValue(
+    journalServiceSpy.postJournalentries.and.returnValue(
       of({}) as unknown as Observable<HttpEvent<PostJournalEntriesResponse>>,
     );
 
     component.onSubmit();
 
-    expect(journalServiceSpy.createGLJournalEntry).toHaveBeenCalledWith(
+    expect(journalServiceSpy.postJournalentries).toHaveBeenCalledWith(
       undefined,
       jasmine.objectContaining({
         officeId: 1,

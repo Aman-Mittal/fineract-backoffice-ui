@@ -130,7 +130,7 @@ export class FixedDepositAccountsListComponent implements OnInit {
    * Fetches fixed deposit accounts from the Fineract API.
    */
   private loadAccounts(): void {
-    this.fixedDepositService.retrieveAll29().subscribe({
+    this.fixedDepositService.getFixeddepositaccounts().subscribe({
       next: (data: GetFixedDepositAccountsResponse[]) => {
         this.accounts = data || [];
       },

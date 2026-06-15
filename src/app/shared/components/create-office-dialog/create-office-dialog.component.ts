@@ -120,7 +120,7 @@ export class CreateOfficeDialogComponent implements OnInit {
   isSaving = false;
 
   ngOnInit() {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
@@ -131,7 +131,7 @@ export class CreateOfficeDialogComponent implements OnInit {
     this.office.dateFormat = 'yyyy-MM-dd';
     this.office.locale = 'en';
 
-    this.officesService.createOffice(this.office).subscribe({
+    this.officesService.postOffices(this.office).subscribe({
       next: (response) => this.dialogRef.close(response.resourceId),
       error: () => (this.isSaving = false),
     });

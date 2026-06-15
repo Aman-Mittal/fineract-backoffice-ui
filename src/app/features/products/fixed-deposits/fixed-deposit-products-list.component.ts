@@ -91,7 +91,7 @@ export class FixedDepositProductsListComponent implements OnInit {
   loadProducts() {
     this.isLoading = true;
     this.productService
-      .retrieveAll30()
+      .getFixeddepositproducts()
       .pipe(catchError(() => of([])))
       .subscribe((data) => {
         this.products = data;

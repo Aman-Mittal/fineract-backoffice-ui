@@ -424,7 +424,7 @@ export class StandingInstructionFormComponent implements OnInit {
   }
 
   loadOffices(): void {
-    this.officesService.retrieveOffices().subscribe((data) => {
+    this.officesService.getOffices().subscribe((data) => {
       this.offices.set(data);
       if (!this.isEditMode && data.length > 0) {
         this.request.fromOfficeId = data[0].id?.toString();
@@ -437,7 +437,7 @@ export class StandingInstructionFormComponent implements OnInit {
 
   loadInstructionData(): void {
     this.instructionsService
-      .retrieveOne10(this.instructionId!)
+      .getStandinginstructionsStandingInstructionId(this.instructionId!)
       .subscribe((data: GetStandingInstructionsStandingInstructionIdResponse) => {
         this.populateRequest(data);
         this.populateDates(data);
@@ -485,7 +485,7 @@ export class StandingInstructionFormComponent implements OnInit {
     const officeId = officeIdStr ? Number(officeIdStr) : undefined;
     if (!officeId) return;
     this.clientService
-      .retrieveAll21(
+      .getClients(
         officeId,
         undefined,
         undefined,
@@ -520,7 +520,7 @@ export class StandingInstructionFormComponent implements OnInit {
 
     if (!clientId) return;
 
-    this.clientService.retrieveAssociatedAccounts(clientId).subscribe((data) => {
+    this.clientService.getClientsClientIdAccounts(clientId).subscribe((data) => {
       if (accountType === '2') {
         const savings = Array.from(data.savingsAccounts || []) as unknown as MiniAccount[];
         if (type === 'from') this.fromAccounts.set(savings);
@@ -598,14 +598,16 @@ export class StandingInstructionFormComponent implements OnInit {
   }
 
   private updateInstruction(payload: StandingInstructionCreationRequest): void {
-    this.instructionsService.update9(this.instructionId!, undefined, payload).subscribe({
-      next: () => this.router.navigate([this.instructionsPath]),
-      error: (err) => console.error('Update failed', err),
-    });
+    this.instructionsService
+      .putStandinginstructionsStandingInstructionId(this.instructionId!, undefined, payload)
+      .subscribe({
+        next: () => this.router.navigate([this.instructionsPath]),
+        error: (err) => console.error('Update failed', err),
+      });
   }
 
   private createInstruction(payload: StandingInstructionCreationRequest): void {
-    this.instructionsService.create5(payload).subscribe({
+    this.instructionsService.postStandinginstructions(payload).subscribe({
       next: () => this.router.navigate([this.instructionsPath]),
       error: (err) => console.error('Creation failed', err),
     });

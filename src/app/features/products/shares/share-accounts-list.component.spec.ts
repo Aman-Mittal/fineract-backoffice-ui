@@ -38,7 +38,7 @@ describe('ShareAccountsListComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    shareServiceSpy = jasmine.createSpyObj('ShareAccountService', ['retrieveAllAccounts1']);
+    shareServiceSpy = jasmine.createSpyObj('ShareAccountService', ['getAccountsType']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -50,7 +50,7 @@ describe('ShareAccountsListComponent', () => {
       ],
     }).compileComponents();
 
-    shareServiceSpy.retrieveAllAccounts1.and.returnValue(
+    shareServiceSpy.getAccountsType.and.returnValue(
       of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
         HttpEvent<GetAccountsTypeResponse>
       >,
@@ -65,7 +65,7 @@ describe('ShareAccountsListComponent', () => {
   });
 
   it('should load accounts on init', () => {
-    expect(shareServiceSpy.retrieveAllAccounts1).toHaveBeenCalledWith('share', 0, 10);
+    expect(shareServiceSpy.getAccountsType).toHaveBeenCalledWith('share', 0, 10);
   });
 
   it('should navigate to create on onCreateAccount', () => {
@@ -82,6 +82,6 @@ describe('ShareAccountsListComponent', () => {
   it('should load accounts on page change', () => {
     const pageEvent = { pageIndex: 1, pageSize: 25, length: 100 } as PageEvent;
     component.onPageChange(pageEvent);
-    expect(shareServiceSpy.retrieveAllAccounts1).toHaveBeenCalledWith('share', 25, 25);
+    expect(shareServiceSpy.getAccountsType).toHaveBeenCalledWith('share', 25, 25);
   });
 });

@@ -131,7 +131,7 @@ export class EntityDatatablesComponent implements OnInit {
 
   loadTableData(tableName: string): void {
     this.isTableLoading.set(true);
-    this.datatablesService.getDatatable1(tableName, this.entityId).subscribe({
+    this.datatablesService.getDatatablesDatatableApptableId(tableName, this.entityId).subscribe({
       next: (data: unknown) => {
         // Fineract returns a resultset: { columnHeaders: [], data: [[]] }
         const result = (typeof data === 'string' ? JSON.parse(data) : data) as Record<

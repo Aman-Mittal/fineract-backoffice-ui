@@ -64,79 +64,6 @@ export class ReportMailingJobsService extends BaseService {
     }
 
     /**
-     * Create a Report Mailing Job
-     * Mandatory Fields: name, startDateTime, stretchyReportId, emailRecipients, emailSubject, emailMessage, emailAttachmentFileFormatId, recurrence, isActive  Optional Fields: description, stretchyReportParamMap
-     * @endpoint post /v1/reportmailingjobs
-     * @param postReportMailingJobsRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createReportMailingJob(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostReportMailingJobsResponse>;
-    public createReportMailingJob(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostReportMailingJobsResponse>>;
-    public createReportMailingJob(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostReportMailingJobsResponse>>;
-    public createReportMailingJob(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (postReportMailingJobsRequest === null || postReportMailingJobsRequest === undefined) {
-            throw new Error('Required parameter postReportMailingJobsRequest was null or undefined when calling createReportMailingJob.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/reportmailingjobs`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostReportMailingJobsResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postReportMailingJobsRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete a Report Mailing Job
      * @endpoint delete /v1/reportmailingjobs/{entityId}
      * @param entityId entityId
@@ -144,12 +71,12 @@ export class ReportMailingJobsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteReportMailingJob(entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteReportMailingJobsResponse>;
-    public deleteReportMailingJob(entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteReportMailingJobsResponse>>;
-    public deleteReportMailingJob(entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteReportMailingJobsResponse>>;
-    public deleteReportMailingJob(entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteReportmailingjobsEntityId(entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteReportMailingJobsResponse>;
+    public deleteReportmailingjobsEntityId(entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteReportMailingJobsResponse>>;
+    public deleteReportmailingjobsEntityId(entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteReportMailingJobsResponse>>;
+    public deleteReportmailingjobsEntityId(entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling deleteReportMailingJob.');
+            throw new Error('Required parameter entityId was null or undefined when calling deleteReportmailingjobsEntityId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -210,10 +137,10 @@ export class ReportMailingJobsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAllReportMailingJobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetReportMailingJobsResponse>>;
-    public retrieveAllReportMailingJobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetReportMailingJobsResponse>>>;
-    public retrieveAllReportMailingJobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetReportMailingJobsResponse>>>;
-    public retrieveAllReportMailingJobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getReportmailingjobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetReportMailingJobsResponse>>;
+    public getReportmailingjobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetReportMailingJobsResponse>>>;
+    public getReportmailingjobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetReportMailingJobsResponse>>>;
+    public getReportmailingjobs(offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -309,12 +236,12 @@ export class ReportMailingJobsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveReportMailingJob(entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetReportMailingJobsResponse>;
-    public retrieveReportMailingJob(entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetReportMailingJobsResponse>>;
-    public retrieveReportMailingJob(entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetReportMailingJobsResponse>>;
-    public retrieveReportMailingJob(entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getReportmailingjobsEntityId(entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetReportMailingJobsResponse>;
+    public getReportmailingjobsEntityId(entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetReportMailingJobsResponse>>;
+    public getReportmailingjobsEntityId(entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetReportMailingJobsResponse>>;
+    public getReportmailingjobsEntityId(entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveReportMailingJob.');
+            throw new Error('Required parameter entityId was null or undefined when calling getReportmailingjobsEntityId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -371,10 +298,10 @@ export class ReportMailingJobsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveReportMailingJobTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetReportMailingJobsTemplate>;
-    public retrieveReportMailingJobTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetReportMailingJobsTemplate>>;
-    public retrieveReportMailingJobTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetReportMailingJobsTemplate>>;
-    public retrieveReportMailingJobTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getReportmailingjobsTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetReportMailingJobsTemplate>;
+    public getReportmailingjobsTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetReportMailingJobsTemplate>>;
+    public getReportmailingjobsTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetReportMailingJobsTemplate>>;
+    public getReportmailingjobsTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -423,6 +350,79 @@ export class ReportMailingJobsService extends BaseService {
     }
 
     /**
+     * Create a Report Mailing Job
+     * Mandatory Fields: name, startDateTime, stretchyReportId, emailRecipients, emailSubject, emailMessage, emailAttachmentFileFormatId, recurrence, isActive  Optional Fields: description, stretchyReportParamMap
+     * @endpoint post /v1/reportmailingjobs
+     * @param postReportMailingJobsRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postReportmailingjobs(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostReportMailingJobsResponse>;
+    public postReportmailingjobs(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostReportMailingJobsResponse>>;
+    public postReportmailingjobs(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostReportMailingJobsResponse>>;
+    public postReportmailingjobs(postReportMailingJobsRequest: PostReportMailingJobsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (postReportMailingJobsRequest === null || postReportMailingJobsRequest === undefined) {
+            throw new Error('Required parameter postReportMailingJobsRequest was null or undefined when calling postReportmailingjobs.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/reportmailingjobs`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostReportMailingJobsResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postReportMailingJobsRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Update a Report Mailing Job 
      * @endpoint put /v1/reportmailingjobs/{entityId}
      * @param entityId entityId
@@ -431,15 +431,15 @@ export class ReportMailingJobsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateReportMailingJob(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutReportMailingJobsResponse>;
-    public updateReportMailingJob(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutReportMailingJobsResponse>>;
-    public updateReportMailingJob(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutReportMailingJobsResponse>>;
-    public updateReportMailingJob(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putReportmailingjobsEntityId(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutReportMailingJobsResponse>;
+    public putReportmailingjobsEntityId(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutReportMailingJobsResponse>>;
+    public putReportmailingjobsEntityId(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutReportMailingJobsResponse>>;
+    public putReportmailingjobsEntityId(entityId: number, putReportMailingJobsRequest: PutReportMailingJobsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling updateReportMailingJob.');
+            throw new Error('Required parameter entityId was null or undefined when calling putReportmailingjobsEntityId.');
         }
         if (putReportMailingJobsRequest === null || putReportMailingJobsRequest === undefined) {
-            throw new Error('Required parameter putReportMailingJobsRequest was null or undefined when calling updateReportMailingJob.');
+            throw new Error('Required parameter putReportMailingJobsRequest was null or undefined when calling putReportmailingjobsEntityId.');
         }
 
         let localVarHeaders = this.defaultHeaders;

@@ -52,6 +52,7 @@ export class CashiersService extends BaseService {
     }
 
     /**
+     * List Cashiers
      * @endpoint get /v1/cashiers
      * @param officeId 
      * @param tellerId 
@@ -61,10 +62,10 @@ export class CashiersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCashierData(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CashierData>>;
-    public getCashierData(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CashierData>>>;
-    public getCashierData(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CashierData>>>;
-    public getCashierData(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getCashiers(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CashierData>>;
+    public getCashiers(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CashierData>>>;
+    public getCashiers(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CashierData>>>;
+    public getCashiers(officeId?: number, tellerId?: number, staffId?: number, date?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 

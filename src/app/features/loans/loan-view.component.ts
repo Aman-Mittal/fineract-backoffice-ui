@@ -919,7 +919,7 @@ export class LoanViewComponent implements OnInit {
 
   loadLoanData() {
     // Request associations so repayment schedule, charges, and transactions are returned
-    this.loansService.retrieveLoan(this.loanId, false, 'all').subscribe({
+    this.loansService.getLoansLoanId(this.loanId, false, 'all').subscribe({
       next: (data) => {
         this.loan.set(data);
         this.periods.set(data.repaymentSchedule?.periods || []);
@@ -960,7 +960,7 @@ export class LoanViewComponent implements OnInit {
 
   onDeleteLoan() {
     if (confirm('Are you sure you want to delete this loan application?')) {
-      this.loansService.deleteLoanApplication(this.loanId).subscribe({
+      this.loansService.deleteLoansLoanId(this.loanId).subscribe({
         next: () => this.router.navigate(['/loans']),
         error: (err) => console.error('Failed to delete loan', err),
       });

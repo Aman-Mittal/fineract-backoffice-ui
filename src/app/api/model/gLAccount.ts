@@ -34,7 +34,7 @@ export interface GLAccount {
     glCode?: string;
     headerAccount?: boolean;
     hierarchy?: string;
-    id?: number;
+    id?: number | null;
     manualEntriesAllowed?: boolean;
     name?: string;
     'new'?: boolean;

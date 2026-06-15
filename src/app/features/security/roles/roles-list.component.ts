@@ -84,7 +84,7 @@ export class RolesListComponent implements OnInit {
   }
 
   private loadRoles(): void {
-    this.rolesService.retrieveAllRoles().subscribe({
+    this.rolesService.getRoles().subscribe({
       next: (data) => {
         this.roles = data || [];
       },

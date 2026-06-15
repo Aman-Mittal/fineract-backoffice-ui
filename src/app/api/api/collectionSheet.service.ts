@@ -63,12 +63,12 @@ export class CollectionSheetService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public generateCollectionSheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCollectionSheetResponse>;
-    public generateCollectionSheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCollectionSheetResponse>>;
-    public generateCollectionSheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCollectionSheetResponse>>;
-    public generateCollectionSheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postCollectionsheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCollectionSheetResponse>;
+    public postCollectionsheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCollectionSheetResponse>>;
+    public postCollectionsheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCollectionSheetResponse>>;
+    public postCollectionsheet(collectionSheetRequest: CollectionSheetRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (collectionSheetRequest === null || collectionSheetRequest === undefined) {
-            throw new Error('Required parameter collectionSheetRequest was null or undefined when calling generateCollectionSheet.');
+            throw new Error('Required parameter collectionSheetRequest was null or undefined when calling postCollectionsheet.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

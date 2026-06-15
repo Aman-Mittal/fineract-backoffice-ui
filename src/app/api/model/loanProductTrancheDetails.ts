@@ -26,6 +26,7 @@
 
 
 export interface LoanProductTrancheDetails { 
+    allowFullTermForTranche?: boolean;
     maxTrancheCount?: number;
     multiDisburseLoan?: boolean;
     outstandingLoanBalance?: number;

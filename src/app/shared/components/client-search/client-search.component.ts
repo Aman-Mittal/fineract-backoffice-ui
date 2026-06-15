@@ -118,7 +118,7 @@ export class ClientSearchComponent implements OnInit, OnChanges {
           this.isLoading = true;
           const searchTerm =
             typeof value === 'string' && value.length > 0 ? value + '%' : undefined;
-          return this.clientService.retrieveAll21(
+          return this.clientService.getClients(
             undefined,
             undefined,
             searchTerm,
@@ -154,7 +154,7 @@ export class ClientSearchComponent implements OnInit, OnChanges {
 
   private loadInitialClient(): void {
     if (this.initialClientId) {
-      this.clientService.retrieveOne11(this.initialClientId).subscribe((client) => {
+      this.clientService.getClientsClientId(this.initialClientId).subscribe((client) => {
         this.searchControl.setValue(client as Record<string, unknown>, { emitEvent: false });
       });
     }

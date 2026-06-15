@@ -61,7 +61,13 @@
     "standingInstructions": "Standing Instructions",
     "standingInstructionsHistory": "SI History",
     "tellers": "Tellers",
-    "tellerOperations": "Teller Operations"
+    "tellerOperations": "Teller Operations",
+    "funds": "Funds",
+    "paymentTypes": "Payment Types",
+    "taxComponents": "Tax Components",
+    "taxGroups": "Tax Groups",
+    "floatingRates": "Floating Rates",
+    "loanAccounts": "Loan Accounts"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "System Operational Status",
@@ -169,7 +175,12 @@
     "VIEW_DETAILS": "View Details",
     "TOGGLE_THEME": "Toggle Dark/Light Mode",
     "BUSINESS_DATE": "Business Date",
-    "RENDER_TIME": "Render Time"
+    "RENDER_TIME": "Render Time",
+    "DETAILS": "Details",
+    "OVERVIEW": "Overview",
+    "PRIORITY": "Priority",
+    "TERM": "Term",
+    "DOWNLOAD": "Download"
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "New Account",
@@ -203,7 +214,8 @@
     "APPLY_CHARGES": "Apply Charge",
     "ASSIGNMENT_DATE": "Assignment Date",
     "UNASSIGNMENT_DATE": "Unassignment Date",
-    "DUE_DATE": "Due Date"
+    "DUE_DATE": "Due Date",
+    "ACCOUNT_TRANSFER": "Account Transfer"
   },
   "PRODUCTS": {
     "LOAN_PRODUCTS": "Loan Products",
@@ -333,7 +345,8 @@
     "MANAGE_COLLATERAL": "Manage Collateral",
     "MANAGE_RESCHEDULING": "Manage Rescheduling",
     "APPROVE_LOAN_APPLICATION": "Approve Loan Application",
-    "DISBURSE_LOAN": "Disburse Loan"
+    "DISBURSE_LOAN": "Disburse Loan",
+    "CHARGE": "Charge"
   },
   "TELLERS": {
     "CREATE_TELLER": "Create Teller",
@@ -427,7 +440,17 @@
     "RECURRENCE_TYPE": "Recurrence Type",
     "RECURRENCE_FREQUENCY": "Recurrence Frequency",
     "RECURRENCE_INTERVAL": "Recurrence Interval",
-    "IS_DEPENDENT": "Is Dependent"
+    "IS_DEPENDENT": "Is Dependent",
+    "AGE": "Age",
+    "MARITAL_STATUS": "Marital Status",
+    "QUALIFICATION": "Qualification",
+    "SELECT_FILE": "Select File",
+    "NO_FILE_SELECTED": "No file selected",
+    "EDIT_ADDRESS": "Edit Address",
+    "EDIT_DOCUMENT": "Edit Document",
+    "EDIT_FAMILY_MEMBER": "Edit Family Member",
+    "EDIT_IDENTIFIER": "Edit Identifier",
+    "EDIT_NOTE": "Edit Note"
   },
   "SAVINGS": {
     "CREATE_ACCOUNT": "Create Savings Account",
@@ -438,7 +461,9 @@
     "NAME": "Client Name",
     "PRODUCT": "Savings Product",
     "BALANCE": "Account Balance",
-    "NO_CHARGES": "No charges found."
+    "NO_CHARGES": "No charges found.",
+    "WITHDRAW": "Withdraw",
+    "MIN_BALANCE_REQUIRED": "Minimum Balance Required"
   },
   "USERS": {
     "CREATE": "Create User",
@@ -603,7 +628,16 @@
     "TO_DATE_DESC": "The end date of the holiday period.",
     "REPAYMENTS_RESCHEDULED_TO_DESC": "The target date to reschedule any loan repayments falling on this holiday.",
     "HOLIDAY_DESCRIPTION_DESC": "Optional details or comments about this holiday.",
-    "RESCHEDULING_TYPE_DESC": "Specify how repayments falling on this holiday should be rescheduled."
+    "RESCHEDULING_TYPE_DESC": "Specify how repayments falling on this holiday should be rescheduled.",
+    "FULL_NAME_DESC": "The client's full legal name.",
+    "MIDDLE_NAME_DESC": "The client's middle name, if any.",
+    "DATE_OF_BIRTH_DESC": "The client's date of birth.",
+    "LOAN_PRODUCT_DESC": "Select the loan product this application is based on.",
+    "FUNDS_DESC": "Funds are sources of money that can be linked to loans for tracking and reporting.",
+    "PAYMENT_TYPES_DESC": "Payment types describe how money moves in and out (cash, cheque, transfer).",
+    "TAX_COMPONENTS_DESC": "A tax component is a single named tax with a percentage and start date.",
+    "TAX_GROUPS_DESC": "A tax group bundles one or more tax components for use on charges.",
+    "FLOATING_RATES_DESC": "Floating rates define base/differential interest rates that vary over time periods."
   },
   "REPORTS": {
     "NAME": "Report Name",
@@ -782,5 +816,43 @@
       "message": "You have been inactive for a while. Your session will expire soon. Do you want to stay logged in?",
       "extend": "Keep me logged in"
     }
+  },
+  "FUNDS": {
+    "NAME": "Name",
+    "EXTERNAL_ID": "External ID",
+    "CREATE_FUND": "Create Fund",
+    "EDIT_FUND": "Edit Fund"
+  },
+  "PAYMENT_TYPES": {
+    "NAME": "Name",
+    "POSITION": "Position",
+    "IS_CASH": "Cash Payment",
+    "CREATE": "Create Payment Type",
+    "EDIT": "Edit Payment Type",
+    "CONFIRM_DELETE": "Are you sure you want to delete this payment type?"
+  },
+  "TAX_COMPONENTS": {
+    "NAME": "Name",
+    "PERCENTAGE": "Percentage",
+    "START_DATE": "Start Date",
+    "CREATE": "Create Tax Component",
+    "EDIT": "Edit Tax Component"
+  },
+  "TAX_GROUPS": {
+    "NAME": "Name",
+    "COMPONENTS": "Tax Components",
+    "CREATE": "Create Tax Group",
+    "EDIT": "Edit Tax Group"
+  },
+  "FLOATING_RATES": {
+    "NAME": "Name",
+    "CREATE": "Create Floating Rate",
+    "EDIT": "Edit Floating Rate",
+    "IS_BASE_LENDING_RATE": "Base Lending Rate",
+    "IS_DIFFERENTIAL": "Differential to Base Lending Rate",
+    "RATE_PERIODS": "Rate Periods",
+    "ADD_PERIOD": "Add Period",
+    "FROM_DATE": "From Date",
+    "INTEREST_RATE": "Interest Rate"
   }
 }

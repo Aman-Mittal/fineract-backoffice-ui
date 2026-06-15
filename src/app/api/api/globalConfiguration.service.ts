@@ -66,10 +66,10 @@ export class GlobalConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveConfiguration(survey?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetGlobalConfigurationsResponse>;
-    public retrieveConfiguration(survey?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetGlobalConfigurationsResponse>>;
-    public retrieveConfiguration(survey?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetGlobalConfigurationsResponse>>;
-    public retrieveConfiguration(survey?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getConfigurations(survey?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetGlobalConfigurationsResponse>;
+    public getConfigurations(survey?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetGlobalConfigurationsResponse>>;
+    public getConfigurations(survey?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetGlobalConfigurationsResponse>>;
+    public getConfigurations(survey?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -138,12 +138,12 @@ export class GlobalConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveOne3(configId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GlobalConfigurationPropertyData>;
-    public retrieveOne3(configId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GlobalConfigurationPropertyData>>;
-    public retrieveOne3(configId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GlobalConfigurationPropertyData>>;
-    public retrieveOne3(configId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getConfigurationsConfigId(configId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GlobalConfigurationPropertyData>;
+    public getConfigurationsConfigId(configId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GlobalConfigurationPropertyData>>;
+    public getConfigurationsConfigId(configId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GlobalConfigurationPropertyData>>;
+    public getConfigurationsConfigId(configId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (configId === null || configId === undefined) {
-            throw new Error('Required parameter configId was null or undefined when calling retrieveOne3.');
+            throw new Error('Required parameter configId was null or undefined when calling getConfigurationsConfigId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -201,12 +201,12 @@ export class GlobalConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveOneByName(name: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GlobalConfigurationPropertyData>;
-    public retrieveOneByName(name: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GlobalConfigurationPropertyData>>;
-    public retrieveOneByName(name: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GlobalConfigurationPropertyData>>;
-    public retrieveOneByName(name: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getConfigurationsNameName(name: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GlobalConfigurationPropertyData>;
+    public getConfigurationsNameName(name: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GlobalConfigurationPropertyData>>;
+    public getConfigurationsNameName(name: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GlobalConfigurationPropertyData>>;
+    public getConfigurationsNameName(name: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (name === null || name === undefined) {
-            throw new Error('Required parameter name was null or undefined when calling retrieveOneByName.');
+            throw new Error('Required parameter name was null or undefined when calling getConfigurationsNameName.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -265,15 +265,15 @@ export class GlobalConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateConfiguration1(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutGlobalConfigurationsResponse>;
-    public updateConfiguration1(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutGlobalConfigurationsResponse>>;
-    public updateConfiguration1(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutGlobalConfigurationsResponse>>;
-    public updateConfiguration1(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putConfigurationsConfigId(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutGlobalConfigurationsResponse>;
+    public putConfigurationsConfigId(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutGlobalConfigurationsResponse>>;
+    public putConfigurationsConfigId(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutGlobalConfigurationsResponse>>;
+    public putConfigurationsConfigId(configId: number, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (configId === null || configId === undefined) {
-            throw new Error('Required parameter configId was null or undefined when calling updateConfiguration1.');
+            throw new Error('Required parameter configId was null or undefined when calling putConfigurationsConfigId.');
         }
         if (putGlobalConfigurationsRequest === null || putGlobalConfigurationsRequest === undefined) {
-            throw new Error('Required parameter putGlobalConfigurationsRequest was null or undefined when calling updateConfiguration1.');
+            throw new Error('Required parameter putGlobalConfigurationsRequest was null or undefined when calling putConfigurationsConfigId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -342,15 +342,15 @@ export class GlobalConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateConfigurationByName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutGlobalConfigurationsResponse>;
-    public updateConfigurationByName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutGlobalConfigurationsResponse>>;
-    public updateConfigurationByName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutGlobalConfigurationsResponse>>;
-    public updateConfigurationByName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putConfigurationsNameConfigName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutGlobalConfigurationsResponse>;
+    public putConfigurationsNameConfigName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutGlobalConfigurationsResponse>>;
+    public putConfigurationsNameConfigName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutGlobalConfigurationsResponse>>;
+    public putConfigurationsNameConfigName(configName: string, putGlobalConfigurationsRequest: PutGlobalConfigurationsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (configName === null || configName === undefined) {
-            throw new Error('Required parameter configName was null or undefined when calling updateConfigurationByName.');
+            throw new Error('Required parameter configName was null or undefined when calling putConfigurationsNameConfigName.');
         }
         if (putGlobalConfigurationsRequest === null || putGlobalConfigurationsRequest === undefined) {
-            throw new Error('Required parameter putGlobalConfigurationsRequest was null or undefined when calling updateConfigurationByName.');
+            throw new Error('Required parameter putGlobalConfigurationsRequest was null or undefined when calling putConfigurationsNameConfigName.');
         }
 
         let localVarHeaders = this.defaultHeaders;

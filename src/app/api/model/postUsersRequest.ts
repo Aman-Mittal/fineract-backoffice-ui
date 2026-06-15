@@ -32,7 +32,8 @@ export interface PostUsersRequest {
     clients?: Array<number>;
     email?: string;
     firstname?: string;
-    isSelfServiceUser?: boolean;
+    isLoginRetriesEnabled?: boolean;
+    isPasswordResetAllowed?: boolean;
     lastname?: string;
     officeId?: number;
     password?: string;

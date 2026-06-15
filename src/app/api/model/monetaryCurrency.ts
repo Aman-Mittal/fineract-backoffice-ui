@@ -23,12 +23,10 @@
  * Do not edit the class manually.
  */
 
-import { CurrencyData } from './currencyData';
 
 
 export interface MonetaryCurrency { 
     code?: string;
-    currencyData?: CurrencyData;
     digitsAfterDecimal?: number;
     inMultiplesOf?: number;
 }

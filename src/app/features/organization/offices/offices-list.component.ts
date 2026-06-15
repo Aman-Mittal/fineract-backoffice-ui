@@ -95,7 +95,7 @@ export class OfficesListComponent implements OnInit {
    * Initializes the component by loading office data.
    */
   ngOnInit(): void {
-    this.officesService.retrieveOffices(true).subscribe({
+    this.officesService.getOffices(true).subscribe({
       next: (data: GetOfficesResponse[]) => {
         this.offices = data || [];
       },

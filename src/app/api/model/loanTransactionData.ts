@@ -25,6 +25,7 @@
 
 import { PaymentTypeData } from './paymentTypeData';
 import { AccountTransferData } from './accountTransferData';
+import { StringEnumOptionData } from './stringEnumOptionData';
 import { CurrencyData } from './currencyData';
 import { LoanTransactionRelationData } from './loanTransactionRelationData';
 import { ExternalId } from './externalId';
@@ -41,6 +42,7 @@ export interface LoanTransactionData {
     amount?: number;
     availableDisbursementAmountWithOverApplied?: number;
     bankNumber?: number;
+    calculatedStartDate?: string;
     chargeOffReasonOptions?: Array<CodeValueData>;
     checkNumber?: number;
     classification?: CodeValueData;
@@ -60,6 +62,9 @@ export interface LoanTransactionData {
     locale?: string;
     manuallyReversed?: boolean;
     netDisbursalAmount?: number;
+    nextInstallmentDueDate?: string;
+    numberOfFutureInstallments?: number;
+    numberOfPastInstallments?: number;
     numberOfRepayments?: number;
     officeId?: number;
     officeName?: string;
@@ -69,8 +74,13 @@ export interface LoanTransactionData {
     paymentTypeId?: number;
     paymentTypeOptions?: Array<PaymentTypeData>;
     penaltyChargesPortion?: number;
+    periodFrequencyOptions?: Array<LoanTransactionData.PeriodFrequencyOptionsEnum>;
     possibleNextRepaymentDate?: string;
     principalPortion?: number;
+    reAgeInterestHandlingOptions?: Array<StringEnumOptionData>;
+    reAgeReasonOptions?: Array<CodeValueData>;
+    reAmortizationInterestHandlingOptions?: Array<StringEnumOptionData>;
+    reAmortizationReasonOptions?: Array<CodeValueData>;
     receiptNumber?: number;
     reversalExternalId?: ExternalId;
     reversedOnDate?: string;
@@ -86,4 +96,16 @@ export interface LoanTransactionData {
     unrecognizedIncomePortion?: number;
     writeOffReasonOptions?: Array<CodeValueData>;
 }
+export namespace LoanTransactionData {
+    export const PeriodFrequencyOptionsEnum = {
+        Days: 'DAYS',
+        Weeks: 'WEEKS',
+        Months: 'MONTHS',
+        Years: 'YEARS',
+        WholeTerm: 'WHOLE_TERM',
+        Invalid: 'INVALID'
+    } as const;
+    export type PeriodFrequencyOptionsEnum = typeof PeriodFrequencyOptionsEnum[keyof typeof PeriodFrequencyOptionsEnum];
+}
+
 

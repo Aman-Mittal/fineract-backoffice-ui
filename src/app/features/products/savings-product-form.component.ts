@@ -231,7 +231,7 @@ export class SavingsProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveOne27(this.productId).subscribe((data) => {
+    this.productService.getSavingsproductsProductId(this.productId).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -254,13 +254,16 @@ export class SavingsProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService
-        .update22(this.productId, this.product as PutSavingsProductsProductIdRequest)
+        .putSavingsproductsProductId(
+          this.productId,
+          this.product as PutSavingsProductsProductIdRequest,
+        )
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
-      this.productService.create13(this.product).subscribe({
+      this.productService.postSavingsproducts(this.product).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

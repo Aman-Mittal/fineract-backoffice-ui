@@ -58,29 +58,17 @@ export class AuthenticationHTTPBasicService extends BaseService {
      * Authenticates the credentials provided and returns the set roles and permissions allowed.
      * @endpoint post /v1/authentication
      * @param postAuthenticationRequest 
-     * @param returnClientList 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public authenticate(postAuthenticationRequest: PostAuthenticationRequest, returnClientList?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostAuthenticationResponse>;
-    public authenticate(postAuthenticationRequest: PostAuthenticationRequest, returnClientList?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostAuthenticationResponse>>;
-    public authenticate(postAuthenticationRequest: PostAuthenticationRequest, returnClientList?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostAuthenticationResponse>>;
-    public authenticate(postAuthenticationRequest: PostAuthenticationRequest, returnClientList?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postAuthentication(postAuthenticationRequest: PostAuthenticationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostAuthenticationResponse>;
+    public postAuthentication(postAuthenticationRequest: PostAuthenticationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostAuthenticationResponse>>;
+    public postAuthentication(postAuthenticationRequest: PostAuthenticationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostAuthenticationResponse>>;
+    public postAuthentication(postAuthenticationRequest: PostAuthenticationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (postAuthenticationRequest === null || postAuthenticationRequest === undefined) {
-            throw new Error('Required parameter postAuthenticationRequest was null or undefined when calling authenticate.');
+            throw new Error('Required parameter postAuthenticationRequest was null or undefined when calling postAuthentication.');
         }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'returnClientList',
-            <any>returnClientList,
-            QueryParamStyle.Form,
-            true,
-        );
-
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -128,7 +116,6 @@ export class AuthenticationHTTPBasicService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: postAuthenticationRequest,
-                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

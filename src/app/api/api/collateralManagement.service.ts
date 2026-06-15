@@ -35,17 +35,17 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { CollateralManagementData } from '../model/collateralManagementData';
 // @ts-ignore
-import { CollateralManagementProductRequest } from '../model/collateralManagementProductRequest';
+import { CollateralProductCreateRequest } from '../model/collateralProductCreateRequest';
 // @ts-ignore
-import { CollateralProductRequest } from '../model/collateralProductRequest';
+import { CollateralProductCreateResponse } from '../model/collateralProductCreateResponse';
+// @ts-ignore
+import { CollateralProductDeleteResponse } from '../model/collateralProductDeleteResponse';
+// @ts-ignore
+import { CollateralProductUpdateRequest } from '../model/collateralProductUpdateRequest';
+// @ts-ignore
+import { CollateralProductUpdateResponse } from '../model/collateralProductUpdateResponse';
 // @ts-ignore
 import { CurrencyData } from '../model/currencyData';
-// @ts-ignore
-import { DeleteCollateralProductResponse } from '../model/deleteCollateralProductResponse';
-// @ts-ignore
-import { PostCollateralManagementProductResponse } from '../model/postCollateralManagementProductResponse';
-// @ts-ignore
-import { PutCollateralProductResponse } from '../model/putCollateralProductResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -64,79 +64,6 @@ export class CollateralManagementService extends BaseService {
     }
 
     /**
-     * Create a new collateral
-     * Collateral Creation
-     * @endpoint post /v1/collateral-management
-     * @param collateralManagementProductRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createCollateral1(collateralManagementProductRequest: CollateralManagementProductRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCollateralManagementProductResponse>;
-    public createCollateral1(collateralManagementProductRequest: CollateralManagementProductRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCollateralManagementProductResponse>>;
-    public createCollateral1(collateralManagementProductRequest: CollateralManagementProductRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCollateralManagementProductResponse>>;
-    public createCollateral1(collateralManagementProductRequest: CollateralManagementProductRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (collateralManagementProductRequest === null || collateralManagementProductRequest === undefined) {
-            throw new Error('Required parameter collateralManagementProductRequest was null or undefined when calling createCollateral1.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/collateral-management`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostCollateralManagementProductResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: collateralManagementProductRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete a Collateral
      * Delete Collateral
      * @endpoint delete /v1/collateral-management/{collateralId}
@@ -145,12 +72,12 @@ export class CollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteCollateral2(collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteCollateralProductResponse>;
-    public deleteCollateral2(collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteCollateralProductResponse>>;
-    public deleteCollateral2(collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteCollateralProductResponse>>;
-    public deleteCollateral2(collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteCollateralManagementCollateralId(collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CollateralProductDeleteResponse>;
+    public deleteCollateralManagementCollateralId(collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CollateralProductDeleteResponse>>;
+    public deleteCollateralManagementCollateralId(collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CollateralProductDeleteResponse>>;
+    public deleteCollateralManagementCollateralId(collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (collateralId === null || collateralId === undefined) {
-            throw new Error('Required parameter collateralId was null or undefined when calling deleteCollateral2.');
+            throw new Error('Required parameter collateralId was null or undefined when calling deleteCollateralManagementCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -186,7 +113,7 @@ export class CollateralManagementService extends BaseService {
 
         let localVarPath = `/v1/collateral-management/${this.configuration.encodeParam({name: "collateralId", value: collateralId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteCollateralProductResponse>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CollateralProductDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -207,10 +134,10 @@ export class CollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllCollaterals(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CollateralManagementData>>;
-    public getAllCollaterals(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CollateralManagementData>>>;
-    public getAllCollaterals(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CollateralManagementData>>>;
-    public getAllCollaterals(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getCollateralManagement(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CollateralManagementData>>;
+    public getCollateralManagement(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CollateralManagementData>>>;
+    public getCollateralManagement(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CollateralManagementData>>>;
+    public getCollateralManagement(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -267,12 +194,12 @@ export class CollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCollateral(collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CollateralManagementData>;
-    public getCollateral(collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CollateralManagementData>>;
-    public getCollateral(collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CollateralManagementData>>;
-    public getCollateral(collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getCollateralManagementCollateralId(collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CollateralManagementData>;
+    public getCollateralManagementCollateralId(collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CollateralManagementData>>;
+    public getCollateralManagementCollateralId(collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CollateralManagementData>>;
+    public getCollateralManagementCollateralId(collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (collateralId === null || collateralId === undefined) {
-            throw new Error('Required parameter collateralId was null or undefined when calling getCollateral.');
+            throw new Error('Required parameter collateralId was null or undefined when calling getCollateralManagementCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -329,10 +256,10 @@ export class CollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCollateralTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CurrencyData>>;
-    public getCollateralTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CurrencyData>>>;
-    public getCollateralTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CurrencyData>>>;
-    public getCollateralTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getCollateralManagementTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CurrencyData>>;
+    public getCollateralManagementTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CurrencyData>>>;
+    public getCollateralManagementTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CurrencyData>>>;
+    public getCollateralManagementTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -381,24 +308,91 @@ export class CollateralManagementService extends BaseService {
     }
 
     /**
-     * Update Collateral
-     * Update Collateral
-     * @endpoint put /v1/collateral-management/{collateralId}
-     * @param collateralId collateralId
-     * @param collateralProductRequest 
+     * Create a new collateral
+     * Collateral Creation
+     * @endpoint post /v1/collateral-management
+     * @param collateralProductCreateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateCollateral2(collateralId: number, collateralProductRequest: CollateralProductRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutCollateralProductResponse>;
-    public updateCollateral2(collateralId: number, collateralProductRequest: CollateralProductRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutCollateralProductResponse>>;
-    public updateCollateral2(collateralId: number, collateralProductRequest: CollateralProductRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutCollateralProductResponse>>;
-    public updateCollateral2(collateralId: number, collateralProductRequest: CollateralProductRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (collateralId === null || collateralId === undefined) {
-            throw new Error('Required parameter collateralId was null or undefined when calling updateCollateral2.');
+    public postCollateralManagement(collateralProductCreateRequest?: CollateralProductCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CollateralProductCreateResponse>;
+    public postCollateralManagement(collateralProductCreateRequest?: CollateralProductCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CollateralProductCreateResponse>>;
+    public postCollateralManagement(collateralProductCreateRequest?: CollateralProductCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CollateralProductCreateResponse>>;
+    public postCollateralManagement(collateralProductCreateRequest?: CollateralProductCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
-        if (collateralProductRequest === null || collateralProductRequest === undefined) {
-            throw new Error('Required parameter collateralProductRequest was null or undefined when calling updateCollateral2.');
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/collateral-management`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CollateralProductCreateResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: collateralProductCreateRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update Collateral
+     * Update Collateral
+     * @endpoint put /v1/collateral-management/{collateralId}
+     * @param collateralId collateralId
+     * @param collateralProductUpdateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putCollateralManagementCollateralId(collateralId: number, collateralProductUpdateRequest?: CollateralProductUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CollateralProductUpdateResponse>;
+    public putCollateralManagementCollateralId(collateralId: number, collateralProductUpdateRequest?: CollateralProductUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CollateralProductUpdateResponse>>;
+    public putCollateralManagementCollateralId(collateralId: number, collateralProductUpdateRequest?: CollateralProductUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CollateralProductUpdateResponse>>;
+    public putCollateralManagementCollateralId(collateralId: number, collateralProductUpdateRequest?: CollateralProductUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (collateralId === null || collateralId === undefined) {
+            throw new Error('Required parameter collateralId was null or undefined when calling putCollateralManagementCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -443,10 +437,10 @@ export class CollateralManagementService extends BaseService {
 
         let localVarPath = `/v1/collateral-management/${this.configuration.encodeParam({name: "collateralId", value: collateralId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutCollateralProductResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CollateralProductUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: collateralProductRequest,
+                body: collateralProductUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

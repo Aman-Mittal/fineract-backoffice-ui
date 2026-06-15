@@ -95,7 +95,7 @@ export class FinancialActivityMappingsListComponent implements OnInit {
   }
 
   loadMappings() {
-    this.financialActivityService.retrieveAll().subscribe((mappings) => {
+    this.financialActivityService.getFinancialactivityaccounts().subscribe((mappings) => {
       this.mappings = mappings;
     });
   }
@@ -110,9 +110,11 @@ export class FinancialActivityMappingsListComponent implements OnInit {
 
   onDelete(mapping: GetFinancialActivityAccountsResponse) {
     if (confirm('Are you sure you want to delete this mapping?')) {
-      this.financialActivityService.deleteGLAccount(mapping.id!).subscribe(() => {
-        this.loadMappings();
-      });
+      this.financialActivityService
+        .deleteFinancialactivityaccountsMappingId(mapping.id!)
+        .subscribe(() => {
+          this.loadMappings();
+        });
     }
   }
 }

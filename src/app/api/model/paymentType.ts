@@ -28,7 +28,7 @@
 export interface PaymentType { 
     codeName?: string;
     description?: string;
-    id?: number;
+    id?: number | null;
     isCashPayment?: boolean;
     isSystemDefined?: boolean;
     name?: string;

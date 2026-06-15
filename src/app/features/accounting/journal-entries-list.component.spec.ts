@@ -33,7 +33,7 @@ describe('JournalEntriesListComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['retrieveAll1']);
+    journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['getJournalentries']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -45,7 +45,7 @@ describe('JournalEntriesListComponent', () => {
       ],
     }).compileComponents();
 
-    journalEntriesServiceSpy.retrieveAll1.and.returnValue(
+    journalEntriesServiceSpy.getJournalentries.and.returnValue(
       of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
         HttpEvent<GetJournalEntriesTransactionIdResponse>
       >,
@@ -60,7 +60,7 @@ describe('JournalEntriesListComponent', () => {
   });
 
   it('should load journal entries on init', () => {
-    expect(journalEntriesServiceSpy.retrieveAll1).toHaveBeenCalled();
+    expect(journalEntriesServiceSpy.getJournalentries).toHaveBeenCalled();
   });
 
   it('should navigate to create on onCreateEntry', () => {

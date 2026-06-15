@@ -25,6 +25,9 @@
 
 
 
+/**
+ * PaymentAllocationOrder
+ */
 export interface PaymentAllocationOrder { 
     order?: number;
     paymentAllocationRule?: string;

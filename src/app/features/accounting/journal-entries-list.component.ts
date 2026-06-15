@@ -127,7 +127,7 @@ export class JournalEntriesListComponent {
           const transactionId = this.currentFilter || undefined;
 
           return this.journalService
-            .retrieveAll1(
+            .getJournalentries(
               undefined, // officeId
               undefined, // glAccountId
               undefined, // manualEntriesOnly

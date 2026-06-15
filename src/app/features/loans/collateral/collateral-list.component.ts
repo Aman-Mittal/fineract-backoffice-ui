@@ -108,7 +108,7 @@ export class CollateralListComponent implements OnInit {
 
   private loadCollaterals(): void {
     if (!this.loanId) return;
-    this.collateralService.retrieveCollateralDetails(this.loanId).subscribe({
+    this.collateralService.getLoansLoanIdCollaterals(this.loanId).subscribe({
       next: (data) => {
         this.collaterals = data || [];
       },
@@ -134,10 +134,12 @@ export class CollateralListComponent implements OnInit {
       collateral.id &&
       confirm('Are you sure you want to delete this collateral?')
     ) {
-      this.collateralService.deleteCollateral(this.loanId, collateral.id).subscribe({
-        next: () => this.loadCollaterals(),
-        error: (err) => console.error('Failed to delete collateral', err),
-      });
+      this.collateralService
+        .deleteLoansLoanIdCollateralsCollateralId(this.loanId, collateral.id)
+        .subscribe({
+          next: () => this.loadCollaterals(),
+          error: (err) => console.error('Failed to delete collateral', err),
+        });
     }
   }
 }

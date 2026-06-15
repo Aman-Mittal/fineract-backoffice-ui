@@ -26,7 +26,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { NotesService, NoteRequest } from '../../../api';
+import { NotesService, NoteCreateRequest } from '../../../api';
 
 @Component({
   selector: 'app-client-note-form',
@@ -110,7 +110,7 @@ export class ClientNoteFormComponent implements OnInit {
   noteId?: number;
   isEditMode = false;
 
-  note: NoteRequest = {
+  note: NoteCreateRequest = {
     note: '',
   };
 
@@ -125,24 +125,30 @@ export class ClientNoteFormComponent implements OnInit {
   }
 
   loadNoteData(): void {
-    this.noteService.retrieveNote('clients', this.clientId, this.noteId!).subscribe((data) => {
-      this.note = {
-        note: data.note,
-      };
-    });
+    this.noteService
+      .getResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!)
+      .subscribe((data) => {
+        this.note = {
+          note: data.note ?? '',
+        };
+      });
   }
 
   onSubmit(): void {
     if (this.isEditMode) {
-      this.noteService.updateNote('clients', this.clientId, this.noteId!, this.note).subscribe({
-        next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-        error: (err) => console.error('Failed to update note', err),
-      });
+      this.noteService
+        .putResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!, this.note)
+        .subscribe({
+          next: () => this.router.navigate([this.clientViewPath, this.clientId]),
+          error: (err) => console.error('Failed to update note', err),
+        });
     } else {
-      this.noteService.addNewNote('clients', this.clientId, this.note).subscribe({
-        next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-        error: (err) => console.error('Failed to add note', err),
-      });
+      this.noteService
+        .postResourceTypeResourceIdNotes('clients', this.clientId, this.note)
+        .subscribe({
+          next: () => this.router.navigate([this.clientViewPath, this.clientId]),
+          error: (err) => console.error('Failed to add note', err),
+        });
     }
   }
 

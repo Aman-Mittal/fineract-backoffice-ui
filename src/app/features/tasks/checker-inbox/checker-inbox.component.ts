@@ -116,7 +116,7 @@ export class CheckerInboxComponent {
       .pipe(
         startWith({}),
         switchMap(() =>
-          this.makerCheckerService.retrieveCommands().pipe(
+          this.makerCheckerService.getMakercheckers().pipe(
             catchError(() => {
               this.snackBar.open('Error fetching pending tasks', 'Close', { duration: 3000 });
               return of([]);
@@ -149,7 +149,7 @@ export class CheckerInboxComponent {
   }
 
   onApprove(task: Record<string, unknown>) {
-    this.makerCheckerService.approveMakerCheckerEntry(task['id'] as number, 'approve').subscribe({
+    this.makerCheckerService.postMakercheckersAuditId(task['id'] as number, 'approve').subscribe({
       next: () => {
         this.snackBar.open('Task approved successfully', 'Close', { duration: 3000 });
         this.refreshSubject.next();
@@ -162,7 +162,7 @@ export class CheckerInboxComponent {
 
   onReject(task: Record<string, unknown>) {
     if (confirm('Are you sure you want to reject this task?')) {
-      this.makerCheckerService.deleteMakerCheckerEntry(task['id'] as number).subscribe({
+      this.makerCheckerService.deleteMakercheckersAuditId(task['id'] as number).subscribe({
         next: () => {
           this.snackBar.open('Task rejected successfully', 'Close', { duration: 3000 });
           this.refreshSubject.next();

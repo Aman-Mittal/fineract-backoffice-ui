@@ -40,8 +40,8 @@ describe('AccountingClosureFormComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', ['createGLClosure']);
-    officeServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
+    closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', ['postGlclosures']);
+    officeServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -53,7 +53,7 @@ describe('AccountingClosureFormComponent', () => {
         provideNoopAnimations(),
       ],
     }).compileComponents();
-    officeServiceSpy.retrieveOffices.and.returnValue(
+    officeServiceSpy.getOffices.and.returnValue(
       of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
     );
     fixture = TestBed.createComponent(AccountingClosureFormComponent);
@@ -70,13 +70,13 @@ describe('AccountingClosureFormComponent', () => {
     component.closingDate = new Date(2026, 4, 31);
     component.request.comments = 'Monthly closure';
 
-    closureServiceSpy.createGLClosure.and.returnValue(
+    closureServiceSpy.postGlclosures.and.returnValue(
       of({}) as unknown as Observable<HttpEvent<PostGlClosuresResponse>>,
     );
 
     component.onSubmit();
 
-    expect(closureServiceSpy.createGLClosure).toHaveBeenCalledWith(
+    expect(closureServiceSpy.postGlclosures).toHaveBeenCalledWith(
       jasmine.objectContaining({
         officeId: 1,
         closingDate: '2026-05-31',

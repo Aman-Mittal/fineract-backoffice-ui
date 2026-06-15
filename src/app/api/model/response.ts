@@ -27,7 +27,7 @@ import { Question } from './question';
 
 
 export interface Response { 
-    id?: number;
+    id?: number | null;
     'new'?: boolean;
     question?: Question;
     sequenceNo?: number;

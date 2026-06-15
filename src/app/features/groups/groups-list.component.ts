@@ -118,7 +118,7 @@ export class GroupsListComponent {
 
           // Signature: officeId, staffId, externalId, name, underHierarchy, paged, offset, limit, orderBy, sortOrder, orphansOnly
           return this.groupsService
-            .retrieveAll24(
+            .getGroups(
               undefined,
               undefined,
               undefined,

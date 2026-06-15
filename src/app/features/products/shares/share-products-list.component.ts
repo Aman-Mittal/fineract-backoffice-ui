@@ -87,7 +87,7 @@ export class ShareProductsListComponent implements OnInit {
   loadProducts() {
     this.isLoading = true;
     this.productService
-      .retrieveAllProducts('share')
+      .getProductsType('share')
       .pipe(catchError(() => of({ pageItems: [] } as unknown as GetProductsTypeResponse)))
       .subscribe((response: GetProductsTypeResponse) => {
         this.products = Array.from(response.pageItems || []);

@@ -251,7 +251,7 @@ export class HolidayFormComponent implements OnInit {
   }
 
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe({
+    this.officesService.getOffices(true).subscribe({
       next: (data) => {
         this.offices = data || [];
       },
@@ -263,7 +263,7 @@ export class HolidayFormComponent implements OnInit {
   }
 
   private loadReschedulingOptions(): void {
-    this.holidaysService.retrieveRepaymentScheduleUpdationTyeOptions().subscribe({
+    this.holidaysService.getHolidaysTemplate().subscribe({
       next: (data) => {
         try {
           const parsed = typeof data === 'string' ? JSON.parse(data) : data;
@@ -328,7 +328,7 @@ export class HolidayFormComponent implements OnInit {
       payload['repaymentsRescheduledTo'] = this.formatDate(this.repaymentsRescheduledTo);
     }
 
-    this.holidaysService.createNewHoliday(payload as PostHolidaysRequest).subscribe({
+    this.holidaysService.postHolidays(payload as PostHolidaysRequest).subscribe({
       next: () => {
         this.snackBar.open('Holiday created successfully', 'Close', { duration: 3000 });
         this.router.navigate([this.LIST_PATH]);

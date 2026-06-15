@@ -30,7 +30,6 @@ import { ExternalId } from './externalId';
 import { Staff } from './staff';
 import { CodeValue } from './codeValue';
 import { AppUser } from './appUser';
-import { Image } from './image';
 
 
 export interface Client { 
@@ -54,9 +53,9 @@ export interface Client {
     fullname?: string;
     gender?: CodeValue;
     groups?: Set<Group>;
-    id?: number;
+    id?: number | null;
     identifiers?: Set<ClientIdentifier>;
-    image?: Image;
+    imageId?: number;
     lastModifiedBy: number;
     lastModifiedDate: string;
     lastname?: string;
@@ -66,7 +65,6 @@ export interface Client {
     'new'?: boolean;
     notActive?: boolean;
     notPending?: boolean;
-    notStaff?: boolean;
     office?: Office;
     officeJoiningDate?: string;
     pending?: boolean;

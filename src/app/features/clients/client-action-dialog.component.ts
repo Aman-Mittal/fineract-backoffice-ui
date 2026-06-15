@@ -158,10 +158,10 @@ export class ClientActionDialogComponent implements OnInit {
   }
 
   private loadReasons(codeName: string): void {
-    this.codesService.retrieveCodeByName(codeName).subscribe({
+    this.codesService.getCodesNameCodeName(codeName).subscribe({
       next: (code) => {
         if (code.id) {
-          this.codeValuesService.retrieveAllCodeValues(code.id).subscribe({
+          this.codeValuesService.getCodesCodeIdCodevalues(code.id).subscribe({
             next: (values) => (this.reasonOptions = values),
           });
         }

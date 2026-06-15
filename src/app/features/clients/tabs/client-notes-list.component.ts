@@ -140,7 +140,7 @@ export class ClientNotesListComponent implements OnInit {
 
   loadNotes(): void {
     this.isLoading.set(true);
-    this.noteService.retrieveNotesByResource('clients', this.clientId).subscribe({
+    this.noteService.getResourceTypeResourceIdNotes('clients', this.clientId).subscribe({
       next: (data: NoteData[]) => {
         this.notes.set(data);
         this.isLoading.set(false);
@@ -154,10 +154,12 @@ export class ClientNotesListComponent implements OnInit {
 
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this note?')) {
-      this.noteService.deleteNote('clients', this.clientId, id).subscribe({
-        next: () => this.loadNotes(),
-        error: (err) => console.error('Failed to delete note', err),
-      });
+      this.noteService
+        .deleteResourceTypeResourceIdNotesNoteId('clients', this.clientId, id)
+        .subscribe({
+          next: () => this.loadNotes(),
+          error: (err) => console.error('Failed to delete note', err),
+        });
     }
   }
 }

@@ -189,7 +189,7 @@ export class AssetOwnerViewComponent implements OnInit {
 
     // Get basic transfer details using transferExternalId
     this.transfer$ = this.assetOwnersService
-      .getTransfers(transferExternalId, undefined, undefined, 0, 1)
+      .getExternalAssetOwnersTransfers(transferExternalId, undefined, undefined, 0, 1)
       .pipe(
         map((page: PageExternalTransferData) => page.content?.[0] || {}),
         catchError(() => of({} as ExternalTransferData)),
@@ -199,13 +199,15 @@ export class AssetOwnerViewComponent implements OnInit {
     this.journalEntries$ = this.transfer$.pipe(
       switchMap((transfer) => {
         if (transfer.transferId) {
-          return this.assetOwnersService.getJournalEntriesOfTransfer(transfer.transferId).pipe(
-            map(
-              (response: ExternalOwnerTransferJournalEntryData) =>
-                response.journalEntryData?.content || [],
-            ),
-            catchError(() => of([])),
-          );
+          return this.assetOwnersService
+            .getExternalAssetOwnersTransfersTransferIdJournalEntries(transfer.transferId)
+            .pipe(
+              map(
+                (response: ExternalOwnerTransferJournalEntryData) =>
+                  response.journalEntryData?.content || [],
+              ),
+              catchError(() => of([])),
+            );
         }
         return of([]);
       }),

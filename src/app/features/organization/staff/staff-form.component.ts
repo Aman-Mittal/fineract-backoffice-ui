@@ -34,8 +34,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import {
   StaffService,
-  StaffRequest,
-  PutStaffRequest,
+  StaffCreateRequest,
+  StaffUpdateRequest,
   OfficesService,
   GetOfficesResponse,
 } from '../../../api';
@@ -225,7 +225,7 @@ export class StaffFormComponent implements OnInit {
   offices = signal<GetOfficesResponse[]>([]);
   joiningDate: Date = new Date();
 
-  staff: StaffRequest = {
+  staff: Partial<StaffCreateRequest> = {
     officeId: undefined,
     firstname: '',
     lastname: '',
@@ -246,11 +246,11 @@ export class StaffFormComponent implements OnInit {
   }
 
   loadOffices(): void {
-    this.officesService.retrieveOffices().subscribe((data) => this.offices.set(data));
+    this.officesService.getOffices().subscribe((data) => this.offices.set(data));
   }
 
   loadStaffData(): void {
-    this.staffService.retrieveOne8(this.staffId!).subscribe((data) => {
+    this.staffService.getStaffStaffId(this.staffId!).subscribe((data) => {
       this.staff = {
         officeId: data.officeId,
         firstname: data.firstname,
@@ -269,22 +269,22 @@ export class StaffFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.isEditMode) {
-      const updatePayload: PutStaffRequest = {
+      const updatePayload: StaffUpdateRequest = {
         externalId: this.staff.externalId,
         isLoanOfficer: this.staff.isLoanOfficer,
       };
-      this.staffService.update7(this.staffId!, updatePayload).subscribe({
+      this.staffService.putStaffStaffId(this.staffId!, updatePayload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
         error: (err) => console.error('Failed to update staff', err),
       });
     } else {
-      const payload: StaffRequest = {
+      const payload = {
         ...this.staff,
         joiningDate: formatDateToFineract(this.joiningDate),
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
-      };
-      this.staffService.create3(payload).subscribe({
+      } as StaffCreateRequest;
+      this.staffService.postStaff(payload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
         error: (err) => console.error('Failed to create staff', err),
       });

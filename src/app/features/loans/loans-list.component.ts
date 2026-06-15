@@ -209,7 +209,7 @@ export class LoansListComponent {
           const status = this.activeFilters.status;
 
           return this.loansService
-            .retrieveAll27(
+            .getLoans(
               undefined,
               offset,
               limit,

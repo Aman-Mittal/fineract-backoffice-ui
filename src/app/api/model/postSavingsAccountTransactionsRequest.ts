@@ -30,6 +30,8 @@
  */
 export interface PostSavingsAccountTransactionsRequest { 
     dateFormat?: string;
+    externalId?: string;
+    isPostInterestAsOn?: boolean;
     lienAllowed?: string;
     locale?: string;
     paymentTypeId?: number;

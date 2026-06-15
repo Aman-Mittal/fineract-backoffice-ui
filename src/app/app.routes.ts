@@ -269,6 +269,69 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/tax-components',
+        loadComponent: () =>
+          import('./features/products/tax-components/tax-components-list.component').then(
+            (m) => m.TaxComponentsListComponent,
+          ),
+      },
+      {
+        path: 'products/tax-components/create',
+        loadComponent: () =>
+          import('./features/products/tax-components/tax-component-form.component').then(
+            (m) => m.TaxComponentFormComponent,
+          ),
+      },
+      {
+        path: 'products/tax-components/edit/:id',
+        loadComponent: () =>
+          import('./features/products/tax-components/tax-component-form.component').then(
+            (m) => m.TaxComponentFormComponent,
+          ),
+      },
+      {
+        path: 'products/tax-groups',
+        loadComponent: () =>
+          import('./features/products/tax-groups/tax-groups-list.component').then(
+            (m) => m.TaxGroupsListComponent,
+          ),
+      },
+      {
+        path: 'products/tax-groups/create',
+        loadComponent: () =>
+          import('./features/products/tax-groups/tax-group-form.component').then(
+            (m) => m.TaxGroupFormComponent,
+          ),
+      },
+      {
+        path: 'products/tax-groups/edit/:id',
+        loadComponent: () =>
+          import('./features/products/tax-groups/tax-group-form.component').then(
+            (m) => m.TaxGroupFormComponent,
+          ),
+      },
+      {
+        path: 'products/floating-rates',
+        loadComponent: () =>
+          import('./features/products/floating-rates/floating-rates-list.component').then(
+            (m) => m.FloatingRatesListComponent,
+          ),
+      },
+      {
+        path: 'products/floating-rates/create',
+        loadComponent: () =>
+          import('./features/products/floating-rates/floating-rate-form.component').then(
+            (m) => m.FloatingRateFormComponent,
+          ),
+      },
+      {
+        path: 'products/floating-rates/edit/:id',
+        loadComponent: () =>
+          import('./features/products/floating-rates/floating-rate-form.component').then(
+            (m) => m.FloatingRateFormComponent,
+          ),
+      },
+      {
         path: 'products/savings-accounts',
         loadComponent: () =>
           import('./features/products/savings-accounts-list.component').then(
@@ -644,6 +707,48 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/organization/offices/office-form.component').then(
             (m) => m.OfficeFormComponent,
+          ),
+      },
+      {
+        path: 'organization/funds',
+        loadComponent: () =>
+          import('./features/organization/funds/funds-list.component').then(
+            (m) => m.FundsListComponent,
+          ),
+      },
+      {
+        path: 'organization/funds/create',
+        loadComponent: () =>
+          import('./features/organization/funds/fund-form.component').then(
+            (m) => m.FundFormComponent,
+          ),
+      },
+      {
+        path: 'organization/funds/edit/:id',
+        loadComponent: () =>
+          import('./features/organization/funds/fund-form.component').then(
+            (m) => m.FundFormComponent,
+          ),
+      },
+      {
+        path: 'organization/payment-types',
+        loadComponent: () =>
+          import('./features/organization/payment-types/payment-types-list.component').then(
+            (m) => m.PaymentTypesListComponent,
+          ),
+      },
+      {
+        path: 'organization/payment-types/create',
+        loadComponent: () =>
+          import('./features/organization/payment-types/payment-type-form.component').then(
+            (m) => m.PaymentTypeFormComponent,
+          ),
+      },
+      {
+        path: 'organization/payment-types/edit/:id',
+        loadComponent: () =>
+          import('./features/organization/payment-types/payment-type-form.component').then(
+            (m) => m.PaymentTypeFormComponent,
           ),
       },
       {

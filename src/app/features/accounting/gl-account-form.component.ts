@@ -238,7 +238,7 @@ export class GLAccountFormComponent implements OnInit {
 
   loadAccountData() {
     if (!this.accountId) return;
-    this.accountService.retreiveAccount(this.accountId).subscribe((data) => {
+    this.accountService.getGlaccountsGlAccountId(this.accountId).subscribe((data) => {
       this.account = {
         name: data.name,
         glCode: data.glCode,
@@ -254,13 +254,13 @@ export class GLAccountFormComponent implements OnInit {
     this.isSaving = true;
     if (this.isEditMode && this.accountId) {
       this.accountService
-        .updateGLAccount1(this.accountId, this.account as PutGLAccountsRequest)
+        .putGlaccountsGlAccountId(this.accountId, this.account as PutGLAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
-      this.accountService.createGLAccount1(this.account).subscribe({
+      this.accountService.postGlaccounts(this.account).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

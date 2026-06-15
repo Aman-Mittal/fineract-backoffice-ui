@@ -250,7 +250,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
   }
 
   loadTemplate(): void {
-    this.familyService.getTemplate2(this.clientId).subscribe((data) => {
+    this.familyService.getClientsClientIdFamilymembersTemplate(this.clientId).subscribe((data) => {
       this.relationshipOptions.set(data.relationshipIdOptions || []);
       this.genderOptions.set(data.genderIdOptions || []);
       this.maritalStatusOptions.set(data.maritalStatusIdOptions || []);
@@ -259,25 +259,27 @@ export class ClientFamilyMemberFormComponent implements OnInit {
   }
 
   loadMemberData(): void {
-    this.familyService.getFamilyMember(this.memberId!, this.clientId).subscribe((data) => {
-      this.member = {
-        firstName: data.firstName,
-        middleName: data.middleName,
-        lastName: data.lastName,
-        relationshipId: data.relationshipId,
-        genderId: data.genderId,
-        maritalStatusId: data.maritalStatusId,
-        professionId: data.professionId,
-        qualification: data.qualification,
-        mobileNumber: data.mobileNumber,
-        age: data.age,
-        isDependent: data.isDependent,
-      };
-      if (data.dateOfBirth) {
-        const dob = data.dateOfBirth as unknown as number[];
-        this.dateOfBirth = new Date(dob[0], dob[1] - 1, dob[2]);
-      }
-    });
+    this.familyService
+      .getClientsClientIdFamilymembersFamilyMemberId(this.memberId!, this.clientId)
+      .subscribe((data) => {
+        this.member = {
+          firstName: data.firstName,
+          middleName: data.middleName,
+          lastName: data.lastName,
+          relationshipId: data.relationshipId,
+          genderId: data.genderId,
+          maritalStatusId: data.maritalStatusId,
+          professionId: data.professionId,
+          qualification: data.qualification,
+          mobileNumber: data.mobileNumber,
+          age: data.age,
+          isDependent: data.isDependent,
+        };
+        if (data.dateOfBirth) {
+          const dob = data.dateOfBirth as unknown as number[];
+          this.dateOfBirth = new Date(dob[0], dob[1] - 1, dob[2]);
+        }
+      });
   }
 
   onSubmit(): void {
@@ -290,13 +292,13 @@ export class ClientFamilyMemberFormComponent implements OnInit {
 
     if (this.isEditMode) {
       this.familyService
-        .updateClientFamilyMembers(this.memberId!, this.clientId, payload)
+        .putClientsClientIdFamilymembersFamilyMemberId(this.memberId!, this.clientId, payload)
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to update family member', err),
         });
     } else {
-      this.familyService.addClientFamilyMembers(this.clientId, payload).subscribe({
+      this.familyService.postClientsClientIdFamilymembers(this.clientId, payload).subscribe({
         next: () => this.router.navigate([this.clientViewPath, this.clientId]),
         error: (err) => console.error('Failed to add family member', err),
       });

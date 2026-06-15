@@ -474,7 +474,7 @@ export class ShareAccountFormComponent implements OnInit {
       this.filteredSavingsAccounts = [];
       return;
     }
-    this.shareService.template7('share', clientId, productId).subscribe({
+    this.shareService.getAccountsTypeTemplate('share', clientId, productId).subscribe({
       next: (template: ShareAccountTemplateResponse) => {
         if (template.productOptions) {
           this.products = Array.from(template.productOptions);
@@ -491,7 +491,7 @@ export class ShareAccountFormComponent implements OnInit {
    */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.shareService.retrieveAccount(this.accountId, 'share').subscribe({
+    this.shareService.getAccountsTypeAccountId(this.accountId, 'share').subscribe({
       next: (data: GetAccountsTypeAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -533,12 +533,12 @@ export class ShareAccountFormComponent implements OnInit {
         savingsAccountId: this.account.savingsAccountId,
       };
 
-      this.shareService.updateAccount('share', this.accountId, payload).subscribe({
+      this.shareService.putAccountsTypeAccountId('share', this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.shareService.createAccount('share', this.account).subscribe({
+      this.shareService.postAccountsType('share', this.account).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

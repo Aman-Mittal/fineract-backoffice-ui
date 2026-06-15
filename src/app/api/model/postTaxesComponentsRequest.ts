@@ -29,9 +29,11 @@
  * PostTaxesComponentsRequest
  */
 export interface PostTaxesComponentsRequest { 
+    creditAccountId?: number;
     creditAccountType?: number;
-    creditAcountId?: number;
     dateFormat?: string;
+    debitAccountId?: number;
+    debitAccountType?: number;
     locale?: string;
     name?: string;
     percentage?: number;

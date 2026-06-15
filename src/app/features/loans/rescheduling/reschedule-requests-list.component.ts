@@ -115,14 +115,12 @@ export class RescheduleRequestsListComponent implements OnInit {
   }
 
   private loadRequests(): void {
-    this.rescheduleService
-      .retrieveAllRescheduleRequest(undefined, this.loanId || undefined)
-      .subscribe({
-        next: (data) => {
-          this.requests = data || [];
-        },
-        error: (err) => console.error('Failed to load reschedule requests', err),
-      });
+    this.rescheduleService.getRescheduleloans(undefined, this.loanId || undefined).subscribe({
+      next: (data) => {
+        this.requests = data || [];
+      },
+      error: (err) => console.error('Failed to load reschedule requests', err),
+    });
   }
 
   onCreateRequest(): void {

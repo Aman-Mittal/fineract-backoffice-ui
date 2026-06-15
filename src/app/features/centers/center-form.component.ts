@@ -277,7 +277,7 @@ export class CenterFormComponent implements OnInit {
    * Retrieves the list of available offices.
    */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
@@ -287,7 +287,7 @@ export class CenterFormComponent implements OnInit {
    */
   private loadCenterData(): void {
     if (!this.centerId) return;
-    this.centersService.retrieveOne14(this.centerId).subscribe((data) => {
+    this.centersService.getCentersCenterId(this.centerId).subscribe((data) => {
       this.originalActive = !!(data as Record<string, unknown>)['active'];
       this.center = {
         name: data.name,
@@ -312,7 +312,7 @@ export class CenterFormComponent implements OnInit {
     };
 
     this.centersService
-      .activate2(this.centerId, payload as PostCentersCenterIdRequest, 'activate')
+      .postCentersCenterId(this.centerId, payload as PostCentersCenterIdRequest, 'activate')
       .subscribe({
         next: () => {
           this.isSaving = false;
@@ -333,7 +333,7 @@ export class CenterFormComponent implements OnInit {
       const payload: PutCentersCenterIdRequest = {
         name: this.center.name,
       };
-      this.centersService.update12(this.centerId, payload).subscribe({
+      this.centersService.putCentersCenterId(this.centerId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -350,7 +350,7 @@ export class CenterFormComponent implements OnInit {
         locale: 'en',
       };
 
-      this.centersService.create7(payload as PostCentersRequest).subscribe({
+      this.centersService.postCenters(payload as PostCentersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

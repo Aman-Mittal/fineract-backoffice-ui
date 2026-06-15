@@ -450,7 +450,7 @@ export class LoanFormComponent implements OnInit {
    * Fetches loan products from the API.
    */
   private loadProducts() {
-    this.productService.retrieveAllLoanProducts().subscribe({
+    this.productService.getLoanproducts().subscribe({
       next: (data: GetLoanProductsResponse[]) => (this.products = data || []),
       error: (err: unknown) => console.error('Failed to load products', err),
     });
@@ -461,7 +461,7 @@ export class LoanFormComponent implements OnInit {
    */
   private loadLoanData() {
     if (!this.loanId) return;
-    this.loansService.retrieveLoan(this.loanId).subscribe({
+    this.loansService.getLoansLoanId(this.loanId).subscribe({
       next: (data: GetLoansLoanIdResponse) => {
         const subDateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (subDateArray) {
@@ -516,14 +516,12 @@ export class LoanFormComponent implements OnInit {
     }
 
     if (this.isEditMode && this.loanId) {
-      this.loansService
-        .modifyLoanApplication(this.loanId, this.loan as PutLoansLoanIdRequest)
-        .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
-        });
+      this.loansService.putLoansLoanId(this.loanId, this.loan as PutLoansLoanIdRequest).subscribe({
+        next: () => this.router.navigate([this.LIST_PATH]),
+        error: () => (this.isSaving = false),
+      });
     } else {
-      this.loansService.calculateLoanScheduleOrSubmitLoanApplication(this.loan).subscribe({
+      this.loansService.postLoans(this.loan).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

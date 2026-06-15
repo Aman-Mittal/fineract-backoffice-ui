@@ -274,7 +274,7 @@ export class GroupFormComponent implements OnInit {
    * Retrieves the list of available offices.
    */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
@@ -284,7 +284,7 @@ export class GroupFormComponent implements OnInit {
    */
   private loadGroupData(): void {
     if (!this.groupId) return;
-    this.groupsService.retrieveOne15(this.groupId).subscribe((data) => {
+    this.groupsService.getGroupsGroupId(this.groupId).subscribe((data) => {
       this.originalActive = !!(data as Record<string, unknown>)['active'];
       this.group = {
         name: data.name,
@@ -309,11 +309,7 @@ export class GroupFormComponent implements OnInit {
     };
 
     this.groupsService
-      .activateOrGenerateCollectionSheet(
-        this.groupId,
-        payload as PostGroupsGroupIdRequest,
-        'activate',
-      )
+      .postGroupsGroupId(this.groupId, payload as PostGroupsGroupIdRequest, 'activate')
       .subscribe({
         next: () => {
           this.isSaving = false;
@@ -334,7 +330,7 @@ export class GroupFormComponent implements OnInit {
       const payload: PutGroupsGroupIdRequest = {
         name: this.group.name,
       };
-      this.groupsService.update13(this.groupId, payload).subscribe({
+      this.groupsService.putGroupsGroupId(this.groupId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -351,7 +347,7 @@ export class GroupFormComponent implements OnInit {
         locale: 'en',
       };
 
-      this.groupsService.create8(payload as PostGroupsRequest).subscribe({
+      this.groupsService.postGroups(payload as PostGroupsRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

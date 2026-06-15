@@ -29,6 +29,7 @@
  * PostSavingsAccountBulkReversalTransactionsRequest
  */
 export interface PostSavingsAccountBulkReversalTransactionsRequest { 
+    externalId?: string;
     isBulk?: string;
 }
 

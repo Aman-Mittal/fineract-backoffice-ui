@@ -177,7 +177,7 @@ export class BulkImportComponent implements OnInit {
 
   loadImportHistory(): void {
     this.isLoading.set(true);
-    this.bulkImportService.retrieveImportDocuments(this.selectedEntity).subscribe({
+    this.bulkImportService.getImports(this.selectedEntity).subscribe({
       next: (data: unknown) => {
         const result = (typeof data === 'string' ? JSON.parse(data) : data) as Record<
           string,
@@ -211,16 +211,25 @@ export class BulkImportComponent implements OnInit {
 
     switch (this.selectedEntity) {
       case 'clients':
-        upload$ = this.clientService.postClientTemplate(undefined, this.dateFormat, 'en', file);
+        upload$ = this.clientService.postClientsUploadtemplate(
+          undefined,
+          this.dateFormat,
+          'en',
+          file,
+        );
         break;
       case 'loans':
-        upload$ = this.loansService.postLoanTemplate(this.dateFormat, 'en', file);
+        upload$ = this.loansService.postLoansUploadtemplate(this.dateFormat, 'en', file);
         break;
       case 'savingsaccounts':
-        upload$ = this.savingsService.postSavingsTemplate(this.dateFormat, 'en', file);
+        upload$ = this.savingsService.postSavingsaccountsUploadtemplate(
+          this.dateFormat,
+          'en',
+          file,
+        );
         break;
       case 'glaccounts':
-        upload$ = this.journalEntriesService.postJournalEntriesTemplate(
+        upload$ = this.journalEntriesService.postJournalentriesUploadtemplate(
           this.dateFormat,
           'en',
           file,
@@ -242,13 +251,15 @@ export class BulkImportComponent implements OnInit {
   }
 
   onDownloadResult(id: string): void {
-    this.bulkImportService.getOutputTemplate(id).subscribe((blob: unknown) => {
-      const url = window.URL.createObjectURL(blob as Blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `import_result_${id}.xlsx`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    });
+    this.bulkImportService
+      .getImportsDownloadOutputTemplate(Number(id))
+      .subscribe((blob: unknown) => {
+        const url = window.URL.createObjectURL(blob as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `import_result_${id}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
   }
 }

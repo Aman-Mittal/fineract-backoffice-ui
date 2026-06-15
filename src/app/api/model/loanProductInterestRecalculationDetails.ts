@@ -35,7 +35,7 @@ export interface LoanProductInterestRecalculationDetails {
     compoundingFrequencyWeekday?: number;
     compoundingInterval?: number;
     disallowInterestCalculationOnPastDue?: boolean;
-    id?: number;
+    id?: number | null;
     interestRecalculationCompoundingMethod?: number;
     isCompoundingToBePostedAsTransaction?: boolean;
     loanProduct?: LoanProduct;

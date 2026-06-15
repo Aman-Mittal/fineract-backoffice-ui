@@ -337,7 +337,7 @@ export class AccountTransferFormComponent implements OnInit {
   }
 
   loadOffices(): void {
-    this.officesService.retrieveOffices().subscribe((data) => {
+    this.officesService.getOffices().subscribe((data) => {
       this.offices.set(data);
       if (!this.request.fromOfficeId && data.length > 0) {
         this.request.fromOfficeId = data[0].id?.toString();
@@ -354,7 +354,7 @@ export class AccountTransferFormComponent implements OnInit {
     const officeIdStr = type === 'from' ? this.request.fromOfficeId : this.request.toOfficeId;
     const officeId = officeIdStr ? Number(officeIdStr) : undefined;
     this.clientService
-      .retrieveAll21(
+      .getClients(
         officeId,
         undefined,
         undefined,
@@ -389,7 +389,7 @@ export class AccountTransferFormComponent implements OnInit {
 
     if (!clientId) return;
 
-    this.clientService.retrieveAssociatedAccounts(clientId).subscribe((data) => {
+    this.clientService.getClientsClientIdAccounts(clientId).subscribe((data) => {
       if (accountType === '2') {
         const savings = Array.from(data.savingsAccounts || []) as unknown as MiniAccount[];
         if (type === 'from') this.fromAccounts.set(savings);
@@ -421,7 +421,7 @@ export class AccountTransferFormComponent implements OnInit {
       locale: FINERACT_LOCALE,
     };
 
-    this.transfersService.create4(payload).subscribe({
+    this.transfersService.postAccounttransfers(payload).subscribe({
       next: () => {
         this.router.navigate(['/clients/view', this.request.fromClientId]);
       },

@@ -19,6 +19,11 @@
 
 import { test, expect } from '@playwright/test';
 
+const HEAD_OFFICE = HEAD_OFFICE;
+const ALICE_SMITH = ALICE_SMITH;
+const KEVIN_BACON = KEVIN_BACON;
+const MAT_CARD_TITLE = MAT_CARD_TITLE;
+
 test.describe('Report Enhancements, Pagination, and Help Tour', () => {
   test.beforeEach(async ({ page }) => {
     // Intercept config.json
@@ -44,7 +49,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
           base64EncodedAuthenticationKey: 'YmFzZTY0',
           authenticated: true,
           officeId: 1,
-          officeName: 'Head Office',
+          officeName: HEAD_OFFICE,
           roles: [{ id: 1, name: 'Super User', description: 'Super user' }],
           permissions: ['ALL_FUNCTIONS'],
         }),
@@ -59,8 +64,8 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
         body: JSON.stringify([
           {
             id: 1,
-            name: 'Head Office',
-            nameDecorated: 'Head Office',
+            name: HEAD_OFFICE,
+            nameDecorated: HEAD_OFFICE,
             externalId: '1',
             openingDate: [2009, 1, 1],
             hierarchy: '.',
@@ -100,18 +105,18 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
             { columnName: 'Activation Date', columnType: 'DATE' },
           ],
           data: [
-            { row: [101, 'Alice Smith', 'Head Office', [2021, 5, 10]] },
-            { row: [102, 'Bob Jones', 'Head Office', [2021, 6, 12]] },
-            { row: [103, 'Charlie Brown', 'Head Office', [2021, 7, 15]] },
-            { row: [104, 'Diana Prince', 'Head Office', [2021, 8, 20]] },
-            { row: [105, 'Evan Wright', 'Head Office', [2021, 9, 25]] },
-            { row: [106, 'Fiona Gallagher', 'Head Office', [2021, 10, 30]] },
-            { row: [107, 'George Costanza', 'Head Office', [2021, 11, 5]] },
-            { row: [108, 'Hannah Baker', 'Head Office', [2021, 12, 10]] },
-            { row: [109, 'Ian Malcolm', 'Head Office', [2022, 1, 15]] },
-            { row: [110, 'Julia Roberts', 'Head Office', [2022, 2, 20]] },
-            { row: [111, 'Kevin Bacon', 'Head Office', [2022, 3, 25]] },
-            { row: [112, 'Lois Lane', 'Head Office', [2022, 4, 30]] },
+            { row: [101, ALICE_SMITH, HEAD_OFFICE, [2021, 5, 10]] },
+            { row: [102, 'Bob Jones', HEAD_OFFICE, [2021, 6, 12]] },
+            { row: [103, 'Charlie Brown', HEAD_OFFICE, [2021, 7, 15]] },
+            { row: [104, 'Diana Prince', HEAD_OFFICE, [2021, 8, 20]] },
+            { row: [105, 'Evan Wright', HEAD_OFFICE, [2021, 9, 25]] },
+            { row: [106, 'Fiona Gallagher', HEAD_OFFICE, [2021, 10, 30]] },
+            { row: [107, 'George Costanza', HEAD_OFFICE, [2021, 11, 5]] },
+            { row: [108, 'Hannah Baker', HEAD_OFFICE, [2021, 12, 10]] },
+            { row: [109, 'Ian Malcolm', HEAD_OFFICE, [2022, 1, 15]] },
+            { row: [110, 'Julia Roberts', HEAD_OFFICE, [2022, 2, 20]] },
+            { row: [111, KEVIN_BACON, HEAD_OFFICE, [2022, 3, 25]] },
+            { row: [112, 'Lois Lane', HEAD_OFFICE, [2022, 4, 30]] },
           ],
         }),
       });
@@ -130,7 +135,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Navigate to Reporting
     await page.getByRole('link', { name: 'Reports' }).click();
     await expect(page).toHaveURL('/reporting');
-    await expect(page.locator('mat-card-title').first()).toContainText('Reports');
+    await expect(page.locator(MAT_CARD_TITLE).first()).toContainText('Reports');
 
     // Run the report
     await page.locator('button[matTooltip="Run Report"]').first().click();
@@ -138,7 +143,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
 
     // Select an office and click Run
     await page.locator('mat-select').click();
-    await page.getByRole('option', { name: 'Head Office' }).click();
+    await page.getByRole('option', { name: HEAD_OFFICE }).click();
     await page.getByRole('button', { name: 'Run Report' }).click();
 
     // Verify report results are shown
@@ -148,9 +153,9 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Verify first page of data is rendered (10 rows limit)
     const tableRows = page.locator('table tbody tr');
     await expect(tableRows).toHaveCount(10);
-    await expect(page.locator('table')).toContainText('Alice Smith');
+    await expect(page.locator('table')).toContainText(ALICE_SMITH);
     await expect(page.locator('table')).toContainText('Julia Roberts');
-    await expect(page.locator('table')).not.toContainText('Kevin Bacon'); // Should be on page 2
+    await expect(page.locator('table')).not.toContainText(KEVIN_BACON); // Should be on page 2
 
     // Check pagination range label
     const paginatorRange = page.locator('.mat-mdc-paginator-range-label');
@@ -159,9 +164,9 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Navigate to the next page
     await page.locator('button[aria-label="Next page"]').click();
     await expect(tableRows).toHaveCount(2);
-    await expect(page.locator('table')).toContainText('Kevin Bacon');
+    await expect(page.locator('table')).toContainText(KEVIN_BACON);
     await expect(page.locator('table')).toContainText('Lois Lane');
-    await expect(page.locator('table')).not.toContainText('Alice Smith');
+    await expect(page.locator('table')).not.toContainText(ALICE_SMITH);
     await expect(paginatorRange).toContainText('11 – 12 of 12');
 
     // Intercept and assert the CSV download trigger
@@ -182,9 +187,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Verify tour card is visible
     const tourCard = page.locator('app-guidance-tour');
     await expect(tourCard).toBeVisible();
-    await expect(tourCard.locator('mat-card-title')).toContainText(
-      'Welcome to Fineract Backoffice',
-    );
+    await expect(tourCard.locator(MAT_CARD_TITLE)).toContainText('Welcome to Fineract Backoffice');
 
     // Click Next to proceed
     const nextBtn = page.getByRole('button', { name: 'Next' });
@@ -192,7 +195,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await nextBtn.click();
 
     // Card should update its header
-    await expect(tourCard.locator('mat-card-title')).toContainText('System Overview & Status');
+    await expect(tourCard.locator(MAT_CARD_TITLE)).toContainText('System Overview & Status');
 
     // Click Exit to close the tour
     const exitBtn = page.getByRole('button', { name: 'Exit' });

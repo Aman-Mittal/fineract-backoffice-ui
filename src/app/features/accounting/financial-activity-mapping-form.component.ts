@@ -132,7 +132,7 @@ export class FinancialActivityMappingFormComponent implements OnInit {
   }
 
   loadTemplate() {
-    this.financialActivityService.retrieveTemplate().subscribe((template) => {
+    this.financialActivityService.getFinancialactivityaccountsTemplate().subscribe((template) => {
       const templateData = template as Record<string, unknown>;
       this.activities =
         (templateData['financialActivityOptions'] as Record<string, unknown>[]) || [];
@@ -145,17 +145,19 @@ export class FinancialActivityMappingFormComponent implements OnInit {
   }
 
   loadMapping() {
-    this.financialActivityService.retreive(this.mappingId!).subscribe((mapping) => {
-      const mappingData = mapping as Record<string, unknown>;
-      const financialActivityData = mappingData['financialActivityData'] as
-        | Record<string, unknown>
-        | undefined;
-      const glAccountData = mappingData['glAccountData'] as Record<string, unknown> | undefined;
-      this.mappingForm.patchValue({
-        financialActivityId: financialActivityData?.['id'],
-        glAccountId: glAccountData?.['id'],
+    this.financialActivityService
+      .getFinancialactivityaccountsMappingId(this.mappingId!)
+      .subscribe((mapping) => {
+        const mappingData = mapping as Record<string, unknown>;
+        const financialActivityData = mappingData['financialActivityData'] as
+          | Record<string, unknown>
+          | undefined;
+        const glAccountData = mappingData['glAccountData'] as Record<string, unknown> | undefined;
+        this.mappingForm.patchValue({
+          financialActivityId: financialActivityData?.['id'],
+          glAccountId: glAccountData?.['id'],
+        });
       });
-    });
   }
 
   updateFilteredAccounts(activityId: number) {
@@ -178,11 +180,13 @@ export class FinancialActivityMappingFormComponent implements OnInit {
 
     const request = this.mappingForm.value;
     const obs = this.isEdit
-      ? (this.financialActivityService.updateGLAccount(
+      ? (this.financialActivityService.putFinancialactivityaccountsMappingId(
           this.mappingId!,
           request,
         ) as Observable<unknown>)
-      : (this.financialActivityService.createGLAccount(request) as Observable<unknown>);
+      : (this.financialActivityService.postFinancialactivityaccounts(
+          request,
+        ) as Observable<unknown>);
 
     obs.subscribe(() => {
       this.router.navigate(['/accounting/financial-activity-mappings']);

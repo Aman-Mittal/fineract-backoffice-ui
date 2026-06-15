@@ -102,7 +102,7 @@ export class SavingsProductsListComponent implements OnInit {
    */
   private loadProducts(): void {
     this.savingsProductService
-      .retrieveAll34()
+      .getSavingsproducts()
       .pipe(catchError(() => of([])))
       .subscribe((data: GetSavingsProductsResponse[]) => {
         this.products = data || [];

@@ -31,10 +31,10 @@ describe('ClientSearchComponent', () => {
   let clientServiceSpy: jasmine.SpyObj<ClientService>;
 
   beforeEach(async () => {
-    clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
+    clientServiceSpy = jasmine.createSpyObj('ClientService', ['getClients', 'getClientsClientId']);
 
     // Provide a default return value for all calls to retrieveAll21
-    clientServiceSpy.retrieveAll21.and.returnValue(
+    clientServiceSpy.getClients.and.returnValue(
       of({ pageItems: [] }) as unknown as Observable<HttpEvent<GetClientsResponse>>,
     );
 
@@ -59,19 +59,19 @@ describe('ClientSearchComponent', () => {
 
     // Set mock BEFORE detectChanges to catch initial startWith call if needed,
     // but we specifically want to test the change to 'John'.
-    clientServiceSpy.retrieveAll21.and.returnValue(
+    clientServiceSpy.getClients.and.returnValue(
       of(mockResponse) as unknown as Observable<HttpEvent<GetClientsResponse>>,
     );
 
     fixture.detectChanges(); // Trigger ngOnInit
     tick(300); // Handle initial startWith('') call
 
-    clientServiceSpy.retrieveAll21.calls.reset();
+    clientServiceSpy.getClients.calls.reset();
 
     component.searchControl.setValue('John');
     tick(300); // Debounce time
 
-    expect(clientServiceSpy.retrieveAll21).toHaveBeenCalledWith(
+    expect(clientServiceSpy.getClients).toHaveBeenCalledWith(
       undefined,
       undefined,
       'John%',

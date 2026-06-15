@@ -63,15 +63,15 @@ export class LoanCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteLoanCollateral(loanId: number, id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public deleteLoanCollateral(loanId: number, id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public deleteLoanCollateral(loanId: number, id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public deleteLoanCollateral(loanId: number, id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling deleteLoanCollateral.');
+            throw new Error('Required parameter loanId was null or undefined when calling deleteLoanCollateralManagementId.');
         }
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling deleteLoanCollateral.');
+            throw new Error('Required parameter id was null or undefined when calling deleteLoanCollateralManagementId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -129,12 +129,12 @@ export class LoanCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getLoanCollateral(collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCollateralResponseData>;
-    public getLoanCollateral(collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCollateralResponseData>>;
-    public getLoanCollateral(collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCollateralResponseData>>;
-    public getLoanCollateral(collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoanCollateralManagementCollateralId(collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCollateralResponseData>;
+    public getLoanCollateralManagementCollateralId(collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCollateralResponseData>>;
+    public getLoanCollateralManagementCollateralId(collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCollateralResponseData>>;
+    public getLoanCollateralManagementCollateralId(collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (collateralId === null || collateralId === undefined) {
-            throw new Error('Required parameter collateralId was null or undefined when calling getLoanCollateral.');
+            throw new Error('Required parameter collateralId was null or undefined when calling getLoanCollateralManagementCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;

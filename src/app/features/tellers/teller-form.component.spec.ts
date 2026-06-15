@@ -35,12 +35,12 @@ describe('TellerFormComponent', () => {
 
   beforeEach(async () => {
     tellerServiceSpy = jasmine.createSpyObj('TellerCashManagementService', [
-      'findTeller',
-      'createTeller',
-      'updateTeller',
-      'template12',
+      'getTellersTellerId',
+      'postTellers',
+      'putTellersTellerId',
+      'getFixeddepositaccountsTemplate',
     ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
+    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -60,7 +60,7 @@ describe('TellerFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    officesServiceSpy.retrieveOffices.and.returnValue(of([]) as any);
+    officesServiceSpy.getOffices.and.returnValue(of([]) as any);
     fixture = TestBed.createComponent(TellerFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -77,7 +77,7 @@ describe('TellerFormComponent', () => {
     component.startDate = new Date(2026, 4, 9);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tellerServiceSpy.createTeller.and.returnValue(of({}) as any);
+    tellerServiceSpy.postTellers.and.returnValue(of({}) as any);
 
     component.onSubmit();
 
@@ -90,7 +90,7 @@ describe('TellerFormComponent', () => {
       locale: 'en',
     });
 
-    expect(tellerServiceSpy.createTeller).toHaveBeenCalledWith(
+    expect(tellerServiceSpy.postTellers).toHaveBeenCalledWith(
       expectedPayload as PostTellersRequest,
     );
   });

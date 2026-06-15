@@ -62,6 +62,400 @@ export class CodeValuesService extends BaseService {
     }
 
     /**
+     * Delete a Code description
+     * Deletes a code description
+     * @endpoint delete /v1/codes/{codeId}/codevalues/{codeValueId}
+     * @param codeId codeId
+     * @param codeValueId codeValueId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public deleteCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteCodeValueDataResponse>;
+    public deleteCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteCodeValueDataResponse>>;
+    public deleteCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteCodeValueDataResponse>>;
+    public deleteCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeId === null || codeId === undefined) {
+            throw new Error('Required parameter codeId was null or undefined when calling deleteCodesCodeIdCodevaluesCodeValueId.');
+        }
+        if (codeValueId === null || codeValueId === undefined) {
+            throw new Error('Required parameter codeValueId was null or undefined when calling deleteCodesCodeIdCodevaluesCodeValueId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DeleteCodeValueDataResponse>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Delete a Code description
+     * Deletes a code description
+     * @endpoint delete /v1/codes/name/{codeName}/codevalues/{codeValueId}
+     * @param codeName codeName
+     * @param codeValueId codeValueId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public deleteCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteCodeValueDataResponse>;
+    public deleteCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteCodeValueDataResponse>>;
+    public deleteCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteCodeValueDataResponse>>;
+    public deleteCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeName === null || codeName === undefined) {
+            throw new Error('Required parameter codeName was null or undefined when calling deleteCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+        if (codeValueId === null || codeValueId === undefined) {
+            throw new Error('Required parameter codeValueId was null or undefined when calling deleteCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/name/${this.configuration.encodeParam({name: "codeName", value: codeName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DeleteCodeValueDataResponse>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List Code Values
+     * Returns the list of Code Values for a given Code  Example Requests:  codes/1/codevalues
+     * @endpoint get /v1/codes/{codeId}/codevalues
+     * @param codeId codeId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getCodesCodeIdCodevalues(codeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetCodeValuesDataResponse>>;
+    public getCodesCodeIdCodevalues(codeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetCodeValuesDataResponse>>>;
+    public getCodesCodeIdCodevalues(codeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetCodeValuesDataResponse>>>;
+    public getCodesCodeIdCodevalues(codeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeId === null || codeId === undefined) {
+            throw new Error('Required parameter codeId was null or undefined when calling getCodesCodeIdCodevalues.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<GetCodeValuesDataResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a Code description
+     * Returns the details of a Code Value  Example Requests:  codes/1/codevalues/1
+     * @endpoint get /v1/codes/{codeId}/codevalues/{codeValueId}
+     * @param codeValueId codeValueId
+     * @param codeId codeId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getCodesCodeIdCodevaluesCodeValueId(codeValueId: number, codeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetCodeValuesDataResponse>;
+    public getCodesCodeIdCodevaluesCodeValueId(codeValueId: number, codeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetCodeValuesDataResponse>>;
+    public getCodesCodeIdCodevaluesCodeValueId(codeValueId: number, codeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetCodeValuesDataResponse>>;
+    public getCodesCodeIdCodevaluesCodeValueId(codeValueId: number, codeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeValueId === null || codeValueId === undefined) {
+            throw new Error('Required parameter codeValueId was null or undefined when calling getCodesCodeIdCodevaluesCodeValueId.');
+        }
+        if (codeId === null || codeId === undefined) {
+            throw new Error('Required parameter codeId was null or undefined when calling getCodesCodeIdCodevaluesCodeValueId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetCodeValuesDataResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List Code Values
+     * Returns the list of Code Values for a given Code  Example Requests:  codes/1/codevalues
+     * @endpoint get /v1/codes/name/{codeName}/codevalues
+     * @param codeName codeName
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getCodesNameCodeNameCodevalues(codeName: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetCodeValuesDataResponse>>;
+    public getCodesNameCodeNameCodevalues(codeName: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetCodeValuesDataResponse>>>;
+    public getCodesNameCodeNameCodevalues(codeName: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetCodeValuesDataResponse>>>;
+    public getCodesNameCodeNameCodevalues(codeName: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeName === null || codeName === undefined) {
+            throw new Error('Required parameter codeName was null or undefined when calling getCodesNameCodeNameCodevalues.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/name/${this.configuration.encodeParam({name: "codeName", value: codeName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/codevalues`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<GetCodeValuesDataResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a Code description
+     * Returns the details of a Code Value  Example Requests:  codes/name/ADDRESS_TYPE/codevalues/1
+     * @endpoint get /v1/codes/name/{codeName}/codevalues/{codeValueId}
+     * @param codeName codeName
+     * @param codeValueId codeValueId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetCodeValuesDataResponse>;
+    public getCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetCodeValuesDataResponse>>;
+    public getCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetCodeValuesDataResponse>>;
+    public getCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeName === null || codeName === undefined) {
+            throw new Error('Required parameter codeName was null or undefined when calling getCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+        if (codeValueId === null || codeValueId === undefined) {
+            throw new Error('Required parameter codeValueId was null or undefined when calling getCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/name/${this.configuration.encodeParam({name: "codeName", value: codeName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetCodeValuesDataResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Create a Code description
      * @endpoint post /v1/codes/{codeId}/codevalues
      * @param codeId codeId
@@ -70,15 +464,15 @@ export class CodeValuesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createCodeValue(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCodeValueDataResponse>;
-    public createCodeValue(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCodeValueDataResponse>>;
-    public createCodeValue(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCodeValueDataResponse>>;
-    public createCodeValue(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postCodesCodeIdCodevalues(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCodeValueDataResponse>;
+    public postCodesCodeIdCodevalues(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCodeValueDataResponse>>;
+    public postCodesCodeIdCodevalues(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCodeValueDataResponse>>;
+    public postCodesCodeIdCodevalues(codeId: number, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (codeId === null || codeId === undefined) {
-            throw new Error('Required parameter codeId was null or undefined when calling createCodeValue.');
+            throw new Error('Required parameter codeId was null or undefined when calling postCodesCodeIdCodevalues.');
         }
         if (postCodeValuesDataRequest === null || postCodeValuesDataRequest === undefined) {
-            throw new Error('Required parameter postCodeValuesDataRequest was null or undefined when calling createCodeValue.');
+            throw new Error('Required parameter postCodeValuesDataRequest was null or undefined when calling postCodesCodeIdCodevalues.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -138,24 +532,23 @@ export class CodeValuesService extends BaseService {
     }
 
     /**
-     * Delete a Code description
-     * Deletes a code description
-     * @endpoint delete /v1/codes/{codeId}/codevalues/{codeValueId}
-     * @param codeId codeId
-     * @param codeValueId codeValueId
+     * Create a Code description
+     * @endpoint post /v1/codes/name/{codeName}/codevalues
+     * @param codeName codeName
+     * @param postCodeValuesDataRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteCodeValue(codeId: number, codeValueId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteCodeValueDataResponse>;
-    public deleteCodeValue(codeId: number, codeValueId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteCodeValueDataResponse>>;
-    public deleteCodeValue(codeId: number, codeValueId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteCodeValueDataResponse>>;
-    public deleteCodeValue(codeId: number, codeValueId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (codeId === null || codeId === undefined) {
-            throw new Error('Required parameter codeId was null or undefined when calling deleteCodeValue.');
+    public postCodesNameCodeNameCodevalues(codeName: string, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCodeValueDataResponse>;
+    public postCodesNameCodeNameCodevalues(codeName: string, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCodeValueDataResponse>>;
+    public postCodesNameCodeNameCodevalues(codeName: string, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCodeValueDataResponse>>;
+    public postCodesNameCodeNameCodevalues(codeName: string, postCodeValuesDataRequest: PostCodeValuesDataRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeName === null || codeName === undefined) {
+            throw new Error('Required parameter codeName was null or undefined when calling postCodesNameCodeNameCodevalues.');
         }
-        if (codeValueId === null || codeValueId === undefined) {
-            throw new Error('Required parameter codeValueId was null or undefined when calling deleteCodeValue.');
+        if (postCodeValuesDataRequest === null || postCodeValuesDataRequest === undefined) {
+            throw new Error('Required parameter postCodeValuesDataRequest was null or undefined when calling postCodesNameCodeNameCodevalues.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -178,68 +571,14 @@ export class CodeValuesService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteCodeValueDataResponse>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * List Code Values
-     * Returns the list of Code Values for a given Code  Example Requests:  codes/1/codevalues
-     * @endpoint get /v1/codes/{codeId}/codevalues
-     * @param codeId codeId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveAllCodeValues(codeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetCodeValuesDataResponse>>;
-    public retrieveAllCodeValues(codeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetCodeValuesDataResponse>>>;
-    public retrieveAllCodeValues(codeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetCodeValuesDataResponse>>>;
-    public retrieveAllCodeValues(codeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (codeId === null || codeId === undefined) {
-            throw new Error('Required parameter codeId was null or undefined when calling retrieveAllCodeValues.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        // to determine the Content-Type header
+        const consumes: string[] = [
             'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
         }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
@@ -252,78 +591,12 @@ export class CodeValuesService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues`;
+        let localVarPath = `/v1/codes/name/${this.configuration.encodeParam({name: "codeName", value: codeName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/codevalues`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<GetCodeValuesDataResponse>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PostCodeValueDataResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve a Code description
-     * Returns the details of a Code Value  Example Requests:  codes/1/codevalues/1
-     * @endpoint get /v1/codes/{codeId}/codevalues/{codeValueId}
-     * @param codeValueId codeValueId
-     * @param codeId codeId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveCodeValue(codeValueId: number, codeId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetCodeValuesDataResponse>;
-    public retrieveCodeValue(codeValueId: number, codeId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetCodeValuesDataResponse>>;
-    public retrieveCodeValue(codeValueId: number, codeId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetCodeValuesDataResponse>>;
-    public retrieveCodeValue(codeValueId: number, codeId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (codeValueId === null || codeValueId === undefined) {
-            throw new Error('Required parameter codeValueId was null or undefined when calling retrieveCodeValue.');
-        }
-        if (codeId === null || codeId === undefined) {
-            throw new Error('Required parameter codeId was null or undefined when calling retrieveCodeValue.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetCodeValuesDataResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
+                body: postCodeValuesDataRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -345,18 +618,18 @@ export class CodeValuesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateCodeValue(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutCodeValueDataResponse>;
-    public updateCodeValue(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutCodeValueDataResponse>>;
-    public updateCodeValue(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutCodeValueDataResponse>>;
-    public updateCodeValue(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutCodeValueDataResponse>;
+    public putCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutCodeValueDataResponse>>;
+    public putCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutCodeValueDataResponse>>;
+    public putCodesCodeIdCodevaluesCodeValueId(codeId: number, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (codeId === null || codeId === undefined) {
-            throw new Error('Required parameter codeId was null or undefined when calling updateCodeValue.');
+            throw new Error('Required parameter codeId was null or undefined when calling putCodesCodeIdCodevaluesCodeValueId.');
         }
         if (codeValueId === null || codeValueId === undefined) {
-            throw new Error('Required parameter codeValueId was null or undefined when calling updateCodeValue.');
+            throw new Error('Required parameter codeValueId was null or undefined when calling putCodesCodeIdCodevaluesCodeValueId.');
         }
         if (putCodeValuesDataRequest === null || putCodeValuesDataRequest === undefined) {
-            throw new Error('Required parameter putCodeValuesDataRequest was null or undefined when calling updateCodeValue.');
+            throw new Error('Required parameter putCodeValuesDataRequest was null or undefined when calling putCodesCodeIdCodevaluesCodeValueId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -400,6 +673,87 @@ export class CodeValuesService extends BaseService {
         }
 
         let localVarPath = `/v1/codes/${this.configuration.encodeParam({name: "codeId", value: codeId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PutCodeValueDataResponse>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: putCodeValuesDataRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a Code description
+     * Updates the details of a code description.
+     * @endpoint put /v1/codes/name/{codeName}/codevalues/{codeValueId}
+     * @param codeName codeName
+     * @param codeValueId codeValueId
+     * @param putCodeValuesDataRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutCodeValueDataResponse>;
+    public putCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutCodeValueDataResponse>>;
+    public putCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutCodeValueDataResponse>>;
+    public putCodesNameCodeNameCodevaluesCodeValueId(codeName: string, codeValueId: number, putCodeValuesDataRequest: PutCodeValuesDataRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (codeName === null || codeName === undefined) {
+            throw new Error('Required parameter codeName was null or undefined when calling putCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+        if (codeValueId === null || codeValueId === undefined) {
+            throw new Error('Required parameter codeValueId was null or undefined when calling putCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+        if (putCodeValuesDataRequest === null || putCodeValuesDataRequest === undefined) {
+            throw new Error('Required parameter putCodeValuesDataRequest was null or undefined when calling putCodesNameCodeNameCodevaluesCodeValueId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/codes/name/${this.configuration.encodeParam({name: "codeName", value: codeName, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/codevalues/${this.configuration.encodeParam({name: "codeValueId", value: codeValueId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PutCodeValueDataResponse>('put', `${basePath}${localVarPath}`,
             {

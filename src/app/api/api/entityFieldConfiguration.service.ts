@@ -60,12 +60,12 @@ export class EntityFieldConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAddresses(entity: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<FieldConfigurationData>>;
-    public getAddresses(entity: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<FieldConfigurationData>>>;
-    public getAddresses(entity: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<FieldConfigurationData>>>;
-    public getAddresses(entity: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getFieldconfigurationEntity(entity: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<FieldConfigurationData>>;
+    public getFieldconfigurationEntity(entity: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<FieldConfigurationData>>>;
+    public getFieldconfigurationEntity(entity: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<FieldConfigurationData>>>;
+    public getFieldconfigurationEntity(entity: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entity === null || entity === undefined) {
-            throw new Error('Required parameter entity was null or undefined when calling getAddresses.');
+            throw new Error('Required parameter entity was null or undefined when calling getFieldconfigurationEntity.');
         }
 
         let localVarHeaders = this.defaultHeaders;

@@ -307,7 +307,7 @@ export class SavingsAccountFormComponent implements OnInit {
    * Fetches the savings products list using current API method.
    */
   private loadProducts(): void {
-    this.productService.retrieveAll34().subscribe({
+    this.productService.getSavingsproducts().subscribe({
       next: (data: GetSavingsProductsResponse[]) => {
         this.products = data || [];
       },
@@ -320,7 +320,7 @@ export class SavingsAccountFormComponent implements OnInit {
    */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.savingsService.retrieveOne25(this.accountId).subscribe({
+    this.savingsService.getSavingsaccountsAccountId(this.accountId).subscribe({
       next: (data: SavingsAccountData) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -353,12 +353,14 @@ export class SavingsAccountFormComponent implements OnInit {
     };
 
     if (this.isEditMode && this.accountId) {
-      this.savingsService.update20(this.accountId, payload as Record<string, unknown>).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.savingsService
+        .putSavingsaccountsAccountId(this.accountId, payload as Record<string, unknown>)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
-      this.savingsService.submitApplication2(payload as PostSavingsAccountsRequest).subscribe({
+      this.savingsService.postSavingsaccounts(payload as PostSavingsAccountsRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

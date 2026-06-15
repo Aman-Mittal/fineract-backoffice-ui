@@ -45,6 +45,7 @@ export interface GuarantorData {
     dob?: string;
     entityId?: number;
     existingClient?: boolean;
+    existingGroup?: boolean;
     externalGuarantor?: boolean;
     externalId?: string;
     firstname?: string;

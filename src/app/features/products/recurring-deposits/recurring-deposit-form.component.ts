@@ -408,7 +408,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
    * Fetches the list of eligible recurring deposit products for the client.
    */
   private loadProducts(clientId?: number): void {
-    this.rdService.template13(clientId).subscribe({
+    this.rdService.getRecurringdepositaccountsTemplate(clientId).subscribe({
       next: (template: GetRecurringDepositAccountsTemplateResponse) => {
         if (template && template.productOptions) {
           this.products = Array.from(template.productOptions);
@@ -437,7 +437,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
    */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.rdService.retrieveOne22(this.accountId).subscribe({
+    this.rdService.getRecurringdepositaccountsAccountId(this.accountId).subscribe({
       next: (data: GetRecurringDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -474,7 +474,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         dateFormat: FINERACT_DATE_FORMAT,
       };
 
-      this.rdService.update18(this.accountId, payload).subscribe({
+      this.rdService.putRecurringdepositaccountsAccountId(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -496,10 +496,12 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         }
       }
 
-      this.rdService.submitApplication1(payload as PostRecurringDepositAccountsRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.rdService
+        .postRecurringdepositaccounts(payload as PostRecurringDepositAccountsRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     }
   }
 

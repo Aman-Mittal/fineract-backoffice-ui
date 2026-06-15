@@ -274,7 +274,7 @@ export class TellerFormComponent implements OnInit {
    * Retrieves the office list from the API.
    */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe((data) => {
+    this.officesService.getOffices(true).subscribe((data) => {
       this.offices = data;
     });
   }
@@ -284,7 +284,7 @@ export class TellerFormComponent implements OnInit {
    */
   private loadTellerData(): void {
     if (!this.tellerId) return;
-    this.tellerService.findTeller(this.tellerId).subscribe((data) => {
+    this.tellerService.getTellersTellerId(this.tellerId).subscribe((data) => {
       const dateArray = data.startDate as unknown as number[];
       if (dateArray) {
         this.startDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
@@ -315,7 +315,7 @@ export class TellerFormComponent implements OnInit {
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
-      this.tellerService.updateTeller(this.tellerId, payload as PutTellersRequest).subscribe({
+      this.tellerService.putTellersTellerId(this.tellerId, payload as PutTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -328,7 +328,7 @@ export class TellerFormComponent implements OnInit {
         locale: 'en',
       };
 
-      this.tellerService.createTeller(payload as PostTellersRequest).subscribe({
+      this.tellerService.postTellers(payload as PostTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

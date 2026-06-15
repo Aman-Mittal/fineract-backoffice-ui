@@ -66,3 +66,16 @@ export function formatDateToFineract(date: Date | string | number[] | null | und
 
 export const FINERACT_DATE_FORMAT = 'dd MMMM yyyy';
 export const FINERACT_LOCALE = 'en';
+
+/**
+ * Formats a Fineract array date (`[year, month, day]`) into a `YYYY-MM-DD` string for table display.
+ *
+ * @param value - The raw value from the API (expected to be a 3+ element number array).
+ * @returns The formatted `YYYY-MM-DD` string, or `'-'` when the value is not a valid array date.
+ */
+export function formatArrayDate(value: unknown): string {
+  if (!Array.isArray(value) || value.length < 3) {
+    return '-';
+  }
+  return `${value[0]}-${String(value[1]).padStart(2, '0')}-${String(value[2]).padStart(2, '0')}`;
+}

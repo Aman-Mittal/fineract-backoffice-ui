@@ -320,7 +320,7 @@ export class RescheduleFormComponent implements OnInit {
   }
 
   private loadTemplate(): void {
-    this.rescheduleService.retrieveTemplate10().subscribe({
+    this.rescheduleService.getRescheduleloansTemplate().subscribe({
       next: (template: GetRescheduleReasonsTemplateResponse) => {
         this.reasons = (template.rescheduleReasons as unknown as Record<string, unknown>[]) || [];
         if (this.reasons.length === 0) {
@@ -332,7 +332,7 @@ export class RescheduleFormComponent implements OnInit {
 
   private loadLoanRepaymentSchedule(): void {
     if (!this.loanId) return;
-    this.loansService.retrieveLoan(this.loanId, undefined, 'repaymentSchedule').subscribe({
+    this.loansService.getLoansLoanId(this.loanId, undefined, 'repaymentSchedule').subscribe({
       next: (loan) => {
         const periods = loan.repaymentSchedule?.periods || [];
         this.unpaidInstallments = periods.filter(
@@ -396,12 +396,12 @@ export class RescheduleFormComponent implements OnInit {
     this.request.locale = 'en';
 
     if (this.isAddingCustomReason && this.customReasonName.trim()) {
-      this.codesService.retrieveCodes().subscribe({
+      this.codesService.getCodes().subscribe({
         next: (codes) => {
           const targetCode = codes.find((c) => c.name === 'LoanRescheduleReason');
           if (targetCode && targetCode.id) {
             this.codeValuesService
-              .createCodeValue(targetCode.id, {
+              .postCodesCodeIdCodevalues(targetCode.id, {
                 name: this.customReasonName.trim(),
                 isActive: true,
               })
@@ -437,7 +437,7 @@ export class RescheduleFormComponent implements OnInit {
   }
 
   private submitRescheduleRequest(): void {
-    this.rescheduleService.createLoanRescheduleRequest(this.request).subscribe({
+    this.rescheduleService.postRescheduleloans(this.request).subscribe({
       next: () => this.router.navigate(['/loans', this.loanId, 'rescheduling']),
       error: () => (this.isSaving = false),
     });

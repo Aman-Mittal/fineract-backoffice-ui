@@ -23,7 +23,6 @@
  * Do not edit the class manually.
  */
 
-import { ChargeOffReasonToGLAccountMapper } from './chargeOffReasonToGLAccountMapper';
 import { StringEnumOptionData } from './stringEnumOptionData';
 import { GLAccountData } from './gLAccountData';
 import { TransactionProcessingStrategyData } from './transactionProcessingStrategyData';
@@ -35,6 +34,7 @@ import { FundData } from './fundData';
 import { LoanProductGuaranteeData } from './loanProductGuaranteeData';
 import { ChargeData } from './chargeData';
 import { EnumOptionData } from './enumOptionData';
+import { AdvancedMappingToExpenseAccountData } from './advancedMappingToExpenseAccountData';
 import { PaymentTypeData } from './paymentTypeData';
 import { ChargeToGLAccountMapper } from './chargeToGLAccountMapper';
 import { LoanProductBorrowerCycleVariationData } from './loanProductBorrowerCycleVariationData';
@@ -44,7 +44,6 @@ import { RateData } from './rateData';
 import { FloatingRateData } from './floatingRateData';
 import { LoanProductInterestRecalculationData } from './loanProductInterestRecalculationData';
 import { PaymentTypeToGLAccountMapper } from './paymentTypeToGLAccountMapper';
-import { WriteOffReasonsToExpenseAccountMapper } from './writeOffReasonsToExpenseAccountMapper';
 import { CreditAllocationData } from './creditAllocationData';
 
 
@@ -59,6 +58,7 @@ export interface LoanProductData {
     advancedPaymentAllocationTypes?: Array<EnumOptionData>;
     allowApprovedDisbursedAmountsOverApplied?: boolean;
     allowAttributeOverrides?: LoanProductConfigurableAttributes;
+    allowFullTermForTranche?: boolean;
     allowPartialPeriodInterestCalculation?: boolean;
     allowVariableInstallments?: boolean;
     amortizationType?: EnumOptionData;
@@ -85,7 +85,7 @@ export interface LoanProductData {
     chargeOffBehaviour?: StringEnumOptionData;
     chargeOffBehaviourOptions?: Array<StringEnumOptionData>;
     chargeOffReasonOptions?: Array<CodeValueData>;
-    chargeOffReasonToExpenseAccountMappings?: Array<ChargeOffReasonToGLAccountMapper>;
+    chargeOffReasonToExpenseAccountMappings?: Array<AdvancedMappingToExpenseAccountData>;
     chargeOptions?: Array<ChargeData>;
     charges?: Array<ChargeData>;
     closeDate?: string;
@@ -217,6 +217,6 @@ export interface LoanProductData {
     useBorrowerCycle?: boolean;
     valueConditionTypeOptions?: Array<EnumOptionData>;
     writeOffReasonOptions?: Array<CodeValueData>;
-    writeOffReasonsToExpenseMappings?: Array<WriteOffReasonsToExpenseAccountMapper>;
+    writeOffReasonsToExpenseMappings?: Array<AdvancedMappingToExpenseAccountData>;
 }
 

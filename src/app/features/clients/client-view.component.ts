@@ -790,14 +790,14 @@ export class ClientViewComponent implements OnInit {
   }
 
   loadClientData() {
-    this.clientService.retrieveOne11(this.clientId).subscribe({
+    this.clientService.getClientsClientId(this.clientId).subscribe({
       next: (data) => this.client.set(data),
       error: (err) => console.error('Failed to load client details', err),
     });
   }
 
   loadClientAccounts() {
-    this.clientService.retrieveAssociatedAccounts(this.clientId).subscribe({
+    this.clientService.getClientsClientIdAccounts(this.clientId).subscribe({
       next: (accounts) => {
         this.loanAccounts.set(Array.from(accounts.loanAccounts || []));
         this.savingsAccounts.set(Array.from(accounts.savingsAccounts || []));
@@ -848,7 +848,7 @@ export class ClientViewComponent implements OnInit {
         if (command === 'undoWithdraw') payload['reopenedDate'] = formattedDate;
 
         this.clientService
-          .activate1(this.clientId, payload as PostClientsClientIdRequest, command)
+          .postClientsClientId(this.clientId, payload as PostClientsClientIdRequest, command)
           .subscribe({
             next: () => {
               this.loadClientData();
@@ -861,7 +861,7 @@ export class ClientViewComponent implements OnInit {
 
   onDeleteClient() {
     if (confirm('Are you sure you want to delete this client? This action cannot be undone.')) {
-      this.clientService.delete8(this.clientId).subscribe({
+      this.clientService.deleteClientsClientId(this.clientId).subscribe({
         next: () => {
           this.router.navigate(['/clients']);
         },

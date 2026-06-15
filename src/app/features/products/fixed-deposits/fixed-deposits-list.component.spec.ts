@@ -32,7 +32,9 @@ describe('FixedDepositAccountsListComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    fixedDepositServiceSpy = jasmine.createSpyObj('FixedDepositAccountService', ['retrieveAll29']);
+    fixedDepositServiceSpy = jasmine.createSpyObj('FixedDepositAccountService', [
+      'getFixeddepositaccounts',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -49,7 +51,7 @@ describe('FixedDepositAccountsListComponent', () => {
   });
 
   it('should create', () => {
-    (fixedDepositServiceSpy.retrieveAll29 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccounts as jasmine.Spy).and.returnValue(
       of([] as GetFixedDepositAccountsResponse[]),
     );
     fixture.detectChanges();
@@ -60,18 +62,20 @@ describe('FixedDepositAccountsListComponent', () => {
     const mockAccounts = [
       { id: 1, accountNo: 1001, clientName: 'John Doe' } as GetFixedDepositAccountsResponse,
     ];
-    (fixedDepositServiceSpy.retrieveAll29 as jasmine.Spy).and.returnValue(of(mockAccounts));
+    (fixedDepositServiceSpy.getFixeddepositaccounts as jasmine.Spy).and.returnValue(
+      of(mockAccounts),
+    );
 
     fixture.detectChanges();
 
-    expect(fixedDepositServiceSpy.retrieveAll29).toHaveBeenCalled();
+    expect(fixedDepositServiceSpy.getFixeddepositaccounts).toHaveBeenCalled();
     expect(component.accounts.length).toBe(1);
     expect(component.accounts[0].accountNo).toBe(1001);
   });
 
   it('should handle error when loading accounts', () => {
     spyOn(console, 'error');
-    (fixedDepositServiceSpy.retrieveAll29 as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccounts as jasmine.Spy).and.returnValue(
       throwError(() => new Error('API Error')),
     );
 

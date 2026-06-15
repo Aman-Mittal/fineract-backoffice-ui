@@ -368,7 +368,7 @@ export class HeaderComponent implements OnInit {
         distinctUntilChanged(),
         switchMap((query) => {
           if (!query || query.length < 2) return of([]);
-          return this.searchService.searchData(query, 'clients,loans,savings');
+          return this.searchService.getSearch(query, 'clients,loans,savings');
         }),
       )
       .subscribe((results) => {
@@ -377,7 +377,7 @@ export class HeaderComponent implements OnInit {
   }
 
   private loadSystemInfo() {
-    this.businessDateService.getBusinessDates().subscribe({
+    this.businessDateService.getBusinessdate().subscribe({
       next: (dates) => {
         const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
         if (bd && bd.date) {

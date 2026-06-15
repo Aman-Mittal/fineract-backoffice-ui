@@ -141,7 +141,7 @@ export class DatatablesListComponent implements OnInit {
 
   onDelete(name: string): void {
     if (confirm(`Are you sure you want to delete data table '${name}'?`)) {
-      this.datatablesService.deleteDatatable(name).subscribe({
+      this.datatablesService.deleteDatatablesDatatableName(name).subscribe({
         next: () => this.loadDatatables(),
         error: (err) => console.error('Failed to delete datatable', err),
       });

@@ -252,7 +252,7 @@ export class FixedDepositProductFormComponent implements OnInit {
   loadProductData() {
     if (!this.productId) return;
     this.productService
-      .retrieveOne20(this.productId)
+      .getFixeddepositproductsProductId(this.productId)
       .subscribe((data: GetFixedDepositProductsProductIdResponse) => {
         this.product = {
           name: data.name,
@@ -293,14 +293,17 @@ export class FixedDepositProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService
-        .update17(this.productId, payload as PutFixedDepositProductsProductIdRequest)
+        .putFixeddepositproductsProductId(
+          this.productId,
+          payload as PutFixedDepositProductsProductIdRequest,
+        )
         .subscribe({
           next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
       this.productService
-        .create11(payload as unknown as PostFixedDepositProductsRequest)
+        .postFixeddepositproducts(payload as unknown as PostFixedDepositProductsRequest)
         .subscribe({
           next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
           error: () => (this.isSaving = false),

@@ -116,7 +116,7 @@ export class ChartOfAccountsComponent {
 
   constructor() {
     this.glAccountService
-      .retrieveAllAccounts()
+      .getGlaccounts()
       .pipe(
         startWith([]),
         catchError(() => of([])),

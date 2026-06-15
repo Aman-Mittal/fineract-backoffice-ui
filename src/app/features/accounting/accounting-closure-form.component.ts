@@ -175,7 +175,7 @@ export class AccountingClosureFormComponent implements OnInit {
 
   ngOnInit() {
     this.officeService
-      .retrieveOffices()
+      .getOffices()
       .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
   }
 
@@ -189,7 +189,7 @@ export class AccountingClosureFormComponent implements OnInit {
     this.request.dateFormat = 'yyyy-MM-dd';
     this.request.locale = 'en';
 
-    this.closureService.createGLClosure(this.request).subscribe({
+    this.closureService.postGlclosures(this.request).subscribe({
       next: () => this.router.navigate(['/accounting/closures']),
       error: () => (this.isSaving = false),
     });

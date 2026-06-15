@@ -229,7 +229,7 @@ export class ShareProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveProduct(this.productId, PRODUCT_TYPE).subscribe((data) => {
+    this.productService.getProductsTypeProductId(this.productId, PRODUCT_TYPE).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -249,12 +249,14 @@ export class ShareProductFormComponent implements OnInit {
     this.product.locale = DEFAULT_LOCALE;
 
     if (this.isEditMode && this.productId) {
-      this.productService.updateProduct(PRODUCT_TYPE, this.productId, this.product).subscribe({
-        next: () => this.router.navigate([REDIRECT_URL]),
-        error: () => (this.isSaving = false),
-      });
+      this.productService
+        .putProductsTypeProductId(PRODUCT_TYPE, this.productId, this.product)
+        .subscribe({
+          next: () => this.router.navigate([REDIRECT_URL]),
+          error: () => (this.isSaving = false),
+        });
     } else {
-      this.productService.createProduct(PRODUCT_TYPE, this.product).subscribe({
+      this.productService.postProductsType(PRODUCT_TYPE, this.product).subscribe({
         next: () => this.router.navigate([REDIRECT_URL]),
         error: () => (this.isSaving = false),
       });

@@ -113,7 +113,7 @@ export class StandingInstructionsListComponent implements OnInit {
 
   loadInstructions(): void {
     this.isLoading.set(true);
-    this.instructionsService.retrieveAll19().subscribe({
+    this.instructionsService.getStandinginstructions().subscribe({
       next: (data) => {
         this.instructions.set(Array.from(data.pageItems || []));
         this.isLoading.set(false);

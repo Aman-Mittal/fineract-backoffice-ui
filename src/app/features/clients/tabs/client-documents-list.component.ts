@@ -136,7 +136,7 @@ export class ClientDocumentsListComponent implements OnInit {
 
   loadDocuments(): void {
     this.isLoading.set(true);
-    this.documentService.retrieveAllDocuments('clients', this.clientId).subscribe({
+    this.documentService.getEntityTypeEntityIdDocuments('clients', this.clientId).subscribe({
       next: (data) => {
         this.documents.set(data);
         this.isLoading.set(false);
@@ -149,26 +149,30 @@ export class ClientDocumentsListComponent implements OnInit {
   }
 
   onDownload(id: number): void {
-    this.documentService.downloadFile('clients', this.clientId, id).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const doc = this.documents().find((d) => d.id === id);
-        a.download = doc?.fileName || 'document';
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: (err) => console.error('Failed to download document', err),
-    });
+    this.documentService
+      .getEntityTypeEntityIdDocumentsDocumentIdAttachment('clients', this.clientId, id)
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const doc = this.documents().find((d) => d.id === id);
+          a.download = doc?.fileName || 'document';
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error('Failed to download document', err),
+      });
   }
 
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this document?')) {
-      this.documentService.deleteDocument('clients', this.clientId, id).subscribe({
-        next: () => this.loadDocuments(),
-        error: (err) => console.error('Failed to delete document', err),
-      });
+      this.documentService
+        .deleteEntityTypeEntityIdDocumentsDocumentId('clients', this.clientId, id)
+        .subscribe({
+          next: () => this.loadDocuments(),
+          error: (err) => console.error('Failed to delete document', err),
+        });
     }
   }
 }

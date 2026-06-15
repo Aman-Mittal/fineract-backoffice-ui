@@ -27,6 +27,7 @@
 
 export interface MixTaxonomyMappingData { 
     config?: string;
+    currency?: string;
     identifier?: string;
 }
 

@@ -109,7 +109,7 @@ export class ChargesListComponent implements OnInit {
   }
 
   private loadCharges(): void {
-    this.chargesService.retrieveAllCharges().subscribe({
+    this.chargesService.getCharges().subscribe({
       next: (data) => {
         this.charges = data || [];
       },

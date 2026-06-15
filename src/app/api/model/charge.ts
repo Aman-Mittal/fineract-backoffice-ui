@@ -51,7 +51,7 @@ export interface Charge {
     feeInterval?: number;
     feeOnMonthDay?: ChargeFeeOnMonthDay;
     frequencyFreeWithdrawalCharge?: number;
-    id?: number;
+    id?: number | null;
     incomeAccountId?: number;
     loanCharge?: boolean;
     maxCap?: number;

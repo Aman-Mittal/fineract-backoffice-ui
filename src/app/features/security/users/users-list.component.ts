@@ -87,7 +87,7 @@ export class UsersListComponent implements OnInit {
   }
 
   private loadUsers(): void {
-    this.usersService.retrieveAll41().subscribe({
+    this.usersService.getUsers().subscribe({
       next: (data) => {
         this.users = data || [];
       },

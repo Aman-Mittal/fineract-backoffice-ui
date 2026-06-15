@@ -62,15 +62,15 @@ export class LoanReschedulingService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public calculateLoanScheduleOrSubmitVariableSchedule(loanId: number, body: object, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostLoansLoanIdScheduleResponse>;
-    public calculateLoanScheduleOrSubmitVariableSchedule(loanId: number, body: object, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostLoansLoanIdScheduleResponse>>;
-    public calculateLoanScheduleOrSubmitVariableSchedule(loanId: number, body: object, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostLoansLoanIdScheduleResponse>>;
-    public calculateLoanScheduleOrSubmitVariableSchedule(loanId: number, body: object, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postLoansLoanIdSchedule(loanId: number, body: object, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostLoansLoanIdScheduleResponse>;
+    public postLoansLoanIdSchedule(loanId: number, body: object, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostLoansLoanIdScheduleResponse>>;
+    public postLoansLoanIdSchedule(loanId: number, body: object, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostLoansLoanIdScheduleResponse>>;
+    public postLoansLoanIdSchedule(loanId: number, body: object, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling calculateLoanScheduleOrSubmitVariableSchedule.');
+            throw new Error('Required parameter loanId was null or undefined when calling postLoansLoanIdSchedule.');
         }
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling calculateLoanScheduleOrSubmitVariableSchedule.');
+            throw new Error('Required parameter body was null or undefined when calling postLoansLoanIdSchedule.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

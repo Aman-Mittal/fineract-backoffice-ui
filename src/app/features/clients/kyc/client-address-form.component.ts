@@ -239,7 +239,7 @@ export class ClientAddressFormComponent implements OnInit {
   }
 
   loadTemplate(): void {
-    this.addressService.getAddressesTemplate().subscribe((data: AddressData) => {
+    this.addressService.getClientAddressesTemplate().subscribe((data: AddressData) => {
       this.addressTypes.set(data.addressTypeIdOptions || []);
       this.states.set(data.stateProvinceIdOptions || []);
       this.countries.set(data.countryIdOptions || []);
@@ -247,7 +247,7 @@ export class ClientAddressFormComponent implements OnInit {
   }
 
   loadAddressData(): void {
-    this.addressService.getAddresses1(this.clientId).subscribe((data) => {
+    this.addressService.getClientClientidAddresses(this.clientId).subscribe((data) => {
       const addr = data.find((a) => a.addressId === this.addressId);
       if (addr) {
         this.address = {
@@ -272,14 +272,14 @@ export class ClientAddressFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.isEditMode) {
-      this.addressService.updateClientAddress(this.clientId, this.address).subscribe({
+      this.addressService.putClientClientidAddresses(this.clientId, this.address).subscribe({
         next: () => this.router.navigate([this.clientViewPath, this.clientId]),
         error: (err) => console.error('Failed to update address', err),
       });
     } else {
       // For creation, Fineract uses a 'type' query param in addClientAddress
       this.addressService
-        .addClientAddress(this.clientId, this.address, this.address.addressTypeId)
+        .postClientClientidAddresses(this.clientId, this.address, this.address.addressTypeId)
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to add address', err),

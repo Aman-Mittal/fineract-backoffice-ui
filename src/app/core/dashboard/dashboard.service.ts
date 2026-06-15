@@ -56,12 +56,12 @@ export class DashboardService {
 
   loadDashboard(): Observable<DashboardData> {
     return forkJoin({
-      user: this.userDetails.fetchAuthenticatedUserData().pipe(
+      user: this.userDetails.getUserdetails().pipe(
         map((u) => this.mapUser(u)),
         catchError(() => of(null)),
       ),
       clients: this.clientService
-        .retrieveAll21(
+        .getClients(
           undefined,
           undefined,
           undefined,
@@ -76,16 +76,16 @@ export class DashboardService {
           map((r) => r.totalFilteredRecords ?? 0),
           catchError(() => of(0)),
         ),
-      savings: this.savingsService.retrieveAll33(undefined, 0, 1).pipe(
+      savings: this.savingsService.getSavingsaccounts(undefined, 0, 1).pipe(
         map((r) => r.totalFilteredRecords ?? 0),
         catchError(() => of(0)),
       ),
-      loans: this.loansService.retrieveAll27(undefined, 0, 1).pipe(
+      loans: this.loansService.getLoans(undefined, 0, 1).pipe(
         map((r) => r.totalFilteredRecords ?? 0),
         catchError(() => of(0)),
       ),
       transfers: this.accountTransfersService
-        .retrieveAll18(undefined, 0, 5, 'transferDate', 'DESC')
+        .getAccounttransfers(undefined, 0, 5, 'transferDate', 'DESC')
         .pipe(
           map((r) => this.toArray(r.pageItems)),
           catchError(() => of([])),

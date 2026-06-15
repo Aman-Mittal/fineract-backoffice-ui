@@ -35,12 +35,12 @@ describe('ShareAccountFormComponent', () => {
 
   beforeEach(async () => {
     shareServiceSpy = jasmine.createSpyObj('ShareAccountService', [
-      'createAccount',
-      'updateAccount',
-      'template7',
-      'retrieveAccount',
+      'postAccountsType',
+      'putAccountsTypeAccountId',
+      'getAccountsTypeTemplate',
+      'getAccountsTypeAccountId',
     ]);
-    clientServiceSpy = jasmine.createSpyObj('ClientService', ['retrieveAll21', 'retrieveOne11']);
+    clientServiceSpy = jasmine.createSpyObj('ClientService', ['getClients', 'getClientsClientId']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -61,9 +61,9 @@ describe('ShareAccountFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    shareServiceSpy.template7.and.returnValue(of({ productOptions: [] }) as any);
+    shareServiceSpy.getAccountsTypeTemplate.and.returnValue(of({ productOptions: [] }) as any);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    clientServiceSpy.retrieveAll21.and.returnValue(of({ pageItems: [] }) as any);
+    clientServiceSpy.getClients.and.returnValue(of({ pageItems: [] }) as any);
     fixture = TestBed.createComponent(ShareAccountFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -79,7 +79,7 @@ describe('ShareAccountFormComponent', () => {
     component.applicationDate = new Date(2026, 4, 15);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    shareServiceSpy.createAccount.and.returnValue(of({}) as any);
+    shareServiceSpy.postAccountsType.and.returnValue(of({}) as any);
 
     component.onSubmit();
 
@@ -93,7 +93,7 @@ describe('ShareAccountFormComponent', () => {
       locale: 'en',
     });
 
-    expect(shareServiceSpy.createAccount).toHaveBeenCalledWith(
+    expect(shareServiceSpy.postAccountsType).toHaveBeenCalledWith(
       'share',
       expectedPayload as AccountRequest,
     );

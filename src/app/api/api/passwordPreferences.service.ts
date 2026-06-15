@@ -54,15 +54,17 @@ export class PasswordPreferencesService extends BaseService {
     }
 
     /**
+     * List Password Preferences
+     * Returns the password policies and their current status (active/inactive).
      * @endpoint get /v1/passwordpreferences
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieve1(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetPasswordPreferencesTemplateResponse>;
-    public retrieve1(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetPasswordPreferencesTemplateResponse>>;
-    public retrieve1(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetPasswordPreferencesTemplateResponse>>;
-    public retrieve1(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPasswordpreferences(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetPasswordPreferencesTemplateResponse>;
+    public getPasswordpreferences(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetPasswordPreferencesTemplateResponse>>;
+    public getPasswordpreferences(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetPasswordPreferencesTemplateResponse>>;
+    public getPasswordpreferences(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -118,10 +120,10 @@ export class PasswordPreferencesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public template21(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetPasswordPreferencesTemplateResponse>>;
-    public template21(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetPasswordPreferencesTemplateResponse>>>;
-    public template21(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetPasswordPreferencesTemplateResponse>>>;
-    public template21(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getPasswordpreferencesTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetPasswordPreferencesTemplateResponse>>;
+    public getPasswordpreferencesTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetPasswordPreferencesTemplateResponse>>>;
+    public getPasswordpreferencesTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetPasswordPreferencesTemplateResponse>>>;
+    public getPasswordpreferencesTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -177,12 +179,12 @@ export class PasswordPreferencesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update25(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public update25(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public update25(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public update25(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putPasswordpreferences(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public putPasswordpreferences(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public putPasswordpreferences(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public putPasswordpreferences(putPasswordPreferencesTemplateRequest: PutPasswordPreferencesTemplateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (putPasswordPreferencesTemplateRequest === null || putPasswordPreferencesTemplateRequest === undefined) {
-            throw new Error('Required parameter putPasswordPreferencesTemplateRequest was null or undefined when calling update25.');
+            throw new Error('Required parameter putPasswordPreferencesTemplateRequest was null or undefined when calling putPasswordpreferences.');
         }
 
         let localVarHeaders = this.defaultHeaders;

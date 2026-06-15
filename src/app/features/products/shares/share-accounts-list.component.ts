@@ -115,7 +115,7 @@ export class ShareAccountsListComponent implements OnInit {
    * @param limit - Pagination limit.
    */
   private loadAccounts(offset: number, limit: number): void {
-    this.shareService.retrieveAllAccounts1('share', offset, limit).subscribe({
+    this.shareService.getAccountsType('share', offset, limit).subscribe({
       next: (response: GetAccountsTypeResponse) => {
         this.accounts = Array.from(response.pageItems || []);
         this.totalRecords = response.totalFilteredRecords || 0;

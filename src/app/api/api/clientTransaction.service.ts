@@ -66,12 +66,12 @@ export class ClientTransactionService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAllClientTransactions(clientId: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsResponse>;
-    public retrieveAllClientTransactions(clientId: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsResponse>>;
-    public retrieveAllClientTransactions(clientId: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsResponse>>;
-    public retrieveAllClientTransactions(clientId: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getClientsClientIdTransactions(clientId: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsResponse>;
+    public getClientsClientIdTransactions(clientId: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsResponse>>;
+    public getClientsClientIdTransactions(clientId: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsResponse>>;
+    public getClientsClientIdTransactions(clientId: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling retrieveAllClientTransactions.');
+            throw new Error('Required parameter clientId was null or undefined when calling getClientsClientIdTransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -142,6 +142,140 @@ export class ClientTransactionService extends BaseService {
     }
 
     /**
+     * Retrieve a Client Transaction
+     * Example Requests: clients/1/transactions/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854   clients/1/transactions/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854?fields&#x3D;id,officeName
+     * @endpoint get /v1/clients/{clientId}/transactions/external-id/{transactionExternalId}
+     * @param clientId clientId
+     * @param transactionExternalId transactionExternalId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
+    public getClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (clientId === null || clientId === undefined) {
+            throw new Error('Required parameter clientId was null or undefined when calling getClientsClientIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling getClientsClientIdTransactionsExternalIdTransactionExternalId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetClientsClientIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a Client Transaction
+     * Example Requests: clients/1/transactions/1   clients/1/transactions/1?fields&#x3D;id,officeName
+     * @endpoint get /v1/clients/{clientId}/transactions/{transactionId}
+     * @param clientId clientId
+     * @param transactionId transactionId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
+    public getClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (clientId === null || clientId === undefined) {
+            throw new Error('Required parameter clientId was null or undefined when calling getClientsClientIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling getClientsClientIdTransactionsTransactionId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetClientsClientIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * List Client Transactions
      * The list capability of client transaction can support pagination.  Example Requests:  clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions  clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions?offset&#x3D;10&amp;limit&#x3D;50
      * @endpoint get /v1/clients/external-id/{clientExternalId}/transactions
@@ -152,12 +286,12 @@ export class ClientTransactionService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAllClientTransactions1(clientExternalId: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsResponse>;
-    public retrieveAllClientTransactions1(clientExternalId: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsResponse>>;
-    public retrieveAllClientTransactions1(clientExternalId: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsResponse>>;
-    public retrieveAllClientTransactions1(clientExternalId: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getClientsExternalIdClientExternalIdTransactions(clientExternalId: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsResponse>;
+    public getClientsExternalIdClientExternalIdTransactions(clientExternalId: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsResponse>>;
+    public getClientsExternalIdClientExternalIdTransactions(clientExternalId: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsResponse>>;
+    public getClientsExternalIdClientExternalIdTransactions(clientExternalId: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientExternalId === null || clientExternalId === undefined) {
-            throw new Error('Required parameter clientExternalId was null or undefined when calling retrieveAllClientTransactions1.');
+            throw new Error('Required parameter clientExternalId was null or undefined when calling getClientsExternalIdClientExternalIdTransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -229,207 +363,6 @@ export class ClientTransactionService extends BaseService {
 
     /**
      * Retrieve a Client Transaction
-     * Example Requests: clients/1/transactions/1   clients/1/transactions/1?fields&#x3D;id,officeName
-     * @endpoint get /v1/clients/{clientId}/transactions/{transactionId}
-     * @param clientId clientId
-     * @param transactionId transactionId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveClientTransaction(clientId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
-    public retrieveClientTransaction(clientId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction(clientId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction(clientId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling retrieveClientTransaction.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling retrieveClientTransaction.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetClientsClientIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve a Client Transaction
-     * Example Requests: clients/1/transactions/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854   clients/1/transactions/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854?fields&#x3D;id,officeName
-     * @endpoint get /v1/clients/{clientId}/transactions/external-id/{transactionExternalId}
-     * @param clientId clientId
-     * @param transactionExternalId transactionExternalId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveClientTransaction1(clientId: number, transactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
-    public retrieveClientTransaction1(clientId: number, transactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction1(clientId: number, transactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction1(clientId: number, transactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling retrieveClientTransaction1.');
-        }
-        if (transactionExternalId === null || transactionExternalId === undefined) {
-            throw new Error('Required parameter transactionExternalId was null or undefined when calling retrieveClientTransaction1.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetClientsClientIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve a Client Transaction
-     * Example Requests: clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions/1   clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions/1?fields&#x3D;id,officeName
-     * @endpoint get /v1/clients/external-id/{clientExternalId}/transactions/{transactionId}
-     * @param clientExternalId clientExternalId
-     * @param transactionId transactionId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveClientTransaction2(clientExternalId: string, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
-    public retrieveClientTransaction2(clientExternalId: string, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction2(clientExternalId: string, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction2(clientExternalId: string, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (clientExternalId === null || clientExternalId === undefined) {
-            throw new Error('Required parameter clientExternalId was null or undefined when calling retrieveClientTransaction2.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling retrieveClientTransaction2.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/clients/external-id/${this.configuration.encodeParam({name: "clientExternalId", value: clientExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetClientsClientIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve a Client Transaction
      * Example Requests: clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854   clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854?fields&#x3D;id,officeName
      * @endpoint get /v1/clients/external-id/{clientExternalId}/transactions/external-id/{transactionExternalId}
      * @param clientExternalId clientExternalId
@@ -438,15 +371,15 @@ export class ClientTransactionService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveClientTransaction3(clientExternalId: string, transactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
-    public retrieveClientTransaction3(clientExternalId: string, transactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction3(clientExternalId: string, transactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
-    public retrieveClientTransaction3(clientExternalId: string, transactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
+    public getClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientExternalId === null || clientExternalId === undefined) {
-            throw new Error('Required parameter clientExternalId was null or undefined when calling retrieveClientTransaction3.');
+            throw new Error('Required parameter clientExternalId was null or undefined when calling getClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId.');
         }
         if (transactionExternalId === null || transactionExternalId === undefined) {
-            throw new Error('Required parameter transactionExternalId was null or undefined when calling retrieveClientTransaction3.');
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling getClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -496,37 +429,25 @@ export class ClientTransactionService extends BaseService {
     }
 
     /**
-     * Undo a Client Transaction
-     * Undoes a Client Transaction
-     * @endpoint post /v1/clients/{clientId}/transactions/{transactionId}
-     * @param clientId clientId
+     * Retrieve a Client Transaction
+     * Example Requests: clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions/1   clients/external-id/7dd80a7c-ycba-a446-t378-91eb6f53e854/transactions/1?fields&#x3D;id,officeName
+     * @endpoint get /v1/clients/external-id/{clientExternalId}/transactions/{transactionId}
+     * @param clientExternalId clientExternalId
      * @param transactionId transactionId
-     * @param command command
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public undoClientTransaction(clientId: number, transactionId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
-    public undoClientTransaction(clientId: number, transactionId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction(clientId: number, transactionId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction(clientId: number, transactionId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling undoClientTransaction.');
+    public getClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetClientsClientIdTransactionsTransactionIdResponse>;
+    public getClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetClientsClientIdTransactionsTransactionIdResponse>>;
+    public getClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (clientExternalId === null || clientExternalId === undefined) {
+            throw new Error('Required parameter clientExternalId was null or undefined when calling getClientsExternalIdClientExternalIdTransactionsTransactionId.');
         }
         if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling undoClientTransaction.');
+            throw new Error('Required parameter transactionId was null or undefined when calling getClientsExternalIdClientExternalIdTransactionsTransactionId.');
         }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'command',
-            <any>command,
-            QueryParamStyle.Form,
-            true,
-        );
-
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -559,12 +480,11 @@ export class ClientTransactionService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/clients/external-id/${this.configuration.encodeParam({name: "clientExternalId", value: clientExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostClientsClientIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GetClientsClientIdTransactionsTransactionIdResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -586,15 +506,15 @@ export class ClientTransactionService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public undoClientTransaction1(clientId: number, transactionExternalId: string, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
-    public undoClientTransaction1(clientId: number, transactionExternalId: string, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction1(clientId: number, transactionExternalId: string, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction1(clientId: number, transactionExternalId: string, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
+    public postClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsClientIdTransactionsExternalIdTransactionExternalId(clientId: number, transactionExternalId: string, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling undoClientTransaction1.');
+            throw new Error('Required parameter clientId was null or undefined when calling postClientsClientIdTransactionsExternalIdTransactionExternalId.');
         }
         if (transactionExternalId === null || transactionExternalId === undefined) {
-            throw new Error('Required parameter transactionExternalId was null or undefined when calling undoClientTransaction1.');
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling postClientsClientIdTransactionsExternalIdTransactionExternalId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -658,23 +578,23 @@ export class ClientTransactionService extends BaseService {
     /**
      * Undo a Client Transaction
      * Undoes a Client Transaction
-     * @endpoint post /v1/clients/external-id/{clientExternalId}/transactions/{transactionId}
-     * @param clientExternalId clientExternalId
+     * @endpoint post /v1/clients/{clientId}/transactions/{transactionId}
+     * @param clientId clientId
      * @param transactionId transactionId
      * @param command command
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public undoClientTransaction2(clientExternalId: string, transactionId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
-    public undoClientTransaction2(clientExternalId: string, transactionId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction2(clientExternalId: string, transactionId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction2(clientExternalId: string, transactionId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (clientExternalId === null || clientExternalId === undefined) {
-            throw new Error('Required parameter clientExternalId was null or undefined when calling undoClientTransaction2.');
+    public postClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
+    public postClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsClientIdTransactionsTransactionId(clientId: number, transactionId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (clientId === null || clientId === undefined) {
+            throw new Error('Required parameter clientId was null or undefined when calling postClientsClientIdTransactionsTransactionId.');
         }
         if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling undoClientTransaction2.');
+            throw new Error('Required parameter transactionId was null or undefined when calling postClientsClientIdTransactionsTransactionId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -719,7 +639,7 @@ export class ClientTransactionService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/clients/external-id/${this.configuration.encodeParam({name: "clientExternalId", value: clientExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PostClientsClientIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -746,15 +666,15 @@ export class ClientTransactionService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public undoClientTransaction3(clientExternalId: string, transactionExternalId: string, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
-    public undoClientTransaction3(clientExternalId: string, transactionExternalId: string, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction3(clientExternalId: string, transactionExternalId: string, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
-    public undoClientTransaction3(clientExternalId: string, transactionExternalId: string, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
+    public postClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId(clientExternalId: string, transactionExternalId: string, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientExternalId === null || clientExternalId === undefined) {
-            throw new Error('Required parameter clientExternalId was null or undefined when calling undoClientTransaction3.');
+            throw new Error('Required parameter clientExternalId was null or undefined when calling postClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId.');
         }
         if (transactionExternalId === null || transactionExternalId === undefined) {
-            throw new Error('Required parameter transactionExternalId was null or undefined when calling undoClientTransaction3.');
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling postClientsExternalIdClientExternalIdTransactionsExternalIdTransactionExternalId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -800,6 +720,86 @@ export class ClientTransactionService extends BaseService {
         }
 
         let localVarPath = `/v1/clients/external-id/${this.configuration.encodeParam({name: "clientExternalId", value: clientExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostClientsClientIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Undo a Client Transaction
+     * Undoes a Client Transaction
+     * @endpoint post /v1/clients/external-id/{clientExternalId}/transactions/{transactionId}
+     * @param clientExternalId clientExternalId
+     * @param transactionId transactionId
+     * @param command command
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientsClientIdTransactionsTransactionIdResponse>;
+    public postClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientsClientIdTransactionsTransactionIdResponse>>;
+    public postClientsExternalIdClientExternalIdTransactionsTransactionId(clientExternalId: string, transactionId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (clientExternalId === null || clientExternalId === undefined) {
+            throw new Error('Required parameter clientExternalId was null or undefined when calling postClientsExternalIdClientExternalIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling postClientsExternalIdClientExternalIdTransactionsTransactionId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/clients/external-id/${this.configuration.encodeParam({name: "clientExternalId", value: clientExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PostClientsClientIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
             {

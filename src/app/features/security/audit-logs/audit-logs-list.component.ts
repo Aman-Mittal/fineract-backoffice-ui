@@ -267,7 +267,7 @@ export class AuditLogsListComponent implements OnInit {
             : undefined;
 
           return this.auditsService
-            .retrieveAuditEntries(
+            .getAudits(
               this.activeFilters.actionName || undefined,
               this.activeFilters.entityName || undefined,
               this.activeFilters.resourceId,

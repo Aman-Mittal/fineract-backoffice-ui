@@ -185,7 +185,7 @@ export class ClientsListComponent {
           const status = this.activeFilters.status;
 
           return this.clientService
-            .retrieveAll21(
+            .getClients(
               undefined,
               undefined,
               displayName,

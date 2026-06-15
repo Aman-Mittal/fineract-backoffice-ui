@@ -207,7 +207,7 @@ export class SavingsAccountsListComponent implements OnInit {
           const searchVal = this.currentFilter || undefined;
 
           return this.savingsService
-            .retrieveAll33(searchVal, offset, limit, orderBy, sortOrder)
+            .getSavingsaccounts(searchVal, offset, limit, orderBy, sortOrder)
             .pipe(catchError(() => of(null)));
         }),
         map((response: GetSavingsAccountsResponse | null) => {

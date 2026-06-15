@@ -26,6 +26,7 @@
 
 
 export interface JobDetailHistoryData { 
+    id?: number;
     jobRunEndTime?: string;
     jobRunErrorLog?: string;
     jobRunErrorMessage?: string;

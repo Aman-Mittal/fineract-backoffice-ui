@@ -35,7 +35,9 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { MixTaxonomyMappingData } from '../model/mixTaxonomyMappingData';
 // @ts-ignore
-import { MixTaxonomyRequest } from '../model/mixTaxonomyRequest';
+import { MixTaxonomyMappingUpdateRequest } from '../model/mixTaxonomyMappingUpdateRequest';
+// @ts-ignore
+import { MixTaxonomyMappingUpdateResponse } from '../model/mixTaxonomyMappingUpdateResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -54,15 +56,16 @@ export class MixMappingService extends BaseService {
     }
 
     /**
+     * Retrieve Mix Taxonomy Mapping
      * @endpoint get /v1/mixmapping
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveTaxonomyMapping(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MixTaxonomyMappingData>;
-    public retrieveTaxonomyMapping(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MixTaxonomyMappingData>>;
-    public retrieveTaxonomyMapping(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MixTaxonomyMappingData>>;
-    public retrieveTaxonomyMapping(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getMixmapping(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MixTaxonomyMappingData>;
+    public getMixmapping(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MixTaxonomyMappingData>>;
+    public getMixmapping(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MixTaxonomyMappingData>>;
+    public getMixmapping(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -111,16 +114,17 @@ export class MixMappingService extends BaseService {
     }
 
     /**
+     * Update Mix Taxonomy Mapping
      * @endpoint put /v1/mixmapping
-     * @param mixTaxonomyRequest 
+     * @param mixTaxonomyMappingUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateTaxonomyMapping(mixTaxonomyRequest?: MixTaxonomyRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public updateTaxonomyMapping(mixTaxonomyRequest?: MixTaxonomyRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public updateTaxonomyMapping(mixTaxonomyRequest?: MixTaxonomyRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public updateTaxonomyMapping(mixTaxonomyRequest?: MixTaxonomyRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putMixmapping(mixTaxonomyMappingUpdateRequest?: MixTaxonomyMappingUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MixTaxonomyMappingUpdateResponse>;
+    public putMixmapping(mixTaxonomyMappingUpdateRequest?: MixTaxonomyMappingUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MixTaxonomyMappingUpdateResponse>>;
+    public putMixmapping(mixTaxonomyMappingUpdateRequest?: MixTaxonomyMappingUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MixTaxonomyMappingUpdateResponse>>;
+    public putMixmapping(mixTaxonomyMappingUpdateRequest?: MixTaxonomyMappingUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -164,10 +168,10 @@ export class MixMappingService extends BaseService {
 
         let localVarPath = `/v1/mixmapping`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<MixTaxonomyMappingUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: mixTaxonomyRequest,
+                body: mixTaxonomyMappingUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

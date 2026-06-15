@@ -364,7 +364,7 @@ export class LoanProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveLoanProductDetails(this.productId).subscribe((data) => {
+    this.productService.getLoanproductsProductId(this.productId).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -397,13 +397,13 @@ export class LoanProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService
-        .updateLoanProduct(this.productId, this.product as PutLoanProductsProductIdRequest)
+        .putLoanproductsProductId(this.productId, this.product as PutLoanProductsProductIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
-      this.productService.createLoanProduct(this.product).subscribe({
+      this.productService.postLoanproducts(this.product).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

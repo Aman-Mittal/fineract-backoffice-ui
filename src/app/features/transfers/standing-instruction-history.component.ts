@@ -79,7 +79,7 @@ export class StandingInstructionHistoryComponent implements OnInit {
 
   loadHistory(): void {
     this.isLoading.set(true);
-    this.historyService.retrieveAll20().subscribe({
+    this.historyService.getStandinginstructionrunhistory().subscribe({
       next: (data) => {
         this.history.set(Array.from(data.pageItems || []));
         this.isLoading.set(false);

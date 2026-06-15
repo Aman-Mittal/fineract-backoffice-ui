@@ -13,8 +13,10 @@
 
 import { test, expect } from '@playwright/test';
 
+const HEAD_OFFICE = HEAD_OFFICE;
+
 test.describe('Client Management', () => {
-  let createdClients: any[] = [];
+  let createdClients: Record<string, unknown>[] = [];
 
   test.beforeEach(async ({ page }) => {
     createdClients = [];
@@ -42,7 +44,7 @@ test.describe('Client Management', () => {
           base64EncodedAuthenticationKey: 'YmFzZTY0',
           authenticated: true,
           officeId: 1,
-          officeName: 'Head Office',
+          officeName: HEAD_OFFICE,
           roles: [{ id: 1, name: 'Super User', description: 'Super user' }],
           permissions: ['ALL_FUNCTIONS'],
         }),
@@ -57,8 +59,8 @@ test.describe('Client Management', () => {
         body: JSON.stringify([
           {
             id: 1,
-            name: 'Head Office',
-            nameDecorated: 'Head Office',
+            name: HEAD_OFFICE,
+            nameDecorated: HEAD_OFFICE,
             externalId: '1',
             openingDate: [2009, 1, 1],
             hierarchy: '.',
@@ -78,7 +80,7 @@ test.describe('Client Management', () => {
           firstname: body.firstname,
           lastname: body.lastname,
           status: { value: 'Active' },
-          officeName: 'Head Office',
+          officeName: HEAD_OFFICE,
         };
         createdClients.push(newClient);
         await route.fulfill({
@@ -135,7 +137,7 @@ test.describe('Client Management', () => {
     await page.locator('input[name="firstname"]').fill(firstName);
     await page.locator('input[name="lastname"]').fill(lastName);
 
-    // Select Office (assuming 'Head Office' is available)
+    // Select Office (assuming HEAD_OFFICE is available)
     await page.locator('mat-select[name="officeId"]').click();
     await page.locator('mat-option').first().click();
 

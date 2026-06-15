@@ -127,7 +127,7 @@ export class ExternalAssetOwnersListComponent {
           };
 
           return this.assetOwnersService
-            .searchInvestorData(request)
+            .postExternalAssetOwnersSearch(request)
             .pipe(catchError(() => of(null)));
         }),
         map((response) => {

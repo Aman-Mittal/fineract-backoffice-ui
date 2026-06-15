@@ -117,7 +117,7 @@ export class TellersListComponent implements OnInit {
    * Retrieves all tellers from the Fineract API.
    */
   private loadTellers(): void {
-    this.tellerService.getTellerData().subscribe({
+    this.tellerService.getTellers().subscribe({
       next: (data: GetTellersResponse[]) => {
         this.tellers = data || [];
       },
