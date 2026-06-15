@@ -465,6 +465,25 @@ recommended next steps.
 
 ---
 
+## 18. Theme & UX Consistency (Light vs. Dark Mode)
+
+| Theme Feature / Interaction | Status  | Notes                                                                                                                                                                                                             |
+| --------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Main content background     | ✅ PASS | Switches correctly from light grey (`#f0f2f5`) to dark grey (`#121212`)                                                                                                                                           |
+| Card containers             | ✅ PASS | Transitions background color correctly to dark grey (`#1e1e1e`)                                                                                                                                                   |
+| Header elements background  | ✅ PASS | Correctly uses themed background                                                                                                                                                                                  |
+| Typography colors           | ✅ PASS | Body text switches color correctly                                                                                                                                                                                |
+| Outlined Text Fields text   | ❌ FAIL | Typed text inside outline form fields uses static `rgba(0, 0, 0, 0.87)` color in dark mode, making it nearly invisible/unreadable. Needs `--mat-form-field-outlined-input-text-color` mapped to theme text color. |
+| Language selector dropdown  | ❌ FAIL | `#lang-select` dropdown has hardcoded white background and black text, causing style inconsistency in dark mode.                                                                                                  |
+| Icon Buttons contrast       | ❌ FAIL | Header buttons (`.toggle-btn`, `.theme-toggle-btn`) use hardcoded `color: #555;` and light hover states, resulting in extremely low contrast in dark mode.                                                        |
+
+**Theme Gaps:**
+
+- **Form Input Contrast**: When typing in Client creation forms or KYC address/identifier forms in dark mode, the contrast ratio of the input values is extremely low, presenting severe accessibility and usability issues.
+- **Header Icon Contrast**: The sidebar expand/collapse button and theme toggle buttons are dark slate grey against a dark blue/black background when in dark mode.
+
+---
+
 ## Summary of UI Gaps (High Priority)
 
 | #   | Gap Area                                     | API Service Exists                      | UI Exists  | Priority |
