@@ -83,11 +83,18 @@ recommended next steps.
 
 **Gaps:**
 
-- **Client Identifiers tab** — not visible on the clients list (API exists via `clientIdentifier.service.ts`)
-- **Address management** — no visible address section in client list view (API exists via `clientsAddress.service.ts`)
-- **Client Family Members** — no visible tab/section (API exists via `clientFamilyMember.service.ts`)
-- **Client KYC/Identity Documents** — no visible documents section (API exists via `documents.service.ts`)
-- **Client Status Transitions** — no visible buttons for Approve/Activate/Close/Reject/Withdraw on list view
+- **Client list navigation** — Drilldown links on list view cells are missing to navigate to the detailed client view directly.
+
+### Client Detailed View (`/clients/view/:id`)
+
+| Feature                       | Status     | Notes                                                                                                                                                                                                  |
+| ----------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Client Profile Tabs           | ✅ PASS    | Details, Savings Accounts, Loan Accounts, Identifiers, Addresses, Family Members, Notes, Documents, Custom Fields tabs render and load data.                                                           |
+| Client Identifier Creation    | ✅ PASS    | "Add Identifier" form successfully captures and posts document type, key, description. Persists and displays in table (e.g., SSN).                                                                     |
+| Client Family Member Creation | ✅ PASS    | "Add Family Member" form successfully submits to `POST /clients/{clientId}/familymembers`. Persists, displays in table, and Edit mode retrieves template data and populates inputs correctly.          |
+| Client Note Creation          | ✅ PASS    | "Add Note" form successfully submits to `POST /clients/{clientId}/notes` and displays correctly in the list.                                                                                           |
+| Client Address Creation       | ❌ FAIL    | Submission of "Add Address" form triggers `400 Bad Request` on `POST /client/{clientId}/addresses` because payload includes unsupported parameters: `addressTypeId`, `townVillage`, `countyDistrict`.  |
+| Client Status Transitions     | ⚠️ PARTIAL | Menu option "Activate Client" shows activation dialog, but submission triggers `400 Bad Request` on `POST /clients/{clientId}?command=activate` because payload includes unsupported parameter `note`. |
 
 ---
 
@@ -460,35 +467,37 @@ recommended next steps.
 
 ## Summary of UI Gaps (High Priority)
 
-| #   | Gap Area                                     | API Service Exists                      | UI Exists | Priority |
-| --- | -------------------------------------------- | --------------------------------------- | --------- | -------- |
-| 1   | Client Identifiers management                | `clientIdentifier.service.ts`           | ❌ No     | HIGH     |
-| 2   | Client Address management                    | `clientsAddress.service.ts`             | ❌ No     | HIGH     |
-| 3   | Client Family Members                        | `clientFamilyMember.service.ts`         | ❌ No     | HIGH     |
-| 4   | Client Documents/KYC                         | `documents.service.ts`                  | ❌ No     | HIGH     |
-| 5   | Loan Guarantors management                   | `guarantors.service.ts`                 | ❌ No     | HIGH     |
-| 6   | Loan Collateral management                   | `collateralManagement.service.ts`       | ❌ No     | HIGH     |
-| 7   | Teller cash allocation/settlement            | `cashiers.service.ts`                   | ❌ No     | HIGH     |
-| 8   | Bulk Import history (404 error)              | `bulkImport.service.ts`                 | ⚠️ Broken | HIGH     |
-| 9   | Client status transitions (approve/activate) | `client.service.ts`                     | ❌ No     | MEDIUM   |
-| 10  | Loan reschedule UI                           | `rescheduleLoan`                        | ❌ No     | MEDIUM   |
-| 11  | Group levels/hierarchy UI                    | `groupsLevel.service.ts`                | ❌ No     | MEDIUM   |
-| 12  | Share Products CRUD flow                     | `shareproduct.service.ts`               | ❌ No     | MEDIUM   |
-| 13  | External Event Configuration                 | `externalEventConfiguration.service.ts` | ❌ No     | LOW      |
-| 14  | External Services Configuration              | `externalServices.service.ts`           | ❌ No     | LOW      |
-| 15  | Credit Bureau Integration UI                 | `creditBureauIntegration.service.ts`    | ❌ No     | LOW      |
-| 16  | Scheduler/Job Management UI                  | `inlineJob.service.ts`                  | ❌ No     | LOW      |
-| 17  | Maker-Checker workflow UI                    | —                                       | ❌ No     | LOW      |
-| 18  | Password Policy / 2FA config                 | —                                       | ❌ No     | LOW      |
+| #   | Gap Area                                     | API Service Exists                      | UI Exists  | Priority |
+| --- | -------------------------------------------- | --------------------------------------- | ---------- | -------- |
+| 1   | Client Identifiers management                | `clientIdentifier.service.ts`           | ✅ Yes     | HIGH     |
+| 2   | Client Address management                    | `clientsAddress.service.ts`             | ⚠️ Partial | HIGH     |
+| 3   | Client Family Members                        | `clientFamilyMember.service.ts`         | ✅ Yes     | HIGH     |
+| 4   | Client Documents/KYC                         | `documents.service.ts`                  | ✅ Yes     | HIGH     |
+| 5   | Loan Guarantors management                   | `guarantors.service.ts`                 | ❌ No      | HIGH     |
+| 6   | Loan Collateral management                   | `collateralManagement.service.ts`       | ❌ No      | HIGH     |
+| 7   | Teller cash allocation/settlement            | `cashiers.service.ts`                   | ❌ No      | HIGH     |
+| 8   | Bulk Import history (404 error)              | `bulkImport.service.ts`                 | ⚠️ Broken  | HIGH     |
+| 9   | Client status transitions (approve/activate) | `client.service.ts`                     | ⚠️ Partial | MEDIUM   |
+| 10  | Loan reschedule UI                           | `rescheduleLoan`                        | ❌ No      | MEDIUM   |
+| 11  | Group levels/hierarchy UI                    | `groupsLevel.service.ts`                | ❌ No      | MEDIUM   |
+| 12  | Share Products CRUD flow                     | `shareproduct.service.ts`               | ❌ No      | MEDIUM   |
+| 13  | External Event Configuration                 | `externalEventConfiguration.service.ts` | ❌ No      | LOW      |
+| 14  | External Services Configuration              | `externalServices.service.ts`           | ❌ No      | LOW      |
+| 15  | Credit Bureau Integration UI                 | `creditBureauIntegration.service.ts`    | ❌ No      | LOW      |
+| 16  | Scheduler/Job Management UI                  | `inlineJob.service.ts`                  | ❌ No      | LOW      |
+| 17  | Maker-Checker workflow UI                    | —                                       | ❌ No      | LOW      |
+| 18  | Password Policy / 2FA config                 | —                                       | ❌ No      | LOW      |
 
 ---
 
 ## Console Errors Observed
 
-| Page        | Error                                                           | Impact                        |
-| ----------- | --------------------------------------------------------------- | ----------------------------- |
-| Bulk Import | `Failed to load resource: 404` at `/imports?entityType=clients` | Import history feature broken |
-| Bulk Import | `HttpErrorResponse` — failed to load import history             | Same as above                 |
+| Page                    | Error                                                              | Impact                                                                                             |
+| ----------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| Bulk Import             | `Failed to load resource: 404` at `/imports?entityType=clients`    | Import history feature broken                                                                      |
+| Bulk Import             | `HttpErrorResponse` — failed to load import history                | Same as above                                                                                      |
+| Client View (Addresses) | `Failed to load resource: 400` at `/client/1401/addresses?type=23` | Address creation fails due to unsupported fields: `addressTypeId`, `townVillage`, `countyDistrict` |
+| Client View (Actions)   | `Failed to load resource: 400` at `/clients/1401?command=activate` | Client activation fails due to unsupported parameter: `note`                                       |
 
 ---
 
