@@ -900,6 +900,708 @@ export const routes: Routes = [
             (m) => m.LoanTransactionFormComponent,
           ),
       },
+      {
+        path: 'spm/surveys',
+        loadComponent: () =>
+          import('./features/spm/surveys/spm-surveys-list.component').then(
+            (m) => m.SpmSurveysListComponent,
+          ),
+      },
+      {
+        path: 'spm/surveys/create',
+        loadComponent: () =>
+          import('./features/spm/surveys/spm-surveys-form.component').then(
+            (m) => m.SpmSurveysFormComponent,
+          ),
+      },
+      {
+        path: 'spm/surveys/edit/:id',
+        loadComponent: () =>
+          import('./features/spm/surveys/spm-surveys-form.component').then(
+            (m) => m.SpmSurveysFormComponent,
+          ),
+      },
+      {
+        path: 'spm/surveys/:surveyId/scorecards',
+        loadComponent: () =>
+          import('./features/spm/scorecards/scorecards.component').then(
+            (m) => m.ScorecardsComponent,
+          ),
+      },
+      {
+        path: 'spm/poverty-line',
+        loadComponent: () =>
+          import('./features/spm/poverty-line/poverty-line.component').then(
+            (m) => m.PovertyLineComponent,
+          ),
+      },
+      {
+        path: 'spm/likelihood',
+        loadComponent: () =>
+          import('./features/spm/likelihood/likelihood.component').then(
+            (m) => m.LikelihoodComponent,
+          ),
+      },
+      {
+        path: 'mix/mapping',
+        loadComponent: () =>
+          import('./features/mix/mapping/mix-mapping.component').then((m) => m.MixMappingComponent),
+      },
+      {
+        path: 'mix/report',
+        loadComponent: () =>
+          import('./features/mix/report/mix-report.component').then((m) => m.MixReportComponent),
+      },
+      {
+        path: 'mix/taxonomy',
+        loadComponent: () =>
+          import('./features/mix/taxonomy/mix-taxonomy.component').then(
+            (m) => m.MixTaxonomyComponent,
+          ),
+      },
+      {
+        path: 'system/credit-bureau-config',
+        loadComponent: () =>
+          import('./features/system/credit-bureau-config/credit-bureau-config.component').then(
+            (m) => m.CreditBureauConfigComponent,
+          ),
+      },
+      {
+        path: 'system/hooks',
+        loadComponent: () =>
+          import('./features/system/hooks/hooks-list.component').then((m) => m.HooksListComponent),
+      },
+      {
+        path: 'system/hooks/create',
+        loadComponent: () =>
+          import('./features/system/hooks/hooks-form.component').then((m) => m.HooksFormComponent),
+      },
+      {
+        path: 'system/hooks/edit/:id',
+        loadComponent: () =>
+          import('./features/system/hooks/hooks-form.component').then((m) => m.HooksFormComponent),
+      },
+      {
+        path: 'system/adhoc-query',
+        loadComponent: () =>
+          import('./features/system/adhoc-query/adhoc-query-list.component').then(
+            (m) => m.AdhocQueryListComponent,
+          ),
+      },
+      {
+        path: 'system/adhoc-query/create',
+        loadComponent: () =>
+          import('./features/system/adhoc-query/adhoc-query-form.component').then(
+            (m) => m.AdhocQueryFormComponent,
+          ),
+      },
+      {
+        path: 'system/adhoc-query/edit/:id',
+        loadComponent: () =>
+          import('./features/system/adhoc-query/adhoc-query-form.component').then(
+            (m) => m.AdhocQueryFormComponent,
+          ),
+      },
+      {
+        path: 'system/sms',
+        loadComponent: () =>
+          import('./features/system/sms/sms-list.component').then((m) => m.SmsListComponent),
+      },
+      {
+        path: 'system/sms/create',
+        loadComponent: () =>
+          import('./features/system/sms/sms-form.component').then((m) => m.SmsFormComponent),
+      },
+      {
+        path: 'system/sms/edit/:id',
+        loadComponent: () =>
+          import('./features/system/sms/sms-form.component').then((m) => m.SmsFormComponent),
+      },
+      {
+        path: 'system/report-mailing-jobs',
+        loadComponent: () =>
+          import('./features/system/report-mailing-jobs/report-mailing-jobs-list.component').then(
+            (m) => m.ReportMailingJobsListComponent,
+          ),
+      },
+      {
+        path: 'system/report-mailing-jobs/create',
+        loadComponent: () =>
+          import('./features/system/report-mailing-jobs/report-mailing-jobs-form.component').then(
+            (m) => m.ReportMailingJobsFormComponent,
+          ),
+      },
+      {
+        path: 'system/report-mailing-jobs/edit/:id',
+        loadComponent: () =>
+          import('./features/system/report-mailing-jobs/report-mailing-jobs-form.component').then(
+            (m) => m.ReportMailingJobsFormComponent,
+          ),
+      },
+      {
+        path: 'system/entity-data-table-checks',
+        loadComponent: () =>
+          import('./features/system/entity-data-table-checks/entity-data-table-checks-list.component').then(
+            (m) => m.EntityDataTableChecksListComponent,
+          ),
+      },
+      {
+        path: 'system/entity-data-table-checks/create',
+        loadComponent: () =>
+          import('./features/system/entity-data-table-checks/entity-data-table-checks-form.component').then(
+            (m) => m.EntityDataTableChecksFormComponent,
+          ),
+      },
+      {
+        path: 'system/entity-mapping',
+        loadComponent: () =>
+          import('./features/system/entity-mapping/entity-mapping-list.component').then(
+            (m) => m.EntityMappingListComponent,
+          ),
+      },
+      {
+        path: 'system/entity-mapping/create',
+        loadComponent: () =>
+          import('./features/system/entity-mapping/entity-mapping-form.component').then(
+            (m) => m.EntityMappingFormComponent,
+          ),
+      },
+      {
+        path: 'system/entity-mapping/edit/:id',
+        loadComponent: () =>
+          import('./features/system/entity-mapping/entity-mapping-form.component').then(
+            (m) => m.EntityMappingFormComponent,
+          ),
+      },
+      {
+        path: 'system/business-steps',
+        loadComponent: () =>
+          import('./features/system/business-steps/business-steps.component').then(
+            (m) => m.BusinessStepsComponent,
+          ),
+      },
+      {
+        path: 'system/cache',
+        loadComponent: () =>
+          import('./features/system/cache/cache.component').then((m) => m.CacheComponent),
+      },
+      {
+        path: 'system/external-events',
+        loadComponent: () =>
+          import('./features/system/external-events/external-events.component').then(
+            (m) => m.ExternalEventsComponent,
+          ),
+      },
+      {
+        path: 'system/external-services',
+        loadComponent: () =>
+          import('./features/system/external-services/external-services.component').then(
+            (m) => m.ExternalServicesComponent,
+          ),
+      },
+      {
+        path: 'system/password-preferences',
+        loadComponent: () =>
+          import('./features/system/password-preferences/password-preferences.component').then(
+            (m) => m.PasswordPreferencesComponent,
+          ),
+      },
+      {
+        path: 'system/notifications-config',
+        loadComponent: () =>
+          import('./features/system/notifications-config/notifications-config.component').then(
+            (m) => m.NotificationsConfigComponent,
+          ),
+      },
+      {
+        path: 'system/instance-mode',
+        loadComponent: () =>
+          import('./features/system/instance-mode/instance-mode.component').then(
+            (m) => m.InstanceModeComponent,
+          ),
+      },
+      {
+        path: 'system/scheduler-jobs',
+        loadComponent: () =>
+          import('./features/system/scheduler-jobs/scheduler-jobs-list.component').then(
+            (m) => m.SchedulerJobsListComponent,
+          ),
+      },
+      {
+        path: 'system/scheduler-jobs/:id/history',
+        loadComponent: () =>
+          import('./features/system/scheduler-jobs/scheduler-job-history.component').then(
+            (m) => m.SchedulerJobHistoryComponent,
+          ),
+      },
+      {
+        path: 'system/permissions',
+        loadComponent: () =>
+          import('./features/system/permissions/permissions.component').then(
+            (m) => m.PermissionsListComponent,
+          ),
+      },
+      {
+        path: 'system/oidc-config',
+        loadComponent: () =>
+          import('./features/system/oidc-config/oidc-config.component').then(
+            (m) => m.OidcConfigComponent,
+          ),
+      },
+      {
+        path: 'system/field-configuration',
+        loadComponent: () =>
+          import('./features/system/field-configuration/field-configuration.component').then(
+            (m) => m.FieldConfigurationComponent,
+          ),
+      },
+      {
+        path: 'system/loan-product-details',
+        loadComponent: () =>
+          import('./features/system/loan-product-details/loan-product-details.component').then(
+            (m) => m.LoanProductDetailsComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-categories',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-categories/provisioning-categories-list.component').then(
+            (m) => m.ProvisioningCategoriesListComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-categories/create',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-categories/provisioning-categories-form.component').then(
+            (m) => m.ProvisioningCategoriesFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-categories/edit/:id',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-categories/provisioning-categories-form.component').then(
+            (m) => m.ProvisioningCategoriesFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-criteria',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-criteria/provisioning-criteria-list.component').then(
+            (m) => m.ProvisioningCriteriaListComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-criteria/create',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-criteria/provisioning-criteria-form.component').then(
+            (m) => m.ProvisioningCriteriaFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-criteria/edit/:id',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-criteria/provisioning-criteria-form.component').then(
+            (m) => m.ProvisioningCriteriaFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-entries',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-entries/provisioning-entries-list.component').then(
+            (m) => m.ProvisioningEntriesListComponent,
+          ),
+      },
+      {
+        path: 'accounting/provisioning-entries/create',
+        loadComponent: () =>
+          import('./features/accounting/provisioning-entries/provisioning-entries-form.component').then(
+            (m) => m.ProvisioningEntriesFormComponent,
+          ),
+      },
+      {
+        path: 'accounting/run-accruals',
+        loadComponent: () =>
+          import('./features/accounting/run-accruals/run-accruals.component').then(
+            (m) => m.RunAccrualsComponent,
+          ),
+      },
+      {
+        path: 'tellers/cashier-journals',
+        loadComponent: () =>
+          import('./features/tellers/cashier-journals/cashier-journals-list.component').then(
+            (m) => m.CashierJournalsListComponent,
+          ),
+      },
+      {
+        path: 'products/rates',
+        loadComponent: () =>
+          import('./features/products/rates/rates-list.component').then(
+            (m) => m.RatesListComponent,
+          ),
+      },
+      {
+        path: 'products/rates/create',
+        loadComponent: () =>
+          import('./features/products/rates/rate-form.component').then((m) => m.RateFormComponent),
+      },
+      {
+        path: 'products/rates/edit/:id',
+        loadComponent: () =>
+          import('./features/products/rates/rate-form.component').then((m) => m.RateFormComponent),
+      },
+      {
+        path: 'products/interest-rate-charts',
+        loadComponent: () =>
+          import('./features/products/interest-rate-charts/interest-rate-charts-list.component').then(
+            (m) => m.InterestRateChartsListComponent,
+          ),
+      },
+      {
+        path: 'products/interest-rate-charts/create',
+        loadComponent: () =>
+          import('./features/products/interest-rate-charts/interest-rate-chart-form.component').then(
+            (m) => m.InterestRateChartFormComponent,
+          ),
+      },
+      {
+        path: 'products/interest-rate-charts/edit/:id',
+        loadComponent: () =>
+          import('./features/products/interest-rate-charts/interest-rate-chart-form.component').then(
+            (m) => m.InterestRateChartFormComponent,
+          ),
+      },
+      {
+        path: 'products/interest-rate-charts/:chartId/slabs',
+        loadComponent: () =>
+          import('./features/products/interest-rate-charts/interest-rate-chart-slabs.component').then(
+            (m) => m.InterestRateChartSlabsComponent,
+          ),
+      },
+      {
+        path: 'products/loan/:productId/product-mix',
+        loadComponent: () =>
+          import('./features/products/product-mix/product-mix.component').then(
+            (m) => m.ProductMixComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/:savingsAccountId/charges',
+        loadComponent: () =>
+          import('./features/products/savings-charges/savings-charges-list.component').then(
+            (m) => m.SavingsChargesListComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/:savingsAccountId/charges/create',
+        loadComponent: () =>
+          import('./features/products/savings-charges/savings-charge-form.component').then(
+            (m) => m.SavingsChargeFormComponent,
+          ),
+      },
+      {
+        path: 'products/shares/:productId/dividends',
+        loadComponent: () =>
+          import('./features/products/share-dividends/share-dividends-list.component').then(
+            (m) => m.ShareDividendsListComponent,
+          ),
+      },
+      {
+        path: 'products/shares/:productId/dividends/create',
+        loadComponent: () =>
+          import('./features/products/share-dividends/share-dividend-form.component').then(
+            (m) => m.ShareDividendFormComponent,
+          ),
+      },
+      {
+        path: 'products/fixed-deposits/:accountId/transactions',
+        loadComponent: () =>
+          import('./features/products/fixed-deposit-transactions/fixed-deposit-transactions-list.component').then(
+            (m) => m.FixedDepositTransactionsListComponent,
+          ),
+      },
+      {
+        path: 'products/recurring-deposits/:accountId/transactions/create',
+        loadComponent: () =>
+          import('./features/products/recurring-deposit-transactions/recurring-deposit-transaction-form.component').then(
+            (m) => m.RecurringDepositTransactionFormComponent,
+          ),
+      },
+      {
+        path: 'products/savings-accounts/:savingsId/on-hold-transactions',
+        loadComponent: () =>
+          import('./features/products/on-hold-transactions/on-hold-transactions-list.component').then(
+            (m) => m.OnHoldTransactionsListComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/charges',
+        loadComponent: () =>
+          import('./features/clients/charges/client-charges-list.component').then(
+            (m) => m.ClientChargesListComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/charges/create',
+        loadComponent: () =>
+          import('./features/clients/charges/client-charge-form.component').then(
+            (m) => m.ClientChargeFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/collaterals',
+        loadComponent: () =>
+          import('./features/clients/collateral/client-collateral-list.component').then(
+            (m) => m.ClientCollateralListComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/collaterals/create',
+        loadComponent: () =>
+          import('./features/clients/collateral/client-collateral-form.component').then(
+            (m) => m.ClientCollateralFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/collaterals/edit/:id',
+        loadComponent: () =>
+          import('./features/clients/collateral/client-collateral-form.component').then(
+            (m) => m.ClientCollateralFormComponent,
+          ),
+      },
+      {
+        path: 'clients/:clientId/transactions',
+        loadComponent: () =>
+          import('./features/clients/transactions/client-transactions-list.component').then(
+            (m) => m.ClientTransactionsListComponent,
+          ),
+      },
+      {
+        path: 'meetings/:entityType/:entityId',
+        loadComponent: () =>
+          import('./features/meetings/meetings-list.component').then(
+            (m) => m.MeetingsListComponent,
+          ),
+      },
+      {
+        path: 'meetings/:entityType/:entityId/create',
+        loadComponent: () =>
+          import('./features/meetings/meeting-form.component').then((m) => m.MeetingFormComponent),
+      },
+      {
+        path: 'meetings/:entityType/:entityId/edit/:id',
+        loadComponent: () =>
+          import('./features/meetings/meeting-form.component').then((m) => m.MeetingFormComponent),
+      },
+      {
+        path: 'calendars/:entityType/:entityId',
+        loadComponent: () =>
+          import('./features/calendars/calendars-list.component').then(
+            (m) => m.CalendarsListComponent,
+          ),
+      },
+      {
+        path: 'calendars/:entityType/:entityId/create',
+        loadComponent: () =>
+          import('./features/calendars/calendar-form.component').then(
+            (m) => m.CalendarFormComponent,
+          ),
+      },
+      {
+        path: 'calendars/:entityType/:entityId/edit/:id',
+        loadComponent: () =>
+          import('./features/calendars/calendar-form.component').then(
+            (m) => m.CalendarFormComponent,
+          ),
+      },
+      {
+        path: 'organization/group-levels',
+        loadComponent: () =>
+          import('./features/organization/group-levels/group-levels-list.component').then(
+            (m) => m.GroupLevelsListComponent,
+          ),
+      },
+      {
+        path: 'products/loan-originators',
+        loadComponent: () =>
+          import('./features/products/loan-originators/loan-originators-list.component').then(
+            (m) => m.LoanOriginatorsListComponent,
+          ),
+      },
+      {
+        path: 'products/loan-originators/create',
+        loadComponent: () =>
+          import('./features/products/loan-originators/loan-originator-form.component').then(
+            (m) => m.LoanOriginatorFormComponent,
+          ),
+      },
+      {
+        path: 'products/loan-originators/edit/:id',
+        loadComponent: () =>
+          import('./features/products/loan-originators/loan-originator-form.component').then(
+            (m) => m.LoanOriginatorFormComponent,
+          ),
+      },
+      {
+        path: 'products/collateral-management',
+        loadComponent: () =>
+          import('./features/products/collateral-management/collateral-management-list.component').then(
+            (m) => m.CollateralManagementListComponent,
+          ),
+      },
+      {
+        path: 'products/collateral-management/create',
+        loadComponent: () =>
+          import('./features/products/collateral-management/collateral-management-form.component').then(
+            (m) => m.CollateralManagementFormComponent,
+          ),
+      },
+      {
+        path: 'products/collateral-management/edit/:id',
+        loadComponent: () =>
+          import('./features/products/collateral-management/collateral-management-form.component').then(
+            (m) => m.CollateralManagementFormComponent,
+          ),
+      },
+      {
+        path: 'loans/bulk-reassignment',
+        loadComponent: () =>
+          import('./features/loans/bulk-reassignment/bulk-reassignment.component').then(
+            (m) => m.BulkReassignmentComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/guarantors',
+        loadComponent: () =>
+          import('./features/loans/guarantors/guarantors-list.component').then(
+            (m) => m.GuarantorsListComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/guarantors/create',
+        loadComponent: () =>
+          import('./features/loans/guarantors/guarantor-form.component').then(
+            (m) => m.GuarantorFormComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/guarantors/edit/:id',
+        loadComponent: () =>
+          import('./features/loans/guarantors/guarantor-form.component').then(
+            (m) => m.GuarantorFormComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/interest-pauses',
+        loadComponent: () =>
+          import('./features/loans/interest-pauses/interest-pauses-list.component').then(
+            (m) => m.InterestPausesListComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/interest-pauses/create',
+        loadComponent: () =>
+          import('./features/loans/interest-pauses/interest-pause-form.component').then(
+            (m) => m.InterestPauseFormComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/post-dated-checks',
+        loadComponent: () =>
+          import('./features/loans/post-dated-checks/post-dated-checks-list.component').then(
+            (m) => m.PostDatedChecksListComponent,
+          ),
+      },
+      {
+        path: 'loans/:loanId/post-dated-checks/edit/:id',
+        loadComponent: () =>
+          import('./features/loans/post-dated-checks/post-dated-check-form.component').then(
+            (m) => m.PostDatedCheckFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/breach',
+        loadComponent: () =>
+          import('./features/working-capital/breach/wc-breach-list.component').then(
+            (m) => m.WcBreachListComponent,
+          ),
+      },
+      {
+        path: 'working-capital/breach/create',
+        loadComponent: () =>
+          import('./features/working-capital/breach/wc-breach-form.component').then(
+            (m) => m.WcBreachFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/breach/edit/:id',
+        loadComponent: () =>
+          import('./features/working-capital/breach/wc-breach-form.component').then(
+            (m) => m.WcBreachFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/near-breach',
+        loadComponent: () =>
+          import('./features/working-capital/near-breach/wc-near-breach-list.component').then(
+            (m) => m.WcNearBreachListComponent,
+          ),
+      },
+      {
+        path: 'working-capital/near-breach/create',
+        loadComponent: () =>
+          import('./features/working-capital/near-breach/wc-near-breach-form.component').then(
+            (m) => m.WcNearBreachFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/near-breach/edit/:id',
+        loadComponent: () =>
+          import('./features/working-capital/near-breach/wc-near-breach-form.component').then(
+            (m) => m.WcNearBreachFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loan-products',
+        loadComponent: () =>
+          import('./features/working-capital/loan-products/wc-loan-products-list.component').then(
+            (m) => m.WcLoanProductsListComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loan-products/create',
+        loadComponent: () =>
+          import('./features/working-capital/loan-products/wc-loan-product-form.component').then(
+            (m) => m.WcLoanProductFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loan-products/edit/:id',
+        loadComponent: () =>
+          import('./features/working-capital/loan-products/wc-loan-product-form.component').then(
+            (m) => m.WcLoanProductFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loans',
+        loadComponent: () =>
+          import('./features/working-capital/loans/wc-loans-list.component').then(
+            (m) => m.WcLoansListComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loans/create',
+        loadComponent: () =>
+          import('./features/working-capital/loans/wc-loan-form.component').then(
+            (m) => m.WcLoanFormComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loans/view/:id',
+        loadComponent: () =>
+          import('./features/working-capital/loans/wc-loan-view.component').then(
+            (m) => m.WcLoanViewComponent,
+          ),
+      },
     ],
   },
   {

@@ -73,6 +73,12 @@ import { SidebarService } from '../core/services/sidebar.service';
           </a>
         </li>
         <li>
+          <a routerLink="/loans/bulk-reassignment" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">groups</mat-icon>
+            <span class="nav-text">{{ 'nav.bulkReassignment' | translate }}</span>
+          </a>
+        </li>
+        <li>
           <div class="nav-group">
             <span class="nav-group-header">{{ 'nav.transfers' | translate }}</span>
             <ul class="nav-sub-list">
@@ -181,6 +187,42 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.floatingRates' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a routerLink="/products/rates" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">percent</mat-icon>
+                  <span class="nav-text">{{ 'nav.rates' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/interest-rate-charts"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">show_chart</mat-icon>
+                  <span class="nav-text">{{ 'nav.interestRateCharts' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/loan-originators"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">groups</mat-icon>
+                  <span class="nav-text">{{ 'nav.loanOriginators' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/products/collateral-management"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">inventory_2</mat-icon>
+                  <span class="nav-text">{{ 'nav.collateralManagement' | translate }}</span>
+                </a>
+              </li>
               <li class="nav-divider"></li>
               <li>
                 <a
@@ -220,6 +262,100 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">show_chart</mat-icon>
                   <span class="nav-text">{{ 'nav.shares' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.workingCapital' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/working-capital/loans"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">account_balance</mat-icon>
+                  <span class="nav-text">{{ 'nav.wcLoans' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/working-capital/loan-products"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+                  <span class="nav-text">{{ 'nav.wcLoanProducts' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/working-capital/breach"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">report_problem</mat-icon>
+                  <span class="nav-text">{{ 'nav.wcBreach' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/working-capital/near-breach"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">warning_amber</mat-icon>
+                  <span class="nav-text">{{ 'nav.wcNearBreach' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">{{ 'nav.spmMix' | translate }}</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a routerLink="/spm/surveys" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">poll</mat-icon>
+                  <span class="nav-text">{{ 'nav.spmSurveys' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/spm/poverty-line"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">trending_down</mat-icon>
+                  <span class="nav-text">{{ 'nav.povertyLine' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/spm/likelihood" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">analytics</mat-icon>
+                  <span class="nav-text">{{ 'nav.likelihood' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/mix/mapping" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">link</mat-icon>
+                  <span class="nav-text">{{ 'nav.mixMapping' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/mix/report" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">summarize</mat-icon>
+                  <span class="nav-text">{{ 'nav.mixReport' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/mix/taxonomy" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">schema</mat-icon>
+                  <span class="nav-text">{{ 'nav.mixTaxonomy' | translate }}</span>
                 </a>
               </li>
             </ul>
@@ -304,6 +440,46 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">percent</mat-icon>
                   <span class="nav-text">{{ 'nav.charges' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/provisioning-categories"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">category</mat-icon>
+                  <span class="nav-text">{{ 'nav.provisioningCategories' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/provisioning-criteria"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">rule</mat-icon>
+                  <span class="nav-text">{{ 'nav.provisioningCriteria' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/provisioning-entries"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">receipt</mat-icon>
+                  <span class="nav-text">{{ 'nav.provisioningEntries' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/accounting/run-accruals"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">calculate</mat-icon>
+                  <span class="nav-text">{{ 'nav.runAccruals' | translate }}</span>
                 </a>
               </li>
             </ul>
@@ -415,6 +591,16 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.tellers' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/tellers/cashier-journals"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">menu_book</mat-icon>
+                  <span class="nav-text">{{ 'nav.cashierJournals' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -462,6 +648,16 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.paymentTypes' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/organization/group-levels"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">account_tree</mat-icon>
+                  <span class="nav-text">{{ 'nav.groupLevels' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -497,6 +693,184 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">gavel</mat-icon>
                   <span class="nav-text">{{ 'nav.delinquency' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/system/hooks" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">webhook</mat-icon>
+                  <span class="nav-text">{{ 'nav.hooks' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/credit-bureau-config"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">credit_score</mat-icon>
+                  <span class="nav-text">{{ 'nav.creditBureauConfig' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/adhoc-query"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">query_stats</mat-icon>
+                  <span class="nav-text">{{ 'nav.adhocQuery' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/system/sms" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">sms</mat-icon>
+                  <span class="nav-text">{{ 'nav.sms' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/report-mailing-jobs"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">mark_email_read</mat-icon>
+                  <span class="nav-text">{{ 'nav.reportMailingJobs' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/entity-data-table-checks"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">fact_check</mat-icon>
+                  <span class="nav-text">{{ 'nav.entityDataTableChecks' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/entity-mapping"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">account_tree</mat-icon>
+                  <span class="nav-text">{{ 'nav.entityMapping' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/scheduler-jobs"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">schedule</mat-icon>
+                  <span class="nav-text">{{ 'nav.schedulerJobs' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/permissions"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">verified_user</mat-icon>
+                  <span class="nav-text">{{ 'nav.permissions' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/business-steps"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">linear_scale</mat-icon>
+                  <span class="nav-text">{{ 'nav.businessSteps' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/system/cache" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">memory</mat-icon>
+                  <span class="nav-text">{{ 'nav.cache' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/external-events"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">event_note</mat-icon>
+                  <span class="nav-text">{{ 'nav.externalEvents' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/external-services"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">cloud</mat-icon>
+                  <span class="nav-text">{{ 'nav.externalServices' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/password-preferences"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">password</mat-icon>
+                  <span class="nav-text">{{ 'nav.passwordPreferences' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/notifications-config"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">notifications</mat-icon>
+                  <span class="nav-text">{{ 'nav.notificationsConfig' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/instance-mode"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">tune</mat-icon>
+                  <span class="nav-text">{{ 'nav.instanceMode' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/oidc-config"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">vpn_key</mat-icon>
+                  <span class="nav-text">{{ 'nav.oidcConfig' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/field-configuration"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">view_column</mat-icon>
+                  <span class="nav-text">{{ 'nav.fieldConfiguration' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/loan-product-details"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">description</mat-icon>
+                  <span class="nav-text">{{ 'nav.loanProductDetails' | translate }}</span>
                 </a>
               </li>
             </ul>

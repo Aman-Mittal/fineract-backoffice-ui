@@ -67,7 +67,49 @@
     "taxComponents": "Tax Components",
     "taxGroups": "Tax Groups",
     "floatingRates": "Floating Rates",
-    "loanAccounts": "Loan Accounts"
+    "loanAccounts": "Loan Accounts",
+    "workingCapital": "Working Capital",
+    "wcBreach": "Breach Definitions",
+    "wcNearBreach": "Near-Breach Definitions",
+    "wcLoans": "Working Capital Loans",
+    "wcLoanProducts": "Loan Products",
+    "loanOriginators": "Loan Originators",
+    "collateralManagement": "Collateral Management",
+    "bulkReassignment": "Bulk Loan Reassignment",
+    "groupLevels": "Group Levels",
+    "rates": "Rates",
+    "interestRateCharts": "Interest Rate Charts",
+    "provisioningCategories": "Provisioning Categories",
+    "provisioningCriteria": "Provisioning Criteria",
+    "provisioningEntries": "Provisioning Entries",
+    "runAccruals": "Run Accruals",
+    "cashierJournals": "Cashier Journals",
+    "hooks": "Hooks",
+    "adhocQuery": "Ad-Hoc Query",
+    "sms": "SMS Messages",
+    "reportMailingJobs": "Report Mailing Jobs",
+    "entityDataTableChecks": "Entity Data Table Checks",
+    "entityMapping": "Entity-to-Entity Mapping",
+    "businessSteps": "Business Step Configuration",
+    "cache": "Cache",
+    "externalEvents": "External Event Configuration",
+    "externalServices": "External Services",
+    "passwordPreferences": "Password Preferences",
+    "notificationsConfig": "Notifications",
+    "instanceMode": "Instance Mode",
+    "schedulerJobs": "Scheduler Jobs",
+    "permissions": "Maker-Checker Permissions",
+    "oidcConfig": "OIDC Configuration",
+    "fieldConfiguration": "Entity Field Configuration",
+    "loanProductDetails": "Loan Product Details",
+    "creditBureauConfig": "Credit Bureau Config",
+    "spmMix": "SPM & MIX",
+    "spmSurveys": "SPM Surveys",
+    "mixMapping": "MIX Mapping",
+    "mixReport": "MIX Report",
+    "mixTaxonomy": "MIX Taxonomy",
+    "povertyLine": "Poverty Line",
+    "likelihood": "Likelihood"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "System Operational Status",
@@ -634,6 +676,49 @@
     "DATE_OF_BIRTH_DESC": "The client's date of birth.",
     "LOAN_PRODUCT_DESC": "Select the loan product this application is based on.",
     "FUNDS_DESC": "Funds are sources of money that can be linked to loans for tracking and reporting.",
+    "WC_BREACH_DESC": "Covenant breach definitions set the amount and frequency thresholds that flag a working-capital loan as breached.",
+    "WC_NEAR_BREACH_DESC": "Near-breach definitions trigger early-warning alerts before a working-capital covenant is fully breached.",
+    "WC_LOANS_DESC": "Manage working-capital loan applications: create new loans and view loan details, charges, transactions, and delinquency information.",
+    "WC_LOAN_PRODUCTS_DESC": "Manage working-capital loan products including currency, principal, repayment frequency and amortization settings.",
+    "LOAN_ORIGINATORS_DESC": "Manage loan originators — the brokers, agents, and channels that source loan applications.",
+    "COLLATERAL_MANAGEMENT_DESC": "Manage collateral products used to secure loans, including quality, unit type, base price, and currency.",
+    "BULK_REASSIGNMENT_DESC": "Reassign all loans from one loan officer to another within an office.",
+    "GUARANTORS_DESC": "Manage the guarantors attached to this loan.",
+    "INTEREST_PAUSES_DESC": "Periods during which no interest accrues on this loan.",
+    "POST_DATED_CHECKS_DESC": "Post-dated checks recorded against this loan's repayment schedule.",
+    "CLIENT_CHARGES_DESC": "Charges applied directly to this client.",
+    "CLIENT_COLLATERAL_DESC": "Collateral pledged by this client.",
+    "CLIENT_TRANSACTIONS_DESC": "Financial transactions recorded against this client.",
+    "MEETINGS_DESC": "Meetings record the attendance taken against a group or center's collection calendar.",
+    "CALENDARS_DESC": "Calendars define the recurring meeting schedule for a group or center.",
+    "GROUP_LEVELS_DESC": "Group levels define the hierarchy of group entities, such as Center and Group, and whether each level can hold clients.",
+    "RATES_DESC": "Define interest rates that can be applied to products.",
+    "INTEREST_RATE_CHARTS_DESC": "Manage interest rate charts and their interest-rate slabs (bands).",
+    "PRODUCT_MIX_DESC": "Define which loan products are restricted when this loan product is used.",
+    "SAVINGS_CHARGES_DESC": "Manage the charges applied to this savings account.",
+    "SHARE_DIVIDENDS_DESC": "Manage the dividends declared for this share product.",
+    "FIXED_DEPOSIT_TRANSACTIONS_DESC": "View deposit and withdrawal transactions for this fixed deposit account.",
+    "RECURRING_DEPOSIT_TRANSACTIONS_DESC": "Record a deposit transaction against this recurring deposit account.",
+    "ON_HOLD_TRANSACTIONS_DESC": "View funds held on this savings account as a result of loan guarantees.",
+    "PROVISIONING_CATEGORIES_DESC": "Define provisioning categories used to classify loan loss provisions.",
+    "PROVISIONING_CRITERIA_DESC": "Define provisioning criteria that map loan products and categories to provisioning percentages and GL accounts.",
+    "PROVISIONING_ENTRIES_DESC": "View generated provisioning entries and create new ones for a given date.",
+    "RUN_ACCRUALS_DESC": "Execute periodic accrual accounting for all eligible loan and savings products up to the selected date.",
+    "CASHIER_JOURNALS_DESC": "View cash receipt and payment journal entries recorded for a teller's cashier.",
+    "HOOKS_DESC": "Configure outbound hooks that notify external systems when Fineract events occur.",
+    "ADHOC_QUERY_DESC": "Define ad-hoc SQL queries that can be scheduled to populate report tables.",
+    "SMS_DESC": "View and send individual SMS messages to clients, groups, or staff.",
+    "REPORT_MAILING_JOBS_DESC": "Schedule reports to be generated and emailed to recipients.",
+    "ENTITY_DATA_TABLE_CHECKS_DESC": "Require data-table entries to be completed at specific entity workflow statuses.",
+    "ENTITY_MAPPING_DESC": "Map entities to one another to control cross-entity access and visibility.",
+    "SCHEDULER_JOBS_DESC": "View and run scheduled background jobs and control the global scheduler.",
+    "LOAN_PRODUCT_DETAILS_DESC": "Basic details of configured loan products.",
+    "SPM_SURVEYS_DESC": "Manage social-performance (SPM) surveys and their metadata.",
+    "SCORECARDS_DESC": "View scorecard responses collected for a survey.",
+    "MIX_TAXONOMY_DESC": "Browse the MIX XBRL taxonomy elements.",
+    "CREDIT_BUREAU_CONFIG_DESC": "View the configured credit bureaus and their loan-product mappings.",
+    "POVERTY_LINE_DESC": "Look up the poverty-line (PPI) table for a given PPI name.",
+    "LIKELIHOOD_DESC": "View and update likelihood (PPI) entries for a given PPI name.",
     "PAYMENT_TYPES_DESC": "Payment types describe how money moves in and out (cash, cheque, transfer).",
     "TAX_COMPONENTS_DESC": "A tax component is a single named tax with a percentage and start date.",
     "TAX_GROUPS_DESC": "A tax group bundles one or more tax components for use on charges.",
@@ -822,6 +907,476 @@
     "EXTERNAL_ID": "External ID",
     "CREATE_FUND": "Create Fund",
     "EDIT_FUND": "Edit Fund"
+  },
+  "WC_BREACH": {
+    "NAME": "Name",
+    "BREACH_AMOUNT": "Breach Amount",
+    "CALCULATION_TYPE": "Calculation Type",
+    "FREQUENCY": "Frequency",
+    "FREQUENCY_TYPE": "Frequency Type",
+    "CREATE": "Create Breach Definition",
+    "EDIT": "Edit Breach Definition"
+  },
+  "WC_NEAR_BREACH": {
+    "NAME": "Name",
+    "THRESHOLD": "Threshold",
+    "FREQUENCY": "Frequency",
+    "FREQUENCY_TYPE": "Frequency Type",
+    "CREATE": "Create Near-Breach Definition",
+    "EDIT": "Edit Near-Breach Definition"
+  },
+  "WC_LOAN_PRODUCTS": {
+    "CREATE": "Create Loan Product",
+    "EDIT": "Edit Loan Product",
+    "NAME": "Name",
+    "SHORT_NAME": "Short Name",
+    "DESCRIPTION": "Description",
+    "CURRENCY": "Currency",
+    "DIGITS_AFTER_DECIMAL": "Decimal Places",
+    "IN_MULTIPLES_OF": "In Multiples Of",
+    "PRINCIPAL": "Principal",
+    "PERIOD_PAYMENT_RATE": "Period Payment Rate",
+    "REPAYMENT_EVERY": "Repaid Every",
+    "REPAYMENT_FREQUENCY": "Repayment Frequency",
+    "AMORTIZATION_TYPE": "Amortization Type",
+    "NPV_DAY_COUNT": "NPV Day Count"
+  },
+  "WC_LOANS": {
+    "CREATE": "Create Working Capital Loan",
+    "ACCOUNT_NO": "Account No.",
+    "CLIENT": "Client",
+    "CLIENT_ID": "Client ID",
+    "PRODUCT": "Product",
+    "PRINCIPAL": "Principal",
+    "STATUS": "Status",
+    "SUBMITTED_ON_DATE": "Submitted On Date",
+    "EXPECTED_DISBURSEMENT_DATE": "Expected Disbursement Date",
+    "REPAYMENT_EVERY": "Repayment Every",
+    "REPAYMENT_FREQUENCY_TYPE": "Repayment Frequency Type",
+    "BREACH": "Breach",
+    "NEAR_BREACH": "Near Breach",
+    "PAID": "Paid",
+    "OUTSTANDING": "Outstanding",
+    "ACTION": "Action",
+    "START_DATE": "Start Date",
+    "END_DATE": "End Date",
+    "PERIOD": "Period",
+    "FROM_DATE": "From Date",
+    "TO_DATE": "To Date",
+    "NO_DATA": "No data available",
+    "TABS": {
+      "DETAILS": "Details",
+      "CHARGES": "Charges",
+      "TRANSACTIONS": "Transactions",
+      "DELINQUENCY_ACTIONS": "Delinquency Actions",
+      "DELINQUENCY_RANGE_SCHEDULE": "Delinquency Range Schedule",
+      "BREACH_SCHEDULE": "Breach Schedule"
+    }
+  },
+  "LOAN_ORIGINATORS": {
+    "CREATE": "Create Loan Originator",
+    "EDIT": "Edit Loan Originator",
+    "NAME": "Name",
+    "EXTERNAL_ID": "External ID",
+    "ORIGINATOR_TYPE": "Originator Type",
+    "CHANNEL_TYPE": "Channel Type",
+    "STATUS": "Status"
+  },
+  "COLLATERAL_MANAGEMENT": {
+    "CREATE": "Create Collateral",
+    "EDIT": "Edit Collateral",
+    "NAME": "Name",
+    "QUALITY": "Quality",
+    "UNIT_TYPE": "Unit Type",
+    "BASE_PRICE": "Base Price",
+    "PCT_TO_BASE": "Percentage to Base",
+    "CURRENCY": "Currency"
+  },
+  "BULK_REASSIGNMENT": {
+    "TITLE": "Bulk Loan Reassignment",
+    "OFFICE": "Office",
+    "FROM_OFFICER": "From Loan Officer",
+    "TO_OFFICER": "To Loan Officer",
+    "ASSIGNMENT_DATE": "Assignment Date",
+    "REASSIGN": "Reassign"
+  },
+  "GUARANTORS": {
+    "TITLE": "Guarantors",
+    "CREATE": "Add Guarantor",
+    "EDIT": "Edit Guarantor",
+    "NAME": "Name",
+    "TYPE": "Type",
+    "STATUS": "Status",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "ENTITY_ID": "Client ID",
+    "ADDRESS_LINE1": "Address Line 1",
+    "MOBILE_NUMBER": "Mobile Number"
+  },
+  "INTEREST_PAUSES": {
+    "TITLE": "Interest Pauses",
+    "CREATE": "Add Interest Pause",
+    "START_DATE": "Start Date",
+    "END_DATE": "End Date"
+  },
+  "POST_DATED_CHECKS": {
+    "TITLE": "Post-Dated Checks",
+    "EDIT": "Edit Post-Dated Check",
+    "NAME": "Name",
+    "AMOUNT": "Amount",
+    "ACCOUNT_NO": "Account No.",
+    "DATE": "Date"
+  },
+  "CLIENT_CHARGES": {
+    "TITLE": "Client Charges",
+    "CREATE": "Add Charge",
+    "CHARGE": "Charge",
+    "NAME": "Name",
+    "AMOUNT": "Amount",
+    "DUE_DATE": "Due Date",
+    "PAID": "Paid",
+    "OUTSTANDING": "Outstanding"
+  },
+  "CLIENT_COLLATERAL": {
+    "TITLE": "Client Collateral",
+    "CREATE": "Add Collateral",
+    "EDIT": "Edit Collateral",
+    "PRODUCT": "Collateral Product",
+    "NAME": "Name",
+    "QUANTITY": "Quantity",
+    "UNIT_PRICE": "Unit Price",
+    "TOTAL_COLLATERAL": "Total Collateral"
+  },
+  "CLIENT_TRANSACTIONS": {
+    "TITLE": "Client Transactions",
+    "ID": "ID",
+    "DATE": "Date",
+    "AMOUNT": "Amount",
+    "TYPE": "Type",
+    "UNDO": "Undo"
+  },
+  "MEETINGS": {
+    "TITLE": "Meetings",
+    "CREATE": "Create Meeting",
+    "EDIT": "Edit Meeting",
+    "MEETING_DATE": "Meeting Date",
+    "PRESENT_COUNT": "Attendance Recorded",
+    "CALENDAR_ID": "Calendar"
+  },
+  "CALENDARS": {
+    "TITLE": "Calendars",
+    "TITLE_FIELD": "Title",
+    "CREATE": "Create Calendar",
+    "EDIT": "Edit Calendar",
+    "START_DATE": "Start Date",
+    "TYPE": "Type"
+  },
+  "GROUP_LEVELS": {
+    "LEVEL_NAME": "Level Name",
+    "PARENT_LEVEL": "Parent Level",
+    "CHILD_LEVEL": "Child Level",
+    "CAN_HAVE_CLIENTS": "Can Have Clients"
+  },
+  "RATES": {
+    "CREATE": "Create Rate",
+    "EDIT": "Edit Rate",
+    "NAME": "Name",
+    "PERCENTAGE": "Percentage"
+  },
+  "INTEREST_RATE_CHARTS": {
+    "CREATE": "Create Interest Rate Chart",
+    "EDIT": "Edit Interest Rate Chart",
+    "ID": "ID",
+    "NAME": "Name",
+    "DESCRIPTION": "Description",
+    "FROM_DATE": "From Date",
+    "PRODUCT": "Product",
+    "SLABS": "Slabs",
+    "ADD_SLAB": "Add Slab",
+    "PERIOD_TYPE": "Period Type",
+    "FROM_PERIOD": "From Period",
+    "TO_PERIOD": "To Period",
+    "AMOUNT_RANGE_FROM": "Amount Range From",
+    "AMOUNT_RANGE_TO": "Amount Range To",
+    "ANNUAL_INTEREST_RATE": "Annual Interest Rate"
+  },
+  "PRODUCT_MIX": {
+    "TITLE": "Product Mix",
+    "RESTRICTED_PRODUCTS": "Restricted Products",
+    "CLEAR": "Clear Mix"
+  },
+  "SAVINGS_CHARGES": {
+    "TITLE": "Savings Charges",
+    "CREATE": "Add Charge",
+    "NAME": "Name",
+    "AMOUNT": "Amount",
+    "AMOUNT_OUTSTANDING": "Outstanding",
+    "CHARGE": "Charge",
+    "DUE_DATE": "Due Date"
+  },
+  "SHARE_DIVIDENDS": {
+    "TITLE": "Share Dividends",
+    "CREATE": "Declare Dividend",
+    "AMOUNT": "Amount",
+    "PERIOD_START_DATE": "Period Start Date",
+    "PERIOD_END_DATE": "Period End Date"
+  },
+  "FIXED_DEPOSIT_TRANSACTIONS": {
+    "TITLE": "Fixed Deposit Transactions",
+    "DATE": "Date",
+    "AMOUNT": "Amount",
+    "TYPE": "Type"
+  },
+  "RECURRING_DEPOSIT_TRANSACTIONS": {
+    "CREATE": "Deposit",
+    "DATE": "Transaction Date",
+    "AMOUNT": "Transaction Amount",
+    "PAYMENT_TYPE": "Payment Type"
+  },
+  "ON_HOLD_TRANSACTIONS": {
+    "TITLE": "On-Hold Fund Transactions",
+    "DATE": "Date",
+    "AMOUNT": "Amount",
+    "TYPE": "Type",
+    "REASON": "Reason"
+  },
+  "PROVISIONING_CATEGORIES": {
+    "CREATE": "Create Provisioning Category",
+    "EDIT": "Edit Provisioning Category",
+    "NAME": "Category Name",
+    "DESCRIPTION": "Description"
+  },
+  "PROVISIONING_CRITERIA": {
+    "CREATE": "Create Provisioning Criteria",
+    "EDIT": "Edit Provisioning Criteria",
+    "NAME": "Criteria Name",
+    "CREATED_BY": "Created By",
+    "DEFINITIONS_NOTE": "Per-category provisioning definitions and loan-product mappings are managed through the API and are preserved when editing the criteria name."
+  },
+  "PROVISIONING_ENTRIES": {
+    "CREATE": "Create Entry",
+    "ID": "ID",
+    "CREATED_DATE": "Created Date",
+    "CREATED_USER": "Created By",
+    "RESERVED_AMOUNT": "Reserved Amount",
+    "DATE": "Date",
+    "CREATE_JOURNAL_ENTRIES": "Create journal entries"
+  },
+  "RUN_ACCRUALS": {
+    "TITLE": "Run Periodic Accruals",
+    "TILL_DATE": "Till Date",
+    "RUN": "Run Accruals",
+    "RUNNING": "Running..."
+  },
+  "CASHIER_JOURNALS": {
+    "TELLER_ID": "Teller ID",
+    "CASHIER_ID": "Cashier ID",
+    "LOAD": "Load",
+    "DAY": "Date",
+    "OFFICE_ID": "Office ID",
+    "OPENING_BALANCE": "Opening Balance",
+    "SUM_RECEIPTS": "Receipts",
+    "SUM_PAYMENTS": "Payments",
+    "CLOSING_BALANCE": "Closing Balance",
+    "SETTLED_BALANCE": "Settled Balance"
+  },
+  "HOOKS": {
+    "CREATE": "Create Hook",
+    "EDIT": "Edit Hook",
+    "NAME": "Hook Template",
+    "DISPLAY_NAME": "Display Name",
+    "IS_ACTIVE": "Active"
+  },
+  "ADHOC_QUERY": {
+    "CREATE": "Create Ad-Hoc Query",
+    "EDIT": "Edit Ad-Hoc Query",
+    "NAME": "Name",
+    "QUERY": "Query",
+    "TABLE_NAME": "Table Name",
+    "REPORT_RUN_FREQUENCY": "Report Run Frequency",
+    "IS_ACTIVE": "Active"
+  },
+  "SMS": {
+    "CREATE": "Create SMS Message",
+    "EDIT": "Edit SMS Message",
+    "MESSAGE": "Message",
+    "MOBILE_NO": "Mobile Number",
+    "CLIENT_ID": "Client ID"
+  },
+  "REPORT_MAILING_JOBS": {
+    "CREATE": "Create Report Mailing Job",
+    "EDIT": "Edit Report Mailing Job",
+    "NAME": "Name",
+    "DESCRIPTION": "Description",
+    "EMAIL_RECIPIENTS": "Email Recipients",
+    "EMAIL_SUBJECT": "Email Subject",
+    "STRETCHY_REPORT_ID": "Report ID",
+    "IS_ACTIVE": "Active"
+  },
+  "ENTITY_DATA_TABLE_CHECKS": {
+    "CREATE": "Create Data Table Check",
+    "ENTITY": "Entity",
+    "DATATABLE_NAME": "Data Table Name",
+    "STATUS": "Status",
+    "PRODUCT": "Product",
+    "PRODUCT_ID": "Product ID"
+  },
+  "ENTITY_MAPPING": {
+    "CREATE": "Create Entity Mapping",
+    "EDIT": "Edit Entity Mapping",
+    "ID": "ID",
+    "REL_ID": "Relationship ID",
+    "FROM_ID": "From ID",
+    "TO_ID": "To ID"
+  },
+  "BUSINESS_STEPS": {
+    "TITLE": "Business Step Configuration",
+    "JOB": "Job",
+    "NO_STEPS": "No steps configured for this job."
+  },
+  "CACHE": {
+    "TITLE": "Cache Configuration"
+  },
+  "EXTERNAL_EVENTS": {
+    "TITLE": "External Event Configuration"
+  },
+  "EXTERNAL_SERVICES": {
+    "TITLE": "External Services",
+    "SERVICE": "Service"
+  },
+  "PASSWORD_PREFERENCES": {
+    "TITLE": "Password Preferences"
+  },
+  "NOTIFICATIONS_CONFIG": {
+    "TITLE": "Notifications",
+    "EMPTY": "No notifications.",
+    "MARK_ALL_READ": "Mark all as read"
+  },
+  "INSTANCE_MODE": {
+    "TITLE": "Instance Mode",
+    "READ_ENABLED": "Read Enabled",
+    "WRITE_ENABLED": "Write Enabled",
+    "BATCH_WORKER_ENABLED": "Batch Worker Enabled"
+  },
+  "SCHEDULER_JOBS": {
+    "NAME": "Job Name",
+    "ACTIVE": "Active",
+    "NEXT_RUN": "Next Run",
+    "RUN_NOW": "Run Now",
+    "HISTORY": "Run History",
+    "RUN_HISTORY": "Run History",
+    "GLOBAL_STATUS": "Scheduler Status",
+    "RUNNING": "Running",
+    "STOPPED": "Stopped",
+    "TOGGLE_SCHEDULER": "Enable Scheduler",
+    "VERSION": "Version",
+    "START_TIME": "Start Time",
+    "END_TIME": "End Time",
+    "STATUS": "Status",
+    "TRIGGER_TYPE": "Trigger Type"
+  },
+  "PERMISSIONS": {
+    "TITLE": "Maker-Checker Permissions",
+    "CODE": "Code",
+    "ENTITY": "Entity",
+    "ACTION": "Action",
+    "MAKER_CHECKER": "Maker-Checker Enabled"
+  },
+  "OIDC_CONFIG": {
+    "TITLE": "Tenant OIDC Configuration",
+    "TENANT_ID": "Tenant ID",
+    "LOAD": "Load",
+    "ISSUER": "Issuer",
+    "CLIENT_ID": "Client ID",
+    "CLIENT_SECRET": "Client Secret",
+    "AUTH_ENDPOINT": "Authorization Endpoint",
+    "TOKEN_ENDPOINT": "Token Endpoint",
+    "JWKS_URL": "JWKS URL"
+  },
+  "FIELD_CONFIG": {
+    "TITLE": "Entity Field Configuration",
+    "ENTITY": "Entity",
+    "FIELD": "Field",
+    "SUBENTITY": "Sub-Entity",
+    "ENABLED": "Enabled",
+    "MANDATORY": "Mandatory",
+    "VALIDATION_REGEX": "Validation Regex"
+  },
+  "LOAN_PRODUCT_DETAILS": {
+    "TITLE": "Loan Product Basic Details",
+    "ID": "ID",
+    "NAME": "Name",
+    "SHORT_NAME": "Short Name",
+    "PRODUCT_TYPE": "Product Type",
+    "CURRENCY": "Currency",
+    "DESCRIPTION": "Description"
+  },
+  "SPM_SURVEYS": {
+    "CREATE": "Create Survey",
+    "EDIT": "Edit Survey",
+    "KEY": "Key",
+    "NAME": "Name",
+    "COUNTRY_CODE": "Country Code",
+    "DESCRIPTION": "Description"
+  },
+  "SCORECARDS": {
+    "TITLE": "Survey Scorecards",
+    "VIEW": "View Scorecards",
+    "CLIENT": "Client",
+    "QUESTION": "Question",
+    "VALUE": "Value",
+    "CREATED_ON": "Created On"
+  },
+  "MIX_MAPPING": {
+    "TITLE": "MIX XBRL Mapping",
+    "IDENTIFIER": "Identifier",
+    "CURRENCY": "Currency",
+    "CONFIG": "Configuration"
+  },
+  "MIX_REPORT": {
+    "TITLE": "MIX Report",
+    "START_DATE": "Start Date",
+    "END_DATE": "End Date",
+    "CURRENCY": "Currency",
+    "GENERATE": "Generate",
+    "GENERATING": "Generating..."
+  },
+  "MIX_TAXONOMY": {
+    "NAME": "Name",
+    "NAMESPACE": "Namespace",
+    "DIMENSION": "Dimension",
+    "DESCRIPTION": "Description",
+    "TYPE": "Type"
+  },
+  "CREDIT_BUREAU_CONFIG": {
+    "TITLE": "Credit Bureau Configuration",
+    "BUREAUS": "Credit Bureaus",
+    "MAPPINGS": "Loan Product Mappings",
+    "ID": "ID",
+    "NAME": "Name",
+    "PRODUCT": "Product",
+    "COUNTRY": "Country",
+    "LOAN_PRODUCT": "Loan Product",
+    "ORG_BUREAU_ID": "Organisation Credit Bureau ID",
+    "ALIAS": "Alias",
+    "MANDATORY": "Credit Check Mandatory"
+  },
+  "POVERTY_LINE": {
+    "TITLE": "Poverty Line",
+    "PPI_NAME": "PPI Name",
+    "LOAD": "Load",
+    "SCORE_FROM": "Score From",
+    "SCORE_TO": "Score To",
+    "POVERTY_LINE": "Poverty Line",
+    "ENABLED": "Enabled"
+  },
+  "LIKELIHOOD": {
+    "TITLE": "Likelihood",
+    "PPI_NAME": "PPI Name",
+    "LOAD": "Load",
+    "NAME": "Name",
+    "LIKELIHOOD": "Likelihood",
+    "ENABLED": "Enabled"
   },
   "PAYMENT_TYPES": {
     "NAME": "Name",
