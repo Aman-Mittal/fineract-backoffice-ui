@@ -104,15 +104,6 @@ interface ServiceProperty {
         max-width: 600px;
         margin: 0 auto;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })

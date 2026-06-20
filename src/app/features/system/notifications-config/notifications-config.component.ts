@@ -95,12 +95,6 @@ import { NotificationService, GetNotification } from '../../../api';
         max-width: 600px;
         margin: 0 auto;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })

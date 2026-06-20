@@ -283,11 +283,6 @@ import { HelpIconComponent } from '../../shared';
       .full-width {
         width: 100%;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-      }
       .error-text {
         color: #f44336;
         text-align: right;

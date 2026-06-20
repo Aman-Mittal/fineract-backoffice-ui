@@ -15,6 +15,7 @@
     "main": "Main Navigation",
     "dashboard": "Dashboard",
     "clients": "Clients",
+    "clientSearchV2": "Advanced Client Search",
     "groups": "Groups",
     "centers": "Centers",
     "loans": "Loans",
@@ -52,6 +53,7 @@
     "organization": "Organization",
     "offices": "Offices",
     "staff": "Staff",
+    "currencies": "Currencies",
     "system": "System",
     "dataTables": "Data Tables",
     "bulkImport": "Bulk Import",
@@ -109,7 +111,28 @@
     "mixReport": "MIX Report",
     "mixTaxonomy": "MIX Taxonomy",
     "povertyLine": "Poverty Line",
-    "likelihood": "Likelihood"
+    "likelihood": "Likelihood",
+    "notifications": "Notifications",
+    "collectionSheet": "Collection Sheet",
+    "loansPointInTime": "Point in Time",
+    "transferHistory": "Transfer History",
+    "codes": "Codes",
+    "businessDates": "Business Dates",
+    "accountNumberFormats": "Account Number Formats",
+    "templates": "Templates"
+  },
+  "SIDEBAR": {
+    "SEARCH": "Search",
+    "PROFILE": "Profile"
+  },
+  "CURRENCIES": {
+    "TITLE": "Currency Configuration",
+    "AVAILABLE": "Available Currencies",
+    "SELECTED": "Selected Currencies",
+    "ADD": "Add →",
+    "REMOVE": "← Remove",
+    "SAVE": "Save",
+    "SAVED_SUCCESS": "Currency configuration saved successfully"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "System Operational Status",
@@ -136,7 +159,9 @@
     "SEARCH_PLACEHOLDER": "Type to search...",
     "NO_DATA": "No records found.",
     "EDIT": "Edit",
+    "CREATE": "Create",
     "SAVE": "Save",
+    "SUBMIT": "Submit",
     "CANCEL": "Cancel",
     "CONFIRM": "Confirm",
     "STATUS": "Status",
@@ -251,6 +276,7 @@
     "ACTIVATION_DATE": "Activation Date",
     "CLOSURE_DATE": "Closure Date",
     "DISBURSEMENT_DATE": "Disbursement Date",
+    "EXPECTED_DISBURSEMENT_DATE": "Expected Disbursement Date",
     "ASSIGN_LOAN_OFFICER": "Assign Loan Officer",
     "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
     "APPLY_CHARGES": "Apply Charge",
@@ -302,7 +328,9 @@
       "GRACE_ON_INTEREST_AND_PRINCIPAL": "Grace on interest & principal",
       "PRINCIPAL_INTEREST_GRACE": "Principal interest grace",
       "PENALTIES_FEES_INTEREST_PRINCIPAL": "Penalties, Fees, Interest, Principal"
-    }
+    },
+    "FUND": "Fund",
+    "DELINQUENCY_BUCKET": "Delinquency Bucket"
   },
   "CHARGES": {
     "CREATE": "Create Charge",
@@ -358,6 +386,15 @@
     "EQUAL_PRINCIPAL": "Equal Principal Payments",
     "DAILY": "Daily",
     "SAME_AS_REPAYMENT": "Same as repayment period",
+    "GRACE_ON_PRINCIPAL_PAYMENT": "Grace on Principal Payment",
+    "GRACE_ON_INTEREST_PAYMENT": "Grace on Interest Payment",
+    "GRACE_ON_INTEREST_CHARGED": "Grace on Interest Charged",
+    "IN_ARREARS_TOLERANCE": "In Arrears Tolerance",
+    "REPAYMENTS_STARTING_FROM_DATE": "Repayments Starting From Date",
+    "RECEIPT_NUMBER": "Receipt Number",
+    "BANK_NUMBER": "Bank Number",
+    "CHECK_NUMBER": "Check Number",
+    "ROUTING_CODE": "Routing Code",
     "REPAYMENT_SCHEDULE_HEADERS": {
       "BALANCE": "Loan Amount and Balance",
       "COST": "Total Cost of Loan",
@@ -388,7 +425,33 @@
     "MANAGE_RESCHEDULING": "Manage Rescheduling",
     "APPROVE_LOAN_APPLICATION": "Approve Loan Application",
     "DISBURSE_LOAN": "Disburse Loan",
-    "CHARGE": "Charge"
+    "CHARGE": "Charge",
+    "BUY_DOWN_FEES": "Buy-Down Fees",
+    "CAPITALIZED_INCOME": "Capitalized Income",
+    "TRANSACTION_ID": "Transaction ID",
+    "DISBURSEMENT_DETAILS": "Disbursement Details",
+    "DISBURSEMENT_ID": "Disbursement ID",
+    "LOAD_DISBURSEMENT": "Load Disbursement",
+    "COLLATERAL_MANAGEMENT": "Collateral Management",
+    "COLLATERAL_ID": "Collateral ID",
+    "LOAD_COLLATERAL": "Load Collateral",
+    "DELETE_COLLATERAL": "Delete Collateral"
+  },
+  "TEMPLATES": {
+    "TITLE": "Document Templates",
+    "CREATE_TITLE": "Create Template",
+    "EDIT_TITLE": "Edit Template",
+    "NAME": "Name",
+    "ENTITY": "Entity",
+    "TYPE": "Type",
+    "TEXT": "Template Body",
+    "ENTITY_CLIENT": "Client",
+    "ENTITY_LOAN": "Loan",
+    "TYPE_DOCUMENT": "Document",
+    "TYPE_SMS": "SMS",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "DELETE_CONFIRM": "Are you sure you want to delete this template?"
   },
   "TELLERS": {
     "CREATE_TELLER": "Create Teller",
@@ -505,7 +568,12 @@
     "BALANCE": "Account Balance",
     "NO_CHARGES": "No charges found.",
     "WITHDRAW": "Withdraw",
-    "MIN_BALANCE_REQUIRED": "Minimum Balance Required"
+    "MIN_BALANCE_REQUIRED": "Minimum Balance Required",
+    "DEPOSIT_CASH": "Deposit Cash",
+    "WITHDRAW_CASH": "Withdraw Cash",
+    "APPROVE": "Approve Savings Account",
+    "ACTIVATE": "Activate Savings Account",
+    "CLOSE": "Close Savings Account"
   },
   "USERS": {
     "CREATE": "Create User",
@@ -785,6 +853,16 @@
     "EDIT_GROUP": "Edit Group",
     "NAME": "Group Name"
   },
+  "ACCOUNT_NUMBER_FORMATS": {
+    "TITLE": "Account Number Formats",
+    "CREATE_TITLE": "Add Account Number Format",
+    "EDIT_TITLE": "Edit Account Number Format",
+    "ACCOUNT_TYPE": "Account Type",
+    "PREFIX_TYPE": "Prefix Type",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "DELETE_CONFIRM": "Are you sure you want to delete this format?"
+  },
   "ACCOUNTING": {
     "CREATE_GL_ACCOUNT": "Create GL Account",
     "EDIT_GL_ACCOUNT": "Edit GL Account",
@@ -939,7 +1017,19 @@
     "REPAYMENT_EVERY": "Repaid Every",
     "REPAYMENT_FREQUENCY": "Repayment Frequency",
     "AMORTIZATION_TYPE": "Amortization Type",
-    "NPV_DAY_COUNT": "NPV Day Count"
+    "NPV_DAY_COUNT": "NPV Day Count",
+    "MIN_PRINCIPAL": "Minimum Principal",
+    "MAX_PRINCIPAL": "Maximum Principal",
+    "MIN_PERIOD_PAYMENT_RATE": "Minimum Period Payment Rate",
+    "MAX_PERIOD_PAYMENT_RATE": "Maximum Period Payment Rate",
+    "ACCOUNTING_RULE": "Accounting Rule",
+    "BREACH": "Breach",
+    "NEAR_BREACH": "Near Breach",
+    "DELINQUENCY_BUCKET": "Delinquency Bucket",
+    "FUND": "Fund",
+    "START_DATE": "Start Date",
+    "CLOSE_DATE": "Close Date",
+    "EXTERNAL_ID": "External ID"
   },
   "WC_LOANS": {
     "CREATE": "Create Working Capital Loan",
@@ -971,7 +1061,61 @@
       "DELINQUENCY_ACTIONS": "Delinquency Actions",
       "DELINQUENCY_RANGE_SCHEDULE": "Delinquency Range Schedule",
       "BREACH_SCHEDULE": "Breach Schedule"
+    },
+    "DELINQUENCY_BUCKET": "Delinquency Bucket",
+    "FUND": "Fund",
+    "PERIOD_PAYMENT_RATE": "Period Payment Rate",
+    "TOTAL_PAYMENT_VOLUME": "Total Payment Volume",
+    "EXTERNAL_ID": "External ID",
+    "SUBMITTED_ON_NOTE": "Submitted On Note",
+    "APPROVE": "Approve",
+    "DISBURSE": "Disburse",
+    "REPAYMENT": "Repayment",
+    "ACTIONS": {
+      "MODIFY": "Modify Application",
+      "REJECT": "Reject",
+      "UNDO_APPROVAL": "Undo Approval",
+      "UNDO_DISBURSAL": "Undo Disbursal",
+      "DELETE": "Delete",
+      "APPROVED_ON_DATE": "Approved On Date",
+      "APPROVED_AMOUNT": "Approved Amount",
+      "EXPECTED_DISBURSEMENT_DATE": "Expected Disbursement Date",
+      "ACTUAL_DISBURSEMENT_DATE": "Actual Disbursement Date",
+      "TRANSACTION_AMOUNT": "Transaction Amount",
+      "DISCOUNT_AMOUNT": "Discount Amount",
+      "REJECTED_ON_DATE": "Rejected On Date",
+      "TRANSACTION_DATE": "Transaction Date",
+      "NOTE": "Note"
     }
+  },
+  "LOANS_POINT_IN_TIME": {
+    "TITLE": "Loans Point in Time",
+    "DATE": "As of Date",
+    "LOAN_IDS": "Loan IDs (comma-separated, optional)",
+    "SEARCH": "Search",
+    "NO_RESULTS": "No results found"
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "MARK_ALL_READ": "Mark All Read",
+    "SHOW_UNREAD": "Show Unread Only",
+    "MESSAGE": "Message",
+    "READ": "Read",
+    "UNREAD": "Unread",
+    "DATE": "Date",
+    "ALL_READ_SUCCESS": "All notifications marked as read"
+  },
+  "LOAN_CHARGES": {
+    "TITLE": "Loan Charges",
+    "ADD_TITLE": "Add Loan Charge",
+    "CHARGE": "Charge",
+    "AMOUNT": "Amount",
+    "DUE_DATE": "Due Date",
+    "PAID": "Paid",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "BACK": "Back to Loan",
+    "DELETE_CONFIRM": "Are you sure you want to delete this charge?"
   },
   "LOAN_ORIGINATORS": {
     "CREATE": "Create Loan Originator",
@@ -982,6 +1126,49 @@
     "CHANNEL_TYPE": "Channel Type",
     "STATUS": "Status"
   },
+  "CODE_VALUES": {
+    "TITLE": "Code Values",
+    "FOR_CODE": "Code Values for",
+    "CREATE_TITLE": "Add Code Value",
+    "EDIT_TITLE": "Edit Code Value",
+    "NAME": "Name",
+    "DESCRIPTION": "Description",
+    "POSITION": "Position",
+    "ACTIVE": "Active",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "ADD_VALUE": "Add Value",
+    "ACTIONS": "Actions",
+    "BACK": "Back to Codes",
+    "DELETE_CONFIRM": "Are you sure you want to delete this code value?"
+  },
+  "CODES": {
+    "TITLE": "Codes",
+    "CREATE_TITLE": "Create Code",
+    "EDIT_TITLE": "Edit Code",
+    "NAME": "Name",
+    "SYSTEM_DEFINED": "System Defined",
+    "ACTIONS": "Actions",
+    "CREATE": "Create Code",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "CODE_VALUES": "Code Values",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "CONFIRM_DELETE": "Are you sure you want to delete this code?"
+  },
+  "COLLECTION_SHEET": {
+    "TITLE": "Collection Sheet",
+    "OFFICE": "Office",
+    "DATE": "Meeting Date",
+    "STAFF": "Staff",
+    "GENERATE": "Generate",
+    "SAVE": "Save Collection Sheet",
+    "BACK": "Back",
+    "RESULTS": "Collection Results"
+  },
   "COLLATERAL_MANAGEMENT": {
     "CREATE": "Create Collateral",
     "EDIT": "Edit Collateral",
@@ -991,6 +1178,14 @@
     "BASE_PRICE": "Base Price",
     "PCT_TO_BASE": "Percentage to Base",
     "CURRENCY": "Currency"
+  },
+  "BULK_LOANS": {
+    "TITLE": "Bulk Loan Reassignment",
+    "OFFICE": "Office",
+    "FROM_OFFICER": "From Loan Officer",
+    "TO_OFFICER": "To Loan Officer",
+    "REASSIGN": "Reassign",
+    "SUCCESS": "Loans reassigned successfully"
   },
   "BULK_REASSIGNMENT": {
     "TITLE": "Bulk Loan Reassignment",
@@ -1011,7 +1206,11 @@
     "LAST_NAME": "Last Name",
     "ENTITY_ID": "Client ID",
     "ADDRESS_LINE1": "Address Line 1",
-    "MOBILE_NUMBER": "Mobile Number"
+    "MOBILE_NUMBER": "Mobile Number",
+    "SAVINGS_ID": "Savings Account ID",
+    "CLIENT_RELATIONSHIP_TYPE_ID": "Client Relationship Type",
+    "AMOUNT": "Guarantee Amount",
+    "DOB": "Date of Birth"
   },
   "INTEREST_PAUSES": {
     "TITLE": "Interest Pauses",
@@ -1081,7 +1280,10 @@
     "CREATE": "Create Rate",
     "EDIT": "Edit Rate",
     "NAME": "Name",
-    "PERCENTAGE": "Percentage"
+    "PERCENTAGE": "Percentage",
+    "PRODUCT_APPLY": "Product Apply",
+    "PRODUCT_APPLY_LOAN": "Loan",
+    "PRODUCT_APPLY_SAVINGS": "Savings"
   },
   "INTEREST_RATE_CHARTS": {
     "CREATE": "Create Interest Rate Chart",
@@ -1213,6 +1415,13 @@
     "STRETCHY_REPORT_ID": "Report ID",
     "IS_ACTIVE": "Active"
   },
+  "REPORT_MAILING": {
+    "RUN_HISTORY": "Run History",
+    "SCHEDULED_FIRE_TIME": "Scheduled Fire Time",
+    "TRIGGER_TYPE": "Trigger Type",
+    "STATUS": "Status",
+    "ERROR_LOG": "Error Log"
+  },
   "ENTITY_DATA_TABLE_CHECKS": {
     "CREATE": "Create Data Table Check",
     "ENTITY": "Entity",
@@ -1233,6 +1442,15 @@
     "TITLE": "Business Step Configuration",
     "JOB": "Job",
     "NO_STEPS": "No steps configured for this job."
+  },
+  "BUSINESS_DATES": {
+    "TITLE": "Business Date Management",
+    "BUSINESS_DATE_LABEL": "Business Date",
+    "COB_DATE_LABEL": "Close of Business Date",
+    "CURRENT_DATE": "Current Date",
+    "NEW_DATE": "New Date",
+    "UPDATE": "Update",
+    "UPDATE_SUCCESS": "Date updated successfully"
   },
   "CACHE": {
     "TITLE": "Cache Configuration"
@@ -1359,7 +1577,12 @@
     "LOAN_PRODUCT": "Loan Product",
     "ORG_BUREAU_ID": "Organisation Credit Bureau ID",
     "ALIAS": "Alias",
-    "MANDATORY": "Credit Check Mandatory"
+    "MANDATORY": "Credit Check Mandatory",
+    "INTEGRATION": "Credit Report Integration",
+    "FETCH_REPORT": "Fetch Report",
+    "SEARCH_NATIONAL_ID": "Search by National ID",
+    "NATIONAL_ID": "National ID",
+    "NO_REPORT": "No report data found."
   },
   "POVERTY_LINE": {
     "TITLE": "Poverty Line",
@@ -1409,5 +1632,279 @@
     "ADD_PERIOD": "Add Period",
     "FROM_DATE": "From Date",
     "INTEREST_RATE": "Interest Rate"
+  },
+  "TRANSFERS": {
+    "HISTORY_TITLE": "Transfer History",
+    "ID": "ID",
+    "FROM_ACCOUNT": "From Account",
+    "TO_ACCOUNT": "To Account",
+    "CURRENCY": "Currency",
+    "AMOUNT": "Amount",
+    "DATE": "Date",
+    "DESCRIPTION": "Description"
+  },
+  "ASSET_OWNERS": {
+    "LOAN_PRODUCT_ATTRIBUTES": "Loan Product Attributes",
+    "ATTRIBUTE_KEY": "Key",
+    "ATTRIBUTE_VALUE": "Value"
+  },
+  "SPM": {
+    "LOOKUP_TABLES": "Lookup Tables",
+    "LOOKUP_KEY": "Key"
+  },
+  "SEARCH": {
+    "TITLE": "Global Search",
+    "QUERY": "Search Query",
+    "RESOURCE_TYPE": "Entity Type",
+    "ALL_TYPES": "All Types",
+    "EXACT_MATCH": "Exact Match",
+    "SEARCH_BTN": "Search",
+    "ENTITY_TYPE": "Type",
+    "ENTITY_NAME": "Name",
+    "ACCOUNT_NO": "Account No",
+    "EXTERNAL_ID": "External ID",
+    "PARENT": "Parent",
+    "NO_RESULTS": "No results found."
+  },
+  "EMAIL_CAMPAIGNS": {
+    "TITLE": "Email Campaigns",
+    "CREATE": "Create Campaign",
+    "EDIT": "Edit Campaign",
+    "NAME": "Campaign Name",
+    "TYPE": "Campaign Type",
+    "SUBJECT": "Email Subject",
+    "MESSAGE": "Message",
+    "SCHEDULE": "Scheduled Start",
+    "ACTIVATE": "Activate",
+    "DEACTIVATE": "Deactivate",
+    "DELETE": "Delete",
+    "SUCCESS": "Operation successful."
+  },
+  "SMS_CAMPAIGNS": {
+    "TITLE": "SMS Campaigns",
+    "CREATE": "Create Campaign",
+    "EDIT": "Edit Campaign",
+    "NAME": "Campaign Name",
+    "TYPE": "Campaign Type",
+    "MESSAGE": "Message",
+    "TRIGGER_TYPE": "Trigger Type",
+    "RUN_DAY": "Run on Day of Month",
+    "CAMPAIGN_TYPE": "Campaign Type",
+    "STATUS": "Status",
+    "ACTIONS": "Actions",
+    "ACTIVATE": "Activate",
+    "DEACTIVATE": "Deactivate",
+    "DELETE": "Delete",
+    "SAVE": "Save",
+    "SUCCESS": "Operation successful."
+  },
+  "EMAIL_MESSAGES": {
+    "TITLE": "Email Messages",
+    "MESSAGES_TAB": "Messages",
+    "PENDING_TAB": "Pending",
+    "SENT_TAB": "Sent",
+    "FAILED_TAB": "Failed",
+    "CONFIG_TAB": "SMTP Config",
+    "TO": "To",
+    "SUBJECT": "Subject",
+    "BODY": "Body",
+    "CREATE": "Send Message",
+    "SAVE_CONFIG": "Save Config",
+    "DELETE": "Delete",
+    "SUCCESS": "Operation successful."
+  },
+  "OFFICE_TRANSACTIONS": {
+    "TITLE": "Office Transactions",
+    "CREATE": "Create Transaction",
+    "FROM_OFFICE": "From Office",
+    "TO_OFFICE": "To Office",
+    "DATE": "Transaction Date",
+    "AMOUNT": "Amount",
+    "DESC": "Description",
+    "DELETE": "Delete",
+    "SUCCESS": "Transaction saved."
+  },
+  "BATCH_OPERATIONS": {
+    "TITLE": "Batch API Operations",
+    "INPUT": "Batch Request (JSON Array)",
+    "ENCLOSE": "Enclose in Transaction",
+    "SUBMIT": "Submit Batch",
+    "RESULTS": "Results",
+    "PARSE_ERROR": "Invalid JSON"
+  },
+  "INLINE_JOB": {
+    "TITLE": "Inline Job Runner",
+    "JOB_NAME": "Job Name",
+    "BODY": "Request Body (JSON, optional)",
+    "RUN": "Run Job",
+    "RESULT": "Result"
+  },
+  "COB_TOOLS": {
+    "TITLE": "COB Internal Tools",
+    "PARTITIONS": "COB Partitions",
+    "PARTITION_SIZE": "Partition Size",
+    "LOAD_PARTITIONS": "Load Partitions",
+    "FAST_FORWARD": "Fast-Forward COB Date",
+    "FAST_FORWARD_LOAN_ID": "Loan ID",
+    "REPROCESS": "Reprocess Loan COB",
+    "REPROCESS_LOAN_ID": "Loan ID",
+    "SUCCESS": "Operation successful.",
+    "ERROR": "Operation failed."
+  },
+  "WC_COB_TOOLS": {
+    "TITLE": "WC COB Internal Tools",
+    "SET_LAST_RUN": "Set Last COB Run",
+    "DELETE_LAST_RUN": "Delete Last COB Run",
+    "SUCCESS": "Operation successful.",
+    "ERROR": "Operation failed."
+  },
+  "EXTERNAL_EVENTS": {
+    "TITLE": "External Events",
+    "IDEMPOTENCY_KEY": "Idempotency Key",
+    "TYPE": "Type",
+    "CATEGORY": "Category",
+    "AGGREGATE_ROOT_ID": "Aggregate Root ID",
+    "LOAD": "Load Events",
+    "CLEAR_ALL": "Clear All Events",
+    "CREATED_AT": "Created At",
+    "CONFIRM_CLEAR": "All events cleared."
+  },
+  "PROGRESSIVE_LOAN": {
+    "TITLE": "Progressive Loan Model",
+    "LOAN_ID": "Loan ID",
+    "LOAD": "Load Model",
+    "CREATE": "Create Model",
+    "DELETE": "Delete Model",
+    "MODEL": "Model Data",
+    "SUCCESS": "Operation successful.",
+    "ERROR": "Operation failed."
+  },
+  "LOAN_ACCOUNT_LOCK": {
+    "TITLE": "Loan Account Locks",
+    "LOAN_ID": "Loan ID",
+    "CHECK_LOCK": "Check Lock",
+    "LOCK_INFO": "Lock Info",
+    "NO_LOCK": "No lock on this loan.",
+    "PLACE_LOCK": "Place Lock",
+    "LOCK_OWNER": "Lock Owner",
+    "SUCCESS": "Lock placed successfully."
+  },
+  "LOAN_COB_CATCHUP": {
+    "TITLE": "Loan COB Catch-Up",
+    "CHECK_STATUS": "Check Status",
+    "IS_RUNNING": "Catch-Up Running",
+    "LOAN_ID": "Loan ID",
+    "GET_OLDEST_DATE": "Get Oldest COB Date",
+    "OLDEST_DATE": "Oldest COB Date",
+    "RUN_CATCHUP": "Run COB Catch-Up",
+    "SUCCESS": "Catch-up triggered."
+  },
+  "WC_LOAN_ACCOUNT_LOCK": {
+    "TITLE": "WC Loan Account Locks",
+    "LOAN_ID": "Loan ID",
+    "LOCK_OWNER": "Lock Owner",
+    "PLACE_LOCK": "Place Lock",
+    "SUCCESS": "Lock placed.",
+    "ERROR": "Operation failed."
+  },
+  "WC_LOAN_COB_CATCHUP": {
+    "TITLE": "WC Loan COB Catch-Up",
+    "CHECK_STATUS": "Check Status",
+    "IS_RUNNING": "Catch-Up Running",
+    "LOAN_ID": "Loan ID",
+    "GET_OLDEST_DATE": "Get Oldest COB Date",
+    "OLDEST_DATE": "Oldest COB Date",
+    "RUN_CATCHUP": "Run COB Catch-Up",
+    "SUCCESS": "Catch-up triggered."
+  },
+  "INTEROP": {
+    "PARTY_TITLE": "Interop Party Lookup",
+    "ID_TYPE": "ID Type",
+    "ID_VALUE": "ID Value",
+    "SUB_ID": "Sub ID / Type",
+    "LOOKUP": "Lookup Party",
+    "REGISTER": "Register Party",
+    "DEREGISTER": "Deregister Party",
+    "RESULT": "Result",
+    "ACCOUNT_TITLE": "Interop Account View",
+    "ACCOUNT_ID": "Account ID",
+    "LOAD_ACCOUNT": "Load Account",
+    "LOAD_IDENTIFIERS": "Load Identifiers",
+    "LOAD_KYC": "Load KYC",
+    "LOAD_TRANSACTIONS": "Load Transactions",
+    "DEBIT": "Debit",
+    "CREDIT": "Credit",
+    "TRANSFER_TITLE": "Interop Transfers",
+    "TRANSACTION_CODE": "Transaction Code",
+    "TRANSFER_CODE": "Transfer Code",
+    "LOAD_TRANSFER": "Load Transfer",
+    "CREATE_TRANSFER": "Create Transfer",
+    "TRANSFER_BODY": "Transfer Request (JSON)",
+    "ACTION": "Action",
+    "DISBURSE": "Trigger Disburse",
+    "LOAN_REPAYMENT": "Trigger Loan Repayment",
+    "HEALTH_TITLE": "Interop Health",
+    "CHECK_HEALTH": "Check Health",
+    "HEALTH_STATUS": "Health Status",
+    "QUOTES_TITLE": "Interop Quotes",
+    "GET_QUOTE": "Get Quote",
+    "TX_CODE": "Transaction Code",
+    "QUOTE_CODE": "Quote Code",
+    "CREATE_QUOTE": "Create Quote",
+    "QUOTE_BODY": "Quote Request (JSON)"
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Forgot Password",
+    "EMAIL": "Email Address",
+    "SEND": "Send Reset Link",
+    "SUCCESS_MSG": "Check your email for a reset link.",
+    "ERROR": "Failed to send reset email."
+  },
+  "PROFILE": {
+    "TITLE": "User Profile",
+    "USERNAME": "Username",
+    "DISPLAY_NAME": "Display Name",
+    "OFFICE": "Office",
+    "EMAIL": "Email",
+    "ROLES": "Roles"
+  },
+  "TWO_FACTOR_CONFIG": {
+    "TITLE": "Two-Factor Authentication Config",
+    "CONFIG_JSON": "Configuration (JSON)",
+    "SAVE": "Save Config",
+    "SUCCESS": "Config saved.",
+    "PARSE_ERROR": "Invalid JSON"
+  },
+  "SURVEY_RESPONSES": {
+    "TITLE": "Survey Responses",
+    "SURVEY": "Survey",
+    "CLIENT_ID": "Client ID",
+    "LOAD": "Load Responses",
+    "RESPONSES": "Responses",
+    "SUBMIT_RESPONSE": "Submit New Response",
+    "RESPONSE_BODY": "Response (JSON)",
+    "SUBMIT": "Submit",
+    "DELETE": "Delete",
+    "SUCCESS": "Operation successful."
+  },
+  "CLIENT_SEARCH_V2": {
+    "TITLE": "Advanced Client Search",
+    "QUERY": "Search Query",
+    "SEARCH": "Search",
+    "NAME": "Client Name",
+    "ACCOUNT_NO": "Account No.",
+    "STATUS": "Status",
+    "OFFICE": "Office",
+    "VIEW": "View Client",
+    "NO_RESULTS": "No clients found matching your search."
+  },
+  "LOAN_SCHEDULE_MODIFY": {
+    "TITLE": "Loan Schedule Modification",
+    "LOAN_ID": "Loan ID",
+    "COMMAND": "Command",
+    "BODY": "Request Body (JSON)",
+    "BODY_PLACEHOLDER": "Optional JSON body, e.g. {}",
+    "SUBMIT": "Submit",
+    "RESPONSE": "Response"
   }
 }

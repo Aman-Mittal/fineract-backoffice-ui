@@ -27,6 +27,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { RateService, RateRequest } from '../../../api';
 
 /**
@@ -41,6 +42,7 @@ import { RateService, RateRequest } from '../../../api';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
     MatProgressSpinnerModule,
@@ -70,6 +72,14 @@ import { RateService, RateRequest } from '../../../api';
                 [(ngModel)]="rate.percentage"
                 required
               />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'RATES.PRODUCT_APPLY' | translate }}</mat-label>
+              <mat-select name="productApply" [(ngModel)]="rate.productApply">
+                <mat-option [value]="1">{{ 'RATES.PRODUCT_APPLY_LOAN' | translate }}</mat-option>
+                <mat-option [value]="2">{{ 'RATES.PRODUCT_APPLY_SAVINGS' | translate }}</mat-option>
+              </mat-select>
             </mat-form-field>
 
             <mat-checkbox name="active" [(ngModel)]="rate.active">
@@ -113,15 +123,6 @@ import { RateService, RateRequest } from '../../../api';
         display: flex;
         flex-direction: column;
         gap: 16px;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],

@@ -32,6 +32,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   SavingsAccountService,
@@ -46,15 +47,6 @@ import {
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
 
-/**
- * Component for creating and managing individual savings accounts.
- *
- * Provides a comprehensive form integration with Fineract's savings account API.
- * Uses template-driven binding to strictly-typed OpenAPI request models.
- *
- * @example
- * <app-savings-account-form></app-savings-account-form>
- */
 @Component({
   selector: 'app-savings-account-form',
   standalone: true,
@@ -71,6 +63,7 @@ import {
     MatTooltipModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     ClientSearchComponent,
   ],
   template: `
@@ -216,15 +209,6 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
       .field-container-row {
         display: flex;
         align-items: flex-start;
@@ -237,37 +221,24 @@ import {
   ],
 })
 export class SavingsAccountFormComponent implements OnInit {
-  /** Service for account operations */
   private readonly savingsService = inject(SavingsAccountService);
-  /** Service for retrieving available products */
   private readonly productService = inject(SavingsProductService);
-  /** Router for post-op navigation */
   private readonly router = inject(Router);
-  /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Base path for redirection */
   private readonly LIST_PATH = '/products/savings-accounts';
 
-  /** Account identifier */
   accountId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
 
-  /** Post request model */
   account: PostSavingsAccountsRequest = {};
   /** Interest rate bound separately as it's missing from model */
   interestRate = 0;
-  /** Submitted date for template binding */
   submittedOnDate: Date = new Date();
-  /** Available products list */
   products: GetSavingsProductsResponse[] = [];
 
-  /**
-   * Initialization handler.
-   */
   ngOnInit(): void {
     this.loadProducts();
 
@@ -289,35 +260,24 @@ export class SavingsAccountFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Navigates to client registration page.
-   */
   onCreateClient() {
     this.router.navigate(['/clients/create']);
   }
 
-  /**
-   * Navigates to savings product creation page.
-   */
   onCreateProduct() {
     this.router.navigate(['/products/savings/create']);
   }
 
-  /**
-   * Fetches the savings products list using current API method.
-   */
   private loadProducts(): void {
     this.productService.getSavingsproducts().subscribe({
       next: (data: GetSavingsProductsResponse[]) => {
         this.products = data || [];
       },
-      error: (err: unknown) => console.error('Failed to load products', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 
-  /**
-   * Loads existing account data for editing using current API method.
-   */
   private loadAccountData(): void {
     if (!this.accountId) return;
     this.savingsService.getSavingsaccountsAccountId(this.accountId).subscribe({
@@ -332,13 +292,11 @@ export class SavingsAccountFormComponent implements OnInit {
         };
         this.interestRate = data.nominalAnnualInterestRate || 0;
       },
-      error: (err: unknown) => console.error('Failed to load account', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 
-  /**
-   * Handles form submission.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -367,9 +325,6 @@ export class SavingsAccountFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Navigation handler.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

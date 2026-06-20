@@ -17,13 +17,18 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { HelpIconComponent } from '../../../shared';
-import { CreditBureauConfigurationService } from '../../../api';
+import { CreditBureauConfigurationService, CreditBureauIntegrationService } from '../../../api';
 
 interface CreditBureauRow {
   id?: number;
@@ -50,10 +55,15 @@ interface LoanProductMappingRow {
   selector: 'app-credit-bureau-config',
   standalone: true,
   imports: [
+    JsonPipe,
+    FormsModule,
     TranslateModule,
     MatCardModule,
     MatTableModule,
     MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
     HelpIconComponent,
   ],
   template: `
@@ -128,6 +138,45 @@ interface LoanProductMappingRow {
               <tr mat-header-row *matHeaderRowDef="mappingColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: mappingColumns"></tr>
             </table>
+
+            <h3 class="cbc-section">{{ 'CREDIT_BUREAU_CONFIG.INTEGRATION' | translate }}</h3>
+
+            <div class="integration-form">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate }}</mat-label>
+                <input matInput [(ngModel)]="nationalId" name="nationalId" />
+              </mat-form-field>
+
+              @for (bureau of bureaus; track bureau.id) {
+                <div class="bureau-actions">
+                  <span class="bureau-label">{{ bureau.name }}</span>
+                  <button
+                    mat-stroked-button
+                    (click)="fetchReport(bureau.id)"
+                    [disabled]="integrationLoading()"
+                  >
+                    {{ 'CREDIT_BUREAU_CONFIG.FETCH_REPORT' | translate }}
+                  </button>
+                  <button
+                    mat-stroked-button
+                    (click)="searchByNationalId(bureau.id)"
+                    [disabled]="!nationalId || integrationLoading()"
+                  >
+                    {{ 'CREDIT_BUREAU_CONFIG.SEARCH_NATIONAL_ID' | translate }}
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (integrationLoading()) {
+              <mat-spinner diameter="24"></mat-spinner>
+            }
+
+            @if (creditReport().length > 0) {
+              <pre class="report-output">{{ creditReport() | json }}</pre>
+            } @else if (reportFetched()) {
+              <p class="no-report">{{ 'CREDIT_BUREAU_CONFIG.NO_REPORT' | translate }}</p>
+            }
           }
         </mat-card-content>
       </mat-card>
@@ -144,11 +193,40 @@ interface LoanProductMappingRow {
       .cbc-section {
         margin-top: 24px;
       }
+      .integration-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .bureau-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .bureau-label {
+        font-weight: 500;
+        min-width: 120px;
+      }
+      .report-output {
+        background: #f5f5f5;
+        padding: 16px;
+        border-radius: 4px;
+        overflow: auto;
+        max-height: 400px;
+        font-size: 12px;
+      }
+      .no-report {
+        color: rgba(0, 0, 0, 0.54);
+        padding: 8px 0;
+      }
     `,
   ],
 })
 export class CreditBureauConfigComponent implements OnInit {
   private readonly configService = inject(CreditBureauConfigurationService);
+  private readonly integrationService = inject(CreditBureauIntegrationService);
 
   readonly bureauColumns = ['id', 'name', 'product', 'country'];
   readonly mappingColumns = [
@@ -161,6 +239,11 @@ export class CreditBureauConfigComponent implements OnInit {
   bureaus: CreditBureauRow[] = [];
   mappings: LoanProductMappingRow[] = [];
   isLoading = false;
+
+  nationalId = '';
+  creditReport = signal<unknown[]>([]);
+  integrationLoading = signal(false);
+  reportFetched = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -187,6 +270,46 @@ export class CreditBureauConfigComponent implements OnInit {
         console.error('Failed to load loan-product mappings', err);
       },
     });
+  }
+
+  fetchReport(bureauId?: number): void {
+    if (!bureauId) return;
+    this.integrationLoading.set(true);
+    this.creditReport.set([]);
+    this.reportFetched.set(false);
+    this.integrationService
+      .getCreditBureauIntegrationCreditReportCreditBureauId(bureauId)
+      .subscribe({
+        next: (raw: string) => {
+          this.creditReport.set(this.parseList<unknown>(raw));
+          this.reportFetched.set(true);
+          this.integrationLoading.set(false);
+        },
+        error: () => {
+          this.reportFetched.set(true);
+          this.integrationLoading.set(false);
+        },
+      });
+  }
+
+  searchByNationalId(bureauId?: number): void {
+    if (!bureauId || !this.nationalId) return;
+    this.integrationLoading.set(true);
+    this.creditReport.set([]);
+    this.reportFetched.set(false);
+    this.integrationService
+      .postCreditBureauIntegrationSaveCreditReport(bureauId, this.nationalId)
+      .subscribe({
+        next: (raw: string) => {
+          this.creditReport.set(this.parseList<unknown>(raw));
+          this.reportFetched.set(true);
+          this.integrationLoading.set(false);
+        },
+        error: () => {
+          this.reportFetched.set(true);
+          this.integrationLoading.set(false);
+        },
+      });
   }
 
   private parseList<T>(raw: string): T[] {

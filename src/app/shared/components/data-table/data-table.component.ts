@@ -31,7 +31,6 @@ import {
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
@@ -40,6 +39,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpIconComponent } from '../help-icon/help-icon.component';
 import { SearchFilterComponent } from '../search-filter/search-filter.component';
@@ -62,7 +62,6 @@ export interface ColumnDef {
   selector: 'app-data-table',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -74,6 +73,7 @@ export interface ColumnDef {
     TranslateModule,
     HelpIconComponent,
     SearchFilterComponent,
+    NgTemplateOutlet,
   ],
   template: `
     <mat-card class="data-table-card">

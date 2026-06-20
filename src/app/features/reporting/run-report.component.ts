@@ -34,12 +34,10 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
 import { HelpIconComponent } from '../../shared';
 
-/**
- * Component for running a system report with dynamic parameters.
- */
 @Component({
   selector: 'app-run-report',
   standalone: true,
@@ -58,6 +56,7 @@ import { HelpIconComponent } from '../../shared';
     MatDividerModule,
     MatPaginatorModule,
     MatIconModule,
+    MatSnackBarModule,
     HelpIconComponent,
   ],
   template: `
@@ -156,12 +155,6 @@ import { HelpIconComponent } from '../../shared';
         grid-template-columns: repeat(3, 1fr);
         gap: 16px;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
       .results-header {
         display: flex;
         justify-content: space-between;
@@ -187,6 +180,7 @@ export class RunReportComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   reportName = '';
   reportType = '';
@@ -263,8 +257,8 @@ export class RunReportComponent implements OnInit {
           URL.revokeObjectURL(url);
           this.isLoading = false;
         },
-        error: (err) => {
-          console.error('Failed to download CSV', err);
+        error: () => {
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
           this.isLoading = false;
         },
       });
@@ -300,8 +294,8 @@ export class RunReportComponent implements OnInit {
           this.dataSource.data = this.dataRows;
           this.isLoading = false;
         },
-        error: (err) => {
-          console.error('Failed to run report', err);
+        error: () => {
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
           this.isLoading = false;
         },
       });

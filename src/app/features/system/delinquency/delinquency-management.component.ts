@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,7 +40,6 @@ import {
   selector: 'app-delinquency-management',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,

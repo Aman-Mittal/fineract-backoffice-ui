@@ -96,12 +96,6 @@ import { InstanceModeService, ChangeInstanceModeRequest } from '../../../api';
         flex-direction: column;
         gap: 16px;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })

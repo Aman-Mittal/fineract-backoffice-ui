@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -46,6 +45,7 @@ import {
   ChargeData,
 } from '../../api';
 import { MatSelectModule } from '@angular/material/select';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -56,7 +56,6 @@ import {
   selector: 'app-account-action-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -69,6 +68,8 @@ import {
     MatProgressSpinnerModule,
     MatSelectModule,
     MatDividerModule,
+    DatePipe,
+    CurrencyPipe,
   ],
   template: `
     <div class="form-container">
@@ -195,6 +196,22 @@ import {
               <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
 
+            <!-- Expected Disbursement Date (Only for Loan Approval) -->
+            @if (command === 'approve' && accountType === 'loan') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="disbursementPicker"
+                  name="expectedDisbursementDate"
+                  [(ngModel)]="expectedDisbursementDate"
+                  required
+                />
+                <mat-datepicker-toggle matSuffix [for]="disbursementPicker"></mat-datepicker-toggle>
+                <mat-datepicker #disbursementPicker></mat-datepicker>
+              </mat-form-field>
+            }
+
             <!-- Note -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
@@ -238,15 +255,6 @@ import {
         display: flex;
         flex-direction: column;
         gap: 16px;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .account-summary-panel {
         padding: 16px;
@@ -300,6 +308,7 @@ export class AccountActionFormComponent implements OnInit {
   isSaving = false;
 
   actionDate: Date = new Date();
+  expectedDisbursementDate: Date | null = null;
   note = '';
 
   title = '';
@@ -356,7 +365,17 @@ export class AccountActionFormComponent implements OnInit {
   private loadAccountDetails(): void {
     if (this.accountType === 'loan') {
       this.loansService.getLoansLoanId(this.accountId).subscribe({
-        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        next: (data) => {
+          this.accountDetails = data as unknown as Record<string, unknown>;
+          if (this.command === 'approve') {
+            const timeline = data.timeline as Record<string, unknown> | undefined;
+            if (timeline?.['expectedDisbursementDate']) {
+              this.expectedDisbursementDate = this.getFineractDate(
+                timeline['expectedDisbursementDate'],
+              );
+            }
+          }
+        },
         error: (err) => console.error('Failed to load loan details', err),
       });
     } else if (this.accountType === 'savings') {
@@ -460,11 +479,8 @@ export class AccountActionFormComponent implements OnInit {
     if (this.accountDetails['principal'] !== undefined) {
       payload['approvedLoanAmount'] = this.accountDetails['principal'];
     }
-    const timeline = this.accountDetails['timeline'] as Record<string, unknown>;
-    if (timeline?.['expectedDisbursementDate']) {
-      payload['expectedDisbursementDate'] = formatDateToFineract(
-        this.getFineractDate(timeline['expectedDisbursementDate']) as Date,
-      );
+    if (this.expectedDisbursementDate) {
+      payload['expectedDisbursementDate'] = formatDateToFineract(this.expectedDisbursementDate);
     }
     return payload;
   }

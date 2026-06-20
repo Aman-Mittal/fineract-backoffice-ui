@@ -39,12 +39,6 @@ import {
   StaffData,
 } from '../../../api';
 
-/**
- * Component for allocating a staff member as a cashier to a teller.
- *
- * Handles the association of staff to physical tellers/drawers for a
- * defined period. Includes shift management (Full time vs specific hours).
- */
 @Component({
   selector: 'app-cashier-form',
   standalone: true,
@@ -175,55 +169,31 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         height: 60px;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class CashierFormComponent implements OnInit {
-  /** Service for teller/cashier management */
   private readonly tellerService = inject(TellerCashManagementService);
-  /** Service for staff retrieval */
   private readonly staffService = inject(StaffService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for teller ID */
   private readonly route = inject(ActivatedRoute);
 
-  /** Current teller identifier */
   tellerId = 0;
-  /** State of the save operation */
   isSaving = false;
 
-  /** Post request model for cashier allocation */
   cashier: PostTellersTellerIdCashiersRequest = {
     isFullDay: true,
   };
 
-  /** Date objects for template binding */
   startDate: Date = new Date();
   endDate: Date = new Date();
-  /** List of staff available for allocation */
   staff: StaffData[] = [];
 
-  /**
-   * Initializes the component and retrieves context.
-   */
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.tellerId = +params['tellerId'];
@@ -231,9 +201,6 @@ export class CashierFormComponent implements OnInit {
     this.loadStaff();
   }
 
-  /**
-   * Retrieves active staff members.
-   */
   private loadStaff(): void {
     this.staffService.getStaff().subscribe({
       next: (data: StaffData[]) => {
@@ -245,9 +212,6 @@ export class CashierFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Handles form submission, formatting dates for the Fineract API.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -265,9 +229,6 @@ export class CashierFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Navigates back to the cashier list.
-   */
   onCancel(): void {
     this.router.navigate(['/tellers', this.tellerId, 'cashiers']);
   }

@@ -18,13 +18,13 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
+import { NgClass } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
@@ -34,13 +34,13 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
   selector: 'app-asset-owners-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    NgClass,
   ],
   template: `
     <app-data-table

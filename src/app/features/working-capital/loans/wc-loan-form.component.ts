@@ -31,10 +31,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   WorkingCapitalLoansService,
+  WorkingCapitalNearBreachService,
   PostWorkingCapitalLoansRequest,
   GetWorkingCapitalLoanProductsResponse,
   GetWorkingCapitalLoanBreach,
+  WorkingCapitalNearBreachData,
   StringEnumOptionData,
+  GetDelinquencyBucket,
+  FundData,
 } from '../../../api';
 import {
   formatDateToFineract,
@@ -152,10 +156,62 @@ import {
             <mat-form-field appearance="outline">
               <mat-label>{{ 'WC_LOANS.NEAR_BREACH' | translate }}</mat-label>
               <mat-select name="nearBreachId" [(ngModel)]="loan.nearBreachId">
-                @for (opt of breachOptions; track opt.id) {
+                @for (opt of nearBreachOptions; track opt.id) {
                   <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
                 }
               </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOANS.DELINQUENCY_BUCKET' | translate }}</mat-label>
+              <mat-select name="delinquencyBucketId" [(ngModel)]="loan.delinquencyBucketId">
+                @for (opt of delinquencyBucketOptions; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOANS.FUND' | translate }}</mat-label>
+              <mat-select name="fundId" [(ngModel)]="loan.fundId">
+                @for (opt of fundOptions; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOANS.PERIOD_PAYMENT_RATE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="periodPaymentRate"
+                [(ngModel)]="loan.periodPaymentRate"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOANS.TOTAL_PAYMENT_VOLUME' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="totalPaymentVolume"
+                [(ngModel)]="loan.totalPaymentVolume"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOANS.EXTERNAL_ID' | translate }}</mat-label>
+              <input matInput name="externalId" [(ngModel)]="loan.externalId" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOANS.SUBMITTED_ON_NOTE' | translate }}</mat-label>
+              <textarea
+                matInput
+                name="submittedOnNote"
+                [(ngModel)]="loan.submittedOnNote"
+              ></textarea>
             </mat-form-field>
 
             <div class="form-actions">
@@ -196,20 +252,12 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class WcLoanFormComponent implements OnInit {
   private readonly loansService = inject(WorkingCapitalLoansService);
+  private readonly nearBreachService = inject(WorkingCapitalNearBreachService);
   private readonly router = inject(Router);
 
   private readonly LIST_PATH = '/working-capital/loans';
@@ -222,13 +270,21 @@ export class WcLoanFormComponent implements OnInit {
 
   productOptions: GetWorkingCapitalLoanProductsResponse[] = [];
   breachOptions: GetWorkingCapitalLoanBreach[] = [];
+  nearBreachOptions: WorkingCapitalNearBreachData[] = [];
   repaymentFrequencyTypeOptions: StringEnumOptionData[] = [];
+  delinquencyBucketOptions: GetDelinquencyBucket[] = [];
+  fundOptions: FundData[] = [];
 
   ngOnInit(): void {
+    this.nearBreachService.getWorkingCapitalNearBreach().subscribe((data) => {
+      this.nearBreachOptions = data;
+    });
     this.loansService.getWorkingCapitalLoansTemplate().subscribe((tpl) => {
       this.productOptions = tpl.productOptions ?? [];
       this.breachOptions = tpl.breachOptions ?? [];
       this.repaymentFrequencyTypeOptions = tpl.periodFrequencyTypeOptions ?? [];
+      this.delinquencyBucketOptions = tpl.delinquencyBucketOptions ?? [];
+      this.fundOptions = tpl.fundOptions ?? [];
     });
   }
 

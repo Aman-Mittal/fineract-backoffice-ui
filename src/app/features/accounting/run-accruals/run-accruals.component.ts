@@ -115,9 +115,6 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .hint {
         color: rgba(0, 0, 0, 0.6);
       }

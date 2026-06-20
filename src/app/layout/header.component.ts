@@ -18,7 +18,6 @@
  */
 
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
@@ -48,7 +47,6 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
   selector: 'app-header',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatIconModule,

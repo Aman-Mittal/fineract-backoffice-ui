@@ -137,15 +137,6 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
@@ -177,8 +168,13 @@ export class InterestRateChartFormComponent implements OnInit {
 
   load(): void {
     if (!this.chartId) return;
-    this.chartService.getInterestratechartsChartId(this.chartId).subscribe((data) => {
-      this.fromDate = data.fromDate ? new Date(formatArrayDate(data.fromDate)) : new Date();
+    this.chartService.getInterestratechartsChartId(this.chartId).subscribe((raw) => {
+      const data = raw as unknown as Record<string, unknown>;
+      this.name = (data['name'] as string | undefined) ?? '';
+      this.description = (data['description'] as string | undefined) ?? '';
+      this.fromDate = data['fromDate']
+        ? new Date(formatArrayDate(data['fromDate'] as string))
+        : new Date();
     });
   }
 

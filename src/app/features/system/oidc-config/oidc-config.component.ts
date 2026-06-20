@@ -126,9 +126,6 @@ interface OidcConfig {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .actions {
         display: flex;
         justify-content: flex-end;

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,6 +26,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import {
@@ -34,6 +35,7 @@ import {
   PageExternalTransferData,
   ExternalOwnerTransferJournalEntryData,
   JournalEntryData,
+  ExternalAssetOwnerLoanProductAttributesService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../shared';
 
@@ -49,6 +51,7 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
+    MatTableModule,
     DataTableComponent,
     StatusBadgeComponent,
   ],
@@ -116,6 +119,36 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
             >
             </app-data-table>
           </mat-tab>
+          <mat-tab label="{{ 'ASSET_OWNERS.LOAN_PRODUCT_ATTRIBUTES' | translate }}">
+            <div class="tab-content">
+              @if (attributes().length === 0) {
+                <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+              } @else {
+                <table mat-table [dataSource]="attributes()" class="full-width-table">
+                  <ng-container matColumnDef="attributeKey">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'ASSET_OWNERS.ATTRIBUTE_KEY' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.attributeKey }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="attributeValue">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'ASSET_OWNERS.ATTRIBUTE_VALUE' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.attributeValue }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let row">
+                      <!-- placeholder for edit action -->
+                    </td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="attributeColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: attributeColumns"></tr>
+                </table>
+              }
+            </div>
+          </mat-tab>
         </mat-tab-group>
       </div>
     }
@@ -166,12 +199,26 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
       .content-tabs {
         margin-top: 24px;
       }
+      .tab-content {
+        padding: 16px 0;
+      }
+      .empty-state {
+        color: rgba(0, 0, 0, 0.54);
+        font-style: italic;
+      }
+      .full-width-table {
+        width: 100%;
+      }
     `,
   ],
 })
 export class AssetOwnerViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly assetOwnersService = inject(ExternalAssetOwnersService);
+  private readonly attributesService = inject(ExternalAssetOwnerLoanProductAttributesService);
+
+  attributes = signal<Record<string, unknown>[]>([]);
+  attributeColumns = ['attributeKey', 'attributeValue', 'actions'];
 
   transfer$!: Observable<ExternalTransferData>;
   journalEntries$!: Observable<JournalEntryData[]>;
@@ -194,6 +241,23 @@ export class AssetOwnerViewComponent implements OnInit {
         map((page: PageExternalTransferData) => page.content?.[0] || {}),
         catchError(() => of({} as ExternalTransferData)),
       );
+
+    // Load loan product attributes if the transfer has a loanProductId
+    this.transfer$.subscribe((transfer: ExternalTransferData) => {
+      if ((transfer as Record<string, unknown>)['loanProductId']) {
+        this.attributesService
+          .getExternalAssetOwnersLoanProductLoanProductIdAttributes(
+            (transfer as Record<string, unknown>)['loanProductId'] as number,
+          )
+          .subscribe({
+            next: (page: unknown) =>
+              this.attributes.set((page as { content?: Record<string, unknown>[] })?.content ?? []),
+            error: () => {
+              /* ignored */
+            },
+          });
+      }
+    });
 
     // Get journal entries using the numeric transferId once transfer is loaded
     this.journalEntries$ = this.transfer$.pipe(

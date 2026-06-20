@@ -18,8 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
@@ -42,8 +41,6 @@ import {
   selector: 'app-client-family-member-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -195,12 +192,6 @@ import {
       }
       .checkbox-group {
         margin: 8px 0;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],

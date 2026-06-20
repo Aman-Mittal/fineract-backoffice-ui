@@ -28,6 +28,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GuarantorsService, GuarantorsRequest, EnumOptionData } from '../../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../../core/utils/date-formatter';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 /**
  * Create / edit form for a loan guarantor. The guarantor-type options come from the
@@ -46,6 +53,8 @@ import { GuarantorsService, GuarantorsRequest, EnumOptionData } from '../../../a
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   template: `
     <div class="form-container">
@@ -92,6 +101,33 @@ import { GuarantorsService, GuarantorsRequest, EnumOptionData } from '../../../a
               <input matInput name="mobileNumber" [(ngModel)]="guarantor.mobileNumber" />
             </mat-form-field>
 
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'GUARANTORS.SAVINGS_ID' | translate }}</mat-label>
+              <input matInput type="number" name="savingsId" [(ngModel)]="guarantor.savingsId" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'GUARANTORS.CLIENT_RELATIONSHIP_TYPE_ID' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="clientRelationshipTypeId"
+                [(ngModel)]="guarantor.clientRelationshipTypeId"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'GUARANTORS.AMOUNT' | translate }}</mat-label>
+              <input matInput type="number" name="amount" [(ngModel)]="guarantor.amount" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'GUARANTORS.DOB' | translate }}</mat-label>
+              <input matInput [matDatepicker]="dobPicker" name="dobDate" [(ngModel)]="dobDate" />
+              <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+              <mat-datepicker #dobPicker></mat-datepicker>
+            </mat-form-field>
+
             <div class="form-actions">
               <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
@@ -130,15 +166,6 @@ import { GuarantorsService, GuarantorsRequest, EnumOptionData } from '../../../a
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
@@ -154,6 +181,7 @@ export class GuarantorFormComponent implements OnInit {
 
   guarantor: GuarantorsRequest = {};
   guarantorTypeOptions: EnumOptionData[] = [];
+  dobDate: Date | null = null;
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
@@ -182,20 +210,37 @@ export class GuarantorFormComponent implements OnInit {
           lastname: data.lastname,
           addressLine1: data.addressLine1,
           mobileNumber: data.mobileNumber,
+          savingsId: data.savingsId,
+          clientRelationshipTypeId: data.clientRelationshipTypeId,
+          amount: data.amount,
         };
+        if (data.dob) {
+          const dob = data.dob as unknown as number[];
+          this.dobDate = Array.isArray(dob)
+            ? new Date(dob[0], dob[1] - 1, dob[2])
+            : new Date(data.dob);
+        }
       });
   }
 
   onSubmit(): void {
     this.isSaving = true;
+    const payload: GuarantorsRequest = {
+      ...this.guarantor,
+      locale: FINERACT_LOCALE,
+      dateFormat: FINERACT_DATE_FORMAT,
+    };
+    if (this.dobDate) {
+      payload.dob = formatDateToFineract(this.dobDate);
+    }
     const request$ =
       this.isEditMode && this.guarantorId
         ? this.guarantorsService.putLoansLoanIdGuarantorsGuarantorId(
             this.loanId,
             this.guarantorId,
-            this.guarantor,
+            payload,
           )
-        : this.guarantorsService.postLoansLoanIdGuarantors(this.loanId, this.guarantor);
+        : this.guarantorsService.postLoansLoanIdGuarantors(this.loanId, payload);
 
     request$.subscribe({
       next: () => this.router.navigate(['/loans', this.loanId, 'guarantors']),

@@ -26,6 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProductMixService, LoanProductData } from '../../../api';
 
 /**
@@ -45,6 +46,7 @@ import { ProductMixService, LoanProductData } from '../../../api';
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -106,15 +108,6 @@ import { ProductMixService, LoanProductData } from '../../../api';
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
@@ -122,6 +115,7 @@ export class ProductMixComponent implements OnInit {
   private readonly productMixService = inject(ProductMixService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   private readonly LIST_PATH = '/products/loan';
 
@@ -147,7 +141,8 @@ export class ProductMixComponent implements OnInit {
           .filter((id): id is number => id !== undefined);
         this.hasMix = restricted.length > 0;
       },
-      error: (err: unknown) => console.error('Failed to load product mix', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 

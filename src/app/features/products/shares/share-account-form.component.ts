@@ -52,11 +52,6 @@ interface ShareAccountTemplateResponse {
   clientSavingsAccounts?: SavingsAccountData[];
 }
 
-/**
- * Component for creating and managing share accounts.
- *
- * Integrates with Fineract's ShareAccountService using template-driven forms.
- */
 @Component({
   selector: 'app-share-account-form',
   standalone: true,
@@ -282,15 +277,6 @@ interface ShareAccountTemplateResponse {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
       .select-search-container {
         padding: 8px 16px;
         position: sticky;
@@ -349,39 +335,23 @@ interface ShareAccountTemplateResponse {
   ],
 })
 export class ShareAccountFormComponent implements OnInit {
-  /** Service for share account operations */
   private readonly shareService = inject(ShareAccountService);
-  /** Router for post-op navigation */
   private readonly router = inject(Router);
-  /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
 
-  /** Base path for redirection */
   private readonly LIST_PATH = '/products/shares';
 
-  /** Account identifier */
   accountId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
 
-  /** Request model */
   account: AccountRequest = {};
-  /** Application date for template binding */
   applicationDate: Date = new Date();
-  /** Available products list */
   products: GetAccountsTypeProductOptions[] = [];
-  /** Available savings accounts list */
   savingsAccounts: SavingsAccountData[] = [];
-  /** Filtered savings accounts list for search */
   filteredSavingsAccounts: SavingsAccountData[] = [];
-  /** Search term for savings accounts */
   savingsSearchVal = '';
 
-  /**
-   * Component initialization.
-   */
   ngOnInit(): void {
     // Check for clientId in query params for pre-population
     this.route.queryParams.subscribe((queryParams) => {
@@ -403,9 +373,6 @@ export class ShareAccountFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Handles client selection and resets/updates products list.
-   */
   onClientSelected(clientId: number): void {
     this.account.clientId = clientId;
     this.account.productId = undefined;
@@ -416,9 +383,6 @@ export class ShareAccountFormComponent implements OnInit {
     this.loadProducts(clientId);
   }
 
-  /**
-   * Handles product selection and updates available savings accounts.
-   */
   onProductSelected(productId: number): void {
     this.account.productId = productId;
     this.account.savingsAccountId = undefined;
@@ -427,9 +391,6 @@ export class ShareAccountFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Handles filtering of savings accounts.
-   */
   onSavingsSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.savingsSearchVal = input.value.toLowerCase();
@@ -440,9 +401,6 @@ export class ShareAccountFormComponent implements OnInit {
     );
   }
 
-  /**
-   * Returns the display label for the selected savings account.
-   */
   getSelectedSavingsAccountLabel(): string {
     const selectedId = this.account.savingsAccountId;
     if (!selectedId) return '';
@@ -450,23 +408,14 @@ export class ShareAccountFormComponent implements OnInit {
     return sa ? `${sa.accountNo} - ${sa.savingsProductName}` : '';
   }
 
-  /**
-   * Navigates to client registration page.
-   */
   onCreateClient() {
     this.router.navigate(['/clients/create']);
   }
 
-  /**
-   * Navigates to share product creation page.
-   */
   onCreateProduct() {
     this.router.navigate(['/products/share/create']);
   }
 
-  /**
-   * Fetches the list of share products and client savings accounts.
-   */
   private loadProducts(clientId?: number, productId?: number): void {
     if (!clientId) {
       this.products = [];
@@ -486,9 +435,6 @@ export class ShareAccountFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Loads existing account data for editing.
-   */
   private loadAccountData(): void {
     if (!this.accountId) return;
     this.shareService.getAccountsTypeAccountId(this.accountId, 'share').subscribe({
@@ -511,9 +457,6 @@ export class ShareAccountFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Handles form submission.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -545,9 +488,6 @@ export class ShareAccountFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Handles user cancellation.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

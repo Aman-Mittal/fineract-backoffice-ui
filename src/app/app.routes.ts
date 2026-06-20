@@ -49,6 +49,13 @@ export const routes: Routes = [
           import('./features/clients/clients-list.component').then((m) => m.ClientsListComponent),
       },
       {
+        path: 'clients/search',
+        loadComponent: () =>
+          import('./features/clients/client-search-v2.component').then(
+            (m) => m.ClientSearchV2Component,
+          ),
+      },
+      {
         path: 'clients/create',
         loadComponent: () =>
           import('./features/clients/client-form.component').then((m) => m.ClientFormComponent),
@@ -646,6 +653,22 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'loans/:loanId/charges',
+        loadComponent: () =>
+          import('./features/loans/charges/loan-charges-list.component').then(
+            (m) => m.LoanChargesListComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'loans/:loanId/charges/add',
+        loadComponent: () =>
+          import('./features/loans/charges/loan-charge-form.component').then(
+            (m) => m.LoanChargeFormComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
         path: 'loans/:loanId/rescheduling',
         loadComponent: () =>
           import('./features/loans/rescheduling/reschedule-requests-list.component').then(
@@ -773,6 +796,38 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'organization/currencies',
+        loadComponent: () =>
+          import('./features/organization/currencies/currencies.component').then(
+            (m) => m.CurrenciesComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'organization/account-number-formats',
+        loadComponent: () =>
+          import('./features/organization/account-number-formats/account-number-formats-list.component').then(
+            (m) => m.AccountNumberFormatsListComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'organization/account-number-formats/create',
+        loadComponent: () =>
+          import('./features/organization/account-number-formats/account-number-format-form.component').then(
+            (m) => m.AccountNumberFormatFormComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'organization/account-number-formats/edit/:id',
+        loadComponent: () =>
+          import('./features/organization/account-number-formats/account-number-format-form.component').then(
+            (m) => m.AccountNumberFormatFormComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
         path: 'security/audits',
         loadComponent: () =>
           import('./features/security/audit-logs/audit-logs-list.component').then(
@@ -799,6 +854,80 @@ export const routes: Routes = [
           import('./features/system/data-tables/datatables-form.component').then(
             (m) => m.DatatablesFormComponent,
           ),
+      },
+      {
+        path: 'system/codes',
+        loadComponent: () =>
+          import('./features/system/codes/codes-list.component').then((m) => m.CodesListComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/codes/create',
+        loadComponent: () =>
+          import('./features/system/codes/code-form.component').then((m) => m.CodeFormComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/codes/edit/:id',
+        loadComponent: () =>
+          import('./features/system/codes/code-form.component').then((m) => m.CodeFormComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/codes/:codeId/values',
+        loadComponent: () =>
+          import('./features/system/codes/code-values-list.component').then(
+            (m) => m.CodeValuesListComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/codes/:codeId/values/create',
+        loadComponent: () =>
+          import('./features/system/codes/code-value-form.component').then(
+            (m) => m.CodeValueFormComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/codes/:codeId/values/edit/:id',
+        loadComponent: () =>
+          import('./features/system/codes/code-value-form.component').then(
+            (m) => m.CodeValueFormComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/business-dates',
+        loadComponent: () =>
+          import('./features/system/business-dates/business-dates.component').then(
+            (m) => m.BusinessDatesComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/templates',
+        loadComponent: () =>
+          import('./features/system/templates/templates-list.component').then(
+            (m) => m.TemplatesListComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/templates/create',
+        loadComponent: () =>
+          import('./features/system/templates/template-form.component').then(
+            (m) => m.TemplateFormComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'system/templates/edit/:id',
+        loadComponent: () =>
+          import('./features/system/templates/template-form.component').then(
+            (m) => m.TemplateFormComponent,
+          ),
+        canActivate: [authGuard],
       },
       {
         path: 'system/bulk-import',
@@ -1465,9 +1594,42 @@ export const routes: Routes = [
       {
         path: 'loans/bulk-reassignment',
         loadComponent: () =>
-          import('./features/loans/bulk-reassignment/bulk-reassignment.component').then(
-            (m) => m.BulkReassignmentComponent,
+          import('./features/loans/bulk-reassignment/bulk-loan-reassignment.component').then(
+            (m) => m.BulkLoanReassignmentComponent,
           ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'loans/point-in-time',
+        loadComponent: () =>
+          import('./features/loans/point-in-time/loans-point-in-time.component').then(
+            (m) => m.LoansPointInTimeComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'collection-sheet',
+        loadComponent: () =>
+          import('./features/collection-sheet/collection-sheet.component').then(
+            (m) => m.CollectionSheetComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'transfers/history',
+        loadComponent: () =>
+          import('./features/transfers/account-transfers-list.component').then(
+            (m) => m.AccountTransfersListComponent,
+          ),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/notifications/notifications-list.component').then(
+            (m) => m.NotificationsListComponent,
+          ),
+        canActivate: [authGuard],
       },
       {
         path: 'loans/:loanId/guarantors',
@@ -1600,6 +1762,217 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/working-capital/loans/wc-loan-view.component').then(
             (m) => m.WcLoanViewComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loans/:id/action/:command',
+        loadComponent: () =>
+          import('./features/working-capital/loans/wc-loan-action-form.component').then(
+            (m) => m.WcLoanActionFormComponent,
+          ),
+      },
+      {
+        path: 'search',
+        loadComponent: () =>
+          import('./features/search/global-search.component').then((m) => m.GlobalSearchComponent),
+      },
+      {
+        path: 'campaigns/email',
+        loadComponent: () =>
+          import('./features/campaigns/email-campaigns/email-campaigns-list.component').then(
+            (m) => m.EmailCampaignsListComponent,
+          ),
+      },
+      {
+        path: 'campaigns/email/create',
+        loadComponent: () =>
+          import('./features/campaigns/email-campaigns/email-campaign-form.component').then(
+            (m) => m.EmailCampaignFormComponent,
+          ),
+      },
+      {
+        path: 'campaigns/email/:id/edit',
+        loadComponent: () =>
+          import('./features/campaigns/email-campaigns/email-campaign-form.component').then(
+            (m) => m.EmailCampaignFormComponent,
+          ),
+      },
+      {
+        path: 'campaigns/sms',
+        loadComponent: () =>
+          import('./features/campaigns/sms-campaigns/sms-campaigns-list.component').then(
+            (m) => m.SmsCampaignsListComponent,
+          ),
+      },
+      {
+        path: 'campaigns/sms/create',
+        loadComponent: () =>
+          import('./features/campaigns/sms-campaigns/sms-campaign-form.component').then(
+            (m) => m.SmsCampaignFormComponent,
+          ),
+      },
+      {
+        path: 'campaigns/sms/:id/edit',
+        loadComponent: () =>
+          import('./features/campaigns/sms-campaigns/sms-campaign-form.component').then(
+            (m) => m.SmsCampaignFormComponent,
+          ),
+      },
+      {
+        path: 'campaigns/email-messages',
+        loadComponent: () =>
+          import('./features/campaigns/email-messages/email-messages.component').then(
+            (m) => m.EmailMessagesComponent,
+          ),
+      },
+      {
+        path: 'organization/office-transactions',
+        loadComponent: () =>
+          import('./features/organization/office-transactions/office-transactions-list.component').then(
+            (m) => m.OfficeTransactionsListComponent,
+          ),
+      },
+      {
+        path: 'organization/office-transactions/create',
+        loadComponent: () =>
+          import('./features/organization/office-transactions/office-transaction-form.component').then(
+            (m) => m.OfficeTransactionFormComponent,
+          ),
+      },
+      {
+        path: 'admin/batch-operations',
+        loadComponent: () =>
+          import('./features/admin/batch-operations/batch-operations.component').then(
+            (m) => m.BatchOperationsComponent,
+          ),
+      },
+      {
+        path: 'admin/inline-job',
+        loadComponent: () =>
+          import('./features/admin/inline-job/inline-job.component').then(
+            (m) => m.InlineJobComponent,
+          ),
+      },
+      {
+        path: 'admin/cob-tools',
+        loadComponent: () =>
+          import('./features/admin/cob-tools/cob-tools.component').then((m) => m.CobToolsComponent),
+      },
+      {
+        path: 'admin/wc-cob-tools',
+        loadComponent: () =>
+          import('./features/admin/wc-cob-tools/wc-cob-tools.component').then(
+            (m) => m.WcCobToolsComponent,
+          ),
+      },
+      {
+        path: 'admin/external-events',
+        loadComponent: () =>
+          import('./features/admin/external-events/external-events.component').then(
+            (m) => m.ExternalEventsComponent,
+          ),
+      },
+      {
+        path: 'admin/progressive-loan',
+        loadComponent: () =>
+          import('./features/admin/progressive-loan/progressive-loan-model.component').then(
+            (m) => m.ProgressiveLoanModelComponent,
+          ),
+      },
+      {
+        path: 'loans/account-locks',
+        loadComponent: () =>
+          import('./features/loans/loan-account-lock/loan-account-lock.component').then(
+            (m) => m.LoanAccountLockComponent,
+          ),
+      },
+      {
+        path: 'loans/cob-catchup',
+        loadComponent: () =>
+          import('./features/loans/cob-catchup/loan-cob-catchup.component').then(
+            (m) => m.LoanCobCatchupComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loans/account-locks',
+        loadComponent: () =>
+          import('./features/working-capital/loans/wc-account-lock/wc-loan-account-lock.component').then(
+            (m) => m.WcLoanAccountLockComponent,
+          ),
+      },
+      {
+        path: 'working-capital/loans/cob-catchup',
+        loadComponent: () =>
+          import('./features/working-capital/loans/wc-cob-catchup/wc-loan-cob-catchup.component').then(
+            (m) => m.WcLoanCobCatchupComponent,
+          ),
+      },
+      {
+        path: 'loans/schedule-modify',
+        loadComponent: () =>
+          import('./features/loans/loan-schedule-modify/loan-schedule-modify.component').then(
+            (m) => m.LoanScheduleModifyComponent,
+          ),
+      },
+      {
+        path: 'interop/parties',
+        loadComponent: () =>
+          import('./features/interop/interop-party-lookup.component').then(
+            (m) => m.InteropPartyLookupComponent,
+          ),
+      },
+      {
+        path: 'interop/accounts',
+        loadComponent: () =>
+          import('./features/interop/interop-account-view.component').then(
+            (m) => m.InteropAccountViewComponent,
+          ),
+      },
+      {
+        path: 'interop/quotes',
+        loadComponent: () =>
+          import('./features/interop/interop-quotes.component').then(
+            (m) => m.InteropQuotesComponent,
+          ),
+      },
+      {
+        path: 'interop/transfers',
+        loadComponent: () =>
+          import('./features/interop/interop-transfers.component').then(
+            (m) => m.InteropTransfersComponent,
+          ),
+      },
+      {
+        path: 'interop/health',
+        loadComponent: () =>
+          import('./features/interop/interop-health.component').then(
+            (m) => m.InteropHealthComponent,
+          ),
+      },
+      {
+        path: 'auth/forgot-password',
+        loadComponent: () =>
+          import('./features/auth/forgot-password/forgot-password.component').then(
+            (m) => m.ForgotPasswordComponent,
+          ),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/profile/user-profile.component').then((m) => m.UserProfileComponent),
+      },
+      {
+        path: 'settings/two-factor',
+        loadComponent: () =>
+          import('./features/settings/two-factor-config.component').then(
+            (m) => m.TwoFactorConfigComponent,
+          ),
+      },
+      {
+        path: 'spm/survey-responses',
+        loadComponent: () =>
+          import('./features/spm/survey-responses/survey-responses.component').then(
+            (m) => m.SurveyResponsesComponent,
           ),
       },
     ],

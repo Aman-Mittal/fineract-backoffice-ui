@@ -18,9 +18,9 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import {
   StandingInstructionsHistoryService,
@@ -31,11 +31,12 @@ import {
   selector: 'app-standing-instruction-history',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatCardModule,
     DataTableComponent,
     CellTemplateDirective,
+    DatePipe,
+    DecimalPipe,
   ],
   template: `
     <app-data-table

@@ -30,12 +30,6 @@ import { CellTemplateDirective, ColumnDef } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { LoanProductsService, GetLoanProductsResponse } from '../../api';
 
-/**
- * Component for displaying a list of loan products.
- *
- * Integrates with the Fineract Loan Products API.
- * Uses local pagination and search as the API returns the full product list.
- */
 @Component({
   selector: 'app-loan-products-list',
   standalone: true,
@@ -64,7 +58,7 @@ import { LoanProductsService, GetLoanProductsResponse } from '../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Product"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditProduct(product)"
         >
           <mat-icon>edit</mat-icon>
@@ -74,12 +68,9 @@ import { LoanProductsService, GetLoanProductsResponse } from '../../api';
   `,
 })
 export class LoanProductsListComponent implements OnInit {
-  /** Service for loan product operations */
   private readonly loanProductsService = inject(LoanProductsService);
-  /** Router for navigation */
   private readonly router = inject(Router);
 
-  /** Column definitions for the loan products data table */
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
     { key: 'shortName', label: 'PRODUCTS.SHORT_NAME', sortable: true },
@@ -87,19 +78,12 @@ export class LoanProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  /** List of loan products retrieved from the API */
   products: GetLoanProductsResponse[] = [];
 
-  /**
-   * Initializes the component.
-   */
   ngOnInit(): void {
     this.loadProducts();
   }
 
-  /**
-   * Retrieves all loan products from the Fineract API.
-   */
   private loadProducts(): void {
     this.loanProductsService
       .getLoanproducts()
@@ -109,18 +93,10 @@ export class LoanProductsListComponent implements OnInit {
       });
   }
 
-  /**
-   * Navigates to the loan product creation form.
-   */
   onCreateProduct(): void {
     this.router.navigate(['/products/loan/create']);
   }
 
-  /**
-   * Navigates to the edit form for a specific loan product.
-   *
-   * @param product - The loan product entity to edit.
-   */
   onEditProduct(product: GetLoanProductsResponse): void {
     this.router.navigate(['/products/loan/edit', product.id]);
   }

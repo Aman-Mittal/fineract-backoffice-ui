@@ -27,9 +27,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RolesService, GetRolesResponse } from '../../../api';
 
-/**
- * Component for listing system roles.
- */
 @Component({
   selector: 'app-roles-list',
   standalone: true,
@@ -58,7 +55,7 @@ import { RolesService, GetRolesResponse } from '../../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Role"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditRole(role)"
         >
           <mat-icon>edit</mat-icon>

@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
@@ -28,6 +27,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import {
@@ -36,13 +40,18 @@ import {
   GetLoansLoanIdRepaymentPeriod,
   GetLoansLoanIdTransactions,
   GetLoansLoanIdLoanChargeData,
+  LoanBuyDownFeesService,
+  BuyDownFeeAmortizationDetails,
+  LoanCapitalizedIncomeService,
+  CapitalizedIncomeDetails,
+  LoanDisbursementDetailsService,
+  LoanCollateralManagementService,
 } from '../../api';
 
 @Component({
   selector: 'app-loan-view',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatCardModule,
@@ -52,8 +61,15 @@ import {
     MatTableModule,
     MatTooltipModule,
     MatMenuModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSnackBarModule,
+    FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
+    DecimalPipe,
+    NgClass,
+    JsonPipe,
   ],
   template: `
     @if (loan()) {
@@ -652,6 +668,187 @@ import {
               ></app-entity-datatables>
             </div>
           </mat-tab>
+
+          <!-- Buy-Down Fees -->
+          <mat-tab [label]="'LOANS.BUY_DOWN_FEES' | translate">
+            <div class="tab-content">
+              @if (buyDownFees().length === 0) {
+                <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+              } @else {
+                <table mat-table [dataSource]="buyDownFees()" class="full-width-table">
+                  <ng-container matColumnDef="transactionId">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'LOANS.TRANSACTION_ID' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.transactionId }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="buyDownFeeAmount">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'LOANS.BUY_DOWN_FEE_AMOUNT' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.buyDownFeeAmount | number }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="amortizedAmount">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.amortizedAmount | number }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="notYetAmortizedAmount">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="buyDownFeeColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: buyDownFeeColumns"></tr>
+                </table>
+              }
+            </div>
+          </mat-tab>
+
+          <!-- Capitalized Income -->
+          <mat-tab [label]="'LOANS.CAPITALIZED_INCOME' | translate">
+            <div class="tab-content">
+              @if (capitalizedIncomes().length === 0) {
+                <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+              } @else {
+                <table mat-table [dataSource]="capitalizedIncomes()" class="full-width-table">
+                  <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                    <td mat-cell *matCellDef="let row">{{ row.amount | number }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="amortizedAmount">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.amortizedAmount | number }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="unrecognizedAmount">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'LOANS.UNRECOGNIZED_AMOUNT' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="capitalizedIncomeColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: capitalizedIncomeColumns"></tr>
+                </table>
+              }
+            </div>
+          </mat-tab>
+
+          <!-- Disbursement Details -->
+          <mat-tab [label]="'LOANS.DISBURSEMENT_DETAILS' | translate">
+            <div class="tab-content">
+              <mat-card class="info-card" style="margin-bottom: 24px;">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>launch</mat-icon>
+                    {{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div
+                    class="form-row"
+                    style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
+                  >
+                    <mat-form-field appearance="outline" style="flex: 1;">
+                      <mat-label>{{ 'LOANS.DISBURSEMENT_ID' | translate }}</mat-label>
+                      <input matInput type="number" [(ngModel)]="editDisbId" />
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" (click)="loadDisbursementDetail()">
+                      <mat-icon>search</mat-icon>
+                      {{ 'LOANS.LOAD_DISBURSEMENT' | translate }}
+                    </button>
+                  </div>
+
+                  @if (disbursementDetail()) {
+                    <pre class="json-block">{{ disbursementDetail() | json }}</pre>
+
+                    <div
+                      class="edit-form"
+                      style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;"
+                    >
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
+                        <input
+                          matInput
+                          [(ngModel)]="disbursementEditForm.expectedDisbursementDate"
+                        />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          [(ngModel)]="disbursementEditForm.principal"
+                        />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
+                        <input matInput [(ngModel)]="disbursementEditForm.note" />
+                      </mat-form-field>
+                      <div>
+                        <button mat-raised-button color="accent" (click)="saveDisbursementDetail()">
+                          <mat-icon>save</mat-icon>
+                          {{ 'COMMON.SAVE' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Collateral Management -->
+          <mat-tab [label]="'LOANS.COLLATERAL_MANAGEMENT' | translate">
+            <div class="tab-content">
+              <mat-card class="info-card" style="margin-bottom: 24px;">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>security</mat-icon>
+                    {{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <!-- Load collateral -->
+                  <div
+                    class="form-row"
+                    style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
+                  >
+                    <mat-form-field appearance="outline" style="flex: 1;">
+                      <mat-label>{{ 'LOANS.COLLATERAL_ID' | translate }}</mat-label>
+                      <input matInput type="number" [(ngModel)]="collateralDetailId" />
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" (click)="loadCollateralDetail()">
+                      <mat-icon>search</mat-icon>
+                      {{ 'LOANS.LOAD_COLLATERAL' | translate }}
+                    </button>
+                  </div>
+
+                  @if (collateralDetail()) {
+                    <pre class="json-block">{{ collateralDetail() | json }}</pre>
+                  }
+
+                  <!-- Delete collateral -->
+                  <div
+                    class="form-row"
+                    style="display: flex; gap: 12px; align-items: center; margin-top: 24px;"
+                  >
+                    <mat-form-field appearance="outline" style="flex: 1;">
+                      <mat-label>{{ 'LOANS.COLLATERAL_ID' | translate }}</mat-label>
+                      <input matInput type="number" [(ngModel)]="deleteCollateralId" />
+                    </mat-form-field>
+                    <button mat-raised-button color="warn" (click)="deleteCollateral()">
+                      <mat-icon>delete</mat-icon>
+                      {{ 'LOANS.DELETE_COLLATERAL' | translate }}
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
         </mat-tab-group>
       </div>
     }
@@ -804,11 +1001,26 @@ import {
         opacity: 0.6;
         color: #7f8c8d;
       }
+      .json-block {
+        background: var(--card-bg, #f5f5f5);
+        border: 1px solid var(--border-color, #e0e0e0);
+        border-radius: 6px;
+        padding: 16px;
+        font-size: 13px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
     `,
   ],
 })
 export class LoanViewComponent implements OnInit {
   private readonly loansService = inject(LoansService);
+  private readonly buyDownFeesService = inject(LoanBuyDownFeesService);
+  private readonly capitalizedIncomeService = inject(LoanCapitalizedIncomeService);
+  private readonly disbursementDetailsService = inject(LoanDisbursementDetailsService);
+  private readonly collateralManagementService = inject(LoanCollateralManagementService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -817,6 +1029,22 @@ export class LoanViewComponent implements OnInit {
   periods = signal<GetLoansLoanIdRepaymentPeriod[]>([]);
   transactions = signal<GetLoansLoanIdTransactions[]>([]);
   charges = signal<GetLoansLoanIdLoanChargeData[]>([]);
+  buyDownFees = signal<BuyDownFeeAmortizationDetails[]>([]);
+  capitalizedIncomes = signal<CapitalizedIncomeDetails[]>([]);
+
+  // Disbursement Details
+  disbursementDetail = signal<any>(null);
+  editDisbId = 0;
+  disbursementEditForm = {
+    expectedDisbursementDate: '',
+    principal: 0,
+    note: '',
+  };
+
+  // Collateral Management
+  collateralDetail = signal<any>(null);
+  collateralDetailId = 0;
+  deleteCollateralId = 0;
 
   get isLoanApproved(): boolean {
     const status = this.loan()?.status;
@@ -855,6 +1083,13 @@ export class LoanViewComponent implements OnInit {
   ];
   transactionColumns = ['id', 'date', 'type', 'amount'];
   chargeColumns = ['name', 'amount', 'due', 'outstanding'];
+  buyDownFeeColumns = [
+    'transactionId',
+    'buyDownFeeAmount',
+    'amortizedAmount',
+    'notYetAmortizedAmount',
+  ];
+  capitalizedIncomeColumns = ['amount', 'amortizedAmount', 'unrecognizedAmount'];
 
   get totalPrincipalDue(): number {
     return this.periods().reduce((acc, p) => acc + (p.principalDue || 0), 0);
@@ -925,9 +1160,90 @@ export class LoanViewComponent implements OnInit {
         this.periods.set(data.repaymentSchedule?.periods || []);
         this.transactions.set(data.transactions || []);
         this.charges.set(data.charges || []);
+        if (data.externalId) {
+          this.buyDownFeesService
+            .getLoansExternalIdLoanExternalIdBuydownFees(data.externalId)
+            .subscribe({
+              next: (fees) => this.buyDownFees.set(fees ?? []),
+              error: () => {
+                /* ignored */
+              },
+            });
+          this.capitalizedIncomeService
+            .getLoansExternalIdLoanExternalIdCapitalizedIncomes(data.externalId)
+            .subscribe({
+              next: (items) => this.capitalizedIncomes.set(items ?? []),
+              error: () => {
+                /* ignored */
+              },
+            });
+        }
       },
       error: (err) => console.error('Failed to load loan data', err),
     });
+  }
+
+  loadDisbursementDetail() {
+    if (!this.editDisbId) return;
+    this.disbursementDetailsService
+      .getLoansLoanIdDisbursementsDisbursementId(this.loanId, this.editDisbId)
+      .subscribe({
+        next: (data) => {
+          let parsed: any;
+          try {
+            parsed = typeof data === 'string' ? JSON.parse(data) : data;
+          } catch {
+            parsed = data;
+          }
+          this.disbursementDetail.set(parsed);
+          this.disbursementEditForm.expectedDisbursementDate =
+            parsed?.expectedDisbursementDate ?? '';
+          this.disbursementEditForm.principal = parsed?.principal ?? 0;
+          this.disbursementEditForm.note = parsed?.note ?? '';
+        },
+        error: (err) => console.error('Failed to load disbursement detail', err),
+      });
+  }
+
+  saveDisbursementDetail() {
+    if (!this.editDisbId) return;
+    this.disbursementDetailsService
+      .putLoansLoanIdDisbursementsDisbursementId(
+        this.loanId,
+        this.editDisbId,
+        JSON.stringify(this.disbursementEditForm),
+      )
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Disbursement saved successfully.', 'Close', { duration: 3000 });
+          this.loadDisbursementDetail();
+        },
+        error: (err) => console.error('Failed to save disbursement detail', err),
+      });
+  }
+
+  loadCollateralDetail() {
+    if (!this.collateralDetailId) return;
+    this.collateralManagementService
+      .getLoanCollateralManagementCollateralId(this.collateralDetailId)
+      .subscribe({
+        next: (data) => this.collateralDetail.set(data),
+        error: (err) => console.error('Failed to load collateral detail', err),
+      });
+  }
+
+  deleteCollateral() {
+    if (!this.deleteCollateralId) return;
+    if (!confirm('Are you sure you want to delete this collateral?')) return;
+    this.collateralManagementService
+      .deleteLoanCollateralManagementId(this.loanId, this.deleteCollateralId)
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Collateral deleted successfully.', 'Close', { duration: 3000 });
+          this.deleteCollateralId = 0;
+        },
+        error: (err) => console.error('Failed to delete collateral', err),
+      });
   }
 
   onRepayment() {

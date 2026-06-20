@@ -18,12 +18,12 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } from '../../api';
 
@@ -31,7 +31,6 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
   selector: 'app-standing-instructions-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,
@@ -39,6 +38,8 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    DatePipe,
+    DecimalPipe,
   ],
   template: `
     <app-data-table

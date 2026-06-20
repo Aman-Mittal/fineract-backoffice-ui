@@ -94,12 +94,6 @@ import { CacheService, CacheData } from '../../../api';
         flex-direction: column;
         gap: 12px;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })

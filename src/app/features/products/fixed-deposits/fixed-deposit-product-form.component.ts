@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -45,7 +44,6 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
   selector: 'app-fixed-deposit-product-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -197,18 +195,6 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-      }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],

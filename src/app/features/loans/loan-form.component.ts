@@ -33,6 +33,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -42,27 +43,16 @@ import {
   GetLoanProductsResponse,
   GetLoansLoanIdResponse,
 } from '../../api';
-import { CommonModule } from '@angular/common';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
 
-/**
- * Component for creating and editing loan applications.
- *
- * Integrates with Fineract's Loans and LoanProducts services.
- * Features include client search, product selection, and date management.
- *
- * @example
- * <app-loan-form></app-loan-form>
- */
 @Component({
   selector: 'app-loan-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -76,6 +66,7 @@ import {
     MatTooltipModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     ClientSearchComponent,
   ],
   template: `
@@ -313,6 +304,66 @@ import {
                   <mat-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</mat-option>
                 </mat-select>
               </mat-form-field>
+
+              <!-- Grace on Principal Payment -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="graceOnPrincipalPayment"
+                  [(ngModel)]="loan.graceOnPrincipalPayment"
+                />
+              </mat-form-field>
+
+              <!-- Grace on Interest Payment -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="graceOnInterestPayment"
+                  [(ngModel)]="loan.graceOnInterestPayment"
+                />
+              </mat-form-field>
+
+              <!-- Grace on Interest Charged -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'LOANS.GRACE_ON_INTEREST_CHARGED' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="graceOnInterestCharged"
+                  [(ngModel)]="loan.graceOnInterestCharged"
+                />
+              </mat-form-field>
+
+              <!-- In Arrears Tolerance -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'LOANS.IN_ARREARS_TOLERANCE' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="inArrearsTolerance"
+                  [(ngModel)]="loan.inArrearsTolerance"
+                />
+              </mat-form-field>
+
+              <!-- Repayments Starting From Date -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'LOANS.REPAYMENTS_STARTING_FROM_DATE' | translate }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="repaymentsFromPicker"
+                  name="repaymentsStartingFromDate"
+                  [(ngModel)]="repaymentsStartingFromDate"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="repaymentsFromPicker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #repaymentsFromPicker></mat-datepicker>
+              </mat-form-field>
             </div>
 
             <div class="form-actions">
@@ -358,15 +409,6 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
       .field-container-row {
         display: flex;
         align-items: flex-start;
@@ -379,42 +421,29 @@ import {
   ],
 })
 export class LoanFormComponent implements OnInit {
-  /** Service for loan operations */
   private readonly loansService = inject(LoansService);
-  /** Service for loan products */
   private readonly productService = inject(LoanProductsService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Base path for redirection */
   private readonly LIST_PATH = '/loans';
 
-  /** Loan identifier */
   loanId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state flag */
   isSaving = false;
 
-  /** Loan request model */
   loan: PostLoansRequest = {
     loanType: 'individual',
   };
-  /** Dates for template binding */
   submittedOnDate: Date = new Date();
   expectedDisbursementDate: Date = new Date();
-  /** Available products list */
+  repaymentsStartingFromDate: Date | null = null;
   products: GetLoanProductsResponse[] = [];
 
-  /**
-   * Initializes the component and loads product data.
-   */
   ngOnInit() {
     this.loadProducts();
 
-    // Check for clientId in query params for pre-population
     this.route.queryParams.subscribe((queryParams) => {
       const clientId = queryParams['clientId'];
       if (clientId) {
@@ -432,33 +461,22 @@ export class LoanFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Navigates to the client registration page.
-   */
   onCreateClient() {
     this.router.navigate(['/clients/create']);
   }
 
-  /**
-   * Navigates to the loan product creation page.
-   */
   onCreateProduct() {
     this.router.navigate(['/products/loan/create']);
   }
 
-  /**
-   * Fetches loan products from the API.
-   */
   private loadProducts() {
     this.productService.getLoanproducts().subscribe({
       next: (data: GetLoanProductsResponse[]) => (this.products = data || []),
-      error: (err: unknown) => console.error('Failed to load products', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 
-  /**
-   * Loads existing loan data for editing.
-   */
   private loadLoanData() {
     if (!this.loanId) return;
     this.loansService.getLoansLoanId(this.loanId).subscribe({
@@ -493,18 +511,19 @@ export class LoanFormComponent implements OnInit {
           transactionProcessingStrategyCode: data.transactionProcessingStrategyCode,
         };
       },
-      error: (err: unknown) => console.error('Failed to load loan details', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 
-  /**
-   * Handles form submission.
-   */
   onSubmit() {
     this.isSaving = true;
 
     this.loan.submittedOnDate = formatDateToFineract(this.submittedOnDate);
     this.loan.expectedDisbursementDate = formatDateToFineract(this.expectedDisbursementDate);
+    if (this.repaymentsStartingFromDate) {
+      this.loan.repaymentsStartingFromDate = formatDateToFineract(this.repaymentsStartingFromDate);
+    }
     this.loan.dateFormat = FINERACT_DATE_FORMAT;
     this.loan.locale = FINERACT_LOCALE;
 
@@ -528,9 +547,6 @@ export class LoanFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Navigates back to the loan list.
-   */
   onCancel() {
     this.router.navigate([this.LIST_PATH]);
   }

@@ -214,12 +214,6 @@ import {
         gap: 8px;
         padding: 0 12px;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })

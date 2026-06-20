@@ -149,14 +149,6 @@ import { HelpIconComponent } from '../../shared';
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-      }
     `,
   ],
 })

@@ -75,7 +75,11 @@ describe('GuarantorFormComponent', () => {
     );
     component.guarantor = { guarantorTypeId: 1, firstname: 'John', lastname: 'Doe' };
     component.onSubmit();
-    expect(serviceSpy.postLoansLoanIdGuarantors).toHaveBeenCalledWith(1, component.guarantor);
+    expect(serviceSpy.postLoansLoanIdGuarantors).toHaveBeenCalledWith(1, {
+      ...component.guarantor,
+      locale: 'en',
+      dateFormat: 'dd MMMM yyyy',
+    });
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans', 1, 'guarantors']);
   });
 });

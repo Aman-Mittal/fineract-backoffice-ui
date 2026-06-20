@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
@@ -26,6 +25,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DecimalPipe } from '@angular/common';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -50,13 +52,15 @@ import {
   selector: 'app-wc-loan-view',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatCardModule,
     MatTabsModule,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
+    MatMenuModule,
+    MatTooltipModule,
+    DecimalPipe,
   ],
   template: `
     <div class="view-container">
@@ -80,6 +84,75 @@ import {
               <mat-icon>arrow_back</mat-icon>
               {{ 'COMMON.BACK' | translate }}
             </button>
+
+            @if (isLoanActive) {
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onRepayment()"
+                [matTooltip]="'WC_LOANS.REPAYMENT' | translate"
+              >
+                <mat-icon>payments</mat-icon>
+                {{ 'WC_LOANS.REPAYMENT' | translate }}
+              </button>
+            }
+
+            @if (isLoanPendingApproval) {
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="onAction('approve')"
+                [matTooltip]="'WC_LOANS.APPROVE' | translate"
+              >
+                <mat-icon>check_circle</mat-icon>
+                {{ 'WC_LOANS.APPROVE' | translate }}
+              </button>
+            }
+
+            @if (isLoanApproved) {
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="onAction('disburse')"
+                [matTooltip]="'WC_LOANS.DISBURSE' | translate"
+              >
+                <mat-icon>launch</mat-icon>
+                {{ 'WC_LOANS.DISBURSE' | translate }}
+              </button>
+            }
+
+            <button mat-raised-button [matMenuTriggerFor]="loanMenu">
+              <mat-icon>arrow_drop_down</mat-icon>
+              {{ 'COMMON.ACTIONS' | translate }}
+            </button>
+            <mat-menu #loanMenu="matMenu">
+              @if (isLoanPendingApproval) {
+                <button mat-menu-item (click)="onEdit()">
+                  <mat-icon>edit</mat-icon>
+                  <span>{{ 'WC_LOANS.ACTIONS.MODIFY' | translate }}</span>
+                </button>
+                <button mat-menu-item (click)="onAction('reject')">
+                  <mat-icon>cancel</mat-icon>
+                  <span>{{ 'WC_LOANS.ACTIONS.REJECT' | translate }}</span>
+                </button>
+              }
+              @if (isLoanApproved) {
+                <button mat-menu-item (click)="onAction('undoapproval')">
+                  <mat-icon>undo</mat-icon>
+                  <span>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</span>
+                </button>
+              }
+              @if (isLoanActive) {
+                <button mat-menu-item (click)="onAction('undodisbursal')">
+                  <mat-icon>undo</mat-icon>
+                  <span>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
+                </button>
+              }
+              <button mat-menu-item (click)="onDelete()">
+                <mat-icon>delete</mat-icon>
+                <span>{{ 'WC_LOANS.ACTIONS.DELETE' | translate }}</span>
+              </button>
+            </mat-menu>
           </div>
         </mat-card-content>
       </mat-card>
@@ -523,6 +596,38 @@ export class WcLoanViewComponent implements OnInit {
     this.breachScheduleService.getWorkingCapitalLoansLoanIdBreachSchedule(this.loanId).subscribe({
       next: (data) => this.breachSchedule.set(data ?? []),
       error: (err: unknown) => console.error('Failed to load breach schedule', err),
+    });
+  }
+
+  get isLoanPendingApproval(): boolean {
+    return this.loan()?.status?.pendingApproval === true;
+  }
+
+  get isLoanApproved(): boolean {
+    return this.loan()?.status?.waitingForDisbursal === true;
+  }
+
+  get isLoanActive(): boolean {
+    return this.loan()?.status?.active === true;
+  }
+
+  onRepayment(): void {
+    this.router.navigate([`/working-capital/loans/${this.loanId}/action/repayment`]);
+  }
+
+  onAction(command: string): void {
+    this.router.navigate([`/working-capital/loans/${this.loanId}/action/${command}`]);
+  }
+
+  onEdit(): void {
+    this.router.navigate([`/working-capital/loans/edit/${this.loanId}`]);
+  }
+
+  onDelete(): void {
+    if (!confirm('Delete this loan?')) return;
+    this.loansService.deleteWorkingCapitalLoansLoanId(this.loanId).subscribe({
+      next: () => this.router.navigate(['/working-capital/loans']),
+      error: (err: unknown) => console.error('Failed to delete loan', err),
     });
   }
 

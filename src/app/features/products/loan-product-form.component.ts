@@ -33,6 +33,10 @@ import {
   LoanProductsService,
   PostLoanProductsRequest,
   PutLoanProductsProductIdRequest,
+  FundData,
+  FundsService,
+  DelinquencyRangeAndBucketsManagementService,
+  DelinquencyBucketResponse,
 } from '../../api';
 
 @Component({
@@ -99,6 +103,29 @@ import {
                   [(ngModel)]="product.description"
                   rows="3"
                 ></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
+                <input matInput name="externalId" [(ngModel)]="product.externalId" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.FUND' | translate }}</mat-label>
+                <mat-select name="fundId" [(ngModel)]="product.fundId">
+                  @for (fund of fundOptions; track fund.id) {
+                    <mat-option [value]="fund.id">{{ fund.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}</mat-label>
+                <mat-select name="delinquencyBucketId" [(ngModel)]="product.delinquencyBucketId">
+                  @for (bucket of delinquencyBucketOptions; track bucket.id) {
+                    <mat-option [value]="bucket.id">{{ bucket.name }}</mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
 
               <mat-form-field appearance="outline" [matTooltip]="'HELP.CURRENCY_DESC' | translate">
@@ -309,23 +336,13 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class LoanProductFormComponent implements OnInit {
   private readonly productService = inject(LoanProductsService);
+  private readonly fundsService = inject(FundsService);
+  private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -334,6 +351,9 @@ export class LoanProductFormComponent implements OnInit {
   productId: number | null = null;
   isEditMode = false;
   isSaving = false;
+
+  fundOptions: FundData[] = [];
+  delinquencyBucketOptions: DelinquencyBucketResponse[] = [];
 
   product: PostLoanProductsRequest = {
     currencyCode: 'USD',
@@ -352,6 +372,11 @@ export class LoanProductFormComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.fundsService.getFunds().subscribe((data) => (this.fundOptions = data));
+    this.delinquencyService
+      .getDelinquencyBuckets()
+      .subscribe((data) => (this.delinquencyBucketOptions = data));
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {

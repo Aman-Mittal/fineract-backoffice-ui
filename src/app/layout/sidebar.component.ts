@@ -49,9 +49,33 @@ import { SidebarService } from '../core/services/sidebar.service';
           </a>
         </li>
         <li>
+          <a routerLink="/notifications" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">notifications</mat-icon>
+            <span class="nav-text">{{ 'nav.notifications' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/search" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">search</mat-icon>
+            <span class="nav-text">{{ 'SIDEBAR.SEARCH' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">account_circle</mat-icon>
+            <span class="nav-text">{{ 'SIDEBAR.PROFILE' | translate }}</span>
+          </a>
+        </li>
+        <li>
           <a routerLink="/clients" routerLinkActive="active" class="nav-item">
             <mat-icon class="nav-icon">people</mat-icon>
             <span class="nav-text">{{ 'nav.clients' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/clients/search" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">manage_search</mat-icon>
+            <span class="nav-text">{{ 'nav.clientSearchV2' | translate }}</span>
           </a>
         </li>
         <li>
@@ -67,6 +91,12 @@ import { SidebarService } from '../core/services/sidebar.service';
           </a>
         </li>
         <li>
+          <a routerLink="/collection-sheet" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">receipt_long</mat-icon>
+            <span class="nav-text">{{ 'nav.collectionSheet' | translate }}</span>
+          </a>
+        </li>
+        <li>
           <a routerLink="/loans" routerLinkActive="active" class="nav-item">
             <mat-icon class="nav-icon">payments</mat-icon>
             <span class="nav-text">{{ 'nav.loans' | translate }}</span>
@@ -74,8 +104,32 @@ import { SidebarService } from '../core/services/sidebar.service';
         </li>
         <li>
           <a routerLink="/loans/bulk-reassignment" routerLinkActive="active" class="nav-item">
-            <mat-icon class="nav-icon">groups</mat-icon>
+            <mat-icon class="nav-icon">swap_horiz</mat-icon>
             <span class="nav-text">{{ 'nav.bulkReassignment' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/loans/point-in-time" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">schedule</mat-icon>
+            <span class="nav-text">{{ 'nav.loansPointInTime' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/loans/account-locks" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">lock</mat-icon>
+            <span class="nav-text">{{ 'LOAN_ACCOUNT_LOCK.TITLE' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/loans/cob-catchup" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">update</mat-icon>
+            <span class="nav-text">{{ 'LOAN_COB_CATCHUP.TITLE' | translate }}</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/loans/schedule-modify" routerLinkActive="active" class="nav-item">
+            <mat-icon class="nav-icon">edit_calendar</mat-icon>
+            <span class="nav-text">{{ 'LOAN_SCHEDULE_MODIFY.TITLE' | translate }}</span>
           </a>
         </li>
         <li>
@@ -110,6 +164,16 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">history</mat-icon>
                   <span class="nav-text">{{ 'nav.standingInstructionsHistory' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/transfers/history"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">history</mat-icon>
+                  <span class="nav-text">{{ 'nav.transferHistory' | translate }}</span>
                 </a>
               </li>
             </ul>
@@ -311,6 +375,36 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.wcNearBreach' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/working-capital/loans/account-locks"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">lock</mat-icon>
+                  <span class="nav-text">{{ 'WC_LOAN_ACCOUNT_LOCK.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/working-capital/loans/cob-catchup"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">update</mat-icon>
+                  <span class="nav-text">{{ 'WC_LOAN_COB_CATCHUP.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/admin/wc-cob-tools"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">settings_suggest</mat-icon>
+                  <span class="nav-text">{{ 'WC_COB_TOOLS.TITLE' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -356,6 +450,165 @@ import { SidebarService } from '../core/services/sidebar.service';
                 <a routerLink="/mix/taxonomy" routerLinkActive="active" class="nav-item sub-item">
                   <mat-icon class="nav-icon">schema</mat-icon>
                   <span class="nav-text">{{ 'nav.mixTaxonomy' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/spm/survey-responses"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">quiz</mat-icon>
+                  <span class="nav-text">{{ 'SURVEY_RESPONSES.TITLE' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">Campaigns</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/campaigns/email"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">campaign</mat-icon>
+                  <span class="nav-text">{{ 'EMAIL_CAMPAIGNS.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/campaigns/sms" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">sms</mat-icon>
+                  <span class="nav-text">{{ 'SMS_CAMPAIGNS.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/campaigns/email-messages"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">mail</mat-icon>
+                  <span class="nav-text">{{ 'EMAIL_MESSAGES.TITLE' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">Interop</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/interop/parties"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">people</mat-icon>
+                  <span class="nav-text">{{ 'INTEROP.PARTY_TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/interop/accounts"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">account_balance</mat-icon>
+                  <span class="nav-text">{{ 'INTEROP.ACCOUNT_TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/interop/quotes" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">request_quote</mat-icon>
+                  <span class="nav-text">{{ 'INTEROP.QUOTES_TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/interop/transfers"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">transfer_within_a_station</mat-icon>
+                  <span class="nav-text">{{ 'INTEROP.TRANSFER_TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/interop/health" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">monitor_heart</mat-icon>
+                  <span class="nav-text">{{ 'INTEROP.HEALTH_TITLE' | translate }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="nav-group">
+            <span class="nav-group-header">Admin</span>
+            <ul class="nav-sub-list">
+              <li>
+                <a
+                  routerLink="/admin/batch-operations"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">batch_prediction</mat-icon>
+                  <span class="nav-text">{{ 'BATCH_OPERATIONS.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/admin/inline-job"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">play_circle</mat-icon>
+                  <span class="nav-text">{{ 'INLINE_JOB.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/admin/cob-tools"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">engineering</mat-icon>
+                  <span class="nav-text">{{ 'COB_TOOLS.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/admin/wc-cob-tools"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">build</mat-icon>
+                  <span class="nav-text">{{ 'WC_COB_TOOLS.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/admin/external-events"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">event_note</mat-icon>
+                  <span class="nav-text">{{ 'EXTERNAL_EVENTS.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/admin/progressive-loan"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">trending_up</mat-icon>
+                  <span class="nav-text">{{ 'PROGRESSIVE_LOAN.TITLE' | translate }}</span>
                 </a>
               </li>
             </ul>
@@ -578,6 +831,26 @@ import { SidebarService } from '../core/services/sidebar.service';
                   <span class="nav-text">{{ 'nav.workingDays' | translate }}</span>
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/settings/two-factor"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">security</mat-icon>
+                  <span class="nav-text">{{ 'TWO_FACTOR_CONFIG.TITLE' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/auth/forgot-password"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">lock_reset</mat-icon>
+                  <span class="nav-text">{{ 'FORGOT_PASSWORD.TITLE' | translate }}</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>
@@ -656,6 +929,36 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">account_tree</mat-icon>
                   <span class="nav-text">{{ 'nav.groupLevels' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/organization/currencies"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">currency_exchange</mat-icon>
+                  <span class="nav-text">{{ 'nav.currencies' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/organization/account-number-formats"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">format_list_numbered</mat-icon>
+                  <span class="nav-text">{{ 'nav.accountNumberFormats' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/organization/office-transactions"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">swap_horiz</mat-icon>
+                  <span class="nav-text">{{ 'OFFICE_TRANSACTIONS.TITLE' | translate }}</span>
                 </a>
               </li>
             </ul>
@@ -871,6 +1174,32 @@ import { SidebarService } from '../core/services/sidebar.service';
                 >
                   <mat-icon class="nav-icon">description</mat-icon>
                   <span class="nav-text">{{ 'nav.loanProductDetails' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a routerLink="/system/codes" routerLinkActive="active" class="nav-item sub-item">
+                  <mat-icon class="nav-icon">code</mat-icon>
+                  <span class="nav-text">{{ 'nav.codes' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/business-dates"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">today</mat-icon>
+                  <span class="nav-text">{{ 'nav.businessDates' | translate }}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  routerLink="/system/templates"
+                  routerLinkActive="active"
+                  class="nav-item sub-item"
+                >
+                  <mat-icon class="nav-icon">description</mat-icon>
+                  <span class="nav-text">{{ 'nav.templates' | translate }}</span>
                 </a>
               </li>
             </ul>

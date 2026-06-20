@@ -18,8 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
@@ -32,8 +31,6 @@ import { NotesService, NoteCreateRequest } from '../../../api';
   selector: 'app-client-note-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -90,11 +87,6 @@ import { NotesService, NoteCreateRequest } from '../../../api';
       }
       .full-width {
         width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
       }
     `,
   ],

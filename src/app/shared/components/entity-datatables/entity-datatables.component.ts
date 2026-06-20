@@ -18,7 +18,6 @@
  */
 
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +30,6 @@ import { DataTableComponent, ColumnDef } from '../data-table/data-table.componen
   selector: 'app-entity-datatables',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatTabsModule,
     MatButtonModule,

@@ -18,8 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
@@ -32,6 +31,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   StaffService,
   StaffCreateRequest,
@@ -49,8 +49,6 @@ import {
   selector: 'app-staff-form',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -63,6 +61,7 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -129,6 +128,11 @@ import {
                   [(ngModel)]="staff.mobileNo"
                   [disabled]="isEditMode"
                 />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
+                <input matInput type="email" name="emailAddress" [(ngModel)]="staff.emailAddress" />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
@@ -203,12 +207,6 @@ import {
         gap: 24px;
         margin: 8px 0;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
@@ -217,6 +215,7 @@ export class StaffFormComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
   private readonly staffListPath = '/organization/staff';
 
@@ -259,6 +258,9 @@ export class StaffFormComponent implements OnInit {
         mobileNo: data.mobileNo,
         isLoanOfficer: data.isLoanOfficer,
         isActive: data.isActive,
+        forceStatus:
+          ((data as Record<string, unknown>)['forceStatus'] as boolean | undefined) ?? false,
+        emailAddress: (data as Record<string, unknown>)['emailAddress'] as string | undefined,
       };
       if (data.joiningDate) {
         const jd = data.joiningDate as unknown as number[];
@@ -275,7 +277,8 @@ export class StaffFormComponent implements OnInit {
       };
       this.staffService.putStaffStaffId(this.staffId!, updatePayload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
-        error: (err) => console.error('Failed to update staff', err),
+        error: () =>
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
       });
     } else {
       const payload = {
@@ -286,7 +289,8 @@ export class StaffFormComponent implements OnInit {
       } as StaffCreateRequest;
       this.staffService.postStaff(payload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
-        error: (err) => console.error('Failed to create staff', err),
+        error: () =>
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
       });
     }
   }

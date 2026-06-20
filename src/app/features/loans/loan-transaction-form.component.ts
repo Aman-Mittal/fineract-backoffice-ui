@@ -31,6 +31,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   LoanTransactionsService,
   LoansService,
@@ -39,15 +40,6 @@ import {
   GetPaymentTypeOptions,
 } from '../../api';
 
-/**
- * Component for processing loan transactions such as repayments and disbursements.
- *
- * Provides a template-driven form bound to Fineract OpenAPI transaction models.
- * Dynamically adapts labels and logic based on the 'type' route parameter.
- *
- * @example
- * <app-loan-transaction-form></app-loan-transaction-form>
- */
 @Component({
   selector: 'app-loan-transaction-form',
   standalone: true,
@@ -63,6 +55,7 @@ import {
     MatNativeDateModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -135,6 +128,32 @@ import {
                 </mat-form-field>
               }
 
+              @if (transactionType === 'repayment') {
+                <!-- Receipt Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.RECEIPT_NUMBER' | translate }}</mat-label>
+                  <input matInput name="receiptNumber" [(ngModel)]="transaction.receiptNumber" />
+                </mat-form-field>
+
+                <!-- Bank Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.BANK_NUMBER' | translate }}</mat-label>
+                  <input matInput name="bankNumber" [(ngModel)]="transaction.bankNumber" />
+                </mat-form-field>
+
+                <!-- Check Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.CHECK_NUMBER' | translate }}</mat-label>
+                  <input matInput name="checkNumber" [(ngModel)]="transaction.checkNumber" />
+                </mat-form-field>
+
+                <!-- Routing Code -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.ROUTING_CODE' | translate }}</mat-label>
+                  <input matInput name="routingCode" [(ngModel)]="transaction.routingCode" />
+                </mat-form-field>
+              }
+
               <!-- Note -->
               <mat-form-field
                 appearance="outline"
@@ -189,49 +208,24 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class LoanTransactionFormComponent implements OnInit {
-  /** Service for loan transaction management */
   private readonly transactionService = inject(LoanTransactionsService);
-  /** Service for loan management */
   private readonly loansService = inject(LoansService);
-  /** Router for post-submission navigation */
   private readonly router = inject(Router);
-  /** Activated route for parameters */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Current loan identifier */
   loanId = 0;
-  /** Type of transaction: 'repayment', 'disburse', or 'approve' */
   transactionType = '';
-  /** State of the save operation */
   isSaving = false;
 
-  /** Transaction request model */
   transaction: PostLoansLoanIdTransactionsRequest = {};
-  /** Date object for template binding */
   transactionDate: Date = new Date();
-  /** Payment type options loaded from template */
   paymentTypeOptions: GetPaymentTypeOptions[] = [];
 
-  /**
-   * Initializes the component by retrieving route parameters
-   * and loading the transaction template from the API.
-   */
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.loanId = +params['loanId'];
@@ -240,9 +234,6 @@ export class LoanTransactionFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Fetches the transaction template for the current loan and type.
-   */
   private loadTemplate(): void {
     if (this.transactionType === 'approve') {
       return;
@@ -258,15 +249,12 @@ export class LoanTransactionFormComponent implements OnInit {
           }
           this.paymentTypeOptions = template.paymentTypeOptions || [];
         },
-        error: (err: unknown) => {
-          console.error('Failed to load transaction template', err);
+        error: () => {
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
         },
       });
   }
 
-  /**
-   * Submits the transaction to the Fineract API.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -299,9 +287,6 @@ export class LoanTransactionFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Navigates back to the loan list.
-   */
   onCancel(): void {
     this.router.navigate(['/loans']);
   }

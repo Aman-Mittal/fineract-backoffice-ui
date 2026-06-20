@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 
-import { RouterModule, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
@@ -33,13 +33,7 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
 @Component({
   selector: 'app-accounting-rules-list',
   standalone: true,
-  imports: [
-    RouterModule,
-    MatButtonModule,
-    MatIconModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [MatButtonModule, MatIconModule, DataTableComponent, CellTemplateDirective],
   template: `
     <div class="container">
       <app-data-table

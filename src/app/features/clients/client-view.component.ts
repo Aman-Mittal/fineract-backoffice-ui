@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
@@ -29,6 +28,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DecimalPipe } from '@angular/common';
 import {
   ClientService,
   GetClientsClientIdResponse,
@@ -56,7 +56,6 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
   selector: 'app-client-view',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatCardModule,
@@ -75,6 +74,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
     ClientNotesListComponent,
     ClientDocumentsListComponent,
     EntityDatatablesComponent,
+    DecimalPipe,
   ],
   template: `
     <div class="view-container">

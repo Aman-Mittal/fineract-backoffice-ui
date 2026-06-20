@@ -75,7 +75,7 @@ import { EditConfigurationDialogComponent } from './edit-configuration-dialog.co
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Configuration"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditConfig(config)"
         >
           <mat-icon>edit</mat-icon>

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,7 +26,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SpmSurveysService, SurveyData } from '../../../api';
+import { MatTableModule } from '@angular/material/table';
+import { MatDividerModule } from '@angular/material/divider';
+import {
+  SpmSurveysService,
+  SurveyData,
+  SPMAPILookUpTableService,
+  LookupTableData,
+} from '../../../api';
 
 /**
  * Create / edit form for an SPM survey. Captures the core survey metadata
@@ -43,6 +50,8 @@ import { SpmSurveysService, SurveyData } from '../../../api';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatTableModule,
+    MatDividerModule,
   ],
   template: `
     <div class="form-container">
@@ -97,6 +106,27 @@ import { SpmSurveysService, SurveyData } from '../../../api';
               </button>
             </div>
           </form>
+
+          @if (isEditMode && surveyId) {
+            <mat-divider style="margin: 24px 0"></mat-divider>
+            <h3>{{ 'SPM.LOOKUP_TABLES' | translate }}</h3>
+            @if (lookupTables().length === 0) {
+              <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+            } @else {
+              <table mat-table [dataSource]="lookupTables()" class="full-width-table">
+                <ng-container matColumnDef="key">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'SPM.LOOKUP_KEY' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">{{ row.key }}</td>
+                </ng-container>
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="lookupTableColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: lookupTableColumns"></tr>
+              </table>
+            }
+          }
         </mat-card-content>
       </mat-card>
     </div>
@@ -113,20 +143,12 @@ import { SpmSurveysService, SurveyData } from '../../../api';
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class SpmSurveysFormComponent implements OnInit {
   private readonly surveysService = inject(SpmSurveysService);
+  private readonly lookupTableService = inject(SPMAPILookUpTableService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -137,6 +159,9 @@ export class SpmSurveysFormComponent implements OnInit {
   isSaving = false;
 
   survey: SurveyData = { key: '', name: '' };
+
+  lookupTables = signal<LookupTableData[]>([]);
+  lookupTableColumns = ['key', 'description'];
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -158,6 +183,12 @@ export class SpmSurveysFormComponent implements OnInit {
         countryCode: data.countryCode,
         description: data.description,
       };
+    });
+    this.lookupTableService.getSurveysSurveyIdLookuptables(this.surveyId).subscribe({
+      next: (data) => this.lookupTables.set(data ?? []),
+      error: () => {
+        /* ignored */
+      },
     });
   }
 

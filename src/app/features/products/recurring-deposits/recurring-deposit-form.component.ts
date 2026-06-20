@@ -34,6 +34,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import {
   RecurringDepositAccountService,
@@ -72,6 +73,7 @@ import {
     MatDividerModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
+    MatSnackBarModule,
     ClientSearchComponent,
   ],
   template: `
@@ -306,9 +308,6 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
@@ -321,12 +320,6 @@ import {
         height: 18px;
         color: #7f8c8d;
         cursor: help;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .field-container-row {
         display: flex;
@@ -346,6 +339,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   private readonly router = inject(Router);
   /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
   /** Base path for redirection */
   private readonly LIST_PATH = '/products/recurring-deposits';
@@ -416,8 +410,8 @@ export class RecurringDepositAccountFormComponent implements OnInit {
           this.products = [];
         }
       },
-      error: (err: unknown) => {
-        console.error('Failed to load eligible products', err);
+      error: () => {
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
         this.products = [];
       },
     });
@@ -451,7 +445,8 @@ export class RecurringDepositAccountFormComponent implements OnInit {
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
         };
       },
-      error: (err: unknown) => console.error('Failed to load account', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 

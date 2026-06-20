@@ -18,8 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,6 +37,7 @@ import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { AuditsService } from '../../../api';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
 
 export interface AuditFilters {
@@ -54,8 +54,6 @@ export interface AuditFilters {
   selector: 'app-audit-logs-list',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -70,6 +68,7 @@ export interface AuditFilters {
     DataTableComponent,
     CellTemplateDirective,
     MatDialogModule,
+    DatePipe,
   ],
   template: `
     <div class="audit-logs-container">

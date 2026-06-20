@@ -18,12 +18,12 @@
  */
 
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DatePipe } from '@angular/common';
 import {
   DataTableComponent,
   ColumnDef,
@@ -36,7 +36,6 @@ import { NotesService, NoteData } from '../../../api';
   selector: 'app-client-notes-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,
@@ -45,6 +44,7 @@ import { NotesService, NoteData } from '../../../api';
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    DatePipe,
   ],
   template: `
     <div class="tab-actions">

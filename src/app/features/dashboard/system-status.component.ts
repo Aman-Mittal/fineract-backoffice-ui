@@ -18,7 +18,6 @@
  */
 
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +25,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
+import { NgClass } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -43,7 +43,6 @@ import {
   selector: 'app-system-status',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatCardModule,
     MatIconModule,
@@ -52,6 +51,7 @@ import {
     MatProgressSpinnerModule,
     RouterModule,
     DonutChartComponent,
+    NgClass,
   ],
   template: `
     <div class="dashboard-container">

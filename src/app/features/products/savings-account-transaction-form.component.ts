@@ -31,17 +31,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   SavingsAccountTransactionsService,
   PostSavingsAccountTransactionsRequest,
 } from '../../api';
 
-/**
- * Component for processing deposits and withdrawals on a savings account.
- *
- * Provides a unified form that adapts based on the 'command' route parameter.
- * Strictly binds to OpenAPI models and enforces yyyy-MM-dd date formatting.
- */
 @Component({
   selector: 'app-savings-account-transaction-form',
   standalone: true,
@@ -57,6 +52,7 @@ import {
     MatNativeDateModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -173,48 +169,25 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class SavingsAccountTransactionFormComponent implements OnInit {
-  /** Service for savings transaction management */
   private readonly transactionService = inject(SavingsAccountTransactionsService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for context */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Savings account identifier */
   accountId = 0;
-  /** Transaction command (deposit/withdrawal) */
   command = '';
-  /** State of the save operation */
   isSaving = false;
 
-  /** Transaction request model */
   transaction: PostSavingsAccountTransactionsRequest = {};
   /** Note bound separately as it might not be in the direct model */
   note = '';
-  /** Date object for template binding */
   transactionDate: Date = new Date();
-  /** Payment type options (usually loaded from template) */
   paymentTypeOptions: Record<string, unknown>[] = [];
 
-  /**
-   * Initializes the component and loads context.
-   */
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.accountId = +params['accountId'];
@@ -223,9 +196,6 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Fetches the transaction template for the current account.
-   */
   private loadTemplate(): void {
     this.transactionService
       .getSavingsaccountsSavingsIdTransactionsTemplate(this.accountId)
@@ -238,15 +208,12 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
             this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
           }
         },
-        error: (err: unknown) => {
-          console.error('Failed to load savings transaction template', err);
+        error: () => {
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
         },
       });
   }
 
-  /**
-   * Submits the transaction to the API.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -276,9 +243,6 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
       });
   }
 
-  /**
-   * Navigates back to the savings accounts list.
-   */
   onCancel(): void {
     this.router.navigate(['/products/savings-accounts']);
   }

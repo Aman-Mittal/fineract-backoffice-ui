@@ -18,12 +18,12 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { DatePipe, NgClass } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { AccountingClosureService, GetGlClosureResponse } from '../../api';
 
@@ -36,13 +36,14 @@ import { AccountingClosureService, GetGlClosureResponse } from '../../api';
   selector: 'app-accounting-closures-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    DatePipe,
+    NgClass,
   ],
   template: `
     <app-data-table

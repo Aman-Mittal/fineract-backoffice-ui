@@ -24,9 +24,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { WorkingCapitalNearBreachService, WorkingCapitalNearBreachRequest } from '../../../api';
+import {
+  WorkingCapitalNearBreachService,
+  WorkingCapitalNearBreachRequest,
+  WorkingCapitalBreachService,
+  StringEnumOptionData,
+} from '../../../api';
 
 /**
  * Create / edit form for a working-capital near-breach (early-warning) threshold.
@@ -40,6 +46,7 @@ import { WorkingCapitalNearBreachService, WorkingCapitalNearBreachRequest } from
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
   ],
@@ -85,7 +92,11 @@ import { WorkingCapitalNearBreachService, WorkingCapitalNearBreachRequest } from
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'WC_NEAR_BREACH.FREQUENCY_TYPE' | translate }}</mat-label>
-              <input matInput name="frequencyType" [(ngModel)]="item.nearBreachFrequencyType" />
+              <mat-select name="frequencyType" [(ngModel)]="item.nearBreachFrequencyType">
+                @for (opt of frequencyTypeOptions; track opt.id) {
+                  <mat-option [value]="opt.code">{{ opt.value }}</mat-option>
+                }
+              </mat-select>
             </mat-form-field>
 
             <div class="form-actions">
@@ -126,20 +137,12 @@ import { WorkingCapitalNearBreachService, WorkingCapitalNearBreachRequest } from
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class WcNearBreachFormComponent implements OnInit {
   private readonly service = inject(WorkingCapitalNearBreachService);
+  private readonly breachService = inject(WorkingCapitalBreachService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -150,8 +153,13 @@ export class WcNearBreachFormComponent implements OnInit {
   isSaving = false;
 
   item: WorkingCapitalNearBreachRequest = { nearBreachName: '' };
+  frequencyTypeOptions: StringEnumOptionData[] = [];
 
   ngOnInit(): void {
+    this.breachService.getWorkingCapitalBreachTemplate().subscribe((tpl) => {
+      this.frequencyTypeOptions = tpl.breachFrequencyTypeOptions ?? [];
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {

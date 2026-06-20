@@ -184,9 +184,6 @@ interface RatePeriodRow {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkboxes {
         display: flex;
         gap: 24px;
@@ -201,12 +198,6 @@ interface RatePeriodRow {
         grid-template-columns: 1fr 1fr auto auto;
         align-items: center;
         gap: 12px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],

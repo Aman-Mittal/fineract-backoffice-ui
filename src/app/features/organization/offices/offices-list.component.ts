@@ -28,12 +28,6 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { OfficesService, GetOfficesResponse } from '../../../api';
 
-/**
- * Component for displaying a list of organization offices.
- *
- * Integrates with the Fineract Offices API to retrieve and display office data.
- * Since the API returns the full list, this component uses local pagination and search.
- */
 @Component({
   selector: 'app-offices-list',
   standalone: true,
@@ -65,7 +59,7 @@ import { OfficesService, GetOfficesResponse } from '../../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Office Details"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditOffice(office)"
         >
           <mat-icon>edit</mat-icon>
@@ -75,12 +69,9 @@ import { OfficesService, GetOfficesResponse } from '../../../api';
   `,
 })
 export class OfficesListComponent implements OnInit {
-  /** Service for organization office operations */
   private readonly officesService = inject(OfficesService);
-  /** Router for navigation */
   private readonly router = inject(Router);
 
-  /** Column definitions for the offices data table */
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'OFFICES.NAME', sortable: true },
     { key: 'externalId', label: 'OFFICES.EXTERNAL_ID', sortable: true },
@@ -88,12 +79,8 @@ export class OfficesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  /** List of offices retrieved from the API */
   offices: GetOfficesResponse[] = [];
 
-  /**
-   * Initializes the component by loading office data.
-   */
   ngOnInit(): void {
     this.officesService.getOffices(true).subscribe({
       next: (data: GetOfficesResponse[]) => {
@@ -105,18 +92,10 @@ export class OfficesListComponent implements OnInit {
     });
   }
 
-  /**
-   * Navigates to the office creation form.
-   */
   onCreateOffice(): void {
     this.router.navigate(['/organization/offices/create']);
   }
 
-  /**
-   * Navigates to the edit form for a specific office.
-   *
-   * @param office - The office entity to edit.
-   */
   onEditOffice(office: GetOfficesResponse): void {
     this.router.navigate(['/organization/offices/edit', office.id]);
   }

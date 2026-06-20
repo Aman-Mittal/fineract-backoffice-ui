@@ -196,6 +196,37 @@
   }
 }
 
+/* Form layout utilities — shared across all form components */
+.form-container {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.full-width {
+  grid-column: span 2;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
 .error-snackbar {
   white-space: pre-wrap;
   .mdc-snackbar__surface {

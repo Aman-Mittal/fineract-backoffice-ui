@@ -30,12 +30,6 @@ import { CellTemplateDirective, ColumnDef } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
 
-/**
- * Component for displaying a list of savings products.
- *
- * Integrates with the Fineract Savings Products API.
- * Uses local pagination and search as the API returns the full product list.
- */
 @Component({
   selector: 'app-savings-products-list',
   standalone: true,
@@ -64,7 +58,7 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Product"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditProduct(product)"
         >
           <mat-icon>edit</mat-icon>
@@ -74,12 +68,9 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
   `,
 })
 export class SavingsProductsListComponent implements OnInit {
-  /** Service for savings product operations */
   private readonly savingsProductService = inject(SavingsProductService);
-  /** Router for navigation */
   private readonly router = inject(Router);
 
-  /** Column definitions for the savings products data table */
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
     { key: 'shortName', label: 'PRODUCTS.SHORT_NAME', sortable: true },
@@ -87,19 +78,12 @@ export class SavingsProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  /** List of savings products retrieved from the API */
   products: GetSavingsProductsResponse[] = [];
 
-  /**
-   * Initializes the component.
-   */
   ngOnInit(): void {
     this.loadProducts();
   }
 
-  /**
-   * Retrieves all savings products from the Fineract API.
-   */
   private loadProducts(): void {
     this.savingsProductService
       .getSavingsproducts()
@@ -109,18 +93,10 @@ export class SavingsProductsListComponent implements OnInit {
       });
   }
 
-  /**
-   * Navigates to the savings product creation form.
-   */
   onCreateProduct(): void {
     this.router.navigate(['/products/savings/create']);
   }
 
-  /**
-   * Navigates to the edit form for a specific savings product.
-   *
-   * @param product - The savings product entity to edit.
-   */
   onEditProduct(product: GetSavingsProductsResponse): void {
     this.router.navigate(['/products/savings/edit', product.id]);
   }

@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,6 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
+import { CurrencyPipe } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import {
@@ -42,20 +42,10 @@ import {
   resolveAccountRoutePrefix,
 } from '../../core/utils/account-type-resolver';
 
-/**
- * Component for displaying a list of customer savings accounts.
- *
- * Provides a searchable data table integration with the Fineract Savings Account API.
- * Supports server-side pagination and sorting.
- *
- * @example
- * <app-savings-accounts-list></app-savings-accounts-list>
- */
 @Component({
   selector: 'app-savings-accounts-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,
@@ -65,6 +55,7 @@ import {
     CellTemplateDirective,
     StatusBadgeComponent,
     HasPermissionDirective,
+    CurrencyPipe,
   ],
   template: `
     <app-data-table
@@ -122,7 +113,7 @@ import {
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Account"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditAccount(account)"
           *appHasPermission="'UPDATE_SAVINGSACCOUNT'"
         >
@@ -132,7 +123,7 @@ import {
           mat-icon-button
           color="accent"
           [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
-          matTooltip="Deposit Cash"
+          [matTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
           (click)="onTransaction(account, 'deposit')"
           *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
         >
@@ -142,7 +133,7 @@ import {
           mat-icon-button
           color="warn"
           [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
-          matTooltip="Withdraw Cash"
+          [matTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
           (click)="onTransaction(account, 'withdrawal')"
           *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
         >
@@ -153,12 +144,9 @@ import {
   `,
 })
 export class SavingsAccountsListComponent implements OnInit {
-  /** Service for savings account lifecycle management */
   private readonly savingsService = inject(SavingsAccountService);
-  /** Router for navigation */
   private readonly router = inject(Router);
 
-  /** Column definitions for the savings accounts table */
   readonly columns: ColumnDef[] = [
     { key: 'accountNo', label: 'COMMON.ACCOUNT_NO', sortable: true },
     { key: 'clientName', label: 'COMMON.NAME', sortable: true },
@@ -168,26 +156,18 @@ export class SavingsAccountsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  /** Current list of accounts to display */
   accounts: GetSavingsPageItems[] = [];
-  /** Total count for pagination */
   totalRecords = 0;
-  /** Loading state flag */
   isLoading = false;
 
-  /** Subjects for managing reactive data stream */
   private searchSubject = new Subject<string>();
   private sortSubject = new Subject<Sort>();
   private pageSubject = new Subject<PageEvent>();
 
-  /** Current state of filtering/pagination */
   private currentFilter = '';
   private currentSort: Sort = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
 
-  /**
-   * Initializes the component and sets up the reactive data stream.
-   */
   ngOnInit(): void {
     merge(this.searchSubject, this.sortSubject, this.pageSubject)
       .pipe(
@@ -213,8 +193,21 @@ export class SavingsAccountsListComponent implements OnInit {
         map((response: GetSavingsAccountsResponse | null) => {
           this.isLoading = false;
           if (!response) return [];
+          const items = Array.from(response.pageItems || []).filter((account) => {
+            const acc = account as Record<string, unknown>;
+            const depositType = acc['depositType'] as Record<string, unknown> | undefined;
+            const depositTypeId = depositType ? depositType['id'] : acc['depositTypeId'];
+            return depositTypeId !== 200;
+          });
           this.totalRecords = response.totalFilteredRecords || 0;
-          return Array.from(response.pageItems || []);
+          // If server-side count is returned, but we filtered client-side, adjust totalRecords accordingly
+          if (response.pageItems && response.pageItems.size !== items.length) {
+            this.totalRecords = Math.max(
+              0,
+              this.totalRecords - (response.pageItems.size - items.length),
+            );
+          }
+          return items;
         }),
       )
       .subscribe((data) => {
@@ -222,74 +215,39 @@ export class SavingsAccountsListComponent implements OnInit {
       });
   }
 
-  /**
-   * Filters the account list based on user search input.
-   *
-   * @param query - Search string.
-   */
   onSearch(query: string): void {
     this.currentFilter = query;
     this.currentPage.pageIndex = 0;
     this.searchSubject.next(query);
   }
 
-  /**
-   * Handles sort changes.
-   *
-   * @param sort - New sort state.
-   */
   onSort(sort: Sort): void {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
     this.sortSubject.next(sort);
   }
 
-  /**
-   * Handles page changes.
-   *
-   * @param event - New page state.
-   */
   onPage(event: PageEvent): void {
     this.currentPage = event;
     this.pageSubject.next(event);
   }
 
-  /**
-   * Navigates to the savings account creation form.
-   */
   onCreateAccount(): void {
     this.router.navigate(['/products/savings-accounts/create']);
   }
 
-  /**
-   * Helper to get the correct URL prefix based on the deposit type.
-   */
   getAccountRoutePrefix(account: GetSavingsPageItems): string {
     return resolveAccountRoutePrefix(account as Record<string, unknown>);
   }
 
-  /**
-   * Helper to get the action route type based on the deposit type.
-   */
   getAccountActionType(account: GetSavingsPageItems): string {
     return resolveAccountActionType(account as Record<string, unknown>);
   }
 
-  /**
-   * Navigates to the edit form for a specific savings account.
-   *
-   * @param account - The account entity to edit.
-   */
   onEditAccount(account: GetSavingsPageItems): void {
     this.router.navigate(['/products', this.getAccountRoutePrefix(account), 'edit', account.id]);
   }
 
-  /**
-   * Navigates to the transaction form for a specific savings account.
-   *
-   * @param account - The savings account.
-   * @param command - The transaction type (deposit/withdrawal).
-   */
   onTransaction(account: GetSavingsPageItems, command: string): void {
     this.router.navigate([
       '/products',

@@ -18,13 +18,13 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CurrencyPipe } from '@angular/common';
 import {
   DataTableComponent,
   ColumnDef,
@@ -33,17 +33,10 @@ import {
 } from '../../../shared';
 import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
 
-/**
- * Component for listing customer fixed deposit accounts.
- *
- * Provides a comprehensive overview of all term deposits, including maturity
- * amounts and current status. Supports local search and pagination.
- */
 @Component({
   selector: 'app-fixed-deposits-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -51,6 +44,7 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    CurrencyPipe,
   ],
   template: `
     <app-data-table
@@ -101,12 +95,9 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
   `,
 })
 export class FixedDepositAccountsListComponent implements OnInit {
-  /** Service for fixed deposit account management */
   private readonly fixedDepositService = inject(FixedDepositAccountService);
-  /** Router for form navigation */
   private readonly router = inject(Router);
 
-  /** Data table column definitions */
   readonly columns: ColumnDef[] = [
     { key: 'accountNo', label: 'COMMON.ACCOUNT_NO', sortable: true },
     { key: 'clientName', label: 'COMMON.NAME', sortable: true },
@@ -116,19 +107,12 @@ export class FixedDepositAccountsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  /** List of retrieved accounts */
   accounts: GetFixedDepositAccountsResponse[] = [];
 
-  /**
-   * Initializes the component and loads deposit data.
-   */
   ngOnInit(): void {
     this.loadAccounts();
   }
 
-  /**
-   * Fetches fixed deposit accounts from the Fineract API.
-   */
   private loadAccounts(): void {
     this.fixedDepositService.getFixeddepositaccounts().subscribe({
       next: (data: GetFixedDepositAccountsResponse[]) => {
@@ -140,18 +124,10 @@ export class FixedDepositAccountsListComponent implements OnInit {
     });
   }
 
-  /**
-   * Navigates to the creation form.
-   */
   onCreateAccount(): void {
     this.router.navigate(['/products/fixed-deposits/create']);
   }
 
-  /**
-   * Navigates to the edit form for a specific account.
-   *
-   * @param account - The fixed deposit account to edit.
-   */
   onEditAccount(account: GetFixedDepositAccountsResponse): void {
     this.router.navigate(['/products/fixed-deposits/edit', account.id]);
   }

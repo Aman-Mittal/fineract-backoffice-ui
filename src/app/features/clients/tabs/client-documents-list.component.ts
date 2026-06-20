@@ -18,7 +18,6 @@
  */
 
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,7 +35,6 @@ import { DocumentsService, DocumentData } from '../../../api';
   selector: 'app-client-documents-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,

@@ -18,7 +18,6 @@
  */
 
 import { Component, Input, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 export interface ChartData {
   label: string;
@@ -29,7 +28,7 @@ export interface ChartData {
 @Component({
   selector: 'app-donut-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="chart-container">
       <svg viewBox="0 0 100 100" width="100%" height="100%">

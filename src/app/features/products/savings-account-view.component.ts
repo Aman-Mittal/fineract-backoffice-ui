@@ -18,8 +18,8 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -27,6 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
   SavingsAccountData,
@@ -43,7 +44,6 @@ import {
   selector: 'app-savings-account-view',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatCardModule,
@@ -52,8 +52,11 @@ import {
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
+    MatSnackBarModule,
     StatusBadgeComponent,
     HasPermissionDirective,
+    DecimalPipe,
+    NgClass,
   ],
   template: `
     @if (account()) {
@@ -85,7 +88,7 @@ import {
                   color="accent"
                   *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('approve')"
-                  matTooltip="Approve Savings Account"
+                  [matTooltip]="'SAVINGS.APPROVE' | translate"
                 >
                   <mat-icon>check_circle</mat-icon>
                   Approve
@@ -97,7 +100,7 @@ import {
                   color="primary"
                   *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('activate')"
-                  matTooltip="Activate Savings Account"
+                  [matTooltip]="'SAVINGS.ACTIVATE' | translate"
                 >
                   <mat-icon>play_circle_outline</mat-icon>
                   Activate
@@ -109,7 +112,7 @@ import {
                   color="warn"
                   *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('close')"
-                  matTooltip="Close Savings Account"
+                  [matTooltip]="'SAVINGS.CLOSE' | translate"
                 >
                   <mat-icon>power_settings_new</mat-icon>
                   Close
@@ -120,7 +123,7 @@ import {
                 color="primary"
                 *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
                 (click)="onTransaction('deposit')"
-                matTooltip="Deposit Cash"
+                [matTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
                 <mat-icon>add_circle_outline</mat-icon>
                 Deposit
@@ -130,7 +133,7 @@ import {
                 color="warn"
                 *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
                 (click)="onTransaction('withdrawal')"
-                matTooltip="Withdraw Cash"
+                [matTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
               >
                 <mat-icon>remove_circle_outline</mat-icon>
                 Withdraw
@@ -477,6 +480,7 @@ export class SavingsAccountViewComponent implements OnInit {
   private readonly savingsService = inject(SavingsAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   accountId = 0;
   account = signal<SavingsAccountData | null>(null);
@@ -528,7 +532,8 @@ export class SavingsAccountViewComponent implements OnInit {
           this.transactions.set(data.transactions || []);
           this.charges.set(data.charges || []);
         },
-        error: (err) => console.error('Failed to load savings account details', err),
+        error: () =>
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
       });
   }
 

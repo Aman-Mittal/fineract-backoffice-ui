@@ -27,12 +27,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import {
   WorkingCapitalLoanProductsService,
   PostWorkingCapitalLoanProductsRequest,
   StringEnumOptionData,
   CurrencyData,
+  WorkingCapitalBreachData,
+  WorkingCapitalNearBreachData,
+  GetDelinquencyBucket,
+  FundData,
 } from '../../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../../core/utils/date-formatter';
 
 /**
  * Create / edit form for a working-capital loan product. Covers the core mandatory
@@ -51,6 +62,8 @@ import {
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   template: `
     <div class="form-container">
@@ -178,6 +191,120 @@ import {
               />
             </mat-form-field>
 
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.MIN_PRINCIPAL' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="minPrincipal"
+                [(ngModel)]="product.minPrincipal"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.MAX_PRINCIPAL' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="maxPrincipal"
+                [(ngModel)]="product.maxPrincipal"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.MIN_PERIOD_PAYMENT_RATE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="minPeriodPaymentRate"
+                [(ngModel)]="product.minPeriodPaymentRate"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.MAX_PERIOD_PAYMENT_RATE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                name="maxPeriodPaymentRate"
+                [(ngModel)]="product.maxPeriodPaymentRate"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | translate }}</mat-label>
+              <mat-select name="accountingRule" [(ngModel)]="product.accountingRule">
+                @for (opt of accountingRuleOptions; track opt.id) {
+                  <mat-option [value]="opt.code">{{ opt.value }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.BREACH' | translate }}</mat-label>
+              <mat-select name="breachId" [(ngModel)]="product.breachId">
+                @for (opt of breachOptions; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.NEAR_BREACH' | translate }}</mat-label>
+              <mat-select name="nearBreachId" [(ngModel)]="product.nearBreachId">
+                @for (opt of nearBreachOptions; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.DELINQUENCY_BUCKET' | translate }}</mat-label>
+              <mat-select name="delinquencyBucketId" [(ngModel)]="product.delinquencyBucketId">
+                @for (opt of delinquencyBucketOptions; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.FUND' | translate }}</mat-label>
+              <mat-select name="fundId" [(ngModel)]="product.fundId">
+                @for (opt of fundOptions; track opt.id) {
+                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.START_DATE' | translate }}</mat-label>
+              <input
+                matInput
+                [matDatepicker]="startPicker"
+                name="startDate"
+                [(ngModel)]="startDate"
+              />
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.CLOSE_DATE' | translate }}</mat-label>
+              <input
+                matInput
+                [matDatepicker]="closePicker"
+                name="closeDate"
+                [(ngModel)]="closeDate"
+              />
+              <mat-datepicker-toggle matSuffix [for]="closePicker"></mat-datepicker-toggle>
+              <mat-datepicker #closePicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'WC_LOAN_PRODUCTS.EXTERNAL_ID' | translate }}</mat-label>
+              <input matInput name="externalId" [(ngModel)]="product.externalId" />
+            </mat-form-field>
+
             <div class="form-actions">
               <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
@@ -216,15 +343,6 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
@@ -240,15 +358,28 @@ export class WcLoanProductFormComponent implements OnInit {
   isSaving = false;
 
   product: Partial<PostWorkingCapitalLoanProductsRequest> = {};
+  startDate: Date | null = null;
+  closeDate: Date | null = null;
+
   currencyOptions: CurrencyData[] = [];
   amortizationTypeOptions: StringEnumOptionData[] = [];
   repaymentFrequencyTypeOptions: StringEnumOptionData[] = [];
+  accountingRuleOptions: StringEnumOptionData[] = [];
+  breachOptions: WorkingCapitalBreachData[] = [];
+  nearBreachOptions: WorkingCapitalNearBreachData[] = [];
+  delinquencyBucketOptions: GetDelinquencyBucket[] = [];
+  fundOptions: FundData[] = [];
 
   ngOnInit(): void {
     this.productService.getWorkingCapitalLoanProductsTemplate().subscribe((tpl) => {
       this.currencyOptions = tpl.currencyOptions ?? [];
       this.amortizationTypeOptions = tpl.amortizationTypeOptions ?? [];
       this.repaymentFrequencyTypeOptions = tpl.periodFrequencyTypeOptions ?? [];
+      this.accountingRuleOptions = tpl.accountingRuleOptions ?? [];
+      this.breachOptions = tpl.breachOptions ?? [];
+      this.nearBreachOptions = tpl.nearBreachOptions ?? [];
+      this.delinquencyBucketOptions = tpl.delinquencyBucketOptions ?? [];
+      this.fundOptions = tpl.fundOptions ?? [];
     });
 
     this.route.paramMap.subscribe((params) => {
@@ -272,14 +403,31 @@ export class WcLoanProductFormComponent implements OnInit {
         digitsAfterDecimal: data.currency?.decimalPlaces,
         inMultiplesOf: data.currency?.inMultiplesOf,
         principal: data.principal,
+        minPrincipal: data.minPrincipal,
+        maxPrincipal: data.maxPrincipal,
         periodPaymentRate: data.periodPaymentRate,
+        minPeriodPaymentRate: data.minPeriodPaymentRate,
+        maxPeriodPaymentRate: data.maxPeriodPaymentRate,
         repaymentEvery: data.repaymentEvery,
         repaymentFrequencyType: data.repaymentFrequencyType
           ?.code as PostWorkingCapitalLoanProductsRequest.RepaymentFrequencyTypeEnum,
         amortizationType: data.amortizationType
           ?.code as PostWorkingCapitalLoanProductsRequest.AmortizationTypeEnum,
         npvDayCount: data.npvDayCount,
+        accountingRule: data.accountingRule
+          ?.id as PostWorkingCapitalLoanProductsRequest.AccountingRuleEnum,
+        breachId: data.breach?.id,
+        nearBreachId: data.nearBreach?.id,
+        delinquencyBucketId: data.delinquencyBucket?.id,
+        fundId: data.fundId,
+        externalId: data.externalId,
       };
+      if (data.closeDate) {
+        const cd = data.closeDate as unknown as number[];
+        this.closeDate = Array.isArray(cd)
+          ? new Date(cd[0], cd[1] - 1, cd[2])
+          : new Date(data.closeDate);
+      }
     });
   }
 
@@ -287,9 +435,11 @@ export class WcLoanProductFormComponent implements OnInit {
     this.isSaving = true;
     const payload: PostWorkingCapitalLoanProductsRequest = {
       ...this.product,
-      locale: 'en',
-      dateFormat: 'dd MMMM yyyy',
+      locale: FINERACT_LOCALE,
+      dateFormat: FINERACT_DATE_FORMAT,
     };
+    if (this.startDate) payload.startDate = formatDateToFineract(this.startDate);
+    if (this.closeDate) payload.closeDate = formatDateToFineract(this.closeDate);
 
     const request$ =
       this.isEditMode && this.productId

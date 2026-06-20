@@ -18,12 +18,12 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CurrencyPipe } from '@angular/common';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -33,14 +33,13 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
   selector: 'app-share-products-list',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    CurrencyPipe,
   ],
   template: `
     <app-data-table
@@ -58,7 +57,12 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-product>
-        <button mat-icon-button color="primary" matTooltip="Edit Product" (click)="onEdit(product)">
+        <button
+          mat-icon-button
+          color="primary"
+          [matTooltip]="'COMMON.EDIT' | translate"
+          (click)="onEdit(product)"
+        >
           <mat-icon>edit</mat-icon>
         </button>
       </ng-template>

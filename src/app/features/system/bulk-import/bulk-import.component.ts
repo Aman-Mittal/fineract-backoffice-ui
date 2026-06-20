@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
@@ -28,6 +27,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DatePipe } from '@angular/common';
 import {
   BulkImportService,
   ClientService,
@@ -41,7 +41,6 @@ import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../s
   selector: 'app-bulk-import',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -52,6 +51,7 @@ import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../s
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    DatePipe,
   ],
   template: `
     <div class="bulk-import-container">

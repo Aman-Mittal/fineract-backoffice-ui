@@ -196,20 +196,11 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 60px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .help-icon {
         font-size: 18px;
@@ -222,42 +213,26 @@ import {
   ],
 })
 export class GroupFormComponent implements OnInit {
-  /** Service for group management API calls */
   private readonly groupsService = inject(GroupsService);
-  /** Service for office data retrieval */
   private readonly officesService = inject(OfficesService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for parameter access */
   private readonly route = inject(ActivatedRoute);
 
-  /** Constant for Fineract date format */
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
-  /** Path for redirection */
   private readonly LIST_PATH = '/groups';
 
-  /** Group ID in edit mode */
   groupId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
-  /** Initial active state */
   originalActive = false;
 
-  /** Strictly typed request model from OpenAPI */
   group: PostGroupsRequest = {
     active: true,
   };
 
-  /** Activation date for new groups */
   activationDate: Date = new Date();
-  /** Office options */
   offices: GetOfficesResponse[] = [];
 
-  /**
-   * Initializes the component.
-   */
   ngOnInit(): void {
     this.loadOffices();
     this.route.paramMap.subscribe((params) => {
@@ -270,18 +245,12 @@ export class GroupFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Retrieves the list of available offices.
-   */
   private loadOffices(): void {
     this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
-  /**
-   * Loads group data for editing.
-   */
   private loadGroupData(): void {
     if (!this.groupId) return;
     this.groupsService.getGroupsGroupId(this.groupId).subscribe((data) => {
@@ -354,9 +323,6 @@ export class GroupFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Navigates back to the group list.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

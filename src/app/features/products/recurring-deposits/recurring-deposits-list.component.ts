@@ -18,13 +18,13 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CurrencyPipe } from '@angular/common';
 import {
   DataTableComponent,
   ColumnDef,
@@ -43,7 +43,6 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
   selector: 'app-recurring-deposits-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -51,6 +50,7 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    CurrencyPipe,
   ],
   template: `
     <app-data-table

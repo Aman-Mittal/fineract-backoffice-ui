@@ -105,18 +105,9 @@ import { ProvisioningCriteriaService, PostProvisioningCriteriaRequest } from '..
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .form-note {
         color: rgba(0, 0, 0, 0.6);
         font-size: 0.875rem;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],

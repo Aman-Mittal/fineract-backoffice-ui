@@ -75,6 +75,13 @@ import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '.
               <mat-checkbox name="extendTerm" [(ngModel)]="extendTerm">
                 Extend Term for Daily Repayments
               </mat-checkbox>
+
+              <mat-checkbox
+                name="extendTermForRepaymentsOnHolidays"
+                [(ngModel)]="extendTermForRepaymentsOnHolidays"
+              >
+                Extend Term for Repayments on Holidays
+              </mat-checkbox>
             </div>
 
             <div class="form-actions">
@@ -131,6 +138,7 @@ export class WorkingDaysComponent implements OnInit {
   rescheduleOptions: Record<string, unknown>[] = [];
   rescheduleId: number | undefined = undefined;
   extendTerm = false;
+  extendTermForRepaymentsOnHolidays = false;
   isSaving = false;
 
   ngOnInit(): void {
@@ -143,6 +151,8 @@ export class WorkingDaysComponent implements OnInit {
       const rescheduleType = this.workingDays['repaymentRescheduleType'] as Record<string, unknown>;
       this.rescheduleId = rescheduleType?.['id'] as number;
       this.extendTerm = !!this.workingDays['extendTermForDailyRepayments'];
+      this.extendTermForRepaymentsOnHolidays =
+        !!this.workingDays['extendTermForRepaymentsOnHolidays'];
 
       // Reset recurrence object
       Object.keys(this.recurrence).forEach((day) => (this.recurrence[day] = false));
@@ -185,6 +195,7 @@ export class WorkingDaysComponent implements OnInit {
       recurrence: recurrenceStr,
       repaymentRescheduleType: this.rescheduleId,
       extendTermForDailyRepayments: this.extendTerm,
+      extendTermForRepaymentsOnHolidays: this.extendTermForRepaymentsOnHolidays,
       locale: 'en',
     } as unknown as WorkingDaysUpdateRequest;
 
@@ -194,10 +205,9 @@ export class WorkingDaysComponent implements OnInit {
         this.snackBar.open('Working days updated successfully', 'Close', { duration: 3000 });
         this.loadWorkingDays();
       },
-      error: (err) => {
+      error: () => {
         this.isSaving = false;
-        this.snackBar.open('Failed to update working days', 'Close', { duration: 3000 });
-        console.error('Failed to update working days', err);
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
       },
     });
   }

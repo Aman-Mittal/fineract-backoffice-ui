@@ -18,7 +18,6 @@
  */
 
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,7 +35,6 @@ import { ClientIdentifierService, ClientIdentifierData } from '../../../api';
   selector: 'app-client-identifiers-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslateModule,
     MatButtonModule,

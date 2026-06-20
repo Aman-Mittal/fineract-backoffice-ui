@@ -18,8 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -28,6 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { FixedDepositAccountService, RecurringDepositAccountService } from '../../api';
@@ -36,8 +36,6 @@ import { FixedDepositAccountService, RecurringDepositAccountService } from '../.
   selector: 'app-deposit-account-view',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
     TranslateModule,
     MatCardModule,
     MatTabsModule,
@@ -48,6 +46,8 @@ import { FixedDepositAccountService, RecurringDepositAccountService } from '../.
     MatMenuModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
+    DecimalPipe,
+    NgClass,
   ],
   template: `
     @if (account()) {
