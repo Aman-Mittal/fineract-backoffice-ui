@@ -175,7 +175,7 @@ export class SurveyResponsesComponent implements OnInit {
     this.surveyService.getSurvey().subscribe({
       next: (list) => {
         const mapped = (list ?? []).map((s) => ({
-          name: (s as Record<string, unknown>)?.[`name`] as string ?? '',
+          name: ((s as Record<string, unknown>)?.[`name`] as string) ?? '',
           enabled: s.enabled,
         }));
         this.surveys.set(mapped);

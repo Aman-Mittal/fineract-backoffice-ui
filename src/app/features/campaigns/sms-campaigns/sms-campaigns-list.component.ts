@@ -191,7 +191,9 @@ export class SmsCampaignsListComponent implements OnInit {
     this.loading.set(true);
     this.api.getSmscampaigns().subscribe({
       next: (res) => {
-        const items = Array.isArray(res) ? res : ((res as Record<string, unknown>)['pageItems'] ?? []);
+        const items = Array.isArray(res)
+          ? res
+          : ((res as Record<string, unknown>)['pageItems'] ?? []);
         this.campaigns.set(items as SmsCampaign[]);
         this.loading.set(false);
       },

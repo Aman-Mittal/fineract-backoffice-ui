@@ -27,7 +27,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService, InteropQuoteRequestData, InteropQuoteResponseData } from '../../api';
+import {
+  InterOperationService,
+  InteropQuoteRequestData,
+  InteropQuoteResponseData,
+} from '../../api';
 
 const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
@@ -146,7 +150,8 @@ export class InteropQuotesComponent {
       )
       .subscribe({
         next: (data) => this.result.set(data),
-        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+        error: (err: { message?: string }) =>
+          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 
@@ -161,7 +166,8 @@ export class InteropQuotesComponent {
     }
     this.interopService.postInteroperationQuotes(body).subscribe({
       next: (data) => this.result.set(data),
-      error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+      error: (err: { message?: string }) =>
+        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
     });
   }
 }

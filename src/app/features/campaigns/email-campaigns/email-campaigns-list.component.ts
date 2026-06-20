@@ -92,14 +92,18 @@ interface EmailCampaign {
               </ng-container>
 
               <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>{{ 'EMAIL_CAMPAIGNS.STATUS' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ 'EMAIL_CAMPAIGNS.STATUS' | translate }}
+                </th>
                 <td mat-cell *matCellDef="let campaign">
                   {{ campaign.status?.value ?? campaign.status }}
                 </td>
               </ng-container>
 
               <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'EMAIL_CAMPAIGNS.ACTIONS' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ 'EMAIL_CAMPAIGNS.ACTIONS' | translate }}
+                </th>
                 <td mat-cell *matCellDef="let campaign">
                   <button
                     mat-icon-button

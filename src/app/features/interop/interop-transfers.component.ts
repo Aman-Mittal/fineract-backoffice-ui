@@ -28,7 +28,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService, InteropTransferRequestData, InteropTransferResponseData } from '../../api';
+import {
+  InterOperationService,
+  InteropTransferRequestData,
+  InteropTransferResponseData,
+} from '../../api';
 
 const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
@@ -196,7 +200,8 @@ export class InteropTransfersComponent {
       )
       .subscribe({
         next: (data) => this.result.set(data),
-        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+        error: (err: { message?: string }) =>
+          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 
@@ -211,7 +216,8 @@ export class InteropTransfersComponent {
     }
     this.interopService.postInteroperationTransfers(body, this.transferAction).subscribe({
       next: (data) => this.result.set(data),
-      error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+      error: (err: { message?: string }) =>
+        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
     });
   }
 
@@ -221,7 +227,8 @@ export class InteropTransfersComponent {
       .postInteroperationTransactionsAccountIdDisburse(this.disburseAccountId)
       .subscribe({
         next: (data) => this.result.set(data),
-        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+        error: (err: { message?: string }) =>
+          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 
@@ -231,7 +238,8 @@ export class InteropTransfersComponent {
       .postInteroperationTransactionsAccountIdLoanrepayment(this.disburseAccountId)
       .subscribe({
         next: (data) => this.result.set(data),
-        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+        error: (err: { message?: string }) =>
+          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 }

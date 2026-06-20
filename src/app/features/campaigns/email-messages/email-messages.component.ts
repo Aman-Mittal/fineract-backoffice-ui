@@ -65,7 +65,11 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
             <!-- Tab: Messages -->
             <mat-tab [label]="'EMAIL_MESSAGES.MESSAGES_TAB' | translate">
               <div class="tab-content">
-                <button mat-raised-button color="primary" (click)="showCreateForm = !showCreateForm">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="showCreateForm = !showCreateForm"
+                >
                   {{ 'EMAIL_MESSAGES.CREATE' | translate }}
                 </button>
 
@@ -233,7 +237,7 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                   <textarea matInput rows="10" [(ngModel)]="configJson"></textarea>
                 </mat-form-field>
                 <button mat-raised-button color="primary" (click)="saveConfig()">
-                {{ 'EMAIL_MESSAGES.SAVE_CONFIG' | translate }}
+                  {{ 'EMAIL_MESSAGES.SAVE_CONFIG' | translate }}
                 </button>
               </div>
             </mat-tab>

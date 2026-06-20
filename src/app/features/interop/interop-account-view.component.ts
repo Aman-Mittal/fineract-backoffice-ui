@@ -26,7 +26,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService, InteropAccountData, InteropIdentifiersResponseData, InteropKycResponseData, InteropTransactionsData } from '../../api';
+import {
+  InterOperationService,
+  InteropAccountData,
+  InteropIdentifiersResponseData,
+  InteropKycResponseData,
+  InteropTransactionsData,
+} from '../../api';
 
 @Component({
   selector: 'app-interop-account-view',

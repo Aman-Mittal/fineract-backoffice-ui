@@ -26,9 +26,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService, InteropIdentifierAccountResponseData, InteropIdentifierRequestData } from '../../api';
+import {
+  InterOperationService,
+  InteropIdentifierAccountResponseData,
+  InteropIdentifierRequestData,
+} from '../../api';
 
-type IdType = 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN';
+type IdType =
+  | 'MSISDN'
+  | 'EMAIL'
+  | 'PERSONAL_ID'
+  | 'BUSINESS'
+  | 'DEVICE'
+  | 'ACCOUNT_ID'
+  | 'IBAN'
+  | 'ALIAS'
+  | 'BBAN';
 
 const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
@@ -135,7 +148,10 @@ export class InteropPartyLookupComponent {
           this.idValue,
           this.subIdOrType,
         )
-      : this.interopService.getInteroperationPartiesIdTypeIdValue(this.idType as IdType, this.idValue);
+      : this.interopService.getInteroperationPartiesIdTypeIdValue(
+          this.idType as IdType,
+          this.idValue,
+        );
     obs$.subscribe({
       next: (data) => {
         this.result.set(data);

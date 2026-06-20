@@ -134,17 +134,19 @@ export class ForgotPasswordComponent {
       return;
     }
     this.isSending = true;
-    this.passwordManagementService.postPasswordForgot({ email: this.email } as ForgotPasswordRequest).subscribe({
-      next: () => {
-        this.isSending = false;
-        this.sent = true;
-      },
-      error: () => {
-        this.isSending = false;
-        this.translate.get('FORGOT_PASSWORD.ERROR').subscribe((msg: string) => {
-          this.snackBar.open(msg, 'X', { duration: 4000 });
-        });
-      },
-    });
+    this.passwordManagementService
+      .postPasswordForgot({ email: this.email } as ForgotPasswordRequest)
+      .subscribe({
+        next: () => {
+          this.isSending = false;
+          this.sent = true;
+        },
+        error: () => {
+          this.isSending = false;
+          this.translate.get('FORGOT_PASSWORD.ERROR').subscribe((msg: string) => {
+            this.snackBar.open(msg, 'X', { duration: 4000 });
+          });
+        },
+      });
   }
 }

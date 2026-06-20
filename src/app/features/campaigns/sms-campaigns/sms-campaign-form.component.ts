@@ -202,9 +202,9 @@ export class SmsCampaignFormComponent implements OnInit {
         this.model.campaignName = campaign?.campaignName ?? '';
         this.model.campaignType = campaign?.campaignType?.id ?? null;
         this.model.triggerType = campaign?.triggerType?.id ?? null;
-        this.model.runOnDayOfMonth = campaignData['runOnDayOfMonth'] as number ?? null;
-        this.model.message = campaignData['message'] as string ?? '';
-        this.model.parameterizedMessage = campaignData['parameterizedMessage'] as string ?? '';
+        this.model.runOnDayOfMonth = (campaignData['runOnDayOfMonth'] as number) ?? null;
+        this.model.message = (campaignData['message'] as string) ?? '';
+        this.model.parameterizedMessage = (campaignData['parameterizedMessage'] as string) ?? '';
       },
     });
   }

@@ -138,7 +138,9 @@ export class BatchOperationsComponent {
         this.isSubmitting = false;
       },
       error: (err: unknown) => {
-        this.error.set((err as Record<string, unknown>)?.[`message`] as string ?? 'Request failed');
+        this.error.set(
+          ((err as Record<string, unknown>)?.[`message`] as string) ?? 'Request failed',
+        );
         this.isSubmitting = false;
       },
     });

@@ -189,7 +189,8 @@ export class GlobalSearchComponent implements OnInit {
   ngOnInit(): void {
     this.searchApiService.getSearchTemplate().subscribe({
       next: (template) => {
-        this.allowedSearchTypes = (template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[] ?? [];
+        this.allowedSearchTypes =
+          ((template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[]) ?? [];
       },
     });
   }

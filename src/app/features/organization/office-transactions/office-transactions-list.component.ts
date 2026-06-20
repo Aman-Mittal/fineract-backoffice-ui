@@ -169,7 +169,7 @@ export class OfficeTransactionsListComponent implements OnInit {
     this.api.getOfficetransactions().subscribe({
       next: (raw: string) => {
         try {
-          this.transactions.set(JSON.parse(raw) as OfficeTransaction[] || []);
+          this.transactions.set((JSON.parse(raw) as OfficeTransaction[]) || []);
         } catch {
           this.transactions.set([]);
         }

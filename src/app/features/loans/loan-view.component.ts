@@ -1193,7 +1193,10 @@ export class LoanViewComponent implements OnInit {
         next: (data) => {
           let parsed: GetLoansLoanIdDisbursementDetails | null = null;
           try {
-            parsed = typeof data === 'string' ? JSON.parse(data) as GetLoansLoanIdDisbursementDetails : data as GetLoansLoanIdDisbursementDetails;
+            parsed =
+              typeof data === 'string'
+                ? (JSON.parse(data) as GetLoansLoanIdDisbursementDetails)
+                : (data as GetLoansLoanIdDisbursementDetails);
           } catch {
             parsed = data as GetLoansLoanIdDisbursementDetails;
           }

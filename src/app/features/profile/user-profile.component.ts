@@ -139,7 +139,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   get displayName(): string {
-    return (this.userDetails() as Record<string, unknown>)?.[`displayName`] as string ?? '';
+    return ((this.userDetails() as Record<string, unknown>)?.[`displayName`] as string) ?? '';
   }
 
   get officeName(): string {
@@ -151,7 +151,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   get email(): string {
-    return (this.userDetails() as Record<string, unknown>)?.[`email`] as string ?? '';
+    return ((this.userDetails() as Record<string, unknown>)?.[`email`] as string) ?? '';
   }
 
   get roles(): RoleData[] {
