@@ -28,7 +28,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { SurveyService } from '../../../api';
+import { SurveyService, PostSurveySurveyNameApptableIdRequest } from '../../../api';
+
+interface SurveyResponse {
+  id?: number;
+  entryId?: number;
+  score?: number;
+  date?: string;
+}
 
 @Component({
   selector: 'app-survey-responses',
@@ -154,8 +161,8 @@ export class SurveyResponsesComponent implements OnInit {
   private surveyService = inject(SurveyService);
   private snackBar = inject(MatSnackBar);
 
-  surveys = signal<any[]>([]);
-  responses = signal<any[]>([]);
+  surveys = signal<{ name: string; enabled?: boolean }[]>([]);
+  responses = signal<SurveyResponse[]>([]);
   selectedSurveyName = '';
   clientId = 0;
   responseBody = '';
@@ -166,7 +173,13 @@ export class SurveyResponsesComponent implements OnInit {
 
   ngOnInit(): void {
     this.surveyService.getSurvey().subscribe({
-      next: (list) => this.surveys.set(list ?? []),
+      next: (list) => {
+        const mapped = (list ?? []).map((s) => ({
+          name: (s as Record<string, unknown>)?.[`name`] as string ?? '',
+          enabled: s.enabled,
+        }));
+        this.surveys.set(mapped);
+      },
       error: () => this.surveys.set([]),
     });
   }
@@ -193,7 +206,7 @@ export class SurveyResponsesComponent implements OnInit {
       });
   }
 
-  deleteResponse(fulfilledId: any): void {
+  deleteResponse(fulfilledId: number): void {
     this.surveyService
       .deleteSurveySurveyNameClientIdFulfilledId(
         this.selectedSurveyName,
@@ -210,7 +223,7 @@ export class SurveyResponsesComponent implements OnInit {
 
   submitResponse(): void {
     if (!this.selectedSurveyName || !this.clientId || !this.responseBody) return;
-    let body: any;
+    let body: PostSurveySurveyNameApptableIdRequest;
     try {
       body = JSON.parse(this.responseBody);
     } catch {

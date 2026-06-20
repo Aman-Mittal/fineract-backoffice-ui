@@ -33,6 +33,7 @@ import {
   ReportMailingJobsService,
   GetReportMailingJobsResponse,
   ListReportMailingJobHistoryService,
+  ReportMailingJobRunHistoryData,
 } from '../../../api';
 
 /**
@@ -186,7 +187,7 @@ export class ReportMailingJobsListComponent implements OnInit {
 
   jobs: GetReportMailingJobsResponse[] = [];
 
-  runHistory = signal<any[]>([]);
+  runHistory = signal<ReportMailingJobRunHistoryData[]>([]);
   historyLoading = false;
   private historyLoaded = false;
 
@@ -214,8 +215,9 @@ export class ReportMailingJobsListComponent implements OnInit {
   loadRunHistory(): void {
     this.historyLoading = true;
     this.historyService.getReportmailingjobrunhistory(undefined, 0, 20).subscribe({
-      next: (data: any) => {
-        this.runHistory.set(data?.pageItems ?? data ?? []);
+      next: (data) => {
+        const historyList = Array.isArray(data) ? data : ((data as Record<string, unknown>)?.[`pageItems`] as ReportMailingJobRunHistoryData[] | undefined) ?? [];
+        this.runHistory.set(historyList);
         this.historyLoaded = true;
         this.historyLoading = false;
       },

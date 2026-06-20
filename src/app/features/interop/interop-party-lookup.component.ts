@@ -26,7 +26,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService } from '../../api';
+import { InterOperationService, InteropIdentifierAccountResponseData, InteropIdentifierRequestData } from '../../api';
+
+type IdType = 'MSISDN' | 'EMAIL' | 'PERSONAL_ID' | 'BUSINESS' | 'DEVICE' | 'ACCOUNT_ID' | 'IBAN' | 'ALIAS' | 'BBAN';
+
+const CLOSE_LABEL = 'Close';
+const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
   selector: 'app-interop-party-lookup',
@@ -114,7 +119,7 @@ export class InteropPartyLookupComponent {
   private interopService = inject(InterOperationService);
   private snackBar = inject(MatSnackBar);
 
-  result = signal<any>(null);
+  result = signal<InteropIdentifierAccountResponseData | null>(null);
   isLoading = false;
   idType = '';
   idValue = '';
@@ -126,18 +131,18 @@ export class InteropPartyLookupComponent {
     this.result.set(null);
     const obs$ = this.subIdOrType
       ? this.interopService.getInteroperationPartiesIdTypeIdValueSubIdOrType(
-          this.idType as any,
+          this.idType as IdType,
           this.idValue,
           this.subIdOrType,
         )
-      : this.interopService.getInteroperationPartiesIdTypeIdValue(this.idType as any, this.idValue);
+      : this.interopService.getInteroperationPartiesIdTypeIdValue(this.idType as IdType, this.idValue);
     obs$.subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.result.set(data);
         this.isLoading = false;
       },
-      error: (err: any) => {
-        this.snackBar.open(err.message, 'Close', { duration: 4000 });
+      error: (err: { message?: string }) => {
+        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
         this.isLoading = false;
       },
     });
@@ -150,23 +155,23 @@ export class InteropPartyLookupComponent {
     const body = {};
     const obs$ = this.subIdOrType
       ? this.interopService.postInteroperationPartiesIdTypeIdValueSubIdOrType(
-          this.idType as any,
+          this.idType as IdType,
           this.idValue,
           this.subIdOrType,
-          body as any,
+          body as InteropIdentifierRequestData,
         )
       : this.interopService.postInteroperationPartiesIdTypeIdValue(
-          this.idType as any,
+          this.idType as IdType,
           this.idValue,
-          body as any,
+          body as InteropIdentifierRequestData,
         );
     obs$.subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.result.set(data);
         this.isLoading = false;
       },
-      error: (err: any) => {
-        this.snackBar.open(err.message, 'Close', { duration: 4000 });
+      error: (err: { message?: string }) => {
+        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
         this.isLoading = false;
       },
     });
@@ -179,23 +184,23 @@ export class InteropPartyLookupComponent {
     const body = {};
     const obs$ = this.subIdOrType
       ? this.interopService.deleteInteroperationPartiesIdTypeIdValueSubIdOrType(
-          this.idType as any,
+          this.idType as IdType,
           this.idValue,
           this.subIdOrType,
-          body as any,
+          body as InteropIdentifierRequestData,
         )
       : this.interopService.deleteInteroperationPartiesIdTypeIdValue(
-          this.idType as any,
+          this.idType as IdType,
           this.idValue,
-          body as any,
+          body as InteropIdentifierRequestData,
         );
     obs$.subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.result.set(data);
         this.isLoading = false;
       },
-      error: (err: any) => {
-        this.snackBar.open(err.message, 'Close', { duration: 4000 });
+      error: (err: { message?: string }) => {
+        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
         this.isLoading = false;
       },
     });

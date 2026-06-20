@@ -27,7 +27,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { LoanAccountLockService } from '../../../api';
+import { LoanAccountLockService, LoanAccountLockResponseDTO } from '../../../api';
 
 @Component({
   selector: 'app-loan-account-lock',
@@ -129,7 +129,7 @@ export class LoanAccountLockComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
 
-  lockInfo = signal<any>(null);
+  lockInfo = signal<LoanAccountLockResponseDTO | null>(null);
   lockChecked = signal(false);
   isLoading = false;
   loanId = 0;
@@ -138,7 +138,7 @@ export class LoanAccountLockComponent {
   checkLock(): void {
     this.isLoading = true;
     this.loanAccountLockService.getLoansLocked().subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.lockInfo.set(data ?? null);
         this.lockChecked.set(true);
         this.isLoading = false;

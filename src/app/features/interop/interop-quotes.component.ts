@@ -27,7 +27,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService } from '../../api';
+import { InterOperationService, InteropQuoteRequestData, InteropQuoteResponseData } from '../../api';
+
+const CLOSE_LABEL = 'Close';
+const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
   selector: 'app-interop-quotes',
@@ -128,7 +131,7 @@ export class InteropQuotesComponent {
   private interopService = inject(InterOperationService);
   private snackBar = inject(MatSnackBar);
 
-  result = signal<any>(null);
+  result = signal<InteropQuoteResponseData | null>(null);
 
   transactionCode = '';
   quoteCode = '';
@@ -142,23 +145,23 @@ export class InteropQuotesComponent {
         this.quoteCode,
       )
       .subscribe({
-        next: (data: any) => this.result.set(data),
-        error: (err: any) => this.snackBar.open(err.message, 'Close', { duration: 4000 }),
+        next: (data) => this.result.set(data),
+        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 
   createQuote(): void {
     this.result.set(null);
-    let body: any;
+    let body: InteropQuoteRequestData;
     try {
-      body = JSON.parse(this.quoteBodyJson);
+      body = JSON.parse(this.quoteBodyJson) as InteropQuoteRequestData;
     } catch {
-      this.snackBar.open('Invalid JSON', 'Close', { duration: 4000 });
+      this.snackBar.open('Invalid JSON', CLOSE_LABEL, { duration: 4000 });
       return;
     }
     this.interopService.postInteroperationQuotes(body).subscribe({
-      next: (data: any) => this.result.set(data),
-      error: (err: any) => this.snackBar.open(err.message, 'Close', { duration: 4000 }),
+      next: (data) => this.result.set(data),
+      error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
     });
   }
 }

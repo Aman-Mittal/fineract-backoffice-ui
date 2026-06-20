@@ -27,6 +27,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
 
+interface OfficeTransaction {
+  id: number;
+  fromOfficeName?: string;
+  fromOffice?: unknown;
+  toOfficeName?: string;
+  toOffice?: unknown;
+  transactionDate?: unknown;
+  transactionAmount?: number;
+  amount?: number;
+  description?: string;
+}
+
 @Component({
   selector: 'app-office-transactions-list',
   standalone: true,
@@ -137,7 +149,7 @@ export class OfficeTransactionsListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
-  transactions = signal<any[]>([]);
+  transactions = signal<OfficeTransaction[]>([]);
 
   readonly displayedColumns = [
     'id',
@@ -157,7 +169,7 @@ export class OfficeTransactionsListComponent implements OnInit {
     this.api.getOfficetransactions().subscribe({
       next: (raw: string) => {
         try {
-          this.transactions.set(JSON.parse(raw) || []);
+          this.transactions.set(JSON.parse(raw) as OfficeTransaction[] || []);
         } catch {
           this.transactions.set([]);
         }
@@ -168,7 +180,7 @@ export class OfficeTransactionsListComponent implements OnInit {
     });
   }
 
-  onDelete(row: any): void {
+  onDelete(row: OfficeTransaction): void {
     const id = row.id;
     this.api.deleteOfficetransactionsTransactionId(id).subscribe({
       next: () => {

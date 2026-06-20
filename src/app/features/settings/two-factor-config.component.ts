@@ -140,7 +140,7 @@ export class TwoFactorConfigComponent implements OnInit {
   }
 
   onSave(): void {
-    let parsed: any;
+    let parsed: unknown;
     try {
       parsed = JSON.parse(this.configJson);
     } catch {
@@ -151,7 +151,7 @@ export class TwoFactorConfigComponent implements OnInit {
     }
 
     this.isSaving = true;
-    this.defaultService.putTwofactorConfigure(parsed).subscribe({
+    this.defaultService.putTwofactorConfigure(JSON.stringify(parsed)).subscribe({
       next: () => {
         this.isSaving = false;
         this.translate.get('TWO_FACTOR_CONFIG.SUCCESS').subscribe((msg: string) => {

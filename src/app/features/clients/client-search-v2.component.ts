@@ -28,7 +28,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { TranslateModule } from '@ngx-translate/core';
-import { ClientSearchV2Service } from '../../api';
+import { ClientSearchV2Service, PageClientSearchData, ClientSearchData } from '../../api';
 
 @Component({
   selector: 'app-client-search-v2',
@@ -176,7 +176,7 @@ export class ClientSearchV2Component {
   isLoading = false;
   searched = false;
 
-  results = signal<any[]>([]);
+  results = signal<ClientSearchData[]>([]);
   totalElements = signal(0);
 
   displayedColumns = ['displayName', 'accountNo', 'status', 'officeName', 'actions'];
@@ -188,11 +188,12 @@ export class ClientSearchV2Component {
 
     this.clientSearchService
       .postClientsSearch({
-        text: this.query,
-        page: { pageNumber: this.pageNumber, pageSize: this.pageSize },
-      } as any)
+        request: { text: this.query },
+        page: this.pageNumber,
+        size: this.pageSize,
+      })
       .subscribe({
-        next: (data: any) => {
+        next: (data: PageClientSearchData) => {
           this.results.set(data?.content ?? []);
           this.totalElements.set(data?.totalElements ?? 0);
           this.isLoading = false;

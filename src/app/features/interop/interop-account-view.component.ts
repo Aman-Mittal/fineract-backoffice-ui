@@ -26,7 +26,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService } from '../../api';
+import { InterOperationService, InteropAccountData, InteropIdentifiersResponseData, InteropKycResponseData, InteropTransactionsData } from '../../api';
 
 @Component({
   selector: 'app-interop-account-view',
@@ -139,26 +139,26 @@ export class InteropAccountViewComponent {
   debitFilter = true;
   creditFilter = true;
 
-  accountData = signal<any>(null);
-  identifiers = signal<any>(null);
-  kyc = signal<any>(null);
-  transactions = signal<any>(null);
+  accountData = signal<InteropAccountData | null>(null);
+  identifiers = signal<InteropIdentifiersResponseData | null>(null);
+  kyc = signal<InteropKycResponseData | null>(null);
+  transactions = signal<InteropTransactionsData | null>(null);
 
   loadAccount(): void {
     this.interopService.getInteroperationAccountsAccountId(this.accountId).subscribe({
-      next: (data: any) => this.accountData.set(data),
+      next: (data) => this.accountData.set(data),
     });
   }
 
   loadIdentifiers(): void {
     this.interopService.getInteroperationAccountsAccountIdIdentifiers(this.accountId).subscribe({
-      next: (data: any) => this.identifiers.set(data),
+      next: (data) => this.identifiers.set(data),
     });
   }
 
   loadKyc(): void {
     this.interopService.getInteroperationAccountsAccountIdKyc(this.accountId).subscribe({
-      next: (data: any) => this.kyc.set(data),
+      next: (data) => this.kyc.set(data),
     });
   }
 
@@ -170,7 +170,7 @@ export class InteropAccountViewComponent {
         this.creditFilter,
       )
       .subscribe({
-        next: (data: any) => this.transactions.set(data),
+        next: (data) => this.transactions.set(data),
       });
   }
 }

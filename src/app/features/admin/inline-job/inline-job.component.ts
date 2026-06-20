@@ -25,7 +25,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { InlineJobService } from '../../../api';
+import { InlineJobService, InlineJobRequest, InlineJobResponse } from '../../../api';
 
 @Component({
   selector: 'app-inline-job',
@@ -116,7 +116,7 @@ export class InlineJobComponent {
 
   jobName = '';
   jobBody = '';
-  result = signal<any>(null);
+  result = signal<InlineJobResponse | null>(null);
   isRunning = false;
   error = signal<string | null>(null);
 
@@ -124,23 +124,23 @@ export class InlineJobComponent {
     this.error.set(null);
     this.result.set(null);
 
-    let body: any;
+    let body: InlineJobRequest | undefined;
     if (this.jobBody.trim()) {
       try {
-        body = JSON.parse(this.jobBody);
-      } catch (e: any) {
-        this.error.set(e.message);
+        body = JSON.parse(this.jobBody) as InlineJobRequest;
+      } catch (e) {
+        this.error.set((e as Error).message);
         return;
       }
     }
 
     this.isRunning = true;
     this.inlineJobService.postJobsJobNameInline(this.jobName.trim(), body).subscribe({
-      next: (response: any) => {
-        this.result.set(response ?? {});
+      next: (response) => {
+        this.result.set(response ?? null);
         this.isRunning = false;
       },
-      error: (err: any) => {
+      error: (err: { message?: string }) => {
         this.error.set(err?.message ?? 'Request failed');
         this.isRunning = false;
       },

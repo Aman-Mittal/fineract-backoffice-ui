@@ -26,7 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ProgressiveLoanService } from '../../../api';
+import { ProgressiveLoanService, ProgressiveLoanInterestScheduleModel } from '../../../api';
 
 @Component({
   selector: 'app-progressive-loan-model',
@@ -102,13 +102,13 @@ export class ProgressiveLoanModelComponent {
   private translate = inject(TranslateService);
 
   loanId = 0;
-  model = signal<any>(null);
+  model = signal<ProgressiveLoanInterestScheduleModel | null>(null);
   isLoading = false;
 
   loadModel(): void {
     this.isLoading = true;
     this.progressiveLoanService.getInternalLoanProgressiveLoanIdModel(this.loanId).subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.model.set(data);
         this.isLoading = false;
       },

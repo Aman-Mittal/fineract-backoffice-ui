@@ -66,14 +66,14 @@ import { InterOperationService } from '../../api';
 export class InteropHealthComponent {
   private interopService = inject(InterOperationService);
 
-  health = signal<any>(null);
+  health = signal<unknown>(null);
   isLoading = false;
 
   checkHealth(): void {
     this.isLoading = true;
     this.health.set(null);
     this.interopService.getInteroperationHealth().subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.health.set(data);
         this.isLoading = false;
       },

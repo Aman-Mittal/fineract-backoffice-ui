@@ -28,7 +28,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { InterOperationService } from '../../api';
+import { InterOperationService, InteropTransferRequestData, InteropTransferResponseData } from '../../api';
+
+const CLOSE_LABEL = 'Close';
+const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
   selector: 'app-interop-transfers',
@@ -174,7 +177,7 @@ export class InteropTransfersComponent {
   private interopService = inject(InterOperationService);
   private snackBar = inject(MatSnackBar);
 
-  result = signal<any>(null);
+  result = signal<InteropTransferResponseData | string | null>(null);
 
   transactionCode = '';
   transferCode = '';
@@ -192,23 +195,23 @@ export class InteropTransfersComponent {
         this.transferCode,
       )
       .subscribe({
-        next: (data: any) => this.result.set(data),
-        error: (err: any) => this.snackBar.open(err.message, 'Close', { duration: 4000 }),
+        next: (data) => this.result.set(data),
+        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 
   createTransfer(): void {
     this.result.set(null);
-    let body: any;
+    let body: InteropTransferRequestData;
     try {
-      body = JSON.parse(this.transferBodyJson);
+      body = JSON.parse(this.transferBodyJson) as InteropTransferRequestData;
     } catch {
-      this.snackBar.open('Invalid JSON', 'Close', { duration: 4000 });
+      this.snackBar.open('Invalid JSON', CLOSE_LABEL, { duration: 4000 });
       return;
     }
     this.interopService.postInteroperationTransfers(body, this.transferAction).subscribe({
-      next: (data: any) => this.result.set(data),
-      error: (err: any) => this.snackBar.open(err.message, 'Close', { duration: 4000 }),
+      next: (data) => this.result.set(data),
+      error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
     });
   }
 
@@ -217,8 +220,8 @@ export class InteropTransfersComponent {
     this.interopService
       .postInteroperationTransactionsAccountIdDisburse(this.disburseAccountId)
       .subscribe({
-        next: (data: any) => this.result.set(data),
-        error: (err: any) => this.snackBar.open(err.message, 'Close', { duration: 4000 }),
+        next: (data) => this.result.set(data),
+        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 
@@ -227,8 +230,8 @@ export class InteropTransfersComponent {
     this.interopService
       .postInteroperationTransactionsAccountIdLoanrepayment(this.disburseAccountId)
       .subscribe({
-        next: (data: any) => this.result.set(data),
-        error: (err: any) => this.snackBar.open(err.message, 'Close', { duration: 4000 }),
+        next: (data) => this.result.set(data),
+        error: (err: { message?: string }) => this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
       });
   }
 }

@@ -27,7 +27,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { LoanCOBCatchUpService } from '../../../api';
+import { LoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../api';
 
 @Component({
   selector: 'app-loan-cob-catchup',
@@ -135,15 +135,15 @@ export class LoanCobCatchupComponent {
   private readonly translate = inject(TranslateService);
 
   isRunning = signal<boolean | null>(null);
-  oldestDate = signal<any>(null);
+  oldestDate = signal<OldestCOBProcessedLoanDTO | null>(null);
   statusChecked = false;
   loanId = 0;
   catchupLoanId = 0;
 
   checkStatus(): void {
     this.loanCOBCatchUpService.getLoansIsCatchUpRunning().subscribe({
-      next: (data: any) => {
-        this.isRunning.set(data);
+      next: (data) => {
+        this.isRunning.set(data?.catchUpRunning ?? false);
         this.statusChecked = true;
       },
       error: () => {
@@ -154,7 +154,7 @@ export class LoanCobCatchupComponent {
 
   getOldestCobDate(): void {
     this.loanCOBCatchUpService.getLoansOldestCobClosed().subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.oldestDate.set(data);
       },
       error: () => {
@@ -170,7 +170,6 @@ export class LoanCobCatchupComponent {
           this.snackBar.open(msg, undefined, { duration: 3000 });
         });
       },
-      error: () => {},
     });
   }
 }

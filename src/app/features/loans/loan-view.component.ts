@@ -46,6 +46,8 @@ import {
   CapitalizedIncomeDetails,
   LoanDisbursementDetailsService,
   LoanCollateralManagementService,
+  GetLoansLoanIdDisbursementDetails,
+  LoanCollateralResponseData,
 } from '../../api';
 
 @Component({
@@ -1033,7 +1035,7 @@ export class LoanViewComponent implements OnInit {
   capitalizedIncomes = signal<CapitalizedIncomeDetails[]>([]);
 
   // Disbursement Details
-  disbursementDetail = signal<any>(null);
+  disbursementDetail = signal<GetLoansLoanIdDisbursementDetails | null>(null);
   editDisbId = 0;
   disbursementEditForm = {
     expectedDisbursementDate: '',
@@ -1042,7 +1044,7 @@ export class LoanViewComponent implements OnInit {
   };
 
   // Collateral Management
-  collateralDetail = signal<any>(null);
+  collateralDetail = signal<LoanCollateralResponseData | null>(null);
   collateralDetailId = 0;
   deleteCollateralId = 0;
 
@@ -1189,11 +1191,11 @@ export class LoanViewComponent implements OnInit {
       .getLoansLoanIdDisbursementsDisbursementId(this.loanId, this.editDisbId)
       .subscribe({
         next: (data) => {
-          let parsed: any;
+          let parsed: GetLoansLoanIdDisbursementDetails | null = null;
           try {
-            parsed = typeof data === 'string' ? JSON.parse(data) : data;
+            parsed = typeof data === 'string' ? JSON.parse(data) as GetLoansLoanIdDisbursementDetails : data as GetLoansLoanIdDisbursementDetails;
           } catch {
-            parsed = data;
+            parsed = data as GetLoansLoanIdDisbursementDetails;
           }
           this.disbursementDetail.set(parsed);
           this.disbursementEditForm.expectedDisbursementDate =

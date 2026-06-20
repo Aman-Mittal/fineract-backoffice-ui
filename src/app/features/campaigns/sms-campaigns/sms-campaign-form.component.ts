@@ -27,7 +27,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DefaultService } from '../../../api';
+import { DefaultService, CommandWrapper, SmsCampaignData } from '../../../api';
 
 @Component({
   selector: 'app-sms-campaign-form',
@@ -173,9 +173,15 @@ export class SmsCampaignFormComponent implements OnInit {
     }
 
     this.api.getSmscampaignsTemplate().subscribe({
-      next: (template: any) => {
-        this.campaignTypeOptions = template?.campaignTypeOptions ?? [];
-        this.triggerTypeOptions = template?.triggerTypeOptions ?? [];
+      next: (template: SmsCampaignData) => {
+        this.campaignTypeOptions = (template?.campaignTypeOptions ?? []).map((opt) => ({
+          id: opt.id ?? 0,
+          value: opt.value ?? '',
+        }));
+        this.triggerTypeOptions = (template?.triggerTypeOptions ?? []).map((opt) => ({
+          id: opt.id ?? 0,
+          value: opt.value ?? '',
+        }));
 
         if (this.isEditMode && this.campaignId !== null) {
           this.loadCampaign(this.campaignId);
@@ -191,13 +197,14 @@ export class SmsCampaignFormComponent implements OnInit {
 
   private loadCampaign(id: number): void {
     this.api.getSmscampaignsResourceId(id).subscribe({
-      next: (campaign: any) => {
+      next: (campaign: SmsCampaignData) => {
+        const campaignData = campaign as Record<string, unknown>;
         this.model.campaignName = campaign?.campaignName ?? '';
         this.model.campaignType = campaign?.campaignType?.id ?? null;
         this.model.triggerType = campaign?.triggerType?.id ?? null;
-        this.model.runOnDayOfMonth = campaign?.runOnDayOfMonth ?? null;
-        this.model.message = campaign?.message ?? '';
-        this.model.parameterizedMessage = campaign?.parameterizedMessage ?? '';
+        this.model.runOnDayOfMonth = campaignData['runOnDayOfMonth'] as number ?? null;
+        this.model.message = campaignData['message'] as string ?? '';
+        this.model.parameterizedMessage = campaignData['parameterizedMessage'] as string ?? '';
       },
     });
   }
@@ -217,12 +224,12 @@ export class SmsCampaignFormComponent implements OnInit {
     };
 
     if (this.isEditMode && this.campaignId !== null) {
-      this.api.putSmscampaignsCampaignId(this.campaignId, payload as any).subscribe({
+      this.api.putSmscampaignsCampaignId(this.campaignId, payload as CommandWrapper).subscribe({
         next: () => this.onSuccess(),
         error: () => this.onError(),
       });
     } else {
-      this.api.postSmscampaigns(payload as any).subscribe({
+      this.api.postSmscampaigns(payload as CommandWrapper).subscribe({
         next: () => this.onSuccess(),
         error: () => this.onError(),
       });

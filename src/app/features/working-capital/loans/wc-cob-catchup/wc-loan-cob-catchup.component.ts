@@ -27,7 +27,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { WorkingCapitalLoanCOBCatchUpService } from '../../../../api';
+import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../../api';
 
 @Component({
   selector: 'app-wc-loan-cob-catchup',
@@ -125,20 +125,20 @@ export class WcLoanCobCatchupComponent {
   private translate = inject(TranslateService);
 
   isRunning = signal<boolean | null>(null);
-  oldestDate = signal<any>(null);
+  oldestDate = signal<OldestCOBProcessedLoanDTO | null>(null);
   loanId = 0;
   catchupLoanId = 0;
 
   checkStatus(): void {
     this.cobCatchupService.getWorkingCapitalLoansIsCatchUpRunning().subscribe({
-      next: (result: any) => this.isRunning.set(result),
+      next: (result) => this.isRunning.set(result?.catchUpRunning ?? false),
       error: () => this.showError(),
     });
   }
 
   getOldestDate(): void {
     this.cobCatchupService.getWorkingCapitalLoansOldestCobClosed().subscribe({
-      next: (result: any) => this.oldestDate.set(result),
+      next: (result) => this.oldestDate.set(result),
       error: () => this.showError(),
     });
   }

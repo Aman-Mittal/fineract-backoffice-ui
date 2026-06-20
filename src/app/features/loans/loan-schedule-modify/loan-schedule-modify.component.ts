@@ -146,7 +146,7 @@ export class LoanScheduleModifyComponent {
   bodyText = '';
   isLoading = false;
 
-  response = signal<any>(null);
+  response = signal<unknown>(null);
 
   commands = [
     { value: 'calculateRepaymentSchedule', label: 'Calculate Repayment Schedule' },
@@ -172,11 +172,11 @@ export class LoanScheduleModifyComponent {
     this.loanReschedulingService
       .postLoansLoanIdSchedule(this.loanId, body, this.command)
       .subscribe({
-        next: (data: any) => {
+        next: (data) => {
           this.response.set(data);
           this.isLoading = false;
         },
-        error: (err: any) => {
+        error: (err: { error?: unknown }) => {
           this.response.set(err?.error ?? { error: 'Request failed' });
           this.isLoading = false;
         },

@@ -30,7 +30,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { SearchAPIService } from '../../api';
+import { SearchAPIService, GetSearchResponse } from '../../api';
 
 @Component({
   selector: 'app-global-search',
@@ -177,7 +177,7 @@ export class GlobalSearchComponent implements OnInit {
   isLoading = false;
   searched = false;
   allowedSearchTypes: string[] = [];
-  results = signal<any[]>([]);
+  results = signal<GetSearchResponse[]>([]);
   displayedColumns = [
     'entityType',
     'entityName',
@@ -188,8 +188,8 @@ export class GlobalSearchComponent implements OnInit {
 
   ngOnInit(): void {
     this.searchApiService.getSearchTemplate().subscribe({
-      next: (template: any) => {
-        this.allowedSearchTypes = template?.allowedSearchTypes ?? [];
+      next: (template) => {
+        this.allowedSearchTypes = (template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[] ?? [];
       },
     });
   }
@@ -200,7 +200,7 @@ export class GlobalSearchComponent implements OnInit {
     this.searched = false;
     const resource = this.selectedResource || undefined;
     this.searchApiService.getSearch(this.query, resource, this.exactMatch).subscribe({
-      next: (data: any[]) => {
+      next: (data) => {
         this.results.set(data ?? []);
         this.isLoading = false;
         this.searched = true;
@@ -213,7 +213,7 @@ export class GlobalSearchComponent implements OnInit {
     });
   }
 
-  onRowClick(row: any): void {
+  onRowClick(row: GetSearchResponse): void {
     const id = row.entityId;
     switch (row.entityType) {
       case 'CLIENT':

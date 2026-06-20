@@ -27,7 +27,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DefaultService } from '../../../api';
+import { DefaultService, ExternalEventResponse } from '../../../api';
 
 @Component({
   selector: 'app-external-events',
@@ -170,7 +170,7 @@ export class ExternalEventsComponent {
     aggregateRootId: '',
   };
 
-  events = signal<any[]>([]);
+  events = signal<ExternalEventResponse[]>([]);
   isLoading = false;
 
   displayedColumns = ['idempotencyKey', 'type', 'category', 'aggregateRootId', 'createdAt'];
@@ -186,7 +186,7 @@ export class ExternalEventsComponent {
         aggregateRootId ? Number(aggregateRootId) : undefined,
       )
       .subscribe({
-        next: (data: any) => {
+        next: (data: ExternalEventResponse[]) => {
           this.events.set(Array.isArray(data) ? data : []);
           this.isLoading = false;
         },

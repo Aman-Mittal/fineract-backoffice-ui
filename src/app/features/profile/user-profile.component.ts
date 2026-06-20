@@ -22,7 +22,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { FetchAuthenticatedUserDetailsService } from '../../api';
+import { FetchAuthenticatedUserDetailsService, GetUserDetailsResponse, RoleData } from '../../api';
 
 @Component({
   selector: 'app-user-profile',
@@ -46,29 +46,29 @@ import { FetchAuthenticatedUserDetailsService } from '../../api';
             <div>
               <div class="detail-row">
                 <span class="label">{{ 'PROFILE.USERNAME' | translate }}</span>
-                <span class="value">{{ userDetails().username }}</span>
+                <span class="value">{{ username }}</span>
               </div>
               <div class="detail-row">
                 <span class="label">{{ 'PROFILE.DISPLAY_NAME' | translate }}</span>
-                <span class="value">{{ userDetails().displayName }}</span>
+                <span class="value">{{ displayName }}</span>
               </div>
               <div class="detail-row">
                 <span class="label">{{ 'PROFILE.OFFICE' | translate }}</span>
                 <span class="value">
-                  {{ userDetails().officeName }}
-                  @if (userDetails().officeId) {
-                    <span class="secondary">(ID: {{ userDetails().officeId }})</span>
+                  {{ officeName }}
+                  @if (officeId) {
+                    <span class="secondary">(ID: {{ officeId }})</span>
                   }
                 </span>
               </div>
               <div class="detail-row">
                 <span class="label">{{ 'PROFILE.EMAIL' | translate }}</span>
-                <span class="value">{{ userDetails().email }}</span>
+                <span class="value">{{ email }}</span>
               </div>
               <div class="detail-row roles-row">
                 <span class="label">{{ 'PROFILE.ROLES' | translate }}</span>
                 <mat-chip-set class="roles-chips">
-                  @for (role of userDetails().roles; track role) {
+                  @for (role of roles; track role) {
                     <mat-chip>
                       {{ role.name || role }}
                     </mat-chip>
@@ -132,12 +132,36 @@ export class UserProfileComponent implements OnInit {
   private fetchAuthenticatedUserDetailsService = inject(FetchAuthenticatedUserDetailsService);
 
   isLoading = false;
-  userDetails = signal<any>(null);
+  userDetails = signal<GetUserDetailsResponse | null>(null);
+
+  get username(): string {
+    return this.userDetails()?.username ?? '';
+  }
+
+  get displayName(): string {
+    return (this.userDetails() as Record<string, unknown>)?.[`displayName`] as string ?? '';
+  }
+
+  get officeName(): string {
+    return this.userDetails()?.officeName ?? '';
+  }
+
+  get officeId(): number | undefined {
+    return this.userDetails()?.officeId;
+  }
+
+  get email(): string {
+    return (this.userDetails() as Record<string, unknown>)?.[`email`] as string ?? '';
+  }
+
+  get roles(): RoleData[] {
+    return this.userDetails()?.roles ?? [];
+  }
 
   ngOnInit(): void {
     this.isLoading = true;
     this.fetchAuthenticatedUserDetailsService.getUserdetails().subscribe({
-      next: (data: any) => {
+      next: (data) => {
         this.userDetails.set(data);
         this.isLoading = false;
       },

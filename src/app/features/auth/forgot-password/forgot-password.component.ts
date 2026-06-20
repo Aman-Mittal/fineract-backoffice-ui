@@ -25,7 +25,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PasswordManagementService } from '../../../api';
+import { PasswordManagementService, ForgotPasswordRequest } from '../../../api';
 
 @Component({
   selector: 'app-forgot-password',
@@ -134,7 +134,7 @@ export class ForgotPasswordComponent {
       return;
     }
     this.isSending = true;
-    this.passwordManagementService.postPasswordForgot({ email: this.email } as any).subscribe({
+    this.passwordManagementService.postPasswordForgot({ email: this.email } as ForgotPasswordRequest).subscribe({
       next: () => {
         this.isSending = false;
         this.sent = true;

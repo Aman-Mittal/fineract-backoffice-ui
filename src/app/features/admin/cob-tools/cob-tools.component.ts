@@ -28,7 +28,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { InternalCOBService } from '../../../api';
+import { InternalCOBService, COBPartition } from '../../../api';
 
 @Component({
   selector: 'app-cob-tools',
@@ -146,7 +146,7 @@ export class CobToolsComponent {
   private translate = inject(TranslateService);
 
   partitionSize = 10;
-  partitions = signal<any[]>([]);
+  partitions = signal<COBPartition[]>([]);
   fastForwardLoanId = 0;
   reprocessLoanId = 0;
   isLoading = false;
@@ -154,7 +154,7 @@ export class CobToolsComponent {
   loadPartitions(): void {
     this.isLoading = true;
     this.cobService.getInternalCobPartitionsPartitionSize(this.partitionSize).subscribe({
-      next: (data: any) => {
+      next: (data: COBPartition[]) => {
         this.partitions.set(data ?? []);
         this.isLoading = false;
       },

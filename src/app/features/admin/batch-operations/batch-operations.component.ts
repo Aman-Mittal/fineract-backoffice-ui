@@ -26,7 +26,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
-import { BatchAPIService } from '../../../api';
+import { BatchAPIService, BatchRequest, BatchResponse } from '../../../api';
 
 @Component({
   selector: 'app-batch-operations',
@@ -112,7 +112,7 @@ export class BatchOperationsComponent {
 
   batchInput = '';
   enclosingTransaction = false;
-  results = signal<any[]>([]);
+  results = signal<BatchResponse[]>([]);
   error = signal<string | null>(null);
   isSubmitting = false;
 
@@ -120,25 +120,25 @@ export class BatchOperationsComponent {
     this.error.set(null);
     this.results.set([]);
 
-    let parsed: any[];
+    let parsed: BatchRequest[];
     try {
       parsed = JSON.parse(this.batchInput);
       if (!Array.isArray(parsed)) {
         throw new Error('Input must be a JSON array');
       }
-    } catch (e: any) {
-      this.error.set(e.message);
+    } catch (e: unknown) {
+      this.error.set(e instanceof Error ? e.message : 'Invalid JSON');
       return;
     }
 
     this.isSubmitting = true;
     this.batchApiService.postBatches(parsed, this.enclosingTransaction).subscribe({
-      next: (response: any) => {
+      next: (response: BatchResponse[]) => {
         this.results.set(Array.isArray(response) ? response : [response]);
         this.isSubmitting = false;
       },
-      error: (err: any) => {
-        this.error.set(err?.message ?? 'Request failed');
+      error: (err: unknown) => {
+        this.error.set((err as Record<string, unknown>)?.[`message`] as string ?? 'Request failed');
         this.isSubmitting = false;
       },
     });
