@@ -61,6 +61,9 @@ export interface ColumnDef {
 @Component({
   selector: 'app-data-table',
   standalone: true,
+  host: {
+    '[attr.title]': 'null',
+  },
   imports: [
     MatTableModule,
     MatPaginatorModule,

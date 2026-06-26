@@ -247,7 +247,8 @@
     "OVERVIEW": "Overview",
     "PRIORITY": "Priority",
     "TERM": "Term",
-    "DOWNLOAD": "Download"
+    "DOWNLOAD": "Download",
+    "ERROR": "Operation failed."
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "New Account",
@@ -435,7 +436,11 @@
     "COLLATERAL_MANAGEMENT": "Collateral Management",
     "COLLATERAL_ID": "Collateral ID",
     "LOAD_COLLATERAL": "Load Collateral",
-    "DELETE_COLLATERAL": "Delete Collateral"
+    "DELETE_COLLATERAL": "Delete Collateral",
+    "AMORTIZED_AMOUNT": "Amortized Amount",
+    "BUY_DOWN_FEE_AMOUNT": "Buy Down Fee Amount",
+    "NOT_YET_AMORTIZED_AMOUNT": "Not Yet Amortized Amount",
+    "UNRECOGNIZED_AMOUNT": "Unrecognized Amount"
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",
@@ -790,7 +795,10 @@
     "PAYMENT_TYPES_DESC": "Payment types describe how money moves in and out (cash, cheque, transfer).",
     "TAX_COMPONENTS_DESC": "A tax component is a single named tax with a percentage and start date.",
     "TAX_GROUPS_DESC": "A tax group bundles one or more tax components for use on charges.",
-    "FLOATING_RATES_DESC": "Floating rates define base/differential interest rates that vary over time periods."
+    "FLOATING_RATES_DESC": "Floating rates define base/differential interest rates that vary over time periods.",
+    "LOAN_CHARGES_DESC": "Manage and view charges and fees applied to this loan account.",
+    "OFFICES_DESC": "Configure and manage branch offices and their hierarchical structure.",
+    "TASKS_DESC": "Review and approve or reject maker-checker tasks pending authorization."
   },
   "REPORTS": {
     "NAME": "Report Name",
@@ -1455,9 +1463,6 @@
   "CACHE": {
     "TITLE": "Cache Configuration"
   },
-  "EXTERNAL_EVENTS": {
-    "TITLE": "External Event Configuration"
-  },
   "EXTERNAL_SERVICES": {
     "TITLE": "External Services",
     "SERVICE": "Service"
@@ -1678,7 +1683,13 @@
     "ACTIVATE": "Activate",
     "DEACTIVATE": "Deactivate",
     "DELETE": "Delete",
-    "SUCCESS": "Operation successful."
+    "SUCCESS": "Operation successful.",
+    "ID": "ID",
+    "CAMPAIGN_NAME": "Campaign Name",
+    "CAMPAIGN_TYPE": "Campaign Type",
+    "STATUS": "Status",
+    "ACTIONS": "Actions",
+    "NO_DATA": "No data found."
   },
   "SMS_CAMPAIGNS": {
     "TITLE": "SMS Campaigns",
@@ -1696,7 +1707,8 @@
     "DEACTIVATE": "Deactivate",
     "DELETE": "Delete",
     "SAVE": "Save",
-    "SUCCESS": "Operation successful."
+    "SUCCESS": "Operation successful.",
+    "NO_DATA": "No data found."
   },
   "EMAIL_MESSAGES": {
     "TITLE": "Email Messages",
@@ -1711,7 +1723,8 @@
     "CREATE": "Send Message",
     "SAVE_CONFIG": "Save Config",
     "DELETE": "Delete",
-    "SUCCESS": "Operation successful."
+    "SUCCESS": "Operation successful.",
+    "SENT_DATE": "Sent Date"
   },
   "OFFICE_TRANSACTIONS": {
     "TITLE": "Office Transactions",
@@ -1815,7 +1828,8 @@
     "GET_OLDEST_DATE": "Get Oldest COB Date",
     "OLDEST_DATE": "Oldest COB Date",
     "RUN_CATCHUP": "Run COB Catch-Up",
-    "SUCCESS": "Catch-up triggered."
+    "SUCCESS": "Catch-up triggered.",
+    "ERROR": "Operation failed."
   },
   "INTEROP": {
     "PARTY_TITLE": "Interop Party Lookup",

@@ -50,7 +50,7 @@ interface EventToggle {
     <div class="form-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>{{ 'EXTERNAL_EVENTS.TITLE' | translate }}</mat-card-title>
+          <mat-card-title>{{ 'nav.externalEvents' | translate }}</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>

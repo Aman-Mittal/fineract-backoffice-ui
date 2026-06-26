@@ -70,8 +70,8 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
   ],
 })
 export class AccountingRulesListComponent implements OnInit {
-  private accountingRulesService = inject(AccountingRulesService);
-  private router = inject(Router);
+  private readonly accountingRulesService = inject(AccountingRulesService);
+  private readonly router = inject(Router);
 
   rules: AccountingRuleData[] = [];
   columns: ColumnDef[] = [

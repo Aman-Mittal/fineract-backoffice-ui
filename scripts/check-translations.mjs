@@ -75,6 +75,14 @@ const PATTERNS = [
   new RegExp(String.raw`['"]${KEY}['"]\s*\|\s*translate`, 'g'),
   new RegExp(String.raw`\.(?:instant|get|stream)\(\s*['"]${KEY}['"]`, 'g'),
   new RegExp(String.raw`\[translate\]\s*=\s*["']'${KEY}'`, 'g'),
+  new RegExp(
+    String.raw`\b(?:title|helpTextKey|label|placeholder|createButtonLabel)\s*=\s*['"]${KEY}['"]`,
+    'g',
+  ),
+  new RegExp(
+    String.raw`\[(?:title|helpTextKey|label|placeholder|createButtonLabel)\]\s*=\s*['"]'${KEY}'['"]`,
+    'g',
+  ),
 ];
 
 function referencedKeys(files) {

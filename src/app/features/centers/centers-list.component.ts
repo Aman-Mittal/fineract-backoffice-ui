@@ -94,9 +94,9 @@ export class CentersListComponent {
   centers: GetCentersPageItems[] = [];
   totalRecords = 0;
 
-  private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
-  private pageSubject = new Subject<PageEvent>();
+  private readonly searchSubject = new Subject<string>();
+  private readonly sortSubject = new Subject<Sort>();
+  private readonly pageSubject = new Subject<PageEvent>();
 
   private currentFilter = '';
   private currentSort: Sort = { active: '', direction: '' };
