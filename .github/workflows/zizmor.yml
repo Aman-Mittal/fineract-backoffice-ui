@@ -24,7 +24,7 @@ on:
     paths:
       - '.github/workflows/**'
   pull_request:
-    branches: ['develop']
+    branches: ['**']
     paths:
       - '.github/workflows/**'
 
