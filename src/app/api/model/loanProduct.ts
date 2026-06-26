@@ -48,6 +48,7 @@ export interface LoanProduct {
     accountingDisabled?: boolean;
     accountingRule?: LoanProduct.AccountingRuleEnum;
     allowApprovedDisbursedAmountsOverApplied?: boolean;
+    allowFullTermForTranche?: boolean;
     allowVariabeInstallments?: boolean;
     arrearsBasedOnOriginalSchedule?: boolean;
     borrowerCycleVariations?: Set<LoanProductBorrowerCycleVariations>;
@@ -69,7 +70,7 @@ export interface LoanProduct {
     floatingRates?: LoanProductFloatingRates;
     fund?: Fund;
     holdGuaranteeFunds?: boolean;
-    id?: number;
+    id?: number | null;
     includeInBorrowerCycle?: boolean;
     interestPeriodFrequencyType?: LoanProduct.InterestPeriodFrequencyTypeEnum;
     interestRecalculationEnabled?: boolean;

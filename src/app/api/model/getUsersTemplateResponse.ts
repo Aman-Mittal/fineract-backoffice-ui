@@ -33,6 +33,5 @@ import { RoleData } from './roleData';
 export interface GetUsersTemplateResponse { 
     allowedOffices?: Array<OfficeData>;
     availableRoles?: Array<RoleData>;
-    selfServiceRoles?: Array<RoleData>;
 }
 

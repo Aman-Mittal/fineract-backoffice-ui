@@ -64,10 +64,10 @@ export class ListReportMailingJobHistoryService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAllByReportMailingJobId(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReportMailingJobRunHistoryData>;
-    public retrieveAllByReportMailingJobId(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReportMailingJobRunHistoryData>>;
-    public retrieveAllByReportMailingJobId(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReportMailingJobRunHistoryData>>;
-    public retrieveAllByReportMailingJobId(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getReportmailingjobrunhistory(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReportMailingJobRunHistoryData>;
+    public getReportmailingjobrunhistory(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReportMailingJobRunHistoryData>>;
+    public getReportmailingjobrunhistory(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReportMailingJobRunHistoryData>>;
+    public getReportmailingjobrunhistory(reportMailingJobId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 

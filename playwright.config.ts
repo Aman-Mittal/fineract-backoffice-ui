@@ -8,8 +8,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:4200',
+    baseURL: 'https://localhost:4200',
     trace: 'on-first-retry',
+    ignoreHTTPSErrors: true,
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
@@ -18,7 +19,8 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run start',
-    url: 'http://localhost:4200',
+    url: 'https://localhost:4200',
     reuseExistingServer: true,
+    ignoreHTTPSErrors: true,
   },
 });

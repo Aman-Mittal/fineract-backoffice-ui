@@ -41,9 +41,15 @@ import { ExternalOwnerTransferJournalEntryData } from '../model/externalOwnerTra
 // @ts-ignore
 import { ExternalTransferData } from '../model/externalTransferData';
 // @ts-ignore
+import { ExternalTransferOwnerData } from '../model/externalTransferOwnerData';
+// @ts-ignore
 import { PageExternalTransferData } from '../model/pageExternalTransferData';
 // @ts-ignore
 import { PagedRequestExternalAssetOwnerSearchRequest } from '../model/pagedRequestExternalAssetOwnerSearchRequest';
+// @ts-ignore
+import { PostExternalAssetOwnerRequest } from '../model/postExternalAssetOwnerRequest';
+// @ts-ignore
+import { PostExternalAssetOwnerResponse } from '../model/postExternalAssetOwnerResponse';
 // @ts-ignore
 import { PostInitiateTransferResponse } from '../model/postInitiateTransferResponse';
 
@@ -64,49 +70,16 @@ export class ExternalAssetOwnersService extends BaseService {
     }
 
     /**
-     * Retrieve Active Asset Owner Transfer
-     * Retrieve Active External Asset Owner Transfer by transferExternalId, loanId or loanExternalId
-     * @endpoint get /v1/external-asset-owners/transfers/active-transfer
-     * @param transferExternalId transferExternalId
-     * @param loanId loanId
-     * @param loanExternalId loanExternalId
+     * Get all External Asset Owner with details
+     * @endpoint get /v1/external-asset-owners
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalTransferData>;
-    public getActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalTransferData>>;
-    public getActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalTransferData>>;
-    public getActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'transferExternalId',
-            <any>transferExternalId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'loanId',
-            <any>loanId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'loanExternalId',
-            <any>loanExternalId,
-            QueryParamStyle.Form,
-            true,
-        );
-
+    public getExternalAssetOwners(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ExternalTransferOwnerData>>;
+    public getExternalAssetOwners(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ExternalTransferOwnerData>>>;
+    public getExternalAssetOwners(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ExternalTransferOwnerData>>>;
+    public getExternalAssetOwners(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -139,12 +112,11 @@ export class ExternalAssetOwnersService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/external-asset-owners/transfers/active-transfer`;
+        let localVarPath = `/v1/external-asset-owners`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ExternalTransferData>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<ExternalTransferOwnerData>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -166,12 +138,12 @@ export class ExternalAssetOwnersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getJournalEntriesOfOwner(ownerExternalId: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalOwnerJournalEntryData>;
-    public getJournalEntriesOfOwner(ownerExternalId: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalOwnerJournalEntryData>>;
-    public getJournalEntriesOfOwner(ownerExternalId: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalOwnerJournalEntryData>>;
-    public getJournalEntriesOfOwner(ownerExternalId: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getExternalAssetOwnersOwnersExternalIdOwnerExternalIdJournalEntries(ownerExternalId: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalOwnerJournalEntryData>;
+    public getExternalAssetOwnersOwnersExternalIdOwnerExternalIdJournalEntries(ownerExternalId: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalOwnerJournalEntryData>>;
+    public getExternalAssetOwnersOwnersExternalIdOwnerExternalIdJournalEntries(ownerExternalId: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalOwnerJournalEntryData>>;
+    public getExternalAssetOwnersOwnersExternalIdOwnerExternalIdJournalEntries(ownerExternalId: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (ownerExternalId === null || ownerExternalId === undefined) {
-            throw new Error('Required parameter ownerExternalId was null or undefined when calling getJournalEntriesOfOwner.');
+            throw new Error('Required parameter ownerExternalId was null or undefined when calling getExternalAssetOwnersOwnersExternalIdOwnerExternalIdJournalEntries.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -242,92 +214,6 @@ export class ExternalAssetOwnersService extends BaseService {
     }
 
     /**
-     * Retrieve Journal Entries of Transfer
-     * Retrieve Journal entries of transfer by transferId
-     * @endpoint get /v1/external-asset-owners/transfers/{transferId}/journal-entries
-     * @param transferId transferId
-     * @param offset offset
-     * @param limit limit
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getJournalEntriesOfTransfer(transferId: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalOwnerTransferJournalEntryData>;
-    public getJournalEntriesOfTransfer(transferId: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalOwnerTransferJournalEntryData>>;
-    public getJournalEntriesOfTransfer(transferId: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalOwnerTransferJournalEntryData>>;
-    public getJournalEntriesOfTransfer(transferId: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (transferId === null || transferId === undefined) {
-            throw new Error('Required parameter transferId was null or undefined when calling getJournalEntriesOfTransfer.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'offset',
-            <any>offset,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'limit',
-            <any>limit,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/external-asset-owners/transfers/${this.configuration.encodeParam({name: "transferId", value: transferId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/journal-entries`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ExternalOwnerTransferJournalEntryData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Retrieve External Asset Owner Transfers
      * Retrieve External Asset Owner Transfer items by transferExternalId, loanId or loanExternalId
      * @endpoint get /v1/external-asset-owners/transfers
@@ -340,10 +226,10 @@ export class ExternalAssetOwnersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageExternalTransferData>;
-    public getTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageExternalTransferData>>;
-    public getTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageExternalTransferData>>;
-    public getTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getExternalAssetOwnersTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageExternalTransferData>;
+    public getExternalAssetOwnersTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageExternalTransferData>>;
+    public getExternalAssetOwnersTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageExternalTransferData>>;
+    public getExternalAssetOwnersTransfers(transferExternalId?: string, loanId?: number, loanExternalId?: string, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -440,6 +326,256 @@ export class ExternalAssetOwnersService extends BaseService {
     }
 
     /**
+     * Retrieve Active Asset Owner Transfer
+     * Retrieve Active External Asset Owner Transfer by transferExternalId, loanId or loanExternalId
+     * @endpoint get /v1/external-asset-owners/transfers/active-transfer
+     * @param transferExternalId transferExternalId
+     * @param loanId loanId
+     * @param loanExternalId loanExternalId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getExternalAssetOwnersTransfersActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalTransferData>;
+    public getExternalAssetOwnersTransfersActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalTransferData>>;
+    public getExternalAssetOwnersTransfersActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalTransferData>>;
+    public getExternalAssetOwnersTransfersActiveTransfer(transferExternalId?: string, loanId?: number, loanExternalId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'transferExternalId',
+            <any>transferExternalId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'loanId',
+            <any>loanId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'loanExternalId',
+            <any>loanExternalId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/external-asset-owners/transfers/active-transfer`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ExternalTransferData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Journal Entries of Transfer
+     * Retrieve Journal entries of transfer by transferId
+     * @endpoint get /v1/external-asset-owners/transfers/{transferId}/journal-entries
+     * @param transferId transferId
+     * @param offset offset
+     * @param limit limit
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getExternalAssetOwnersTransfersTransferIdJournalEntries(transferId: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalOwnerTransferJournalEntryData>;
+    public getExternalAssetOwnersTransfersTransferIdJournalEntries(transferId: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalOwnerTransferJournalEntryData>>;
+    public getExternalAssetOwnersTransfersTransferIdJournalEntries(transferId: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalOwnerTransferJournalEntryData>>;
+    public getExternalAssetOwnersTransfersTransferIdJournalEntries(transferId: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (transferId === null || transferId === undefined) {
+            throw new Error('Required parameter transferId was null or undefined when calling getExternalAssetOwnersTransfersTransferIdJournalEntries.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'offset',
+            <any>offset,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'limit',
+            <any>limit,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/external-asset-owners/transfers/${this.configuration.encodeParam({name: "transferId", value: transferId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/journal-entries`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ExternalOwnerTransferJournalEntryData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create an External Asset Owner using the External Id
+     * @endpoint post /v1/external-asset-owners
+     * @param postExternalAssetOwnerRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postExternalAssetOwners(postExternalAssetOwnerRequest: PostExternalAssetOwnerRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostExternalAssetOwnerResponse>;
+    public postExternalAssetOwners(postExternalAssetOwnerRequest: PostExternalAssetOwnerRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostExternalAssetOwnerResponse>>;
+    public postExternalAssetOwners(postExternalAssetOwnerRequest: PostExternalAssetOwnerRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostExternalAssetOwnerResponse>>;
+    public postExternalAssetOwners(postExternalAssetOwnerRequest: PostExternalAssetOwnerRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (postExternalAssetOwnerRequest === null || postExternalAssetOwnerRequest === undefined) {
+            throw new Error('Required parameter postExternalAssetOwnerRequest was null or undefined when calling postExternalAssetOwners.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/external-asset-owners`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostExternalAssetOwnerResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postExternalAssetOwnerRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Search External Asset Owner Transfers by text or date ranges to settlement or effective dates
      * @endpoint post /v1/external-asset-owners/search
      * @param pagedRequestExternalAssetOwnerSearchRequest 
@@ -447,10 +583,10 @@ export class ExternalAssetOwnersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public searchInvestorData(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageExternalTransferData>;
-    public searchInvestorData(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageExternalTransferData>>;
-    public searchInvestorData(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageExternalTransferData>>;
-    public searchInvestorData(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postExternalAssetOwnersSearch(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageExternalTransferData>;
+    public postExternalAssetOwnersSearch(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageExternalTransferData>>;
+    public postExternalAssetOwnersSearch(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageExternalTransferData>>;
+    public postExternalAssetOwnersSearch(pagedRequestExternalAssetOwnerSearchRequest?: PagedRequestExternalAssetOwnerSearchRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -509,80 +645,7 @@ export class ExternalAssetOwnersService extends BaseService {
     }
 
     /**
-     * @endpoint post /v1/external-asset-owners/transfers/{id}
-     * @param id 
-     * @param command command
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public transferRequestWithId(id: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
-    public transferRequestWithId(id: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
-    public transferRequestWithId(id: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
-    public transferRequestWithId(id: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling transferRequestWithId.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'command',
-            <any>command,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/external-asset-owners/transfers/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostInitiateTransferResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
+     * Transfer external asset by external ID
      * @endpoint post /v1/external-asset-owners/transfers/external-id/{externalId}
      * @param externalId 
      * @param command command
@@ -590,12 +653,12 @@ export class ExternalAssetOwnersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public transferRequestWithId1(externalId: string, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
-    public transferRequestWithId1(externalId: string, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
-    public transferRequestWithId1(externalId: string, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
-    public transferRequestWithId1(externalId: string, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postExternalAssetOwnersTransfersExternalIdExternalId(externalId: string, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
+    public postExternalAssetOwnersTransfersExternalIdExternalId(externalId: string, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersExternalIdExternalId(externalId: string, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersExternalIdExternalId(externalId: string, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (externalId === null || externalId === undefined) {
-            throw new Error('Required parameter externalId was null or undefined when calling transferRequestWithId1.');
+            throw new Error('Required parameter externalId was null or undefined when calling postExternalAssetOwnersTransfersExternalIdExternalId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -657,6 +720,81 @@ export class ExternalAssetOwnersService extends BaseService {
     }
 
     /**
+     * Transfer external asset
+     * @endpoint post /v1/external-asset-owners/transfers/{id}
+     * @param id 
+     * @param command command
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postExternalAssetOwnersTransfersId(id: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
+    public postExternalAssetOwnersTransfersId(id: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersId(id: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersId(id: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling postExternalAssetOwnersTransfersId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/external-asset-owners/transfers/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostInitiateTransferResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * @endpoint post /v1/external-asset-owners/transfers/loans/external-id/{loanExternalId}
      * @param loanExternalId 
      * @param externalAssetOwnerRequest 
@@ -665,15 +803,15 @@ export class ExternalAssetOwnersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public transferRequestWithLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
-    public transferRequestWithLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
-    public transferRequestWithLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
-    public transferRequestWithLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postExternalAssetOwnersTransfersLoansExternalIdLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
+    public postExternalAssetOwnersTransfersLoansExternalIdLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersLoansExternalIdLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersLoansExternalIdLoanExternalId(loanExternalId: string, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling transferRequestWithLoanExternalId.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling postExternalAssetOwnersTransfersLoansExternalIdLoanExternalId.');
         }
         if (externalAssetOwnerRequest === null || externalAssetOwnerRequest === undefined) {
-            throw new Error('Required parameter externalAssetOwnerRequest was null or undefined when calling transferRequestWithLoanExternalId.');
+            throw new Error('Required parameter externalAssetOwnerRequest was null or undefined when calling postExternalAssetOwnersTransfersLoansExternalIdLoanExternalId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -753,15 +891,15 @@ export class ExternalAssetOwnersService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public transferRequestWithLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
-    public transferRequestWithLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
-    public transferRequestWithLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
-    public transferRequestWithLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postExternalAssetOwnersTransfersLoansLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInitiateTransferResponse>;
+    public postExternalAssetOwnersTransfersLoansLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersLoansLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInitiateTransferResponse>>;
+    public postExternalAssetOwnersTransfersLoansLoanId(loanId: number, externalAssetOwnerRequest: ExternalAssetOwnerRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling transferRequestWithLoanId.');
+            throw new Error('Required parameter loanId was null or undefined when calling postExternalAssetOwnersTransfersLoansLoanId.');
         }
         if (externalAssetOwnerRequest === null || externalAssetOwnerRequest === undefined) {
-            throw new Error('Required parameter externalAssetOwnerRequest was null or undefined when calling transferRequestWithLoanId.');
+            throw new Error('Required parameter externalAssetOwnerRequest was null or undefined when calling postExternalAssetOwnersTransfersLoansLoanId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

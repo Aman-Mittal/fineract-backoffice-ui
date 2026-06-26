@@ -30,7 +30,7 @@ import { Survey } from './survey';
 export interface Question { 
     componentKey?: string;
     description?: string;
-    id?: number;
+    id?: number | null;
     key?: string;
     'new'?: boolean;
     responses?: Array<Response>;

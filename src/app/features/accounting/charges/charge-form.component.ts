@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   ChargesService,
   ChargeRequest,
@@ -47,7 +48,6 @@ import { HelpIconComponent } from '../../../shared';
   selector: 'app-charge-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -57,6 +57,7 @@ import { HelpIconComponent } from '../../../shared';
     MatButtonModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     HelpIconComponent,
   ],
   template: `
@@ -150,7 +151,7 @@ import { HelpIconComponent } from '../../../shared';
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -159,7 +160,15 @@ import { HelpIconComponent } from '../../../shared';
                 type="submit"
                 [disabled]="chargeForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -184,19 +193,10 @@ import { HelpIconComponent } from '../../../shared';
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         height: 60px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],
@@ -236,11 +236,11 @@ export class ChargeFormComponent implements OnInit {
   }
 
   private loadMetadata(): void {
-    this.currencyService.retrieveCurrencies().subscribe((data: CurrencyConfigurationData) => {
+    this.currencyService.getCurrencies().subscribe((data: CurrencyConfigurationData) => {
       this.currencies = Array.from(data.selectedCurrencyOptions || []);
     });
 
-    this.chargesService.retrieveNewChargeDetails().subscribe((data: ChargeData) => {
+    this.chargesService.getChargesTemplate().subscribe((data: ChargeData) => {
       const record = data as unknown as Record<string, unknown>;
       this.timeTypeOptions = (record['chargeTimeTypeOptions'] as Record<string, unknown>[]) || [];
       this.calculationTypeOptions =
@@ -250,7 +250,7 @@ export class ChargeFormComponent implements OnInit {
 
   private loadChargeData(): void {
     if (!this.chargeId) return;
-    this.chargesService.retrieveCharge(this.chargeId).subscribe((data: GetChargesResponse) => {
+    this.chargesService.getChargesChargeId(this.chargeId).subscribe((data: GetChargesResponse) => {
       const record = data as unknown as Record<string, unknown>;
       this.charge = {
         name: record['name'] as string,
@@ -272,12 +272,12 @@ export class ChargeFormComponent implements OnInit {
     this.charge.locale = 'en';
 
     if (this.isEditMode && this.chargeId) {
-      this.chargesService.updateCharge(this.chargeId, this.charge).subscribe({
+      this.chargesService.putChargesChargeId(this.chargeId, this.charge).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.chargesService.createCharge(this.charge).subscribe({
+      this.chargesService.postCharges(this.charge).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

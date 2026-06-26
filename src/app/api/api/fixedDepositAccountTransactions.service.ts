@@ -32,6 +32,12 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
+// @ts-ignore
+import { GetFixedDepositAccountsAccountIdTransactionsResponse } from '../model/getFixedDepositAccountsAccountIdTransactionsResponse';
+// @ts-ignore
+import { PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest } from '../model/postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest';
+// @ts-ignore
+import { PostFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdResponse } from '../model/postFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -50,111 +56,19 @@ export class FixedDepositAccountTransactionsService extends BaseService {
     }
 
     /**
-     * @endpoint post /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions/{transactionId}
+     * List fixed deposit account transactions
+     * @endpoint get /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions
      * @param fixedDepositAccountId 
-     * @param transactionId 
-     * @param command 
-     * @param body 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public adjustTransaction(fixedDepositAccountId: number, transactionId: number, command?: string, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public adjustTransaction(fixedDepositAccountId: number, transactionId: number, command?: string, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public adjustTransaction(fixedDepositAccountId: number, transactionId: number, command?: string, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public adjustTransaction(fixedDepositAccountId: number, transactionId: number, command?: string, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetFixedDepositAccountsAccountIdTransactionsResponse>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetFixedDepositAccountsAccountIdTransactionsResponse>>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetFixedDepositAccountsAccountIdTransactionsResponse>>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (fixedDepositAccountId === null || fixedDepositAccountId === undefined) {
-            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling adjustTransaction.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling adjustTransaction.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'command',
-            <any>command,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/fixeddepositaccounts/${this.configuration.encodeParam({name: "fixedDepositAccountId", value: fixedDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: body,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions/{transactionId}
-     * @param fixedDepositAccountId 
-     * @param transactionId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveOne18(fixedDepositAccountId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveOne18(fixedDepositAccountId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveOne18(fixedDepositAccountId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveOne18(fixedDepositAccountId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (fixedDepositAccountId === null || fixedDepositAccountId === undefined) {
-            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling retrieveOne18.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling retrieveOne18.');
+            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling getFixeddepositaccountsFixedDepositAccountIdTransactions.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -188,9 +102,9 @@ export class FixedDepositAccountTransactionsService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/fixeddepositaccounts/${this.configuration.encodeParam({name: "fixedDepositAccountId", value: fixedDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/fixeddepositaccounts/${this.configuration.encodeParam({name: "fixedDepositAccountId", value: fixedDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<GetFixedDepositAccountsAccountIdTransactionsResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -204,18 +118,19 @@ export class FixedDepositAccountTransactionsService extends BaseService {
     }
 
     /**
+     * Retrieve Fixed Deposit Account Transaction Template
      * @endpoint get /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions/template
      * @param fixedDepositAccountId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveTemplate14(fixedDepositAccountId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveTemplate14(fixedDepositAccountId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveTemplate14(fixedDepositAccountId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveTemplate14(fixedDepositAccountId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate(fixedDepositAccountId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate(fixedDepositAccountId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate(fixedDepositAccountId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate(fixedDepositAccountId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (fixedDepositAccountId === null || fixedDepositAccountId === undefined) {
-            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling retrieveTemplate14.');
+            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -265,6 +180,72 @@ export class FixedDepositAccountTransactionsService extends BaseService {
     }
 
     /**
+     * Retrieve a fixed deposit account transaction
+     * @endpoint get /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions/{transactionId}
+     * @param fixedDepositAccountId 
+     * @param transactionId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (fixedDepositAccountId === null || fixedDepositAccountId === undefined) {
+            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling getFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling getFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/fixeddepositaccounts/${this.configuration.encodeParam({name: "fixedDepositAccountId", value: fixedDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * @endpoint post /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions
      * @param fixedDepositAccountId 
      * @param command 
@@ -273,12 +254,12 @@ export class FixedDepositAccountTransactionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public transaction(fixedDepositAccountId: number, command?: string, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public transaction(fixedDepositAccountId: number, command?: string, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public transaction(fixedDepositAccountId: number, command?: string, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public transaction(fixedDepositAccountId: number, command?: string, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, command?: string, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public postFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, command?: string, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public postFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, command?: string, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public postFixeddepositaccountsFixedDepositAccountIdTransactions(fixedDepositAccountId: number, command?: string, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (fixedDepositAccountId === null || fixedDepositAccountId === undefined) {
-            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling transaction.');
+            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling postFixeddepositaccountsFixedDepositAccountIdTransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -338,6 +319,100 @@ export class FixedDepositAccountTransactionsService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: body,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Adjust Transaction | Undo transaction
+     * Adjust Transaction:  This command modifies the given transaction.  Undo transaction:  This command reverses the given transaction.  Showing request/response for \&#39;Adjust Transaction\&#39;
+     * @endpoint post /v1/fixeddepositaccounts/{fixedDepositAccountId}/transactions/{transactionId}
+     * @param fixedDepositAccountId 
+     * @param transactionId 
+     * @param postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest: PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdResponse>;
+    public postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest: PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdResponse>>;
+    public postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest: PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdResponse>>;
+    public postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(fixedDepositAccountId: number, transactionId: number, postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest: PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (fixedDepositAccountId === null || fixedDepositAccountId === undefined) {
+            throw new Error('Required parameter fixedDepositAccountId was null or undefined when calling postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.');
+        }
+        if (postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest === null || postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest === undefined) {
+            throw new Error('Required parameter postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest was null or undefined when calling postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/fixeddepositaccounts/${this.configuration.encodeParam({name: "fixedDepositAccountId", value: fixedDepositAccountId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),

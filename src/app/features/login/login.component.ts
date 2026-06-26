@@ -18,7 +18,7 @@
  */
 
 import { Component, inject, signal, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -36,7 +36,7 @@ import { ConfigService } from '../../core/services/config.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MatTooltipModule],
+  imports: [ReactiveFormsModule, TranslateModule, MatTooltipModule],
   template: `
     <div class="login-page">
       <div class="login-card" role="main">
@@ -72,7 +72,15 @@ import { ConfigService } from '../../core/services/config.service';
               <option value="https://demo.mifos.io/fineract-provider/api/v1">
                 Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)
               </option>
-              <option value="/fineract-provider/api/v1">Local Server (Proxied)</option>
+              <option value="/fineract-provider/api/v1">
+                Local Proxy Server (Bypass CORS/SSL)
+              </option>
+              <option value="https://localhost:8443/fineract-provider/api/v1">
+                Local Server (Direct https://localhost:8443/fineract-provider/api/v1)
+              </option>
+              <option value="https://apis.mifos.community/1.0/core/api/v1">
+                Mifos Community API (https://apis.mifos.community/1.0/core/api/v1)
+              </option>
               <option value="custom">Custom URL...</option>
             </select>
           </div>
@@ -334,7 +342,7 @@ export class LoginComponent {
                 finalUrl,
                 '- Reloading app.',
               );
-              window.location.href = '/';
+              window.location.href = document.baseURI || '/';
             } else {
               this.router.navigate(['/']);
             }

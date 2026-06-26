@@ -61,10 +61,10 @@ export class ClientSearchV2Service extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public searchByText(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageClientSearchData>;
-    public searchByText(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageClientSearchData>>;
-    public searchByText(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageClientSearchData>>;
-    public searchByText(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postClientsSearch(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageClientSearchData>;
+    public postClientsSearch(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageClientSearchData>>;
+    public postClientsSearch(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageClientSearchData>>;
+    public postClientsSearch(pagedRequestClientTextSearch?: PagedRequestClientTextSearch, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 

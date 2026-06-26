@@ -18,7 +18,7 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,7 +40,6 @@ import { CentersService, GetCentersPageItems } from '../../api';
   selector: 'app-centers-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -95,9 +94,9 @@ export class CentersListComponent {
   centers: GetCentersPageItems[] = [];
   totalRecords = 0;
 
-  private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
-  private pageSubject = new Subject<PageEvent>();
+  private readonly searchSubject = new Subject<string>();
+  private readonly sortSubject = new Subject<Sort>();
+  private readonly pageSubject = new Subject<PageEvent>();
 
   private currentFilter = '';
   private currentSort: Sort = { active: '', direction: '' };
@@ -119,7 +118,7 @@ export class CentersListComponent {
 
           // Signature: officeId, staffId, externalId, name, underHierarchy, paged, offset, limit, orderBy, sortOrder, meetingDate, dateFormat, locale
           return this.centersService
-            .retrieveAll23(
+            .getCenters(
               undefined,
               undefined,
               undefined,

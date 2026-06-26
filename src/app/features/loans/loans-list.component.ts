@@ -18,7 +18,7 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
@@ -36,6 +36,7 @@ import {
   DataTableComponent,
   CellTemplateDirective,
   ColumnDef,
+  HasPermissionDirective,
 } from '../../shared';
 import { LoansService, GetLoansLoanIdResponse } from '../../api';
 
@@ -43,7 +44,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
   selector: 'app-loans-list',
   standalone: true,
   imports: [
-    CommonModule,
+    RouterModule,
     FormsModule,
     TranslateModule,
     MatButtonModule,
@@ -54,20 +55,30 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
+    HasPermissionDirective,
   ],
   template: `
     <app-data-table
       title="MODULES.LOANS_PORTFOLIO"
       helpTextKey="HELP.LOANS_PORTFOLIO_DESC"
-      createButtonLabel="Create Loan Account"
       [columns]="columns"
       [data]="loans"
       [totalRecords]="totalRecords"
-      (create)="onCreateLoan()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
     >
+      <button
+        headerActions
+        mat-raised-button
+        color="primary"
+        *appHasPermission="'CREATE_LOAN'"
+        (click)="onCreateLoan()"
+      >
+        <mat-icon>add</mat-icon>
+        {{ 'LOANS.CREATE_LOAN_ACCOUNT' | translate }}
+      </button>
+
       <div filters class="filter-row">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
@@ -85,13 +96,18 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
         <app-status-badge [status]="loan.status"></app-status-badge>
       </ng-template>
 
+      <ng-template appCellTemplate="accountNo" let-loan>
+        <a class="clickable-link" [routerLink]="['/loans/view', loan.id]">{{ loan.accountNo }}</a>
+      </ng-template>
+
       <ng-template appCellTemplate="actions" let-loan>
         <button
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Loan Application"
+          [matTooltip]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
           (click)="onEditLoan(loan)"
+          *appHasPermission="'UPDATE_LOAN'"
         >
           <mat-icon>edit</mat-icon>
         </button>
@@ -99,8 +115,9 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           mat-icon-button
           color="accent"
           [attr.aria-label]="'LOANS.COLLATERAL' | translate"
-          matTooltip="Manage Collateral"
+          [matTooltip]="'LOANS.MANAGE_COLLATERAL' | translate"
           (click)="onViewCollateral(loan)"
+          *appHasPermission="'READ_LOANCOLLATERAL'"
         >
           <mat-icon>security</mat-icon>
         </button>
@@ -108,11 +125,32 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'LOANS.RESCHEDULE' | translate"
-          matTooltip="Manage Rescheduling"
+          [matTooltip]="'LOANS.MANAGE_RESCHEDULING' | translate"
           (click)="onViewRescheduling(loan)"
         >
           <mat-icon>event_repeat</mat-icon>
         </button>
+
+        @if (loan.status?.value === 'Submitted and pending approval') {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
+            (click)="onLoanAction(loan, 'approve')"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+        }
+        @if (loan.status?.value === 'Approved') {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.DISBURSE_LOAN' | translate"
+            (click)="onLoanAction(loan, 'disburse')"
+          >
+            <mat-icon>launch</mat-icon>
+          </button>
+        }
       </ng-template>
     </app-data-table>
   `,
@@ -171,7 +209,7 @@ export class LoansListComponent {
           const status = this.activeFilters.status;
 
           return this.loansService
-            .retrieveAll27(
+            .getLoans(
               undefined,
               offset,
               limit,
@@ -231,5 +269,9 @@ export class LoansListComponent {
 
   onViewRescheduling(loan: GetLoansLoanIdResponse) {
     this.router.navigate(['/loans', loan.id, 'rescheduling']);
+  }
+
+  onLoanAction(loan: GetLoansLoanIdResponse, command: string) {
+    this.router.navigate([`/products/loan/${loan.id}/action/${command}`]);
   }
 }

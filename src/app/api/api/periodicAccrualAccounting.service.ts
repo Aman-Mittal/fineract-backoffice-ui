@@ -60,12 +60,12 @@ export class PeriodicAccrualAccountingService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public executePeriodicAccrualAccounting(postRunaccrualsRequest: PostRunaccrualsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public executePeriodicAccrualAccounting(postRunaccrualsRequest: PostRunaccrualsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public executePeriodicAccrualAccounting(postRunaccrualsRequest: PostRunaccrualsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public executePeriodicAccrualAccounting(postRunaccrualsRequest: PostRunaccrualsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postRunaccruals(postRunaccrualsRequest: PostRunaccrualsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public postRunaccruals(postRunaccrualsRequest: PostRunaccrualsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public postRunaccruals(postRunaccrualsRequest: PostRunaccrualsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public postRunaccruals(postRunaccrualsRequest: PostRunaccrualsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (postRunaccrualsRequest === null || postRunaccrualsRequest === undefined) {
-            throw new Error('Required parameter postRunaccrualsRequest was null or undefined when calling executePeriodicAccrualAccounting.');
+            throw new Error('Required parameter postRunaccrualsRequest was null or undefined when calling postRunaccruals.');
         }
 
         let localVarHeaders = this.defaultHeaders;

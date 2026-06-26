@@ -23,12 +23,23 @@
  * Do not edit the class manually.
  */
 
+import { DelinquencyMinimumPaymentPeriodAndRuleData } from './delinquencyMinimumPaymentPeriodAndRuleData';
 import { DelinquencyRangeData } from './delinquencyRangeData';
 
 
 export interface DelinquencyBucketData { 
+    bucketType?: DelinquencyBucketData.BucketTypeEnum;
     id?: number;
+    minimumPaymentPeriodAndRule?: DelinquencyMinimumPaymentPeriodAndRuleData;
     name?: string;
     ranges?: Array<DelinquencyRangeData>;
 }
+export namespace DelinquencyBucketData {
+    export const BucketTypeEnum = {
+        Regular: 'REGULAR',
+        WorkingCapital: 'WORKING_CAPITAL'
+    } as const;
+    export type BucketTypeEnum = typeof BucketTypeEnum[keyof typeof BucketTypeEnum];
+}
+
 

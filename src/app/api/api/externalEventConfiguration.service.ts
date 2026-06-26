@@ -62,10 +62,10 @@ export class ExternalEventConfigurationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getExternalEventConfigurations(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalEventConfigurationResponse>;
-    public getExternalEventConfigurations(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalEventConfigurationResponse>>;
-    public getExternalEventConfigurations(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalEventConfigurationResponse>>;
-    public getExternalEventConfigurations(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getExternaleventsConfiguration(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalEventConfigurationResponse>;
+    public getExternaleventsConfiguration(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalEventConfigurationResponse>>;
+    public getExternaleventsConfiguration(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalEventConfigurationResponse>>;
+    public getExternaleventsConfiguration(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -116,21 +116,17 @@ export class ExternalEventConfigurationService extends BaseService {
     /**
      * Enable/Disable external events posting
      * @endpoint put /v1/externalevents/configuration
-     * @param idempotencyKey 
      * @param externalEventConfigurationUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateExternalEventConfigurations(idempotencyKey?: string, externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalEventConfigurationUpdateResponse>;
-    public updateExternalEventConfigurations(idempotencyKey?: string, externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalEventConfigurationUpdateResponse>>;
-    public updateExternalEventConfigurations(idempotencyKey?: string, externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalEventConfigurationUpdateResponse>>;
-    public updateExternalEventConfigurations(idempotencyKey?: string, externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putExternaleventsConfiguration(externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExternalEventConfigurationUpdateResponse>;
+    public putExternaleventsConfiguration(externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExternalEventConfigurationUpdateResponse>>;
+    public putExternaleventsConfiguration(externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExternalEventConfigurationUpdateResponse>>;
+    public putExternaleventsConfiguration(externalEventConfigurationUpdateRequest?: ExternalEventConfigurationUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
-        if (idempotencyKey !== undefined && idempotencyKey !== null) {
-            localVarHeaders = localVarHeaders.set('Idempotency-Key', String(idempotencyKey));
-        }
 
         // authentication (basicAuth) required
         localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');

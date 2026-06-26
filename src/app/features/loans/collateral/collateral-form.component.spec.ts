@@ -28,7 +28,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('CollateralFormComponent', () => {
@@ -39,16 +39,17 @@ describe('CollateralFormComponent', () => {
 
   beforeEach(async () => {
     collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', [
-      'newCollateralTemplate',
-      'retrieveCollateralDetails1',
-      'createCollateral',
-      'updateCollateral',
+      'getLoansLoanIdCollateralsTemplate',
+      'getLoansLoanIdCollateralsCollateralId',
+      'postLoansLoanIdCollaterals',
+      'putLoansLoanIdCollateralsCollateralId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [CollateralFormComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [CollateralFormComponent, TranslateModule.forRoot()],
       providers: [
+        provideNoopAnimations(),
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -60,7 +61,7 @@ describe('CollateralFormComponent', () => {
       ],
     }).compileComponents();
 
-    collateralServiceSpy.newCollateralTemplate.and.returnValue(
+    collateralServiceSpy.getLoansLoanIdCollateralsTemplate.and.returnValue(
       of({ allowedCollateralTypes: [] }) as unknown as Observable<HttpEvent<CollateralData>>,
     );
     fixture = TestBed.createComponent(CollateralFormComponent);
@@ -77,13 +78,13 @@ describe('CollateralFormComponent', () => {
     component.collateralValue = 5000;
     component.collateralDescription = 'Gold jewelry';
 
-    collateralServiceSpy.createCollateral.and.returnValue(
+    collateralServiceSpy.postLoansLoanIdCollaterals.and.returnValue(
       of({}) as unknown as Observable<HttpEvent<PostLoansLoanIdCollateralsResponse>>,
     );
 
     component.onSubmit();
 
-    expect(collateralServiceSpy.createCollateral).toHaveBeenCalledWith(
+    expect(collateralServiceSpy.postLoansLoanIdCollaterals).toHaveBeenCalledWith(
       123,
       jasmine.objectContaining({
         collateralTypeId: 1,

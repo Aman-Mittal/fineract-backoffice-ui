@@ -27,5 +27,6 @@
 
 export interface ExternalTransferOwnerData { 
     externalId?: string;
+    id?: number;
 }
 

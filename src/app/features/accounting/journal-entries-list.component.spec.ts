@@ -23,28 +23,29 @@ import { JournalEntriesService, GetJournalEntriesTransactionIdResponse } from '.
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('JournalEntriesListComponent', () => {
   let component: JournalEntriesListComponent;
   let fixture: ComponentFixture<JournalEntriesListComponent>;
-  let journalServiceSpy: jasmine.SpyObj<JournalEntriesService>;
+  let journalEntriesServiceSpy: jasmine.SpyObj<JournalEntriesService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    journalServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['retrieveAll1']);
+    journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['getJournalentries']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [JournalEntriesListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [JournalEntriesListComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: JournalEntriesService, useValue: journalServiceSpy },
+        { provide: JournalEntriesService, useValue: journalEntriesServiceSpy },
         { provide: Router, useValue: routerSpy },
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    journalServiceSpy.retrieveAll1.and.returnValue(
+    journalEntriesServiceSpy.getJournalentries.and.returnValue(
       of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
         HttpEvent<GetJournalEntriesTransactionIdResponse>
       >,
@@ -59,7 +60,7 @@ describe('JournalEntriesListComponent', () => {
   });
 
   it('should load journal entries on init', () => {
-    expect(journalServiceSpy.retrieveAll1).toHaveBeenCalled();
+    expect(journalEntriesServiceSpy.getJournalentries).toHaveBeenCalled();
   });
 
   it('should navigate to create on onCreateEntry', () => {

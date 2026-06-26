@@ -26,6 +26,7 @@
 import { PostLoansDataTable } from './postLoansDataTable';
 import { StringEnumOptionData } from './stringEnumOptionData';
 import { PostLoansRequestChargeData } from './postLoansRequestChargeData';
+import { PostLoansOriginatorData } from './postLoansOriginatorData';
 import { PostLoansDisbursementData } from './postLoansDisbursementData';
 
 
@@ -33,6 +34,10 @@ import { PostLoansDisbursementData } from './postLoansDisbursementData';
  * PostLoansRequest
  */
 export interface PostLoansRequest { 
+    /**
+     * Allow full term length for each tranche disbursement
+     */
+    allowFullTermForTranche?: boolean;
     amortizationType?: number;
     buyDownFeeCalculationType?: PostLoansRequest.BuyDownFeeCalculationTypeEnum;
     buyDownFeeIncomeType?: PostLoansRequest.BuyDownFeeIncomeTypeEnum;
@@ -45,7 +50,7 @@ export interface PostLoansRequest {
     datatables?: Array<PostLoansDataTable>;
     dateFormat?: string;
     daysInYearCustomStrategy?: PostLoansRequest.DaysInYearCustomStrategyEnum;
-    daysInYearType?: PostLoansRequest.DaysInYearTypeEnum | null;
+    daysInYearType?: number;
     disbursedAmountPercentageForDownPayment?: number;
     /**
      * List of PostLoansDisbursementData
@@ -65,11 +70,13 @@ export interface PostLoansRequest {
     graceOnInterestCharged?: number;
     graceOnInterestPayment?: number;
     graceOnPrincipalPayment?: number;
+    inArrearsTolerance?: number;
     interestCalculationPeriodType?: number;
     interestRateFrequencyType?: number;
     interestRatePerPeriod?: number;
     interestRecognitionOnDisbursementDate?: boolean;
     interestType?: number;
+    linkAccountId?: number;
     loanScheduleProcessingType?: string;
     loanTermFrequency?: number;
     loanTermFrequencyType?: number;
@@ -80,10 +87,15 @@ export interface PostLoansRequest {
      */
     maxOutstandingLoanBalance?: number;
     numberOfRepayments?: number;
+    /**
+     * Optional array of originators to associate with this loan. Each entry can reference an existing originator by \'id\' or \'externalId\'. If the global config \'enable_originator_creation_during_loan_application\' is enabled, non-existing originators will be auto-created using the provided details (name, typeId, channelTypeId).
+     */
+    originators?: Array<PostLoansOriginatorData>;
     principal?: number;
     productId?: number;
     repaymentEvery?: number;
     repaymentFrequencyType?: number;
+    repaymentStartDateType?: number;
     repaymentsStartingFromDate?: string;
     submittedOnDate?: string;
     transactionProcessingStrategyCode?: string;
@@ -114,9 +126,6 @@ export namespace PostLoansRequest {
         FullLeapYearFeb29PeriodOnly: 'FULL_LEAP_YEAR, FEB_29_PERIOD_ONLY'
     } as const;
     export type DaysInYearCustomStrategyEnum = typeof DaysInYearCustomStrategyEnum[keyof typeof DaysInYearCustomStrategyEnum];
-    export const DaysInYearTypeEnum = {
-    } as const;
-    export type DaysInYearTypeEnum = typeof DaysInYearTypeEnum[keyof typeof DaysInYearTypeEnum];
 }
 
 

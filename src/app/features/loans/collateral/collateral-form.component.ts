@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,6 +28,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   LoanCollateralService,
   LoansLoanIdCollateralsRequest,
@@ -44,7 +45,6 @@ import {
   selector: 'app-collateral-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -53,6 +53,7 @@ import {
     MatSelectModule,
     MatButtonModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -115,7 +116,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -124,7 +125,15 @@ import {
                 type="submit"
                 [disabled]="collateralForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -148,18 +157,6 @@ import {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-      }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],
@@ -201,7 +198,7 @@ export class CollateralFormComponent implements OnInit {
 
   private loadTemplate(): void {
     if (!this.loanId) return;
-    this.collateralService.newCollateralTemplate(this.loanId).subscribe({
+    this.collateralService.getLoansLoanIdCollateralsTemplate(this.loanId).subscribe({
       next: (template: CollateralData) => {
         this.collateralTypes = template.allowedCollateralTypes || [];
       },
@@ -211,14 +208,16 @@ export class CollateralFormComponent implements OnInit {
 
   private loadCollateral(): void {
     if (!this.loanId || !this.collateralId) return;
-    this.collateralService.retrieveCollateralDetails1(this.loanId, this.collateralId).subscribe({
-      next: (data: GetLoansLoanIdCollateralsResponse) => {
-        this.selectedCollateralTypeId = data.type?.id || null;
-        this.collateralValue = data.value || 0;
-        this.collateralDescription = data.description || '';
-      },
-      error: (err) => console.error('Failed to load collateral details', err),
-    });
+    this.collateralService
+      .getLoansLoanIdCollateralsCollateralId(this.loanId, this.collateralId)
+      .subscribe({
+        next: (data: GetLoansLoanIdCollateralsResponse) => {
+          this.selectedCollateralTypeId = data.type?.id || null;
+          this.collateralValue = data.value || 0;
+          this.collateralDescription = data.description || '';
+        },
+        error: (err) => console.error('Failed to load collateral details', err),
+      });
   }
 
   onSubmit(): void {
@@ -233,7 +232,7 @@ export class CollateralFormComponent implements OnInit {
 
     if (this.isEditMode && this.collateralId) {
       this.collateralService
-        .updateCollateral(
+        .putLoansLoanIdCollateralsCollateralId(
           this.loanId,
           this.collateralId,
           requestPayload as LoansLoandIdCollateralsCollateralIdRequest,
@@ -244,7 +243,7 @@ export class CollateralFormComponent implements OnInit {
         });
     } else {
       this.collateralService
-        .createCollateral(this.loanId, requestPayload as LoansLoanIdCollateralsRequest)
+        .postLoansLoanIdCollaterals(this.loanId, requestPayload as LoansLoanIdCollateralsRequest)
         .subscribe({
           next: () => this.router.navigate(['/loans', this.loanId, 'collateral']),
           error: () => (this.isSaving = false),

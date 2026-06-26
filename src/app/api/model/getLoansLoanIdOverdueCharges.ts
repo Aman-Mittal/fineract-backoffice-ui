@@ -24,7 +24,7 @@
  */
 
 import { GetLoansLoanIdChargePaymentMode } from './getLoansLoanIdChargePaymentMode';
-import { GetLoanCurrency } from './getLoanCurrency';
+import { GetLoanChargeCurrency } from './getLoanChargeCurrency';
 import { GetLoanChargeTemplateChargeAppliesTo } from './getLoanChargeTemplateChargeAppliesTo';
 import { GetLoansLoanIdChargeCalculationType } from './getLoansLoanIdChargeCalculationType';
 import { GetLoansLoanIdChargeTimeType } from './getLoansLoanIdChargeTimeType';
@@ -38,7 +38,7 @@ export interface GetLoansLoanIdOverdueCharges {
     chargeCalculationType?: GetLoansLoanIdChargeCalculationType;
     chargePaymentMode?: GetLoansLoanIdChargePaymentMode;
     chargeTimeType?: GetLoansLoanIdChargeTimeType;
-    currency?: GetLoanCurrency;
+    currency?: GetLoanChargeCurrency;
     feeFrequency?: GetLoansLoanIdFeeFrequency;
     feeInterval?: number;
     id?: number;

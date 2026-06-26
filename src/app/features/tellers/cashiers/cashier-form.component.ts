@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,6 +31,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   TellerCashManagementService,
   StaffService,
@@ -38,17 +39,10 @@ import {
   StaffData,
 } from '../../../api';
 
-/**
- * Component for allocating a staff member as a cashier to a teller.
- *
- * Handles the association of staff to physical tellers/drawers for a
- * defined period. Includes shift management (Full time vs specific hours).
- */
 @Component({
   selector: 'app-cashier-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -60,6 +54,7 @@ import {
     MatNativeDateModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -132,7 +127,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -141,7 +136,15 @@ import {
                 type="submit"
                 [disabled]="cashierForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -166,55 +169,31 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         height: 60px;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class CashierFormComponent implements OnInit {
-  /** Service for teller/cashier management */
   private readonly tellerService = inject(TellerCashManagementService);
-  /** Service for staff retrieval */
   private readonly staffService = inject(StaffService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for teller ID */
   private readonly route = inject(ActivatedRoute);
 
-  /** Current teller identifier */
   tellerId = 0;
-  /** State of the save operation */
   isSaving = false;
 
-  /** Post request model for cashier allocation */
   cashier: PostTellersTellerIdCashiersRequest = {
     isFullDay: true,
   };
 
-  /** Date objects for template binding */
   startDate: Date = new Date();
   endDate: Date = new Date();
-  /** List of staff available for allocation */
   staff: StaffData[] = [];
 
-  /**
-   * Initializes the component and retrieves context.
-   */
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.tellerId = +params['tellerId'];
@@ -222,11 +201,8 @@ export class CashierFormComponent implements OnInit {
     this.loadStaff();
   }
 
-  /**
-   * Retrieves active staff members.
-   */
   private loadStaff(): void {
-    this.staffService.retrieveAll16().subscribe({
+    this.staffService.getStaff().subscribe({
       next: (data: StaffData[]) => {
         this.staff = data || [];
       },
@@ -236,9 +212,6 @@ export class CashierFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Handles form submission, formatting dates for the Fineract API.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -250,15 +223,12 @@ export class CashierFormComponent implements OnInit {
     this.cashier.dateFormat = 'yyyy-MM-dd';
     this.cashier.locale = 'en';
 
-    this.tellerService.createCashier(this.tellerId, this.cashier).subscribe({
+    this.tellerService.postTellersTellerIdCashiers(this.tellerId, this.cashier).subscribe({
       next: () => this.router.navigate(['/tellers', this.tellerId, 'cashiers']),
       error: () => (this.isSaving = false),
     });
   }
 
-  /**
-   * Navigates back to the cashier list.
-   */
   onCancel(): void {
     this.router.navigate(['/tellers', this.tellerId, 'cashiers']);
   }

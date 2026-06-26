@@ -18,7 +18,7 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,7 +29,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-view-payload-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, TranslateModule],
+  imports: [MatDialogModule, MatButtonModule, TranslateModule],
   template: `
     <h2 mat-dialog-title>Command Payload</h2>
     <mat-dialog-content>

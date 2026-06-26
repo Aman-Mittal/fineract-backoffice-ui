@@ -59,12 +59,12 @@ export class InstanceModeService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public changeMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public changeMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public changeMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public changeMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putInstanceMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public putInstanceMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public putInstanceMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public putInstanceMode(changeInstanceModeRequest: ChangeInstanceModeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (changeInstanceModeRequest === null || changeInstanceModeRequest === undefined) {
-            throw new Error('Required parameter changeInstanceModeRequest was null or undefined when calling changeMode.');
+            throw new Error('Required parameter changeInstanceModeRequest was null or undefined when calling putInstanceMode.');
         }
 
         let localVarHeaders = this.defaultHeaders;

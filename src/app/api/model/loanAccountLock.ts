@@ -27,10 +27,12 @@
 
 export interface LoanAccountLock { 
     error?: string;
+    id?: number | null;
     loanId?: number;
     lockOwner?: LoanAccountLock.LockOwnerEnum;
     lockPlacedOn?: string;
     lockPlacedOnCobBusinessDate?: string;
+    'new'?: boolean;
     newLockOwner?: LoanAccountLock.NewLockOwnerEnum;
     stacktrace?: string;
     version?: number;

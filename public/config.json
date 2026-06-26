@@ -1,4 +1,4 @@
 {
-  "fineractApiUrl": "/fineract-provider/api/v1",
+  "fineractApiUrl": "/api/v1",
   "defaultTenant": "default"
 }

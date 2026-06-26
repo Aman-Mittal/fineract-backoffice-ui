@@ -56,68 +56,6 @@ export class LoanCapitalizedIncomeService extends BaseService {
     }
 
     /**
-     * Fetch the Capitalized Income related informations
-     * @endpoint get /v1/loans/{loanId}/capitalized-incomes
-     * @param loanId loanId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public fetchCapitalizedIncomeDetails(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CapitalizedIncomeDetails>>;
-    public fetchCapitalizedIncomeDetails(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CapitalizedIncomeDetails>>>;
-    public fetchCapitalizedIncomeDetails(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CapitalizedIncomeDetails>>>;
-    public fetchCapitalizedIncomeDetails(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling fetchCapitalizedIncomeDetails.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/capitalized-incomes`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<CapitalizedIncomeDetails>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Get the amortization details of Capitalized Income for a loan by external ID
      * @endpoint get /v1/loans/external-id/{loanExternalId}/capitalized-incomes
      * @param loanExternalId loanExternalId
@@ -125,12 +63,12 @@ export class LoanCapitalizedIncomeService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public fetchCapitalizedIncomeDetailsByExternalId(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CapitalizedIncomeDetails>>;
-    public fetchCapitalizedIncomeDetailsByExternalId(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CapitalizedIncomeDetails>>>;
-    public fetchCapitalizedIncomeDetailsByExternalId(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CapitalizedIncomeDetails>>>;
-    public fetchCapitalizedIncomeDetailsByExternalId(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomes(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CapitalizedIncomeDetails>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomes(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CapitalizedIncomeDetails>>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomes(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CapitalizedIncomeDetails>>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomes(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling fetchCapitalizedIncomeDetailsByExternalId.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdCapitalizedIncomes.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -180,132 +118,6 @@ export class LoanCapitalizedIncomeService extends BaseService {
     }
 
     /**
-     * Fetch the Capitalized Income related informations
-     * @endpoint get /v1/loans/{loanId}/deferredincome
-     * @param loanId loanId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     * @deprecated
-     */
-    public fetchLoanCapitalizedIncomeData(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCapitalizedIncomeData>;
-    public fetchLoanCapitalizedIncomeData(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCapitalizedIncomeData>>;
-    public fetchLoanCapitalizedIncomeData(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCapitalizedIncomeData>>;
-    public fetchLoanCapitalizedIncomeData(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling fetchLoanCapitalizedIncomeData.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/deferredincome`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<LoanCapitalizedIncomeData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Get the amortization details of Capitalized Income for a loan by external ID
-     * @endpoint get /v1/loans/external-id/{loanExternalId}/deferredincome
-     * @param loanExternalId loanExternalId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     * @deprecated
-     */
-    public fetchLoanCapitalizedIncomeDataByExternalId(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCapitalizedIncomeData>;
-    public fetchLoanCapitalizedIncomeDataByExternalId(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCapitalizedIncomeData>>;
-    public fetchLoanCapitalizedIncomeDataByExternalId(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCapitalizedIncomeData>>;
-    public fetchLoanCapitalizedIncomeDataByExternalId(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling fetchLoanCapitalizedIncomeDataByExternalId.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/deferredincome`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<LoanCapitalizedIncomeData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Retrieve a capitalized income allocation data
      * Retrieves capitalized income allocation data according to the Loan external ID and Loan Transaction external IDExample Requests:  /loans/external-id/1/capitalized-incomes/1   /loans/external-id/1/capitalized-incomes/1?fields&#x3D;baseLoanTransaction,unrecognizedAmount
      * @endpoint get /v1/loans/external-id/{loanExternalId}/capitalized-incomes/external-id/{loanTransactionExternalId}
@@ -315,15 +127,15 @@ export class LoanCapitalizedIncomeService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCapitalizedIncomeAllocationDataByExternalIds(loanExternalId: string, loanTransactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
-    public getCapitalizedIncomeAllocationDataByExternalIds(loanExternalId: string, loanTransactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
-    public getCapitalizedIncomeAllocationDataByExternalIds(loanExternalId: string, loanTransactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
-    public getCapitalizedIncomeAllocationDataByExternalIds(loanExternalId: string, loanTransactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanExternalId: string, loanTransactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanExternalId: string, loanTransactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanExternalId: string, loanTransactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanExternalId: string, loanTransactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling getCapitalizedIncomeAllocationDataByExternalIds.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdCapitalizedIncomesExternalIdLoanTransactionExternalId.');
         }
         if (loanTransactionExternalId === null || loanTransactionExternalId === undefined) {
-            throw new Error('Required parameter loanTransactionExternalId was null or undefined when calling getCapitalizedIncomeAllocationDataByExternalIds.');
+            throw new Error('Required parameter loanTransactionExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdCapitalizedIncomesExternalIdLoanTransactionExternalId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -382,15 +194,15 @@ export class LoanCapitalizedIncomeService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCapitalizedIncomeAllocationDataByLoanExternalId(loanExternalId: string, loanTransactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
-    public getCapitalizedIncomeAllocationDataByLoanExternalId(loanExternalId: string, loanTransactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
-    public getCapitalizedIncomeAllocationDataByLoanExternalId(loanExternalId: string, loanTransactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
-    public getCapitalizedIncomeAllocationDataByLoanExternalId(loanExternalId: string, loanTransactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesLoanTransactionId(loanExternalId: string, loanTransactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesLoanTransactionId(loanExternalId: string, loanTransactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesLoanTransactionId(loanExternalId: string, loanTransactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
+    public getLoansExternalIdLoanExternalIdCapitalizedIncomesLoanTransactionId(loanExternalId: string, loanTransactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling getCapitalizedIncomeAllocationDataByLoanExternalId.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdCapitalizedIncomesLoanTransactionId.');
         }
         if (loanTransactionId === null || loanTransactionId === undefined) {
-            throw new Error('Required parameter loanTransactionId was null or undefined when calling getCapitalizedIncomeAllocationDataByLoanExternalId.');
+            throw new Error('Required parameter loanTransactionId was null or undefined when calling getLoansExternalIdLoanExternalIdCapitalizedIncomesLoanTransactionId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -440,6 +252,131 @@ export class LoanCapitalizedIncomeService extends BaseService {
     }
 
     /**
+     * Get the amortization details of Capitalized Income for a loan by external ID
+     * @endpoint get /v1/loans/external-id/{loanExternalId}/deferredincome
+     * @param loanExternalId loanExternalId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     * @deprecated
+     */
+    public getLoansExternalIdLoanExternalIdDeferredincome(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCapitalizedIncomeData>;
+    public getLoansExternalIdLoanExternalIdDeferredincome(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCapitalizedIncomeData>>;
+    public getLoansExternalIdLoanExternalIdDeferredincome(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCapitalizedIncomeData>>;
+    public getLoansExternalIdLoanExternalIdDeferredincome(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanExternalId === null || loanExternalId === undefined) {
+            throw new Error('Required parameter loanExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdDeferredincome.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/deferredincome`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<LoanCapitalizedIncomeData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Fetch the Capitalized Income related informations
+     * @endpoint get /v1/loans/{loanId}/capitalized-incomes
+     * @param loanId loanId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getLoansLoanIdCapitalizedIncomes(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CapitalizedIncomeDetails>>;
+    public getLoansLoanIdCapitalizedIncomes(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CapitalizedIncomeDetails>>>;
+    public getLoansLoanIdCapitalizedIncomes(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CapitalizedIncomeDetails>>>;
+    public getLoansLoanIdCapitalizedIncomes(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdCapitalizedIncomes.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/capitalized-incomes`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<CapitalizedIncomeDetails>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Retrieve a capitalized income allocation data
      * Retrieves capitalized income allocation data according to the Loan ID and Loan Transaction external IDExample Requests:  /loans/1/capitalized-incomes/external-id/1   /loans/1/capitalized-incomes/external-id/1?fields&#x3D;baseLoanTransaction,unrecognizedAmount
      * @endpoint get /v1/loans/{loanId}/capitalized-incomes/external-id/{loanTransactionExternalId}
@@ -449,15 +386,15 @@ export class LoanCapitalizedIncomeService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCapitalizedIncomeAllocationDataByTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
-    public getCapitalizedIncomeAllocationDataByTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
-    public getCapitalizedIncomeAllocationDataByTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
-    public getCapitalizedIncomeAllocationDataByTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansLoanIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
+    public getLoansLoanIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
+    public getLoansLoanIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
+    public getLoansLoanIdCapitalizedIncomesExternalIdLoanTransactionExternalId(loanId: number, loanTransactionExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling getCapitalizedIncomeAllocationDataByTransactionExternalId.');
+            throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdCapitalizedIncomesExternalIdLoanTransactionExternalId.');
         }
         if (loanTransactionExternalId === null || loanTransactionExternalId === undefined) {
-            throw new Error('Required parameter loanTransactionExternalId was null or undefined when calling getCapitalizedIncomeAllocationDataByTransactionExternalId.');
+            throw new Error('Required parameter loanTransactionExternalId was null or undefined when calling getLoansLoanIdCapitalizedIncomesExternalIdLoanTransactionExternalId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -516,15 +453,15 @@ export class LoanCapitalizedIncomeService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveCapitalizedIncomeAllocationData(loanId: number, loanTransactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
-    public retrieveCapitalizedIncomeAllocationData(loanId: number, loanTransactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
-    public retrieveCapitalizedIncomeAllocationData(loanId: number, loanTransactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
-    public retrieveCapitalizedIncomeAllocationData(loanId: number, loanTransactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansLoanIdCapitalizedIncomesLoanTransactionId(loanId: number, loanTransactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAmortizationAllocationResponse>;
+    public getLoansLoanIdCapitalizedIncomesLoanTransactionId(loanId: number, loanTransactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAmortizationAllocationResponse>>;
+    public getLoansLoanIdCapitalizedIncomesLoanTransactionId(loanId: number, loanTransactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAmortizationAllocationResponse>>;
+    public getLoansLoanIdCapitalizedIncomesLoanTransactionId(loanId: number, loanTransactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling retrieveCapitalizedIncomeAllocationData.');
+            throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdCapitalizedIncomesLoanTransactionId.');
         }
         if (loanTransactionId === null || loanTransactionId === undefined) {
-            throw new Error('Required parameter loanTransactionId was null or undefined when calling retrieveCapitalizedIncomeAllocationData.');
+            throw new Error('Required parameter loanTransactionId was null or undefined when calling getLoansLoanIdCapitalizedIncomesLoanTransactionId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -561,6 +498,69 @@ export class LoanCapitalizedIncomeService extends BaseService {
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/capitalized-incomes/${this.configuration.encodeParam({name: "loanTransactionId", value: loanTransactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LoanAmortizationAllocationResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Fetch the Capitalized Income related informations
+     * @endpoint get /v1/loans/{loanId}/deferredincome
+     * @param loanId loanId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     * @deprecated
+     */
+    public getLoansLoanIdDeferredincome(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCapitalizedIncomeData>;
+    public getLoansLoanIdDeferredincome(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCapitalizedIncomeData>>;
+    public getLoansLoanIdDeferredincome(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCapitalizedIncomeData>>;
+    public getLoansLoanIdDeferredincome(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdDeferredincome.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/deferredincome`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<LoanCapitalizedIncomeData>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

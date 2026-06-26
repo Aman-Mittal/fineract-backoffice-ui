@@ -24,7 +24,6 @@
  */
 
 import { Office } from './office';
-import { Image } from './image';
 
 
 export interface Staff { 
@@ -33,8 +32,8 @@ export interface Staff {
     emailAddress?: string;
     externalId?: string;
     firstname?: string;
-    id?: number;
-    image?: Image;
+    id?: number | null;
+    imageId?: number;
     joiningDate?: string;
     lastname?: string;
     loanOfficer?: boolean;

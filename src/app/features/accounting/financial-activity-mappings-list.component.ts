@@ -18,8 +18,8 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MappingFinancialActivitiesToAccountsService } from '../../api/api/mappingFinancialActivitiesToAccounts.service';
@@ -33,14 +33,7 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
 @Component({
   selector: 'app-financial-activity-mappings-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatButtonModule,
-    MatIconModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [MatButtonModule, MatIconModule, DataTableComponent, CellTemplateDirective],
   template: `
     <div class="container">
       <app-data-table
@@ -96,7 +89,7 @@ export class FinancialActivityMappingsListComponent implements OnInit {
   }
 
   loadMappings() {
-    this.financialActivityService.retrieveAll().subscribe((mappings) => {
+    this.financialActivityService.getFinancialactivityaccounts().subscribe((mappings) => {
       this.mappings = mappings;
     });
   }
@@ -111,9 +104,11 @@ export class FinancialActivityMappingsListComponent implements OnInit {
 
   onDelete(mapping: GetFinancialActivityAccountsResponse) {
     if (confirm('Are you sure you want to delete this mapping?')) {
-      this.financialActivityService.deleteGLAccount(mapping.id!).subscribe(() => {
-        this.loadMappings();
-      });
+      this.financialActivityService
+        .deleteFinancialactivityaccountsMappingId(mapping.id!)
+        .subscribe(() => {
+          this.loadMappings();
+        });
     }
   }
 }

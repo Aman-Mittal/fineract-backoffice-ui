@@ -64,79 +64,6 @@ export class StandingInstructionsService extends BaseService {
     }
 
     /**
-     * Create new Standing Instruction
-     * Ability to create new instruction for transfer of monetary funds from one account to another
-     * @endpoint post /v1/standinginstructions
-     * @param standingInstructionCreationRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public create5(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostStandingInstructionsResponse>;
-    public create5(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostStandingInstructionsResponse>>;
-    public create5(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostStandingInstructionsResponse>>;
-    public create5(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (standingInstructionCreationRequest === null || standingInstructionCreationRequest === undefined) {
-            throw new Error('Required parameter standingInstructionCreationRequest was null or undefined when calling create5.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/standinginstructions`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostStandingInstructionsResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: standingInstructionCreationRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * List Standing Instructions
      * Example Requests:  standinginstructions
      * @endpoint get /v1/standinginstructions
@@ -154,10 +81,10 @@ export class StandingInstructionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll19(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetStandingInstructionsResponse>;
-    public retrieveAll19(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetStandingInstructionsResponse>>;
-    public retrieveAll19(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetStandingInstructionsResponse>>;
-    public retrieveAll19(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getStandinginstructions(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetStandingInstructionsResponse>;
+    public getStandinginstructions(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetStandingInstructionsResponse>>;
+    public getStandinginstructions(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetStandingInstructionsResponse>>;
+    public getStandinginstructions(externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, transferType?: number, clientName?: string, clientId?: number, fromAccountId?: number, fromAccountType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -312,12 +239,12 @@ export class StandingInstructionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveOne10(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetStandingInstructionsStandingInstructionIdResponse>;
-    public retrieveOne10(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetStandingInstructionsStandingInstructionIdResponse>>;
-    public retrieveOne10(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetStandingInstructionsStandingInstructionIdResponse>>;
-    public retrieveOne10(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getStandinginstructionsStandingInstructionId(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetStandingInstructionsStandingInstructionIdResponse>;
+    public getStandinginstructionsStandingInstructionId(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetStandingInstructionsStandingInstructionIdResponse>>;
+    public getStandinginstructionsStandingInstructionId(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetStandingInstructionsStandingInstructionIdResponse>>;
+    public getStandinginstructionsStandingInstructionId(standingInstructionId: number, externalId?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (standingInstructionId === null || standingInstructionId === undefined) {
-            throw new Error('Required parameter standingInstructionId was null or undefined when calling retrieveOne10.');
+            throw new Error('Required parameter standingInstructionId was null or undefined when calling getStandinginstructionsStandingInstructionId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -431,10 +358,10 @@ export class StandingInstructionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public template6(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetStandingInstructionsTemplateResponse>;
-    public template6(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetStandingInstructionsTemplateResponse>>;
-    public template6(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetStandingInstructionsTemplateResponse>>;
-    public template6(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getStandinginstructionsTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetStandingInstructionsTemplateResponse>;
+    public getStandinginstructionsTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetStandingInstructionsTemplateResponse>>;
+    public getStandinginstructionsTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetStandingInstructionsTemplateResponse>>;
+    public getStandinginstructionsTemplate(fromOfficeId?: number, fromClientId?: number, fromAccountId?: number, fromAccountType?: number, toOfficeId?: number, toClientId?: number, toAccountId?: number, toAccountType?: number, transferType?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -567,6 +494,79 @@ export class StandingInstructionsService extends BaseService {
     }
 
     /**
+     * Create new Standing Instruction
+     * Ability to create new instruction for transfer of monetary funds from one account to another
+     * @endpoint post /v1/standinginstructions
+     * @param standingInstructionCreationRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postStandinginstructions(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostStandingInstructionsResponse>;
+    public postStandinginstructions(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostStandingInstructionsResponse>>;
+    public postStandinginstructions(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostStandingInstructionsResponse>>;
+    public postStandinginstructions(standingInstructionCreationRequest: StandingInstructionCreationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (standingInstructionCreationRequest === null || standingInstructionCreationRequest === undefined) {
+            throw new Error('Required parameter standingInstructionCreationRequest was null or undefined when calling postStandinginstructions.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/standinginstructions`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostStandingInstructionsResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: standingInstructionCreationRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Update Standing Instruction | Delete Standing Instruction
      * Ability to modify existing instruction for transfer of monetary funds from one account to another.  PUT https://DomainName/api/v1/standinginstructions/1?command&#x3D;update   Ability to modify existing instruction for transfer of monetary funds from one account to another.  PUT https://DomainName/api/v1/standinginstructions/1?command&#x3D;delete
      * @endpoint put /v1/standinginstructions/{standingInstructionId}
@@ -577,12 +577,12 @@ export class StandingInstructionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update9(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutStandingInstructionsStandingInstructionIdResponse>;
-    public update9(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutStandingInstructionsStandingInstructionIdResponse>>;
-    public update9(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutStandingInstructionsStandingInstructionIdResponse>>;
-    public update9(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putStandinginstructionsStandingInstructionId(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutStandingInstructionsStandingInstructionIdResponse>;
+    public putStandinginstructionsStandingInstructionId(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutStandingInstructionsStandingInstructionIdResponse>>;
+    public putStandinginstructionsStandingInstructionId(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutStandingInstructionsStandingInstructionIdResponse>>;
+    public putStandinginstructionsStandingInstructionId(standingInstructionId: number, command?: string, standingInstructionUpdatesRequest?: StandingInstructionUpdatesRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (standingInstructionId === null || standingInstructionId === undefined) {
-            throw new Error('Required parameter standingInstructionId was null or undefined when calling update9.');
+            throw new Error('Required parameter standingInstructionId was null or undefined when calling putStandinginstructionsStandingInstructionId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

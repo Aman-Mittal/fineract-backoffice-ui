@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,15 +30,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ClientSearchComponent } from '../../../shared';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import {
   FixedDepositAccountService,
-  PostFixedDepositAccountsRequest,
-  PutFixedDepositAccountsAccountIdRequest,
   GetFixedDepositAccountsTemplateResponse,
   GetFixedDepositAccountsAccountIdResponse,
   GetFixedDepositAccountsProductOptions,
+  PostFixedDepositAccountsRequest,
+  PutFixedDepositAccountsAccountIdRequest,
 } from '../../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../../core/utils/date-formatter';
 
 /**
  * Component for creating and managing individual fixed deposit accounts.
@@ -50,7 +58,6 @@ import {
   selector: 'app-fixed-deposit-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -61,6 +68,9 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatIconModule,
+    MatDividerModule,
+    MatProgressSpinnerModule,
     ClientSearchComponent,
   ],
   template: `
@@ -79,32 +89,58 @@ import {
         <mat-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="fixed-deposit-form">
             <div class="form-grid">
-              <!-- Client Search -->
-              <app-client-search
-                [label]="'COMMON.CLIENT' | translate"
-                [required]="true"
-                [initialClientId]="account.clientId || null"
-                (clientSelected)="account.clientId = $event"
-              >
-              </app-client-search>
+              <!-- Client Search with Create Option -->
+              <div class="field-container-row">
+                <app-client-search
+                  [label]="'COMMON.CLIENT' | translate"
+                  [required]="true"
+                  [initialClientId]="getClientId()"
+                  (clientSelected)="onClientSelected($event)"
+                  class="flex-grow"
+                >
+                </app-client-search>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  (click)="onCreateClient()"
+                  style="margin-top: 4px;"
+                >
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
-              <!-- Product -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.FIXED_DEPOSIT_PRODUCT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                <mat-select
-                  name="productId"
-                  [(ngModel)]="account.productId"
-                  required
+              <!-- Product with Create Option -->
+              <div class="field-container-row">
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.FIXED_DEPOSIT_PRODUCT_DESC' | translate"
+                  class="flex-grow"
+                >
+                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
+                  <mat-select
+                    name="productId"
+                    [(ngModel)]="account['productId']"
+                    (ngModelChange)="onProductSelected($event)"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (product of products; track product['id']) {
+                      <mat-option [value]="product['id']">{{ product['name'] }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT' | translate"
+                  (click)="onCreateProduct()"
+                  style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product.id) {
-                    <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
               <!-- Deposit Amount -->
               <mat-form-field
@@ -116,7 +152,7 @@ import {
                   matInput
                   type="number"
                   name="depositAmount"
-                  [(ngModel)]="account.depositAmount"
+                  [(ngModel)]="account['depositAmount']"
                   required
                 />
               </mat-form-field>
@@ -148,7 +184,7 @@ import {
                   matInput
                   type="number"
                   name="depositPeriod"
-                  [(ngModel)]="account.depositPeriod"
+                  [(ngModel)]="account['depositPeriod']"
                   required
                 />
               </mat-form-field>
@@ -161,19 +197,34 @@ import {
                 <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
                 <mat-select
                   name="depositPeriodFrequencyId"
-                  [(ngModel)]="account.depositPeriodFrequencyId"
+                  [(ngModel)]="account['depositPeriodFrequencyId']"
                   required
                 >
-                  <mat-option [value]="0">Days</mat-option>
-                  <mat-option [value]="1">Weeks</mat-option>
-                  <mat-option [value]="2">Months</mat-option>
-                  <mat-option [value]="3">Years</mat-option>
+                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
+                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
+                  <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
                 </mat-select>
+              </mat-form-field>
+
+              <!-- Nominal Annual Interest Rate -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.NOMINAL_ANNUAL_INTEREST_RATE_DESC' | translate"
+              >
+                <mat-label>{{ 'COMMON.INTEREST_RATE' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="nominalAnnualInterestRate"
+                  [(ngModel)]="account['nominalAnnualInterestRate']"
+                />
+                <span matSuffix>%</span>
               </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -182,7 +233,15 @@ import {
                 type="submit"
                 [disabled]="accountForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -207,14 +266,13 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
+      .field-container-row {
         display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .flex-grow {
+        flex-grow: 1;
       }
     `,
   ],
@@ -227,8 +285,6 @@ export class FixedDepositAccountFormComponent implements OnInit {
   /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
 
-  /** Date format constant for Fineract */
-  private readonly DATE_FORMAT = 'dd MMMM yyyy';
   /** Path for redirection */
   private readonly LIST_PATH = '/products/fixed-deposits';
 
@@ -240,7 +296,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
   isSaving = false;
 
   /** Post request model */
-  account: PostFixedDepositAccountsRequest = {
+  account: Record<string, unknown> = {
     depositPeriodFrequencyId: 2, // Default to Months
   };
   /** Submitted date for template binding */
@@ -252,7 +308,16 @@ export class FixedDepositAccountFormComponent implements OnInit {
    * Component initialization.
    */
   ngOnInit(): void {
-    this.loadProducts();
+    this.route.queryParams.subscribe((params) => {
+      const clientId = params['clientId'];
+      if (clientId) {
+        this.account['clientId'] = +clientId;
+        this.loadProducts(this.account['clientId'] as number);
+      } else {
+        this.loadProducts();
+      }
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -263,16 +328,63 @@ export class FixedDepositAccountFormComponent implements OnInit {
     });
   }
 
+  getClientId(): number | null {
+    return (this.account['clientId'] as number) || null;
+  }
+
   /**
-   * Fetches the list of term deposit products.
+   * Fetches the list of eligible fixed deposit products for the client.
    */
-  private loadProducts(): void {
-    this.fixedDepositService.template12().subscribe({
+  private loadProducts(clientId?: number): void {
+    this.fixedDepositService.getFixeddepositaccountsTemplate(clientId).subscribe({
       next: (template: GetFixedDepositAccountsTemplateResponse) => {
-        this.products = Array.from(template.productOptions || []);
+        if (template && template.productOptions) {
+          // Explicitly convert from Set or Array to ensure dropdown rendering
+          this.products = Array.from(template.productOptions);
+        } else {
+          this.products = [];
+        }
       },
-      error: (err: unknown) => console.error('Failed to load products', err),
+      error: (err: unknown) => {
+        console.error('Failed to load eligible products', err);
+        this.products = [];
+      },
     });
+  }
+
+  onClientSelected(clientId: number): void {
+    this.account['clientId'] = clientId;
+    this.loadProducts(clientId);
+  }
+
+  onProductSelected(productId: number): void {
+    if (productId) {
+      this.fixedDepositService
+        .getFixeddepositaccountsTemplate(this.account['clientId'] as number, undefined, productId)
+        .subscribe({
+          next: (template: GetFixedDepositAccountsTemplateResponse) => {
+            if (template) {
+              const templateData = template as unknown as Record<string, unknown>;
+              this.account['depositAmount'] = templateData['depositAmount'];
+              this.account['depositPeriod'] = templateData['depositPeriod'];
+              this.account['depositPeriodFrequencyId'] = (
+                templateData['depositPeriodFrequency'] as Record<string, unknown>
+              )?.['id'];
+              this.account['nominalAnnualInterestRate'] =
+                templateData['nominalAnnualInterestRate'] || undefined;
+            }
+          },
+          error: (err: unknown) => console.error('Failed to load product defaults', err),
+        });
+    }
+  }
+
+  onCreateClient(): void {
+    this.router.navigate(['/clients/create']);
+  }
+
+  onCreateProduct(): void {
+    this.router.navigate(['/products/fixed/create']);
   }
 
   /**
@@ -280,7 +392,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
    */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.fixedDepositService.retrieveOne19(this.accountId).subscribe({
+    this.fixedDepositService.getFixeddepositaccountsAccountId(this.accountId).subscribe({
       next: (data: GetFixedDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -292,6 +404,9 @@ export class FixedDepositAccountFormComponent implements OnInit {
           depositAmount: data.depositAmount,
           depositPeriod: data.depositPeriod,
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
+          nominalAnnualInterestRate: (data as unknown as Record<string, unknown>)[
+            'nominalAnnualInterestRate'
+          ],
         };
       },
       error: (err: unknown) => console.error('Failed to load account', err),
@@ -303,47 +418,36 @@ export class FixedDepositAccountFormComponent implements OnInit {
    */
   onSubmit(): void {
     this.isSaving = true;
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const formattedDate = `${String(this.submittedOnDate.getDate()).padStart(2, '0')} ${
-      months[this.submittedOnDate.getMonth()]
-    } ${this.submittedOnDate.getFullYear()}`;
 
-    this.account.submittedOnDate = formattedDate;
-    this.account.dateFormat = this.DATE_FORMAT;
-    this.account.locale = 'en';
+    const formattedDate = formatDateToFineract(this.submittedOnDate);
+
+    this.account['submittedOnDate'] = formattedDate;
+    this.account['dateFormat'] = FINERACT_DATE_FORMAT;
+    this.account['locale'] = FINERACT_LOCALE;
 
     if (this.isEditMode && this.accountId) {
-      const payload: Record<string, unknown> = {
-        depositAmount: this.account.depositAmount,
-        depositPeriod: this.account.depositPeriod,
-        depositPeriodFrequencyId: this.account.depositPeriodFrequencyId,
-        locale: 'en',
-        dateFormat: this.DATE_FORMAT,
+      const payload: PutFixedDepositAccountsAccountIdRequest & Record<string, unknown> = {
+        depositAmount: this.account['depositAmount'] as number,
+        locale: FINERACT_LOCALE,
+        dateFormat: FINERACT_DATE_FORMAT,
+        depositPeriod: this.account['depositPeriod'] as number,
+        depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'] as number,
+        nominalAnnualInterestRate:
+          this.account['nominalAnnualInterestRate'] != null
+            ? (this.account['nominalAnnualInterestRate'] as number)
+            : undefined,
       };
+      this.fixedDepositService.putFixeddepositaccountsAccountId(this.accountId, payload).subscribe({
+        next: () => this.router.navigate([this.LIST_PATH]),
+        error: () => (this.isSaving = false),
+      });
+    } else {
       this.fixedDepositService
-        .update16(this.accountId, payload as PutFixedDepositAccountsAccountIdRequest)
+        .postFixeddepositaccounts(this.account as PostFixedDepositAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
-    } else {
-      this.fixedDepositService.submitApplication(this.account).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
     }
   }
 

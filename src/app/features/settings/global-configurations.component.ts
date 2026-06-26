@@ -18,14 +18,21 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
-import { GlobalConfigurationService, GetGlobalConfigurationsResponse } from '../../api';
+import {
+  GlobalConfigurationService,
+  GetGlobalConfigurationsResponse,
+  PutGlobalConfigurationsRequest,
+} from '../../api';
+import { EditConfigurationDialogComponent } from './edit-configuration-dialog.component';
 
 /**
  * Component for managing global system configurations.
@@ -34,12 +41,13 @@ import { GlobalConfigurationService, GetGlobalConfigurationsResponse } from '../
   selector: 'app-global-configurations',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     MatSlideToggleModule,
+    MatSnackBarModule,
+    MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
   ],
@@ -67,7 +75,7 @@ import { GlobalConfigurationService, GetGlobalConfigurationsResponse } from '../
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Configuration"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditConfig(config)"
         >
           <mat-icon>edit</mat-icon>
@@ -78,6 +86,8 @@ import { GlobalConfigurationService, GetGlobalConfigurationsResponse } from '../
 })
 export class GlobalConfigurationsListComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'SETTINGS.CONFIG_NAME', sortable: true },
@@ -93,7 +103,7 @@ export class GlobalConfigurationsListComponent implements OnInit {
   }
 
   private loadConfigurations(): void {
-    this.configService.retrieveConfiguration().subscribe({
+    this.configService.getConfigurations().subscribe({
       next: (data: GetGlobalConfigurationsResponse) => {
         this.configurations =
           (data.globalConfiguration as unknown as Record<string, unknown>[]) || [];
@@ -103,12 +113,35 @@ export class GlobalConfigurationsListComponent implements OnInit {
   }
 
   onToggleConfig(config: Record<string, unknown>): void {
-    // Implementation for quick toggle
-    console.log('Toggle config', config['name'], !config['enabled']);
+    const newEnabledState = !config['enabled'];
+    const request: PutGlobalConfigurationsRequest = {
+      enabled: newEnabledState,
+    };
+    const configId = config['id'] as number;
+
+    this.configService.putConfigurationsConfigId(configId, request).subscribe({
+      next: () => {
+        config['enabled'] = newEnabledState;
+        this.snackBar.open('Configuration updated successfully', 'Close', { duration: 3000 });
+      },
+      error: () => {
+        this.snackBar.open('Failed to update configuration', 'Close', { duration: 3000 });
+        this.loadConfigurations();
+      },
+    });
   }
 
   onEditConfig(config: Record<string, unknown>): void {
-    // Implementation for detailed edit (e.g. numeric value)
-    console.log('Edit config', config['name']);
+    const dialogRef = this.dialog.open(EditConfigurationDialogComponent, {
+      width: '450px',
+      data: { config },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.snackBar.open('Configuration updated successfully', 'Close', { duration: 3000 });
+        this.loadConfigurations();
+      }
+    });
   }
 }

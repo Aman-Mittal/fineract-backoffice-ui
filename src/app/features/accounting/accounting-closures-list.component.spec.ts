@@ -27,7 +27,7 @@ import {
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('AccountingClosuresListComponent', () => {
@@ -38,20 +38,21 @@ describe('AccountingClosuresListComponent', () => {
 
   beforeEach(async () => {
     closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', [
-      'retrieveAllClosures',
-      'deleteGLClosure',
+      'getGlclosures',
+      'deleteGlclosuresGlClosureId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [AccountingClosuresListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [AccountingClosuresListComponent, TranslateModule.forRoot()],
       providers: [
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: Router, useValue: routerSpy },
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    closureServiceSpy.retrieveAllClosures.and.returnValue(
+    closureServiceSpy.getGlclosures.and.returnValue(
       of([]) as unknown as Observable<HttpEvent<GetGlClosureResponse[]>>,
     );
     fixture = TestBed.createComponent(AccountingClosuresListComponent);
@@ -64,7 +65,7 @@ describe('AccountingClosuresListComponent', () => {
   });
 
   it('should load closures on init', () => {
-    expect(closureServiceSpy.retrieveAllClosures).toHaveBeenCalled();
+    expect(closureServiceSpy.getGlclosures).toHaveBeenCalled();
   });
 
   it('should navigate to create on onCreateClosure', () => {
@@ -74,13 +75,13 @@ describe('AccountingClosuresListComponent', () => {
 
   it('should delete closure when confirmed', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    closureServiceSpy.deleteGLClosure.and.returnValue(
+    closureServiceSpy.deleteGlclosuresGlClosureId.and.returnValue(
       of({}) as unknown as Observable<HttpEvent<DeleteGlClosuresResponse>>,
     );
 
     component.onDeleteClosure({ id: 1 } as unknown as GetGlClosureResponse);
 
-    expect(closureServiceSpy.deleteGLClosure).toHaveBeenCalledWith(1);
-    expect(closureServiceSpy.retrieveAllClosures).toHaveBeenCalledTimes(2);
+    expect(closureServiceSpy.deleteGlclosuresGlClosureId).toHaveBeenCalledWith(1);
+    expect(closureServiceSpy.getGlclosures).toHaveBeenCalledTimes(2);
   });
 });

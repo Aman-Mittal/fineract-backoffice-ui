@@ -37,6 +37,7 @@ export interface GetSavingsAccountTransactionsPageItem {
     currency?: GetTransactionsCurrency;
     date?: string;
     entryType?: GetSavingsAccountTransactionsPageItem.EntryTypeEnum;
+    externalId?: string;
     id?: number;
     interestedPostedAsOn?: boolean;
     isManualTransaction?: boolean;

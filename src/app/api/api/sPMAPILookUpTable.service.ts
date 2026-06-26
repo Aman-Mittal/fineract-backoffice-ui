@@ -52,79 +52,6 @@ export class SPMAPILookUpTableService extends BaseService {
     }
 
     /**
-     * Create a Lookup Table entry
-     * Add a new entry to a survey.  Mandatory Fields key, score, validFrom, validTo
-     * @endpoint post /v1/surveys/{surveyId}/lookuptables
-     * @param surveyId Enter surveyId
-     * @param lookupTableData 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createLookupTable(surveyId: number, lookupTableData?: LookupTableData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public createLookupTable(surveyId: number, lookupTableData?: LookupTableData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public createLookupTable(surveyId: number, lookupTableData?: LookupTableData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public createLookupTable(surveyId: number, lookupTableData?: LookupTableData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (surveyId === null || surveyId === undefined) {
-            throw new Error('Required parameter surveyId was null or undefined when calling createLookupTable.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/surveys/${this.configuration.encodeParam({name: "surveyId", value: surveyId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/lookuptables`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: lookupTableData,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * List all Lookup Table entries
      * List all Lookup Table entries for a survey.
      * @endpoint get /v1/surveys/{surveyId}/lookuptables
@@ -133,12 +60,12 @@ export class SPMAPILookUpTableService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public fetchLookupTables(surveyId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<LookupTableData>>;
-    public fetchLookupTables(surveyId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<LookupTableData>>>;
-    public fetchLookupTables(surveyId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<LookupTableData>>>;
-    public fetchLookupTables(surveyId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getSurveysSurveyIdLookuptables(surveyId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<LookupTableData>>;
+    public getSurveysSurveyIdLookuptables(surveyId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<LookupTableData>>>;
+    public getSurveysSurveyIdLookuptables(surveyId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<LookupTableData>>>;
+    public getSurveysSurveyIdLookuptables(surveyId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (surveyId === null || surveyId === undefined) {
-            throw new Error('Required parameter surveyId was null or undefined when calling fetchLookupTables.');
+            throw new Error('Required parameter surveyId was null or undefined when calling getSurveysSurveyIdLookuptables.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -197,15 +124,15 @@ export class SPMAPILookUpTableService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public findLookupTable(surveyId: number, key: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LookupTableData>;
-    public findLookupTable(surveyId: number, key: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LookupTableData>>;
-    public findLookupTable(surveyId: number, key: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LookupTableData>>;
-    public findLookupTable(surveyId: number, key: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getSurveysSurveyIdLookuptablesKey(surveyId: number, key: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LookupTableData>;
+    public getSurveysSurveyIdLookuptablesKey(surveyId: number, key: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LookupTableData>>;
+    public getSurveysSurveyIdLookuptablesKey(surveyId: number, key: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LookupTableData>>;
+    public getSurveysSurveyIdLookuptablesKey(surveyId: number, key: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (surveyId === null || surveyId === undefined) {
-            throw new Error('Required parameter surveyId was null or undefined when calling findLookupTable.');
+            throw new Error('Required parameter surveyId was null or undefined when calling getSurveysSurveyIdLookuptablesKey.');
         }
         if (key === null || key === undefined) {
-            throw new Error('Required parameter key was null or undefined when calling findLookupTable.');
+            throw new Error('Required parameter key was null or undefined when calling getSurveysSurveyIdLookuptablesKey.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -244,6 +171,79 @@ export class SPMAPILookUpTableService extends BaseService {
         return this.httpClient.request<LookupTableData>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a Lookup Table entry
+     * Add a new entry to a survey.  Mandatory Fields key, score, validFrom, validTo
+     * @endpoint post /v1/surveys/{surveyId}/lookuptables
+     * @param surveyId Enter surveyId
+     * @param lookupTableData 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postSurveysSurveyIdLookuptables(surveyId: number, lookupTableData?: LookupTableData, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public postSurveysSurveyIdLookuptables(surveyId: number, lookupTableData?: LookupTableData, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public postSurveysSurveyIdLookuptables(surveyId: number, lookupTableData?: LookupTableData, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public postSurveysSurveyIdLookuptables(surveyId: number, lookupTableData?: LookupTableData, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (surveyId === null || surveyId === undefined) {
+            throw new Error('Required parameter surveyId was null or undefined when calling postSurveysSurveyIdLookuptables.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/surveys/${this.configuration.encodeParam({name: "surveyId", value: surveyId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/lookuptables`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: lookupTableData,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

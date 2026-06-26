@@ -18,7 +18,7 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
@@ -36,6 +36,7 @@ import {
   DataTableComponent,
   CellTemplateDirective,
   ColumnDef,
+  HasPermissionDirective,
 } from '../../shared';
 import { ClientService, GetClientsPageItemsResponse } from '../../api';
 
@@ -43,7 +44,7 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
   selector: 'app-clients-list',
   standalone: true,
   imports: [
-    CommonModule,
+    RouterModule,
     FormsModule,
     TranslateModule,
     MatButtonModule,
@@ -54,20 +55,30 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
+    HasPermissionDirective,
   ],
   template: `
     <app-data-table
       title="MODULES.CLIENTS_CONTRACTS"
       helpTextKey="HELP.CLIENTS_CONTRACTS_DESC"
-      createButtonLabel="Create Client"
       [columns]="columns"
       [data]="clients"
       [totalRecords]="totalRecords"
-      (create)="onCreateClient()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
     >
+      <button
+        headerActions
+        mat-raised-button
+        color="primary"
+        *appHasPermission="'CREATE_CLIENT'"
+        (click)="onCreateClient()"
+      >
+        <mat-icon>add</mat-icon>
+        Create Client
+      </button>
+
       <div filters class="filter-row">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
@@ -84,8 +95,16 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
         <app-status-badge [status]="client.status?.value"></app-status-badge>
       </ng-template>
 
+      <ng-template appCellTemplate="accountNo" let-client>
+        <a class="clickable-link" [routerLink]="['/clients/view', client.id]">{{
+          client.accountNo
+        }}</a>
+      </ng-template>
+
       <ng-template appCellTemplate="fullname" let-client>
-        {{ client.fullname || client.displayName }}
+        <a class="clickable-link" [routerLink]="['/clients/view', client.id]">
+          {{ client.fullname || client.displayName }}
+        </a>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-client>
@@ -95,6 +114,7 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
           [attr.aria-label]="'COMMON.EDIT' | translate"
           matTooltip="Edit Client Details"
           (click)="onEditClient(client)"
+          *appHasPermission="'UPDATE_CLIENT'"
         >
           <mat-icon>edit</mat-icon>
         </button>
@@ -110,6 +130,15 @@ import { ClientService, GetClientsPageItemsResponse } from '../../api';
       }
       .filter-field {
         width: 150px;
+      }
+      .clickable-link {
+        color: #3f51b5;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .clickable-link:hover {
+        text-decoration: underline;
       }
     `,
   ],
@@ -156,7 +185,7 @@ export class ClientsListComponent {
           const status = this.activeFilters.status;
 
           return this.clientService
-            .retrieveAll21(
+            .getClients(
               undefined,
               undefined,
               displayName,
@@ -212,5 +241,9 @@ export class ClientsListComponent {
 
   onEditClient(client: GetClientsPageItemsResponse) {
     this.router.navigate(['/clients/edit', client.id]);
+  }
+
+  onViewClient(client: GetClientsPageItemsResponse) {
+    this.router.navigate(['/clients/view', client.id]);
   }
 }

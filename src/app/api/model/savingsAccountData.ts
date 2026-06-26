@@ -135,6 +135,7 @@ export interface SavingsAccountData {
     timeline?: SavingsAccountApplicationTimelineData;
     transactions?: Array<SavingsAccountTransactionData>;
     updatedTransactions?: Array<SavingsAccountTransactionData>;
+    version?: number;
     withHoldTax?: boolean;
     withdrawalFee?: SavingsAccountChargeData;
     withdrawalFeeForTransfers?: boolean;

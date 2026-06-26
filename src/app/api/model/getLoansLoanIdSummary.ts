@@ -30,6 +30,10 @@ import { GetLoansLoanIdCurrency } from './getLoansLoanIdCurrency';
 
 
 export interface GetLoansLoanIdSummary { 
+    /**
+     * Allow full term length for each tranche disbursement
+     */
+    allowFullTermForTranche?: boolean;
     canDisburse?: boolean;
     chargeOffReason?: string;
     chargeOffReasonId?: number;

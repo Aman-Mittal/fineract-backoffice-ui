@@ -50,6 +50,7 @@ export class MixReportService extends BaseService {
     }
 
     /**
+     * Retrieve Mix XBRL report
      * @endpoint get /v1/mixreport
      * @param startDate 
      * @param endDate 
@@ -58,10 +59,10 @@ export class MixReportService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveXBRLReport(startDate?: string, endDate?: string, currency?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveXBRLReport(startDate?: string, endDate?: string, currency?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveXBRLReport(startDate?: string, endDate?: string, currency?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveXBRLReport(startDate?: string, endDate?: string, currency?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getMixreport(startDate?: string, endDate?: string, currency?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getMixreport(startDate?: string, endDate?: string, currency?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getMixreport(startDate?: string, endDate?: string, currency?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getMixreport(startDate?: string, endDate?: string, currency?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/xml', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 

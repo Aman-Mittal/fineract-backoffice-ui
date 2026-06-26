@@ -18,8 +18,8 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
@@ -33,14 +33,7 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
 @Component({
   selector: 'app-accounting-rules-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatButtonModule,
-    MatIconModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [MatButtonModule, MatIconModule, DataTableComponent, CellTemplateDirective],
   template: `
     <div class="container">
       <app-data-table
@@ -77,8 +70,8 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
   ],
 })
 export class AccountingRulesListComponent implements OnInit {
-  private accountingRulesService = inject(AccountingRulesService);
-  private router = inject(Router);
+  private readonly accountingRulesService = inject(AccountingRulesService);
+  private readonly router = inject(Router);
 
   rules: AccountingRuleData[] = [];
   columns: ColumnDef[] = [
@@ -94,7 +87,7 @@ export class AccountingRulesListComponent implements OnInit {
   }
 
   loadRules() {
-    this.accountingRulesService.retrieveAllAccountingRules().subscribe((rules) => {
+    this.accountingRulesService.getAccountingrules().subscribe((rules) => {
       this.rules = rules;
     });
   }
@@ -109,7 +102,7 @@ export class AccountingRulesListComponent implements OnInit {
 
   onDelete(rule: AccountingRuleData) {
     if (confirm('Are you sure you want to delete this accounting rule?')) {
-      this.accountingRulesService.deleteAccountingRule(rule.id!).subscribe(() => {
+      this.accountingRulesService.deleteAccountingrulesAccountingRuleId(rule.id!).subscribe(() => {
         this.loadRules();
       });
     }

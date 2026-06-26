@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,14 +27,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { ReportsService, GetReportsResponse } from '../../api';
 
-/**
- * Component for listing available system reports.
- */
 @Component({
   selector: 'app-reports-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -57,7 +53,7 @@ import { ReportsService, GetReportsResponse } from '../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.RUN' | translate"
-          matTooltip="Run Report"
+          [matTooltip]="'REPORTS.RUN' | translate"
           (click)="onRunReport(report)"
         >
           <mat-icon>play_arrow</mat-icon>
@@ -84,7 +80,7 @@ export class ReportsListComponent implements OnInit {
   }
 
   private loadReports(): void {
-    this.reportsService.retrieveReportList().subscribe({
+    this.reportsService.getReports().subscribe({
       next: (data) => {
         this.reports = data || [];
       },

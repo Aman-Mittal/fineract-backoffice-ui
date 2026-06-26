@@ -31,7 +31,6 @@ import {
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
@@ -39,6 +38,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpIconComponent } from '../help-icon/help-icon.component';
 import { SearchFilterComponent } from '../search-filter/search-filter.component';
@@ -60,8 +61,10 @@ export interface ColumnDef {
 @Component({
   selector: 'app-data-table',
   standalone: true,
+  host: {
+    '[attr.title]': 'null',
+  },
   imports: [
-    CommonModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -69,12 +72,19 @@ export interface ColumnDef {
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     TranslateModule,
     HelpIconComponent,
     SearchFilterComponent,
+    NgTemplateOutlet,
   ],
   template: `
     <mat-card class="data-table-card">
+      @if (isLoading) {
+        <div class="loading-overlay">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
       <mat-card-header>
         <mat-card-title>
           {{ title | translate }}
@@ -133,7 +143,9 @@ export interface ColumnDef {
                       *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
                     ></ng-container>
                   } @else {
-                    {{ getCellValue(row, col.key) }}
+                    <span class="truncate-text" [matTooltip]="getTooltipText(row, col.key)">
+                      {{ getCellValue(row, col.key) }}
+                    </span>
                   }
                 </td>
               </ng-container>
@@ -152,6 +164,7 @@ export interface ColumnDef {
           <mat-paginator
             [length]="totalRecords"
             [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
             [pageSizeOptions]="pageSizeOptions"
             (page)="onPage($event)"
             aria-label="Select page"
@@ -165,6 +178,7 @@ export interface ColumnDef {
     `
       .data-table-card {
         margin: 24px;
+        position: relative;
       }
       mat-card-header {
         display: flex;
@@ -199,6 +213,27 @@ export interface ColumnDef {
       table {
         width: 100%;
       }
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.6);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+      }
+      .truncate-text {
+        display: inline-block;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+      }
     `,
   ],
 })
@@ -211,12 +246,14 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
   /** Total number of records. If server-side, this comes from API response. */
   @Input() totalRecords = 0;
   @Input() pageSize = 10;
+  @Input() pageIndex = 0;
   @Input() pageSizeOptions = [5, 10, 25, 100];
   @Input() showSearch = true;
   @Input() searchLabel = 'COMMON.SEARCH';
   @Input() searchPlaceholder = 'COMMON.SEARCH_PLACEHOLDER';
   /** If true, the component will handle pagination/sorting locally. */
   @Input() localLogic = false;
+  @Input() isLoading = false;
 
   @Output() create = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
@@ -280,10 +317,21 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
   }
 
   getCellValue(row: T, key: string): unknown {
-    const value = (row as Record<string, unknown>)[key];
+    const keys = key.split('.');
+    let value: unknown = row;
+    for (const k of keys) {
+      if (value === null || value === undefined) return undefined;
+      value = (value as Record<string, unknown>)[k];
+    }
     if (value && typeof value === 'object' && 'value' in value) {
       return (value as Record<string, unknown>)['value'];
     }
     return value;
+  }
+
+  getTooltipText(row: T, key: string): string {
+    const val = this.getCellValue(row, key);
+    if (val === null || val === undefined) return '';
+    return String(val);
   }
 }

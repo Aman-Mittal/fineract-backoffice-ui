@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,7 +41,6 @@ import { RescheduleLoansService, GetLoanRescheduleRequestResponse } from '../../
   selector: 'app-reschedule-requests-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -116,14 +115,12 @@ export class RescheduleRequestsListComponent implements OnInit {
   }
 
   private loadRequests(): void {
-    this.rescheduleService
-      .retrieveAllRescheduleRequest(undefined, this.loanId || undefined)
-      .subscribe({
-        next: (data) => {
-          this.requests = data || [];
-        },
-        error: (err) => console.error('Failed to load reschedule requests', err),
-      });
+    this.rescheduleService.getRescheduleloans(undefined, this.loanId || undefined).subscribe({
+      next: (data) => {
+        this.requests = data || [];
+      },
+      error: (err) => console.error('Failed to load reschedule requests', err),
+    });
   }
 
   onCreateRequest(): void {

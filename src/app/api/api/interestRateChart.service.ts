@@ -33,19 +33,19 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { DeleteInterestRateChartsChartIdResponse } from '../model/deleteInterestRateChartsChartIdResponse';
-// @ts-ignore
 import { GetInterestRateChartsResponse } from '../model/getInterestRateChartsResponse';
 // @ts-ignore
 import { GetInterestRateChartsTemplateResponse } from '../model/getInterestRateChartsTemplateResponse';
 // @ts-ignore
-import { PostInterestRateChartsRequest } from '../model/postInterestRateChartsRequest';
+import { InterestRateChartCreateRequest } from '../model/interestRateChartCreateRequest';
 // @ts-ignore
-import { PostInterestRateChartsResponse } from '../model/postInterestRateChartsResponse';
+import { InterestRateChartCreateResponse } from '../model/interestRateChartCreateResponse';
 // @ts-ignore
-import { PutInterestRateChartsChartIdRequest } from '../model/putInterestRateChartsChartIdRequest';
+import { InterestRateChartDeleteResponse } from '../model/interestRateChartDeleteResponse';
 // @ts-ignore
-import { PutInterestRateChartsChartIdResponse } from '../model/putInterestRateChartsChartIdResponse';
+import { InterestRateChartUpdateRequest } from '../model/interestRateChartUpdateRequest';
+// @ts-ignore
+import { InterestRateChartUpdateResponse } from '../model/interestRateChartUpdateResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -64,93 +64,20 @@ export class InterestRateChartService extends BaseService {
     }
 
     /**
-     * Create a Chart
-     * Creates a new chart which can be attached to a term deposit products (FD or RD).
-     * @endpoint post /v1/interestratecharts
-     * @param postInterestRateChartsRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public create10(postInterestRateChartsRequest: PostInterestRateChartsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostInterestRateChartsResponse>;
-    public create10(postInterestRateChartsRequest: PostInterestRateChartsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostInterestRateChartsResponse>>;
-    public create10(postInterestRateChartsRequest: PostInterestRateChartsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostInterestRateChartsResponse>>;
-    public create10(postInterestRateChartsRequest: PostInterestRateChartsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (postInterestRateChartsRequest === null || postInterestRateChartsRequest === undefined) {
-            throw new Error('Required parameter postInterestRateChartsRequest was null or undefined when calling create10.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/interestratecharts`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostInterestRateChartsResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postInterestRateChartsRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete a Chart
      * It deletes the chart
      * @endpoint delete /v1/interestratecharts/{chartId}
-     * @param chartId chartId
+     * @param chartId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public delete13(chartId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteInterestRateChartsChartIdResponse>;
-    public delete13(chartId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteInterestRateChartsChartIdResponse>>;
-    public delete13(chartId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteInterestRateChartsChartIdResponse>>;
-    public delete13(chartId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteInterestratechartsChartId(chartId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InterestRateChartDeleteResponse>;
+    public deleteInterestratechartsChartId(chartId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InterestRateChartDeleteResponse>>;
+    public deleteInterestratechartsChartId(chartId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InterestRateChartDeleteResponse>>;
+    public deleteInterestratechartsChartId(chartId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (chartId === null || chartId === undefined) {
-            throw new Error('Required parameter chartId was null or undefined when calling delete13.');
+            throw new Error('Required parameter chartId was null or undefined when calling deleteInterestratechartsChartId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -186,7 +113,7 @@ export class InterestRateChartService extends BaseService {
 
         let localVarPath = `/v1/interestratecharts/${this.configuration.encodeParam({name: "chartId", value: chartId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteInterestRateChartsChartIdResponse>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<InterestRateChartDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -201,17 +128,17 @@ export class InterestRateChartService extends BaseService {
 
     /**
      * Retrieve all Charts
-     * Retrieve list of charts associated with a term deposit product(FD or RD). Example Requests:  interestratecharts?productId&#x3D;1
+     * Retrieve list of charts associated with a term deposit product(FD or RD). Example Requests: interestratecharts?productId&#x3D;1 
      * @endpoint get /v1/interestratecharts
-     * @param productId productId
+     * @param productId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll26(productId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetInterestRateChartsResponse>>;
-    public retrieveAll26(productId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetInterestRateChartsResponse>>>;
-    public retrieveAll26(productId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetInterestRateChartsResponse>>>;
-    public retrieveAll26(productId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInterestratecharts(productId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetInterestRateChartsResponse>>;
+    public getInterestratecharts(productId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetInterestRateChartsResponse>>>;
+    public getInterestratecharts(productId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetInterestRateChartsResponse>>>;
+    public getInterestratecharts(productId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -275,18 +202,30 @@ export class InterestRateChartService extends BaseService {
      * Retrieve a Chart
      * It retrieves the Interest Rate Chart Example Requests:  interestratecharts/1
      * @endpoint get /v1/interestratecharts/{chartId}
-     * @param chartId chartId
+     * @param chartId 
+     * @param associations 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveOne17(chartId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetInterestRateChartsResponse>;
-    public retrieveOne17(chartId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetInterestRateChartsResponse>>;
-    public retrieveOne17(chartId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetInterestRateChartsResponse>>;
-    public retrieveOne17(chartId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInterestratechartsChartId(chartId: number, associations?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetInterestRateChartsResponse>;
+    public getInterestratechartsChartId(chartId: number, associations?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetInterestRateChartsResponse>>;
+    public getInterestratechartsChartId(chartId: number, associations?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetInterestRateChartsResponse>>;
+    public getInterestratechartsChartId(chartId: number, associations?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (chartId === null || chartId === undefined) {
-            throw new Error('Required parameter chartId was null or undefined when calling retrieveOne17.');
+            throw new Error('Required parameter chartId was null or undefined when calling getInterestratechartsChartId.');
         }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'associations',
+            <any>associations,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -324,6 +263,7 @@ export class InterestRateChartService extends BaseService {
         return this.httpClient.request<GetInterestRateChartsResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -336,16 +276,16 @@ export class InterestRateChartService extends BaseService {
 
     /**
      * Retrieve Chart Details Template
-     * This is a convenience resource. It can be useful when building maintenance user interface screens for creating a chart. The template data returned consists of any or all of:  Field Defaults Allowed Value Lists Example Request:  interestratecharts/template
+     * This is a convenience resource. It can be useful when building maintenance user interface screens for creating a chart. The template data returned consists of any or all of: Field Defaults Allowed Value Lists Example Request: interestratecharts/template 
      * @endpoint get /v1/interestratecharts/template
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public template9(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetInterestRateChartsTemplateResponse>;
-    public template9(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetInterestRateChartsTemplateResponse>>;
-    public template9(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetInterestRateChartsTemplateResponse>>;
-    public template9(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getInterestratechartsTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetInterestRateChartsTemplateResponse>;
+    public getInterestratechartsTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetInterestRateChartsTemplateResponse>>;
+    public getInterestratechartsTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetInterestRateChartsTemplateResponse>>;
+    public getInterestratechartsTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -394,24 +334,91 @@ export class InterestRateChartService extends BaseService {
     }
 
     /**
-     * Update a Chart
-     * It updates the chart
-     * @endpoint put /v1/interestratecharts/{chartId}
-     * @param chartId chartId
-     * @param putInterestRateChartsChartIdRequest 
+     * Create a Chart
+     * Creates a new chart which can be attached to a term deposit products (FD or RD).
+     * @endpoint post /v1/interestratecharts
+     * @param interestRateChartCreateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update15(chartId: number, putInterestRateChartsChartIdRequest: PutInterestRateChartsChartIdRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutInterestRateChartsChartIdResponse>;
-    public update15(chartId: number, putInterestRateChartsChartIdRequest: PutInterestRateChartsChartIdRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutInterestRateChartsChartIdResponse>>;
-    public update15(chartId: number, putInterestRateChartsChartIdRequest: PutInterestRateChartsChartIdRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutInterestRateChartsChartIdResponse>>;
-    public update15(chartId: number, putInterestRateChartsChartIdRequest: PutInterestRateChartsChartIdRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (chartId === null || chartId === undefined) {
-            throw new Error('Required parameter chartId was null or undefined when calling update15.');
+    public postInterestratecharts(interestRateChartCreateRequest?: InterestRateChartCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InterestRateChartCreateResponse>;
+    public postInterestratecharts(interestRateChartCreateRequest?: InterestRateChartCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InterestRateChartCreateResponse>>;
+    public postInterestratecharts(interestRateChartCreateRequest?: InterestRateChartCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InterestRateChartCreateResponse>>;
+    public postInterestratecharts(interestRateChartCreateRequest?: InterestRateChartCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
-        if (putInterestRateChartsChartIdRequest === null || putInterestRateChartsChartIdRequest === undefined) {
-            throw new Error('Required parameter putInterestRateChartsChartIdRequest was null or undefined when calling update15.');
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/interestratecharts`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<InterestRateChartCreateResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: interestRateChartCreateRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a Chart
+     * It updates the chart
+     * @endpoint put /v1/interestratecharts/{chartId}
+     * @param chartId 
+     * @param interestRateChartUpdateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putInterestratechartsChartId(chartId: number, interestRateChartUpdateRequest?: InterestRateChartUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InterestRateChartUpdateResponse>;
+    public putInterestratechartsChartId(chartId: number, interestRateChartUpdateRequest?: InterestRateChartUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InterestRateChartUpdateResponse>>;
+    public putInterestratechartsChartId(chartId: number, interestRateChartUpdateRequest?: InterestRateChartUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InterestRateChartUpdateResponse>>;
+    public putInterestratechartsChartId(chartId: number, interestRateChartUpdateRequest?: InterestRateChartUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (chartId === null || chartId === undefined) {
+            throw new Error('Required parameter chartId was null or undefined when calling putInterestratechartsChartId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -456,10 +463,10 @@ export class InterestRateChartService extends BaseService {
 
         let localVarPath = `/v1/interestratecharts/${this.configuration.encodeParam({name: "chartId", value: chartId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutInterestRateChartsChartIdResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<InterestRateChartUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: putInterestRateChartsChartIdRequest,
+                body: interestRateChartUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

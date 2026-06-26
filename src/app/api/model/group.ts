@@ -52,7 +52,7 @@ export interface Group {
     groupMembers?: Array<Group>;
     groupRole?: Set<GroupRole>;
     hierarchy?: string;
-    id?: number;
+    id?: number | null;
     name?: string;
     'new'?: boolean;
     notActive?: boolean;

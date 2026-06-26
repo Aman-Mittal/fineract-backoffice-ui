@@ -54,17 +54,17 @@ export class LoanCOBCatchUpService extends BaseService {
     }
 
     /**
-     * Executes Loan COB Catch Up
-     * Executes the Loan COB job on every day from the oldest Loan to the current COB business date
-     * @endpoint post /v1/loans/catch-up
+     * Retrieves whether Loan COB catch up is running
+     * Retrieves whether Loan COB catch up is running, and the current execution date if it is running.
+     * @endpoint get /v1/loans/is-catch-up-running
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public executeLoanCOBCatchUp(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public executeLoanCOBCatchUp(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public executeLoanCOBCatchUp(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public executeLoanCOBCatchUp(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansIsCatchUpRunning(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<IsCatchUpRunningDTO>;
+    public getLoansIsCatchUpRunning(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<IsCatchUpRunningDTO>>;
+    public getLoansIsCatchUpRunning(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<IsCatchUpRunningDTO>>;
+    public getLoansIsCatchUpRunning(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -75,6 +75,7 @@ export class LoanCOBCatchUpService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -96,9 +97,9 @@ export class LoanCOBCatchUpService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/loans/catch-up`;
+        let localVarPath = `/v1/loans/is-catch-up-running`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<IsCatchUpRunningDTO>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -119,10 +120,10 @@ export class LoanCOBCatchUpService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getOldestCOBProcessedLoan(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<OldestCOBProcessedLoanDTO>;
-    public getOldestCOBProcessedLoan(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<OldestCOBProcessedLoanDTO>>;
-    public getOldestCOBProcessedLoan(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<OldestCOBProcessedLoanDTO>>;
-    public getOldestCOBProcessedLoan(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansOldestCobClosed(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<OldestCOBProcessedLoanDTO>;
+    public getLoansOldestCobClosed(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<OldestCOBProcessedLoanDTO>>;
+    public getLoansOldestCobClosed(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<OldestCOBProcessedLoanDTO>>;
+    public getLoansOldestCobClosed(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -171,17 +172,17 @@ export class LoanCOBCatchUpService extends BaseService {
     }
 
     /**
-     * Retrieves whether Loan COB catch up is running
-     * Retrieves whether Loan COB catch up is running, and the current execution date if it is running.
-     * @endpoint get /v1/loans/is-catch-up-running
+     * Executes Loan COB Catch Up
+     * Executes the Loan COB job on every day from the oldest Loan to the current COB business date
+     * @endpoint post /v1/loans/catch-up
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public isCatchUpRunning(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<IsCatchUpRunningDTO>;
-    public isCatchUpRunning(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<IsCatchUpRunningDTO>>;
-    public isCatchUpRunning(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<IsCatchUpRunningDTO>>;
-    public isCatchUpRunning(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postLoansCatchUp(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public postLoansCatchUp(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public postLoansCatchUp(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public postLoansCatchUp(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -192,7 +193,6 @@ export class LoanCOBCatchUpService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -214,9 +214,9 @@ export class LoanCOBCatchUpService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/loans/is-catch-up-running`;
+        let localVarPath = `/v1/loans/catch-up`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<IsCatchUpRunningDTO>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   UsersService,
   PostUsersRequest,
@@ -44,7 +45,6 @@ import {
   selector: 'app-user-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -54,6 +54,7 @@ import {
     MatButtonModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -143,7 +144,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -152,7 +153,15 @@ import {
                 type="submit"
                 [disabled]="userForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -177,20 +186,8 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         padding: 8px 0;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],
@@ -227,7 +224,7 @@ export class UserFormComponent implements OnInit {
   }
 
   private loadMetadata(): void {
-    this.usersService.template22().subscribe((template: GetUsersTemplateResponse) => {
+    this.usersService.getUsersTemplate().subscribe((template: GetUsersTemplateResponse) => {
       this.offices = (template.allowedOffices as unknown as Record<string, unknown>[]) || [];
       this.availableRoles = template.availableRoles || [];
     });
@@ -235,7 +232,7 @@ export class UserFormComponent implements OnInit {
 
   private loadUserData(): void {
     if (!this.userId) return;
-    this.usersService.retrieveOne31(this.userId).subscribe((data) => {
+    this.usersService.getUsersUserId(this.userId).subscribe((data) => {
       this.user = {
         username: data.username,
         firstname: data.firstname,
@@ -260,12 +257,12 @@ export class UserFormComponent implements OnInit {
         roles: this.user.roles,
       };
 
-      this.usersService.update26(this.userId, putRequest).subscribe({
+      this.usersService.putUsersUserId(this.userId, putRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.usersService.create15(this.user).subscribe({
+      this.usersService.postUsers(this.user).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,7 +30,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ClientSearchComponent } from '../../shared';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   SavingsAccountService,
   SavingsProductService,
@@ -38,21 +41,16 @@ import {
   GetSavingsProductsResponse,
   SavingsAccountData,
 } from '../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 
-/**
- * Component for creating and managing individual savings accounts.
- *
- * Provides a comprehensive form integration with Fineract's savings account API.
- * Uses template-driven binding to strictly-typed OpenAPI request models.
- *
- * @example
- * <app-savings-account-form></app-savings-account-form>
- */
 @Component({
   selector: 'app-savings-account-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -63,6 +61,9 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
     ClientSearchComponent,
   ],
   template: `
@@ -81,32 +82,57 @@ import {
         <mat-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="savings-form">
             <div class="form-grid">
-              <!-- Client Search -->
-              <app-client-search
-                [label]="'COMMON.CLIENT_ID' | translate"
-                [required]="true"
-                [initialClientId]="account.clientId || null"
-                (clientSelected)="account.clientId = $event"
-              >
-              </app-client-search>
+              <!-- Client Search with Create Option -->
+              <div class="field-container-row">
+                <app-client-search
+                  [label]="'COMMON.CLIENT_ID' | translate"
+                  [required]="true"
+                  [initialClientId]="account.clientId || null"
+                  (clientSelected)="account.clientId = $event"
+                  class="flex-grow"
+                >
+                </app-client-search>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  (click)="onCreateClient()"
+                  style="margin-top: 4px;"
+                >
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
-              <!-- Product -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                <mat-select
-                  name="productId"
-                  [(ngModel)]="account.productId"
-                  required
+              <!-- Product Selection with Create Option -->
+              <div class="field-container-row">
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
+                  class="flex-grow"
+                >
+                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
+                  <mat-select
+                    name="productId"
+                    [(ngModel)]="account.productId"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (product of products; track product.id) {
+                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
+                  (click)="onCreateProduct()"
+                  style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product.id) {
-                    <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
               <!-- Submitted On -->
               <mat-form-field
@@ -141,7 +167,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -150,7 +176,15 @@ import {
                 type="submit"
                 [disabled]="accountForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -175,52 +209,47 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
+      .field-container-row {
         display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .flex-grow {
+        flex-grow: 1;
       }
     `,
   ],
 })
 export class SavingsAccountFormComponent implements OnInit {
-  /** Service for account operations */
   private readonly savingsService = inject(SavingsAccountService);
-  /** Service for retrieving available products */
   private readonly productService = inject(SavingsProductService);
-  /** Router for post-op navigation */
   private readonly router = inject(Router);
-  /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Base path for redirection */
   private readonly LIST_PATH = '/products/savings-accounts';
 
-  /** Account identifier */
   accountId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
 
-  /** Post request model */
   account: PostSavingsAccountsRequest = {};
   /** Interest rate bound separately as it's missing from model */
   interestRate = 0;
-  /** Submitted date for template binding */
   submittedOnDate: Date = new Date();
-  /** Available products list */
   products: GetSavingsProductsResponse[] = [];
 
-  /**
-   * Initialization handler.
-   */
   ngOnInit(): void {
     this.loadProducts();
+
+    // Check for clientId in query params for pre-population
+    this.route.queryParams.subscribe((queryParams) => {
+      const clientId = queryParams['clientId'];
+      if (clientId) {
+        this.account.clientId = +clientId;
+      }
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -231,24 +260,27 @@ export class SavingsAccountFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Fetches the savings products list using current API method.
-   */
+  onCreateClient() {
+    this.router.navigate(['/clients/create']);
+  }
+
+  onCreateProduct() {
+    this.router.navigate(['/products/savings/create']);
+  }
+
   private loadProducts(): void {
-    this.productService.retrieveAll34().subscribe({
+    this.productService.getSavingsproducts().subscribe({
       next: (data: GetSavingsProductsResponse[]) => {
-        this.products = data;
+        this.products = data || [];
       },
-      error: (err: unknown) => console.error('Failed to load products', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 
-  /**
-   * Loads existing account data for editing using current API method.
-   */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.savingsService.retrieveOne25(this.accountId).subscribe({
+    this.savingsService.getSavingsaccountsAccountId(this.accountId).subscribe({
       next: (data: SavingsAccountData) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -260,22 +292,17 @@ export class SavingsAccountFormComponent implements OnInit {
         };
         this.interestRate = data.nominalAnnualInterestRate || 0;
       },
-      error: (err: unknown) => console.error('Failed to load account', err),
+      error: () =>
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
     });
   }
 
-  /**
-   * Handles form submission.
-   */
   onSubmit(): void {
     this.isSaving = true;
-    const formattedDate = `${this.submittedOnDate.getFullYear()}-${String(
-      this.submittedOnDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.submittedOnDate.getDate()).padStart(2, '0')}`;
 
-    this.account.submittedOnDate = formattedDate;
-    this.account.dateFormat = 'yyyy-MM-dd';
-    this.account.locale = 'en';
+    this.account.submittedOnDate = formatDateToFineract(this.submittedOnDate);
+    this.account.dateFormat = FINERACT_DATE_FORMAT;
+    this.account.locale = FINERACT_LOCALE;
 
     // Cast to Record to add missing properties to the payload
     const payload: Record<string, unknown> = {
@@ -284,21 +311,20 @@ export class SavingsAccountFormComponent implements OnInit {
     };
 
     if (this.isEditMode && this.accountId) {
-      this.savingsService.update20(this.accountId, payload as Record<string, unknown>).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      this.savingsService
+        .putSavingsaccountsAccountId(this.accountId, payload as Record<string, unknown>)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
-      this.savingsService.submitApplication2(payload as PostSavingsAccountsRequest).subscribe({
+      this.savingsService.postSavingsaccounts(payload as PostSavingsAccountsRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
-  /**
-   * Navigation handler.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

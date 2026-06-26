@@ -50,6 +50,7 @@ export class DepositAccountOnHoldFundTransactionsService extends BaseService {
     }
 
     /**
+     * Retrieve deposit account on hold fund transactions
      * @endpoint get /v1/savingsaccounts/{savingsId}/onholdtransactions
      * @param savingsId 
      * @param guarantorFundingId 
@@ -61,12 +62,12 @@ export class DepositAccountOnHoldFundTransactionsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAll28(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveAll28(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveAll28(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveAll28(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getSavingsaccountsSavingsIdOnholdtransactions(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getSavingsaccountsSavingsIdOnholdtransactions(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getSavingsaccountsSavingsIdOnholdtransactions(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public getSavingsaccountsSavingsIdOnholdtransactions(savingsId: number, guarantorFundingId?: number, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (savingsId === null || savingsId === undefined) {
-            throw new Error('Required parameter savingsId was null or undefined when calling retrieveAll28.');
+            throw new Error('Required parameter savingsId was null or undefined when calling getSavingsaccountsSavingsIdOnholdtransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

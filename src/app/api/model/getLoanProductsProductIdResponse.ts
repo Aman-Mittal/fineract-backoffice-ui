@@ -49,7 +49,6 @@ import { GetLoanProductsWriteOffReasonOptions } from './getLoanProductsWriteOffR
 import { GetChargeOffReasonToExpenseAccountMappings } from './getChargeOffReasonToExpenseAccountMappings';
 import { GetLoansProductsInterestCalculationPeriodType } from './getLoansProductsInterestCalculationPeriodType';
 import { GetLoanProductsPrincipalVariationsForBorrowerCycle } from './getLoanProductsPrincipalVariationsForBorrowerCycle';
-import { PostWriteOffReasonToExpenseAccountMappings } from './postWriteOffReasonToExpenseAccountMappings';
 
 
 /**
@@ -59,6 +58,10 @@ export interface GetLoanProductsProductIdResponse {
     accountingMappings?: GetLoanAccountingMappings;
     accountingRule?: GetLoanProductsAccountingRule;
     allowApprovedDisbursedAmountsOverApplied?: boolean;
+    /**
+     * Allow full term length for each tranche disbursement. Only available for PROGRESSIVE schedule type with multi-disbursement enabled.
+     */
+    allowFullTermForTranche?: boolean;
     allowPartialPeriodInterestCalculation?: boolean;
     allowVariableInstallments?: boolean;
     amortizationType?: GetLoanProductsAmortizationType;
@@ -154,6 +157,6 @@ export interface GetLoanProductsProductIdResponse {
     transactionProcessingStrategyName?: string;
     useBorrowerCycle?: boolean;
     writeOffReasonOptions?: Array<GetLoanProductsWriteOffReasonOptions>;
-    writeOffReasonsToExpenseMappings?: Array<PostWriteOffReasonToExpenseAccountMappings>;
+    writeOffReasonsToExpenseMappings?: Array<GetChargeOffReasonToExpenseAccountMappings>;
 }
 

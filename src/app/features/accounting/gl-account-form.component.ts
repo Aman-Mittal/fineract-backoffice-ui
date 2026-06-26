@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   GeneralLedgerAccountService,
   PostGLAccountsRequest,
@@ -41,7 +42,6 @@ import { HelpIconComponent } from '../../shared';
   selector: 'app-gl-account-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -52,6 +52,7 @@ import { HelpIconComponent } from '../../shared';
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     HelpIconComponent,
   ],
   template: `
@@ -139,7 +140,7 @@ import { HelpIconComponent } from '../../shared';
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -148,7 +149,15 @@ import { HelpIconComponent } from '../../shared';
                 type="submit"
                 [disabled]="accountForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -173,23 +182,11 @@ import { HelpIconComponent } from '../../shared';
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 60px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .help-icon {
         font-size: 18px;
@@ -229,7 +226,7 @@ export class GLAccountFormComponent implements OnInit {
 
   loadAccountData() {
     if (!this.accountId) return;
-    this.accountService.retreiveAccount(this.accountId).subscribe((data) => {
+    this.accountService.getGlaccountsGlAccountId(this.accountId).subscribe((data) => {
       this.account = {
         name: data.name,
         glCode: data.glCode,
@@ -245,13 +242,13 @@ export class GLAccountFormComponent implements OnInit {
     this.isSaving = true;
     if (this.isEditMode && this.accountId) {
       this.accountService
-        .updateGLAccount1(this.accountId, this.account as PutGLAccountsRequest)
+        .putGlaccountsGlAccountId(this.accountId, this.account as PutGLAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
-      this.accountService.createGLAccount1(this.account).subscribe({
+      this.accountService.postGlaccounts(this.account).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

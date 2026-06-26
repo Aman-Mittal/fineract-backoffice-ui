@@ -26,7 +26,7 @@
 import { InterestPeriod } from './interestPeriod';
 import { Money } from './money';
 import { MonetaryCurrency } from './monetaryCurrency';
-import { LoanProductMinimumRepaymentScheduleRelatedDetail } from './loanProductMinimumRepaymentScheduleRelatedDetail';
+import { ILoanConfigurationDetails } from './iLoanConfigurationDetails';
 import { InterestPeriodMc } from './interestPeriodMc';
 
 
@@ -36,7 +36,9 @@ export interface RepaymentPeriod {
     capitalizedIncomePrincipal?: Money;
     creditedAmounts?: Money;
     creditedInterest?: Money;
+    creditedInterestMovedDueReAge?: Money;
     creditedPrincipal?: Money;
+    creditedPrincipalMovedDueReAge?: Money;
     currency?: MonetaryCurrency;
     dueDate?: string;
     dueInterest?: Money;
@@ -45,14 +47,17 @@ export interface RepaymentPeriod {
     emiPlusCreditedAmountsPlusFutureUnrecognizedInterest?: Money;
     firstInterestPeriod?: InterestPeriod;
     firstRepaymentPeriod?: boolean;
+    fixedInterest?: Money;
     fromDate?: string;
     fullyPaid?: boolean;
     futureUnrecognizedInterest?: Money;
     initialBalanceForEmiRecalculation?: Money;
-    interestMoved?: boolean;
+    interestMovedDownward?: boolean;
+    interestMovedUpward?: boolean;
+    interestPaymentGrace?: boolean;
     interestPeriods?: Array<InterestPeriod>;
     lastInterestPeriod?: InterestPeriod;
-    loanProductRelatedDetail?: LoanProductMinimumRepaymentScheduleRelatedDetail;
+    loanProductRelatedDetail?: ILoanConfigurationDetails;
     mc?: InterestPeriodMc;
     originalEmi?: Money;
     outstandingInterest?: Money;
@@ -62,6 +67,8 @@ export interface RepaymentPeriod {
     paidPrincipal?: Money;
     previous?: RepaymentPeriod;
     rateFactorPlus1?: number;
+    reAged?: boolean;
+    reAgedEarlyRepaymentHolder?: boolean;
     totalCapitalizedIncomeAmount?: Money;
     totalCreditedAmount?: Money;
     totalDisbursedAmount?: Money;

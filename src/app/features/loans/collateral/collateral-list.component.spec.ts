@@ -27,7 +27,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('CollateralListComponent', () => {
@@ -38,14 +38,15 @@ describe('CollateralListComponent', () => {
 
   beforeEach(async () => {
     collateralServiceSpy = jasmine.createSpyObj('LoanCollateralService', [
-      'retrieveCollateralDetails',
-      'deleteCollateral',
+      'getLoansLoanIdCollaterals',
+      'deleteLoansLoanIdCollateralsCollateralId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [CollateralListComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [CollateralListComponent, TranslateModule.forRoot()],
       providers: [
+        provideNoopAnimations(),
         { provide: LoanCollateralService, useValue: collateralServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -57,7 +58,7 @@ describe('CollateralListComponent', () => {
       ],
     }).compileComponents();
 
-    collateralServiceSpy.retrieveCollateralDetails.and.returnValue(
+    collateralServiceSpy.getLoansLoanIdCollaterals.and.returnValue(
       of([]) as unknown as Observable<HttpEvent<CollateralData[]>>,
     );
     fixture = TestBed.createComponent(CollateralListComponent);
@@ -71,7 +72,7 @@ describe('CollateralListComponent', () => {
 
   it('should load collaterals on init', () => {
     expect(component.loanId).toBe(123);
-    expect(collateralServiceSpy.retrieveCollateralDetails).toHaveBeenCalledWith(123);
+    expect(collateralServiceSpy.getLoansLoanIdCollaterals).toHaveBeenCalledWith(123);
   });
 
   it('should navigate to create on onCreateCollateral', () => {
@@ -87,13 +88,16 @@ describe('CollateralListComponent', () => {
 
   it('should call delete and reload on onDeleteCollateral', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    collateralServiceSpy.deleteCollateral.and.returnValue(
+    collateralServiceSpy.deleteLoansLoanIdCollateralsCollateralId.and.returnValue(
       of({}) as unknown as Observable<HttpEvent<DeleteLoansLoanIdCollateralsCollateralIdResponse>>,
     );
 
     component.onDeleteCollateral({ id: 456 } as unknown as CollateralData);
 
-    expect(collateralServiceSpy.deleteCollateral).toHaveBeenCalledWith(123, 456);
-    expect(collateralServiceSpy.retrieveCollateralDetails).toHaveBeenCalledTimes(2);
+    expect(collateralServiceSpy.deleteLoansLoanIdCollateralsCollateralId).toHaveBeenCalledWith(
+      123,
+      456,
+    );
+    expect(collateralServiceSpy.getLoansLoanIdCollaterals).toHaveBeenCalledTimes(2);
   });
 });

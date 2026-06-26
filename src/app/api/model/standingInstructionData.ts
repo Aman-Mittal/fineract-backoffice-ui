@@ -25,6 +25,7 @@
 
 import { PortfolioAccountData } from './portfolioAccountData';
 import { ClientData } from './clientData';
+import { EnumOptionData } from './enumOptionData';
 
 
 export interface StandingInstructionData { 
@@ -41,6 +42,7 @@ export interface StandingInstructionData {
     recurrenceOnDay?: number;
     recurrenceOnMonth?: number;
     recurrenceType?: StandingInstructionData.RecurrenceTypeEnum;
+    status?: EnumOptionData;
     toAccount?: PortfolioAccountData;
     toAccountType?: StandingInstructionData.ToAccountTypeEnum;
     toClient?: ClientData;

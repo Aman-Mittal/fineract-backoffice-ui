@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   RolesService,
   PostRolesRequest,
@@ -44,7 +45,6 @@ import {
   selector: 'app-role-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -54,6 +54,7 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatDividerModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -92,15 +93,33 @@ import {
               <mat-divider></mat-divider>
               <div class="permissions-section">
                 <h3>{{ 'ROLES.PERMISSIONS' | translate }}</h3>
-                <div class="permissions-grid">
-                  @for (perm of permissions; track perm['code']) {
-                    <div class="permission-item">
-                      <mat-checkbox
-                        [name]="'perm_' + perm['code']"
-                        [(ngModel)]="permissionMappings[perm['code'] + '']"
-                      >
-                        {{ perm['code'] }}
-                      </mat-checkbox>
+
+                <div class="matrix-container">
+                  @for (group of groupedPermissions(); track group.prefix) {
+                    <div class="permission-group">
+                      <div class="group-header">
+                        <strong>{{ group.prefix }}</strong>
+                        <div class="group-actions">
+                          <button mat-button type="button" (click)="toggleGroup(group, true)">
+                            Check All
+                          </button>
+                          <button mat-button type="button" (click)="toggleGroup(group, false)">
+                            Uncheck All
+                          </button>
+                        </div>
+                      </div>
+                      <div class="group-items">
+                        @for (perm of group.items; track perm['code']) {
+                          <div class="permission-item">
+                            <mat-checkbox
+                              [name]="'perm_' + perm['code']"
+                              [(ngModel)]="permissionMappings[perm['code'] + '']"
+                            >
+                              {{ perm['code'] }}
+                            </mat-checkbox>
+                          </div>
+                        }
+                      </div>
                     </div>
                   }
                 </div>
@@ -108,7 +127,7 @@ import {
             }
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -117,7 +136,15 @@ import {
                 type="submit"
                 [disabled]="roleForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -143,21 +170,49 @@ import {
       .permissions-section {
         margin-top: 16px;
       }
-      .permissions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 8px;
-        max-height: 400px;
+      .matrix-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        max-height: 600px;
         overflow-y: auto;
-        padding: 8px;
+        padding: 16px;
         border: 1px solid #eee;
         border-radius: 4px;
       }
-      .form-actions {
+      .permission-group {
         display: flex;
-        justify-content: flex-end;
+        flex-direction: column;
         gap: 12px;
-        margin-top: 16px;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 16px;
+      }
+      .permission-group:last-child {
+        border-bottom: none;
+      }
+      .group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 4px 12px;
+        border-radius: 4px;
+      }
+      .group-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .group-actions button {
+        font-size: 11px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 8px;
+      }
+      .group-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 8px;
+        padding: 0 12px;
       }
     `,
   ],
@@ -177,6 +232,8 @@ export class RoleFormComponent implements OnInit {
   permissions: Record<string, unknown>[] = [];
   permissionMappings: Record<string, boolean> = {};
 
+  groupedPermissions = signal<{ prefix: string; items: Record<string, unknown>[] }[]>([]);
+
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -190,7 +247,7 @@ export class RoleFormComponent implements OnInit {
 
   private loadRoleData(): void {
     if (!this.roleId) return;
-    this.rolesService.retrieveRole(this.roleId).subscribe((data) => {
+    this.rolesService.getRolesRoleId(this.roleId).subscribe((data) => {
       this.role = {
         name: data.name,
         description: data.description,
@@ -202,13 +259,39 @@ export class RoleFormComponent implements OnInit {
   private loadPermissions(): void {
     if (!this.roleId) return;
     this.rolesService
-      .retrieveRolePermissions(this.roleId)
+      .getRolesRoleIdPermissions(this.roleId)
       .subscribe((data: GetRolesRoleIdPermissionsResponse) => {
         this.permissions = (data.permissionUsageData as unknown as Record<string, unknown>[]) || [];
         this.permissions.forEach((p) => {
           this.permissionMappings[p['code'] + ''] = (p['selected'] as boolean) || false;
         });
+        this.groupPermissions();
       });
+  }
+
+  private groupPermissions(): void {
+    const groups: Record<string, Record<string, unknown>[]> = {};
+    this.permissions.forEach((p) => {
+      const code = p['code'] as string;
+      const prefix = code.split('_')[1] || 'GENERAL';
+      if (!groups[prefix]) groups[prefix] = [];
+      groups[prefix].push(p);
+    });
+
+    const sortedGroups = Object.keys(groups)
+      .sort()
+      .map((prefix) => ({
+        prefix,
+        items: groups[prefix],
+      }));
+
+    this.groupedPermissions.set(sortedGroups);
+  }
+
+  toggleGroup(group: { items: Record<string, unknown>[] }, value: boolean): void {
+    group.items.forEach((p) => {
+      this.permissionMappings[p['code'] + ''] = value;
+    });
   }
 
   onSubmit(): void {
@@ -220,13 +303,13 @@ export class RoleFormComponent implements OnInit {
       };
 
       // Update role description
-      this.rolesService.updateRole(this.roleId, roleUpdate).subscribe({
+      this.rolesService.putRolesRoleId(this.roleId, roleUpdate).subscribe({
         next: () => {
           // Then update permissions
           const permUpdate: PutRolesRoleIdPermissionsRequest = {
             permissions: this.permissionMappings,
           };
-          this.rolesService.updateRolePermissions(this.roleId!, permUpdate).subscribe({
+          this.rolesService.putRolesRoleIdPermissions(this.roleId!, permUpdate).subscribe({
             next: () => this.router.navigate([this.LIST_PATH]),
             error: () => (this.isSaving = false),
           });
@@ -234,7 +317,7 @@ export class RoleFormComponent implements OnInit {
         error: () => (this.isSaving = false),
       });
     } else {
-      this.rolesService.createRole(this.role).subscribe({
+      this.rolesService.postRoles(this.role).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

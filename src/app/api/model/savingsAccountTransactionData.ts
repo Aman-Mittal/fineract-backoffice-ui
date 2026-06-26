@@ -27,6 +27,7 @@ import { PaymentTypeData } from './paymentTypeData';
 import { AccountTransferData } from './accountTransferData';
 import { SavingsAccountTransactionEnumData } from './savingsAccountTransactionEnumData';
 import { CurrencyData } from './currencyData';
+import { ExternalId } from './externalId';
 import { SavingsAccountChargesPaidByData } from './savingsAccountChargesPaidByData';
 import { PaymentDetailData } from './paymentDetailData';
 import { TaxDetailsData } from './taxDetailsData';
@@ -62,6 +63,7 @@ export interface SavingsAccountTransactionData {
     dividendPayoutAndNotReversed?: boolean;
     endOfBalanceLocalDate?: string;
     entryType?: SavingsAccountTransactionData.EntryTypeEnum;
+    externalId?: ExternalId;
     feeCharge?: boolean;
     feeChargeAndNotReversed?: boolean;
     id?: number;

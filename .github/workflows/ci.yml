@@ -17,6 +17,9 @@
 
 name: CI
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     branches:
@@ -24,15 +27,20 @@ on:
       - develop
   push:
     branches:
-      - '**'
+      - main
+      - develop
 
 jobs:
   dependencies:
     name: Dependency Integrity
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -43,50 +51,84 @@ jobs:
     name: TS/ESLint
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
       - name: Lint TypeScript files
-        run: npx eslint "src/**/*.ts"
+        run: npm run lint
 
   html-lint:
     name: HTML Lint
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
       - name: Lint HTML files
-        run: npx eslint "src/**/*.html"
+        run: npx --no-install eslint "src/**/*.html"
 
   format:
     name: Format Check
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
       - run: npm run format:check
 
+  i18n-check:
+    name: Translation Check
+    needs: dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+      - run: npm ci
+      - name: Verify translations
+        run: npm run i18n:check
+
   test:
     name: Unit Tests
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -94,7 +136,7 @@ jobs:
       - name: Run Tests with Coverage
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: coverage-report
@@ -105,9 +147,13 @@ jobs:
     name: Production Build
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -118,9 +164,13 @@ jobs:
     name: License Compliance
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -128,21 +178,29 @@ jobs:
       - name: Check Apache license headers (Custom Script)
         run: ./scripts/check-license.sh
       - name: Check dependency licenses
-        run: npx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD" || true
+        run: npx --no-install license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD"
 
   rat-scan:
     name: Apache RAT Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
       - name: Download Apache RAT
         run: |
           curl -sL https://repo1.maven.org/maven2/org/apache/rat/apache-rat/0.17/apache-rat-0.17.jar -o apache-rat-0.17.jar
+          echo "401939ebe5a52c6ed524029897bf914eaaba503d36c069ebcdbd8847a9e7cf93  apache-rat-0.17.jar" | sha256sum --check --status || {
+            echo "::error::Apache RAT jar checksum verification failed. Aborting."
+            exit 1
+          }
       - name: Run Apache RAT Scan
         run: |
           java -jar apache-rat-0.17.jar -E .rat-excludes -d .
@@ -151,20 +209,41 @@ jobs:
     name: Security Audit
     needs: dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
-      - run: npm audit --audit-level=high
+      # --omit=dev audits only runtime (production) dependencies.
+      # Build tooling vulnerabilities (esbuild, vite) are excluded as they
+      # are never deployed and have no upstream fix available.
+      - run: npm audit --audit-level=high --omit=dev
 
   summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [dependencies, lint, html-lint, format, test, build, compliance, rat-scan, security]
+    needs:
+      [
+        dependencies,
+        lint,
+        html-lint,
+        format,
+        i18n-check,
+        test,
+        build,
+        compliance,
+        rat-scan,
+        security,
+      ]
     if: always()
+    permissions:
+      contents: read
     steps:
       - name: Generate Summary
         run: |
@@ -177,6 +256,7 @@ jobs:
           echo "| TS Linting | ${{ needs.lint.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| HTML Linting | ${{ needs.html-lint.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Formatting | ${{ needs.format.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Translation Check | ${{ needs.i18n-check.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Unit Tests | ${{ needs.test.result == 'success' && '✅ Pass (Artifact Uploaded)' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Prod Build | ${{ needs.build.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compliance | ${{ needs.compliance.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
@@ -186,6 +266,6 @@ jobs:
           echo "### 🛡️ Security & Compliance Details" >> $GITHUB_STEP_SUMMARY
           echo "- **Dependency Integrity:** Enforced via \`npm ci\`. This prevents the use of \`--legacy-peer-deps\`." >> $GITHUB_STEP_SUMMARY
           echo "- **HTML Quality:** Explicitly checking templates for accessibility and structural best practices via \`angular-eslint\`." >> $GITHUB_STEP_SUMMARY
-          echo "- **Vulnerability Audit:** Completed with \`npm audit --audit-level=high\`. All high-severity issues resolved." >> $GITHUB_STEP_SUMMARY
+          echo "- **Vulnerability Audit:** Completed with \`npm audit --audit-level=high --omit=dev\`. Production runtime is clean." >> $GITHUB_STEP_SUMMARY
           echo "- **Offline Analysis:** Integrated \`SonarJS\` rules via ESLint for continuous quality tracking." >> $GITHUB_STEP_SUMMARY
           echo "- **License Audit:** Apache RAT scan verified 0 unapproved files." >> $GITHUB_STEP_SUMMARY

@@ -52,8 +52,6 @@ export interface PostRecurringDepositProductsRequest {
     preClosurePenalApplicable?: boolean;
     preClosurePenalInterest?: number;
     preClosurePenalInterestOnTypeId?: number;
-    recurringDepositFrequency?: number;
-    recurringDepositFrequencyTypeId?: number;
     shortName?: string;
 }
 

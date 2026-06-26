@@ -56,226 +56,6 @@ export class LoanInterestPauseService extends BaseService {
     }
 
     /**
-     * Create a new interest pause period for a loan
-     * Allows users to define a period during which no interest will be accrued for a specific loan.
-     * @endpoint post /v1/loans/{loanId}/interest-pauses
-     * @param loanId loanId
-     * @param interestPauseRequestDto 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createInterestPause(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public createInterestPause(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public createInterestPause(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public createInterestPause(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling createInterestPause.');
-        }
-        if (interestPauseRequestDto === null || interestPauseRequestDto === undefined) {
-            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling createInterestPause.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: interestPauseRequestDto,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Create a new interest pause for a loan using external ID
-     * Allows users to define a period during which no interest will be accrued for a specific loan using the external loan ID.
-     * @endpoint post /v1/loans/external-id/{loanExternalId}/interest-pauses
-     * @param loanExternalId loanExternalId
-     * @param interestPauseRequestDto 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createInterestPauseByExternalId(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public createInterestPauseByExternalId(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public createInterestPauseByExternalId(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public createInterestPauseByExternalId(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling createInterestPauseByExternalId.');
-        }
-        if (interestPauseRequestDto === null || interestPauseRequestDto === undefined) {
-            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling createInterestPauseByExternalId.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/interest-pauses`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: interestPauseRequestDto,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Delete an interest pause period
-     * Deletes a specific interest pause period by its variation ID.
-     * @endpoint delete /v1/loans/{loanId}/interest-pauses/{variationId}
-     * @param loanId loanId
-     * @param variationId variationId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public deleteInterestPause(loanId: number, variationId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteInterestPause(loanId: number, variationId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteInterestPause(loanId: number, variationId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteInterestPause(loanId: number, variationId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling deleteInterestPause.');
-        }
-        if (variationId === null || variationId === undefined) {
-            throw new Error('Required parameter variationId was null or undefined when calling deleteInterestPause.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses/${this.configuration.encodeParam({name: "variationId", value: variationId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete an interest pause period by external id
      * Deletes a specific interest pause period by its variation ID.
      * @endpoint delete /v1/loans/external-id/{loanExternalId}/interest-pauses/{variationId}
@@ -285,15 +65,15 @@ export class LoanInterestPauseService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteInterestPauseByExternalId(loanExternalId: string, variationId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteInterestPauseByExternalId(loanExternalId: string, variationId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteInterestPauseByExternalId(loanExternalId: string, variationId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteInterestPauseByExternalId(loanExternalId: string, variationId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling deleteInterestPauseByExternalId.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling deleteLoansExternalIdLoanExternalIdInterestPausesVariationId.');
         }
         if (variationId === null || variationId === undefined) {
-            throw new Error('Required parameter variationId was null or undefined when calling deleteInterestPauseByExternalId.');
+            throw new Error('Required parameter variationId was null or undefined when calling deleteLoansExternalIdLoanExternalIdInterestPausesVariationId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -342,20 +122,24 @@ export class LoanInterestPauseService extends BaseService {
     }
 
     /**
-     * Retrieve all interest pause periods for a loan
-     * Fetches a list of all active interest pause periods for a specific loan.
-     * @endpoint get /v1/loans/{loanId}/interest-pauses
+     * Delete an interest pause period
+     * Deletes a specific interest pause period by its variation ID.
+     * @endpoint delete /v1/loans/{loanId}/interest-pauses/{variationId}
      * @param loanId loanId
+     * @param variationId variationId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveInterestPauses(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<InterestPauseResponseDto>>;
-    public retrieveInterestPauses(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<InterestPauseResponseDto>>>;
-    public retrieveInterestPauses(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<InterestPauseResponseDto>>>;
-    public retrieveInterestPauses(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling retrieveInterestPauses.');
+            throw new Error('Required parameter loanId was null or undefined when calling deleteLoansLoanIdInterestPausesVariationId.');
+        }
+        if (variationId === null || variationId === undefined) {
+            throw new Error('Required parameter variationId was null or undefined when calling deleteLoansLoanIdInterestPausesVariationId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -367,7 +151,6 @@ export class LoanInterestPauseService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -389,9 +172,9 @@ export class LoanInterestPauseService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses`;
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses/${this.configuration.encodeParam({name: "variationId", value: variationId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<InterestPauseResponseDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -413,12 +196,12 @@ export class LoanInterestPauseService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveInterestPausesByExternalId(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<InterestPauseResponseDto>>;
-    public retrieveInterestPausesByExternalId(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<InterestPauseResponseDto>>>;
-    public retrieveInterestPausesByExternalId(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<InterestPauseResponseDto>>>;
-    public retrieveInterestPausesByExternalId(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<InterestPauseResponseDto>>;
+    public getLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<InterestPauseResponseDto>>>;
+    public getLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<InterestPauseResponseDto>>>;
+    public getLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling retrieveInterestPausesByExternalId.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdInterestPauses.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -468,28 +251,87 @@ export class LoanInterestPauseService extends BaseService {
     }
 
     /**
-     * Update an interest pause period
-     * Updates a specific interest pause period by its variation ID.
-     * @endpoint put /v1/loans/{loanId}/interest-pauses/{variationId}
+     * Retrieve all interest pause periods for a loan
+     * Fetches a list of all active interest pause periods for a specific loan.
+     * @endpoint get /v1/loans/{loanId}/interest-pauses
      * @param loanId loanId
-     * @param variationId variationId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getLoansLoanIdInterestPauses(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<InterestPauseResponseDto>>;
+    public getLoansLoanIdInterestPauses(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<InterestPauseResponseDto>>>;
+    public getLoansLoanIdInterestPauses(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<InterestPauseResponseDto>>>;
+    public getLoansLoanIdInterestPauses(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdInterestPauses.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<InterestPauseResponseDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a new interest pause for a loan using external ID
+     * Allows users to define a period during which no interest will be accrued for a specific loan using the external loan ID.
+     * @endpoint post /v1/loans/external-id/{loanExternalId}/interest-pauses
+     * @param loanExternalId loanExternalId
      * @param interestPauseRequestDto 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateInterestPause(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public updateInterestPause(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public updateInterestPause(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public updateInterestPause(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling updateInterestPause.');
-        }
-        if (variationId === null || variationId === undefined) {
-            throw new Error('Required parameter variationId was null or undefined when calling updateInterestPause.');
+    public postLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public postLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public postLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public postLoansExternalIdLoanExternalIdInterestPauses(loanExternalId: string, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanExternalId === null || loanExternalId === undefined) {
+            throw new Error('Required parameter loanExternalId was null or undefined when calling postLoansExternalIdLoanExternalIdInterestPauses.');
         }
         if (interestPauseRequestDto === null || interestPauseRequestDto === undefined) {
-            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling updateInterestPause.');
+            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling postLoansExternalIdLoanExternalIdInterestPauses.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -532,9 +374,86 @@ export class LoanInterestPauseService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses/${this.configuration.encodeParam({name: "variationId", value: variationId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/interest-pauses`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: interestPauseRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a new interest pause period for a loan
+     * Allows users to define a period during which no interest will be accrued for a specific loan.
+     * @endpoint post /v1/loans/{loanId}/interest-pauses
+     * @param loanId loanId
+     * @param interestPauseRequestDto 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postLoansLoanIdInterestPauses(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public postLoansLoanIdInterestPauses(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public postLoansLoanIdInterestPauses(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public postLoansLoanIdInterestPauses(loanId: number, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling postLoansLoanIdInterestPauses.');
+        }
+        if (interestPauseRequestDto === null || interestPauseRequestDto === undefined) {
+            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling postLoansLoanIdInterestPauses.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: interestPauseRequestDto,
@@ -559,18 +478,18 @@ export class LoanInterestPauseService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateInterestPauseByExternalId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public updateInterestPauseByExternalId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public updateInterestPauseByExternalId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public updateInterestPauseByExternalId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putLoansExternalIdLoanExternalIdInterestPausesVariationId(loanExternalId: string, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
-            throw new Error('Required parameter loanExternalId was null or undefined when calling updateInterestPauseByExternalId.');
+            throw new Error('Required parameter loanExternalId was null or undefined when calling putLoansExternalIdLoanExternalIdInterestPausesVariationId.');
         }
         if (variationId === null || variationId === undefined) {
-            throw new Error('Required parameter variationId was null or undefined when calling updateInterestPauseByExternalId.');
+            throw new Error('Required parameter variationId was null or undefined when calling putLoansExternalIdLoanExternalIdInterestPausesVariationId.');
         }
         if (interestPauseRequestDto === null || interestPauseRequestDto === undefined) {
-            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling updateInterestPauseByExternalId.');
+            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling putLoansExternalIdLoanExternalIdInterestPausesVariationId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -614,6 +533,87 @@ export class LoanInterestPauseService extends BaseService {
         }
 
         let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/interest-pauses/${this.configuration.encodeParam({name: "variationId", value: variationId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: interestPauseRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update an interest pause period
+     * Updates a specific interest pause period by its variation ID.
+     * @endpoint put /v1/loans/{loanId}/interest-pauses/{variationId}
+     * @param loanId loanId
+     * @param variationId variationId
+     * @param interestPauseRequestDto 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putLoansLoanIdInterestPausesVariationId(loanId: number, variationId: number, interestPauseRequestDto: InterestPauseRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling putLoansLoanIdInterestPausesVariationId.');
+        }
+        if (variationId === null || variationId === undefined) {
+            throw new Error('Required parameter variationId was null or undefined when calling putLoansLoanIdInterestPausesVariationId.');
+        }
+        if (interestPauseRequestDto === null || interestPauseRequestDto === undefined) {
+            throw new Error('Required parameter interestPauseRequestDto was null or undefined when calling putLoansLoanIdInterestPausesVariationId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/interest-pauses/${this.configuration.encodeParam({name: "variationId", value: variationId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
             {

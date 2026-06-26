@@ -27,7 +27,7 @@ import { LoanProduct } from './loanProduct';
 
 
 export interface LoanProductVariableInstallmentConfig { 
-    id?: number;
+    id?: number | null;
     loanProduct?: LoanProduct;
     maximumGap?: number;
     minimumGap?: number;

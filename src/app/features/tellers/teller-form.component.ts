@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   TellerCashManagementService,
   OfficesService,
@@ -51,7 +52,6 @@ import {
   selector: 'app-teller-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -62,6 +62,7 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -80,13 +81,19 @@ import {
           <form #tellerForm="ngForm" (ngSubmit)="onSubmit()" class="teller-form">
             <div class="form-grid">
               <!-- Name -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_NAME_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_NAME_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.NAME' | translate }}</mat-label>
                 <input matInput name="name" [(ngModel)]="teller.name" required />
               </mat-form-field>
 
               <!-- Office -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_OFFICE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_OFFICE_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.OFFICE' | translate }}</mat-label>
                 <mat-select
                   name="officeId"
@@ -103,7 +110,7 @@ import {
               <!-- Description -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'TELLERS.DESCRIPTION' | translate"
+                [matTooltip]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
                 class="full-width"
               >
                 <mat-label>{{ 'TELLERS.DESCRIPTION' | translate }}</mat-label>
@@ -118,7 +125,7 @@ import {
               <!-- Start Date -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'TELLER_START_DATE_DESC' | translate"
+                [matTooltip]="'HELP.TELLER_START_DATE_DESC' | translate"
               >
                 <mat-label>{{ 'TELLERS.START_DATE' | translate }}</mat-label>
                 <input
@@ -133,7 +140,10 @@ import {
               </mat-form-field>
 
               <!-- Status -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_STATUS_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_STATUS_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.STATUS' | translate }}</mat-label>
                 <mat-select name="status" [(ngModel)]="teller.status" required>
                   <mat-option value="ACTIVE">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
@@ -142,7 +152,10 @@ import {
               </mat-form-field>
 
               <!-- Usage -->
-              <mat-form-field appearance="outline" [matTooltip]="'TELLER_USAGE_DESC' | translate">
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.TELLER_USAGE_DESC' | translate"
+              >
                 <mat-label>{{ 'TELLERS.USAGE' | translate }}</mat-label>
                 <mat-select name="usage" [(ngModel)]="usage" required>
                   <mat-option [value]="1">Cashier</mat-option>
@@ -151,7 +164,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -160,7 +173,15 @@ import {
                 type="submit"
                 [disabled]="tellerForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -184,18 +205,6 @@ import {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-      }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],
@@ -253,7 +262,7 @@ export class TellerFormComponent implements OnInit {
    * Retrieves the office list from the API.
    */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe((data) => {
+    this.officesService.getOffices(true).subscribe((data) => {
       this.offices = data;
     });
   }
@@ -263,7 +272,7 @@ export class TellerFormComponent implements OnInit {
    */
   private loadTellerData(): void {
     if (!this.tellerId) return;
-    this.tellerService.findTeller(this.tellerId).subscribe((data) => {
+    this.tellerService.getTellersTellerId(this.tellerId).subscribe((data) => {
       const dateArray = data.startDate as unknown as number[];
       if (dateArray) {
         this.startDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
@@ -294,7 +303,7 @@ export class TellerFormComponent implements OnInit {
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
-      this.tellerService.updateTeller(this.tellerId, payload as PutTellersRequest).subscribe({
+      this.tellerService.putTellersTellerId(this.tellerId, payload as PutTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -307,7 +316,7 @@ export class TellerFormComponent implements OnInit {
         locale: 'en',
       };
 
-      this.tellerService.createTeller(payload as PostTellersRequest).subscribe({
+      this.tellerService.postTellers(payload as PostTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

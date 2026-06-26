@@ -18,12 +18,12 @@
  */
 
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-status-badge',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass],
   template: `
     <span class="status-badge" [ngClass]="colorClass">
       {{ statusName }}
@@ -72,25 +72,38 @@ import { CommonModule } from '@angular/common';
 })
 export class StatusBadgeComponent {
   /** The full status object or just the code string from Fineract */
-  @Input() status: Record<string, unknown> | string | undefined;
+  @Input() status:
+    | string
+    | {
+        code?: string;
+        value?: string;
+        id?: number;
+        active?: boolean;
+        closed?: boolean;
+        pending?: boolean;
+      }
+    | Record<string, unknown>
+    | undefined;
 
   get statusName(): string {
     if (!this.status) return 'UNKNOWN';
     if (typeof this.status === 'string') return this.status;
-    return (this.status['value'] as string) || (this.status['code'] as string) || 'UNKNOWN';
+    const statusObj = this.status as Record<string, unknown>;
+    return (statusObj['value'] as string) || (statusObj['code'] as string) || 'UNKNOWN';
   }
 
   get colorClass(): string {
     if (!this.status) return 'status-default';
 
+    const statusObj = this.status as Record<string, unknown>;
     const code =
       typeof this.status === 'string'
         ? this.status.toLowerCase()
-        : (this.status['code'] as string)?.toLowerCase() || '';
+        : (statusObj['code'] as string)?.toLowerCase() || '';
     const value =
       typeof this.status === 'string'
         ? this.status.toLowerCase()
-        : (this.status['value'] as string)?.toLowerCase() || '';
+        : (statusObj['value'] as string)?.toLowerCase() || '';
 
     if (code.includes('active') || value.includes('active') || value.includes('approved')) {
       return 'status-active';

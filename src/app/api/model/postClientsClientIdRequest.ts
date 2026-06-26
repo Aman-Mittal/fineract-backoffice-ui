@@ -30,7 +30,15 @@
  */
 export interface PostClientsClientIdRequest { 
     activationDate?: string;
+    closureDate?: string;
+    closureReasonId?: number;
     dateFormat?: string;
     locale?: string;
+    reactivationDate?: string;
+    rejectionDate?: string;
+    rejectionReasonId?: number;
+    reopenedDate?: string;
+    withdrawalDate?: string;
+    withdrawalReasonId?: number;
 }
 

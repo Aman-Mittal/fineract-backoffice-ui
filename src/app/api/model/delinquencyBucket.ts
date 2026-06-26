@@ -27,9 +27,10 @@ import { DelinquencyRange } from './delinquencyRange';
 
 
 export interface DelinquencyBucket { 
+    bucketType?: DelinquencyBucket.BucketTypeEnum;
     createdBy: number;
     createdDate: string;
-    id?: number;
+    id?: number | null;
     lastModifiedBy: number;
     lastModifiedDate: string;
     name?: string;
@@ -37,4 +38,12 @@ export interface DelinquencyBucket {
     ranges?: Array<DelinquencyRange>;
     version?: number;
 }
+export namespace DelinquencyBucket {
+    export const BucketTypeEnum = {
+        Regular: 'REGULAR',
+        WorkingCapital: 'WORKING_CAPITAL'
+    } as const;
+    export type BucketTypeEnum = typeof BucketTypeEnum[keyof typeof BucketTypeEnum];
+}
+
 

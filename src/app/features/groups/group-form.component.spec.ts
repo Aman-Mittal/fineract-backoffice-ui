@@ -23,7 +23,7 @@ import { GroupsService, OfficesService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
 
 describe('GroupFormComponent', () => {
@@ -35,21 +35,17 @@ describe('GroupFormComponent', () => {
 
   beforeEach(async () => {
     groupsServiceSpy = jasmine.createSpyObj('GroupsService', [
-      'retrieveOne15',
-      'create8',
-      'update13',
+      'getGroupsGroupId',
+      'postGroups',
+      'putGroupsGroupId',
     ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['retrieveOffices']);
+    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        GroupFormComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        MatNativeDateModule,
-      ],
+      imports: [GroupFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
       providers: [
+        provideNoopAnimations(),
         { provide: GroupsService, useValue: groupsServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -63,7 +59,7 @@ describe('GroupFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    officesServiceSpy.retrieveOffices.and.returnValue(of([]) as any);
+    officesServiceSpy.getOffices.and.returnValue(of([]) as any);
     fixture = TestBed.createComponent(GroupFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -74,7 +70,7 @@ describe('GroupFormComponent', () => {
   });
 
   it('should load offices on init', () => {
-    expect(officesServiceSpy.retrieveOffices).toHaveBeenCalledWith(true);
+    expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
   });
 
   it('should format activationDate correctly on submit in create mode', () => {
@@ -84,7 +80,7 @@ describe('GroupFormComponent', () => {
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    groupsServiceSpy.create8.and.returnValue(of({}) as any);
+    groupsServiceSpy.postGroups.and.returnValue(of({}) as any);
 
     component.onSubmit();
 
@@ -98,14 +94,14 @@ describe('GroupFormComponent', () => {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(groupsServiceSpy.create8).toHaveBeenCalledWith(expectedPayload as any);
+    expect(groupsServiceSpy.postGroups).toHaveBeenCalledWith(expectedPayload as any);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/groups']);
   });
 
   it('should handle error on submit', () => {
     component.isEditMode = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    groupsServiceSpy.create8.and.returnValue(throwError(() => new Error('API Error')) as any);
+    groupsServiceSpy.postGroups.and.returnValue(throwError(() => new Error('API Error')) as any);
 
     component.onSubmit();
 

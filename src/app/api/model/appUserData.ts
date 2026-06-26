@@ -29,6 +29,5 @@ import { ClientData } from './clientData';
 export interface AppUserData { 
     clients?: Set<ClientData>;
     rowIndex?: number;
-    selfServiceUser?: boolean;
 }
 

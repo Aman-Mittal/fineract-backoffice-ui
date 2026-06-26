@@ -26,7 +26,7 @@
 
 
 export interface GroupRole { 
-    id?: number;
+    id?: number | null;
     'new'?: boolean;
 }
 

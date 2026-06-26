@@ -30,7 +30,7 @@ export interface LoanProductCreditAllocationRule {
     allocationTypes?: Array<LoanProductCreditAllocationRule.AllocationTypesEnum>;
     createdBy: number;
     createdDate: string;
-    id?: number;
+    id?: number | null;
     lastModifiedBy: number;
     lastModifiedDate: string;
     loanProduct?: LoanProduct;

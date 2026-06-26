@@ -56,82 +56,7 @@ export class CalendarService extends BaseService {
     }
 
     /**
-     * @endpoint post /v1/{entityType}/{entityId}/calendars
-     * @param entityType 
-     * @param entityId 
-     * @param calendarRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createCalendar(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public createCalendar(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public createCalendar(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public createCalendar(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling createCalendar.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling createCalendar.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/calendars`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: calendarRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
+     * Delete a Calendar
      * @endpoint delete /v1/{entityType}/{entityId}/calendars/{calendarId}
      * @param entityType 
      * @param entityId 
@@ -140,18 +65,18 @@ export class CalendarService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteCalendar(entityType: string, entityId: number, calendarId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public deleteCalendar(entityType: string, entityId: number, calendarId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public deleteCalendar(entityType: string, entityId: number, calendarId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public deleteCalendar(entityType: string, entityId: number, calendarId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public deleteEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public deleteEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public deleteEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling deleteCalendar.');
+            throw new Error('Required parameter entityType was null or undefined when calling deleteEntityTypeEntityIdCalendarsCalendarId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling deleteCalendar.');
+            throw new Error('Required parameter entityId was null or undefined when calling deleteEntityTypeEntityIdCalendarsCalendarId.');
         }
         if (calendarId === null || calendarId === undefined) {
-            throw new Error('Required parameter calendarId was null or undefined when calling deleteCalendar.');
+            throw new Error('Required parameter calendarId was null or undefined when calling deleteEntityTypeEntityIdCalendarsCalendarId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -201,75 +126,7 @@ export class CalendarService extends BaseService {
     }
 
     /**
-     * @endpoint get /v1/{entityType}/{entityId}/calendars/{calendarId}
-     * @param calendarId 
-     * @param entityType 
-     * @param entityId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveCalendar(calendarId: number, entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CalendarData>;
-    public retrieveCalendar(calendarId: number, entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CalendarData>>;
-    public retrieveCalendar(calendarId: number, entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CalendarData>>;
-    public retrieveCalendar(calendarId: number, entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (calendarId === null || calendarId === undefined) {
-            throw new Error('Required parameter calendarId was null or undefined when calling retrieveCalendar.');
-        }
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling retrieveCalendar.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveCalendar.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/calendars/${this.configuration.encodeParam({name: "calendarId", value: calendarId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CalendarData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
+     * Retrieve Calendars by Entity
      * @endpoint get /v1/{entityType}/{entityId}/calendars
      * @param entityType 
      * @param entityId 
@@ -278,15 +135,15 @@ export class CalendarService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveCalendarsByEntity(entityType: string, entityId: number, calendarType?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CalendarData>>;
-    public retrieveCalendarsByEntity(entityType: string, entityId: number, calendarType?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CalendarData>>>;
-    public retrieveCalendarsByEntity(entityType: string, entityId: number, calendarType?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CalendarData>>>;
-    public retrieveCalendarsByEntity(entityType: string, entityId: number, calendarType?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarType?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CalendarData>>;
+    public getEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarType?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CalendarData>>>;
+    public getEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarType?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CalendarData>>>;
+    public getEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarType?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling retrieveCalendarsByEntity.');
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdCalendars.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveCalendarsByEntity.');
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdCalendars.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -348,6 +205,77 @@ export class CalendarService extends BaseService {
     }
 
     /**
+     * Retrieve a Calendar
+     * @endpoint get /v1/{entityType}/{entityId}/calendars/{calendarId}
+     * @param calendarId 
+     * @param entityType 
+     * @param entityId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getEntityTypeEntityIdCalendarsCalendarId(calendarId: number, entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CalendarData>;
+    public getEntityTypeEntityIdCalendarsCalendarId(calendarId: number, entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CalendarData>>;
+    public getEntityTypeEntityIdCalendarsCalendarId(calendarId: number, entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CalendarData>>;
+    public getEntityTypeEntityIdCalendarsCalendarId(calendarId: number, entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (calendarId === null || calendarId === undefined) {
+            throw new Error('Required parameter calendarId was null or undefined when calling getEntityTypeEntityIdCalendarsCalendarId.');
+        }
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdCalendarsCalendarId.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdCalendarsCalendarId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/calendars/${this.configuration.encodeParam({name: "calendarId", value: calendarId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CalendarData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Calendar Template
      * @endpoint get /v1/{entityType}/{entityId}/calendars/template
      * @param entityType 
      * @param entityId 
@@ -355,15 +283,15 @@ export class CalendarService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveNewCalendarDetails(entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CalendarData>;
-    public retrieveNewCalendarDetails(entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CalendarData>>;
-    public retrieveNewCalendarDetails(entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CalendarData>>;
-    public retrieveNewCalendarDetails(entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getEntityTypeEntityIdCalendarsTemplate(entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CalendarData>;
+    public getEntityTypeEntityIdCalendarsTemplate(entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CalendarData>>;
+    public getEntityTypeEntityIdCalendarsTemplate(entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CalendarData>>;
+    public getEntityTypeEntityIdCalendarsTemplate(entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling retrieveNewCalendarDetails.');
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdCalendarsTemplate.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveNewCalendarDetails.');
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdCalendarsTemplate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -413,6 +341,84 @@ export class CalendarService extends BaseService {
     }
 
     /**
+     * Create a Calendar
+     * @endpoint post /v1/{entityType}/{entityId}/calendars
+     * @param entityType 
+     * @param entityId 
+     * @param calendarRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public postEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public postEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public postEntityTypeEntityIdCalendars(entityType: string, entityId: number, calendarRequest?: CalendarRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling postEntityTypeEntityIdCalendars.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling postEntityTypeEntityIdCalendars.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/calendars`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: calendarRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update a Calendar
      * @endpoint put /v1/{entityType}/{entityId}/calendars/{calendarId}
      * @param entityType 
      * @param entityId 
@@ -422,18 +428,18 @@ export class CalendarService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateCalendar(entityType: string, entityId: number, calendarId: number, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public updateCalendar(entityType: string, entityId: number, calendarId: number, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public updateCalendar(entityType: string, entityId: number, calendarId: number, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public updateCalendar(entityType: string, entityId: number, calendarId: number, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putEntityTypeEntityIdCalendarsCalendarId(entityType: string, entityId: number, calendarId: number, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling updateCalendar.');
+            throw new Error('Required parameter entityType was null or undefined when calling putEntityTypeEntityIdCalendarsCalendarId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling updateCalendar.');
+            throw new Error('Required parameter entityId was null or undefined when calling putEntityTypeEntityIdCalendarsCalendarId.');
         }
         if (calendarId === null || calendarId === undefined) {
-            throw new Error('Required parameter calendarId was null or undefined when calling updateCalendar.');
+            throw new Error('Required parameter calendarId was null or undefined when calling putEntityTypeEntityIdCalendarsCalendarId.');
         }
 
         let localVarHeaders = this.defaultHeaders;

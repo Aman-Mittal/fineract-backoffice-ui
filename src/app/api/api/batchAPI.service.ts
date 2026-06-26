@@ -63,12 +63,12 @@ export class BatchAPIService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public handleBatchRequests(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<BatchResponse>>;
-    public handleBatchRequests(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<BatchResponse>>>;
-    public handleBatchRequests(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<BatchResponse>>>;
-    public handleBatchRequests(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postBatches(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<BatchResponse>>;
+    public postBatches(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<BatchResponse>>>;
+    public postBatches(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<BatchResponse>>>;
+    public postBatches(batchRequest: Array<BatchRequest>, enclosingTransaction?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (batchRequest === null || batchRequest === undefined) {
-            throw new Error('Required parameter batchRequest was null or undefined when calling handleBatchRequests.');
+            throw new Error('Required parameter batchRequest was null or undefined when calling postBatches.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

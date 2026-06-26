@@ -31,10 +31,11 @@ export interface TaxGroupMappings {
     createdBy?: number;
     createdDate?: string;
     endDate?: string;
-    id?: number;
+    id?: number | null;
     lastModifiedBy?: number;
     lastModifiedDate?: string;
     'new'?: boolean;
+    startDate?: string;
     taxComponent?: TaxComponent;
     taxGroup?: TaxGroup;
 }

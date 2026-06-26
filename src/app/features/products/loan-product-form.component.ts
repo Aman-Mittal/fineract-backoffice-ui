@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,17 +28,21 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   LoanProductsService,
   PostLoanProductsRequest,
   PutLoanProductsProductIdRequest,
+  FundData,
+  FundsService,
+  DelinquencyRangeAndBucketsManagementService,
+  DelinquencyBucketResponse,
 } from '../../api';
 
 @Component({
   selector: 'app-loan-product-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -47,6 +51,7 @@ import {
     MatSelectModule,
     MatButtonModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -98,6 +103,29 @@ import {
                   [(ngModel)]="product.description"
                   rows="3"
                 ></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
+                <input matInput name="externalId" [(ngModel)]="product.externalId" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.FUND' | translate }}</mat-label>
+                <mat-select name="fundId" [(ngModel)]="product.fundId">
+                  @for (fund of fundOptions; track fund.id) {
+                    <mat-option [value]="fund.id">{{ fund.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}</mat-label>
+                <mat-select name="delinquencyBucketId" [(ngModel)]="product.delinquencyBucketId">
+                  @for (bucket of delinquencyBucketOptions; track bucket.id) {
+                    <mat-option [value]="bucket.id">{{ bucket.name }}</mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
 
               <mat-form-field appearance="outline" [matTooltip]="'HELP.CURRENCY_DESC' | translate">
@@ -175,10 +203,98 @@ import {
                   required
                 />
               </mat-form-field>
+
+              <!-- Repayment Frequency Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
+                <mat-select
+                  name="repaymentFrequencyType"
+                  [(ngModel)]="product.repaymentFrequencyType"
+                  required
+                >
+                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
+                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
+                  <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Interest Rate Frequency Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate }}</mat-label>
+                <mat-select
+                  name="interestRateFrequencyType"
+                  [(ngModel)]="product.interestRateFrequencyType"
+                  required
+                >
+                  <mat-option [value]="2">{{ 'COMMON.PER_MONTH' | translate }}</mat-option>
+                  <mat-option [value]="3">{{ 'COMMON.PER_YEAR' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Amortization Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</mat-label>
+                <mat-select name="amortizationType" [(ngModel)]="product.amortizationType" required>
+                  <mat-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</mat-option>
+                  <mat-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Interest Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</mat-label>
+                <mat-select name="interestType" [(ngModel)]="product.interestType" required>
+                  <mat-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'LOANS.FLAT' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Interest Calculation Period Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</mat-label>
+                <mat-select
+                  name="interestCalculationPeriodType"
+                  [(ngModel)]="product.interestCalculationPeriodType"
+                  required
+                >
+                  <mat-option [value]="0">{{ 'LOANS.DAILY' | translate }}</mat-option>
+                  <mat-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Transaction Processing Strategy Code -->
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate }}</mat-label>
+                <mat-select
+                  name="transactionProcessingStrategyCode"
+                  [(ngModel)]="product.transactionProcessingStrategyCode"
+                  required
+                >
+                  <mat-option value="mifos-standard-strategy">{{
+                    'PRODUCTS.STRATEGIES.MIFOS_STYLE' | translate
+                  }}</mat-option>
+                  <mat-option value="heavensfamily-strategy">{{
+                    'PRODUCTS.STRATEGIES.HEAVENSFAMILY' | translate
+                  }}</mat-option>
+                  <mat-option value="creocore-strategy">{{
+                    'PRODUCTS.STRATEGIES.CREOCORE' | translate
+                  }}</mat-option>
+                  <mat-option value="interest-principal-grace-strategy">{{
+                    'PRODUCTS.STRATEGIES.GRACE_ON_INTEREST_AND_PRINCIPAL' | translate
+                  }}</mat-option>
+                  <mat-option value="principal-interest-grace-strategy">{{
+                    'PRODUCTS.STRATEGIES.PRINCIPAL_INTEREST_GRACE' | translate
+                  }}</mat-option>
+                  <mat-option value="penalty-fee-interest-principal-strategy">{{
+                    'PRODUCTS.STRATEGIES.PENALTIES_FEES_INTEREST_PRINCIPAL' | translate
+                  }}</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -187,7 +303,15 @@ import {
                 type="submit"
                 [disabled]="productForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -212,23 +336,13 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class LoanProductFormComponent implements OnInit {
   private readonly productService = inject(LoanProductsService);
+  private readonly fundsService = inject(FundsService);
+  private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -237,6 +351,9 @@ export class LoanProductFormComponent implements OnInit {
   productId: number | null = null;
   isEditMode = false;
   isSaving = false;
+
+  fundOptions: FundData[] = [];
+  delinquencyBucketOptions: DelinquencyBucketResponse[] = [];
 
   product: PostLoanProductsRequest = {
     currencyCode: 'USD',
@@ -255,6 +372,11 @@ export class LoanProductFormComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.fundsService.getFunds().subscribe((data) => (this.fundOptions = data));
+    this.delinquencyService
+      .getDelinquencyBuckets()
+      .subscribe((data) => (this.delinquencyBucketOptions = data));
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -267,7 +389,7 @@ export class LoanProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveLoanProductDetails(this.productId).subscribe((data) => {
+    this.productService.getLoanproductsProductId(this.productId).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -279,16 +401,17 @@ export class LoanProductFormComponent implements OnInit {
         numberOfRepayments: data.numberOfRepayments,
         repaymentEvery: data.repaymentEvery,
         inMultiplesOf: 0,
-        repaymentFrequencyType: 2,
-        interestRateFrequencyType: 3,
-        amortizationType: 1,
-        interestType: 0,
-        interestCalculationPeriodType: 1,
-        transactionProcessingStrategyCode: 'mifos-standard-strategy',
-        accountingRule: 1,
-        daysInYearType: 1,
-        daysInMonthType: 1,
-        isInterestRecalculationEnabled: false,
+        repaymentFrequencyType: data.repaymentFrequencyType?.id ?? 2,
+        interestRateFrequencyType: data.interestRateFrequencyType?.id ?? 3,
+        amortizationType: data.amortizationType?.id ?? 1,
+        interestType: data.interestType?.id ?? 0,
+        interestCalculationPeriodType: data.interestCalculationPeriodType?.id ?? 1,
+        transactionProcessingStrategyCode:
+          data.transactionProcessingStrategyCode ?? 'mifos-standard-strategy',
+        accountingRule: data.accountingRule?.id ?? 1,
+        daysInYearType: data.daysInYearType?.id ?? 1,
+        daysInMonthType: data.daysInMonthType?.id ?? 1,
+        isInterestRecalculationEnabled: data.isInterestRecalculationEnabled ?? false,
       };
     });
   }
@@ -299,13 +422,13 @@ export class LoanProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService
-        .updateLoanProduct(this.productId, this.product as PutLoanProductsProductIdRequest)
+        .putLoanproductsProductId(this.productId, this.product as PutLoanProductsProductIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
-      this.productService.createLoanProduct(this.product).subscribe({
+      this.productService.postLoanproducts(this.product).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

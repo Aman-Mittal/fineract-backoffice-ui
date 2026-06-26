@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   OfficesService,
   PostOfficesRequest,
@@ -41,7 +42,6 @@ import {
   selector: 'app-office-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -52,6 +52,7 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -120,7 +121,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -129,7 +130,15 @@ import {
                 type="submit"
                 [disabled]="officeForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -153,15 +162,6 @@ import {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],
@@ -194,14 +194,14 @@ export class OfficeFormComponent implements OnInit {
   }
 
   loadOffices() {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
   loadOfficeData() {
     if (!this.officeId) return;
-    this.officesService.retrieveOffice(this.officeId).subscribe((data) => {
+    this.officesService.getOfficesOfficeId(this.officeId).subscribe((data) => {
       const dateArray = data.openingDate as unknown as number[];
       if (dateArray) {
         this.openingDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
@@ -228,7 +228,7 @@ export class OfficeFormComponent implements OnInit {
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
-      this.officesService.updateOffice(this.officeId, payload).subscribe({
+      this.officesService.putOfficesOfficeId(this.officeId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -236,7 +236,7 @@ export class OfficeFormComponent implements OnInit {
       this.office.openingDate = formattedDate;
       this.office.dateFormat = 'yyyy-MM-dd';
       this.office.locale = 'en';
-      this.officesService.createOffice(this.office).subscribe({
+      this.officesService.postOffices(this.office).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

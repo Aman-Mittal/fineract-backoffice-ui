@@ -33,7 +33,7 @@ export interface FloatingRatePeriod {
     differentialToBaseLendingRate?: boolean;
     floatingRate?: FloatingRate;
     fromDate?: string;
-    id?: number;
+    id?: number | null;
     interestRate?: number;
     lastModifiedBy: number;
     lastModifiedDate: string;

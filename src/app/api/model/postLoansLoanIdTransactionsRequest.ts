@@ -48,6 +48,9 @@ export interface PostLoansLoanIdTransactionsRequest {
     note?: string;
     numberOfInstallments?: number;
     paymentTypeId?: number;
+    reAgeInterestHandling?: string;
+    reAmortizationInterestHandling?: string;
+    reasonCodeValueId?: number;
     receiptNumber?: string;
     reversalExternalId?: string;
     routingCode?: string;

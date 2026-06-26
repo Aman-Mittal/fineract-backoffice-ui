@@ -37,6 +37,112 @@
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+[data-theme='dark'] {
+  --primary-color: #3498db;
+  --primary-dark: #2980b9;
+  --secondary-color: #ecf0f1;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --text-muted: #b0b0b0;
+  --border-color: #333333;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+
+  /* Material Component Overrides */
+  .mat-mdc-card {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+  }
+  .mat-mdc-card-header .mat-mdc-card-title {
+    color: var(--secondary-color) !important;
+  }
+  .mat-expansion-panel-header {
+    background-color: var(--card-bg) !important;
+  }
+  .mat-expansion-panel-header-title,
+  .mat-expansion-panel-header-description,
+  .mat-expansion-indicator::after {
+    color: var(--text-color) !important;
+  }
+
+  .mat-mdc-tab-group,
+  .mat-mdc-tab-nav-panel,
+  .mat-mdc-tab-body-wrapper {
+    background-color: var(--bg-color) !important;
+  }
+  .mat-mdc-tab-header,
+  .mat-mdc-tab-nav-bar {
+    background-color: var(--card-bg) !important;
+  }
+  .mat-mdc-tab .mdc-tab__text-label {
+    color: var(--text-muted) !important;
+  }
+  .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+    color: var(--primary-color) !important;
+  }
+
+  .mat-mdc-card-header {
+    background-color: transparent !important;
+  }
+
+  .mat-mdc-table {
+    background-color: var(--card-bg) !important;
+  }
+  .mat-mdc-header-cell {
+    background-color: var(--card-bg) !important;
+    color: var(--secondary-color) !important;
+    border-bottom-color: var(--border-color) !important;
+  }
+  .mat-mdc-cell {
+    color: var(--text-color) !important;
+    border-bottom-color: var(--border-color) !important;
+  }
+  .mat-mdc-row:hover {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+  }
+
+  .mat-mdc-form-field {
+    --mdc-outlined-text-field-input-text-color: var(--text-color);
+    --mdc-outlined-text-field-label-text-color: var(--text-muted);
+    --mdc-outlined-text-field-outline-color: var(--border-color);
+    --mdc-outlined-text-field-focus-outline-color: var(--primary-color);
+  }
+
+  .mat-mdc-select-value,
+  .mat-mdc-select-arrow {
+    color: var(--text-color) !important;
+  }
+
+  .mat-mdc-option {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+  }
+  .mat-mdc-option:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+  .mat-mdc-option.mdc-list-item--selected {
+    background-color: rgba(52, 152, 219, 0.2) !important;
+  }
+
+  .mat-mdc-menu-panel {
+    background-color: var(--card-bg) !important;
+  }
+  .mat-mdc-menu-item {
+    color: var(--text-color) !important;
+  }
+
+  .mat-mdc-paginator {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+  }
+
+  /* Fix for search input in header */
+  .global-search-field input {
+    color: var(--text-color) !important;
+  }
+}
+
 /* Common Classes */
 .card {
   background-color: var(--card-bg);
@@ -87,5 +193,47 @@
 
   &:hover:not(:disabled) {
     background-color: var(--primary-dark);
+  }
+}
+
+/* Form layout utilities — shared across all form components */
+.form-container {
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.full-width {
+  grid-column: span 2;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.error-snackbar {
+  white-space: pre-wrap;
+  .mdc-snackbar__surface {
+    background-color: #e74c3c;
+    color: white;
+  }
+  .mdc-button {
+    color: white;
   }
 }

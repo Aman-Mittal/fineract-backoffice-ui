@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/* Import global common styles */
 @use 'styles/common' as *;
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  --sidebar-width: 260px;
+}
 
 /* Foundation Resets & Defaults */
 * {

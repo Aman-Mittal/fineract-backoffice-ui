@@ -26,6 +26,7 @@
 
 
 export interface JobDetailHistoryDataSwagger { 
+    id?: number;
     jobRunEndTime?: string;
     jobRunStartTime?: string;
     status?: string;

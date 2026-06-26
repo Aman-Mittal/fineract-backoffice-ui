@@ -25,6 +25,9 @@
 
 
 
+/**
+ * currency
+ */
 export interface GetLoansLoanIdCurrency { 
     code?: string;
     decimalPlaces?: number;

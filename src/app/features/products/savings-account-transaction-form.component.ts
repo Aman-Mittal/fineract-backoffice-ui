@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,22 +30,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   SavingsAccountTransactionsService,
   PostSavingsAccountTransactionsRequest,
 } from '../../api';
 
-/**
- * Component for processing deposits and withdrawals on a savings account.
- *
- * Provides a unified form that adapts based on the 'command' route parameter.
- * Strictly binds to OpenAPI models and enforces yyyy-MM-dd date formatting.
- */
 @Component({
   selector: 'app-savings-account-transaction-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -56,6 +51,8 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -130,7 +127,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -139,7 +136,15 @@ import {
                 type="submit"
                 [disabled]="transactionForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -164,48 +169,25 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class SavingsAccountTransactionFormComponent implements OnInit {
-  /** Service for savings transaction management */
   private readonly transactionService = inject(SavingsAccountTransactionsService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for context */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Savings account identifier */
   accountId = 0;
-  /** Transaction command (deposit/withdrawal) */
   command = '';
-  /** State of the save operation */
   isSaving = false;
 
-  /** Transaction request model */
   transaction: PostSavingsAccountTransactionsRequest = {};
   /** Note bound separately as it might not be in the direct model */
   note = '';
-  /** Date object for template binding */
   transactionDate: Date = new Date();
-  /** Payment type options (usually loaded from template) */
   paymentTypeOptions: Record<string, unknown>[] = [];
 
-  /**
-   * Initializes the component and loads context.
-   */
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.accountId = +params['accountId'];
@@ -214,28 +196,24 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Fetches the transaction template for the current account.
-   */
   private loadTemplate(): void {
-    this.transactionService.retrieveTemplate19(this.accountId).subscribe({
-      next: (template: string) => {
-        // Handle template parsing if necessary (OpenAPI sometimes returns generic string/any)
-        const data = typeof template === 'string' ? JSON.parse(template) : template;
-        this.paymentTypeOptions = data.paymentTypeOptions || [];
-        if (data.date) {
-          this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
-        }
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load savings transaction template', err);
-      },
-    });
+    this.transactionService
+      .getSavingsaccountsSavingsIdTransactionsTemplate(this.accountId)
+      .subscribe({
+        next: (template: string) => {
+          // Handle template parsing if necessary (OpenAPI sometimes returns generic string/any)
+          const data = typeof template === 'string' ? JSON.parse(template) : template;
+          this.paymentTypeOptions = data.paymentTypeOptions || [];
+          if (data.date) {
+            this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
+          }
+        },
+        error: () => {
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+        },
+      });
   }
 
-  /**
-   * Submits the transaction to the API.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -254,16 +232,17 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
     };
 
     this.transactionService
-      .transaction2(this.accountId, payload as PostSavingsAccountTransactionsRequest, this.command)
+      .postSavingsaccountsSavingsIdTransactions(
+        this.accountId,
+        payload as PostSavingsAccountTransactionsRequest,
+        this.command,
+      )
       .subscribe({
         next: () => this.router.navigate(['/products/savings-accounts']),
         error: () => (this.isSaving = false),
       });
   }
 
-  /**
-   * Navigates back to the savings accounts list.
-   */
   onCancel(): void {
     this.router.navigate(['/products/savings-accounts']);
   }

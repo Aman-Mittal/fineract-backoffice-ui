@@ -29,7 +29,7 @@ export interface StaffAssignmentHistory {
     createdBy?: number;
     createdDate?: string;
     currentRecord?: boolean;
-    id?: number;
+    id?: number | null;
     lastModifiedBy?: number;
     lastModifiedDate?: string;
     'new'?: boolean;

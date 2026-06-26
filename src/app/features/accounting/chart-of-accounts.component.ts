@@ -18,12 +18,12 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { NgClass } from '@angular/common';
 import { of } from 'rxjs';
 import { catchError, startWith } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
@@ -33,13 +33,13 @@ import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
   selector: 'app-chart-of-accounts',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    NgClass,
   ],
   template: `
     <app-data-table
@@ -116,7 +116,7 @@ export class ChartOfAccountsComponent {
 
   constructor() {
     this.glAccountService
-      .retrieveAllAccounts()
+      .getGlaccounts()
       .pipe(
         startWith([]),
         catchError(() => of([])),

@@ -18,12 +18,13 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CurrencyPipe } from '@angular/common';
 import {
   DataTableComponent,
   ColumnDef,
@@ -42,7 +43,6 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
   selector: 'app-recurring-deposits-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -50,6 +50,7 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    CurrencyPipe,
   ],
   template: `
     <app-data-table
@@ -63,11 +64,25 @@ import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } f
       [localLogic]="true"
       (create)="onCreateAccount()"
     >
+      <ng-template appCellTemplate="recurringDepositAmount" let-account>
+        {{ account.recurringDepositAmount | currency: account.currency?.code }}
+      </ng-template>
+
       <ng-template appCellTemplate="status" let-account>
         <app-status-badge [status]="account.status"></app-status-badge>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
+        @if (account.status?.value === 'Submitted and pending approval') {
+          <button
+            mat-icon-button
+            color="accent"
+            [matTooltip]="'LOANS.APPROVE' | translate"
+            (click)="onApprove(account)"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+        }
         <button
           mat-icon-button
           color="primary"
@@ -110,7 +125,7 @@ export class RecurringDepositsListComponent implements OnInit {
    * Fetches RD accounts from the API.
    */
   private loadAccounts(): void {
-    this.rdService.retrieveAll31().subscribe({
+    this.rdService.getRecurringdepositaccounts().subscribe({
       next: (data: GetRecurringDepositAccountsResponse[]) => {
         this.accounts = data || [];
       },
@@ -134,5 +149,9 @@ export class RecurringDepositsListComponent implements OnInit {
    */
   onEditAccount(account: GetRecurringDepositAccountsResponse): void {
     this.router.navigate(['/products/recurring-deposits/edit', account.id]);
+  }
+
+  onApprove(account: GetRecurringDepositAccountsResponse): void {
+    this.router.navigate([`/products/recurring/${account.id}/action/approve`]);
   }
 }

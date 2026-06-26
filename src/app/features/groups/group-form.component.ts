@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -32,6 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   GroupsService,
   OfficesService,
@@ -51,7 +52,6 @@ import {
   selector: 'app-group-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -64,6 +64,7 @@ import {
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -134,7 +135,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               @if (isEditMode && !originalActive) {
@@ -145,7 +146,15 @@ import {
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"
                 >
-                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Group' }}
+                  @if (isSaving) {
+                    <mat-spinner
+                      diameter="20"
+                      style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                    ></mat-spinner>
+                    {{ 'COMMON.SAVING' | translate }}
+                  } @else {
+                    Activate Group
+                  }
                 </button>
               }
               <button
@@ -154,7 +163,15 @@ import {
                 type="submit"
                 [disabled]="groupForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -179,20 +196,11 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 60px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .help-icon {
         font-size: 18px;
@@ -205,42 +213,26 @@ import {
   ],
 })
 export class GroupFormComponent implements OnInit {
-  /** Service for group management API calls */
   private readonly groupsService = inject(GroupsService);
-  /** Service for office data retrieval */
   private readonly officesService = inject(OfficesService);
-  /** Router for navigation */
   private readonly router = inject(Router);
-  /** Activated route for parameter access */
   private readonly route = inject(ActivatedRoute);
 
-  /** Constant for Fineract date format */
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
-  /** Path for redirection */
   private readonly LIST_PATH = '/groups';
 
-  /** Group ID in edit mode */
   groupId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
-  /** Initial active state */
   originalActive = false;
 
-  /** Strictly typed request model from OpenAPI */
   group: PostGroupsRequest = {
     active: true,
   };
 
-  /** Activation date for new groups */
   activationDate: Date = new Date();
-  /** Office options */
   offices: GetOfficesResponse[] = [];
 
-  /**
-   * Initializes the component.
-   */
   ngOnInit(): void {
     this.loadOffices();
     this.route.paramMap.subscribe((params) => {
@@ -253,21 +245,15 @@ export class GroupFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Retrieves the list of available offices.
-   */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
-  /**
-   * Loads group data for editing.
-   */
   private loadGroupData(): void {
     if (!this.groupId) return;
-    this.groupsService.retrieveOne15(this.groupId).subscribe((data) => {
+    this.groupsService.getGroupsGroupId(this.groupId).subscribe((data) => {
       this.originalActive = !!(data as Record<string, unknown>)['active'];
       this.group = {
         name: data.name,
@@ -292,11 +278,7 @@ export class GroupFormComponent implements OnInit {
     };
 
     this.groupsService
-      .activateOrGenerateCollectionSheet(
-        this.groupId,
-        payload as PostGroupsGroupIdRequest,
-        'activate',
-      )
+      .postGroupsGroupId(this.groupId, payload as PostGroupsGroupIdRequest, 'activate')
       .subscribe({
         next: () => {
           this.isSaving = false;
@@ -317,7 +299,7 @@ export class GroupFormComponent implements OnInit {
       const payload: PutGroupsGroupIdRequest = {
         name: this.group.name,
       };
-      this.groupsService.update13(this.groupId, payload).subscribe({
+      this.groupsService.putGroupsGroupId(this.groupId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -334,16 +316,13 @@ export class GroupFormComponent implements OnInit {
         locale: 'en',
       };
 
-      this.groupsService.create8(payload as PostGroupsRequest).subscribe({
+      this.groupsService.postGroups(payload as PostGroupsRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
-  /**
-   * Navigates back to the group list.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

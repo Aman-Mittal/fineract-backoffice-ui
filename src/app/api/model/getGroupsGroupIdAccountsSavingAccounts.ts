@@ -29,12 +29,16 @@ import { GetGroupsGroupIdAccountsSavingStatus } from './getGroupsGroupIdAccounts
 
 
 export interface GetGroupsGroupIdAccountsSavingAccounts { 
+    accountBalance?: number;
     accountNo?: number;
     accountType?: GetGroupsGroupIdAccountsSavingAccountType;
+    availableBalance?: number;
     currency?: GetGroupsGroupIdAccountsSavingCurrency;
     id?: number;
+    onHoldFunds?: number;
     productId?: number;
     productName?: string;
+    savingsAmountOnHold?: number;
     status?: GetGroupsGroupIdAccountsSavingStatus;
 }
 

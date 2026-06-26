@@ -44,7 +44,11 @@ export interface PutLoanProductsProductIdRequest {
     allowApprovedDisbursedAmountsOverApplied?: boolean;
     allowAttributeOverrides?: AllowAttributeOverrides;
     allowCompoundingOnEod?: boolean;
-    allowPartialPeriodInterestCalcualtion?: boolean;
+    /**
+     * Allow full term length for each tranche disbursement. Only available for PROGRESSIVE schedule type with multi-disbursement enabled.
+     */
+    allowFullTermForTranche?: boolean;
+    allowPartialPeriodInterestCalculation?: boolean;
     allowVariableInstallments?: boolean;
     amortizationType?: number;
     buyDownExpenseAccountId?: number;

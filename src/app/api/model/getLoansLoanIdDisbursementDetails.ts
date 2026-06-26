@@ -25,9 +25,11 @@
 
 
 
+/**
+ * Set of GetLoansLoanIdDisbursementDetails
+ */
 export interface GetLoansLoanIdDisbursementDetails { 
     actualDisbursementDate?: string;
-    approvedPrincipal?: number;
     chargeAmount?: number;
     dateFormat?: string;
     expectedDisbursementDate?: string;

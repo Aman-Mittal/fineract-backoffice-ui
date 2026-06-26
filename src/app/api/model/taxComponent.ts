@@ -31,15 +31,17 @@ import { TaxGroupMappings } from './taxGroupMappings';
 export interface TaxComponent { 
     createdBy?: number;
     createdDate?: string;
+    creditAccount?: GLAccount;
     creditAccountType?: number;
-    creditAcount?: GLAccount;
+    debitAccount?: GLAccount;
     debitAccountType?: number;
-    debitAcount?: GLAccount;
-    id?: number;
+    id?: number | null;
     lastModifiedBy?: number;
     lastModifiedDate?: string;
+    name?: string;
     'new'?: boolean;
     percentage?: number;
+    startDate?: string;
     taxComponentHistories?: Set<TaxComponentHistory>;
     taxGroupMappings?: Set<TaxGroupMappings>;
 }

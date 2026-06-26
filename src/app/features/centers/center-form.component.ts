@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -32,6 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   CentersService,
   OfficesService,
@@ -52,7 +53,6 @@ import {
   selector: 'app-center-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -65,6 +65,7 @@ import {
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -137,7 +138,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               @if (isEditMode && !originalActive) {
@@ -148,7 +149,15 @@ import {
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"
                 >
-                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Center' }}
+                  @if (isSaving) {
+                    <mat-spinner
+                      diameter="20"
+                      style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                    ></mat-spinner>
+                    {{ 'COMMON.SAVING' | translate }}
+                  } @else {
+                    Activate Center
+                  }
                 </button>
               }
               <button
@@ -157,7 +166,15 @@ import {
                 type="submit"
                 [disabled]="centerForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -182,20 +199,11 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 60px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .help-icon {
         font-size: 18px;
@@ -208,42 +216,26 @@ import {
   ],
 })
 export class CenterFormComponent implements OnInit {
-  /** Service for center operations */
   private readonly centersService = inject(CentersService);
-  /** Service for office data retrieval */
   private readonly officesService = inject(OfficesService);
-  /** Activated route for parameter access */
   private readonly route = inject(ActivatedRoute);
-  /** Router for navigation */
   private readonly router = inject(Router);
 
-  /** Constant for Fineract date format */
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
-  /** Path for redirection */
   private readonly LIST_PATH = '/centers';
 
-  /** Center ID in edit mode */
   centerId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
-  /** Initial active state */
   originalActive = false;
 
-  /** Strictly typed request model from OpenAPI */
   center: PostCentersRequest = {
     active: true,
   };
 
-  /** Activation date for new centers */
   activationDate: Date = new Date();
-  /** Office options */
   offices: GetOfficesResponse[] = [];
 
-  /**
-   * Initializes the component and loads initial data.
-   */
   ngOnInit(): void {
     this.loadOffices();
     this.route.paramMap.subscribe((params) => {
@@ -256,21 +248,15 @@ export class CenterFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Retrieves the list of available offices.
-   */
   private loadOffices(): void {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
 
-  /**
-   * Loads center details for editing.
-   */
   private loadCenterData(): void {
     if (!this.centerId) return;
-    this.centersService.retrieveOne14(this.centerId).subscribe((data) => {
+    this.centersService.getCentersCenterId(this.centerId).subscribe((data) => {
       this.originalActive = !!(data as Record<string, unknown>)['active'];
       this.center = {
         name: data.name,
@@ -295,7 +281,7 @@ export class CenterFormComponent implements OnInit {
     };
 
     this.centersService
-      .activate2(this.centerId, payload as PostCentersCenterIdRequest, 'activate')
+      .postCentersCenterId(this.centerId, payload as PostCentersCenterIdRequest, 'activate')
       .subscribe({
         next: () => {
           this.isSaving = false;
@@ -306,9 +292,6 @@ export class CenterFormComponent implements OnInit {
       });
   }
 
-  /**
-   * Handles form submission, applying mandatory date formatting.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -316,7 +299,7 @@ export class CenterFormComponent implements OnInit {
       const payload: PutCentersCenterIdRequest = {
         name: this.center.name,
       };
-      this.centersService.update12(this.centerId, payload).subscribe({
+      this.centersService.putCentersCenterId(this.centerId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
@@ -333,16 +316,13 @@ export class CenterFormComponent implements OnInit {
         locale: 'en',
       };
 
-      this.centersService.create7(payload as PostCentersRequest).subscribe({
+      this.centersService.postCenters(payload as PostCentersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
-  /**
-   * Navigates back to the center list.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

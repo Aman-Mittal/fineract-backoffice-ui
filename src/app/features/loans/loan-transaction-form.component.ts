@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,27 +30,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   LoanTransactionsService,
+  LoansService,
   PostLoansLoanIdTransactionsRequest,
   GetLoansLoanIdTransactionsTemplateResponse,
   GetPaymentTypeOptions,
 } from '../../api';
 
-/**
- * Component for processing loan transactions such as repayments and disbursements.
- *
- * Provides a template-driven form bound to Fineract OpenAPI transaction models.
- * Dynamically adapts labels and logic based on the 'type' route parameter.
- *
- * @example
- * <app-loan-transaction-form></app-loan-transaction-form>
- */
 @Component({
   selector: 'app-loan-transaction-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -61,6 +54,8 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -70,7 +65,9 @@ import {
             {{
               transactionType === 'repayment'
                 ? ('LOANS.REPAYMENT' | translate)
-                : ('LOANS.DISBURSEMENT' | translate)
+                : transactionType === 'disburse'
+                  ? ('LOANS.DISBURSEMENT' | translate)
+                  : ('LOANS.APPROVAL' | translate)
             }}
           </mat-card-title>
         </mat-card-header>
@@ -83,7 +80,13 @@ import {
                 appearance="outline"
                 [matTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate"
               >
-                <mat-label>{{ 'COMMON.TRANSACTION_DATE' | translate }}</mat-label>
+                <mat-label>
+                  {{
+                    transactionType === 'approve'
+                      ? ('COMMON.ACTIVATION_DATE' | translate)
+                      : ('COMMON.TRANSACTION_DATE' | translate)
+                  }}
+                </mat-label>
                 <input
                   matInput
                   [matDatepicker]="picker"
@@ -95,33 +98,61 @@ import {
                 <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
 
-              <!-- Transaction Amount -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.TRANSACTION_AMOUNT' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="transactionAmount"
-                  [(ngModel)]="transaction.transactionAmount"
-                  required
-                />
-              </mat-form-field>
+              @if (transactionType !== 'approve') {
+                <!-- Transaction Amount -->
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate"
+                >
+                  <mat-label>{{ 'COMMON.TRANSACTION_AMOUNT' | translate }}</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="transactionAmount"
+                    [(ngModel)]="transaction.transactionAmount"
+                    required
+                  />
+                </mat-form-field>
 
-              <!-- Payment Type -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PAYMENT_TYPE' | translate }}</mat-label>
-                <mat-select name="paymentTypeId" [(ngModel)]="transaction.paymentTypeId">
-                  @for (type of paymentTypeOptions; track type.id) {
-                    <mat-option [value]="type.id">{{ type.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <!-- Payment Type -->
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate"
+                >
+                  <mat-label>{{ 'COMMON.PAYMENT_TYPE' | translate }}</mat-label>
+                  <mat-select name="paymentTypeId" [(ngModel)]="transaction.paymentTypeId">
+                    @for (type of paymentTypeOptions; track type.id) {
+                      <mat-option [value]="type.id">{{ type.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+
+              @if (transactionType === 'repayment') {
+                <!-- Receipt Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.RECEIPT_NUMBER' | translate }}</mat-label>
+                  <input matInput name="receiptNumber" [(ngModel)]="transaction.receiptNumber" />
+                </mat-form-field>
+
+                <!-- Bank Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.BANK_NUMBER' | translate }}</mat-label>
+                  <input matInput name="bankNumber" [(ngModel)]="transaction.bankNumber" />
+                </mat-form-field>
+
+                <!-- Check Number -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.CHECK_NUMBER' | translate }}</mat-label>
+                  <input matInput name="checkNumber" [(ngModel)]="transaction.checkNumber" />
+                </mat-form-field>
+
+                <!-- Routing Code -->
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'LOANS.ROUTING_CODE' | translate }}</mat-label>
+                  <input matInput name="routingCode" [(ngModel)]="transaction.routingCode" />
+                </mat-form-field>
+              }
 
               <!-- Note -->
               <mat-form-field
@@ -135,7 +166,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -144,7 +175,15 @@ import {
                 type="submit"
                 [disabled]="transactionForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -169,47 +208,24 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
     `,
   ],
 })
 export class LoanTransactionFormComponent implements OnInit {
-  /** Service for loan transaction management */
   private readonly transactionService = inject(LoanTransactionsService);
-  /** Router for post-submission navigation */
+  private readonly loansService = inject(LoansService);
   private readonly router = inject(Router);
-  /** Activated route for parameters */
   private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /** Current loan identifier */
   loanId = 0;
-  /** Type of transaction: 'repayment' or 'disbursement' */
   transactionType = '';
-  /** State of the save operation */
   isSaving = false;
 
-  /** Transaction request model */
   transaction: PostLoansLoanIdTransactionsRequest = {};
-  /** Date object for template binding */
   transactionDate: Date = new Date();
-  /** Payment type options loaded from template */
   paymentTypeOptions: GetPaymentTypeOptions[] = [];
 
-  /**
-   * Initializes the component by retrieving route parameters
-   * and loading the transaction template from the API.
-   */
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.loanId = +params['loanId'];
@@ -218,12 +234,12 @@ export class LoanTransactionFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Fetches the transaction template for the current loan and type.
-   */
   private loadTemplate(): void {
+    if (this.transactionType === 'approve') {
+      return;
+    }
     this.transactionService
-      .retrieveTransactionTemplate(this.loanId, this.transactionType)
+      .getLoansLoanIdTransactionsTemplate(this.loanId, this.transactionType)
       .subscribe({
         next: (template: GetLoansLoanIdTransactionsTemplateResponse) => {
           this.transaction.transactionAmount = template.amount;
@@ -233,15 +249,12 @@ export class LoanTransactionFormComponent implements OnInit {
           }
           this.paymentTypeOptions = template.paymentTypeOptions || [];
         },
-        error: (err: unknown) => {
-          console.error('Failed to load transaction template', err);
+        error: () => {
+          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
         },
       });
   }
 
-  /**
-   * Submits the transaction to the Fineract API.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
@@ -249,21 +262,31 @@ export class LoanTransactionFormComponent implements OnInit {
       this.transactionDate.getMonth() + 1,
     ).padStart(2, '0')}-${String(this.transactionDate.getDate()).padStart(2, '0')}`;
 
-    this.transaction.transactionDate = formattedDate;
-    this.transaction.dateFormat = 'yyyy-MM-dd';
-    this.transaction.locale = 'en';
-
-    this.transactionService
-      .executeLoanTransaction(this.loanId, this.transaction, this.transactionType)
-      .subscribe({
+    if (this.transactionType === 'approve') {
+      const payload = {
+        approvedOnDate: formattedDate,
+        dateFormat: 'yyyy-MM-dd',
+        locale: 'en',
+        note: this.transaction.note,
+      };
+      this.loansService.postLoansLoanId(this.loanId, payload, 'approve').subscribe({
         next: () => this.router.navigate(['/loans']),
         error: () => (this.isSaving = false),
       });
+    } else {
+      this.transaction.transactionDate = formattedDate;
+      this.transaction.dateFormat = 'yyyy-MM-dd';
+      this.transaction.locale = 'en';
+
+      this.transactionService
+        .postLoansLoanIdTransactions(this.loanId, this.transaction, this.transactionType)
+        .subscribe({
+          next: () => this.router.navigate(['/loans']),
+          error: () => (this.isSaving = false),
+        });
+    }
   }
 
-  /**
-   * Navigates back to the loan list.
-   */
   onCancel(): void {
     this.router.navigate(['/loans']);
   }

@@ -52,6 +52,8 @@ export class NotificationService extends BaseService {
     }
 
     /**
+     * Retrieve all Notifications
+     * Returns a paginated list of notifications for the authenticated user, with optional filtering by read status.
      * @endpoint get /v1/notifications
      * @param orderBy orderBy
      * @param limit limit
@@ -62,10 +64,10 @@ export class NotificationService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getAllNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetNotificationsResponse>;
-    public getAllNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetNotificationsResponse>>;
-    public getAllNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetNotificationsResponse>>;
-    public getAllNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetNotificationsResponse>;
+    public getNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetNotificationsResponse>>;
+    public getNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetNotificationsResponse>>;
+    public getNotifications(orderBy?: string, limit?: number, offset?: number, sortOrder?: string, isRead?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -162,15 +164,17 @@ export class NotificationService extends BaseService {
     }
 
     /**
+     * Update Notification Read Status
+     * Updates the read status of all notifications for the authenticated user.
      * @endpoint put /v1/notifications
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update5(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public update5(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public update5(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public update5(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putNotifications(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public putNotifications(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public putNotifications(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public putNotifications(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 

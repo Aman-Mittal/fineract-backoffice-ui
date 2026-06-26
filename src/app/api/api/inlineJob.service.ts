@@ -63,12 +63,12 @@ export class InlineJobService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public executeInlineJob(jobName: string, inlineJobRequest?: InlineJobRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InlineJobResponse>;
-    public executeInlineJob(jobName: string, inlineJobRequest?: InlineJobRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InlineJobResponse>>;
-    public executeInlineJob(jobName: string, inlineJobRequest?: InlineJobRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InlineJobResponse>>;
-    public executeInlineJob(jobName: string, inlineJobRequest?: InlineJobRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postJobsJobNameInline(jobName: string, inlineJobRequest?: InlineJobRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<InlineJobResponse>;
+    public postJobsJobNameInline(jobName: string, inlineJobRequest?: InlineJobRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<InlineJobResponse>>;
+    public postJobsJobNameInline(jobName: string, inlineJobRequest?: InlineJobRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<InlineJobResponse>>;
+    public postJobsJobNameInline(jobName: string, inlineJobRequest?: InlineJobRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (jobName === null || jobName === undefined) {
-            throw new Error('Required parameter jobName was null or undefined when calling executeInlineJob.');
+            throw new Error('Required parameter jobName was null or undefined when calling postJobsJobNameInline.');
         }
 
         let localVarHeaders = this.defaultHeaders;

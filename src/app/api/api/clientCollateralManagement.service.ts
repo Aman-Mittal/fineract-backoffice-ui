@@ -33,19 +33,19 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ClientCollateralCreateRequest } from '../model/clientCollateralCreateRequest';
+// @ts-ignore
+import { ClientCollateralCreateResponse } from '../model/clientCollateralCreateResponse';
+// @ts-ignore
+import { ClientCollateralDeleteResponse } from '../model/clientCollateralDeleteResponse';
+// @ts-ignore
 import { ClientCollateralManagementData } from '../model/clientCollateralManagementData';
 // @ts-ignore
-import { ClientCollateralRequest } from '../model/clientCollateralRequest';
+import { ClientCollateralUpdateRequest } from '../model/clientCollateralUpdateRequest';
 // @ts-ignore
-import { DeleteClientCollateralResponse } from '../model/deleteClientCollateralResponse';
+import { ClientCollateralUpdateResponse } from '../model/clientCollateralUpdateResponse';
 // @ts-ignore
 import { LoanCollateralTemplateData } from '../model/loanCollateralTemplateData';
-// @ts-ignore
-import { PostClientCollateralResponse } from '../model/postClientCollateralResponse';
-// @ts-ignore
-import { PutClientCollateralResponse } from '../model/putClientCollateralResponse';
-// @ts-ignore
-import { UpdateClientCollateralRequest } from '../model/updateClientCollateralRequest';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -64,83 +64,6 @@ export class ClientCollateralManagementService extends BaseService {
     }
 
     /**
-     * Add New Collateral For a Client
-     * Add New Collateral For a Client
-     * @endpoint post /v1/clients/{clientId}/collaterals
-     * @param clientId clientId
-     * @param clientCollateralRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public addCollateral(clientId: number, clientCollateralRequest: ClientCollateralRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostClientCollateralResponse>;
-    public addCollateral(clientId: number, clientCollateralRequest: ClientCollateralRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostClientCollateralResponse>>;
-    public addCollateral(clientId: number, clientCollateralRequest: ClientCollateralRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostClientCollateralResponse>>;
-    public addCollateral(clientId: number, clientCollateralRequest: ClientCollateralRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling addCollateral.');
-        }
-        if (clientCollateralRequest === null || clientCollateralRequest === undefined) {
-            throw new Error('Required parameter clientCollateralRequest was null or undefined when calling addCollateral.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/collaterals`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostClientCollateralResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: clientCollateralRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Delete Client Collateral
      * Delete Client Collateral
      * @endpoint delete /v1/clients/{clientId}/collaterals/{collateralId}
@@ -150,15 +73,15 @@ export class ClientCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteCollateral1(clientId: number, collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteClientCollateralResponse>;
-    public deleteCollateral1(clientId: number, collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteClientCollateralResponse>>;
-    public deleteCollateral1(clientId: number, collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteClientCollateralResponse>>;
-    public deleteCollateral1(clientId: number, collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClientCollateralDeleteResponse>;
+    public deleteClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientCollateralDeleteResponse>>;
+    public deleteClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientCollateralDeleteResponse>>;
+    public deleteClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling deleteCollateral1.');
+            throw new Error('Required parameter clientId was null or undefined when calling deleteClientsClientIdCollateralsCollateralId.');
         }
         if (collateralId === null || collateralId === undefined) {
-            throw new Error('Required parameter collateralId was null or undefined when calling deleteCollateral1.');
+            throw new Error('Required parameter collateralId was null or undefined when calling deleteClientsClientIdCollateralsCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -194,7 +117,7 @@ export class ClientCollateralManagementService extends BaseService {
 
         let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/collaterals/${this.configuration.encodeParam({name: "collateralId", value: collateralId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteClientCollateralResponse>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ClientCollateralDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -217,12 +140,12 @@ export class ClientCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getClientCollateral(clientId: number, prodId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ClientCollateralManagementData>>;
-    public getClientCollateral(clientId: number, prodId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ClientCollateralManagementData>>>;
-    public getClientCollateral(clientId: number, prodId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ClientCollateralManagementData>>>;
-    public getClientCollateral(clientId: number, prodId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getClientsClientIdCollaterals(clientId: number, prodId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ClientCollateralManagementData>>;
+    public getClientsClientIdCollaterals(clientId: number, prodId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ClientCollateralManagementData>>>;
+    public getClientsClientIdCollaterals(clientId: number, prodId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ClientCollateralManagementData>>>;
+    public getClientsClientIdCollaterals(clientId: number, prodId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling getClientCollateral.');
+            throw new Error('Required parameter clientId was null or undefined when calling getClientsClientIdCollaterals.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -293,15 +216,15 @@ export class ClientCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getClientCollateralData(clientId: number, clientCollateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClientCollateralManagementData>;
-    public getClientCollateralData(clientId: number, clientCollateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientCollateralManagementData>>;
-    public getClientCollateralData(clientId: number, clientCollateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientCollateralManagementData>>;
-    public getClientCollateralData(clientId: number, clientCollateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getClientsClientIdCollateralsClientCollateralId(clientId: number, clientCollateralId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClientCollateralManagementData>;
+    public getClientsClientIdCollateralsClientCollateralId(clientId: number, clientCollateralId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientCollateralManagementData>>;
+    public getClientsClientIdCollateralsClientCollateralId(clientId: number, clientCollateralId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientCollateralManagementData>>;
+    public getClientsClientIdCollateralsClientCollateralId(clientId: number, clientCollateralId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling getClientCollateralData.');
+            throw new Error('Required parameter clientId was null or undefined when calling getClientsClientIdCollateralsClientCollateralId.');
         }
         if (clientCollateralId === null || clientCollateralId === undefined) {
-            throw new Error('Required parameter clientCollateralId was null or undefined when calling getClientCollateralData.');
+            throw new Error('Required parameter clientCollateralId was null or undefined when calling getClientsClientIdCollateralsClientCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -359,12 +282,12 @@ export class ClientCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getClientCollateralTemplate(clientId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<LoanCollateralTemplateData>>;
-    public getClientCollateralTemplate(clientId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<LoanCollateralTemplateData>>>;
-    public getClientCollateralTemplate(clientId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<LoanCollateralTemplateData>>>;
-    public getClientCollateralTemplate(clientId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getClientsClientIdCollateralsTemplate(clientId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<LoanCollateralTemplateData>>;
+    public getClientsClientIdCollateralsTemplate(clientId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<LoanCollateralTemplateData>>>;
+    public getClientsClientIdCollateralsTemplate(clientId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<LoanCollateralTemplateData>>>;
+    public getClientsClientIdCollateralsTemplate(clientId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling getClientCollateralTemplate.');
+            throw new Error('Required parameter clientId was null or undefined when calling getClientsClientIdCollateralsTemplate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -414,28 +337,99 @@ export class ClientCollateralManagementService extends BaseService {
     }
 
     /**
+     * Add New Collateral For a Client
+     * Add New Collateral For a Client
+     * @endpoint post /v1/clients/{clientId}/collaterals
+     * @param clientId clientId
+     * @param clientCollateralCreateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postClientsClientIdCollaterals(clientId: number, clientCollateralCreateRequest?: ClientCollateralCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClientCollateralCreateResponse>;
+    public postClientsClientIdCollaterals(clientId: number, clientCollateralCreateRequest?: ClientCollateralCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientCollateralCreateResponse>>;
+    public postClientsClientIdCollaterals(clientId: number, clientCollateralCreateRequest?: ClientCollateralCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientCollateralCreateResponse>>;
+    public postClientsClientIdCollaterals(clientId: number, clientCollateralCreateRequest?: ClientCollateralCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (clientId === null || clientId === undefined) {
+            throw new Error('Required parameter clientId was null or undefined when calling postClientsClientIdCollaterals.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/collaterals`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ClientCollateralCreateResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: clientCollateralCreateRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Update New Collateral of a Client
      * Update New Collateral of a Client
      * @endpoint put /v1/clients/{clientId}/collaterals/{collateralId}
      * @param clientId clientId
      * @param collateralId collateralId
-     * @param updateClientCollateralRequest 
+     * @param clientCollateralUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateCollateral1(clientId: number, collateralId: number, updateClientCollateralRequest: UpdateClientCollateralRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutClientCollateralResponse>;
-    public updateCollateral1(clientId: number, collateralId: number, updateClientCollateralRequest: UpdateClientCollateralRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutClientCollateralResponse>>;
-    public updateCollateral1(clientId: number, collateralId: number, updateClientCollateralRequest: UpdateClientCollateralRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutClientCollateralResponse>>;
-    public updateCollateral1(clientId: number, collateralId: number, updateClientCollateralRequest: UpdateClientCollateralRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, clientCollateralUpdateRequest?: ClientCollateralUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClientCollateralUpdateResponse>;
+    public putClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, clientCollateralUpdateRequest?: ClientCollateralUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientCollateralUpdateResponse>>;
+    public putClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, clientCollateralUpdateRequest?: ClientCollateralUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientCollateralUpdateResponse>>;
+    public putClientsClientIdCollateralsCollateralId(clientId: number, collateralId: number, clientCollateralUpdateRequest?: ClientCollateralUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling updateCollateral1.');
+            throw new Error('Required parameter clientId was null or undefined when calling putClientsClientIdCollateralsCollateralId.');
         }
         if (collateralId === null || collateralId === undefined) {
-            throw new Error('Required parameter collateralId was null or undefined when calling updateCollateral1.');
-        }
-        if (updateClientCollateralRequest === null || updateClientCollateralRequest === undefined) {
-            throw new Error('Required parameter updateClientCollateralRequest was null or undefined when calling updateCollateral1.');
+            throw new Error('Required parameter collateralId was null or undefined when calling putClientsClientIdCollateralsCollateralId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -480,10 +474,10 @@ export class ClientCollateralManagementService extends BaseService {
 
         let localVarPath = `/v1/clients/${this.configuration.encodeParam({name: "clientId", value: clientId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/collaterals/${this.configuration.encodeParam({name: "collateralId", value: collateralId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutClientCollateralResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ClientCollateralUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: updateClientCollateralRequest,
+                body: clientCollateralUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

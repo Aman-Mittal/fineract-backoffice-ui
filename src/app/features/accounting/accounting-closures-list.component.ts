@@ -18,12 +18,12 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { DatePipe, NgClass } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { AccountingClosureService, GetGlClosureResponse } from '../../api';
 
@@ -36,13 +36,14 @@ import { AccountingClosureService, GetGlClosureResponse } from '../../api';
   selector: 'app-accounting-closures-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    DatePipe,
+    NgClass,
   ],
   template: `
     <app-data-table
@@ -115,7 +116,7 @@ export class AccountingClosuresListComponent implements OnInit {
   }
 
   private loadClosures() {
-    this.closureService.retrieveAllClosures().subscribe({
+    this.closureService.getGlclosures().subscribe({
       next: (data) => (this.closures = data),
       error: (err) => console.error('Failed to load closures', err),
     });
@@ -127,7 +128,9 @@ export class AccountingClosuresListComponent implements OnInit {
 
   onDeleteClosure(closure: GetGlClosureResponse) {
     if (closure.id && confirm('Are you sure you want to re-open this period?')) {
-      this.closureService.deleteGLClosure(closure.id).subscribe(() => this.loadClosures());
+      this.closureService
+        .deleteGlclosuresGlClosureId(closure.id)
+        .subscribe(() => this.loadClosures());
     }
   }
 }

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -33,6 +33,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import {
@@ -42,12 +43,16 @@ import {
   OfficesService,
   GetOfficesResponse,
 } from '../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 
 @Component({
   selector: 'app-client-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -60,6 +65,7 @@ import {
     MatCheckboxModule,
     MatTooltipModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     HelpIconComponent,
     MatDialogModule,
   ],
@@ -97,42 +103,6 @@ import {
                 </mat-select>
               </mat-form-field>
 
-              <!-- First Name -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.FIRST_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
-                <input matInput name="firstname" [(ngModel)]="client.firstname" required />
-              </mat-form-field>
-
-              <!-- Last Name -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.LAST_NAME_DESC' | translate">
-                <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
-                <input matInput name="lastname" [(ngModel)]="client.lastname" required />
-              </mat-form-field>
-
-              <!-- External ID -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="client.externalId" />
-              </mat-form-field>
-
-              <!-- Mobile No -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.MOBILE_NO_DESC' | translate">
-                <mat-label>{{ 'COMMON.MOBILE_NO' | translate }}</mat-label>
-                <input matInput name="mobileNo" [(ngModel)]="client.mobileNo" />
-              </mat-form-field>
-
-              <!-- Email -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EMAIL_DESC' | translate">
-                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
-                <input matInput name="emailAddress" [(ngModel)]="client.emailAddress" />
-              </mat-form-field>
-
               <!-- Office -->
               <div class="office-field-container">
                 <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
@@ -153,13 +123,31 @@ import {
                     mat-icon-button
                     type="button"
                     color="primary"
-                    matTooltip="Add New Office"
+                    [matTooltip]="'CLIENTS.ADD_NEW_OFFICE' | translate"
                     (click)="addOffice()"
                   >
                     <mat-icon>add_circle</mat-icon>
                   </button>
                 }
               </div>
+
+              <!-- Submitted On Date -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+              >
+                <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="subPicker"
+                  name="submittedOnDate"
+                  [(ngModel)]="submittedOnDate"
+                  required
+                  [disabled]="isEditMode"
+                />
+                <mat-datepicker-toggle matSuffix [for]="subPicker"></mat-datepicker-toggle>
+                <mat-datepicker #subPicker></mat-datepicker>
+              </mat-form-field>
 
               <!-- Activation Date -->
               <mat-form-field
@@ -188,10 +176,83 @@ import {
                   >help_outline</mat-icon
                 >
               </div>
+
+              <!-- Entity fields -->
+              @if (client.legalFormId === 2) {
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.FULL_NAME_DESC' | translate"
+                  class="full-width"
+                >
+                  <mat-label>{{ 'CLIENTS.COMPANY_NAME' | translate }}</mat-label>
+                  <input matInput name="fullname" [(ngModel)]="client.fullname" required />
+                </mat-form-field>
+              }
+
+              <!-- Person fields -->
+              @if (client.legalFormId === 1) {
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.FIRST_NAME_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
+                  <input matInput name="firstname" [(ngModel)]="client.firstname" required />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.MIDDLE_NAME_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.MIDDLE_NAME' | translate }}</mat-label>
+                  <input matInput name="middlename" [(ngModel)]="client.middlename" />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.LAST_NAME_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
+                  <input matInput name="lastname" [(ngModel)]="client.lastname" required />
+                </mat-form-field>
+
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.DATE_OF_BIRTH_DESC' | translate"
+                >
+                  <mat-label>{{ 'CLIENTS.DATE_OF_BIRTH' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [matDatepicker]="dobPicker"
+                    name="dateOfBirth"
+                    [(ngModel)]="dateOfBirth"
+                  />
+                  <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #dobPicker></mat-datepicker>
+                </mat-form-field>
+              }
+
+              <!-- Common fields -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
+              >
+                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
+                <input matInput name="externalId" [(ngModel)]="client.externalId" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.MOBILE_NO_DESC' | translate">
+                <mat-label>{{ 'COMMON.MOBILE_NO' | translate }}</mat-label>
+                <input matInput name="mobileNo" [(ngModel)]="client.mobileNo" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" [matTooltip]="'HELP.EMAIL_DESC' | translate">
+                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
+                <input matInput name="emailAddress" [(ngModel)]="client.emailAddress" />
+              </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               @if (isEditMode && !originalActive) {
@@ -202,7 +263,15 @@ import {
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"
                 >
-                  {{ isSaving ? ('COMMON.SAVING' | translate) : 'Activate Client' }}
+                  @if (isSaving) {
+                    <mat-spinner
+                      diameter="20"
+                      style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                    ></mat-spinner>
+                    {{ 'COMMON.SAVING' | translate }}
+                  } @else {
+                    {{ 'CLIENTS.ACTIVATE_CLIENT' | translate }}
+                  }
                 </button>
               }
               <button
@@ -211,7 +280,15 @@ import {
                 type="submit"
                 [disabled]="clientForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -241,20 +318,11 @@ import {
         align-items: center;
         gap: 4px;
       }
-      mat-form-field {
-        width: 100%;
-      }
       .checkbox-container {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 60px;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
       .help-icon {
         font-size: 18px;
@@ -274,6 +342,8 @@ export class ClientFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   private readonly LIST_PATH = '/clients';
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
+  private readonly LOCALE_EN = 'en';
 
   clientId: number | null = null;
   isEditMode = false;
@@ -286,7 +356,9 @@ export class ClientFormComponent implements OnInit {
     active: true,
   };
 
+  submittedOnDate: Date = new Date();
   activationDate: Date = new Date();
+  dateOfBirth: Date | null = null;
   offices: GetOfficesResponse[] = [];
 
   ngOnInit() {
@@ -302,7 +374,7 @@ export class ClientFormComponent implements OnInit {
   }
 
   loadOffices() {
-    this.officesService.retrieveOffices(true).subscribe((offices) => {
+    this.officesService.getOffices(true).subscribe((offices) => {
       this.offices = offices;
     });
   }
@@ -315,7 +387,7 @@ export class ClientFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe((newOfficeId) => {
       if (newOfficeId) {
         // Reload offices and select the new one
-        this.officesService.retrieveOffices(true).subscribe((offices) => {
+        this.officesService.getOffices(true).subscribe((offices) => {
           this.offices = offices;
           this.client.officeId = newOfficeId;
         });
@@ -325,23 +397,41 @@ export class ClientFormComponent implements OnInit {
 
   loadClientData() {
     if (!this.clientId) return;
-    this.clientService.retrieveOne11(this.clientId).subscribe((clientData) => {
+    this.clientService.getClientsClientId(this.clientId).subscribe((data) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const clientData = data as any;
       const actDateArray = clientData.activationDate as unknown as number[];
       if (actDateArray) {
         this.activationDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
       }
 
+      const subDateArray = clientData.submittedOnDate as unknown as number[];
+      if (subDateArray) {
+        this.submittedOnDate = new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]);
+      } else if (actDateArray) {
+        this.submittedOnDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
+      }
+
+      const dobArray = clientData.dateOfBirth as unknown as number[];
+      if (dobArray) {
+        this.dateOfBirth = new Date(dobArray[0], dobArray[1] - 1, dobArray[2]);
+      }
+
       this.originalActive = !!clientData.active;
+
+      const legalFormId = clientData.legalForm?.id || 1;
 
       this.client = {
         firstname: clientData.firstname,
         lastname: clientData.lastname,
+        middlename: clientData.middlename,
+        fullname: clientData.fullname,
         externalId: clientData.externalId,
-        mobileNo: (clientData as Record<string, unknown>)['mobileNo'] as string,
+        mobileNo: clientData.mobileNo,
         emailAddress: clientData.emailAddress,
         officeId: clientData.officeId,
         active: clientData.active,
-        legalFormId: 1, // Default to person
+        legalFormId: legalFormId,
       };
     });
   }
@@ -350,17 +440,13 @@ export class ClientFormComponent implements OnInit {
     if (!this.clientId || !this.activationDate) return;
     this.isSaving = true;
 
-    const formattedDate = `${this.activationDate.getFullYear()}-${String(
-      this.activationDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
-
     const activationPayload = {
-      activationDate: formattedDate,
-      dateFormat: 'yyyy-MM-dd',
-      locale: 'en',
+      activationDate: formatDateToFineract(this.activationDate),
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
     };
 
-    this.clientService.activate1(this.clientId, activationPayload, 'activate').subscribe({
+    this.clientService.postClientsClientId(this.clientId, activationPayload, 'activate').subscribe({
       next: () => {
         this.isSaving = false;
         this.originalActive = true;
@@ -372,27 +458,58 @@ export class ClientFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formattedDate = `${this.activationDate.getFullYear()}-${String(
-      this.activationDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
 
     if (this.isEditMode && this.clientId) {
-      // Use PutClientsClientIdRequest strictly
-      const payload: PutClientsClientIdRequest = {
+      // Use Record<string, unknown> to bypass OpenAPI schema restrictions on update
+      const payload: Record<string, unknown> = {
         externalId: this.client.externalId,
+        mobileNo: this.client.mobileNo,
+        emailAddress: this.client.emailAddress,
       };
 
-      this.clientService.update10(this.clientId, payload).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
-      });
+      if (this.client.legalFormId === 2) {
+        payload['fullname'] = this.client.fullname;
+      } else {
+        payload['firstname'] = this.client.firstname;
+        payload['lastname'] = this.client.lastname;
+        payload['middlename'] = this.client.middlename;
+        if (this.dateOfBirth) {
+          payload['dateOfBirth'] = formatDateToFineract(this.dateOfBirth);
+          payload['locale'] = FINERACT_LOCALE;
+          payload['dateFormat'] = FINERACT_DATE_FORMAT;
+        }
+      }
+
+      this.clientService
+        .putClientsClientId(this.clientId, payload as PutClientsClientIdRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => (this.isSaving = false),
+        });
     } else {
       // Post mode
-      this.client.activationDate = formattedDate;
-      this.client.dateFormat = 'yyyy-MM-dd';
-      this.client.locale = 'en';
+      this.client.activationDate = formatDateToFineract(this.activationDate);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.client as any).submittedOnDate = formatDateToFineract(this.submittedOnDate);
+      this.client.dateFormat = FINERACT_DATE_FORMAT;
+      this.client.locale = FINERACT_LOCALE;
 
-      this.clientService.create6(this.client).subscribe({
+      if (this.dateOfBirth) {
+        this.client.dateOfBirth = formatDateToFineract(this.dateOfBirth);
+      }
+
+      if (this.client.legalFormId === 2) {
+        // Entity: omit person name fields
+        delete this.client.firstname;
+        delete this.client.lastname;
+        delete this.client.middlename;
+        delete this.client.dateOfBirth;
+      } else {
+        // Person: omit entity name field
+        delete this.client.fullname;
+      }
+
+      this.clientService.postClients(this.client).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

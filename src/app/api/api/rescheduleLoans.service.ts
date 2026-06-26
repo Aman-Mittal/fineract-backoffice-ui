@@ -62,155 +62,6 @@ export class RescheduleLoansService extends BaseService {
     }
 
     /**
-     * Create loan reschedule request
-     * Create a loan reschedule request.
-     * @endpoint post /v1/rescheduleloans
-     * @param postCreateRescheduleLoansRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createLoanRescheduleRequest(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCreateRescheduleLoansResponse>;
-    public createLoanRescheduleRequest(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCreateRescheduleLoansResponse>>;
-    public createLoanRescheduleRequest(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCreateRescheduleLoansResponse>>;
-    public createLoanRescheduleRequest(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (postCreateRescheduleLoansRequest === null || postCreateRescheduleLoansRequest === undefined) {
-            throw new Error('Required parameter postCreateRescheduleLoansRequest was null or undefined when calling createLoanRescheduleRequest.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/rescheduleloans`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostCreateRescheduleLoansResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postCreateRescheduleLoansRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve loan reschedule request by schedule id
-     * Retrieve loan reschedule request by schedule id
-     * @endpoint get /v1/rescheduleloans/{scheduleId}
-     * @param scheduleId 
-     * @param command 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public readLoanRescheduleRequest(scheduleId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetLoanRescheduleRequestResponse>;
-    public readLoanRescheduleRequest(scheduleId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetLoanRescheduleRequestResponse>>;
-    public readLoanRescheduleRequest(scheduleId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetLoanRescheduleRequestResponse>>;
-    public readLoanRescheduleRequest(scheduleId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (scheduleId === null || scheduleId === undefined) {
-            throw new Error('Required parameter scheduleId was null or undefined when calling readLoanRescheduleRequest.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'command',
-            <any>command,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/rescheduleloans/${this.configuration.encodeParam({name: "scheduleId", value: scheduleId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetLoanRescheduleRequestResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Retrieve all reschedule requests
      * Retrieve all reschedule requests.
      * @endpoint get /v1/rescheduleloans
@@ -220,10 +71,10 @@ export class RescheduleLoansService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveAllRescheduleRequest(command?: string, loanId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetLoanRescheduleRequestResponse>>;
-    public retrieveAllRescheduleRequest(command?: string, loanId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetLoanRescheduleRequestResponse>>>;
-    public retrieveAllRescheduleRequest(command?: string, loanId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetLoanRescheduleRequestResponse>>>;
-    public retrieveAllRescheduleRequest(command?: string, loanId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getRescheduleloans(command?: string, loanId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetLoanRescheduleRequestResponse>>;
+    public getRescheduleloans(command?: string, loanId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetLoanRescheduleRequestResponse>>>;
+    public getRescheduleloans(command?: string, loanId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetLoanRescheduleRequestResponse>>>;
+    public getRescheduleloans(command?: string, loanId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -293,6 +144,82 @@ export class RescheduleLoansService extends BaseService {
     }
 
     /**
+     * Retrieve loan reschedule request by schedule id
+     * Retrieve loan reschedule request by schedule id
+     * @endpoint get /v1/rescheduleloans/{scheduleId}
+     * @param scheduleId 
+     * @param command 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getRescheduleloansScheduleId(scheduleId: number, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetLoanRescheduleRequestResponse>;
+    public getRescheduleloansScheduleId(scheduleId: number, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetLoanRescheduleRequestResponse>>;
+    public getRescheduleloansScheduleId(scheduleId: number, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetLoanRescheduleRequestResponse>>;
+    public getRescheduleloansScheduleId(scheduleId: number, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (scheduleId === null || scheduleId === undefined) {
+            throw new Error('Required parameter scheduleId was null or undefined when calling getRescheduleloansScheduleId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/rescheduleloans/${this.configuration.encodeParam({name: "scheduleId", value: scheduleId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetLoanRescheduleRequestResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Retrieve all reschedule loan reasons
      * Retrieve all reschedule loan reasons as a template
      * @endpoint get /v1/rescheduleloans/template
@@ -300,10 +227,10 @@ export class RescheduleLoansService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public retrieveTemplate10(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetRescheduleReasonsTemplateResponse>;
-    public retrieveTemplate10(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetRescheduleReasonsTemplateResponse>>;
-    public retrieveTemplate10(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetRescheduleReasonsTemplateResponse>>;
-    public retrieveTemplate10(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getRescheduleloansTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetRescheduleReasonsTemplateResponse>;
+    public getRescheduleloansTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetRescheduleReasonsTemplateResponse>>;
+    public getRescheduleloansTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetRescheduleReasonsTemplateResponse>>;
+    public getRescheduleloansTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -352,6 +279,79 @@ export class RescheduleLoansService extends BaseService {
     }
 
     /**
+     * Create loan reschedule request
+     * Create a loan reschedule request.
+     * @endpoint post /v1/rescheduleloans
+     * @param postCreateRescheduleLoansRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postRescheduleloans(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostCreateRescheduleLoansResponse>;
+    public postRescheduleloans(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostCreateRescheduleLoansResponse>>;
+    public postRescheduleloans(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostCreateRescheduleLoansResponse>>;
+    public postRescheduleloans(postCreateRescheduleLoansRequest: PostCreateRescheduleLoansRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (postCreateRescheduleLoansRequest === null || postCreateRescheduleLoansRequest === undefined) {
+            throw new Error('Required parameter postCreateRescheduleLoansRequest was null or undefined when calling postRescheduleloans.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/rescheduleloans`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostCreateRescheduleLoansResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postCreateRescheduleLoansRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Update loan reschedule request
      * Update a loan reschedule request by either approving/rejecting it.
      * @endpoint post /v1/rescheduleloans/{scheduleId}
@@ -362,15 +362,15 @@ export class RescheduleLoansService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateLoanRescheduleRequest(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostUpdateRescheduleLoansResponse>;
-    public updateLoanRescheduleRequest(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostUpdateRescheduleLoansResponse>>;
-    public updateLoanRescheduleRequest(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostUpdateRescheduleLoansResponse>>;
-    public updateLoanRescheduleRequest(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postRescheduleloansScheduleId(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostUpdateRescheduleLoansResponse>;
+    public postRescheduleloansScheduleId(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostUpdateRescheduleLoansResponse>>;
+    public postRescheduleloansScheduleId(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostUpdateRescheduleLoansResponse>>;
+    public postRescheduleloansScheduleId(scheduleId: number, postUpdateRescheduleLoansRequest: PostUpdateRescheduleLoansRequest, command?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (scheduleId === null || scheduleId === undefined) {
-            throw new Error('Required parameter scheduleId was null or undefined when calling updateLoanRescheduleRequest.');
+            throw new Error('Required parameter scheduleId was null or undefined when calling postRescheduleloansScheduleId.');
         }
         if (postUpdateRescheduleLoansRequest === null || postUpdateRescheduleLoansRequest === undefined) {
-            throw new Error('Required parameter postUpdateRescheduleLoansRequest was null or undefined when calling updateLoanRescheduleRequest.');
+            throw new Error('Required parameter postUpdateRescheduleLoansRequest was null or undefined when calling postRescheduleloansScheduleId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,26 +30,32 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ClientSearchComponent } from '../../../shared';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ClientSearchComponent, HelpIconComponent } from '../../../shared';
 import {
   ShareAccountService,
   AccountRequest,
   PutAccountsTypeAccountIdRequest,
-  GetAccountsTypeTemplateResponse,
   GetAccountsTypeAccountIdResponse,
   GetAccountsTypeProductOptions,
+  SavingsAccountData,
 } from '../../../api';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../../core/utils/date-formatter';
 
-/**
- * Component for creating and managing share accounts.
- *
- * Integrates with Fineract's ShareAccountService using template-driven forms.
- */
+interface ShareAccountTemplateResponse {
+  productOptions?: Set<GetAccountsTypeProductOptions>;
+  clientSavingsAccounts?: SavingsAccountData[];
+}
+
 @Component({
   selector: 'app-share-account-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -60,7 +66,10 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ClientSearchComponent,
+    HelpIconComponent,
   ],
   template: `
     <div class="form-container">
@@ -72,38 +81,79 @@ import {
                 ? ('SHARE_ACCOUNTS.EDIT' | translate)
                 : ('SHARE_ACCOUNTS.CREATE' | translate)
             }}
+            <app-help-icon [helpTextKey]="'HELP.SHARE_ACCOUNTS_DESC'"></app-help-icon>
           </mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
+          @if (!isEditMode) {
+            <div class="info-banner">
+              <mat-icon class="info-banner-icon">info_outline</mat-icon>
+              <div class="info-banner-content">
+                <strong>{{ 'SHARE_ACCOUNTS.PREREQUISITES_TITLE' | translate }}</strong>
+                <ol class="prereq-list">
+                  <li>{{ 'SHARE_ACCOUNTS.PREREQ_CLIENT' | translate }}</li>
+                  <li>{{ 'SHARE_ACCOUNTS.PREREQ_SAVINGS' | translate }}</li>
+                  <li>{{ 'SHARE_ACCOUNTS.PREREQ_PRODUCT' | translate }}</li>
+                </ol>
+              </div>
+            </div>
+          }
+
           <form #shareForm="ngForm" (ngSubmit)="onSubmit()" class="share-account-form">
             <div class="form-grid">
-              <!-- Client Search -->
-              <app-client-search
-                [label]="'COMMON.CLIENT' | translate"
-                [required]="true"
-                [initialClientId]="account.clientId || null"
-                (clientSelected)="account.clientId = $event"
-              >
-              </app-client-search>
+              <!-- Client Search with Create Option -->
+              <div class="field-container-row">
+                <app-client-search
+                  [label]="'COMMON.CLIENT' | translate"
+                  [required]="true"
+                  [initialClientId]="account.clientId || null"
+                  (clientSelected)="onClientSelected($event)"
+                  class="flex-grow"
+                >
+                </app-client-search>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  (click)="onCreateClient()"
+                  style="margin-top: 4px;"
+                >
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
-              <!-- Product -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.SHARE_PRODUCT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                <mat-select
-                  name="productId"
-                  [(ngModel)]="account.productId"
-                  required
+              <!-- Product with Create Option -->
+              <div class="field-container-row">
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.SHARE_PRODUCT_DESC' | translate"
+                  class="flex-grow"
+                >
+                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
+                  <mat-select
+                    name="productId"
+                    [(ngModel)]="account.productId"
+                    (selectionChange)="onProductSelected($event.value)"
+                    required
+                    [disabled]="isEditMode"
+                  >
+                    @for (product of products; track product.id) {
+                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matTooltip]="'PRODUCTS.CREATE_SHARE_PRODUCT' | translate"
+                  (click)="onCreateProduct()"
+                  style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  @for (product of products; track product.id) {
-                    <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                  <mat-icon color="primary">add_circle_outline</mat-icon>
+                </button>
+              </div>
 
               <!-- Requested Shares -->
               <mat-form-field
@@ -143,17 +193,49 @@ import {
                 [matTooltip]="'HELP.SAVINGS_ACCOUNT_ID_DESC' | translate"
               >
                 <mat-label>{{ 'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
+                <mat-select
                   name="savingsAccountId"
                   [(ngModel)]="account.savingsAccountId"
-                />
+                  [disabled]="!account.clientId"
+                >
+                  <mat-select-trigger>
+                    {{ getSelectedSavingsAccountLabel() }}
+                  </mat-select-trigger>
+                  <div
+                    class="select-search-container"
+                    (click)="$event.stopPropagation()"
+                    (keydown)="$event.stopPropagation()"
+                    tabindex="-1"
+                  >
+                    <input
+                      matInput
+                      placeholder="Search accounts..."
+                      (input)="onSavingsSearch($event)"
+                      class="select-search-input"
+                    />
+                  </div>
+                  <mat-option [value]="null">-- None --</mat-option>
+                  @for (sa of filteredSavingsAccounts; track sa.id) {
+                    <mat-option [value]="sa.id">
+                      {{ sa.accountNo }} - {{ sa.savingsProductName }}
+                    </mat-option>
+                  }
+                  @if (filteredSavingsAccounts.length === 0 && savingsAccounts.length === 0) {
+                    <mat-option disabled>
+                      {{ 'SHARE_ACCOUNTS.NO_SAVINGS_HINT' | translate }}
+                    </mat-option>
+                  }
+                  @if (filteredSavingsAccounts.length === 0 && savingsAccounts.length > 0) {
+                    <mat-option disabled>
+                      {{ 'COMMON.NO_DATA' | translate }}
+                    </mat-option>
+                  }
+                </mat-select>
               </mat-form-field>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -162,7 +244,15 @@ import {
                 type="submit"
                 [disabled]="shareForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -187,50 +277,92 @@ import {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
       }
-      mat-form-field {
-        width: 100%;
+      .select-search-container {
+        padding: 8px 16px;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+        border-bottom: 1px solid #ccc;
       }
-      .form-actions {
+      .select-search-input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+      }
+      .field-container-row {
         display: flex;
-        justify-content: flex-end;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .flex-grow {
+        flex-grow: 1;
+      }
+      .info-banner {
+        display: flex;
+        align-items: flex-start;
         gap: 12px;
-        margin-top: 16px;
+        padding: 16px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #1976d2;
+      }
+      .info-banner-icon {
+        color: #1976d2;
+        margin-top: 2px;
+      }
+      .info-banner-content {
+        font-size: 13px;
+        color: #37474f;
+        line-height: 1.6;
+      }
+      .info-banner-content strong {
+        font-size: 14px;
+        color: #1a237e;
+      }
+      .prereq-list {
+        margin: 6px 0 0 0;
+        padding-left: 20px;
+      }
+      .prereq-list li {
+        margin-bottom: 2px;
       }
     `,
   ],
 })
 export class ShareAccountFormComponent implements OnInit {
-  /** Service for share account operations */
   private readonly shareService = inject(ShareAccountService);
-  /** Router for post-op navigation */
   private readonly router = inject(Router);
-  /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
 
-  /** Date format constant for Fineract */
-  private readonly DATE_FORMAT = 'yyyy-MM-dd';
-  /** Base path for redirection */
   private readonly LIST_PATH = '/products/shares';
 
-  /** Account identifier */
   accountId: number | null = null;
-  /** Edit mode flag */
   isEditMode = false;
-  /** Save state */
   isSaving = false;
 
-  /** Request model */
   account: AccountRequest = {};
-  /** Application date for template binding */
   applicationDate: Date = new Date();
-  /** Available products list */
   products: GetAccountsTypeProductOptions[] = [];
+  savingsAccounts: SavingsAccountData[] = [];
+  filteredSavingsAccounts: SavingsAccountData[] = [];
+  savingsSearchVal = '';
 
-  /**
-   * Component initialization.
-   */
   ngOnInit(): void {
-    this.loadProducts();
+    // Check for clientId in query params for pre-population
+    this.route.queryParams.subscribe((queryParams) => {
+      const clientId = queryParams['clientId'];
+      if (clientId && !this.isEditMode) {
+        const idNum = +clientId;
+        this.account.clientId = idNum;
+        this.loadProducts(idNum);
+      }
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -241,24 +373,71 @@ export class ShareAccountFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Fetches the list of share products.
-   */
-  private loadProducts(): void {
-    this.shareService.template7('share').subscribe({
-      next: (template: GetAccountsTypeTemplateResponse) => {
-        this.products = Array.from(template.productOptions || []);
+  onClientSelected(clientId: number): void {
+    this.account.clientId = clientId;
+    this.account.productId = undefined;
+    this.account.savingsAccountId = undefined;
+    this.products = [];
+    this.savingsAccounts = [];
+    this.filteredSavingsAccounts = [];
+    this.loadProducts(clientId);
+  }
+
+  onProductSelected(productId: number): void {
+    this.account.productId = productId;
+    this.account.savingsAccountId = undefined;
+    if (this.account.clientId) {
+      this.loadProducts(this.account.clientId, productId);
+    }
+  }
+
+  onSavingsSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.savingsSearchVal = input.value.toLowerCase();
+    this.filteredSavingsAccounts = this.savingsAccounts.filter(
+      (sa) =>
+        sa.accountNo?.toLowerCase().includes(this.savingsSearchVal) ||
+        sa.savingsProductName?.toLowerCase().includes(this.savingsSearchVal),
+    );
+  }
+
+  getSelectedSavingsAccountLabel(): string {
+    const selectedId = this.account.savingsAccountId;
+    if (!selectedId) return '';
+    const sa = this.savingsAccounts.find((a) => a.id === selectedId);
+    return sa ? `${sa.accountNo} - ${sa.savingsProductName}` : '';
+  }
+
+  onCreateClient() {
+    this.router.navigate(['/clients/create']);
+  }
+
+  onCreateProduct() {
+    this.router.navigate(['/products/share/create']);
+  }
+
+  private loadProducts(clientId?: number, productId?: number): void {
+    if (!clientId) {
+      this.products = [];
+      this.savingsAccounts = [];
+      this.filteredSavingsAccounts = [];
+      return;
+    }
+    this.shareService.getAccountsTypeTemplate('share', clientId, productId).subscribe({
+      next: (template: ShareAccountTemplateResponse) => {
+        if (template.productOptions) {
+          this.products = Array.from(template.productOptions);
+        }
+        this.savingsAccounts = Array.from(template.clientSavingsAccounts || []);
+        this.filteredSavingsAccounts = this.savingsAccounts;
       },
       error: (err: unknown) => console.error('Failed to load products', err),
     });
   }
 
-  /**
-   * Loads existing account data for editing.
-   */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.shareService.retrieveAccount(this.accountId, 'share').subscribe({
+    this.shareService.getAccountsTypeAccountId(this.accountId, 'share').subscribe({
       next: (data: GetAccountsTypeAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
@@ -270,49 +449,45 @@ export class ShareAccountFormComponent implements OnInit {
           requestedShares: data.summary?.totalApprovedShares,
           savingsAccountId: data.savingsAccountId,
         };
+        if (data.clientId) {
+          this.loadProducts(data.clientId, data.productId);
+        }
       },
       error: (err: unknown) => console.error('Failed to load account', err),
     });
   }
 
-  /**
-   * Handles form submission.
-   */
   onSubmit(): void {
     this.isSaving = true;
 
-    const formattedDate = `${this.applicationDate.getFullYear()}-${String(
-      this.applicationDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.applicationDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = formatDateToFineract(this.applicationDate);
 
     this.account.applicationDate = formattedDate;
-    this.account.dateFormat = this.DATE_FORMAT;
-    this.account.locale = 'en';
+    this.account.dateFormat = FINERACT_DATE_FORMAT;
+    this.account.locale = FINERACT_LOCALE;
     this.account.submittedDate = formattedDate; // Often required by Fineract
 
     if (this.isEditMode && this.accountId) {
-      const payload: PutAccountsTypeAccountIdRequest = {
+      const payload: PutAccountsTypeAccountIdRequest & { savingsAccountId?: number } = {
         applicationDate: formattedDate,
         requestedShares: this.account.requestedShares,
-        dateFormat: this.DATE_FORMAT,
-        locale: 'en',
+        dateFormat: FINERACT_DATE_FORMAT,
+        locale: FINERACT_LOCALE,
+        savingsAccountId: this.account.savingsAccountId,
       };
 
-      this.shareService.updateAccount('share', this.accountId, payload).subscribe({
+      this.shareService.putAccountsTypeAccountId('share', this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     } else {
-      this.shareService.createAccount('share', this.account).subscribe({
+      this.shareService.postAccountsType('share', this.account).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });
     }
   }
 
-  /**
-   * Handles user cancellation.
-   */
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
   }

@@ -17,42 +17,555 @@
  * under the License.
  */
 
-import { Component, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router, RouterModule } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ConfigService } from '../../core/services/config.service';
+import { ClientService, LoansService, SavingsAccountService } from '../../api';
+import {
+  DonutChartComponent,
+  ChartData,
+} from '../../shared/components/charts/donut-chart.component';
 
 /**
- * Dashboard component that displays the current operational status of the application.
- *
- * Shows the active API endpoint (both runtime and fallback), the current environment
- * (Production/Development), and the active tenant.
+ * Dashboard component that displays system status and key performance metrics.
  */
 @Component({
   selector: 'app-system-status',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [
+    TranslateModule,
+    MatCardModule,
+    MatIconModule,
+    MatDividerModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    RouterModule,
+    DonutChartComponent,
+    NgClass,
+  ],
   template: `
-    <div class="card">
-      <h3>{{ 'dashboard.systemStatus' | translate }}</h3>
-      <ul>
-        <li><strong>Runtime API URL:</strong> {{ configService.apiUrl }}</li>
-        <li><strong>Fallback API URL:</strong> {{ environmentUrl }}</li>
-        <li><strong>Environment:</strong> {{ isProd ? 'Production' : 'Development' }}</li>
-        <li><strong>Tenant:</strong> {{ currentTenant() }}</li>
-      </ul>
+    <div class="dashboard-container">
+      <div class="widgets-grid">
+        <mat-card class="widget-card clients">
+          <mat-card-content>
+            <div class="widget-header">
+              <mat-icon>people</mat-icon>
+              <span class="widget-label">{{ 'DASHBOARD.TOTAL_CLIENTS' | translate }}</span>
+            </div>
+            @if (isLoading()) {
+              <div class="widget-loader">
+                <mat-spinner diameter="30"></mat-spinner>
+              </div>
+            } @else {
+              <div class="widget-value">{{ clientCount() }}</div>
+              <div class="widget-trend">{{ 'DASHBOARD.ACTIVE_MEMBERS' | translate }}</div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="widget-card loans">
+          <mat-card-content>
+            <div class="widget-header">
+              <mat-icon>account_balance</mat-icon>
+              <span class="widget-label">{{ 'DASHBOARD.ACTIVE_LOANS' | translate }}</span>
+            </div>
+            @if (isLoading()) {
+              <div class="widget-loader">
+                <mat-spinner diameter="30"></mat-spinner>
+              </div>
+            } @else {
+              <div class="widget-value">{{ activeLoans() }}</div>
+              <div class="widget-trend highlight">
+                {{ pendingLoans().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="widget-card savings">
+          <mat-card-content>
+            <div class="widget-header">
+              <mat-icon>savings</mat-icon>
+              <span class="widget-label">{{ 'DASHBOARD.SAVINGS_ACCOUNTS' | translate }}</span>
+            </div>
+            @if (isLoading()) {
+              <div class="widget-loader">
+                <mat-spinner diameter="30"></mat-spinner>
+              </div>
+            } @else {
+              <div class="widget-value">{{ savingsCount() }}</div>
+              <div class="widget-trend">
+                {{ pendingSavings().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="widget-card status">
+          <mat-card-content>
+            <div class="widget-header">
+              <mat-icon>dns</mat-icon>
+              <span class="widget-label">{{ 'DASHBOARD.SYSTEM_HEALTH' | translate }}</span>
+            </div>
+            <div class="widget-value healthy">{{ 'DASHBOARD.ONLINE' | translate }}</div>
+            <div class="widget-trend">API: {{ currentTenant() }}</div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="dashboard-layout">
+        <div class="main-column">
+          <mat-card class="approval-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pending_actions</mat-icon>
+                {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @if (isLoading()) {
+                <div class="empty-approvals">
+                  <mat-spinner diameter="40"></mat-spinner>
+                </div>
+              } @else if (pendingLoans().length === 0 && pendingSavings().length === 0) {
+                <div class="empty-approvals">
+                  <mat-icon>check_circle_outline</mat-icon>
+                  <p>{{ 'DASHBOARD.NO_PENDING_APPROVALS' | translate }}</p>
+                </div>
+              } @else {
+                <div class="approval-list">
+                  @for (loan of pendingLoans(); track loan['id']) {
+                    <div class="approval-item">
+                      <div class="item-info">
+                        <span class="item-type loan">LOAN</span>
+                        <span class="item-id">#{{ loan['accountNo'] }}</span>
+                        <span class="item-detail">{{ loan['clientName'] }}</span>
+                      </div>
+                      <button mat-button color="primary" [routerLink]="['/loans/view', loan['id']]">
+                        {{ 'COMMON.VIEW' | translate }}
+                      </button>
+                    </div>
+                  }
+                  @for (savings of pendingSavings(); track savings['id']) {
+                    <div class="approval-item">
+                      <div class="item-info">
+                        <span class="item-type savings">SAVINGS</span>
+                        <span class="item-id">#{{ savings['accountNo'] }}</span>
+                        <span class="item-detail">{{ savings['clientName'] }}</span>
+                      </div>
+                      <button
+                        mat-button
+                        color="primary"
+                        [routerLink]="['/products/savings-accounts/view', savings['id']]"
+                      >
+                        {{ 'COMMON.VIEW' | translate }}
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="side-column">
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pie_chart</mat-icon>
+                {{ 'DASHBOARD.LOAN_DISTRIBUTION' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-donut-chart [data]="loanChartData()"></app-donut-chart>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pie_chart</mat-icon>
+                {{ 'DASHBOARD.SAVINGS_DISTRIBUTION' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-donut-chart [data]="savingsChartData()"></app-donut-chart>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="system-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>settings</mat-icon>
+                {{ 'DASHBOARD.SYSTEM_STATUS' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <ul class="status-list">
+                <li>
+                  <span class="label">{{ 'DASHBOARD.RUNTIME_API' | translate }}:</span>
+                  <span class="value">{{ configService.apiUrl }}</span>
+                </li>
+                <li>
+                  <span class="label">{{ 'DASHBOARD.FALLBACK_API' | translate }}:</span>
+                  <span class="value">{{ environmentUrl }}</span>
+                </li>
+                <li>
+                  <span class="label">{{ 'DASHBOARD.ENVIRONMENT' | translate }}:</span>
+                  <span class="value badge" [ngClass]="isProd ? 'prod' : 'dev'">
+                    {{ (isProd ? 'DASHBOARD.PRODUCTION' : 'DASHBOARD.DEVELOPMENT') | translate }}
+                  </span>
+                </li>
+                <li>
+                  <span class="label">{{ 'DASHBOARD.ACTIVE_TENANT' | translate }}:</span>
+                  <span class="value">{{ currentTenant() }}</span>
+                </li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
     </div>
   `,
-  styles: [],
+  styles: [
+    `
+      .dashboard-container {
+        padding: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .widgets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+      .widget-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .widget-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+      .widget-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        color: #7f8c8d;
+      }
+      .widget-header mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+      .widget-label {
+        font-size: 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .widget-value {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #2c3e50;
+      }
+      .widget-loader {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .widget-trend {
+        font-size: 13px;
+        color: #95a5a6;
+      }
+      .widget-trend.highlight {
+        color: #e67e22;
+        font-weight: 600;
+      }
+      .healthy {
+        color: #27ae60;
+      }
+      .dashboard-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+      }
+      .main-column,
+      .side-column {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .chart-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .approval-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f2f5;
+        transition: background 0.2s;
+      }
+      .approval-item:hover {
+        background-color: #f8f9fa;
+      }
+      .approval-item:last-child {
+        border-bottom: none;
+      }
+      .item-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .item-type {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .item-type.loan {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+      .item-type.savings {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+      .item-id {
+        font-weight: 600;
+        color: #34495e;
+      }
+      .item-detail {
+        color: #7f8c8d;
+      }
+      .empty-approvals {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px;
+        color: #bdc3c7;
+      }
+      .empty-approvals mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+      }
+      .empty-approvals p {
+        margin: 0;
+        font-size: 16px;
+      }
+      .status-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .status-list li {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .status-list .label {
+        color: #7f8c8d;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .status-list .value {
+        font-family: 'Roboto Mono', monospace;
+        color: #2c3e50;
+        word-break: break-all;
+      }
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+        width: fit-content;
+      }
+      .prod {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .dev {
+        background: #dcfce7;
+        color: #15803d;
+      }
+    `,
+  ],
 })
-export class SystemStatusComponent {
-  /** The runtime configuration service */
+export class SystemStatusComponent implements OnInit {
   protected readonly configService = inject(ConfigService);
-  /** The hardcoded environment API URL for reference */
+  private readonly clientService = inject(ClientService);
+  private readonly loansService = inject(LoansService);
+  private readonly savingsService = inject(SavingsAccountService);
+  private readonly router = inject(Router);
+
   protected readonly environmentUrl = environment.fineractApiUrl;
-  /** Boolean flag indicating if the app is in production mode */
   protected readonly isProd = environment.production;
-  /** Signal containing the current active tenant identifier */
   protected readonly currentTenant = signal('default');
+  isLoading = signal(true);
+
+  clientCount = signal(0);
+  activeLoans = signal(0);
+  savingsCount = signal(0);
+
+  pendingLoans = signal<Record<string, unknown>[]>([]);
+  pendingSavings = signal<Record<string, unknown>[]>([]);
+
+  loanChartData = signal<ChartData[]>([]);
+  savingsChartData = signal<ChartData[]>([]);
+
+  ngOnInit(): void {
+    this.loadMetrics();
+  }
+
+  private loadMetrics(): void {
+    this.isLoading.set(true);
+
+    const metrics$ = forkJoin({
+      clients: this.clientService.getClients(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        0,
+        1,
+      ),
+      loanActive: this.loansService.getLoans(
+        undefined,
+        0,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        '300',
+      ),
+      loanPending: this.loansService.getLoans(
+        undefined,
+        0,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        '100',
+      ),
+      loanClosed: this.loansService.getLoans(
+        undefined,
+        0,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        '600',
+      ),
+      savings: this.savingsService.getSavingsaccounts(undefined, 0, 100),
+    });
+
+    metrics$.pipe(catchError(() => of(null))).subscribe((data: Record<string, unknown> | null) => {
+      this.isLoading.set(false);
+      if (!data) return;
+
+      // Clients
+      const clients = data['clients'] as Record<string, unknown>;
+      this.clientCount.set((clients?.['totalFilteredRecords'] as number) || 0);
+
+      // Loans (Accurate System Totals using Fineract Status Codes)
+      const loanActive = data['loanActive'] as Record<string, unknown>;
+      const loanPending = data['loanPending'] as Record<string, unknown>;
+      const loanClosed = data['loanClosed'] as Record<string, unknown>;
+
+      const active = (loanActive?.['totalFilteredRecords'] as number) || 0;
+      const pending = (loanPending?.['totalFilteredRecords'] as number) || 0;
+      const closed = (loanClosed?.['totalFilteredRecords'] as number) || 0;
+
+      this.activeLoans.set(active);
+      this.loanChartData.set([
+        { label: 'Active', value: active, color: '#2ecc71' },
+        { label: 'Pending', value: pending, color: '#f39c12' },
+        { label: 'Closed', value: closed, color: '#95a5a6' },
+      ]);
+
+      // Savings
+      const savings = data['savings'] as Record<string, unknown>;
+      if (savings) {
+        const accounts = Array.from((savings['pageItems'] as unknown[]) || []) as Record<
+          string,
+          unknown
+        >[];
+        const sActive = accounts.filter(
+          (a) => (a['status'] as Record<string, unknown>)?.['active'],
+        ).length;
+        const sPending = accounts.filter(
+          (a) => (a['status'] as Record<string, unknown>)?.['submittedAndPendingApproval'],
+        ).length;
+
+        this.savingsCount.set((savings['totalFilteredRecords'] as number) || 0);
+        this.pendingSavings.set(
+          accounts.filter(
+            (a) => (a['status'] as Record<string, unknown>)?.['submittedAndPendingApproval'],
+          ),
+        );
+
+        this.savingsChartData.set([
+          { label: 'Active', value: sActive, color: '#3498db' },
+          { label: 'Pending', value: sPending, color: '#f39c12' },
+        ]);
+      }
+    });
+
+    // Separately fetch real pending list for the list widget (first 50) using status code 100
+    this.loansService
+      .getLoans(undefined, 0, 50, undefined, undefined, undefined, undefined, undefined, '100')
+      .subscribe((data) => {
+        if (data.pageItems) {
+          this.pendingLoans.set(Array.from(data.pageItems as unknown as Record<string, unknown>[]));
+        }
+      });
+  }
 }

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,6 +28,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   SavingsProductService,
   PostSavingsProductsRequest,
@@ -38,7 +39,6 @@ import {
   selector: 'app-savings-product-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -47,6 +47,7 @@ import {
     MatSelectModule,
     MatButtonModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="form-container">
@@ -139,7 +140,7 @@ import {
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
               <button
@@ -148,7 +149,15 @@ import {
                 type="submit"
                 [disabled]="productForm.invalid || isSaving"
               >
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  {{ 'COMMON.SAVING' | translate }}
+                } @else {
+                  {{ 'COMMON.SAVE' | translate }}
+                }
               </button>
             </div>
           </form>
@@ -172,18 +181,6 @@ import {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
-      }
-      .full-width {
-        grid-column: span 2;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
       }
     `,
   ],
@@ -222,7 +219,7 @@ export class SavingsProductFormComponent implements OnInit {
 
   loadProductData() {
     if (!this.productId) return;
-    this.productService.retrieveOne27(this.productId).subscribe((data) => {
+    this.productService.getSavingsproductsProductId(this.productId).subscribe((data) => {
       this.product = {
         name: data.name,
         shortName: data.shortName,
@@ -245,13 +242,16 @@ export class SavingsProductFormComponent implements OnInit {
 
     if (this.isEditMode && this.productId) {
       this.productService
-        .update22(this.productId, this.product as PutSavingsProductsProductIdRequest)
+        .putSavingsproductsProductId(
+          this.productId,
+          this.product as PutSavingsProductsProductIdRequest,
+        )
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => (this.isSaving = false),
         });
     } else {
-      this.productService.create13(this.product).subscribe({
+      this.productService.postSavingsproducts(this.product).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => (this.isSaving = false),
       });

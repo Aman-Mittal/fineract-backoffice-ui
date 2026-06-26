@@ -18,14 +18,15 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { WorkingDaysService, WorkingDaysData } from '../../api';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
 
 /**
  * Component for configuring system-wide working days and repayment reschedule rules.
@@ -34,13 +35,13 @@ import { WorkingDaysService, WorkingDaysData } from '../../api';
   selector: 'app-working-days',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
     MatCheckboxModule,
     MatButtonModule,
     MatSelectModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="form-container">
@@ -73,6 +74,13 @@ import { WorkingDaysService, WorkingDaysData } from '../../api';
 
               <mat-checkbox name="extendTerm" [(ngModel)]="extendTerm">
                 Extend Term for Daily Repayments
+              </mat-checkbox>
+
+              <mat-checkbox
+                name="extendTermForRepaymentsOnHolidays"
+                [(ngModel)]="extendTermForRepaymentsOnHolidays"
+              >
+                Extend Term for Repayments on Holidays
               </mat-checkbox>
             </div>
 
@@ -115,6 +123,7 @@ import { WorkingDaysService, WorkingDaysData } from '../../api';
 })
 export class WorkingDaysComponent implements OnInit {
   private readonly workingDaysService = inject(WorkingDaysService);
+  private readonly snackBar = inject(MatSnackBar);
 
   workingDays: Record<string, unknown> = {};
   recurrence: Record<string, boolean> = {
@@ -129,6 +138,7 @@ export class WorkingDaysComponent implements OnInit {
   rescheduleOptions: Record<string, unknown>[] = [];
   rescheduleId: number | undefined = undefined;
   extendTerm = false;
+  extendTermForRepaymentsOnHolidays = false;
   isSaving = false;
 
   ngOnInit(): void {
@@ -136,11 +146,16 @@ export class WorkingDaysComponent implements OnInit {
   }
 
   private loadWorkingDays(): void {
-    this.workingDaysService.retrieveAll17().subscribe((data: WorkingDaysData) => {
+    this.workingDaysService.getWorkingdays().subscribe((data: WorkingDaysData) => {
       this.workingDays = data as unknown as Record<string, unknown>;
       const rescheduleType = this.workingDays['repaymentRescheduleType'] as Record<string, unknown>;
       this.rescheduleId = rescheduleType?.['id'] as number;
       this.extendTerm = !!this.workingDays['extendTermForDailyRepayments'];
+      this.extendTermForRepaymentsOnHolidays =
+        !!this.workingDays['extendTermForRepaymentsOnHolidays'];
+
+      // Reset recurrence object
+      Object.keys(this.recurrence).forEach((day) => (this.recurrence[day] = false));
 
       // Parse recurrence string (e.g. "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR")
       const recurrence = this.workingDays['recurrence'] as string;
@@ -149,19 +164,51 @@ export class WorkingDaysComponent implements OnInit {
         const days = byDayMatch[1].split(',');
         days.forEach((day) => (this.recurrence[day] = true));
       }
-      // Usually template data includes options, but if not we provide defaults for BFSI
-      this.rescheduleOptions = [
-        { id: 1, value: 'Same Day' },
-        { id: 2, value: 'Move to Next Working Day' },
-        { id: 3, value: 'Move to Previous Working Day' },
-      ];
+
+      // Load reschedule options from the API template
+      this.workingDaysService.getWorkingdaysTemplate().subscribe({
+        next: (templateData) => {
+          this.rescheduleOptions = (templateData.repaymentRescheduleOptions ||
+            []) as unknown as Record<string, unknown>[];
+        },
+        error: () => {
+          // Fallback to static defaults if template API is not available
+          this.rescheduleOptions = [
+            { id: 1, value: 'Same Day' },
+            { id: 2, value: 'Move to Next Working Day' },
+            { id: 3, value: 'Move to Previous Working Day' },
+          ];
+        },
+      });
     });
   }
 
   onSubmit(): void {
     this.isSaving = true;
-    // Implementation for updating working days
-    console.log('Update working days', this.workingDays);
-    this.isSaving = false;
+
+    const activeDays = Object.keys(this.recurrence)
+      .filter((day) => this.recurrence[day])
+      .join(',');
+    const recurrenceStr = `FREQ=WEEKLY;INTERVAL=1;BYDAY=${activeDays}`;
+
+    const request = {
+      recurrence: recurrenceStr,
+      repaymentRescheduleType: this.rescheduleId,
+      extendTermForDailyRepayments: this.extendTerm,
+      extendTermForRepaymentsOnHolidays: this.extendTermForRepaymentsOnHolidays,
+      locale: 'en',
+    } as unknown as WorkingDaysUpdateRequest;
+
+    this.workingDaysService.putWorkingdays(request).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.snackBar.open('Working days updated successfully', 'Close', { duration: 3000 });
+        this.loadWorkingDays();
+      },
+      error: () => {
+        this.isSaving = false;
+        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+      },
+    });
   }
 }

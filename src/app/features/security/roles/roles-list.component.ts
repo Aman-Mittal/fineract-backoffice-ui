@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,14 +27,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RolesService, GetRolesResponse } from '../../../api';
 
-/**
- * Component for listing system roles.
- */
 @Component({
   selector: 'app-roles-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -59,7 +55,7 @@ import { RolesService, GetRolesResponse } from '../../../api';
           mat-icon-button
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Role"
+          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditRole(role)"
         >
           <mat-icon>edit</mat-icon>
@@ -85,7 +81,7 @@ export class RolesListComponent implements OnInit {
   }
 
   private loadRoles(): void {
-    this.rolesService.retrieveAllRoles().subscribe({
+    this.rolesService.getRoles().subscribe({
       next: (data) => {
         this.roles = data || [];
       },

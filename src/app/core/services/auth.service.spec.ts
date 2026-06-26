@@ -38,13 +38,13 @@ describe('AuthService', () => {
   };
 
   beforeEach(() => {
+    sessionStorage.clear();
+    localStorage.clear();
     TestBed.configureTestingModule({
       providers: [AuthService, ConfigService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
-    sessionStorage.clear();
-    localStorage.clear();
   });
 
   afterEach(() => {
@@ -77,5 +77,36 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(service.currentUser()).toBeNull();
     expect(sessionStorage.getItem('fineract_session')).toBeNull();
+  });
+
+  describe('hasPermission', () => {
+    it('should return false if user is not authenticated', () => {
+      expect(service.hasPermission('CREATE_CLIENT')).toBeFalse();
+    });
+
+    it('should return true for any permission if user is superuser', () => {
+      (service as unknown as { setSession: (s: UserSession) => void }).setSession({
+        ...mockSession,
+        permissions: ['ALL_FUNCTIONS'],
+      });
+      expect(service.hasPermission('CREATE_CLIENT')).toBeTrue();
+      expect(service.hasPermission('DELETE_LOAN')).toBeTrue();
+    });
+
+    it('should correctly evaluate single and multiple permissions', () => {
+      (service as unknown as { setSession: (s: UserSession) => void }).setSession({
+        ...mockSession,
+        permissions: ['READ_CLIENT', 'CREATE_CLIENT'],
+      });
+      expect(service.hasPermission('READ_CLIENT')).toBeTrue();
+      expect(service.hasPermission('DELETE_LOAN')).toBeFalse();
+
+      // Check any matching permission (matchAll = false)
+      expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'])).toBeTrue();
+
+      // Check all matching permissions (matchAll = true)
+      expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeTrue();
+      expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'], true)).toBeFalse();
+    });
   });
 });

@@ -34,6 +34,7 @@ import { GetLoansLoanIdTermPeriodFrequencyType } from './getLoansLoanIdTermPerio
 import { GetLoansLoanIdCurrency } from './getLoansLoanIdCurrency';
 import { EnumOptionData } from './enumOptionData';
 import { GetLoansLoanIdDelinquencySummary } from './getLoansLoanIdDelinquencySummary';
+import { GetLoansLoanIdOriginatorData } from './getLoansLoanIdOriginatorData';
 import { GetLoansLoanIdTransactions } from './getLoansLoanIdTransactions';
 import { GetLoansLoanIdLoanChargeData } from './getLoansLoanIdLoanChargeData';
 import { GetLoansLoanIdDisbursementDetails } from './getLoansLoanIdDisbursementDetails';
@@ -50,6 +51,11 @@ import { GetLoansLoanIdInterestCalculationPeriodType } from './getLoansLoanIdInt
  */
 export interface GetLoansLoanIdResponse { 
     accountNo?: string;
+    actualNoTerm?: number;
+    /**
+     * Allow full term length for each tranche disbursement
+     */
+    allowFullTermForTranche?: boolean;
     amortizationType?: GetLoansLoanIdAmortizationType;
     annualInterestRate?: number;
     approvedPrincipal?: number;
@@ -91,6 +97,10 @@ export interface GetLoansLoanIdResponse {
     fixedLength?: number;
     fixedPrincipalPercentagePerInstallment?: number;
     fraud?: boolean;
+    graceOnArrearsAgeing?: number;
+    graceOnInterestCharged?: number;
+    graceOnInterestPayment?: number;
+    graceOnPrincipalPayment?: number;
     id?: number;
     inArrearsTolerance?: number;
     interestCalculationPeriodType?: GetLoansLoanIdInterestCalculationPeriodType;
@@ -116,12 +126,17 @@ export interface GetLoansLoanIdResponse {
     loanType?: GetLoansLoanIdLoanType;
     netDisbursalAmount?: number;
     numberOfRepayments?: number;
+    /**
+     * List of originators associated with this loan
+     */
+    originators?: Array<GetLoansLoanIdOriginatorData>;
     overpaidOnDate?: string;
     principal?: number;
     proposedPrincipal?: number;
     repaymentEvery?: number;
     repaymentFrequencyType?: GetLoansLoanIdRepaymentFrequencyType;
     repaymentSchedule?: GetLoansLoanIdRepaymentSchedule;
+    repaymentStartDateType?: EnumOptionData;
     status?: GetLoansLoanIdStatus;
     summary?: GetLoansLoanIdSummary;
     termFrequency?: number;

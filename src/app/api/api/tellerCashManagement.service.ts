@@ -96,316 +96,19 @@ export class TellerCashManagementService extends BaseService {
     }
 
     /**
-     * Allocate Cash To Cashier
-     * Mandatory Fields:  Date, Amount, Currency, Notes/Comments
-     * @endpoint post /v1/tellers/{tellerId}/cashiers/{cashierId}/allocate
-     * @param tellerId tellerId
-     * @param cashierId cashierId
-     * @param postTellersTellerIdCashiersCashierIdAllocateRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public allocateCashToCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersTellerIdCashiersCashierIdAllocateResponse>;
-    public allocateCashToCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersTellerIdCashiersCashierIdAllocateResponse>>;
-    public allocateCashToCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersTellerIdCashiersCashierIdAllocateResponse>>;
-    public allocateCashToCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling allocateCashToCashier.');
-        }
-        if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling allocateCashToCashier.');
-        }
-        if (postTellersTellerIdCashiersCashierIdAllocateRequest === null || postTellersTellerIdCashiersCashierIdAllocateRequest === undefined) {
-            throw new Error('Required parameter postTellersTellerIdCashiersCashierIdAllocateRequest was null or undefined when calling allocateCashToCashier.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json',
-            'text/html'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/allocate`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostTellersTellerIdCashiersCashierIdAllocateResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postTellersTellerIdCashiersCashierIdAllocateRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Create Cashiers
-     * Mandatory Fields:  Cashier/staff, Fromm Date, To Date, Full Day or From time and To time    Optional Fields:  Description/Notes
-     * @endpoint post /v1/tellers/{tellerId}/cashiers
-     * @param tellerId tellerId
-     * @param postTellersTellerIdCashiersRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createCashier(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersTellerIdCashiersResponse>;
-    public createCashier(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersTellerIdCashiersResponse>>;
-    public createCashier(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersTellerIdCashiersResponse>>;
-    public createCashier(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling createCashier.');
-        }
-        if (postTellersTellerIdCashiersRequest === null || postTellersTellerIdCashiersRequest === undefined) {
-            throw new Error('Required parameter postTellersTellerIdCashiersRequest was null or undefined when calling createCashier.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostTellersTellerIdCashiersResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postTellersTellerIdCashiersRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Create teller
-     * Mandatory Fields Teller name, OfficeId, Description, Start Date, Status Optional Fields End Date
-     * @endpoint post /v1/tellers
-     * @param postTellersRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public createTeller(postTellersRequest: PostTellersRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersResponse>;
-    public createTeller(postTellersRequest: PostTellersRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersResponse>>;
-    public createTeller(postTellersRequest: PostTellersRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersResponse>>;
-    public createTeller(postTellersRequest: PostTellersRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (postTellersRequest === null || postTellersRequest === undefined) {
-            throw new Error('Required parameter postTellersRequest was null or undefined when calling createTeller.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostTellersResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: postTellersRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Delete Cashier
-     * @endpoint delete /v1/tellers/{tellerId}/cashiers/{cashierId}
-     * @param tellerId tellerId
-     * @param cashierId cashierId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public deleteCashier(tellerId: number, cashierId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteTellersTellerIdCashiersCashierIdResponse>;
-    public deleteCashier(tellerId: number, cashierId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteTellersTellerIdCashiersCashierIdResponse>>;
-    public deleteCashier(tellerId: number, cashierId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteTellersTellerIdCashiersCashierIdResponse>>;
-    public deleteCashier(tellerId: number, cashierId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling deleteCashier.');
-        }
-        if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling deleteCashier.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteTellersTellerIdCashiersCashierIdResponse>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
+     * Delete teller
      * @endpoint delete /v1/tellers/{tellerId}
      * @param tellerId tellerId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteTeller(tellerId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public deleteTeller(tellerId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public deleteTeller(tellerId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
-    public deleteTeller(tellerId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteTellersTellerId(tellerId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public deleteTellersTellerId(tellerId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public deleteTellersTellerId(tellerId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public deleteTellersTellerId(tellerId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling deleteTeller.');
+            throw new Error('Required parameter tellerId was null or undefined when calling deleteTellersTellerId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -455,23 +158,23 @@ export class TellerCashManagementService extends BaseService {
     }
 
     /**
-     * Retrieve a cashier
-     * @endpoint get /v1/tellers/{tellerId}/cashiers/{cashierId}
+     * Delete Cashier
+     * @endpoint delete /v1/tellers/{tellerId}/cashiers/{cashierId}
      * @param tellerId tellerId
      * @param cashierId cashierId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public findCashierData(tellerId: number, cashierId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashierIdResponse>;
-    public findCashierData(tellerId: number, cashierId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashierIdResponse>>;
-    public findCashierData(tellerId: number, cashierId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashierIdResponse>>;
-    public findCashierData(tellerId: number, cashierId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteTellersTellerIdCashiersCashierIdResponse>;
+    public deleteTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteTellersTellerIdCashiersCashierIdResponse>>;
+    public deleteTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteTellersTellerIdCashiersCashierIdResponse>>;
+    public deleteTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling findCashierData.');
+            throw new Error('Required parameter tellerId was null or undefined when calling deleteTellersTellerIdCashiersCashierId.');
         }
         if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling findCashierData.');
+            throw new Error('Required parameter cashierId was null or undefined when calling deleteTellersTellerIdCashiersCashierId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -507,9 +210,81 @@ export class TellerCashManagementService extends BaseService {
 
         let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetTellersTellerIdCashiersCashierIdResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DeleteTellersTellerIdCashiersCashierIdResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List all tellers
+     * Retrieves list tellers
+     * @endpoint get /v1/tellers
+     * @param officeId officeId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellers(officeId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetTellersResponse>>;
+    public getTellers(officeId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetTellersResponse>>>;
+    public getTellers(officeId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetTellersResponse>>>;
+    public getTellers(officeId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'officeId',
+            <any>officeId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<GetTellersResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -528,12 +303,12 @@ export class TellerCashManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public findTeller(tellerId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersResponse>;
-    public findTeller(tellerId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersResponse>>;
-    public findTeller(tellerId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersResponse>>;
-    public findTeller(tellerId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getTellersTellerId(tellerId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersResponse>;
+    public getTellersTellerId(tellerId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersResponse>>;
+    public getTellersTellerId(tellerId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersResponse>>;
+    public getTellersTellerId(tellerId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling findTeller.');
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -583,71 +358,6 @@ export class TellerCashManagementService extends BaseService {
     }
 
     /**
-     * @endpoint get /v1/tellers/{tellerId}/transactions/{transactionId}
-     * @param tellerId tellerId
-     * @param transactionId transactionId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public findTransactionData(tellerId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TellerTransactionData>;
-    public findTransactionData(tellerId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TellerTransactionData>>;
-    public findTransactionData(tellerId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TellerTransactionData>>;
-    public findTransactionData(tellerId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling findTransactionData.');
-        }
-        if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling findTransactionData.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TellerTransactionData>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * List Cashiers
      * @endpoint get /v1/tellers/{tellerId}/cashiers
      * @param tellerId tellerId
@@ -657,12 +367,12 @@ export class TellerCashManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCashierData1(tellerId: number, fromdate?: string, todate?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersResponse>;
-    public getCashierData1(tellerId: number, fromdate?: string, todate?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersResponse>>;
-    public getCashierData1(tellerId: number, fromdate?: string, todate?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersResponse>>;
-    public getCashierData1(tellerId: number, fromdate?: string, todate?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getTellersTellerIdCashiers(tellerId: number, fromdate?: string, todate?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersResponse>;
+    public getTellersTellerIdCashiers(tellerId: number, fromdate?: string, todate?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersResponse>>;
+    public getTellersTellerIdCashiers(tellerId: number, fromdate?: string, todate?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersResponse>>;
+    public getTellersTellerIdCashiers(tellerId: number, fromdate?: string, todate?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getCashierData1.');
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdCashiers.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -733,85 +443,23 @@ export class TellerCashManagementService extends BaseService {
     }
 
     /**
-     * Find Cashiers
-     * @endpoint get /v1/tellers/{tellerId}/cashiers/template
-     * @param tellerId tellerId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getCashierTemplate(tellerId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersTemplateResponse>;
-    public getCashierTemplate(tellerId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersTemplateResponse>>;
-    public getCashierTemplate(tellerId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersTemplateResponse>>;
-    public getCashierTemplate(tellerId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getCashierTemplate.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/template`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetTellersTellerIdCashiersTemplateResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Cashier Transaction Template
-     * @endpoint get /v1/tellers/{tellerId}/cashiers/{cashierId}/transactions/template
+     * Retrieve a cashier
+     * @endpoint get /v1/tellers/{tellerId}/cashiers/{cashierId}
      * @param tellerId tellerId
      * @param cashierId cashierId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getCashierTxnTemplate(tellerId: number, cashierId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>;
-    public getCashierTxnTemplate(tellerId: number, cashierId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>>;
-    public getCashierTxnTemplate(tellerId: number, cashierId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>>;
-    public getCashierTxnTemplate(tellerId: number, cashierId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashierIdResponse>;
+    public getTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashierIdResponse>>;
+    public getTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashierIdResponse>>;
+    public getTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getCashierTxnTemplate.');
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdCashiersCashierId.');
         }
         if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling getCashierTxnTemplate.');
+            throw new Error('Required parameter cashierId was null or undefined when calling getTellersTellerIdCashiersCashierId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -845,360 +493,11 @@ export class TellerCashManagementService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/template`;
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GetTellersTellerIdCashiersCashierIdResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/tellers/{tellerId}/journals
-     * @param tellerId tellerId
-     * @param cashierId cashierId
-     * @param dateRange dateRange
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getJournalData(tellerId: number, cashierId?: number, dateRange?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<TellerJournalData>>;
-    public getJournalData(tellerId: number, cashierId?: number, dateRange?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<TellerJournalData>>>;
-    public getJournalData(tellerId: number, cashierId?: number, dateRange?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<TellerJournalData>>>;
-    public getJournalData(tellerId: number, cashierId?: number, dateRange?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getJournalData.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'cashierId',
-            <any>cashierId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'dateRange',
-            <any>dateRange,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/journals`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<TellerJournalData>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * List all tellers
-     * Retrieves list tellers
-     * @endpoint get /v1/tellers
-     * @param officeId officeId
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getTellerData(officeId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GetTellersResponse>>;
-    public getTellerData(officeId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GetTellersResponse>>>;
-    public getTellerData(officeId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GetTellersResponse>>>;
-    public getTellerData(officeId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'officeId',
-            <any>officeId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<GetTellersResponse>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/tellers/{tellerId}/transactions
-     * @param tellerId tellerId
-     * @param dateRange dateRange
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getTransactionData(tellerId: number, dateRange?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<TellerTransactionData>>;
-    public getTransactionData(tellerId: number, dateRange?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<TellerTransactionData>>>;
-    public getTransactionData(tellerId: number, dateRange?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<TellerTransactionData>>>;
-    public getTransactionData(tellerId: number, dateRange?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getTransactionData.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'dateRange',
-            <any>dateRange,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<TellerTransactionData>>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Cashier Transactions
-     * @endpoint get /v1/tellers/{tellerId}/cashiers/{cashierId}/transactions
-     * @param tellerId tellerId
-     * @param cashierId cashierId
-     * @param currencyCode currencyCode
-     * @param offset offset
-     * @param limit limit
-     * @param orderBy orderBy
-     * @param sortOrder sortOrder
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getTransactionsForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>;
-    public getTransactionsForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>>;
-    public getTransactionsForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>>;
-    public getTransactionsForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getTransactionsForCashier.');
-        }
-        if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling getTransactionsForCashier.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'currencyCode',
-            <any>currencyCode,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'offset',
-            <any>offset,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'limit',
-            <any>limit,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'orderBy',
-            <any>orderBy,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'sortOrder',
-            <any>sortOrder,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -1223,15 +522,15 @@ export class TellerCashManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getTransactionsWithSummaryForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashiersIdSummaryAndTransactionsResponse>;
-    public getTransactionsWithSummaryForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashiersIdSummaryAndTransactionsResponse>>;
-    public getTransactionsWithSummaryForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashiersIdSummaryAndTransactionsResponse>>;
-    public getTransactionsWithSummaryForCashier(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getTellersTellerIdCashiersCashierIdSummaryandtransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashiersIdSummaryAndTransactionsResponse>;
+    public getTellersTellerIdCashiersCashierIdSummaryandtransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashiersIdSummaryAndTransactionsResponse>>;
+    public getTellersTellerIdCashiersCashierIdSummaryandtransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashiersIdSummaryAndTransactionsResponse>>;
+    public getTellersTellerIdCashiersCashierIdSummaryandtransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling getTransactionsWithSummaryForCashier.');
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdCashiersCashierIdSummaryandtransactions.');
         }
         if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling getTransactionsWithSummaryForCashier.');
+            throw new Error('Required parameter cashierId was null or undefined when calling getTellersTellerIdCashiersCashierIdSummaryandtransactions.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -1329,6 +628,711 @@ export class TellerCashManagementService extends BaseService {
     }
 
     /**
+     * Retrieve Cashier Transactions
+     * @endpoint get /v1/tellers/{tellerId}/cashiers/{cashierId}/transactions
+     * @param tellerId tellerId
+     * @param cashierId cashierId
+     * @param currencyCode currencyCode
+     * @param offset offset
+     * @param limit limit
+     * @param orderBy orderBy
+     * @param sortOrder sortOrder
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellersTellerIdCashiersCashierIdTransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>;
+    public getTellersTellerIdCashiersCashierIdTransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>>;
+    public getTellersTellerIdCashiersCashierIdTransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>>;
+    public getTellersTellerIdCashiersCashierIdTransactions(tellerId: number, cashierId: number, currencyCode?: string, offset?: number, limit?: number, orderBy?: string, sortOrder?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdCashiersCashierIdTransactions.');
+        }
+        if (cashierId === null || cashierId === undefined) {
+            throw new Error('Required parameter cashierId was null or undefined when calling getTellersTellerIdCashiersCashierIdTransactions.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'currencyCode',
+            <any>currencyCode,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'offset',
+            <any>offset,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'limit',
+            <any>limit,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'orderBy',
+            <any>orderBy,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'sortOrder',
+            <any>sortOrder,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetTellersTellerIdCashiersCashiersIdTransactionsResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Cashier Transaction Template
+     * @endpoint get /v1/tellers/{tellerId}/cashiers/{cashierId}/transactions/template
+     * @param tellerId tellerId
+     * @param cashierId cashierId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellersTellerIdCashiersCashierIdTransactionsTemplate(tellerId: number, cashierId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>;
+    public getTellersTellerIdCashiersCashierIdTransactionsTemplate(tellerId: number, cashierId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>>;
+    public getTellersTellerIdCashiersCashierIdTransactionsTemplate(tellerId: number, cashierId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>>;
+    public getTellersTellerIdCashiersCashierIdTransactionsTemplate(tellerId: number, cashierId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdCashiersCashierIdTransactionsTemplate.');
+        }
+        if (cashierId === null || cashierId === undefined) {
+            throw new Error('Required parameter cashierId was null or undefined when calling getTellersTellerIdCashiersCashierIdTransactionsTemplate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/template`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetTellersTellerIdCashiersCashiersIdTransactionsTemplateResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Find Cashiers
+     * @endpoint get /v1/tellers/{tellerId}/cashiers/template
+     * @param tellerId tellerId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellersTellerIdCashiersTemplate(tellerId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetTellersTellerIdCashiersTemplateResponse>;
+    public getTellersTellerIdCashiersTemplate(tellerId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetTellersTellerIdCashiersTemplateResponse>>;
+    public getTellersTellerIdCashiersTemplate(tellerId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetTellersTellerIdCashiersTemplateResponse>>;
+    public getTellersTellerIdCashiersTemplate(tellerId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdCashiersTemplate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/template`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GetTellersTellerIdCashiersTemplateResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List Teller Journals
+     * @endpoint get /v1/tellers/{tellerId}/journals
+     * @param tellerId tellerId
+     * @param cashierId cashierId
+     * @param dateRange dateRange
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellersTellerIdJournals(tellerId: number, cashierId?: number, dateRange?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<TellerJournalData>>;
+    public getTellersTellerIdJournals(tellerId: number, cashierId?: number, dateRange?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<TellerJournalData>>>;
+    public getTellersTellerIdJournals(tellerId: number, cashierId?: number, dateRange?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<TellerJournalData>>>;
+    public getTellersTellerIdJournals(tellerId: number, cashierId?: number, dateRange?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdJournals.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'cashierId',
+            <any>cashierId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'dateRange',
+            <any>dateRange,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/journals`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<TellerJournalData>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List Teller Transactions
+     * @endpoint get /v1/tellers/{tellerId}/transactions
+     * @param tellerId tellerId
+     * @param dateRange dateRange
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellersTellerIdTransactions(tellerId: number, dateRange?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<TellerTransactionData>>;
+    public getTellersTellerIdTransactions(tellerId: number, dateRange?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<TellerTransactionData>>>;
+    public getTellersTellerIdTransactions(tellerId: number, dateRange?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<TellerTransactionData>>>;
+    public getTellersTellerIdTransactions(tellerId: number, dateRange?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdTransactions.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'dateRange',
+            <any>dateRange,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<TellerTransactionData>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Teller Transaction
+     * @endpoint get /v1/tellers/{tellerId}/transactions/{transactionId}
+     * @param tellerId tellerId
+     * @param transactionId transactionId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getTellersTellerIdTransactionsTransactionId(tellerId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TellerTransactionData>;
+    public getTellersTellerIdTransactionsTransactionId(tellerId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TellerTransactionData>>;
+    public getTellersTellerIdTransactionsTransactionId(tellerId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TellerTransactionData>>;
+    public getTellersTellerIdTransactionsTransactionId(tellerId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling getTellersTellerIdTransactionsTransactionId.');
+        }
+        if (transactionId === null || transactionId === undefined) {
+            throw new Error('Required parameter transactionId was null or undefined when calling getTellersTellerIdTransactionsTransactionId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<TellerTransactionData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create teller
+     * Mandatory Fields Teller name, OfficeId, Description, Start Date, Status Optional Fields End Date
+     * @endpoint post /v1/tellers
+     * @param postTellersRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postTellers(postTellersRequest: PostTellersRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersResponse>;
+    public postTellers(postTellersRequest: PostTellersRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersResponse>>;
+    public postTellers(postTellersRequest: PostTellersRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersResponse>>;
+    public postTellers(postTellersRequest: PostTellersRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (postTellersRequest === null || postTellersRequest === undefined) {
+            throw new Error('Required parameter postTellersRequest was null or undefined when calling postTellers.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostTellersResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postTellersRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create Cashiers
+     * Mandatory Fields:  Cashier/staff, Fromm Date, To Date, Full Day or From time and To time    Optional Fields:  Description/Notes
+     * @endpoint post /v1/tellers/{tellerId}/cashiers
+     * @param tellerId tellerId
+     * @param postTellersTellerIdCashiersRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postTellersTellerIdCashiers(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersTellerIdCashiersResponse>;
+    public postTellersTellerIdCashiers(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersTellerIdCashiersResponse>>;
+    public postTellersTellerIdCashiers(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersTellerIdCashiersResponse>>;
+    public postTellersTellerIdCashiers(tellerId: number, postTellersTellerIdCashiersRequest: PostTellersTellerIdCashiersRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling postTellersTellerIdCashiers.');
+        }
+        if (postTellersTellerIdCashiersRequest === null || postTellersTellerIdCashiersRequest === undefined) {
+            throw new Error('Required parameter postTellersTellerIdCashiersRequest was null or undefined when calling postTellersTellerIdCashiers.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostTellersTellerIdCashiersResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postTellersTellerIdCashiersRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Allocate Cash To Cashier
+     * Mandatory Fields:  Date, Amount, Currency, Notes/Comments
+     * @endpoint post /v1/tellers/{tellerId}/cashiers/{cashierId}/allocate
+     * @param tellerId tellerId
+     * @param cashierId cashierId
+     * @param postTellersTellerIdCashiersCashierIdAllocateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postTellersTellerIdCashiersCashierIdAllocate(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersTellerIdCashiersCashierIdAllocateResponse>;
+    public postTellersTellerIdCashiersCashierIdAllocate(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersTellerIdCashiersCashierIdAllocateResponse>>;
+    public postTellersTellerIdCashiersCashierIdAllocate(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersTellerIdCashiersCashierIdAllocateResponse>>;
+    public postTellersTellerIdCashiersCashierIdAllocate(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdAllocateRequest: PostTellersTellerIdCashiersCashierIdAllocateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling postTellersTellerIdCashiersCashierIdAllocate.');
+        }
+        if (cashierId === null || cashierId === undefined) {
+            throw new Error('Required parameter cashierId was null or undefined when calling postTellersTellerIdCashiersCashierIdAllocate.');
+        }
+        if (postTellersTellerIdCashiersCashierIdAllocateRequest === null || postTellersTellerIdCashiersCashierIdAllocateRequest === undefined) {
+            throw new Error('Required parameter postTellersTellerIdCashiersCashierIdAllocateRequest was null or undefined when calling postTellersTellerIdCashiersCashierIdAllocate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/html'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/allocate`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostTellersTellerIdCashiersCashierIdAllocateResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postTellersTellerIdCashiersCashierIdAllocateRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Settle Cash From Cashier
      * Mandatory Fields Date, Amount, Currency, Notes/Comments
      * @endpoint post /v1/tellers/{tellerId}/cashiers/{cashierId}/settle
@@ -1339,18 +1343,18 @@ export class TellerCashManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public settleCashFromCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersTellerIdCashiersCashierIdSettleResponse>;
-    public settleCashFromCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersTellerIdCashiersCashierIdSettleResponse>>;
-    public settleCashFromCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersTellerIdCashiersCashierIdSettleResponse>>;
-    public settleCashFromCashier(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postTellersTellerIdCashiersCashierIdSettle(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostTellersTellerIdCashiersCashierIdSettleResponse>;
+    public postTellersTellerIdCashiersCashierIdSettle(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostTellersTellerIdCashiersCashierIdSettleResponse>>;
+    public postTellersTellerIdCashiersCashierIdSettle(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostTellersTellerIdCashiersCashierIdSettleResponse>>;
+    public postTellersTellerIdCashiersCashierIdSettle(tellerId: number, cashierId: number, postTellersTellerIdCashiersCashierIdSettleRequest: PostTellersTellerIdCashiersCashierIdSettleRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling settleCashFromCashier.');
+            throw new Error('Required parameter tellerId was null or undefined when calling postTellersTellerIdCashiersCashierIdSettle.');
         }
         if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling settleCashFromCashier.');
+            throw new Error('Required parameter cashierId was null or undefined when calling postTellersTellerIdCashiersCashierIdSettle.');
         }
         if (postTellersTellerIdCashiersCashierIdSettleRequest === null || postTellersTellerIdCashiersCashierIdSettleRequest === undefined) {
-            throw new Error('Required parameter postTellersTellerIdCashiersCashierIdSettleRequest was null or undefined when calling settleCashFromCashier.');
+            throw new Error('Required parameter postTellersTellerIdCashiersCashierIdSettleRequest was null or undefined when calling postTellersTellerIdCashiersCashierIdSettle.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1411,86 +1415,6 @@ export class TellerCashManagementService extends BaseService {
     }
 
     /**
-     * Update Cashier
-     * @endpoint put /v1/tellers/{tellerId}/cashiers/{cashierId}
-     * @param tellerId tellerId
-     * @param cashierId cashierId
-     * @param putTellersTellerIdCashiersCashierIdRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public updateCashier(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutTellersTellerIdCashiersCashierIdResponse>;
-    public updateCashier(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutTellersTellerIdCashiersCashierIdResponse>>;
-    public updateCashier(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutTellersTellerIdCashiersCashierIdResponse>>;
-    public updateCashier(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling updateCashier.');
-        }
-        if (cashierId === null || cashierId === undefined) {
-            throw new Error('Required parameter cashierId was null or undefined when calling updateCashier.');
-        }
-        if (putTellersTellerIdCashiersCashierIdRequest === null || putTellersTellerIdCashiersCashierIdRequest === undefined) {
-            throw new Error('Required parameter putTellersTellerIdCashiersCashierIdRequest was null or undefined when calling updateCashier.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PutTellersTellerIdCashiersCashierIdResponse>('put', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: putTellersTellerIdCashiersCashierIdRequest,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Update teller
      * @endpoint put /v1/tellers/{tellerId}
      * @param tellerId tellerId
@@ -1499,15 +1423,15 @@ export class TellerCashManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateTeller(tellerId: number, putTellersRequest: PutTellersRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutTellersResponse>;
-    public updateTeller(tellerId: number, putTellersRequest: PutTellersRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutTellersResponse>>;
-    public updateTeller(tellerId: number, putTellersRequest: PutTellersRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutTellersResponse>>;
-    public updateTeller(tellerId: number, putTellersRequest: PutTellersRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putTellersTellerId(tellerId: number, putTellersRequest: PutTellersRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutTellersResponse>;
+    public putTellersTellerId(tellerId: number, putTellersRequest: PutTellersRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutTellersResponse>>;
+    public putTellersTellerId(tellerId: number, putTellersRequest: PutTellersRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutTellersResponse>>;
+    public putTellersTellerId(tellerId: number, putTellersRequest: PutTellersRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (tellerId === null || tellerId === undefined) {
-            throw new Error('Required parameter tellerId was null or undefined when calling updateTeller.');
+            throw new Error('Required parameter tellerId was null or undefined when calling putTellersTellerId.');
         }
         if (putTellersRequest === null || putTellersRequest === undefined) {
-            throw new Error('Required parameter putTellersRequest was null or undefined when calling updateTeller.');
+            throw new Error('Required parameter putTellersRequest was null or undefined when calling putTellersTellerId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1556,6 +1480,86 @@ export class TellerCashManagementService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: putTellersRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update Cashier
+     * @endpoint put /v1/tellers/{tellerId}/cashiers/{cashierId}
+     * @param tellerId tellerId
+     * @param cashierId cashierId
+     * @param putTellersTellerIdCashiersCashierIdRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PutTellersTellerIdCashiersCashierIdResponse>;
+    public putTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PutTellersTellerIdCashiersCashierIdResponse>>;
+    public putTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PutTellersTellerIdCashiersCashierIdResponse>>;
+    public putTellersTellerIdCashiersCashierId(tellerId: number, cashierId: number, putTellersTellerIdCashiersCashierIdRequest: PutTellersTellerIdCashiersCashierIdRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (tellerId === null || tellerId === undefined) {
+            throw new Error('Required parameter tellerId was null or undefined when calling putTellersTellerIdCashiersCashierId.');
+        }
+        if (cashierId === null || cashierId === undefined) {
+            throw new Error('Required parameter cashierId was null or undefined when calling putTellersTellerIdCashiersCashierId.');
+        }
+        if (putTellersTellerIdCashiersCashierIdRequest === null || putTellersTellerIdCashiersCashierIdRequest === undefined) {
+            throw new Error('Required parameter putTellersTellerIdCashiersCashierIdRequest was null or undefined when calling putTellersTellerIdCashiersCashierId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/tellers/${this.configuration.encodeParam({name: "tellerId", value: tellerId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/cashiers/${this.configuration.encodeParam({name: "cashierId", value: cashierId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PutTellersTellerIdCashiersCashierIdResponse>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: putTellersTellerIdCashiersCashierIdRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,7 +42,6 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
   selector: 'app-tellers-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -118,7 +117,7 @@ export class TellersListComponent implements OnInit {
    * Retrieves all tellers from the Fineract API.
    */
   private loadTellers(): void {
-    this.tellerService.getTellerData().subscribe({
+    this.tellerService.getTellers().subscribe({
       next: (data: GetTellersResponse[]) => {
         this.tellers = data || [];
       },

@@ -27,6 +27,7 @@ import { EnumOptionData } from './enumOptionData';
 
 
 export interface AdHocData { 
+    active?: boolean;
     createdBy?: string;
     createdById?: number;
     createdOn?: string;

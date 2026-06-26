@@ -32,6 +32,22 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
+// @ts-ignore
+import { MeetingAttendanceUpdateRequest } from '../model/meetingAttendanceUpdateRequest';
+// @ts-ignore
+import { MeetingAttendanceUpdateResponse } from '../model/meetingAttendanceUpdateResponse';
+// @ts-ignore
+import { MeetingCreateRequest } from '../model/meetingCreateRequest';
+// @ts-ignore
+import { MeetingCreateResponse } from '../model/meetingCreateResponse';
+// @ts-ignore
+import { MeetingData } from '../model/meetingData';
+// @ts-ignore
+import { MeetingDeleteResponse } from '../model/meetingDeleteResponse';
+// @ts-ignore
+import { MeetingUpdateRequest } from '../model/meetingUpdateRequest';
+// @ts-ignore
+import { MeetingUpdateResponse } from '../model/meetingUpdateResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -50,23 +66,322 @@ export class MeetingsService extends BaseService {
     }
 
     /**
-     * @endpoint post /v1/{entityType}/{entityId}/meetings
+     * Delete a Meeting
+     * @endpoint delete /v1/{entityType}/{entityId}/meetings/{meetingId}
      * @param entityType 
      * @param entityId 
-     * @param body 
+     * @param meetingId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createMeeting(entityType: string, entityId: number, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public createMeeting(entityType: string, entityId: number, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public createMeeting(entityType: string, entityId: number, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public createMeeting(entityType: string, entityId: number, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeetingDeleteResponse>;
+    public deleteEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeetingDeleteResponse>>;
+    public deleteEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeetingDeleteResponse>>;
+    public deleteEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling createMeeting.');
+            throw new Error('Required parameter entityType was null or undefined when calling deleteEntityTypeEntityIdMeetingsMeetingId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling createMeeting.');
+            throw new Error('Required parameter entityId was null or undefined when calling deleteEntityTypeEntityIdMeetingsMeetingId.');
+        }
+        if (meetingId === null || meetingId === undefined) {
+            throw new Error('Required parameter meetingId was null or undefined when calling deleteEntityTypeEntityIdMeetingsMeetingId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/${this.configuration.encodeParam({name: "meetingId", value: meetingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MeetingDeleteResponse>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List Meetings
+     * @endpoint get /v1/{entityType}/{entityId}/meetings
+     * @param entityType 
+     * @param entityId 
+     * @param limit 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getEntityTypeEntityIdMeetings(entityType: string, entityId: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<MeetingData>>;
+    public getEntityTypeEntityIdMeetings(entityType: string, entityId: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<MeetingData>>>;
+    public getEntityTypeEntityIdMeetings(entityType: string, entityId: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<MeetingData>>>;
+    public getEntityTypeEntityIdMeetings(entityType: string, entityId: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdMeetings.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdMeetings.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'limit',
+            <any>limit,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<MeetingData>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a Meeting
+     * @endpoint get /v1/{entityType}/{entityId}/meetings/{meetingId}
+     * @param meetingId 
+     * @param entityType 
+     * @param entityId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getEntityTypeEntityIdMeetingsMeetingId(meetingId: number, entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeetingData>;
+    public getEntityTypeEntityIdMeetingsMeetingId(meetingId: number, entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeetingData>>;
+    public getEntityTypeEntityIdMeetingsMeetingId(meetingId: number, entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeetingData>>;
+    public getEntityTypeEntityIdMeetingsMeetingId(meetingId: number, entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (meetingId === null || meetingId === undefined) {
+            throw new Error('Required parameter meetingId was null or undefined when calling getEntityTypeEntityIdMeetingsMeetingId.');
+        }
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdMeetingsMeetingId.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdMeetingsMeetingId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/${this.configuration.encodeParam({name: "meetingId", value: meetingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MeetingData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve Meeting Template
+     * @endpoint get /v1/{entityType}/{entityId}/meetings/template
+     * @param entityType 
+     * @param entityId 
+     * @param calendarId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getEntityTypeEntityIdMeetingsTemplate(entityType: string, entityId: number, calendarId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeetingData>;
+    public getEntityTypeEntityIdMeetingsTemplate(entityType: string, entityId: number, calendarId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeetingData>>;
+    public getEntityTypeEntityIdMeetingsTemplate(entityType: string, entityId: number, calendarId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeetingData>>;
+    public getEntityTypeEntityIdMeetingsTemplate(entityType: string, entityId: number, calendarId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling getEntityTypeEntityIdMeetingsTemplate.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling getEntityTypeEntityIdMeetingsTemplate.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'calendarId',
+            <any>calendarId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/template`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MeetingData>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create a Meeting
+     * @endpoint post /v1/{entityType}/{entityId}/meetings
+     * @param entityType 
+     * @param entityId 
+     * @param meetingCreateRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postEntityTypeEntityIdMeetings(entityType: string, entityId: number, meetingCreateRequest?: MeetingCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeetingCreateResponse>;
+    public postEntityTypeEntityIdMeetings(entityType: string, entityId: number, meetingCreateRequest?: MeetingCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeetingCreateResponse>>;
+    public postEntityTypeEntityIdMeetings(entityType: string, entityId: number, meetingCreateRequest?: MeetingCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeetingCreateResponse>>;
+    public postEntityTypeEntityIdMeetings(entityType: string, entityId: number, meetingCreateRequest?: MeetingCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (entityType === null || entityType === undefined) {
+            throw new Error('Required parameter entityType was null or undefined when calling postEntityTypeEntityIdMeetings.');
+        }
+        if (entityId === null || entityId === undefined) {
+            throw new Error('Required parameter entityId was null or undefined when calling postEntityTypeEntityIdMeetings.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -111,10 +426,10 @@ export class MeetingsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<MeetingCreateResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: body,
+                body: meetingCreateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -126,97 +441,29 @@ export class MeetingsService extends BaseService {
     }
 
     /**
-     * @endpoint delete /v1/{entityType}/{entityId}/meetings/{meetingId}
-     * @param entityType 
-     * @param entityId 
-     * @param meetingId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public deleteMeeting(entityType: string, entityId: number, meetingId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public deleteMeeting(entityType: string, entityId: number, meetingId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public deleteMeeting(entityType: string, entityId: number, meetingId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public deleteMeeting(entityType: string, entityId: number, meetingId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling deleteMeeting.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling deleteMeeting.');
-        }
-        if (meetingId === null || meetingId === undefined) {
-            throw new Error('Required parameter meetingId was null or undefined when calling deleteMeeting.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/${this.configuration.encodeParam({name: "meetingId", value: meetingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
+     * Update Meeting Attendance
      * @endpoint post /v1/{entityType}/{entityId}/meetings/{meetingId}
      * @param entityType 
      * @param entityId 
      * @param meetingId 
      * @param command 
-     * @param body 
+     * @param meetingAttendanceUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public performMeetingCommands(entityType: string, entityId: number, meetingId: number, command?: string, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public performMeetingCommands(entityType: string, entityId: number, meetingId: number, command?: string, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public performMeetingCommands(entityType: string, entityId: number, meetingId: number, command?: string, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public performMeetingCommands(entityType: string, entityId: number, meetingId: number, command?: string, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, command?: string, meetingAttendanceUpdateRequest?: MeetingAttendanceUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeetingAttendanceUpdateResponse>;
+    public postEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, command?: string, meetingAttendanceUpdateRequest?: MeetingAttendanceUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeetingAttendanceUpdateResponse>>;
+    public postEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, command?: string, meetingAttendanceUpdateRequest?: MeetingAttendanceUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeetingAttendanceUpdateResponse>>;
+    public postEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, command?: string, meetingAttendanceUpdateRequest?: MeetingAttendanceUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling performMeetingCommands.');
+            throw new Error('Required parameter entityType was null or undefined when calling postEntityTypeEntityIdMeetingsMeetingId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling performMeetingCommands.');
+            throw new Error('Required parameter entityId was null or undefined when calling postEntityTypeEntityIdMeetingsMeetingId.');
         }
         if (meetingId === null || meetingId === undefined) {
-            throw new Error('Required parameter meetingId was null or undefined when calling performMeetingCommands.');
+            throw new Error('Required parameter meetingId was null or undefined when calling postEntityTypeEntityIdMeetingsMeetingId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -272,10 +519,10 @@ export class MeetingsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/${this.configuration.encodeParam({name: "meetingId", value: meetingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<MeetingAttendanceUpdateResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: body,
+                body: meetingAttendanceUpdateRequest,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
@@ -288,252 +535,28 @@ export class MeetingsService extends BaseService {
     }
 
     /**
-     * @endpoint get /v1/{entityType}/{entityId}/meetings/{meetingId}
-     * @param meetingId 
-     * @param entityType 
-     * @param entityId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveMeeting(meetingId: number, entityType: string, entityId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveMeeting(meetingId: number, entityType: string, entityId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveMeeting(meetingId: number, entityType: string, entityId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveMeeting(meetingId: number, entityType: string, entityId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (meetingId === null || meetingId === undefined) {
-            throw new Error('Required parameter meetingId was null or undefined when calling retrieveMeeting.');
-        }
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling retrieveMeeting.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveMeeting.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/${this.configuration.encodeParam({name: "meetingId", value: meetingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/{entityType}/{entityId}/meetings
-     * @param entityType 
-     * @param entityId 
-     * @param limit 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public retrieveMeetings(entityType: string, entityId: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public retrieveMeetings(entityType: string, entityId: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public retrieveMeetings(entityType: string, entityId: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public retrieveMeetings(entityType: string, entityId: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling retrieveMeetings.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling retrieveMeetings.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'limit',
-            <any>limit,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint get /v1/{entityType}/{entityId}/meetings/template
-     * @param entityType 
-     * @param entityId 
-     * @param calendarId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public template11(entityType: string, entityId: number, calendarId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public template11(entityType: string, entityId: number, calendarId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public template11(entityType: string, entityId: number, calendarId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public template11(entityType: string, entityId: number, calendarId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling template11.');
-        }
-        if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling template11.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'calendarId',
-            <any>calendarId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/template`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
+     * Update a Meeting
      * @endpoint put /v1/{entityType}/{entityId}/meetings/{meetingId}
      * @param entityType 
      * @param entityId 
      * @param meetingId 
-     * @param body 
+     * @param meetingUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateMeeting(entityType: string, entityId: number, meetingId: number, body?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public updateMeeting(entityType: string, entityId: number, meetingId: number, body?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public updateMeeting(entityType: string, entityId: number, meetingId: number, body?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public updateMeeting(entityType: string, entityId: number, meetingId: number, body?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, meetingUpdateRequest?: MeetingUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeetingUpdateResponse>;
+    public putEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, meetingUpdateRequest?: MeetingUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeetingUpdateResponse>>;
+    public putEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, meetingUpdateRequest?: MeetingUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeetingUpdateResponse>>;
+    public putEntityTypeEntityIdMeetingsMeetingId(entityType: string, entityId: number, meetingId: number, meetingUpdateRequest?: MeetingUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
-            throw new Error('Required parameter entityType was null or undefined when calling updateMeeting.');
+            throw new Error('Required parameter entityType was null or undefined when calling putEntityTypeEntityIdMeetingsMeetingId.');
         }
         if (entityId === null || entityId === undefined) {
-            throw new Error('Required parameter entityId was null or undefined when calling updateMeeting.');
+            throw new Error('Required parameter entityId was null or undefined when calling putEntityTypeEntityIdMeetingsMeetingId.');
         }
         if (meetingId === null || meetingId === undefined) {
-            throw new Error('Required parameter meetingId was null or undefined when calling updateMeeting.');
+            throw new Error('Required parameter meetingId was null or undefined when calling putEntityTypeEntityIdMeetingsMeetingId.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -578,10 +601,10 @@ export class MeetingsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/meetings/${this.configuration.encodeParam({name: "meetingId", value: meetingId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<string>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<MeetingUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: body,
+                body: meetingUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

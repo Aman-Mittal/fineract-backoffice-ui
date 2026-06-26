@@ -18,12 +18,13 @@
  */
 
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
+import { NgClass } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
@@ -33,13 +34,13 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
   selector: 'app-asset-owners-list',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    NgClass,
   ],
   template: `
     <app-data-table
@@ -58,7 +59,12 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-transfer>
-        <button mat-icon-button color="primary" matTooltip="View Details">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="View Details"
+          (click)="onViewDetails(transfer)"
+        >
           <mat-icon>visibility</mat-icon>
         </button>
       </ng-template>
@@ -86,11 +92,12 @@ import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
 })
 export class ExternalAssetOwnersListComponent {
   private readonly assetOwnersService = inject(ExternalAssetOwnersService);
+  private readonly router = inject(Router);
 
   columns: ColumnDef[] = [
     { key: 'transferExternalId', label: 'Transfer ID', sortable: false },
-    { key: 'ownerExternalId', label: 'Owner ID', sortable: false },
-    { key: 'loanAccountNo', label: 'Loan Account', sortable: false },
+    { key: 'owner.externalId', label: 'Owner ID', sortable: false },
+    { key: 'loan.externalId', label: 'Loan Account', sortable: false },
     { key: 'purchasePriceRatio', label: 'Purchase Ratio', sortable: false },
     { key: 'status', label: 'Status', sortable: false },
     { key: 'actions', label: 'Actions', sortable: false },
@@ -120,7 +127,7 @@ export class ExternalAssetOwnersListComponent {
           };
 
           return this.assetOwnersService
-            .searchInvestorData(request)
+            .postExternalAssetOwnersSearch(request)
             .pipe(catchError(() => of(null)));
         }),
         map((response) => {
@@ -143,5 +150,11 @@ export class ExternalAssetOwnersListComponent {
   onPage(event: PageEvent) {
     this.currentPage = event;
     this.pageSubject.next(event);
+  }
+
+  onViewDetails(transfer: ExternalTransferData) {
+    this.router.navigate(['/fintech/asset-owners/view', transfer.transferExternalId], {
+      queryParams: { ownerExternalId: transfer.owner?.externalId },
+    });
   }
 }

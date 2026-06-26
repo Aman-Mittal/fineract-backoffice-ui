@@ -24,6 +24,7 @@
  */
 
 import { GetClientsLoanAccounts } from './getClientsLoanAccounts';
+import { GetClientsWorkingCapitalLoanAccounts } from './getClientsWorkingCapitalLoanAccounts';
 import { GetClientsSavingsAccounts } from './getClientsSavingsAccounts';
 
 
@@ -33,5 +34,6 @@ import { GetClientsSavingsAccounts } from './getClientsSavingsAccounts';
 export interface GetClientsClientIdAccountsResponse { 
     loanAccounts?: Set<GetClientsLoanAccounts>;
     savingsAccounts?: Set<GetClientsSavingsAccounts>;
+    workingCapitalLoanAccounts?: Set<GetClientsWorkingCapitalLoanAccounts>;
 }
 

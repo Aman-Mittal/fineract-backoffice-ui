@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,6 +31,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   JournalEntriesService,
   JournalEntryCommand,
@@ -54,7 +55,6 @@ import { HelpIconComponent } from '../../shared';
   selector: 'app-journal-entry-form',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     MatCardModule,
@@ -66,6 +66,7 @@ import { HelpIconComponent } from '../../shared';
     MatNativeDateModule,
     MatIconModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     HelpIconComponent,
   ],
   template: `
@@ -217,14 +218,24 @@ import { HelpIconComponent } from '../../shared';
             </mat-form-field>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">Cancel</button>
+              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+                Cancel
+              </button>
               <button
                 mat-raised-button
                 color="primary"
                 type="submit"
                 [disabled]="entryForm.invalid || isSaving || !isBalanced()"
               >
-                {{ isSaving ? 'Saving...' : 'Save' }}
+                @if (isSaving) {
+                  <mat-spinner
+                    diameter="20"
+                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
+                  ></mat-spinner>
+                  Saving...
+                } @else {
+                  Save
+                }
               </button>
             </div>
             @if (!isBalanced()) {
@@ -272,11 +283,6 @@ import { HelpIconComponent } from '../../shared';
       .full-width {
         width: 100%;
       }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-      }
       .error-text {
         color: #f44336;
         text-align: right;
@@ -315,15 +321,15 @@ export class JournalEntryFormComponent implements OnInit {
 
   private loadData() {
     this.officeService
-      .retrieveOffices()
+      .getOffices()
       .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
-    this.currencyService.retrieveCurrencies().subscribe((data: CurrencyConfigurationData) => {
+    this.currencyService.getCurrencies().subscribe((data: CurrencyConfigurationData) => {
       this.currencies = data.selectedCurrencyOptions
         ? Array.from(data.selectedCurrencyOptions)
         : [];
     });
     this.glAccountService
-      .retrieveAllAccounts()
+      .getGlaccounts()
       .subscribe((data: GetGLAccountsResponse[]) => (this.glAccounts = data));
   }
 
@@ -362,7 +368,7 @@ export class JournalEntryFormComponent implements OnInit {
     this.command.debits = this.debits;
     this.command.credits = this.credits;
 
-    this.journalService.createGLJournalEntry(undefined, this.command).subscribe({
+    this.journalService.postJournalentries(undefined, this.command).subscribe({
       next: () => this.router.navigate(['/accounting/journal-entries']),
       error: () => (this.isSaving = false),
     });
