@@ -26,7 +26,7 @@ import {
   ClientActionDialogComponent,
   ClientActionDialogData,
 } from './client-action-dialog.component';
-import { CodesService, CodeValuesService } from '../../api';
+import { CodesService, CodeValuesService, BusinessDateManagementService } from '../../api';
 
 describe('ClientActionDialogComponent', () => {
   let component: ClientActionDialogComponent;
@@ -34,6 +34,7 @@ describe('ClientActionDialogComponent', () => {
   let dialogRefSpy: jasmine.SpyObj<MatDialogRef<ClientActionDialogComponent>>;
   let codesServiceSpy: jasmine.SpyObj<CodesService>;
   let codeValuesServiceSpy: jasmine.SpyObj<CodeValuesService>;
+  let businessDateServiceSpy: jasmine.SpyObj<BusinessDateManagementService>;
 
   const defaultDialogData: ClientActionDialogData = {
     title: 'Activate Client',
@@ -45,6 +46,9 @@ describe('ClientActionDialogComponent', () => {
     dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
     codesServiceSpy = jasmine.createSpyObj('CodesService', ['getCodesNameCodeName']);
     codeValuesServiceSpy = jasmine.createSpyObj('CodeValuesService', ['getCodesCodeIdCodevalues']);
+    businessDateServiceSpy = jasmine.createSpyObj('BusinessDateManagementService', [
+      'getBusinessdate',
+    ]);
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), NoopAnimationsModule, ClientActionDialogComponent],
@@ -53,8 +57,11 @@ describe('ClientActionDialogComponent', () => {
         { provide: MAT_DIALOG_DATA, useValue: data },
         { provide: CodesService, useValue: codesServiceSpy },
         { provide: CodeValuesService, useValue: codeValuesServiceSpy },
+        { provide: BusinessDateManagementService, useValue: businessDateServiceSpy },
       ],
     }).compileComponents();
+
+    businessDateServiceSpy.getBusinessdate.and.returnValue(of([]) as unknown as Observable<never>);
 
     fixture = TestBed.createComponent(ClientActionDialogComponent);
     component = fixture.componentInstance;

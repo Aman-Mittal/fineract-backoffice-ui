@@ -29,6 +29,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
 import {
   LoanCollateralService,
   LoansLoanIdCollateralsRequest,
@@ -109,7 +110,6 @@ import {
                   matInput
                   name="description"
                   [(ngModel)]="collateralDescription"
-                  required
                   rows="3"
                 ></textarea>
               </mat-form-field>
@@ -228,6 +228,7 @@ export class CollateralFormComponent implements OnInit {
       collateralTypeId: this.selectedCollateralTypeId,
       value: this.collateralValue,
       description: this.collateralDescription,
+      locale: FINERACT_LOCALE,
     };
 
     if (this.isEditMode && this.collateralId) {
