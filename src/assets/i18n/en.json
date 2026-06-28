@@ -588,7 +588,8 @@
     "PASSWORD": "Password",
     "REPEAT_PASSWORD": "Repeat Password",
     "ROLES": "Roles",
-    "PASSWORD_NEVER_EXPIRES": "Password Never Expires"
+    "PASSWORD_NEVER_EXPIRES": "Password Never Expires",
+    "SEND_PASSWORD_TO_EMAIL": "Send Password To Email"
   },
   "ORGANIZATION": {
     "STAFF": "Staff",
