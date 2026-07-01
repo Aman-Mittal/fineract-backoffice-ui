@@ -137,9 +137,13 @@ import {
               </mat-form-field>
             </div>
 
-            <div class="checkbox-container">
+            <div class="checkbox-container" style="display: flex; gap: 16px; flex-wrap: wrap;">
               <mat-checkbox name="passwordNeverExpires" [(ngModel)]="user.passwordNeverExpires">
                 {{ 'USERS.PASSWORD_NEVER_EXPIRES' | translate }}
+              </mat-checkbox>
+
+              <mat-checkbox name="sendPasswordToEmail" [(ngModel)]="user.sendPasswordToEmail">
+                {{ 'USERS.SEND_PASSWORD_TO_EMAIL' | translate }}
               </mat-checkbox>
             </div>
 
@@ -205,6 +209,7 @@ export class UserFormComponent implements OnInit {
 
   user: PostUsersRequest = {
     passwordNeverExpires: false,
+    sendPasswordToEmail: false,
     roles: [],
   };
 
@@ -240,6 +245,7 @@ export class UserFormComponent implements OnInit {
         email: data.email,
         officeId: data.officeId,
         passwordNeverExpires: data.passwordNeverExpires,
+        sendPasswordToEmail: false,
         roles: data.selectedRoles?.map((r) => r.id!) || [],
       };
     });
@@ -255,6 +261,7 @@ export class UserFormComponent implements OnInit {
         email: this.user.email,
         officeId: this.user.officeId,
         roles: this.user.roles,
+        sendPasswordToEmail: this.user.sendPasswordToEmail,
       };
 
       this.usersService.putUsersUserId(this.userId, putRequest).subscribe({

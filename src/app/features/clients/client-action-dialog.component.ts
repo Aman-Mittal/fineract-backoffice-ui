@@ -27,7 +27,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { CodesService, CodeValuesService, GetCodeValuesDataResponse } from '../../api';
+import {
+  CodesService,
+  CodeValuesService,
+  GetCodeValuesDataResponse,
+  BusinessDateManagementService,
+} from '../../api';
 
 export interface ClientActionDialogData {
   title: string;
@@ -56,7 +61,13 @@ export interface ClientActionDialogData {
       <div class="dialog-form">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ dateLabel | translate }}</mat-label>
-          <input matInput [matDatepicker]="picker" [(ngModel)]="actionDate" required />
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [(ngModel)]="actionDate"
+            [max]="maxDate"
+            required
+          />
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
@@ -103,10 +114,12 @@ export interface ClientActionDialogData {
 export class ClientActionDialogComponent implements OnInit {
   private readonly codesService = inject(CodesService);
   private readonly codeValuesService = inject(CodeValuesService);
+  private readonly businessDateService = inject(BusinessDateManagementService);
   public readonly dialogRef = inject(MatDialogRef<ClientActionDialogComponent>);
   public readonly data = inject<ClientActionDialogData>(MAT_DIALOG_DATA);
 
   actionDate: Date = new Date();
+  maxDate?: Date;
   reasonId?: number;
   note = '';
 
@@ -118,6 +131,21 @@ export class ClientActionDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupConfig();
+    this.loadBusinessDate();
+  }
+
+  private loadBusinessDate(): void {
+    this.businessDateService.getBusinessdate().subscribe({
+      next: (dates) => {
+        const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
+        if (bd && bd.date) {
+          const d = bd.date as unknown as number[];
+          const bDate = new Date(d[0], d[1] - 1, d[2]);
+          this.actionDate = bDate;
+          this.maxDate = bDate;
+        }
+      },
+    });
   }
 
   private setupConfig(): void {

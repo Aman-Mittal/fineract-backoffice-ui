@@ -33,6 +33,7 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ConfigService } from './core/services/config.service';
@@ -52,7 +53,14 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor, loadingInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        correlationIdInterceptor,
+        authInterceptor,
+        errorInterceptor,
+        loadingInterceptor,
+      ]),
+    ),
     provideAnimationsAsync(),
     {
       provide: APP_INITIALIZER,

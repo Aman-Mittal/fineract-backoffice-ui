@@ -21,7 +21,14 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientViewComponent } from './client-view.component';
-import { ClientService } from '../../api';
+import {
+  ClientService,
+  NotesService,
+  ClientsAddressService,
+  DocumentsService,
+  ClientFamilyMemberService,
+  ClientIdentifierService,
+} from '../../api';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -33,6 +40,11 @@ describe('ClientViewComponent', () => {
   let component: ClientViewComponent;
   let fixture: ComponentFixture<ClientViewComponent>;
   let clientServiceSpy: jasmine.SpyObj<ClientService>;
+  let notesServiceSpy: jasmine.SpyObj<NotesService>;
+  let addressServiceSpy: jasmine.SpyObj<ClientsAddressService>;
+  let documentServiceSpy: jasmine.SpyObj<DocumentsService>;
+  let familyMemberServiceSpy: jasmine.SpyObj<ClientFamilyMemberService>;
+  let identifierServiceSpy: jasmine.SpyObj<ClientIdentifierService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
@@ -41,6 +53,23 @@ describe('ClientViewComponent', () => {
       'getClientsClientId',
       'getClientsClientIdAccounts',
     ]);
+    notesServiceSpy = jasmine.createSpyObj('NotesService', [
+      'postResourceTypeResourceIdNotes',
+      'getResourceTypeResourceIdNotes',
+    ]);
+    addressServiceSpy = jasmine.createSpyObj('ClientsAddressService', [
+      'getClientClientidAddresses',
+    ]);
+    documentServiceSpy = jasmine.createSpyObj('DocumentsService', [
+      'getEntityTypeEntityIdDocuments',
+    ]);
+    familyMemberServiceSpy = jasmine.createSpyObj('ClientFamilyMemberService', [
+      'getClientsClientIdFamilymembers',
+    ]);
+    identifierServiceSpy = jasmine.createSpyObj('ClientIdentifierService', [
+      'getClientsClientIdIdentifiers',
+    ]);
+
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
         username: 'mifos',
@@ -59,6 +88,11 @@ describe('ClientViewComponent', () => {
       providers: [
         provideNoopAnimations(),
         { provide: ClientService, useValue: clientServiceSpy },
+        { provide: NotesService, useValue: notesServiceSpy },
+        { provide: ClientsAddressService, useValue: addressServiceSpy },
+        { provide: DocumentsService, useValue: documentServiceSpy },
+        { provide: ClientFamilyMemberService, useValue: familyMemberServiceSpy },
+        { provide: ClientIdentifierService, useValue: identifierServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -90,6 +124,12 @@ describe('ClientViewComponent', () => {
         savingsAccounts: [] as any,
       }) as any,
     );
+
+    addressServiceSpy.getClientClientidAddresses.and.returnValue(of([]) as any);
+    documentServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(of([]) as any);
+    familyMemberServiceSpy.getClientsClientIdFamilymembers.and.returnValue(of([]) as any);
+    identifierServiceSpy.getClientsClientIdIdentifiers.and.returnValue(of([]) as any);
+    notesServiceSpy.getResourceTypeResourceIdNotes.and.returnValue(of([]) as any);
 
     fixture = TestBed.createComponent(ClientViewComponent);
     component = fixture.componentInstance;

@@ -31,6 +31,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import {
   ClientService,
+  NotesService,
   GetClientsClientIdResponse,
   GetClientsLoanAccounts,
   GetClientsSavingsAccounts,
@@ -746,6 +747,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
 })
 export class ClientViewComponent implements OnInit {
   private readonly clientService = inject(ClientService);
+  private readonly notesService = inject(NotesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
@@ -810,6 +812,46 @@ export class ClientViewComponent implements OnInit {
     this.router.navigate(['/clients/edit', this.clientId]);
   }
 
+  private buildClientActionPayload(
+    command: string,
+    result: { actionDate: Date; reasonId?: number; note?: string },
+    formattedDate: string,
+  ): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      locale: FINERACT_LOCALE,
+      dateFormat: FINERACT_DATE_FORMAT,
+    };
+
+    switch (command) {
+      case 'activate':
+        payload['activationDate'] = formattedDate;
+        break;
+      case 'close':
+        payload['closedOnDate'] = formattedDate;
+        payload['closureReasonId'] = result.reasonId;
+        if (result.note) payload['comments'] = result.note;
+        break;
+      case 'reject':
+        payload['rejectionDate'] = formattedDate;
+        payload['rejectionReasonId'] = result.reasonId;
+        if (result.note) payload['comments'] = result.note;
+        break;
+      case 'withdraw':
+        payload['withdrawalDate'] = formattedDate;
+        payload['withdrawalReasonId'] = result.reasonId;
+        if (result.note) payload['comments'] = result.note;
+        break;
+      case 'reactivate':
+        payload['reactivationDate'] = formattedDate;
+        break;
+      case 'undoReject':
+      case 'undoWithdraw':
+        payload['reopenedDate'] = formattedDate;
+        break;
+    }
+    return payload;
+  }
+
   onClientAction(command: string) {
     const dialogRef = this.dialog.open(ClientActionDialogComponent, {
       width: '400px',
@@ -821,41 +863,37 @@ export class ClientViewComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        const payload: Record<string, unknown> = {
-          locale: FINERACT_LOCALE,
-          dateFormat: FINERACT_DATE_FORMAT,
-          note: result.note,
-        };
+      if (!result) return;
 
-        const formattedDate = formatDateToFineract(result.actionDate);
+      const formattedDate = formatDateToFineract(result.actionDate);
+      const payload = this.buildClientActionPayload(command, result, formattedDate);
 
-        if (command === 'activate') payload['activationDate'] = formattedDate;
-        if (command === 'close') {
-          payload['closedOnDate'] = formattedDate;
-          payload['closureReasonId'] = result.reasonId;
-        }
-        if (command === 'reject') {
-          payload['rejectionDate'] = formattedDate;
-          payload['rejectionReasonId'] = result.reasonId;
-        }
-        if (command === 'withdraw') {
-          payload['withdrawalDate'] = formattedDate;
-          payload['withdrawalReasonId'] = result.reasonId;
-        }
-        if (command === 'reactivate') payload['reactivationDate'] = formattedDate;
-        if (command === 'undoReject') payload['reopenedDate'] = formattedDate;
-        if (command === 'undoWithdraw') payload['reopenedDate'] = formattedDate;
+      this.clientService
+        .postClientsClientId(this.clientId, payload as PostClientsClientIdRequest, command)
+        .subscribe({
+          next: () => {
+            const isNoteOnlyCommand =
+              command === 'activate' ||
+              command === 'reactivate' ||
+              command === 'undoReject' ||
+              command === 'undoWithdraw';
 
-        this.clientService
-          .postClientsClientId(this.clientId, payload as PostClientsClientIdRequest, command)
-          .subscribe({
-            next: () => {
+            if (result.note && isNoteOnlyCommand) {
+              this.notesService
+                .postResourceTypeResourceIdNotes('clients', this.clientId, { note: result.note })
+                .subscribe({
+                  next: () => this.loadClientData(),
+                  error: (err) => {
+                    console.error('Failed to save activation note', err);
+                    this.loadClientData();
+                  },
+                });
+            } else {
               this.loadClientData();
-            },
-            error: (err) => console.error(`Failed to execute ${command}`, err),
-          });
-      }
+            }
+          },
+          error: (err) => console.error(`Failed to execute ${command}`, err),
+        });
     });
   }
 
