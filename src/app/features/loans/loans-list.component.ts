@@ -135,6 +135,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           <button
             mat-icon-button
             color="accent"
+            [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
             [matTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
             (click)="onLoanAction(loan, 'approve')"
           >
@@ -145,6 +146,7 @@ import { LoansService, GetLoansLoanIdResponse } from '../../api';
           <button
             mat-icon-button
             color="accent"
+            [attr.aria-label]="'LOANS.DISBURSE_LOAN' | translate"
             [matTooltip]="'LOANS.DISBURSE_LOAN' | translate"
             (click)="onLoanAction(loan, 'disburse')"
           >

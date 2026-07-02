@@ -192,6 +192,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/loan/view/:id',
+        loadComponent: () =>
+          import('./features/products/loan-product-view.component').then(
+            (m) => m.LoanProductViewComponent,
+          ),
+      },
+      {
         path: 'products/savings',
         loadComponent: () =>
           import('./features/products/savings-products-list.component').then(

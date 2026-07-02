@@ -37,7 +37,11 @@ import {
   FundsService,
   DelinquencyRangeAndBucketsManagementService,
   DelinquencyBucketResponse,
+  EnumOptionData,
+  GetLoanProductsTransactionProcessingStrategyOptions,
 } from '../../api';
+import { LOAN_SCHEDULE_TYPE, isAdvancedPaymentAllocationStrategy } from './loan-schedule-type';
+import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocation-editor.component';
 
 @Component({
   selector: 'app-loan-product-form',
@@ -52,6 +56,7 @@ import {
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    PaymentCreditAllocationEditorComponent,
   ],
   template: `
     <div class="form-container">
@@ -263,35 +268,71 @@ import {
                 </mat-select>
               </mat-form-field>
 
+              <!-- Loan Schedule Type -->
+              <mat-form-field
+                appearance="outline"
+                [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+              >
+                <mat-label>{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</mat-label>
+                <mat-select
+                  name="loanScheduleType"
+                  [(ngModel)]="product.loanScheduleType"
+                  (ngModelChange)="onLoanScheduleTypeChange($event)"
+                  required
+                >
+                  @for (option of loanScheduleTypeOptions; track option.code) {
+                    <mat-option [value]="option.code">{{ option.value }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
               <!-- Transaction Processing Strategy Code -->
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate }}</mat-label>
                 <mat-select
                   name="transactionProcessingStrategyCode"
                   [(ngModel)]="product.transactionProcessingStrategyCode"
+                  [disabled]="isProgressive"
                   required
                 >
-                  <mat-option value="mifos-standard-strategy">{{
-                    'PRODUCTS.STRATEGIES.MIFOS_STYLE' | translate
-                  }}</mat-option>
-                  <mat-option value="heavensfamily-strategy">{{
-                    'PRODUCTS.STRATEGIES.HEAVENSFAMILY' | translate
-                  }}</mat-option>
-                  <mat-option value="creocore-strategy">{{
-                    'PRODUCTS.STRATEGIES.CREOCORE' | translate
-                  }}</mat-option>
-                  <mat-option value="interest-principal-grace-strategy">{{
-                    'PRODUCTS.STRATEGIES.GRACE_ON_INTEREST_AND_PRINCIPAL' | translate
-                  }}</mat-option>
-                  <mat-option value="principal-interest-grace-strategy">{{
-                    'PRODUCTS.STRATEGIES.PRINCIPAL_INTEREST_GRACE' | translate
-                  }}</mat-option>
-                  <mat-option value="penalty-fee-interest-principal-strategy">{{
-                    'PRODUCTS.STRATEGIES.PENALTIES_FEES_INTEREST_PRINCIPAL' | translate
-                  }}</mat-option>
+                  @for (option of transactionProcessingStrategyOptions; track option.code) {
+                    <mat-option [value]="option.code">{{ option.name }}</mat-option>
+                  }
                 </mat-select>
               </mat-form-field>
+
+              <!-- Loan Schedule Processing Type (Progressive only) -->
+              @if (isProgressive) {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate }}</mat-label>
+                  <mat-select
+                    name="loanScheduleProcessingType"
+                    [(ngModel)]="product.loanScheduleProcessingType"
+                    required
+                  >
+                    @for (option of loanScheduleProcessingTypeOptions; track option.code) {
+                      <mat-option [value]="option.code">{{ option.value }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
             </div>
+
+            @if (isProgressive) {
+              <app-payment-credit-allocation-editor
+                [transactionTypeOptions]="advancedPaymentAllocationTransactionTypes"
+                [allocationRuleOptions]="advancedPaymentAllocationTypes"
+                [futureInstallmentOptions]="
+                  advancedPaymentAllocationFutureInstallmentAllocationRules
+                "
+                [creditTransactionTypeOptions]="creditAllocationTransactionTypes"
+                [creditAllocationRuleOptions]="creditAllocationAllocationTypes"
+                [paymentAllocation]="product.paymentAllocation ?? []"
+                (paymentAllocationChange)="product.paymentAllocation = $event"
+                [creditAllocation]="product.creditAllocation ?? []"
+                (creditAllocationChange)="product.creditAllocation = $event"
+              ></app-payment-credit-allocation-editor>
+            }
 
             <div class="form-actions">
               <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -355,6 +396,18 @@ export class LoanProductFormComponent implements OnInit {
   fundOptions: FundData[] = [];
   delinquencyBucketOptions: DelinquencyBucketResponse[] = [];
 
+  loanScheduleTypeOptions: EnumOptionData[] = [];
+  loanScheduleProcessingTypeOptions: EnumOptionData[] = [];
+  advancedPaymentAllocationTypes: EnumOptionData[] = [];
+  advancedPaymentAllocationTransactionTypes: EnumOptionData[] = [];
+  advancedPaymentAllocationFutureInstallmentAllocationRules: EnumOptionData[] = [];
+  creditAllocationTransactionTypes: EnumOptionData[] = [];
+  creditAllocationAllocationTypes: EnumOptionData[] = [];
+  transactionProcessingStrategyOptionsBase: GetLoanProductsTransactionProcessingStrategyOptions[] =
+    [];
+  transactionProcessingStrategyOptions: GetLoanProductsTransactionProcessingStrategyOptions[] = [];
+  isProgressive = false;
+
   product: PostLoanProductsRequest = {
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
@@ -364,6 +417,7 @@ export class LoanProductFormComponent implements OnInit {
     amortizationType: 1, // Equal Installments
     interestType: 0, // Declining Balance
     interestCalculationPeriodType: 1, // Daily
+    loanScheduleType: LOAN_SCHEDULE_TYPE.CUMULATIVE,
     transactionProcessingStrategyCode: 'mifos-standard-strategy',
     accountingRule: 1, // NONE
     daysInYearType: 1,
@@ -377,6 +431,22 @@ export class LoanProductFormComponent implements OnInit {
       .getDelinquencyBuckets()
       .subscribe((data) => (this.delinquencyBucketOptions = data));
 
+    this.productService.getLoanproductsTemplate().subscribe((template) => {
+      this.loanScheduleTypeOptions = template.loanScheduleTypeOptions ?? [];
+      this.loanScheduleProcessingTypeOptions = template.loanScheduleProcessingTypeOptions ?? [];
+      this.advancedPaymentAllocationTypes = template.advancedPaymentAllocationTypes ?? [];
+      this.advancedPaymentAllocationTransactionTypes =
+        template.advancedPaymentAllocationTransactionTypes ?? [];
+      this.advancedPaymentAllocationFutureInstallmentAllocationRules =
+        template.advancedPaymentAllocationFutureInstallmentAllocationRules ?? [];
+      this.creditAllocationTransactionTypes = template.creditAllocationTransactionTypes ?? [];
+      this.creditAllocationAllocationTypes = template.creditAllocationAllocationTypes ?? [];
+      this.transactionProcessingStrategyOptionsBase = template.transactionProcessingStrategyOptions
+        ? Array.from(template.transactionProcessingStrategyOptions)
+        : [];
+      this.applyTransactionProcessingStrategyFilter();
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -385,6 +455,58 @@ export class LoanProductFormComponent implements OnInit {
         this.loadProductData();
       }
     });
+  }
+
+  onLoanScheduleTypeChange(loanScheduleType: string) {
+    this.isProgressive = loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+    this.applyTransactionProcessingStrategyFilter();
+
+    if (this.isProgressive) {
+      this.product.loanScheduleProcessingType = 'HORIZONTAL';
+      this.product.paymentAllocation = this.buildDefaultPaymentAllocation();
+    } else {
+      this.product.loanScheduleProcessingType = undefined;
+      this.product.paymentAllocation = undefined;
+      this.product.creditAllocation = undefined;
+    }
+  }
+
+  private applyTransactionProcessingStrategyFilter() {
+    if (this.isProgressive) {
+      this.transactionProcessingStrategyOptions =
+        this.transactionProcessingStrategyOptionsBase.filter((option) =>
+          isAdvancedPaymentAllocationStrategy(option.code),
+        );
+      if (this.transactionProcessingStrategyOptions.length) {
+        this.product.transactionProcessingStrategyCode =
+          this.transactionProcessingStrategyOptions[0].code;
+      }
+    } else {
+      this.transactionProcessingStrategyOptions =
+        this.transactionProcessingStrategyOptionsBase.filter(
+          (option) => !isAdvancedPaymentAllocationStrategy(option.code),
+        );
+      if (
+        isAdvancedPaymentAllocationStrategy(this.product.transactionProcessingStrategyCode) &&
+        this.transactionProcessingStrategyOptions.length
+      ) {
+        this.product.transactionProcessingStrategyCode =
+          this.transactionProcessingStrategyOptions[0].code;
+      }
+    }
+  }
+
+  private buildDefaultPaymentAllocation() {
+    return [
+      {
+        transactionType: 'DEFAULT',
+        futureInstallmentAllocationRule: 'NEXT_INSTALLMENT',
+        paymentAllocationOrder: this.advancedPaymentAllocationTypes.map((type, index) => ({
+          order: index + 1,
+          paymentAllocationRule: type.code,
+        })),
+      },
+    ];
   }
 
   loadProductData() {
@@ -412,7 +534,13 @@ export class LoanProductFormComponent implements OnInit {
         daysInYearType: data.daysInYearType?.id ?? 1,
         daysInMonthType: data.daysInMonthType?.id ?? 1,
         isInterestRecalculationEnabled: data.isInterestRecalculationEnabled ?? false,
+        loanScheduleType: data.loanScheduleType?.code ?? LOAN_SCHEDULE_TYPE.CUMULATIVE,
+        loanScheduleProcessingType: data.loanScheduleProcessingType?.code,
+        paymentAllocation: data.paymentAllocation,
+        creditAllocation: data.creditAllocation,
       };
+      this.isProgressive = this.product.loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+      this.applyTransactionProcessingStrategyFilter();
     });
   }
 

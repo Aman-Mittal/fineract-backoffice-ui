@@ -19,22 +19,27 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError, Observable } from 'rxjs';
 import { EntityDatatablesComponent } from './entity-datatables.component';
+import { DatatableEntryDialogComponent } from '../datatable-entry-dialog/datatable-entry-dialog.component';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 
 describe('EntityDatatablesComponent', () => {
   let component: EntityDatatablesComponent;
   let fixture: ComponentFixture<EntityDatatablesComponent>;
   let datatablesServiceSpy: jasmine.SpyObj<DataTablesService>;
+  let dialogSpy: jasmine.Spy;
 
   const mockDatatables: GetDataTablesResponse[] = [
     {
       registeredTableName: 'm_client_details',
       columnHeaderData: [
-        { columnName: 'id' },
-        { columnName: 'client_id' },
+        // Real Fineract API responses mark the entity's own FK column (here
+        // "client_id", not "id") as the primary key — that's what the
+        // getColumnDefs/dialog column filtering keys off of.
+        { columnName: 'client_id', isColumnPrimaryKey: true },
         { columnName: 'business_type' },
         { columnName: 'revenue' },
       ],
@@ -42,8 +47,7 @@ describe('EntityDatatablesComponent', () => {
     {
       registeredTableName: 'm_client_more_details',
       columnHeaderData: [
-        { columnName: 'id' },
-        { columnName: 'client_id' },
+        { columnName: 'client_id', isColumnPrimaryKey: true },
         { columnName: 'notes' },
       ],
     },
@@ -72,6 +76,13 @@ describe('EntityDatatablesComponent', () => {
     component = fixture.componentInstance;
     component.apptableName = 'client';
     component.entityId = 123;
+
+    // The component imports MatDialogModule itself, so as a standalone
+    // component its `inject(MatDialog)` resolves from its own environment
+    // injector rather than the root TestBed injector — a DI-level provider
+    // override here doesn't reliably reach it. Spy directly on the instance
+    // the component actually holds instead.
+    dialogSpy = spyOn((component as unknown as { dialog: MatDialog }).dialog, 'open');
   });
 
   it('should create and load datatables on init', () => {
@@ -175,9 +186,38 @@ describe('EntityDatatablesComponent', () => {
     expect(colDefs[1].key).toBe('revenue');
   });
 
-  it('should log add entry details', () => {
-    spyOn(console, 'log');
+  it('should open the add-entry dialog with the table columns and entity id', () => {
+    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    dialogRefSpy.afterClosed.and.returnValue(of(false));
+    dialogSpy.and.returnValue(dialogRefSpy);
+
     component.onAddEntry(mockDatatables[0]);
-    expect(console.log).toHaveBeenCalledWith('Add entry to', 'm_client_details');
+
+    expect(dialogSpy).toHaveBeenCalledWith(
+      DatatableEntryDialogComponent,
+      jasmine.objectContaining({
+        data: {
+          datatableName: 'm_client_details',
+          apptableId: 123,
+          columns: mockDatatables[0].columnHeaderData,
+        },
+      }),
+    );
+  });
+
+  it('should reload table data after a saved add-entry dialog closes', () => {
+    datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
+      of(mockTableDataResultSet) as unknown as Observable<never>,
+    );
+    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    dialogRefSpy.afterClosed.and.returnValue(of(true));
+    dialogSpy.and.returnValue(dialogRefSpy);
+
+    component.onAddEntry(mockDatatables[0]);
+
+    expect(datatablesServiceSpy.getDatatablesDatatableApptableId).toHaveBeenCalledWith(
+      'm_client_details',
+      123,
+    );
   });
 });

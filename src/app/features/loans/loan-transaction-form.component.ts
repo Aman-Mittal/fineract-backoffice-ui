@@ -21,7 +21,7 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -32,6 +32,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import {
   LoanTransactionsService,
   LoansService,
@@ -39,6 +40,36 @@ import {
   GetLoansLoanIdTransactionsTemplateResponse,
   GetPaymentTypeOptions,
 } from '../../api';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+
+const TRANSACTION_TITLE_KEYS: Record<string, string> = {
+  repayment: 'LOANS.REPAYMENT',
+  disburse: 'LOANS.DISBURSEMENT',
+  approve: 'LOANS.APPROVAL',
+  reject: 'LOANS.ACTIONS.REJECT',
+  withdrawnByClient: 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT',
+  undoDisbursal: 'LOANS.ACTIONS.UNDO_DISBURSAL',
+  waiveinterest: 'LOANS.ACTIONS.WAIVE_INTEREST',
+  prepayLoan: 'LOANS.ACTIONS.PREPAY_LOAN',
+  foreclosure: 'LOANS.ACTIONS.FORECLOSURE',
+  close: 'LOANS.ACTIONS.CLOSE',
+  writeoff: 'LOANS.ACTIONS.WRITE_OFF',
+};
+
+const DESTRUCTIVE_TYPES = new Set(['writeoff', 'foreclosure', 'close', 'undoDisbursal']);
+
+// Only these commands accept a transaction amount / payment type — the
+// others (writeoff, foreclosure, close, waiveinterest) compute their amount
+// on the backend from the outstanding balance and reject an explicit
+// transactionAmount with a 400.
+const AMOUNT_VISIBLE_TYPES = new Set(['repayment', 'prepayLoan']);
+
+const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
+  writeoff: 'LOANS.CONFIRM_WRITE_OFF',
+  foreclosure: 'LOANS.CONFIRM_FORECLOSURE',
+  close: 'LOANS.CONFIRM_CLOSE',
+  undoDisbursal: 'LOANS.CONFIRM_UNDO_DISBURSAL',
+};
 
 @Component({
   selector: 'app-loan-transaction-form',
@@ -62,43 +93,46 @@ import {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{
-              transactionType === 'repayment'
-                ? ('LOANS.REPAYMENT' | translate)
-                : transactionType === 'disburse'
-                  ? ('LOANS.DISBURSEMENT' | translate)
-                  : ('LOANS.APPROVAL' | translate)
-            }}
+            {{ transactionTitleKey | translate }}
           </mat-card-title>
+          @if (loanSummary) {
+            <mat-card-subtitle>
+              {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
+              {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
+              {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
+            </mat-card-subtitle>
+          }
         </mat-card-header>
 
         <mat-card-content>
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="transaction-form">
             <div class="form-grid">
-              <!-- Transaction Date -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate"
-              >
-                <mat-label>
-                  {{
-                    transactionType === 'approve'
-                      ? ('COMMON.ACTIVATION_DATE' | translate)
-                      : ('COMMON.TRANSACTION_DATE' | translate)
-                  }}
-                </mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="transactionDate"
-                  [(ngModel)]="transactionDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              @if (transactionType !== 'undoDisbursal') {
+                <!-- Transaction Date -->
+                <mat-form-field
+                  appearance="outline"
+                  [matTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate"
+                >
+                  <mat-label>
+                    {{
+                      transactionType === 'approve'
+                        ? ('COMMON.ACTIVATION_DATE' | translate)
+                        : ('COMMON.TRANSACTION_DATE' | translate)
+                    }}
+                  </mat-label>
+                  <input
+                    matInput
+                    [matDatepicker]="picker"
+                    name="transactionDate"
+                    [(ngModel)]="transactionDate"
+                    required
+                  />
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              }
 
-              @if (transactionType !== 'approve') {
+              @if (amountVisible) {
                 <!-- Transaction Amount -->
                 <mat-form-field
                   appearance="outline"
@@ -217,6 +251,10 @@ export class LoanTransactionFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
+
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
 
   loanId = 0;
   transactionType = '';
@@ -225,17 +263,42 @@ export class LoanTransactionFormComponent implements OnInit {
   transaction: PostLoansLoanIdTransactionsRequest = {};
   transactionDate: Date = new Date();
   paymentTypeOptions: GetPaymentTypeOptions[] = [];
+  loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
+
+  get transactionTitleKey(): string {
+    return TRANSACTION_TITLE_KEYS[this.transactionType] || this.transactionType;
+  }
+
+  get amountVisible(): boolean {
+    return AMOUNT_VISIBLE_TYPES.has(this.transactionType);
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.loanId = +params['loanId'];
       this.transactionType = params['type'];
       this.loadTemplate();
+      this.loadLoanSummary();
+    });
+  }
+
+  private loadLoanSummary(): void {
+    this.loansService.getLoansLoanId(this.loanId).subscribe({
+      next: (data) => {
+        this.loanSummary = {
+          accountNo: data.accountNo,
+          clientName: data.clientName,
+          loanProductName: data.loanProductName,
+        };
+      },
+      error: () => {
+        // Non-critical context display; the form still works without it.
+      },
     });
   }
 
   private loadTemplate(): void {
-    if (this.transactionType === 'approve') {
+    if (this.transactionType === 'approve' || this.transactionType === 'undoDisbursal') {
       return;
     }
     this.transactionService
@@ -256,6 +319,25 @@ export class LoanTransactionFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (DESTRUCTIVE_TYPES.has(this.transactionType)) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: this.translate.instant(this.transactionTitleKey),
+          message: this.translate.instant(
+            CONFIRM_MESSAGE_KEYS[this.transactionType] || 'COMMON.CONFIRM',
+          ),
+          destructive: true,
+        },
+      });
+      dialogRef.afterClosed().subscribe((confirmed) => {
+        if (confirmed) this.performSubmit();
+      });
+    } else {
+      this.performSubmit();
+    }
+  }
+
+  private performSubmit(): void {
     this.isSaving = true;
 
     const formattedDate = `${this.transactionDate.getFullYear()}-${String(
@@ -265,7 +347,7 @@ export class LoanTransactionFormComponent implements OnInit {
     if (this.transactionType === 'approve') {
       const payload = {
         approvedOnDate: formattedDate,
-        dateFormat: 'yyyy-MM-dd',
+        dateFormat: this.DATE_FORMAT,
         locale: 'en',
         note: this.transaction.note,
       };
@@ -273,10 +355,42 @@ export class LoanTransactionFormComponent implements OnInit {
         next: () => this.router.navigate(['/loans']),
         error: () => (this.isSaving = false),
       });
+    } else if (this.transactionType === 'disburse') {
+      // Disbursement is a loan state-transition command (POST /loans/{id}?command=disburse),
+      // not a transaction sub-resource call — it does not accept `transactionDate`,
+      // only `actualDisbursementDate`.
+      const payload = {
+        actualDisbursementDate: formattedDate,
+        dateFormat: this.DATE_FORMAT,
+        locale: 'en',
+        transactionAmount: this.transaction.transactionAmount,
+        paymentTypeId: this.transaction.paymentTypeId,
+        note: this.transaction.note,
+      };
+      this.loansService.postLoansLoanId(this.loanId, payload, 'disburse').subscribe({
+        next: () => this.router.navigate(['/loans']),
+        error: () => (this.isSaving = false),
+      });
+    } else if (this.transactionType === 'undoDisbursal') {
+      // Undo-disbursal is also a loan state-transition command, not a
+      // transaction sub-resource entry — it takes no date/amount, just an
+      // optional note.
+      const payload = { note: this.transaction.note };
+      this.loansService.postLoansLoanId(this.loanId, payload, 'undoDisbursal').subscribe({
+        next: () => this.router.navigate(['/loans']),
+        error: () => (this.isSaving = false),
+      });
     } else {
       this.transaction.transactionDate = formattedDate;
-      this.transaction.dateFormat = 'yyyy-MM-dd';
+      this.transaction.dateFormat = this.DATE_FORMAT;
       this.transaction.locale = 'en';
+      if (!this.amountVisible) {
+        // writeoff/foreclosure/close/waiveinterest compute their amount
+        // server-side from the outstanding balance and reject an explicit
+        // transactionAmount/paymentTypeId with a 400.
+        delete this.transaction.transactionAmount;
+        delete this.transaction.paymentTypeId;
+      }
 
       this.transactionService
         .postLoansLoanIdTransactions(this.loanId, this.transaction, this.transactionType)
