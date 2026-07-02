@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var o=[{path:"",redirectTo:"checker-inbox",pathMatch:"full"},{path:"checker-inbox",loadComponent:()=>import("./chunk-FMSVAIXU.js").then(e=>e.CheckerInboxComponent)}];export{o as TASKS_ROUTES};
