@@ -37,6 +37,7 @@ import {
   CollateralData,
   CodeValueData,
   GetLoansLoanIdCollateralsResponse,
+  LoansService,
 } from '../../../api';
 
 /**
@@ -67,6 +68,13 @@ import {
                 : ('LOANS.ADD_COLLATERAL' | translate)
             }}
           </mat-card-title>
+          @if (loanSummary) {
+            <mat-card-subtitle>
+              {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
+              {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
+              {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
+            </mat-card-subtitle>
+          }
         </mat-card-header>
 
         <mat-card-content>
@@ -163,6 +171,7 @@ import {
 })
 export class CollateralFormComponent implements OnInit {
   private readonly collateralService = inject(LoanCollateralService);
+  private readonly loansService = inject(LoansService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -172,6 +181,7 @@ export class CollateralFormComponent implements OnInit {
   isSaving = false;
 
   collateralTypes: CodeValueData[] = [];
+  loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
 
   // Binding variables
   selectedCollateralTypeId: number | null = null;
@@ -186,6 +196,7 @@ export class CollateralFormComponent implements OnInit {
       if (loanIdParam) {
         this.loanId = +loanIdParam;
         this.loadTemplate();
+        this.loadLoanSummary();
 
         if (collateralIdParam) {
           this.collateralId = +collateralIdParam;
@@ -193,6 +204,22 @@ export class CollateralFormComponent implements OnInit {
           this.loadCollateral();
         }
       }
+    });
+  }
+
+  private loadLoanSummary(): void {
+    if (!this.loanId) return;
+    this.loansService.getLoansLoanId(this.loanId).subscribe({
+      next: (data) => {
+        this.loanSummary = {
+          accountNo: data.accountNo,
+          clientName: data.clientName,
+          loanProductName: data.loanProductName,
+        };
+      },
+      error: () => {
+        // Non-critical context display; the form still works without it.
+      },
     });
   }
 

@@ -47,7 +47,7 @@ describe('SearchFilterComponent', () => {
 
     // Simulate user typing
     inputElement.value = 'test';
-    inputElement.dispatchEvent(new Event('keyup'));
+    inputElement.dispatchEvent(new Event('input'));
 
     // Shouldn't emit immediately due to debounce
     expect(component.searchChange.emit).not.toHaveBeenCalled();
@@ -65,7 +65,7 @@ describe('SearchFilterComponent', () => {
 
     // Simulate user typing with spaces
     inputElement.value = '  test value  ';
-    inputElement.dispatchEvent(new Event('keyup'));
+    inputElement.dispatchEvent(new Event('input'));
 
     // Wait for debounceTime (400ms)
     tick(400);
@@ -80,13 +80,13 @@ describe('SearchFilterComponent', () => {
 
     // First emission
     inputElement.value = 'test';
-    inputElement.dispatchEvent(new Event('keyup'));
+    inputElement.dispatchEvent(new Event('input'));
     tick(400);
     expect(component.searchChange.emit).toHaveBeenCalledTimes(1);
 
     // Second emission with same value
     inputElement.value = 'test  ';
-    inputElement.dispatchEvent(new Event('keyup'));
+    inputElement.dispatchEvent(new Event('input'));
     tick(400);
 
     // Should still be called only once

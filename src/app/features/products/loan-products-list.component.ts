@@ -23,12 +23,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CellTemplateDirective, ColumnDef } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { LoanProductsService, GetLoanProductsResponse } from '../../api';
+import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
 
 @Component({
   selector: 'app-loan-products-list',
@@ -38,6 +40,7 @@ import { LoanProductsService, GetLoanProductsResponse } from '../../api';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatChipsModule,
     DataTableComponent,
     CellTemplateDirective,
   ],
@@ -53,7 +56,25 @@ import { LoanProductsService, GetLoanProductsResponse } from '../../api';
       [localLogic]="true"
       (create)="onCreateProduct()"
     >
+      <ng-template appCellTemplate="loanScheduleType" let-product>
+        @if (getLoanScheduleType(product); as scheduleType) {
+          <mat-chip-set>
+            <mat-chip [color]="scheduleType === 'PROGRESSIVE' ? 'accent' : 'primary'" highlighted>
+              {{ getLoanScheduleTypeLabel(product) }}
+            </mat-chip>
+          </mat-chip-set>
+        }
+      </ng-template>
       <ng-template appCellTemplate="actions" let-product>
+        <button
+          mat-icon-button
+          color="primary"
+          [attr.aria-label]="'COMMON.VIEW' | translate"
+          [matTooltip]="'COMMON.VIEW' | translate"
+          (click)="onViewProduct(product)"
+        >
+          <mat-icon>visibility</mat-icon>
+        </button>
         <button
           mat-icon-button
           color="primary"
@@ -75,6 +96,7 @@ export class LoanProductsListComponent implements OnInit {
     { key: 'name', label: 'COMMON.NAME', sortable: true },
     { key: 'shortName', label: 'PRODUCTS.SHORT_NAME', sortable: true },
     { key: 'description', label: 'PRODUCTS.DESCRIPTION', sortable: false },
+    { key: 'loanScheduleType', label: 'PRODUCTS.LOAN_SCHEDULE_TYPE', sortable: false },
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
@@ -99,5 +121,27 @@ export class LoanProductsListComponent implements OnInit {
 
   onEditProduct(product: GetLoanProductsResponse): void {
     this.router.navigate(['/products/loan/edit', product.id]);
+  }
+
+  onViewProduct(product: GetLoanProductsResponse): void {
+    this.router.navigate(['/products/loan/view', product.id]);
+  }
+
+  /**
+   * `loanScheduleType` is returned by GET /loanproducts but is missing from the
+   * generated GetLoanProductsResponse model, so it's read off the raw response.
+   */
+  getLoanScheduleType(product: GetLoanProductsResponse): string | undefined {
+    return (product as unknown as { loanScheduleType?: { code?: string } }).loanScheduleType?.code;
+  }
+
+  getLoanScheduleTypeLabel(product: GetLoanProductsResponse): string {
+    const scheduleType = product as unknown as { loanScheduleType?: { value?: string } };
+    return (
+      scheduleType.loanScheduleType?.value ??
+      (this.getLoanScheduleType(product) === LOAN_SCHEDULE_TYPE.PROGRESSIVE
+        ? 'Progressive'
+        : 'Cumulative')
+    );
   }
 }

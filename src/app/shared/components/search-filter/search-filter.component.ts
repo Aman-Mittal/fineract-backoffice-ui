@@ -33,7 +33,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   template: `
     <mat-form-field appearance="outline" class="search-field" [matTooltip]="tooltipText">
       <mat-label>{{ label }}</mat-label>
-      <input matInput (keyup)="onKeyUp($event)" [placeholder]="placeholder" />
+      <input matInput (input)="onInput($event)" [placeholder]="placeholder" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
   `,
@@ -63,7 +63,7 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
       });
   }
 
-  onKeyUp(event: Event) {
+  onInput(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchSubject.next(value.trim());
   }

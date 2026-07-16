@@ -34,6 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatChipsModule } from '@angular/material/chips';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -41,13 +42,17 @@ import {
   PutLoansLoanIdRequest,
   LoanProductsService,
   GetLoanProductsResponse,
+  GetLoanProductsProductIdResponse,
   GetLoansLoanIdResponse,
 } from '../../api';
+import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
+
+const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
 
 @Component({
   selector: 'app-loan-form',
@@ -67,6 +72,7 @@ import {
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatChipsModule,
     ClientSearchComponent,
   ],
   template: `
@@ -113,6 +119,7 @@ import {
                   <mat-select
                     name="productId"
                     [(ngModel)]="loan.productId"
+                    (ngModelChange)="onProductSelected($event)"
                     required
                     [disabled]="isEditMode"
                   >
@@ -132,6 +139,17 @@ import {
                   <mat-icon color="primary">add_circle_outline</mat-icon>
                 </button>
               </div>
+
+              @if (selectedProductDetails?.loanScheduleType?.value) {
+                <div class="field-container-row full-width">
+                  <mat-chip-set>
+                    <mat-chip [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
+                      {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
+                      {{ selectedProductDetails?.loanScheduleType?.value }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+              }
 
               <!-- Principal -->
               <mat-form-field appearance="outline" [matTooltip]="'HELP.PRINCIPAL_DESC' | translate">
@@ -364,6 +382,24 @@ import {
                 ></mat-datepicker-toggle>
                 <mat-datepicker #repaymentsFromPicker></mat-datepicker>
               </mat-form-field>
+
+              @if (isProgressive()) {
+                <mat-checkbox
+                  name="interestRecognitionOnDisbursementDate"
+                  [(ngModel)]="loan.interestRecognitionOnDisbursementDate"
+                >
+                  {{ 'LOANS.INTEREST_RECOGNITION_ON_DISBURSEMENT_DATE' | translate }}
+                </mat-checkbox>
+              }
+
+              @if (isProgressive() && selectedProductDetails?.multiDisburseLoan) {
+                <mat-checkbox
+                  name="allowFullTermForTranche"
+                  [(ngModel)]="loan.allowFullTermForTranche"
+                >
+                  {{ 'LOANS.ALLOW_FULL_TERM_FOR_TRANCHE' | translate }}
+                </mat-checkbox>
+              }
             </div>
 
             <div class="form-actions">
@@ -440,6 +476,7 @@ export class LoanFormComponent implements OnInit {
   expectedDisbursementDate: Date = new Date();
   repaymentsStartingFromDate: Date | null = null;
   products: GetLoanProductsResponse[] = [];
+  selectedProductDetails: GetLoanProductsProductIdResponse | null = null;
 
   ngOnInit() {
     this.loadProducts();
@@ -472,9 +509,25 @@ export class LoanFormComponent implements OnInit {
   private loadProducts() {
     this.productService.getLoanproducts().subscribe({
       next: (data: GetLoanProductsResponse[]) => (this.products = data || []),
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open(OPERATION_FAILED_MESSAGE, 'Close', { duration: 3000 }),
     });
+  }
+
+  onProductSelected(productId: number, resetProgressiveFields = true) {
+    this.selectedProductDetails = null;
+    if (resetProgressiveFields) {
+      this.loan.interestRecognitionOnDisbursementDate = undefined;
+      this.loan.allowFullTermForTranche = undefined;
+    }
+    if (!productId) return;
+    this.productService.getLoanproductsProductId(productId).subscribe({
+      next: (data: GetLoanProductsProductIdResponse) => (this.selectedProductDetails = data),
+      error: () => this.snackBar.open(OPERATION_FAILED_MESSAGE, 'Close', { duration: 3000 }),
+    });
+  }
+
+  isProgressive(): boolean {
+    return this.selectedProductDetails?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
   }
 
   private loadLoanData() {
@@ -509,10 +562,14 @@ export class LoanFormComponent implements OnInit {
           amortizationType: data.amortizationType?.id,
           interestCalculationPeriodType: data.interestCalculationPeriodType?.id,
           transactionProcessingStrategyCode: data.transactionProcessingStrategyCode,
+          interestRecognitionOnDisbursementDate: data.interestRecognitionOnDisbursementDate,
+          allowFullTermForTranche: data.allowFullTermForTranche,
         };
+        if (data.loanProductId) {
+          this.onProductSelected(data.loanProductId, false);
+        }
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open(OPERATION_FAILED_MESSAGE, 'Close', { duration: 3000 }),
     });
   }
 
@@ -527,11 +584,16 @@ export class LoanFormComponent implements OnInit {
     this.loan.dateFormat = FINERACT_DATE_FORMAT;
     this.loan.locale = FINERACT_LOCALE;
 
-    const selectedProduct = this.products.find((p) => p.id === this.loan.productId);
-    if (selectedProduct && selectedProduct.transactionProcessingStrategy) {
-      this.loan.transactionProcessingStrategyCode = selectedProduct.transactionProcessingStrategy;
-    } else if (!this.loan.transactionProcessingStrategyCode) {
-      this.loan.transactionProcessingStrategyCode = 'mifos-standard-strategy';
+    if (this.selectedProductDetails?.transactionProcessingStrategyCode) {
+      this.loan.transactionProcessingStrategyCode =
+        this.selectedProductDetails.transactionProcessingStrategyCode;
+    } else {
+      const selectedProduct = this.products.find((p) => p.id === this.loan.productId);
+      if (selectedProduct && selectedProduct.transactionProcessingStrategy) {
+        this.loan.transactionProcessingStrategyCode = selectedProduct.transactionProcessingStrategy;
+      } else if (!this.loan.transactionProcessingStrategyCode) {
+        this.loan.transactionProcessingStrategyCode = 'mifos-standard-strategy';
+      }
     }
 
     if (this.isEditMode && this.loanId) {

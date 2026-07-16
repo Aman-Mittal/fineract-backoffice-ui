@@ -19,7 +19,9 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,10 +32,17 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
+import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { LoanNotesTabComponent } from './loan-notes-tab.component';
+import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
+import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import {
   LoansService,
   GetLoansLoanIdResponse,
@@ -66,9 +75,12 @@ import {
     MatInputModule,
     MatFormFieldModule,
     MatSnackBarModule,
+    MatChipsModule,
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
+    LoanNotesTabComponent,
+    LoanDocumentsTabComponent,
     DecimalPipe,
     NgClass,
     JsonPipe,
@@ -93,6 +105,18 @@ import {
                     [status]="loan()?.status"
                     class="status-badge"
                   ></app-status-badge>
+                  @if (loan()?.loanScheduleType?.value) {
+                    <mat-chip-set>
+                      <mat-chip
+                        [color]="isProgressiveLoan() ? 'accent' : 'primary'"
+                        highlighted
+                        [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+                      >
+                        {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
+                        {{ loan()?.loanScheduleType?.value }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  }
                 </div>
               </div>
             </div>
@@ -173,6 +197,42 @@ import {
                   <mat-icon>person_add</mat-icon>
                   <span>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</span>
                 </button>
+
+                @if (isLoanActive) {
+                  <button mat-menu-item (click)="onUndoDisbursal()">
+                    <mat-icon>undo</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onLoanTransactionAction('waiveinterest')">
+                    <mat-icon>money_off</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onLoanTransactionAction('prepayLoan')">
+                    <mat-icon>fast_forward</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onLoanTransactionAction('foreclosure')">
+                    <mat-icon>flag</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</span>
+                  </button>
+
+                  <button mat-menu-item (click)="onLoanTransactionAction('close')">
+                    <mat-icon>lock</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</span>
+                  </button>
+
+                  <button
+                    mat-menu-item
+                    class="warn-item"
+                    (click)="onLoanTransactionAction('writeoff')"
+                  >
+                    <mat-icon color="warn">delete_forever</mat-icon>
+                    <span>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</span>
+                  </button>
+                }
               </mat-menu>
 
               <button mat-button (click)="onBack()">
@@ -595,6 +655,19 @@ import {
                         </td>
                       </ng-container>
 
+                      <ng-container matColumnDef="txActions">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let tx">
+                          <button
+                            mat-icon-button
+                            (click)="onViewTransaction(tx)"
+                            [matTooltip]="'COMMON.VIEW' | translate"
+                          >
+                            <mat-icon>visibility</mat-icon>
+                          </button>
+                        </td>
+                      </ng-container>
+
                       <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
                       <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
                     </table>
@@ -668,6 +741,20 @@ import {
                 apptableName="m_loan"
                 [entityId]="loanId"
               ></app-entity-datatables>
+            </div>
+          </mat-tab>
+
+          <!-- Notes -->
+          <mat-tab [label]="'LOANS.NOTES' | translate">
+            <div class="tab-content">
+              <app-loan-notes-tab [loanId]="loanId"></app-loan-notes-tab>
+            </div>
+          </mat-tab>
+
+          <!-- Documents -->
+          <mat-tab [label]="'LOANS.DOCUMENTS' | translate">
+            <div class="tab-content">
+              <app-loan-documents-tab [loanId]="loanId"></app-loan-documents-tab>
             </div>
           </mat-tab>
 
@@ -1025,6 +1112,8 @@ export class LoanViewComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
 
   loanId = 0;
   loan = signal<GetLoansLoanIdResponse | null>(null);
@@ -1048,6 +1137,10 @@ export class LoanViewComponent implements OnInit {
   collateralDetailId = 0;
   deleteCollateralId = 0;
 
+  isProgressiveLoan(): boolean {
+    return this.loan()?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+  }
+
   get isLoanApproved(): boolean {
     const status = this.loan()?.status;
     return (status as unknown as Record<string, unknown>)?.['value'] === 'Approved';
@@ -1058,6 +1151,10 @@ export class LoanViewComponent implements OnInit {
     return (
       (status as unknown as Record<string, unknown>)?.['value'] === 'Submitted and pending approval'
     );
+  }
+
+  get isLoanActive(): boolean {
+    return !!this.loan()?.status?.active;
   }
 
   get repaymentFrequencyValue(): string {
@@ -1083,7 +1180,7 @@ export class LoanViewComponent implements OnInit {
     'late',
     'outstanding',
   ];
-  transactionColumns = ['id', 'date', 'type', 'amount'];
+  transactionColumns = ['id', 'date', 'type', 'amount', 'txActions'];
   chargeColumns = ['name', 'amount', 'due', 'outstanding'];
   buyDownFeeColumns = [
     'transactionId',
@@ -1206,7 +1303,13 @@ export class LoanViewComponent implements OnInit {
           this.disbursementEditForm.principal = parsed?.principal ?? 0;
           this.disbursementEditForm.note = parsed?.note ?? '';
         },
-        error: (err) => console.error('Failed to load disbursement detail', err),
+        error: (err) => {
+          // The global errorInterceptor already surfaces the backend's error
+          // message via a snackbar for every failed HTTP call, so no local
+          // one is needed here — just reset local state.
+          console.error('Failed to load disbursement detail', err);
+          this.disbursementDetail.set(null);
+        },
       });
   }
 
@@ -1239,16 +1342,20 @@ export class LoanViewComponent implements OnInit {
 
   deleteCollateral() {
     if (!this.deleteCollateralId) return;
-    if (!confirm('Are you sure you want to delete this collateral?')) return;
-    this.collateralManagementService
-      .deleteLoanCollateralManagementId(this.loanId, this.deleteCollateralId)
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Collateral deleted successfully.', 'Close', { duration: 3000 });
-          this.deleteCollateralId = 0;
-        },
-        error: (err) => console.error('Failed to delete collateral', err),
-      });
+    this.confirm('LOANS.DELETE_COLLATERAL', 'LOANS.CONFIRM_DELETE_COLLATERAL', true).subscribe(
+      (confirmed) => {
+        if (!confirmed) return;
+        this.collateralManagementService
+          .deleteLoanCollateralManagementId(this.loanId, this.deleteCollateralId)
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Collateral deleted successfully.', 'Close', { duration: 3000 });
+              this.deleteCollateralId = 0;
+            },
+            error: (err) => console.error('Failed to delete collateral', err),
+          });
+      },
+    );
   }
 
   onRepayment() {
@@ -1280,12 +1387,55 @@ export class LoanViewComponent implements OnInit {
   }
 
   onDeleteLoan() {
-    if (confirm('Are you sure you want to delete this loan application?')) {
+    this.confirm('COMMON.DELETE', 'LOANS.CONFIRM_DELETE_LOAN', true).subscribe((confirmed) => {
+      if (!confirmed) return;
       this.loansService.deleteLoansLoanId(this.loanId).subscribe({
         next: () => this.router.navigate(['/loans']),
         error: (err) => console.error('Failed to delete loan', err),
       });
-    }
+    });
+  }
+
+  onUndoDisbursal() {
+    this.confirm('LOANS.ACTIONS.UNDO_DISBURSAL', 'LOANS.CONFIRM_UNDO_DISBURSAL', true).subscribe(
+      (confirmed) => {
+        if (!confirmed) return;
+        this.loansService.postLoansLoanId(this.loanId, {}, 'undoDisbursal').subscribe({
+          next: () => this.loadLoanData(),
+          error: (err) => console.error('Failed to undo disbursal', err),
+        });
+      },
+    );
+  }
+
+  onLoanTransactionAction(type: string) {
+    this.router.navigate([`/loans/${this.loanId}/transactions/${type}`]);
+  }
+
+  onViewTransaction(tx: GetLoansLoanIdTransactions): void {
+    const dialogRef = this.dialog.open(TransactionDetailDialogComponent, {
+      width: '480px',
+      data: {
+        loanId: this.loanId,
+        transactionId: tx.id,
+        currencySymbol: this.loan()?.currency?.displaySymbol,
+        adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
+      },
+    });
+    dialogRef.afterClosed().subscribe((adjusted) => {
+      if (adjusted) this.loadLoanData();
+    });
+  }
+
+  private confirm(titleKey: string, messageKey: string, destructive = false): Observable<boolean> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: this.translate.instant(titleKey),
+        message: this.translate.instant(messageKey),
+        destructive,
+      },
+    });
+    return dialogRef.afterClosed().pipe(map((result) => !!result));
   }
 
   isDebitTransaction(tx: GetLoansLoanIdTransactions): boolean {

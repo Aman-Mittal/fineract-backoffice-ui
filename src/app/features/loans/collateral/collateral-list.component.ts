@@ -25,7 +25,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
-import { LoanCollateralService, CollateralData } from '../../../api';
+import { LoanCollateralService, CollateralData, LoansService } from '../../../api';
 
 /**
  * Component for listing collateral associated with a specific loan.
@@ -42,6 +42,13 @@ import { LoanCollateralService, CollateralData } from '../../../api';
     CellTemplateDirective,
   ],
   template: `
+    @if (loanSummary) {
+      <div class="loan-context">
+        {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
+        {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
+        {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
+      </div>
+    }
     <app-data-table
       title="LOANS.COLLATERAL"
       helpTextKey="HELP.COLLATERAL_DESC"
@@ -79,13 +86,24 @@ import { LoanCollateralService, CollateralData } from '../../../api';
       </ng-template>
     </app-data-table>
   `,
+  styles: [
+    `
+      .loan-context {
+        margin: 16px 24px 0;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 14px;
+      }
+    `,
+  ],
 })
 export class CollateralListComponent implements OnInit {
   private readonly collateralService = inject(LoanCollateralService);
+  private readonly loansService = inject(LoansService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   loanId: number | null = null;
+  loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
 
   readonly columns: ColumnDef[] = [
     { key: 'type', label: 'COMMON.TYPE', sortable: true },
@@ -102,6 +120,7 @@ export class CollateralListComponent implements OnInit {
       if (id) {
         this.loanId = +id;
         this.loadCollaterals();
+        this.loadLoanSummary();
       }
     });
   }
@@ -113,6 +132,22 @@ export class CollateralListComponent implements OnInit {
         this.collaterals = data || [];
       },
       error: (err) => console.error('Failed to load collateral details', err),
+    });
+  }
+
+  private loadLoanSummary(): void {
+    if (!this.loanId) return;
+    this.loansService.getLoansLoanId(this.loanId).subscribe({
+      next: (data) => {
+        this.loanSummary = {
+          accountNo: data.accountNo,
+          clientName: data.clientName,
+          loanProductName: data.loanProductName,
+        };
+      },
+      error: () => {
+        // Non-critical context display; the list still works without it.
+      },
     });
   }
 

@@ -23,7 +23,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoanViewComponent } from './loan-view.component';
-import { LoansService } from '../../api';
+import { LoansService, BASE_PATH } from '../../api';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -60,6 +60,7 @@ describe('LoanViewComponent', () => {
         { provide: LoansService, useValue: loansServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: BASE_PATH, useValue: 'https://example.com/fineract-provider/api' },
         {
           provide: ActivatedRoute,
           useValue: {

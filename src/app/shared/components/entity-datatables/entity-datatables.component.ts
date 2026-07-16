@@ -23,8 +23,12 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { DataTableComponent, ColumnDef } from '../data-table/data-table.component';
+import { DatatableEntryDialogComponent } from '../datatable-entry-dialog/datatable-entry-dialog.component';
+
+const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
 
 @Component({
   selector: 'app-entity-datatables',
@@ -35,6 +39,7 @@ import { DataTableComponent, ColumnDef } from '../data-table/data-table.componen
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     DataTableComponent,
   ],
   template: `
@@ -97,6 +102,7 @@ export class EntityDatatablesComponent implements OnInit {
   @Input({ required: true }) entityId!: number;
 
   private readonly datatablesService = inject(DataTablesService);
+  private readonly dialog = inject(MatDialog);
 
   datatables = signal<GetDataTablesResponse[]>([]);
   isLoading = signal<boolean>(false);
@@ -131,22 +137,28 @@ export class EntityDatatablesComponent implements OnInit {
     this.isTableLoading.set(true);
     this.datatablesService.getDatatablesDatatableApptableId(tableName, this.entityId).subscribe({
       next: (data: unknown) => {
-        // Fineract returns a resultset: { columnHeaders: [], data: [[]] }
-        const result = (typeof data === 'string' ? JSON.parse(data) : data) as Record<
-          string,
-          unknown
-        >;
-        const headers = (result['columnHeaders'] as Record<string, unknown>[]) || [];
-        const rows = (result['data'] as unknown[][]) || [];
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
-        const formattedData = rows.map((row: unknown[]) => {
-          const entry: Record<string, unknown> = {};
-          headers.forEach((header: Record<string, unknown>, index: number) => {
-            const colName = header['columnName'] as string;
-            entry[colName] = row[index];
+        // GET /datatables/{datatable}/{apptableId} returns entries as a plain
+        // array of row objects (one object per row, columns as keys) — NOT
+        // the legacy `{ columnHeaders, data }` resultset shape used by some
+        // other Fineract report/query endpoints. Support both defensively.
+        let formattedData: Record<string, unknown>[];
+        if (Array.isArray(parsed)) {
+          formattedData = parsed as Record<string, unknown>[];
+        } else {
+          const result = parsed as Record<string, unknown>;
+          const headers = (result['columnHeaders'] as Record<string, unknown>[]) || [];
+          const rows = (result['data'] as unknown[][]) || [];
+          formattedData = rows.map((row: unknown[]) => {
+            const entry: Record<string, unknown> = {};
+            headers.forEach((header: Record<string, unknown>, index: number) => {
+              const colName = header['columnName'] as string;
+              entry[colName] = row[index];
+            });
+            return entry;
           });
-          return entry;
-        });
+        }
 
         this.tableData.set(formattedData);
         this.isTableLoading.set(false);
@@ -159,8 +171,11 @@ export class EntityDatatablesComponent implements OnInit {
   }
 
   getColumnDefs(dt: GetDataTablesResponse): ColumnDef[] {
+    // The primary key column is the entity's own FK (e.g. "loan_id"), not
+    // "<apptableName>_id" (apptableName is "m_loan", not "loan") — filtering
+    // by isColumnPrimaryKey works regardless of the entity's naming.
     return (dt.columnHeaderData || [])
-      .filter((col) => !['id', this.apptableName + '_id'].includes(col.columnName!))
+      .filter((col) => !col.isColumnPrimaryKey && !AUDIT_COLUMN_NAMES.has(col.columnName ?? ''))
       .map((col) => ({
         key: col.columnName!,
         label: col.columnName!, // Ideally we'd have a way to translate these
@@ -175,6 +190,18 @@ export class EntityDatatablesComponent implements OnInit {
   }
 
   onAddEntry(dt: GetDataTablesResponse): void {
-    console.log('Add entry to', dt.registeredTableName);
+    const dialogRef = this.dialog.open(DatatableEntryDialogComponent, {
+      data: {
+        datatableName: dt.registeredTableName!,
+        apptableId: this.entityId,
+        columns: dt.columnHeaderData || [],
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((saved) => {
+      if (saved) {
+        this.loadTableData(dt.registeredTableName!);
+      }
+    });
   }
 }
