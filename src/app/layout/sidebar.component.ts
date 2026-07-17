@@ -23,6 +23,8 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { SidebarService } from '../core/services/sidebar.service';
+import { HasPermissionDirective } from '../shared/directives/has-permission.directive';
+import { HasInstitutionFeatureDirective } from '../shared/directives/has-institution-feature.directive';
 
 /**
  * Responsive sidebar component for primary application navigation.
@@ -33,7 +35,13 @@ import { SidebarService } from '../core/services/sidebar.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, TranslateModule, MatIconModule],
+  imports: [
+    RouterModule,
+    TranslateModule,
+    MatIconModule,
+    HasPermissionDirective,
+    HasInstitutionFeatureDirective,
+  ],
   template: `
     <nav
       class="sidebar"
@@ -78,19 +86,19 @@ import { SidebarService } from '../core/services/sidebar.service';
             <span class="nav-text">{{ 'nav.clientSearchV2' | translate }}</span>
           </a>
         </li>
-        <li>
+        <li *appInstitutionFeature="'groups'">
           <a routerLink="/groups" routerLinkActive="active" class="nav-item">
             <mat-icon class="nav-icon">group</mat-icon>
             <span class="nav-text">{{ 'nav.groups' | translate }}</span>
           </a>
         </li>
-        <li>
+        <li *appInstitutionFeature="'centers'">
           <a routerLink="/centers" routerLinkActive="active" class="nav-item">
             <mat-icon class="nav-icon">place</mat-icon>
             <span class="nav-text">{{ 'nav.centers' | translate }}</span>
           </a>
         </li>
-        <li>
+        <li *appInstitutionFeature="'collection_sheet'">
           <a routerLink="/collection-sheet" routerLinkActive="active" class="nav-item">
             <mat-icon class="nav-icon">receipt_long</mat-icon>
             <span class="nav-text">{{ 'nav.collectionSheet' | translate }}</span>
@@ -547,7 +555,7 @@ import { SidebarService } from '../core/services/sidebar.service';
             </ul>
           </div>
         </li>
-        <li>
+        <li *appHasPermission="'READ_SCHEDULER'">
           <div class="nav-group">
             <span class="nav-group-header">Admin</span>
             <ul class="nav-sub-list">
@@ -631,7 +639,7 @@ import { SidebarService } from '../core/services/sidebar.service';
             </ul>
           </div>
         </li>
-        <li>
+        <li *appHasPermission="'READ_GLACCOUNT'">
           <div class="nav-group">
             <span class="nav-group-header">{{ 'nav.accounting' | translate }}</span>
             <ul class="nav-sub-list">
@@ -755,7 +763,7 @@ import { SidebarService } from '../core/services/sidebar.service';
             </ul>
           </div>
         </li>
-        <li>
+        <li *appHasPermission="['READ_USER', 'READ_ROLE', 'READ_AUDIT']">
           <div class="nav-group">
             <span class="nav-group-header">{{ 'nav.security' | translate }}</span>
             <ul class="nav-sub-list">
@@ -797,7 +805,7 @@ import { SidebarService } from '../core/services/sidebar.service';
             </ul>
           </div>
         </li>
-        <li>
+        <li *appHasPermission="'READ_CONFIGURATION'">
           <div class="nav-group">
             <span class="nav-group-header">{{ 'nav.settings' | translate }}</span>
             <ul class="nav-sub-list">
@@ -964,7 +972,7 @@ import { SidebarService } from '../core/services/sidebar.service';
             </ul>
           </div>
         </li>
-        <li>
+        <li *appHasPermission="['READ_DATATABLE', 'READ_HOOK']">
           <div class="nav-group">
             <span class="nav-group-header">{{ 'nav.system' | translate }}</span>
             <ul class="nav-sub-list">
