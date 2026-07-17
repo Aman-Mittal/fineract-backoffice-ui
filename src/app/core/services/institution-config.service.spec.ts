@@ -74,12 +74,12 @@ describe('InstitutionConfigService', () => {
   });
 
   describe('isFeatureEnabled matrix', () => {
-    const cases: Array<{
+    const cases: {
       type: InstitutionType;
       groups: boolean;
       centers: boolean;
       collection_sheet: boolean;
-    }> = [
+    }[] = [
       { type: 'mfis', groups: true, centers: true, collection_sheet: true },
       { type: 'cb', groups: false, centers: false, collection_sheet: false },
       { type: 'cu', groups: true, centers: false, collection_sheet: false },
