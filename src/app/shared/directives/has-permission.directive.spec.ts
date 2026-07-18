@@ -22,6 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HasPermissionDirective } from './has-permission.directive';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   template: `
@@ -41,11 +42,17 @@ import { AuthService } from '../../core/services/auth.service';
 })
 class TestComponent {}
 
+const SINGLE_PERMISSION_SELECTOR = '#single-permission';
+const MULTIPLE_PERMISSION_SELECTOR = '#multiple-permission';
+const STRICT_PERMISSION_SELECTOR = '#strict-permission';
+
 describe('HasPermissionDirective', () => {
   let fixture: ComponentFixture<TestComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  const originalRbacEnabled = environment.rbacEnabled;
 
   beforeEach(() => {
+    environment.rbacEnabled = true;
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: () => ({ permissions: ['CREATE_CLIENT'] }),
     });
@@ -56,14 +63,18 @@ describe('HasPermissionDirective', () => {
     });
   });
 
+  afterEach(() => {
+    environment.rbacEnabled = originalRbacEnabled;
+  });
+
   it('should render elements when permission is granted', () => {
     authServiceSpy.hasPermission.and.returnValue(true);
     fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
 
-    const singleEl = fixture.debugElement.query(By.css('#single-permission'));
-    const multipleEl = fixture.debugElement.query(By.css('#multiple-permission'));
-    const strictEl = fixture.debugElement.query(By.css('#strict-permission'));
+    const singleEl = fixture.debugElement.query(By.css(SINGLE_PERMISSION_SELECTOR));
+    const multipleEl = fixture.debugElement.query(By.css(MULTIPLE_PERMISSION_SELECTOR));
+    const strictEl = fixture.debugElement.query(By.css(STRICT_PERMISSION_SELECTOR));
 
     expect(singleEl).toBeTruthy();
     expect(multipleEl).toBeTruthy();
@@ -75,12 +86,28 @@ describe('HasPermissionDirective', () => {
     fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
 
-    const singleEl = fixture.debugElement.query(By.css('#single-permission'));
-    const multipleEl = fixture.debugElement.query(By.css('#multiple-permission'));
-    const strictEl = fixture.debugElement.query(By.css('#strict-permission'));
+    const singleEl = fixture.debugElement.query(By.css(SINGLE_PERMISSION_SELECTOR));
+    const multipleEl = fixture.debugElement.query(By.css(MULTIPLE_PERMISSION_SELECTOR));
+    const strictEl = fixture.debugElement.query(By.css(STRICT_PERMISSION_SELECTOR));
 
     expect(singleEl).toBeNull();
     expect(multipleEl).toBeNull();
     expect(strictEl).toBeNull();
+  });
+
+  it('should render everything when RBAC is disabled, even without permission', () => {
+    environment.rbacEnabled = false;
+    authServiceSpy.hasPermission.and.returnValue(false);
+    fixture = TestBed.createComponent(TestComponent);
+    fixture.detectChanges();
+
+    const singleEl = fixture.debugElement.query(By.css(SINGLE_PERMISSION_SELECTOR));
+    const multipleEl = fixture.debugElement.query(By.css(MULTIPLE_PERMISSION_SELECTOR));
+    const strictEl = fixture.debugElement.query(By.css(STRICT_PERMISSION_SELECTOR));
+
+    expect(singleEl).toBeTruthy();
+    expect(multipleEl).toBeTruthy();
+    expect(strictEl).toBeTruthy();
+    expect(authServiceSpy.hasPermission).not.toHaveBeenCalled();
   });
 });

@@ -18,66 +18,58 @@
  */
 
 import { Directive, Input, TemplateRef, ViewContainerRef, inject, effect } from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
+import {
+  InstitutionConfigService,
+  InstitutionFeature,
+} from '../../core/services/institution-config.service';
 import { environment } from '../../../environments/environment';
 
 /**
- * Structural directive to conditionally include an element based on the user's Fineract permissions.
+ * Structural directive to conditionally include an element based on whether a
+ * feature is enabled for the current institution type (see
+ * {@link InstitutionConfigService}).
+ *
+ * When RBAC is disabled (`environment.rbacEnabled === false`), the element is
+ * always rendered, preserving pre-RBAC behavior.
  *
  * Usage:
- * <button *appHasPermission="'CREATE_CLIENT'">Create Client</button>
- * <button *appHasPermission="['CREATE_CLIENT', 'UPDATE_CLIENT']">Actions</button>
- * <button *appHasPermission="['CREATE_CLIENT', 'UPDATE_CLIENT']; matchAll: true">Strict Action</button>
+ * <a *appInstitutionFeature="'groups'" routerLink="/groups">Groups</a>
  */
 @Directive({
-  selector: '[appHasPermission]',
+  selector: '[appInstitutionFeature]',
   standalone: true,
 })
-export class HasPermissionDirective {
+export class HasInstitutionFeatureDirective {
   private readonly templateRef = inject(TemplateRef<unknown>);
   private readonly viewContainer = inject(ViewContainerRef);
-  private readonly authService = inject(AuthService);
+  private readonly institutionConfig = inject(InstitutionConfigService);
 
-  private permissions: string | string[] = [];
-  private matchAllValue = false;
+  private feature: InstitutionFeature | null = null;
   private hasView = false;
 
   constructor() {
-    // React to authentication changes or signal changes automatically
+    // React to institution type changes automatically.
     effect(() => {
-      // Access signal to register dependency
-      this.authService.currentUser();
+      // Access signal to register dependency.
+      this.institutionConfig.institutionType();
       this.updateView();
     });
   }
 
   @Input()
-  set appHasPermission(val: string | string[]) {
-    this.permissions = val;
-    this.updateView();
-  }
-
-  @Input()
-  set appHasPermissionMatchAll(val: boolean) {
-    this.matchAllValue = val;
+  set appInstitutionFeature(val: InstitutionFeature) {
+    this.feature = val;
     this.updateView();
   }
 
   private updateView(): void {
-    // When RBAC is disabled, render everything regardless of permissions.
+    // When RBAC is disabled, render everything regardless of institution config.
     if (!environment.rbacEnabled) {
       this.showTemplate();
       return;
     }
 
-    if (!this.permissions || this.permissions.length === 0) {
-      this.showTemplate();
-      return;
-    }
-
-    const isAuthorized = this.authService.hasPermission(this.permissions, this.matchAllValue);
-
-    if (isAuthorized) {
+    if (this.feature && this.institutionConfig.isFeatureEnabled(this.feature)) {
       this.showTemplate();
     } else {
       this.hideTemplate();

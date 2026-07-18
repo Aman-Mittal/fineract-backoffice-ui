@@ -19,7 +19,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MainLayoutComponent } from './main-layout.component';
-import { AuthService } from '../core/services/auth.service';
+import { AuthService, UserSession } from '../core/services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { signal } from '@angular/core';
@@ -30,10 +30,22 @@ describe('MainLayoutComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', [], {
+    const mockSession: UserSession = {
+      username: 'mifos',
+      base64EncodedAuthenticationKey: 'YmFzZTY0',
+      authenticated: true,
+      officeId: 1,
+      officeName: 'Head Office',
+      userId: 1,
+      permissions: ['ALL_FUNCTIONS'],
+    };
+
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       username: signal('mifos'),
       officeName: signal('Head Office'),
+      currentUser: signal<UserSession | null>(mockSession),
     });
+    authServiceSpy.hasPermission.and.returnValue(true);
 
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), RouterModule.forRoot([]), MainLayoutComponent],

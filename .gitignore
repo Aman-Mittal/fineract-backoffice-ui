@@ -61,7 +61,6 @@ __screenshots__/
 Thumbs.db
 
 # Gemini, Claude, and Agents context files
-Agents.MD
 Gemini.MD
 GEMINI.md
 Claude.MD

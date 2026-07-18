@@ -213,12 +213,28 @@ These values are operator-intent configuration and treated as trusted inputs.
 
 The SPA supports the following runtime-configurable knobs:
 
-| Knob                      | Source                            | Default                                         | Security relevance                                                                                                                 |
-| ------------------------- | --------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `FINERACT_API_URL`        | Container env var → `config.json` | `/fineract-provider/api/v1` (same-origin proxy) | Controls where API calls are sent; must point to a TLS-protected Fineract instance.                                                |
-| `DEFAULT_TENANT`          | Container env var → `config.json` | `default`                                       | Pre-populates the tenant field on the login form.                                                                                  |
-| `fineract_runtime_config` | `localStorage` user override      | Falls back to `config.json`                     | A user (or XSS payload) can override the API URL for their browser session via `ConfigService.setApiUrl()`.                        |
-| Angular environment       | `--configuration` build flag      | `environment.ts` (dev)                          | The `production` configuration enables Angular's production mode (disables debug tooling). Must be used for all production builds. |
+| Knob                      | Source                                              | Default                                         | Security relevance                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------- | --------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FINERACT_API_URL`        | Container env var → `config.json`                   | `/fineract-provider/api/v1` (same-origin proxy) | Controls where API calls are sent; must point to a TLS-protected Fineract instance.                                                                                                                                                                                                                                                                                                |
+| `DEFAULT_TENANT`          | Container env var → `config.json`                   | `default`                                       | Pre-populates the tenant field on the login form.                                                                                                                                                                                                                                                                                                                                  |
+| `fineract_runtime_config` | `localStorage` user override                        | Falls back to `config.json`                     | A user (or XSS payload) can override the API URL for their browser session via `ConfigService.setApiUrl()`.                                                                                                                                                                                                                                                                        |
+| Angular environment       | `--configuration` build flag                        | `environment.ts` (dev)                          | The `production` configuration enables Angular's production mode (disables debug tooling). Must be used for all production builds.                                                                                                                                                                                                                                                 |
+| `rbacEnabled`             | `environment.ts` / `environment.prod.ts` build flag | `true`                                          | Enables UI-side role-based access control. When `false`, the sidebar shows all navigation items and the `*appHasPermission` / `*appInstitutionFeature` directives render everything. **UI convenience only — not a security boundary** (see §11.7). Provided so pre-RBAC deployments can upgrade without an immediate visibility change, enabling RBAC per-environment when ready. |
+
+### RBAC feature flag (`rbacEnabled`)
+
+The `rbacEnabled` flag gates two structural directives and the sidebar's navigation filtering:
+
+- **`*appHasPermission`** (`src/app/shared/directives/has-permission.directive.ts`) — checks
+  `AuthService.hasPermission()`. When `rbacEnabled === false`, it renders unconditionally.
+- **`*appInstitutionFeature`** (`src/app/shared/directives/has-institution-feature.directive.ts`) —
+  checks `InstitutionConfigService.isFeatureEnabled()` for group-lending features
+  (`groups`, `centers`, `collection_sheet`). When `rbacEnabled === false`, it renders unconditionally.
+
+Because these are **UI-visibility** controls only, toggling `rbacEnabled` never widens or narrows
+what the Fineract API will authorize. Authorization is always enforced server-side. Disabling the
+flag therefore restores the legacy "everything visible" experience without weakening any real
+security property, and enabling it does not substitute for server-side permission checks.
 
 ---
 
@@ -425,6 +441,13 @@ What the operator / deployer must do for the assumptions in §5–§7 to hold:
    timeout is 15 minutes. On a shared workstation where the previous user did not explicitly
    log out and the tab was not closed, the `sessionStorage` session persists for the tab
    lifetime. Operators should enforce short browser session policies on shared machines.
+
+7. **Treating `rbacEnabled` as a security control.** The `rbacEnabled` flag (§5a) toggles
+   UI visibility only. Setting it to `true` hides navigation items and action buttons a user
+   lacks permissions for, but does not prevent that user from calling the corresponding
+   Fineract API endpoints directly. Conversely, setting it to `false` does not grant any
+   additional API access. Server-side authorization in Fineract remains the sole enforcement
+   point; the flag must never be relied upon as an access-control gate.
 
 ---
 
