@@ -31,13 +31,13 @@ enforced server-side (see `security.md`).
 
 ## Common commands
 
-| Task            | Command                        |
-| --------------- | ------------------------------ |
-| Dev server      | `npm start`                    |
-| Unit tests      | `npm test -- --watch=false`    |
-| Lint            | `npm run lint`                 |
-| Format          | `npm run format`               |
-| Prod build      | `npm run build`                |
+| Task       | Command                     |
+| ---------- | --------------------------- |
+| Dev server | `npm start`                 |
+| Unit tests | `npm test -- --watch=false` |
+| Lint       | `npm run lint`              |
+| Format     | `npm run format`            |
+| Prod build | `npm run build`             |
 
 ## Conventions
 
@@ -45,7 +45,7 @@ enforced server-side (see `security.md`).
 - **Signals** for reactive state (`signal()`, `computed()`, `asReadonly()`); see
   `src/app/core/services/config.service.ts` for the canonical pattern.
 - Every source file carries the ASF Apache-2.0 license header.
-- `localStorage` keys are snake_case, `fineract_`-prefixed.
+- `localStorage` keys are snake*case, `fineract*`-prefixed.
 
 ## RBAC and feature flags
 

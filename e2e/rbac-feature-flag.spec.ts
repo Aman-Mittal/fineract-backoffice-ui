@@ -173,7 +173,9 @@ test.describe('RBAC institution-feature gating (rbacEnabled = true)', () => {
     await expect(link(page, 'Clients')).toBeVisible();
   });
 
-  test('credit union (cu) shows Groups but hides Centers and Collection Sheet', async ({ page }) => {
+  test('credit union (cu) shows Groups but hides Centers and Collection Sheet', async ({
+    page,
+  }) => {
     await login(page, { permissions: ['ALL_FUNCTIONS'], institutionType: 'cu' });
 
     await expect(link(page, 'Groups')).toBeVisible();
