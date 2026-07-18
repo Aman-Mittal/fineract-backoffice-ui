@@ -91,6 +91,6 @@ export class InstitutionConfigService {
    * @param value - The value read from local storage
    */
   private isInstitutionType(value: string | null): value is InstitutionType {
-    return value === 'mfis' || value === 'cb' || value === 'cu' || value === 'universal';
+    return value !== null && Object.keys(this.featureMatrix).includes(value);
   }
 }
