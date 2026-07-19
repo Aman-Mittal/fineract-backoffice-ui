@@ -20,6 +20,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout.component';
+import { loadRemoteModule } from '@angular-architects/native-federation';
 
 export const routes: Routes = [
   {
@@ -42,6 +43,11 @@ export const routes: Routes = [
           import('./features/dashboard/system-status.component').then(
             (m) => m.SystemStatusComponent,
           ),
+      },
+      {
+        path: 'fineract-mfe',
+        loadComponent: () =>
+          loadRemoteModule('fineract-mfe', './Component').then((m) => m.FineractMfeComponent),
       },
       {
         path: 'clients',

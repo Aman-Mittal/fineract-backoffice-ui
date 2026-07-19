@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import { initFederation } from '@angular-architects/native-federation';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter } from '@angular/router';
 
-initFederation({
-  'fineract-mfe': 'http://localhost:4201/remoteEntry.json',
-})
-  .catch((err) => console.error(err))
-  .then(() => import('./bootstrap'))
-  .catch((err) => console.error(err));
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes)],
+};

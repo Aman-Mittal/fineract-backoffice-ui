@@ -17,11 +17,26 @@
  * under the License.
  */
 
-import { initFederation } from '@angular-architects/native-federation';
+import { TestBed } from '@angular/core/testing';
+import { FineractMfeComponent } from './app';
 
-initFederation({
-  'fineract-mfe': 'http://localhost:4201/remoteEntry.json',
-})
-  .catch((err) => console.error(err))
-  .then(() => import('./bootstrap'))
-  .catch((err) => console.error(err));
+describe('FineractMfeComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FineractMfeComponent],
+    }).compileComponents();
+  });
+
+  it('should create the component', () => {
+    const fixture = TestBed.createComponent(FineractMfeComponent);
+    const component = fixture.componentInstance;
+    expect(component).toBeTruthy();
+  });
+
+  it('should render details', async () => {
+    const fixture = TestBed.createComponent(FineractMfeComponent);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h3')?.textContent).toContain('Fineract Microfrontend');
+  });
+});

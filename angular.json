@@ -19,11 +19,60 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {},
+          "configurations": {
+            "production": {
+              "target": "fineract-backoffice-ui:esbuild:production"
+            },
+            "development": {
+              "target": "fineract-backoffice-ui:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "fineract-backoffice-ui:serve-original:development",
+            "rebuildDelay": 500,
+            "dev": true,
+            "cacheExternalArtifacts": false,
+            "port": 0
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "src/styles.scss"]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+          }
+        },
+        "esbuild": {
           "builder": "@angular/build:application",
           "options": {
             "outputPath": "dist/fineract-backoffice-ui",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": ["zone.js", "es-module-shims"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -70,54 +119,135 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+        "serve-original": {
           "builder": "@angular/build:dev-server",
           "options": {
             "ssl": true,
             "sslKey": "ssl/localhost.key",
             "sslCert": "ssl/localhost.crt",
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "port": 4200
           },
           "configurations": {
             "production": {
-              "buildTarget": "fineract-backoffice-ui:build:production"
+              "buildTarget": "fineract-backoffice-ui:esbuild:production"
             },
             "sandbox": {
               "buildTarget": "fineract-backoffice-ui:build:sandbox",
               "proxyConfig": "proxy.conf.json"
             },
             "development": {
-              "buildTarget": "fineract-backoffice-ui:build:development",
+              "buildTarget": "fineract-backoffice-ui:esbuild:development",
               "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
+        }
+      }
+    },
+    "fineract-mfe": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/fineract-mfe",
+      "sourceRoot": "projects/fineract-mfe/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true
+          },
+          "configurations": {
+            "production": {
+              "target": "fineract-mfe:esbuild:production"
+            },
+            "development": {
+              "target": "fineract-mfe:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
         },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "fineract-mfe:serve-original:development",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
         },
         "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "codeCoverage": true,
-            "codeCoverageExclude": ["src/app/api/**/*"],
-            "polyfills": ["zone.js", "zone.js/testing"],
-            "tsConfig": "tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "src/styles.scss"]
-          }
+          "builder": "@angular/build:unit-test"
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "projects/fineract-mfe/**/*.ts",
+              "projects/fineract-mfe/**/*.html"
+            ],
+            "eslintConfig": "projects/fineract-mfe/eslint.config.js"
+          }
+        },
+        "esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/fineract-mfe/src/main.ts",
+            "tsConfig": "projects/fineract-mfe/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/fineract-mfe/public"
+              }
+            ],
+            "styles": ["projects/fineract-mfe/src/styles.scss"],
+            "polyfills": ["es-module-shims"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-original": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "fineract-mfe:esbuild:production"
+            },
+            "development": {
+              "buildTarget": "fineract-mfe:esbuild:development"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4201
           }
         }
       }

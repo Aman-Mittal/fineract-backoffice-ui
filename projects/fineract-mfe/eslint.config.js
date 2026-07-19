@@ -1,3 +1,4 @@
+// @ts-check
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,11 +18,34 @@
  * under the License.
  */
 
-import { initFederation } from '@angular-architects/native-federation';
+const { defineConfig } = require('eslint/config');
+const rootConfig = require('../../eslint.config.js');
 
-initFederation({
-  'fineract-mfe': 'http://localhost:4201/remoteEntry.json',
-})
-  .catch((err) => console.error(err))
-  .then(() => import('./bootstrap'))
-  .catch((err) => console.error(err));
+module.exports = defineConfig([
+  ...rootConfig,
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+      '@angular-eslint/component-selector': [
+        'error',
+        {
+          type: 'element',
+          prefix: 'app',
+          style: 'kebab-case',
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.html'],
+    rules: {},
+  },
+]);

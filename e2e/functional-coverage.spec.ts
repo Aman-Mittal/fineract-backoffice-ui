@@ -22,18 +22,18 @@ const CARD_TITLE = 'mat-card-title';
 const BTN_SAVE = 'Save';
 const BTN_CANCEL = 'Cancel';
 
-const URL_CLIENTS_CREATE = URL_CLIENTS_CREATE;
-const SELECT_LEGAL_FORM = SELECT_LEGAL_FORM;
-const SELECT_OFFICE = SELECT_OFFICE;
-const MAT_OPTION = MAT_OPTION;
-const ROUTE_CLIENT_2001 = ROUTE_CLIENT_2001;
-const URL_CLIENT_2001 = URL_CLIENT_2001;
-const ARIA_SELECTED = ARIA_SELECTED;
-const SEARCH_INPUT_LOCATOR = SEARCH_INPUT_LOCATOR;
-const ROUTE_CHARGES = ROUTE_CHARGES;
-const ROUTE_OFFICES = ROUTE_OFFICES;
-const ROUTE_OFFICES_WILDCARD = ROUTE_OFFICES_WILDCARD;
-const ROUTE_GLACCOUNTS = ROUTE_GLACCOUNTS;
+const URL_CLIENTS_CREATE = '/clients/create';
+const SELECT_LEGAL_FORM = 'mat-select[name="legalFormId"]';
+const SELECT_OFFICE = 'mat-select[name="officeId"]';
+const MAT_OPTION = 'mat-option';
+const ROUTE_CLIENT_2001 = '**/api/v1/clients/2001**';
+const URL_CLIENT_2001 = '/clients/2001';
+const ARIA_SELECTED = 'aria-selected';
+const SEARCH_INPUT_LOCATOR = 'input[placeholder="Type to search..."]';
+const ROUTE_CHARGES = '**/api/v1/charges**';
+const ROUTE_OFFICES = '**/api/v1/offices';
+const ROUTE_OFFICES_WILDCARD = '**/api/v1/offices**';
+const ROUTE_GLACCOUNTS = '**/api/v1/glaccounts**';
 
 const OFFICE_MOCK = {
   id: 1,
