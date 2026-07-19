@@ -17,11 +17,18 @@
  * under the License.
  */
 
-import { initFederation } from '@angular-architects/native-federation';
+import { Component } from '@angular/core';
 
-initFederation({
-  'fineract-mfe': 'http://localhost:4201/remoteEntry.json',
+@Component({
+  selector: 'app-fineract-mfe',
+  standalone: true,
+  template: `
+    <div
+      style="padding: 20px; border: 2px dashed #3f51b5; border-radius: 8px; margin-top: 20px; background-color: #f5f5f5;"
+    >
+      <h3 style="color: #3f51b5; margin-top: 0;">Fineract Microfrontend (Remote)</h3>
+      <p>This component is loaded dynamically from the Fineract Remote MFE at runtime!</p>
+    </div>
+  `,
 })
-  .catch((err) => console.error(err))
-  .then(() => import('./bootstrap'))
-  .catch((err) => console.error(err));
+export class FineractMfeComponent {}

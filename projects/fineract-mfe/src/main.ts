@@ -19,9 +19,7 @@
 
 import { initFederation } from '@angular-architects/native-federation';
 
-initFederation({
-  'fineract-mfe': 'http://localhost:4201/remoteEntry.json',
-})
+initFederation({ 'fineract-mfe': './remoteEntry.json' })
   .catch((err) => console.error(err))
   .then(() => import('./bootstrap'))
   .catch((err) => console.error(err));

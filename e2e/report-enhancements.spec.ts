@@ -19,10 +19,10 @@
 
 import { test, expect } from '@playwright/test';
 
-const HEAD_OFFICE = HEAD_OFFICE;
-const ALICE_SMITH = ALICE_SMITH;
-const KEVIN_BACON = KEVIN_BACON;
-const MAT_CARD_TITLE = MAT_CARD_TITLE;
+const HEAD_OFFICE = 'Head Office';
+const ALICE_SMITH = 'Alice Smith';
+const KEVIN_BACON = 'Kevin Bacon';
+const MAT_CARD_TITLE = 'mat-card-title';
 
 test.describe('Report Enhancements, Pagination, and Help Tour', () => {
   test.beforeEach(async ({ page }) => {

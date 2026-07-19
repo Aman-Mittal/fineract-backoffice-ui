@@ -13,7 +13,7 @@
 
 import { test, expect } from '@playwright/test';
 
-const HEAD_OFFICE = HEAD_OFFICE;
+const HEAD_OFFICE = 'Head Office';
 
 test.describe('Client Management', () => {
   let createdClients: Record<string, unknown>[] = [];

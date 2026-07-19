@@ -23,5 +23,13 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "references": [
+    {
+      "path": "./projects/fineract-mfe/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/fineract-mfe/tsconfig.spec.json"
+    }
+  ]
 }
