@@ -237,5 +237,15 @@ describe('NavigationConfigService', () => {
         isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'READ_CLIENT' }),
       ).toBeFalse();
     });
+
+    it('does not let ALL_FUNCTIONS_READ satisfy a non-READ_* gate', () => {
+      setPermissions(['ALL_FUNCTIONS_READ']);
+      expect(
+        isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'READ_CLIENT' }),
+      ).toBeTrue();
+      expect(
+        isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'CREATE_CLIENT' }),
+      ).toBeFalse();
+    });
   });
 });
