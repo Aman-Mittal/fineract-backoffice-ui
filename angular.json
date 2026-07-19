@@ -184,7 +184,19 @@
           }
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "projects/fineract-mfe/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/fineract-mfe/public"
+              }
+            ],
+            "styles": ["projects/fineract-mfe/src/styles.scss"]
+          }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
