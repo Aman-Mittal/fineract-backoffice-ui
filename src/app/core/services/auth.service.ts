@@ -169,21 +169,27 @@ export class AuthService {
       return false;
     }
 
-    // Special superuser permission "ALL_FUNCTIONS" bypasses check
+    // Special superuser permission "ALL_FUNCTIONS" bypasses every check.
+    if (user.permissions.includes('ALL_FUNCTIONS')) {
+      return true;
+    }
+
+    const required = Array.isArray(permission) ? permission : [permission];
+
+    // Read-only superuser shortcut: grants any request made up entirely of
+    // READ_* permissions, but never write/approve actions. A mixed request
+    // (e.g. a READ_* permission combined with a non-READ_* one) falls through
+    // to the normal permission-list check below.
     if (
-      user.permissions.includes('ALL_FUNCTIONS') ||
-      user.permissions.includes('ALL_FUNCTIONS_READ')
+      user.permissions.includes('ALL_FUNCTIONS_READ') &&
+      required.every((p) => p.startsWith('READ_'))
     ) {
       return true;
     }
 
-    if (Array.isArray(permission)) {
-      if (matchAll) {
-        return permission.every((p) => user.permissions.includes(p));
-      }
-      return permission.some((p) => user.permissions.includes(p));
+    if (matchAll) {
+      return required.every((p) => user.permissions.includes(p));
     }
-
-    return user.permissions.includes(permission);
+    return required.some((p) => user.permissions.includes(p));
   }
 }

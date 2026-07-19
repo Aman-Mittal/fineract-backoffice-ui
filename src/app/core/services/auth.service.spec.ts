@@ -108,5 +108,43 @@ describe('AuthService', () => {
       expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeTrue();
       expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'], true)).toBeFalse();
     });
+
+    describe('ALL_FUNCTIONS_READ shortcut', () => {
+      beforeEach(() => {
+        (service as unknown as { setSession: (s: UserSession) => void }).setSession({
+          ...mockSession,
+          permissions: ['ALL_FUNCTIONS_READ'],
+        });
+      });
+
+      it('grants any single READ_* permission', () => {
+        expect(service.hasPermission('READ_CLIENT')).toBeTrue();
+        expect(service.hasPermission('READ_LOAN')).toBeTrue();
+      });
+
+      it('denies a single non-READ_* permission', () => {
+        expect(service.hasPermission('CREATE_CLIENT')).toBeFalse();
+        expect(service.hasPermission('DELETE_LOAN')).toBeFalse();
+        expect(service.hasPermission('APPROVE_LOAN')).toBeFalse();
+      });
+
+      it('grants an array made up entirely of READ_* permissions', () => {
+        expect(service.hasPermission(['READ_CLIENT', 'READ_LOAN'])).toBeTrue();
+        expect(service.hasPermission(['READ_CLIENT', 'READ_LOAN'], true)).toBeTrue();
+      });
+
+      it('does not grant a mixed array via the shortcut, falling back to real permissions', () => {
+        expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'])).toBeFalse();
+        expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeFalse();
+      });
+    });
+
+    it('ALL_FUNCTIONS still bypasses non-READ permissions (unlike ALL_FUNCTIONS_READ)', () => {
+      (service as unknown as { setSession: (s: UserSession) => void }).setSession({
+        ...mockSession,
+        permissions: ['ALL_FUNCTIONS'],
+      });
+      expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeTrue();
+    });
   });
 });
