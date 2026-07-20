@@ -134,8 +134,12 @@ export class AuthService {
    * @param session - The user session to store
    */
   private setSession(session: UserSession): void {
-    sessionStorage.setItem(this.sessionKey, JSON.stringify(session));
-    this.currentUser.set(session);
+    const normalized: UserSession = {
+      ...session,
+      permissions: this.normalizePermissions(session.permissions),
+    };
+    sessionStorage.setItem(this.sessionKey, JSON.stringify(normalized));
+    this.currentUser.set(normalized);
     this.isAuthenticated.set(true);
   }
 
@@ -145,7 +149,22 @@ export class AuthService {
    */
   private getStoredSession(): UserSession | null {
     const stored = sessionStorage.getItem(this.sessionKey);
-    return stored ? (JSON.parse(stored) as UserSession) : null;
+    if (!stored) {
+      return null;
+    }
+    const session = JSON.parse(stored) as UserSession;
+    return { ...session, permissions: this.normalizePermissions(session.permissions) };
+  }
+
+  /**
+   * Trims whitespace from each permission code and removes duplicates that
+   * only differ by leading/trailing whitespace. Fineract's permission seed
+   * data has known trailing-space entries (e.g. "CREATE_X" and "CREATE_X ")
+   * which would otherwise break exact-match permission checks.
+   * @param permissions - Raw permission codes as returned by the backend
+   */
+  private normalizePermissions(permissions: string[]): string[] {
+    return Array.from(new Set(permissions.map((p) => p.trim())));
   }
 
   /**
