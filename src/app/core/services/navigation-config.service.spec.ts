@@ -198,6 +198,107 @@ describe('NavigationConfigService', () => {
     expect(findRoute(items, '/clients')).toBeTrue();
   });
 
+  describe('issue #142 — Interop, Campaigns, Working Capital, Account Transfer gates', () => {
+    const INTEROP_PARTIES_ROUTE = '/interop/parties';
+    const INTEROP_QUOTES_ROUTE = '/interop/quotes';
+    const INTEROP_TRANSFERS_ROUTE = '/interop/transfers';
+    const CAMPAIGNS_EMAIL_ROUTE = '/campaigns/email';
+    const CAMPAIGNS_SMS_ROUTE = '/campaigns/sms';
+    const WC_LOANS_ROUTE = '/working-capital/loans';
+    const WC_LOAN_PRODUCTS_ROUTE = '/working-capital/loan-products';
+    const WC_BREACH_ROUTE = '/working-capital/breach';
+    const WC_NEAR_BREACH_ROUTE = '/working-capital/near-breach';
+    const ACCOUNT_TRANSFER_ROUTE = '/transfers/account-transfer';
+    const STANDING_INSTRUCTIONS_ROUTE = '/transfers/standing-instructions';
+    const STANDING_INSTRUCTIONS_HISTORY_ROUTE = '/transfers/standing-instructions/history';
+
+    it('hides all 12 newly-gated routes from a user with no matching permissions, leaving their ungated siblings visible', () => {
+      setPermissions([]);
+      const items = service.filteredNavItems();
+
+      // gated
+      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBeFalse();
+      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBeFalse();
+      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBeFalse();
+      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBeFalse();
+      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_LOANS_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_BREACH_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBeFalse();
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeFalse();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeFalse();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBeFalse();
+
+      // ungated siblings within the same groups remain visible
+      expect(findRoute(items, '/interop/accounts')).toBeTrue();
+      expect(findRoute(items, '/interop/health')).toBeTrue();
+      expect(findRoute(items, '/campaigns/email-messages')).toBeTrue();
+      expect(findRoute(items, '/working-capital/loans/account-locks')).toBeTrue();
+      expect(findRoute(items, '/working-capital/loans/cob-catchup')).toBeTrue();
+      expect(findRoute(items, '/admin/wc-cob-tools')).toBeTrue();
+      expect(findRoute(items, '/transfers/history')).toBeTrue();
+    });
+
+    it('shows only the specific interop routes the user has permission for', () => {
+      setPermissions(['READ_INTERID']);
+      const items = service.filteredNavItems();
+      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBeTrue();
+      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBeFalse();
+      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBeFalse();
+    });
+
+    it('shows only the specific campaign routes the user has permission for', () => {
+      setPermissions(['READ_SMSCAMPAIGN']);
+      const items = service.filteredNavItems();
+      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBeTrue();
+      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBeFalse();
+    });
+
+    it('shows only the specific working capital routes the user has permission for', () => {
+      setPermissions(['READ_WORKINGCAPITALBREACH']);
+      const items = service.filteredNavItems();
+      expect(findRoute(items, WC_BREACH_ROUTE)).toBeTrue();
+      expect(findRoute(items, WC_LOANS_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBeFalse();
+    });
+
+    it('shows Account Transfer once the user has READ_ACCOUNTTRANSFER, without granting sibling gates', () => {
+      setPermissions(['READ_ACCOUNTTRANSFER']);
+      const items = service.filteredNavItems();
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeTrue();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeFalse();
+      // ungated sibling still visible regardless
+      expect(findRoute(items, '/transfers/history')).toBeTrue();
+    });
+
+    it('shows both Standing Instructions routes once the user has READ_STANDINGINSTRUCTION', () => {
+      setPermissions(['READ_STANDINGINSTRUCTION']);
+      const items = service.filteredNavItems();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeTrue();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBeTrue();
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeFalse();
+    });
+
+    it('a superuser (ALL_FUNCTIONS) sees all 12 newly-gated routes', () => {
+      setPermissions(['ALL_FUNCTIONS']);
+      const items = service.filteredNavItems();
+      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBeTrue();
+      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBeTrue();
+      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBeTrue();
+      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBeTrue();
+      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBeTrue();
+      expect(findRoute(items, WC_LOANS_ROUTE)).toBeTrue();
+      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBeTrue();
+      expect(findRoute(items, WC_BREACH_ROUTE)).toBeTrue();
+      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBeTrue();
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeTrue();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeTrue();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBeTrue();
+    });
+  });
+
   describe('isItemVisible (synthetic items)', () => {
     const isVisible = (item: NavItemConfig): boolean =>
       (service as unknown as { isItemVisible: (i: NavItemConfig) => boolean }).isItemVisible(item);

@@ -83,16 +83,19 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         route: '/transfers/account-transfer',
         labelKey: 'nav.accountTransfer',
         icon: 'swap_horiz',
+        requiredPermissions: 'READ_ACCOUNTTRANSFER',
       },
       {
         route: '/transfers/standing-instructions',
         labelKey: 'nav.standingInstructions',
         icon: 'schedule_send',
+        requiredPermissions: 'READ_STANDINGINSTRUCTION',
       },
       {
         route: '/transfers/standing-instructions/history',
         labelKey: 'nav.standingInstructionsHistory',
         icon: 'history',
+        requiredPermissions: 'READ_STANDINGINSTRUCTION',
       },
       { route: '/transfers/history', labelKey: 'nav.transferHistory', icon: 'history' },
     ],
@@ -138,17 +141,29 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
   {
     labelKey: 'nav.workingCapital',
     children: [
-      { route: '/working-capital/loans', labelKey: 'nav.wcLoans', icon: 'account_balance' },
+      {
+        route: '/working-capital/loans',
+        labelKey: 'nav.wcLoans',
+        icon: 'account_balance',
+        requiredPermissions: 'READ_WORKINGCAPITALLOAN',
+      },
       {
         route: '/working-capital/loan-products',
         labelKey: 'nav.wcLoanProducts',
         icon: 'account_balance_wallet',
+        requiredPermissions: 'READ_WORKINGCAPITALLOANPRODUCT',
       },
-      { route: '/working-capital/breach', labelKey: 'nav.wcBreach', icon: 'report_problem' },
+      {
+        route: '/working-capital/breach',
+        labelKey: 'nav.wcBreach',
+        icon: 'report_problem',
+        requiredPermissions: 'READ_WORKINGCAPITALBREACH',
+      },
       {
         route: '/working-capital/near-breach',
         labelKey: 'nav.wcNearBreach',
         icon: 'warning_amber',
+        requiredPermissions: 'READ_WORKINGCAPITALNEARBREACH',
       },
       {
         route: '/working-capital/loans/account-locks',
@@ -178,21 +193,42 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
   {
     labelKey: 'Campaigns',
     children: [
-      { route: '/campaigns/email', labelKey: 'EMAIL_CAMPAIGNS.TITLE', icon: 'campaign' },
-      { route: '/campaigns/sms', labelKey: 'SMS_CAMPAIGNS.TITLE', icon: 'sms' },
+      {
+        route: '/campaigns/email',
+        labelKey: 'EMAIL_CAMPAIGNS.TITLE',
+        icon: 'campaign',
+        requiredPermissions: 'READ_EMAIL_CAMPAIGN',
+      },
+      {
+        route: '/campaigns/sms',
+        labelKey: 'SMS_CAMPAIGNS.TITLE',
+        icon: 'sms',
+        requiredPermissions: 'READ_SMSCAMPAIGN',
+      },
       { route: '/campaigns/email-messages', labelKey: 'EMAIL_MESSAGES.TITLE', icon: 'mail' },
     ],
   },
   {
     labelKey: 'Interop',
     children: [
-      { route: '/interop/parties', labelKey: 'INTEROP.PARTY_TITLE', icon: 'people' },
+      {
+        route: '/interop/parties',
+        labelKey: 'INTEROP.PARTY_TITLE',
+        icon: 'people',
+        requiredPermissions: 'READ_INTERID',
+      },
       { route: '/interop/accounts', labelKey: 'INTEROP.ACCOUNT_TITLE', icon: 'account_balance' },
-      { route: '/interop/quotes', labelKey: 'INTEROP.QUOTES_TITLE', icon: 'request_quote' },
+      {
+        route: '/interop/quotes',
+        labelKey: 'INTEROP.QUOTES_TITLE',
+        icon: 'request_quote',
+        requiredPermissions: 'READ_INTERQUOTE',
+      },
       {
         route: '/interop/transfers',
         labelKey: 'INTEROP.TRANSFER_TITLE',
         icon: 'transfer_within_a_station',
+        requiredPermissions: 'READ_INTERTRANSFER',
       },
       { route: '/interop/health', labelKey: 'INTEROP.HEALTH_TITLE', icon: 'monitor_heart' },
     ],
