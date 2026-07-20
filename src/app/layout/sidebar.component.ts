@@ -64,10 +64,7 @@ import { NavigationConfigService } from '../core/services/navigation-config.serv
               <span class="nav-group-header">{{ item.labelKey | translate }}</span>
               <ul class="nav-sub-list">
                 <ng-container
-                  *ngTemplateOutlet="
-                    itemList;
-                    context: { items: item.children, depth: depth + 1 }
-                  "
+                  *ngTemplateOutlet="itemList; context: { items: item.children, depth: depth + 1 }"
                 ></ng-container>
               </ul>
             </div>
