@@ -147,4 +147,48 @@ describe('AuthService', () => {
       expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeTrue();
     });
   });
+
+  describe('permission normalization (trailing-space backend duplicates)', () => {
+    it('trims a trailing-space permission on setSession so a clean check matches', () => {
+      (service as unknown as { setSession: (s: UserSession) => void }).setSession({
+        ...mockSession,
+        permissions: ['READ_STANDINGINSTRUCTION '],
+      });
+      expect(service.hasPermission('READ_STANDINGINSTRUCTION')).toBeTrue();
+    });
+
+    it('dedupes a clean/trailing-space duplicate pair into a single entry on setSession', () => {
+      (service as unknown as { setSession: (s: UserSession) => void }).setSession({
+        ...mockSession,
+        permissions: ['READ_CLIENT ', 'READ_CLIENT'],
+      });
+      expect(service.currentUser()?.permissions).toEqual(['READ_CLIENT']);
+      expect(service.hasPermission('READ_CLIENT')).toBeTrue();
+    });
+
+    it('normalizes a dirty session read back from sessionStorage on init', () => {
+      sessionStorage.setItem(
+        'fineract_session',
+        JSON.stringify({
+          ...mockSession,
+          permissions: ['CREATE_STANDINGINSTRUCTION', 'CREATE_STANDINGINSTRUCTION ', 'READ_X '],
+        }),
+      );
+
+      // Reset and reconfigure the testing module so AuthService is
+      // constructed fresh, reading the dirty sessionStorage entry above via
+      // getStoredSession() during its signal initialization.
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [AuthService, ConfigService, provideHttpClient(), provideHttpClientTesting()],
+      });
+      const freshService = TestBed.inject(AuthService);
+
+      expect(freshService.currentUser()?.permissions).toEqual([
+        'CREATE_STANDINGINSTRUCTION',
+        'READ_X',
+      ]);
+      expect(freshService.hasPermission('READ_X')).toBeTrue();
+    });
+  });
 });
