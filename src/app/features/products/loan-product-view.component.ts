@@ -20,44 +20,58 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonButton,
+  IonBadge,
+  IonIcon,
+} from '@ionic/angular/standalone';
 import { LoanProductsService, GetLoanProductsProductIdResponse } from '../../api';
 import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
 
 @Component({
   selector: 'app-loan-product-view',
   standalone: true,
-  imports: [TranslateModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule],
+  imports: [
+    TranslateModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonButton,
+    IonBadge,
+    IonIcon,
+  ],
   template: `
     @if (product) {
       <div class="view-container">
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div>
               <h2>{{ product.name }}</h2>
               <span class="short-name">{{ product.shortName }}</span>
             </div>
             <div class="actions-area">
-              <button mat-raised-button color="primary" (click)="onEdit()">
-                <mat-icon>edit</mat-icon>
+              <ion-button color="primary" (click)="onEdit()">
+                <ion-icon name="create-outline" slot="start"></ion-icon>
                 {{ 'COMMON.EDIT' | translate }}
-              </button>
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              </ion-button>
+              <ion-button fill="clear" color="medium" (click)="onBack()">
+                <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>{{ 'COMMON.DETAILS' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content class="details-list">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'COMMON.DETAILS' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="details-list">
             <div class="detail-item">
               <span class="label">{{ 'PRODUCTS.CURRENCY' | translate }}</span>
               <span class="value">{{ product.currency?.code }}</span>
@@ -84,22 +98,20 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
                 {{ product.repaymentFrequencyType?.description }}</span
               >
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content class="details-list">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="details-list">
             <div class="detail-item">
               <span class="label">{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</span>
               <span class="value">
-                <mat-chip-set>
-                  <mat-chip [color]="isProgressive() ? 'accent' : 'primary'" highlighted>
-                    {{ product.loanScheduleType?.value }}
-                  </mat-chip>
-                </mat-chip-set>
+                <ion-badge [color]="isProgressive() ? 'tertiary' : 'primary'">
+                  {{ product.loanScheduleType?.value }}
+                </ion-badge>
               </span>
             </div>
             <div class="detail-item">
@@ -116,15 +128,15 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
                 <span class="value">{{ product.loanScheduleProcessingType?.value }}</span>
               </div>
             }
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         @if (isProgressive() && product.paymentAllocation?.length) {
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               @for (rule of product.paymentAllocation; track rule.transactionType) {
                 <div class="allocation-rule">
                   <strong>{{ rule.transactionType }}</strong>
@@ -139,16 +151,16 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
                   </ol>
                 </div>
               }
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
         }
 
         @if (isProgressive() && product.creditAllocation?.length) {
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               @for (rule of product.creditAllocation; track rule.transactionType) {
                 <div class="allocation-rule">
                   <strong>{{ rule.transactionType }}</strong>
@@ -159,8 +171,8 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
                   </ol>
                 </div>
               }
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
         }
       </div>
     }

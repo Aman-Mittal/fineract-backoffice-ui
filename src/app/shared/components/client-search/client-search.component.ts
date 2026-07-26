@@ -29,11 +29,15 @@ import {
 } from '@angular/core';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import {
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonList,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
-import { debounceTime, distinctUntilChanged, filter, switchMap, startWith } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
 import { ClientService, GetClientsResponse } from '../../../api';
 
 /**
@@ -47,49 +51,81 @@ import { ClientService, GetClientsResponse } from '../../../api';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonList,
+    IonSpinner,
     TranslateModule,
   ],
   template: `
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ label | translate }}</mat-label>
-      <input
-        type="text"
-        matInput
-        [formControl]="searchControl"
-        [matAutocomplete]="auto"
-        [placeholder]="'COMMON.SEARCH_PLACEHOLDER' | translate"
-        [required]="required"
-      />
-      <mat-autocomplete
-        #auto="matAutocomplete"
-        [displayWith]="displayFn"
-        (optionSelected)="onSelected($event.option.value)"
-      >
-        @for (client of filteredClients; track client['id']) {
-          <mat-option [value]="client">
-            {{ client['displayName'] }} ({{ client['accountNo'] }})
-          </mat-option>
-        }
+    <div class="client-search-wrapper">
+      <ion-item fill="outline">
+        <ion-label position="stacked">{{ label | translate }}</ion-label>
+        <ion-input
+          type="text"
+          [formControl]="searchControl"
+          [placeholder]="'COMMON.SEARCH_PLACEHOLDER' | translate"
+          [required]="required"
+          id="client-search-input"
+          data-testid="client-search-input"
+          (ionInput)="onInputChange($event)"
+        ></ion-input>
         @if (isLoading) {
-          <mat-option disabled>
-            {{ 'COMMON.LOADING' | translate }}
-          </mat-option>
+          <ion-spinner name="crescent" slot="end"></ion-spinner>
         }
-        @if (!isLoading && searchControl.value && filteredClients.length === 0) {
-          <mat-option disabled>
-            {{ 'COMMON.NO_DATA' | translate }}
-          </mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
+      </ion-item>
+
+      @if (showDropdown && filteredClients.length > 0) {
+        <ion-list class="autocomplete-list" id="client-search-results" data-testid="client-search-results">
+          @for (client of filteredClients; track client['id']) {
+            <ion-item
+              button
+              (click)="onSelected(client)"
+              class="autocomplete-item"
+              [id]="'client-search-item-' + client['id']"
+              [attr.data-testid]="'client-search-item-' + client['id']"
+            >
+              <ion-label>
+                <h2>{{ client['displayName'] }}</h2>
+                <p>#{{ client['accountNo'] }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      @if (showDropdown && !isLoading && searchInputVal && filteredClients.length === 0) {
+        <ion-list class="autocomplete-list">
+          <ion-item class="autocomplete-item">
+            <ion-label color="medium">{{ 'COMMON.NO_DATA' | translate }}</ion-label>
+          </ion-item>
+        </ion-list>
+      }
+    </div>
   `,
   styles: [
     `
-      .full-width {
+      .client-search-wrapper {
+        position: relative;
         width: 100%;
+      }
+      .autocomplete-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--ion-color-light-shade, #e0e0e0);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        background: var(--ion-background-color, #ffffff);
+      }
+      .autocomplete-item {
+        --padding-start: 16px;
+        --inner-padding-end: 16px;
       }
     `,
   ],
@@ -104,6 +140,8 @@ export class ClientSearchComponent implements OnInit, OnChanges {
   @Output() clientSelected = new EventEmitter<number>();
 
   searchControl = new FormControl<string | Record<string, unknown>>('');
+  searchInputVal = '';
+  showDropdown = false;
   filteredClients: Record<string, unknown>[] = [];
   isLoading = false;
 
@@ -113,11 +151,16 @@ export class ClientSearchComponent implements OnInit, OnChanges {
         startWith(''),
         debounceTime(300),
         distinctUntilChanged(),
-        filter((value) => typeof value === 'string'),
-        switchMap((value) => {
+        switchMap((val) => {
+          const valueStr = typeof val === 'string' ? val : '';
+          this.searchInputVal = valueStr;
+          if (!valueStr) {
+            this.showDropdown = false;
+            return [];
+          }
           this.isLoading = true;
-          const searchTerm =
-            typeof value === 'string' && value.length > 0 ? value + '%' : undefined;
+          this.showDropdown = true;
+          const searchTerm = valueStr.length > 0 ? valueStr + '%' : undefined;
           return this.clientService.getClients(
             undefined,
             undefined,
@@ -152,10 +195,17 @@ export class ClientSearchComponent implements OnInit, OnChanges {
     }
   }
 
+  onInputChange(event: CustomEvent): void {
+    const val = (event.detail.value as string) || '';
+    this.searchControl.setValue(val);
+  }
+
   private loadInitialClient(): void {
     if (this.initialClientId) {
       this.clientService.getClientsClientId(this.initialClientId).subscribe((client) => {
-        this.searchControl.setValue(client as Record<string, unknown>, { emitEvent: false });
+        const clientObj = client as Record<string, unknown>;
+        const displayName = (clientObj['displayName'] as string) || '';
+        this.searchControl.setValue(displayName, { emitEvent: false });
       });
     }
   }
@@ -169,6 +219,9 @@ export class ClientSearchComponent implements OnInit, OnChanges {
 
   onSelected(client: Record<string, unknown> | null): void {
     if (client && client['id']) {
+      const displayName = (client['displayName'] as string) || '';
+      this.searchControl.setValue(displayName, { emitEvent: false });
+      this.showDropdown = false;
       this.clientSelected.emit(client['id'] as number);
     }
   }

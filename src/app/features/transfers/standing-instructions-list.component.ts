@@ -20,9 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } from '../../api';
@@ -33,9 +31,8 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonButton,
+    IonIcon,
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,
@@ -49,10 +46,16 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
       [isLoading]="isLoading()"
       [localLogic]="true"
     >
-      <button headerActions mat-raised-button color="primary" [routerLink]="['create']">
-        <mat-icon>add</mat-icon>
+      <ion-button
+        headerActions
+        color="primary"
+        [routerLink]="['create']"
+        id="create-standing-instruction-btn"
+        data-testid="create-standing-instruction-btn"
+      >
+        <ion-icon name="add-outline" slot="start"></ion-icon>
         {{ 'CLIENTS.CREATE_STANDING_INSTRUCTION' | translate }}
-      </button>
+      </ion-button>
 
       <ng-template appCellTemplate="amount" let-row>
         {{ row.amount | number: '1.2-2' }}
@@ -68,14 +71,16 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             [routerLink]="['edit', row.id]"
-            [matTooltip]="'COMMON.EDIT' | translate"
+            [attr.aria-label]="'COMMON.EDIT' | translate"
+            [id]="'edit-standing-instruction-btn-' + row.id"
+            [attr.data-testid]="'edit-standing-instruction-btn-' + row.id"
           >
-            <mat-icon>edit</mat-icon>
-          </button>
+            <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

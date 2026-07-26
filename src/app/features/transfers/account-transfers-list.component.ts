@@ -19,10 +19,13 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+} from '@ionic/angular/standalone';
+import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { TranslateModule } from '@ngx-translate/core';
 
 import {
@@ -35,71 +38,38 @@ import {
   selector: 'app-account-transfers-list',
   standalone: true,
   imports: [
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    DataTableComponent,
+    CellTemplateDirective,
     TranslateModule,
     DecimalPipe,
     DatePipe,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'TRANSFERS.HISTORY_TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (isLoading) {
-          <div class="spinner-container">
-            <mat-spinner diameter="40"></mat-spinner>
-          </div>
-        }
+    <ion-card id="account-transfers-card" data-testid="account-transfers-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'TRANSFERS.HISTORY_TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <app-data-table
+          [columns]="columns"
+          [data]="transfers"
+          [isLoading]="isLoading"
+          [localLogic]="true"
+        >
+          <ng-template appCellTemplate="transferAmount" let-row>
+            {{ row.transferAmount | number: '1.2-2' }}
+          </ng-template>
 
-        @if (!isLoading) {
-          <table mat-table [dataSource]="transfers">
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.ID' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.id }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="fromAccountId">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.FROM_ACCOUNT' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.fromAccount?.id }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="toAccountId">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.TO_ACCOUNT' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.toAccount?.id }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="currency.code">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.CURRENCY' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.currency?.code }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="transferAmount">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.AMOUNT' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.transferAmount | number: '1.2-2' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="transferDate">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.DATE' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                {{ parseDate(row.transferDate) | date: 'mediumDate' }}
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="transferDescription">
-              <th mat-header-cell *matHeaderCellDef>{{ 'TRANSFERS.DESCRIPTION' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.transferDescription }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        }
-      </mat-card-content>
-    </mat-card>
+          <ng-template appCellTemplate="transferDate" let-row>
+            {{ parseDate(row.transferDate) | date: 'mediumDate' }}
+          </ng-template>
+        </app-data-table>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -118,14 +88,14 @@ export class AccountTransfersListComponent implements OnInit {
   transfers: GetAccountTransfersPageItems[] = [];
   isLoading = false;
 
-  displayedColumns: string[] = [
-    'id',
-    'fromAccountId',
-    'toAccountId',
-    'currency.code',
-    'transferAmount',
-    'transferDate',
-    'transferDescription',
+  columns: ColumnDef[] = [
+    { key: 'id', label: 'TRANSFERS.ID' },
+    { key: 'fromAccount.id', label: 'TRANSFERS.FROM_ACCOUNT' },
+    { key: 'toAccount.id', label: 'TRANSFERS.TO_ACCOUNT' },
+    { key: 'currency.code', label: 'TRANSFERS.CURRENCY' },
+    { key: 'transferAmount', label: 'TRANSFERS.AMOUNT' },
+    { key: 'transferDate', label: 'TRANSFERS.DATE' },
+    { key: 'transferDescription', label: 'TRANSFERS.DESCRIPTION' },
   ];
 
   private accountTransfersService = inject(AccountTransfersService);

@@ -53,7 +53,7 @@ import { login, uniqueSuffix } from './utils/fineract-login';
 test.use({ video: 'on', trace: 'on' });
 
 const LOAN_SCHEDULE_TYPE_LABEL = 'Loan Schedule Type';
-const ALLOCATION_ORDER_ITEM_SELECTOR = '.allocation-order-list mat-list-item';
+const ALLOCATION_ORDER_ITEM_SELECTOR = '.allocation-order-list ion-item';
 
 test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
   // These tests hit a real shared backend (the public Mifos community
@@ -93,16 +93,16 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       page.getByText('Penalties, Fees, Interest, Principal order', { exact: true }),
     ).toBeVisible({ timeout: 15000 });
 
-    await page.getByRole('textbox', { name: 'Name', exact: true }).fill(productName);
-    await page.getByRole('textbox', { name: 'Short Name' }).fill(shortName);
-    await page.getByRole('spinbutton', { name: 'Principal' }).fill('5000');
-    await page.getByRole('spinbutton', { name: 'Interest Rate' }).fill('10');
-    await page.getByRole('spinbutton', { name: 'Number of Repayments' }).fill('6');
-    await page.getByRole('spinbutton', { name: 'Repayment Every' }).fill('1');
+    await page.getByTestId('loan-product-name').fill(productName);
+    await page.getByTestId('loan-product-short-name').fill(shortName);
+    await page.getByTestId('loan-product-principal').fill('5000');
+    await page.getByTestId('loan-product-interest-rate').fill('10');
+    await page.getByTestId('loan-product-repayments-count').fill('6');
+    await page.getByTestId('loan-product-repayment-every').fill('1');
 
     // Switch to Progressive and verify the reactive strategy lock + processing
     // type field appear immediately (no page reload needed).
-    await page.getByRole('combobox', { name: LOAN_SCHEDULE_TYPE_LABEL }).click();
+    await page.getByTestId('loan-product-schedule-type').click();
     await page.getByRole('option', { name: 'Progressive' }).click();
 
     const strategySelect = page.getByRole('combobox', { name: 'Repayment Strategy' });
@@ -128,7 +128,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       .textContent();
     expect(firstRuleTextAfter).not.toEqual(firstRuleTextBefore);
 
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('loan-product-submit-btn').click();
 
     // Successful save navigates back to the list. The list paginates at 10
     // rows and this shared environment accumulates products across test

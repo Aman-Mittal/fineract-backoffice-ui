@@ -21,9 +21,7 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { CashiersService, CashierData, TellerCashManagementService } from '../../../api';
@@ -33,9 +31,8 @@ import { CashiersService, CashierData, TellerCashManagementService } from '../..
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonButton,
+    IonIcon,
     DataTableComponent,
     CellTemplateDirective,
   ],
@@ -63,15 +60,17 @@ import { CashiersService, CashierData, TellerCashManagementService } from '../..
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-cashier>
-        <button
-          mat-icon-button
-          color="warn"
+        <ion-button
+          fill="clear"
+          color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          matTooltip="Remove Cashier Allocation"
+          [attr.title]="'Remove Cashier Allocation'"
           (click)="onRemoveCashier(cashier)"
+          [id]="'delete-cashier-btn-' + cashier.id"
+          [attr.data-testid]="'delete-cashier-btn-' + cashier.id"
         >
-          <mat-icon>delete</mat-icon>
-        </button>
+          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

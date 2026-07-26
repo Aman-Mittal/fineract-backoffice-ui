@@ -19,7 +19,6 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import {
@@ -32,7 +31,6 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,

@@ -19,29 +19,32 @@
 
 import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { IonSearchbar } from '@ionic/angular/standalone';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search-filter',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatTooltipModule],
+  imports: [IonSearchbar],
   template: `
-    <mat-form-field appearance="outline" class="search-field" [matTooltip]="tooltipText">
-      <mat-label>{{ label }}</mat-label>
-      <input matInput (input)="onInput($event)" [placeholder]="placeholder" />
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+    <ion-searchbar
+      class="search-field"
+      [placeholder]="placeholder || label"
+      (ionInput)="onInput($event)"
+      id="search-filter-input"
+      data-testid="search-filter-input"
+      [attr.title]="tooltipText"
+    ></ion-searchbar>
   `,
   styles: [
     `
       .search-field {
         width: 100%;
         max-width: 400px;
+        --box-shadow: none;
+        --border-radius: 8px;
+        padding: 0;
       }
     `,
   ],
@@ -63,8 +66,9 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
       });
   }
 
-  onInput(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+  onInput(event: Event | CustomEvent) {
+    const customEvt = event as CustomEvent;
+    const value = (customEvt.detail?.value as string) || (event.target as HTMLInputElement)?.value || '';
     this.searchSubject.next(value.trim());
   }
 

@@ -18,17 +18,26 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  IonButton,
+  IonSpinner,
+  IonGrid,
+  IonRow,
+  IonCol,
+} from '@ionic/angular/standalone';
 import {
   LoanProductsService,
   PostLoanProductsRequest,
@@ -49,274 +58,364 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea,
+    IonButton,
+    IonSpinner,
+    IonGrid,
+    IonRow,
+    IonCol,
     PaymentCreditAllocationEditorComponent,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card class="ion-no-margin">
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('PRODUCTS.EDIT_LOAN_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_LOAN_PRODUCT' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="product-form">
-            <div class="form-grid">
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.PRODUCT_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="product.name" required />
-              </mat-form-field>
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-name"
+                      data-testid="loan-product-name"
+                      name="name"
+                      [(ngModel)]="product.name"
+                      required
+                      placeholder="{{ 'COMMON.NAME' | translate }}"
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.SHORT_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'PRODUCTS.SHORT_NAME' | translate }}</mat-label>
-                <input
-                  matInput
-                  name="shortName"
-                  [(ngModel)]="product.shortName"
-                  required
-                  maxlength="4"
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-short-name"
+                      data-testid="loan-product-short-name"
+                      name="shortName"
+                      [(ngModel)]="product.shortName"
+                      required
+                      maxlength="4"
+                      placeholder="{{ 'PRODUCTS.SHORT_NAME' | translate }}"
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.DESCRIPTION_DESC' | translate"
-                class="full-width"
-              >
-                <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
-                  name="description"
-                  [(ngModel)]="product.description"
-                  rows="3"
-                ></textarea>
-              </mat-form-field>
+                <ion-col size="12">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
+                    <ion-textarea
+                      id="loan-product-description"
+                      data-testid="loan-product-description"
+                      name="description"
+                      [(ngModel)]="product.description"
+                      rows="3"
+                      placeholder="{{ 'PRODUCTS.DESCRIPTION' | translate }}"
+                    ></ion-textarea>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="product.externalId" />
-              </mat-form-field>
+                <ion-col size="12">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-external-id"
+                      data-testid="loan-product-external-id"
+                      name="externalId"
+                      [(ngModel)]="product.externalId"
+                      placeholder="{{ 'COMMON.EXTERNAL_ID' | translate }}"
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.FUND' | translate }}</mat-label>
-                <mat-select name="fundId" [(ngModel)]="product.fundId">
-                  @for (fund of fundOptions; track fund.id) {
-                    <mat-option [value]="fund.id">{{ fund.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.FUND' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-fund-id"
+                      data-testid="loan-product-fund-id"
+                      name="fundId"
+                      [(ngModel)]="product.fundId"
+                      placeholder="{{ 'PRODUCTS.FUND' | translate }}"
+                    >
+                      @for (fund of fundOptions; track fund.id) {
+                        <ion-select-option [value]="fund.id">{{ fund.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}</mat-label>
-                <mat-select name="delinquencyBucketId" [(ngModel)]="product.delinquencyBucketId">
-                  @for (bucket of delinquencyBucketOptions; track bucket.id) {
-                    <mat-option [value]="bucket.id">{{ bucket.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-delinquency-bucket-id"
+                      data-testid="loan-product-delinquency-bucket-id"
+                      name="delinquencyBucketId"
+                      [(ngModel)]="product.delinquencyBucketId"
+                      placeholder="{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}"
+                    >
+                      @for (bucket of delinquencyBucketOptions; track bucket.id) {
+                        <ion-select-option [value]="bucket.id">{{ bucket.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.CURRENCY_DESC' | translate">
-                <mat-label>{{ 'PRODUCTS.CURRENCY' | translate }}</mat-label>
-                <mat-select name="currencyCode" [(ngModel)]="product.currencyCode" required>
-                  <mat-option value="USD">USD</mat-option>
-                  <mat-option value="EUR">EUR</mat-option>
-                  <mat-option value="INR">INR</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-currency-code"
+                      data-testid="loan-product-currency-code"
+                      name="currencyCode"
+                      [(ngModel)]="product.currencyCode"
+                      required
+                      placeholder="{{ 'PRODUCTS.CURRENCY' | translate }}"
+                    >
+                      <ion-select-option value="USD">USD</ion-select-option>
+                      <ion-select-option value="EUR">EUR</ion-select-option>
+                      <ion-select-option value="INR">INR</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.DECIMAL_PLACES_DESC' | translate"
-              >
-                <mat-label>{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="digitsAfterDecimal"
-                  [(ngModel)]="product.digitsAfterDecimal"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-digits-after-decimal"
+                      data-testid="loan-product-digits-after-decimal"
+                      type="number"
+                      name="digitsAfterDecimal"
+                      [(ngModel)]="product.digitsAfterDecimal"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.PRINCIPAL_DESC' | translate">
-                <mat-label>{{ 'PRODUCTS.PRINCIPAL' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="principal"
-                  [(ngModel)]="product.principal"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.PRINCIPAL' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-principal"
+                      data-testid="loan-product-principal"
+                      type="number"
+                      name="principal"
+                      [(ngModel)]="product.principal"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate"
-              >
-                <mat-label>{{ 'PRODUCTS.INTEREST_RATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="interestRatePerPeriod"
-                  [(ngModel)]="product.interestRatePerPeriod"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_RATE' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-interest-rate"
+                      data-testid="loan-product-interest-rate"
+                      type="number"
+                      name="interestRatePerPeriod"
+                      [(ngModel)]="product.interestRatePerPeriod"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="numberOfRepayments"
-                  [(ngModel)]="product.numberOfRepayments"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-repayments-count"
+                      data-testid="loan-product-repayments-count"
+                      type="number"
+                      name="numberOfRepayments"
+                      [(ngModel)]="product.numberOfRepayments"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.REPAYMENT_EVERY' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="repaymentEvery"
-                  [(ngModel)]="product.repaymentEvery"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
+                    <ion-input
+                      id="loan-product-repayment-every"
+                      data-testid="loan-product-repayment-every"
+                      type="number"
+                      name="repaymentEvery"
+                      [(ngModel)]="product.repaymentEvery"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Repayment Frequency Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
-                <mat-select
-                  name="repaymentFrequencyType"
-                  [(ngModel)]="product.repaymentFrequencyType"
-                  required
-                >
-                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
-                  <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Repayment Frequency Type -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-repayment-frequency"
+                      data-testid="loan-product-repayment-frequency"
+                      name="repaymentFrequencyType"
+                      [(ngModel)]="product.repaymentFrequencyType"
+                      required
+                    >
+                      <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
+                      <ion-select-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</ion-select-option>
+                      <ion-select-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</ion-select-option>
+                      <ion-select-option [value]="3">{{ 'COMMON.YEARS' | translate }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Interest Rate Frequency Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate }}</mat-label>
-                <mat-select
-                  name="interestRateFrequencyType"
-                  [(ngModel)]="product.interestRateFrequencyType"
-                  required
-                >
-                  <mat-option [value]="2">{{ 'COMMON.PER_MONTH' | translate }}</mat-option>
-                  <mat-option [value]="3">{{ 'COMMON.PER_YEAR' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Interest Rate Frequency Type -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-interest-frequency"
+                      data-testid="loan-product-interest-frequency"
+                      name="interestRateFrequencyType"
+                      [(ngModel)]="product.interestRateFrequencyType"
+                      required
+                    >
+                      <ion-select-option [value]="2">{{ 'COMMON.PER_MONTH' | translate }}</ion-select-option>
+                      <ion-select-option [value]="3">{{ 'COMMON.PER_YEAR' | translate }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Amortization Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</mat-label>
-                <mat-select name="amortizationType" [(ngModel)]="product.amortizationType" required>
-                  <mat-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</mat-option>
-                  <mat-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Amortization Type -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-amortization-type"
+                      data-testid="loan-product-amortization-type"
+                      name="amortizationType"
+                      [(ngModel)]="product.amortizationType"
+                      required
+                    >
+                      <ion-select-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</ion-select-option>
+                      <ion-select-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Interest Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</mat-label>
-                <mat-select name="interestType" [(ngModel)]="product.interestType" required>
-                  <mat-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'LOANS.FLAT' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Interest Type -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-interest-type"
+                      data-testid="loan-product-interest-type"
+                      name="interestType"
+                      [(ngModel)]="product.interestType"
+                      required
+                    >
+                      <ion-select-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</ion-select-option>
+                      <ion-select-option [value]="1">{{ 'LOANS.FLAT' | translate }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Interest Calculation Period Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</mat-label>
-                <mat-select
-                  name="interestCalculationPeriodType"
-                  [(ngModel)]="product.interestCalculationPeriodType"
-                  required
-                >
-                  <mat-option [value]="0">{{ 'LOANS.DAILY' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Interest Calculation Period Type -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-interest-calc-period"
+                      data-testid="loan-product-interest-calc-period"
+                      name="interestCalculationPeriodType"
+                      [(ngModel)]="product.interestCalculationPeriodType"
+                      required
+                    >
+                      <ion-select-option [value]="0">{{ 'LOANS.DAILY' | translate }}</ion-select-option>
+                      <ion-select-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Loan Schedule Type -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
-              >
-                <mat-label>{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</mat-label>
-                <mat-select
-                  name="loanScheduleType"
-                  [(ngModel)]="product.loanScheduleType"
-                  (ngModelChange)="onLoanScheduleTypeChange($event)"
-                  required
-                >
-                  @for (option of loanScheduleTypeOptions; track option.code) {
-                    <mat-option [value]="option.code">{{ option.value }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <!-- Loan Schedule Type -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-schedule-type"
+                      data-testid="loan-product-schedule-type"
+                      name="loanScheduleType"
+                      [(ngModel)]="product.loanScheduleType"
+                      (ngModelChange)="onLoanScheduleTypeChange($event)"
+                      required
+                    >
+                      @for (option of loanScheduleTypeOptions; track option.code) {
+                        <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Transaction Processing Strategy Code -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate }}</mat-label>
-                <mat-select
-                  name="transactionProcessingStrategyCode"
-                  [(ngModel)]="product.transactionProcessingStrategyCode"
-                  [disabled]="isProgressive"
-                  required
-                >
-                  @for (option of transactionProcessingStrategyOptions; track option.code) {
-                    <mat-option [value]="option.code">{{ option.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <!-- Transaction Processing Strategy Code -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate }}</ion-label>
+                    <ion-select
+                      id="loan-product-transaction-strategy"
+                      data-testid="loan-product-transaction-strategy"
+                      name="transactionProcessingStrategyCode"
+                      [(ngModel)]="product.transactionProcessingStrategyCode"
+                      [disabled]="isProgressive"
+                      required
+                    >
+                      @for (option of transactionProcessingStrategyOptions; track option.code) {
+                        <ion-select-option [value]="option.code">{{ option.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Loan Schedule Processing Type (Progressive only) -->
-              @if (isProgressive) {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate }}</mat-label>
-                  <mat-select
-                    name="loanScheduleProcessingType"
-                    [(ngModel)]="product.loanScheduleProcessingType"
-                    required
-                  >
-                    @for (option of loanScheduleProcessingTypeOptions; track option.code) {
-                      <mat-option [value]="option.code">{{ option.value }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-              }
-            </div>
+                <!-- Loan Schedule Processing Type (Progressive only) -->
+                @if (isProgressive) {
+                  <ion-col size="12" size-md="6">
+                    <ion-item fill="outline" class="form-item">
+                      <ion-label position="stacked">{{ 'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate }}</ion-label>
+                      <ion-select
+                        id="loan-product-schedule-processing-type"
+                        data-testid="loan-product-schedule-processing-type"
+                        name="loanScheduleProcessingType"
+                        [(ngModel)]="product.loanScheduleProcessingType"
+                        required
+                      >
+                        @for (option of loanScheduleProcessingTypeOptions; track option.code) {
+                          <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                }
+              </ion-row>
+            </ion-grid>
 
             @if (isProgressive) {
               <app-payment-credit-allocation-editor
@@ -335,29 +434,35 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
             }
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                id="loan-product-cancel-btn"
+                data-testid="loan-product-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
+                id="loan-product-submit-btn"
+                data-testid="loan-product-submit-btn"
                 color="primary"
                 type="submit"
                 [disabled]="productForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -372,10 +477,16 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
         flex-direction: column;
         gap: 16px;
       }
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+      .form-item {
+        --background: var(--ion-color-light, #f8f9fa);
+        --border-radius: 8px;
+        margin-bottom: 12px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
       }
     `,
   ],

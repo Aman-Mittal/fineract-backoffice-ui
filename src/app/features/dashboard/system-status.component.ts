@@ -19,11 +19,19 @@
 
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonIcon,
+  IonButton,
+  IonSpinner,
+  IonBadge,
+  IonGrid,
+  IonRow,
+  IonCol,
+} from '@ionic/angular/standalone';
 import { Router, RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
@@ -44,102 +52,118 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
-    MatIconModule,
-    MatDividerModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonBadge,
+    IonGrid,
+    IonRow,
+    IonCol,
     RouterModule,
     DonutChartComponent,
     NgClass,
   ],
   template: `
     <div class="dashboard-container">
-      <div class="widgets-grid">
-        <mat-card class="widget-card clients">
-          <mat-card-content>
-            <div class="widget-header">
-              <mat-icon>people</mat-icon>
-              <span class="widget-label">{{ 'DASHBOARD.TOTAL_CLIENTS' | translate }}</span>
-            </div>
-            @if (isLoading()) {
-              <div class="widget-loader">
-                <mat-spinner diameter="30"></mat-spinner>
-              </div>
-            } @else {
-              <div class="widget-value">{{ clientCount() }}</div>
-              <div class="widget-trend">{{ 'DASHBOARD.ACTIVE_MEMBERS' | translate }}</div>
-            }
-          </mat-card-content>
-        </mat-card>
+      <ion-grid class="widgets-grid-container">
+        <ion-row>
+          <ion-col size="12" size-sm="6" size-lg="3">
+            <ion-card class="widget-card clients" id="dashboard-clients-widget" data-testid="dashboard-clients-widget">
+              <ion-card-content>
+                <div class="widget-header">
+                  <ion-icon name="people-outline"></ion-icon>
+                  <span class="widget-label">{{ 'DASHBOARD.TOTAL_CLIENTS' | translate }}</span>
+                </div>
+                @if (isLoading()) {
+                  <div class="widget-loader">
+                    <ion-spinner name="crescent"></ion-spinner>
+                  </div>
+                } @else {
+                  <div class="widget-value">{{ clientCount() }}</div>
+                  <div class="widget-trend">{{ 'DASHBOARD.ACTIVE_MEMBERS' | translate }}</div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
 
-        <mat-card class="widget-card loans">
-          <mat-card-content>
-            <div class="widget-header">
-              <mat-icon>account_balance</mat-icon>
-              <span class="widget-label">{{ 'DASHBOARD.ACTIVE_LOANS' | translate }}</span>
-            </div>
-            @if (isLoading()) {
-              <div class="widget-loader">
-                <mat-spinner diameter="30"></mat-spinner>
-              </div>
-            } @else {
-              <div class="widget-value">{{ activeLoans() }}</div>
-              <div class="widget-trend highlight">
-                {{ pendingLoans().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
-              </div>
-            }
-          </mat-card-content>
-        </mat-card>
+          <ion-col size="12" size-sm="6" size-lg="3">
+            <ion-card class="widget-card loans" id="dashboard-loans-widget" data-testid="dashboard-loans-widget">
+              <ion-card-content>
+                <div class="widget-header">
+                  <ion-icon name="wallet-outline"></ion-icon>
+                  <span class="widget-label">{{ 'DASHBOARD.ACTIVE_LOANS' | translate }}</span>
+                </div>
+                @if (isLoading()) {
+                  <div class="widget-loader">
+                    <ion-spinner name="crescent"></ion-spinner>
+                  </div>
+                } @else {
+                  <div class="widget-value">{{ activeLoans() }}</div>
+                  <div class="widget-trend highlight">
+                    {{ pendingLoans().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
 
-        <mat-card class="widget-card savings">
-          <mat-card-content>
-            <div class="widget-header">
-              <mat-icon>savings</mat-icon>
-              <span class="widget-label">{{ 'DASHBOARD.SAVINGS_ACCOUNTS' | translate }}</span>
-            </div>
-            @if (isLoading()) {
-              <div class="widget-loader">
-                <mat-spinner diameter="30"></mat-spinner>
-              </div>
-            } @else {
-              <div class="widget-value">{{ savingsCount() }}</div>
-              <div class="widget-trend">
-                {{ pendingSavings().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
-              </div>
-            }
-          </mat-card-content>
-        </mat-card>
+          <ion-col size="12" size-sm="6" size-lg="3">
+            <ion-card class="widget-card savings" id="dashboard-savings-widget" data-testid="dashboard-savings-widget">
+              <ion-card-content>
+                <div class="widget-header">
+                  <ion-icon name="card-outline"></ion-icon>
+                  <span class="widget-label">{{ 'DASHBOARD.SAVINGS_ACCOUNTS' | translate }}</span>
+                </div>
+                @if (isLoading()) {
+                  <div class="widget-loader">
+                    <ion-spinner name="crescent"></ion-spinner>
+                  </div>
+                } @else {
+                  <div class="widget-value">{{ savingsCount() }}</div>
+                  <div class="widget-trend">
+                    {{ pendingSavings().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
 
-        <mat-card class="widget-card status">
-          <mat-card-content>
-            <div class="widget-header">
-              <mat-icon>dns</mat-icon>
-              <span class="widget-label">{{ 'DASHBOARD.SYSTEM_HEALTH' | translate }}</span>
-            </div>
-            <div class="widget-value healthy">{{ 'DASHBOARD.ONLINE' | translate }}</div>
-            <div class="widget-trend">API: {{ currentTenant() }}</div>
-          </mat-card-content>
-        </mat-card>
-      </div>
+          <ion-col size="12" size-sm="6" size-lg="3">
+            <ion-card class="widget-card status" id="dashboard-health-widget" data-testid="dashboard-health-widget">
+              <ion-card-content>
+                <div class="widget-header">
+                  <ion-icon name="hardware-chip-outline"></ion-icon>
+                  <span class="widget-label">{{ 'DASHBOARD.SYSTEM_HEALTH' | translate }}</span>
+                </div>
+                <div class="widget-value healthy">{{ 'DASHBOARD.ONLINE' | translate }}</div>
+                <div class="widget-trend">API: {{ currentTenant() }}</div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
 
       <div class="dashboard-layout">
         <div class="main-column">
-          <mat-card class="approval-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>pending_actions</mat-icon>
+          <ion-card class="approval-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="time-outline"></ion-icon>
                 {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               @if (isLoading()) {
                 <div class="empty-approvals">
-                  <mat-spinner diameter="40"></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                 </div>
               } @else if (pendingLoans().length === 0 && pendingSavings().length === 0) {
                 <div class="empty-approvals">
-                  <mat-icon>check_circle_outline</mat-icon>
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
                   <p>{{ 'DASHBOARD.NO_PENDING_APPROVALS' | translate }}</p>
                 </div>
               } @else {
@@ -147,70 +171,78 @@ import {
                   @for (loan of pendingLoans(); track loan['id']) {
                     <div class="approval-item">
                       <div class="item-info">
-                        <span class="item-type loan">LOAN</span>
+                        <ion-badge color="primary" class="item-type loan">LOAN</ion-badge>
                         <span class="item-id">#{{ loan['accountNo'] }}</span>
                         <span class="item-detail">{{ loan['clientName'] }}</span>
                       </div>
-                      <button mat-button color="primary" [routerLink]="['/loans/view', loan['id']]">
+                      <ion-button
+                        fill="clear"
+                        color="primary"
+                        [routerLink]="['/loans/view', loan['id']]"
+                        id="dashboard-pending-loans-view-btn"
+                        data-testid="dashboard-pending-loans-view-btn"
+                      >
                         {{ 'COMMON.VIEW' | translate }}
-                      </button>
+                      </ion-button>
                     </div>
                   }
                   @for (savings of pendingSavings(); track savings['id']) {
                     <div class="approval-item">
                       <div class="item-info">
-                        <span class="item-type savings">SAVINGS</span>
+                        <ion-badge color="success" class="item-type savings">SAVINGS</ion-badge>
                         <span class="item-id">#{{ savings['accountNo'] }}</span>
                         <span class="item-detail">{{ savings['clientName'] }}</span>
                       </div>
-                      <button
-                        mat-button
+                      <ion-button
+                        fill="clear"
                         color="primary"
                         [routerLink]="['/products/savings-accounts/view', savings['id']]"
+                        id="dashboard-pending-savings-view-btn"
+                        data-testid="dashboard-pending-savings-view-btn"
                       >
                         {{ 'COMMON.VIEW' | translate }}
-                      </button>
+                      </ion-button>
                     </div>
                   }
                 </div>
               }
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
         </div>
 
         <div class="side-column">
-          <mat-card class="chart-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>pie_chart</mat-icon>
+          <ion-card class="chart-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="pie-chart-outline"></ion-icon>
                 {{ 'DASHBOARD.LOAN_DISTRIBUTION' | translate }}
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               <app-donut-chart [data]="loanChartData()"></app-donut-chart>
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
 
-          <mat-card class="chart-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>pie_chart</mat-icon>
+          <ion-card class="chart-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="pie-chart-outline"></ion-icon>
                 {{ 'DASHBOARD.SAVINGS_DISTRIBUTION' | translate }}
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               <app-donut-chart [data]="savingsChartData()"></app-donut-chart>
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
 
-          <mat-card class="system-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>settings</mat-icon>
+          <ion-card class="system-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="settings-outline"></ion-icon>
                 {{ 'DASHBOARD.SYSTEM_STATUS' | translate }}
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               <ul class="status-list">
                 <li>
                   <span class="label">{{ 'DASHBOARD.RUNTIME_API' | translate }}:</span>
@@ -231,8 +263,8 @@ import {
                   <span class="value">{{ currentTenant() }}</span>
                 </li>
               </ul>
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
         </div>
       </div>
     </div>

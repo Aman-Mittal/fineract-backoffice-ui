@@ -81,7 +81,7 @@ test.describe('Full feature demo recording', () => {
       page.getByRole('combobox', { name: 'Loan Schedule Processing Type' }),
     ).toBeVisible();
 
-    const firstOrderItem = page.locator('.allocation-order-list mat-list-item').first();
+    const firstOrderItem = page.locator('.allocation-order-list ion-item').first();
     await firstOrderItem.getByRole('button').nth(1).click(); // reorder
     await page.waitForTimeout(1600);
 

@@ -21,13 +21,22 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonToggle,
+  IonButton,
+} from '@ionic/angular/standalone';
 import {
   ClientsAddressService,
   ClientAddressRequest,
@@ -41,150 +50,156 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatIconModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonToggle,
+    IonButton,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CLIENTS.EDIT_ADDRESS' | translate)
                 : ('CLIENTS.ADD_ADDRESS' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #addressForm="ngForm" (ngSubmit)="onSubmit()" class="address-form">
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.ADDRESS_TYPE' | translate }}</mat-label>
-                <mat-select name="addressTypeId" [(ngModel)]="address.addressTypeId" required>
-                  @for (type of addressTypes(); track type.id) {
-                    <mat-option [value]="type.id">{{ type.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_TYPE' | translate }}</ion-label>
+                    <ion-select name="addressTypeId" [(ngModel)]="address.addressTypeId" required id="address-type-select" data-testid="address-type-select">
+                      @for (type of addressTypes(); track type.id) {
+                        <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.ADDRESS_LINE_1' | translate }}</mat-label>
-                <input matInput name="addressLine1" [(ngModel)]="address.addressLine1" required />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_LINE_1' | translate }}</ion-label>
+                    <ion-input type="text" name="addressLine1" [(ngModel)]="address.addressLine1" required id="address-line1-input" data-testid="address-line1-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.ADDRESS_LINE_2' | translate }}</mat-label>
-                <input matInput name="addressLine2" [(ngModel)]="address.addressLine2" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_LINE_2' | translate }}</ion-label>
+                    <ion-input type="text" name="addressLine2" [(ngModel)]="address.addressLine2" id="address-line2-input" data-testid="address-line2-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.ADDRESS_LINE_3' | translate }}</mat-label>
-                <input matInput name="addressLine3" [(ngModel)]="address.addressLine3" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_LINE_3' | translate }}</ion-label>
+                    <ion-input type="text" name="addressLine3" [(ngModel)]="address.addressLine3" id="address-line3-input" data-testid="address-line3-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.CITY' | translate }}</mat-label>
-                <input matInput name="city" [(ngModel)]="address.city" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.CITY' | translate }}</ion-label>
+                    <ion-input type="text" name="city" [(ngModel)]="address.city" id="address-city-input" data-testid="address-city-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.TOWN_VILLAGE' | translate }}</mat-label>
-                <input matInput name="townVillage" [(ngModel)]="address.townVillage" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.TOWN_VILLAGE' | translate }}</ion-label>
+                    <ion-input type="text" name="townVillage" [(ngModel)]="address.townVillage" id="address-town-input" data-testid="address-town-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.COUNTY_DISTRICT' | translate }}</mat-label>
-                <input matInput name="countyDistrict" [(ngModel)]="address.countyDistrict" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.COUNTY_DISTRICT' | translate }}</ion-label>
+                    <ion-input type="text" name="countyDistrict" [(ngModel)]="address.countyDistrict" id="address-county-input" data-testid="address-county-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.STATE' | translate }}</mat-label>
-                <mat-select name="stateProvinceId" [(ngModel)]="address.stateProvinceId">
-                  @for (state of states(); track state.id) {
-                    <mat-option [value]="state.id">{{ state.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.STATE' | translate }}</ion-label>
+                    <ion-select name="stateProvinceId" [(ngModel)]="address.stateProvinceId" id="address-state-select" data-testid="address-state-select">
+                      @for (state of states(); track state.id) {
+                        <ion-select-option [value]="state.id">{{ state.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.COUNTRY' | translate }}</mat-label>
-                <mat-select name="countryId" [(ngModel)]="address.countryId">
-                  @for (country of countries(); track country.id) {
-                    <mat-option [value]="country.id">{{ country.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.COUNTRY' | translate }}</ion-label>
+                    <ion-select name="countryId" [(ngModel)]="address.countryId" id="address-country-select" data-testid="address-country-select">
+                      @for (country of countries(); track country.id) {
+                        <ion-select-option [value]="country.id">{{ country.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.POSTAL_CODE' | translate }}</mat-label>
-                <input matInput name="postalCode" [(ngModel)]="address.postalCode" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.POSTAL_CODE' | translate }}</ion-label>
+                    <ion-input type="text" name="postalCode" [(ngModel)]="address.postalCode" id="address-postal-input" data-testid="address-postal-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.LATITUDE' | translate }}</mat-label>
-                <input matInput type="number" name="latitude" [(ngModel)]="address.latitude" />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.LATITUDE' | translate }}</ion-label>
+                    <ion-input type="number" name="latitude" [(ngModel)]="address.latitude" id="address-latitude-input" data-testid="address-latitude-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.LONGITUDE' | translate }}</mat-label>
-                <input matInput type="number" name="longitude" [(ngModel)]="address.longitude" />
-              </mat-form-field>
-            </div>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'CLIENTS.LONGITUDE' | translate }}</ion-label>
+                    <ion-input type="number" name="longitude" [(ngModel)]="address.longitude" id="address-longitude-input" data-testid="address-longitude-input"></ion-input>
+                  </ion-item>
+                </ion-col>
 
-            <div class="checkbox-group">
-              <mat-checkbox name="isActive" [(ngModel)]="address.isActive">
-                {{ 'COMMON.ACTIVE' | translate }}
-              </mat-checkbox>
-            </div>
+                <ion-col size="12">
+                  <ion-item>
+                    <ion-label>{{ 'COMMON.ACTIVE' | translate }}</ion-label>
+                    <ion-toggle name="isActive" [(ngModel)]="address.isActive" id="address-active-toggle" data-testid="address-active-toggle" slot="end"></ion-toggle>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" id="address-cancel-btn" data-testid="address-cancel-btn">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="!addressForm.form.valid"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="!addressForm.form.valid" id="address-submit-btn" data-testid="address-submit-btn">
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
-  styles: [
-    `
-      .form-container {
-        padding: 24px;
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .address-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding-top: 16px;
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-      }
-      .checkbox-group {
-        margin: 8px 0;
-      }
-    `,
-  ],
 })
 export class ClientAddressFormComponent implements OnInit {
   private readonly addressService = inject(ClientsAddressService);

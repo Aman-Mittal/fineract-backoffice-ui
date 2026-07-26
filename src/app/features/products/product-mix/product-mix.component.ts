@@ -21,12 +21,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { ProductMixService, LoanProductData } from '../../../api';
 
 /**
@@ -41,59 +47,82 @@ import { ProductMixService, LoanProductData } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonSpinner,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'PRODUCT_MIX.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'PRODUCT_MIX.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #mixForm="ngForm" (ngSubmit)="onSubmit()" class="mix-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PRODUCT_MIX.RESTRICTED_PRODUCTS' | translate }}</mat-label>
-              <mat-select name="restrictedProducts" [(ngModel)]="restrictedProducts" multiple>
+            <ion-item fill="outline" class="form-item">
+              <ion-label position="stacked">{{ 'PRODUCT_MIX.RESTRICTED_PRODUCTS' | translate }}</ion-label>
+              <ion-select
+                id="product-mix-restricted-products"
+                data-testid="product-mix-restricted-products"
+                name="restrictedProducts"
+                [(ngModel)]="restrictedProducts"
+                multiple="true"
+              >
                 @for (opt of productOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
             <div class="form-actions">
-              <button
-                mat-button
+              <ion-button
+                id="product-mix-clear-btn"
+                data-testid="product-mix-clear-btn"
+                fill="clear"
+                color="danger"
                 type="button"
-                color="warn"
                 (click)="onDelete()"
                 [disabled]="!hasMix || isSaving"
               >
                 {{ 'PRODUCT_MIX.CLEAR' | translate }}
-              </button>
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              </ion-button>
+              <ion-button
+                id="product-mix-cancel-btn"
+                data-testid="product-mix-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+              </ion-button>
+              <ion-button
+                id="product-mix-submit-btn"
+                data-testid="product-mix-submit-btn"
+                color="primary"
+                type="submit"
+                [disabled]="isSaving"
+              >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -108,6 +137,15 @@ import { ProductMixService, LoanProductData } from '../../../api';
         flex-direction: column;
         gap: 16px;
       }
+      .form-item {
+        margin-bottom: 12px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
+      }
     `,
   ],
 })
@@ -115,7 +153,6 @@ export class ProductMixComponent implements OnInit {
   private readonly productMixService = inject(ProductMixService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
 
   private readonly LIST_PATH = '/products/loan';
 
@@ -141,8 +178,7 @@ export class ProductMixComponent implements OnInit {
           .filter((id): id is number => id !== undefined);
         this.hasMix = restricted.length > 0;
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+  error: (err) => console.error('Failed to load product mix', err),
     });
   }
 

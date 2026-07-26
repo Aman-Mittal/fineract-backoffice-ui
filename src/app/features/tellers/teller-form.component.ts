@@ -22,15 +22,26 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  IonButton,
+  IonSpinner,
+  IonDatetime,
+  IonDatetimeButton,
+  IonModal,
+} from '@ionic/angular/standalone';
 import {
   TellerCashManagementService,
   OfficesService,
@@ -54,139 +65,165 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea,
+    IonButton,
+    IonSpinner,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('TELLERS.EDIT_TELLER' | translate)
                 : ('TELLERS.CREATE_TELLER' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #tellerForm="ngForm" (ngSubmit)="onSubmit()" class="teller-form">
-            <div class="form-grid">
-              <!-- Name -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TELLER_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'TELLERS.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="teller.name" required />
-              </mat-form-field>
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <!-- Name -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_NAME_DESC' | translate">
+                    <ion-label position="stacked">{{ 'TELLERS.NAME' | translate }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="name"
+                      [(ngModel)]="teller.name"
+                      required
+                      id="teller-name-input"
+                      data-testid="teller-name-input"
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Office -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TELLER_OFFICE_DESC' | translate"
-              >
-                <mat-label>{{ 'TELLERS.OFFICE' | translate }}</mat-label>
-                <mat-select
-                  name="officeId"
-                  [(ngModel)]="teller.officeId"
-                  required
-                  [disabled]="isEditMode"
-                >
-                  @for (office of offices; track office.id) {
-                    <mat-option [value]="office.id">{{ office.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+                <!-- Office -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_OFFICE_DESC' | translate">
+                    <ion-label position="stacked">{{ 'TELLERS.OFFICE' | translate }}</ion-label>
+                    <ion-select
+                      name="officeId"
+                      [(ngModel)]="teller.officeId"
+                      required
+                      [disabled]="isEditMode"
+                      id="teller-office-select"
+                      data-testid="teller-office-select"
+                    >
+                      @for (office of offices; track office.id) {
+                        <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Description -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
-                class="full-width"
-              >
-                <mat-label>{{ 'TELLERS.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
-                  name="description"
-                  [(ngModel)]="teller.description"
-                  rows="3"
-                ></textarea>
-              </mat-form-field>
+                <!-- Description -->
+                <ion-col size="12">
+                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_DESCRIPTION_DESC' | translate" class="full-width">
+                    <ion-label position="stacked">{{ 'TELLERS.DESCRIPTION' | translate }}</ion-label>
+                    <ion-textarea
+                      name="description"
+                      [(ngModel)]="teller.description"
+                      rows="3"
+                      id="teller-description-textarea"
+                      data-testid="teller-description-textarea"
+                    ></ion-textarea>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Start Date -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TELLER_START_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'TELLERS.START_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="startDate"
-                  [(ngModel)]="startDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+                <!-- Start Date -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_START_DATE_DESC' | translate">
+                    <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
+                    <ion-datetime-button datetime="teller-start-date-picker"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="teller-start-date-picker"
+                          data-testid="teller-start-date-picker"
+                          presentation="date"
+                          (ionChange)="onStartDateChange($event)"
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Status -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TELLER_STATUS_DESC' | translate"
-              >
-                <mat-label>{{ 'TELLERS.STATUS' | translate }}</mat-label>
-                <mat-select name="status" [(ngModel)]="teller.status" required>
-                  <mat-option value="ACTIVE">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
-                  <mat-option value="INACTIVE">{{ 'COMMON.INACTIVE' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Status -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_STATUS_DESC' | translate">
+                    <ion-label position="stacked">{{ 'TELLERS.STATUS' | translate }}</ion-label>
+                    <ion-select
+                      name="status"
+                      [(ngModel)]="teller.status"
+                      required
+                      id="teller-status-select"
+                      data-testid="teller-status-select"
+                    >
+                      <ion-select-option value="ACTIVE">{{ 'COMMON.ACTIVE' | translate }}</ion-select-option>
+                      <ion-select-option value="INACTIVE">{{ 'COMMON.INACTIVE' | translate }}</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Usage -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TELLER_USAGE_DESC' | translate"
-              >
-                <mat-label>{{ 'TELLERS.USAGE' | translate }}</mat-label>
-                <mat-select name="usage" [(ngModel)]="usage" required>
-                  <mat-option [value]="1">Cashier</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
+                <!-- Usage -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_USAGE_DESC' | translate">
+                    <ion-label position="stacked">{{ 'TELLERS.USAGE' | translate }}</ion-label>
+                    <ion-select
+                      name="usage"
+                      [(ngModel)]="usage"
+                      required
+                      id="teller-usage-select"
+                      data-testid="teller-usage-select"
+                    >
+                      <ion-select-option [value]="1">Cashier</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" [disabled]="isSaving" id="teller-cancel-btn" data-testid="teller-cancel-btn">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="tellerForm.invalid || isSaving"
+                id="teller-submit-btn"
+                data-testid="teller-submit-btn"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -284,6 +321,12 @@ export class TellerFormComponent implements OnInit {
         status: data.status as PostTellersRequest.StatusEnum,
       };
     });
+  }
+
+  onStartDateChange(event: CustomEvent): void {
+    if (event.detail.value) {
+      this.startDate = new Date(event.detail.value as string);
+    }
   }
 
   /**
