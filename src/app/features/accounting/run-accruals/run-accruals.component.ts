@@ -22,8 +22,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { PeriodicAccrualAccountingService, PostRunaccrualsRequest } from '../../../api';
 import {
   IonButton,
@@ -31,6 +29,11 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -51,14 +54,17 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonItem,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonLabel,
   ],
   template: `
     <div class="form-container">
@@ -75,18 +81,22 @@ import {
           }
 
           <form #accrualForm="ngForm" (ngSubmit)="onSubmit()" class="accrual-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'RUN_ACCRUALS.TILL_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                name="tillDate"
-                [matDatepicker]="tillPicker"
-                [(ngModel)]="tillDate"
-                required
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="tillPicker"></mat-datepicker-toggle>
-              <mat-datepicker #tillPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'RUN_ACCRUALS.TILL_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="tillDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="tillDate-picker"
+                    data-testid="tillDate-picker"
+                    presentation="date"
+                    name="tillDate"
+                    [(ngModel)]="tillDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button
@@ -136,7 +146,7 @@ import {
 export class RunAccrualsComponent {
   private readonly accrualService = inject(PeriodicAccrualAccountingService);
 
-  tillDate: Date | null = null;
+  tillDate: string | null = null;
   isSubmitting = false;
   successMessage = '';
 

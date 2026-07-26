@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -42,9 +43,10 @@ import {
   UpdatePostDatedCheckRequest,
 } from '../../../api';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 /**
@@ -60,8 +62,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -71,6 +71,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -103,18 +106,22 @@ import {
               ></ion-input>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'POST_DATED_CHECKS.DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="datePicker"
-                name="date"
-                [(ngModel)]="date"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-              <mat-datepicker #datePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'POST_DATED_CHECKS.DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="date-picker"
+                    data-testid="date-picker"
+                    presentation="date"
+                    name="date"
+                    [(ngModel)]="date"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -161,7 +168,7 @@ export class PostDatedCheckFormComponent implements OnInit {
   name = '';
   amount: number | null = null;
   accountNo: number | null = null;
-  date: Date | null = null;
+  date: string | null = null;
 
   ngOnInit(): void {
     const loanIdParam = this.route.snapshot.paramMap.get('loanId');
@@ -184,7 +191,7 @@ export class PostDatedCheckFormComponent implements OnInit {
           this.name = check.name ?? '';
           this.amount = check.amount ?? null;
           this.accountNo = check.accountNo ?? null;
-          this.date = check.date ? new Date(check.date) : null;
+          this.date = check.date ? toIsoDate(new Date(check.date)) : null;
         }
       },
       error: (err: unknown) => console.error('Failed to load post-dated check', err),

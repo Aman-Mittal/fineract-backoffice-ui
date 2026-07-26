@@ -66,7 +66,7 @@ describe('AccountingClosureFormComponent', () => {
 
   it('should format payload correctly on submission', () => {
     component.request.officeId = 1;
-    component.closingDate = new Date(2026, 4, 31);
+    component.closingDate = '2026-05-31';
     component.request.comments = 'Monthly closure';
 
     closureServiceSpy.postGlclosures.and.returnValue(

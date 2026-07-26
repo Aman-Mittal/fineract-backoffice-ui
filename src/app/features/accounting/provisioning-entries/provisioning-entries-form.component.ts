@@ -23,9 +23,8 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { ProvisioningEntriesService, ProvisionEntryRequest } from '../../../api';
+import { formatDateToFineract } from '../../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
@@ -33,6 +32,11 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -48,8 +52,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonCardContent,
@@ -57,6 +59,11 @@ import {
     IonCardTitle,
     IonCard,
     IonCheckbox,
+    IonItem,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonLabel,
   ],
   template: `
     <div class="form-container">
@@ -67,12 +74,24 @@ import {
 
         <ion-card-content>
           <form #entryForm="ngForm" (ngSubmit)="onSubmit()" class="provisioning-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PROVISIONING_ENTRIES.DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="picker" name="date" [(ngModel)]="date" required />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'PROVISIONING_ENTRIES.DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="date-picker"
+                    data-testid="date-picker"
+                    presentation="date"
+                    name="date"
+                    [(ngModel)]="date"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <ion-checkbox name="createjournalentries" [(ngModel)]="createjournalentries">
               {{ 'PROVISIONING_ENTRIES.CREATE_JOURNAL_ENTRIES' | translate }}
@@ -119,7 +138,7 @@ export class ProvisioningEntriesFormComponent {
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
   private readonly LOCALE = 'en';
 
-  date: Date | null = null;
+  date: string | null = null;
   createjournalentries = false;
   isSaving = false;
 
@@ -127,7 +146,7 @@ export class ProvisioningEntriesFormComponent {
     if (!this.date) return;
     this.isSaving = true;
     const request: ProvisionEntryRequest = {
-      date: this.formatDate(this.date),
+      date: formatDateToFineract(this.date),
       createjournalentries: this.createjournalentries,
       dateFormat: this.DATE_FORMAT,
       locale: this.LOCALE,
@@ -141,11 +160,5 @@ export class ProvisioningEntriesFormComponent {
 
   onCancel(): void {
     this.router.navigate([this.LIST_PATH]);
-  }
-
-  private formatDate(d: Date): string {
-    const month = `${d.getMonth() + 1}`.padStart(2, '0');
-    const day = `${d.getDate()}`.padStart(2, '0');
-    return `${d.getFullYear()}-${month}-${day}`;
   }
 }

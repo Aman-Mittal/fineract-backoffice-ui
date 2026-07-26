@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   AccountingClosureService,
   PostGlClosuresRequest,
@@ -39,13 +37,17 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 
 /**
  * Component for closing an accounting period for an office.
@@ -58,8 +60,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     HelpIconComponent,
     IonButton,
     IonSpinner,
@@ -72,6 +72,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -97,18 +100,22 @@ import {
               </ion-item>
 
               <!-- Closing Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>Closing Date</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="closingDate"
-                  [(ngModel)]="closingDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Closing Date</ion-label>
+                <ion-datetime-button datetime="closingDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="closingDate-picker"
+                      data-testid="closingDate-picker"
+                      presentation="date"
+                      name="closingDate"
+                      [(ngModel)]="closingDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Comments -->
               <ion-item fill="outline" class="full-width">
@@ -173,7 +180,7 @@ export class AccountingClosureFormComponent implements OnInit {
     officeId: undefined,
     comments: '',
   };
-  closingDate: Date = new Date();
+  closingDate = toIsoDate(new Date());
   isSaving = false;
 
   ngOnInit() {
@@ -184,9 +191,7 @@ export class AccountingClosureFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formattedDate = `${this.closingDate.getFullYear()}-${String(
-      this.closingDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.closingDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.closingDate);
 
     this.request.closingDate = formattedDate;
     this.request.dateFormat = 'yyyy-MM-dd';

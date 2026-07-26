@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -33,14 +31,18 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 import {
   SavingsAccountTransactionsService,
   PostSavingsAccountTransactionsRequest,
@@ -54,8 +56,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -68,6 +68,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -86,21 +89,24 @@ import {
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="transaction-form">
             <div class="form-grid">
               <!-- Transaction Date -->
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.TRANSACTION_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.TRANSACTION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="transactionDate"
-                  [(ngModel)]="transactionDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.TRANSACTION_DATE_DESC' | translate">
+                <ion-label position="stacked">{{
+                  'COMMON.TRANSACTION_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="transactionDate-picker"
+                      data-testid="transactionDate-picker"
+                      presentation="date"
+                      name="transactionDate"
+                      [(ngModel)]="transactionDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Transaction Amount -->
               <ion-item fill="outline" [attr.title]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
@@ -191,7 +197,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   transaction: PostSavingsAccountTransactionsRequest = {};
   /** Note bound separately as it might not be in the direct model */
   note = '';
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   paymentTypeOptions: Record<string, unknown>[] = [];
 
   ngOnInit(): void {
@@ -211,7 +217,9 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
           const data = typeof template === 'string' ? JSON.parse(template) : template;
           this.paymentTypeOptions = data.paymentTypeOptions || [];
           if (data.date) {
-            this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
+            this.transactionDate = toIsoDate(
+              new Date(data.date[0], data.date[1] - 1, data.date[2]),
+            );
           }
         },
         error: () => {
@@ -223,9 +231,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   onSubmit(): void {
     this.isSaving = true;
 
-    const formattedDate = `${this.transactionDate.getFullYear()}-${String(
-      this.transactionDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.transactionDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.transactionDate);
 
     this.transaction.transactionDate = formattedDate;
     this.transaction.dateFormat = 'yyyy-MM-dd';

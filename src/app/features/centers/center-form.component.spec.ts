@@ -75,7 +75,7 @@ describe('CenterFormComponent', () => {
   it('should format activationDate correctly on submit in create mode', () => {
     component.isEditMode = false;
     component.center = { name: 'Test Center', officeId: 1, active: true };
-    const testDate = new Date(2026, 4, 9); // May 9, 2026
+    const testDate = '2026-05-09'; // May 9, 2026
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -27,6 +27,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CdkTableModule } from '@angular/cdk/table';
+import { formatDateToFineract } from '../../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
@@ -215,7 +216,7 @@ export class LoansPointInTimeComponent {
       .map((s) => Number(s))
       .filter((n) => !isNaN(n));
 
-    const dateStr = this.formatDate(this.searchDate);
+    const dateStr = formatDateToFineract(this.searchDate);
 
     const body: RetrieveLoansPointInTimeRequest = {
       date: dateStr as unknown as object,
@@ -236,12 +237,5 @@ export class LoansPointInTimeComponent {
         this.isLoading = false;
       },
     });
-  }
-
-  private formatDate(date: Date): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
   }
 }

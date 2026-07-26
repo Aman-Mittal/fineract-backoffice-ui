@@ -22,6 +22,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { toIsoDate } from '../../../core/utils/date-formatter';
 import {
   IonCard,
   IonCardHeader,
@@ -256,8 +257,8 @@ export class CashierFormComponent implements OnInit {
   onSubmit(): void {
     this.isSaving = true;
 
-    const formattedStartDate = `${this.startDate.getFullYear()}-${String(this.startDate.getMonth() + 1).padStart(2, '0')}-${String(this.startDate.getDate()).padStart(2, '0')}`;
-    const formattedEndDate = `${this.endDate.getFullYear()}-${String(this.endDate.getMonth() + 1).padStart(2, '0')}-${String(this.endDate.getDate()).padStart(2, '0')}`;
+    const formattedStartDate = toIsoDate(this.startDate);
+    const formattedEndDate = toIsoDate(this.endDate);
 
     this.cashier.startDate = formattedStartDate;
     this.cashier.endDate = formattedEndDate;

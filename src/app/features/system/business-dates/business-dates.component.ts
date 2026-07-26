@@ -20,8 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -31,6 +29,11 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -43,6 +46,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 @Component({
@@ -51,8 +55,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
     IonButton,
@@ -61,6 +63,11 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonItem,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonLabel,
   ],
   template: `
     <div class="page-header">
@@ -88,20 +95,21 @@ import {
               <strong>{{ 'BUSINESS_DATES.CURRENT_DATE' | translate }}:</strong>
               {{ businessDateEntry?.date }}
             </p>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="businessDatePicker"
-                [(ngModel)]="businessDate"
-                name="businessDate"
-              />
-              <mat-datepicker-toggle
-                matIconSuffix
-                [for]="businessDatePicker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #businessDatePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="businessDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="businessDate-picker"
+                    data-testid="businessDate-picker"
+                    presentation="date"
+                    name="businessDate"
+                    [(ngModel)]="businessDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
           </ion-card-content>
           <div class="card-actions">
             <ion-button
@@ -127,17 +135,21 @@ import {
               <strong>{{ 'BUSINESS_DATES.CURRENT_DATE' | translate }}:</strong>
               {{ cobDateEntry?.date }}
             </p>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="cobDatePicker"
-                [(ngModel)]="cobDate"
-                name="cobDate"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="cobDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #cobDatePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="cobDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="cobDate-picker"
+                    data-testid="cobDate-picker"
+                    presentation="date"
+                    name="cobDate"
+                    [(ngModel)]="cobDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
           </ion-card-content>
           <div class="card-actions">
             <ion-button color="primary" (click)="updateDate('COB_DATE')" [disabled]="!cobDate">
@@ -189,8 +201,8 @@ export class BusinessDatesComponent implements OnInit {
   businessDateEntry: BusinessDateResponse | null = null;
   cobDateEntry: BusinessDateResponse | null = null;
 
-  businessDate: Date | null = null;
-  cobDate: Date | null = null;
+  businessDate: string | null = null;
+  cobDate: string | null = null;
 
   ngOnInit(): void {
     this.loadBusinessDates();
@@ -204,10 +216,10 @@ export class BusinessDatesComponent implements OnInit {
         this.cobDateEntry = dates.find((d) => d.type === 'COB_DATE') ?? null;
 
         if (this.businessDateEntry?.date) {
-          this.businessDate = new Date(this.businessDateEntry.date);
+          this.businessDate = toIsoDate(new Date(this.businessDateEntry.date));
         }
         if (this.cobDateEntry?.date) {
-          this.cobDate = new Date(this.cobDateEntry.date);
+          this.cobDate = toIsoDate(new Date(this.cobDateEntry.date));
         }
         this.isLoading = false;
       },

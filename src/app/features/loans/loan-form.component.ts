@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -46,10 +44,13 @@ import {
   IonCardTitle,
   IonCheckbox,
   IonChip,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -58,6 +59,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
@@ -70,8 +72,6 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     ClientSearchComponent,
     IonIcon,
     IonButton,
@@ -87,6 +87,9 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
     IonSelect,
     IonCheckbox,
     IonChip,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -182,38 +185,44 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Submitted On -->
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="subPicker"
-                  name="submittedOnDate"
-                  [(ngModel)]="submittedOnDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="subPicker"></mat-datepicker-toggle>
-                <mat-datepicker #subPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
+                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="submittedOnDate-picker"
+                      data-testid="submittedOnDate-picker"
+                      presentation="date"
+                      name="submittedOnDate"
+                      [(ngModel)]="submittedOnDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Expected Disbursement -->
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="disPicker"
-                  name="expectedDisbursementDate"
-                  [(ngModel)]="expectedDisbursementDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="disPicker"></mat-datepicker-toggle>
-                <mat-datepicker #disPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate">
+                <ion-label position="stacked">{{
+                  'LOANS.EXPECTED_DISBURSEMENT' | translate
+                }}</ion-label>
+                <ion-datetime-button
+                  datetime="expectedDisbursementDate-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="expectedDisbursementDate-picker"
+                      data-testid="expectedDisbursementDate-picker"
+                      presentation="date"
+                      name="expectedDisbursementDate"
+                      [(ngModel)]="expectedDisbursementDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Term Frequency -->
               <ion-item fill="outline" [attr.title]="'HELP.TERM_FREQUENCY_DESC' | translate">
@@ -390,20 +399,25 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Repayments Starting From Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.REPAYMENTS_STARTING_FROM_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="repaymentsFromPicker"
-                  name="repaymentsStartingFromDate"
-                  [(ngModel)]="repaymentsStartingFromDate"
-                />
-                <mat-datepicker-toggle
-                  matSuffix
-                  [for]="repaymentsFromPicker"
-                ></mat-datepicker-toggle>
-                <mat-datepicker #repaymentsFromPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'LOANS.REPAYMENTS_STARTING_FROM_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button
+                  datetime="repaymentsStartingFromDate-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="repaymentsStartingFromDate-picker"
+                      data-testid="repaymentsStartingFromDate-picker"
+                      presentation="date"
+                      name="repaymentsStartingFromDate"
+                      [(ngModel)]="repaymentsStartingFromDate"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               @if (isProgressive()) {
                 <ion-checkbox
@@ -486,9 +500,9 @@ export class LoanFormComponent implements OnInit {
   loan: PostLoansRequest = {
     loanType: 'individual',
   };
-  submittedOnDate: Date = new Date();
-  expectedDisbursementDate: Date = new Date();
-  repaymentsStartingFromDate: Date | null = null;
+  submittedOnDate = toIsoDate(new Date());
+  expectedDisbursementDate = toIsoDate(new Date());
+  repaymentsStartingFromDate: string | null = null;
   products: GetLoanProductsResponse[] = [];
   selectedProductDetails: GetLoanProductsProductIdResponse | null = null;
 
@@ -550,14 +564,14 @@ export class LoanFormComponent implements OnInit {
       next: (data: GetLoansLoanIdResponse) => {
         const subDateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (subDateArray) {
-          this.submittedOnDate = new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]);
+          this.submittedOnDate = toIsoDate(
+            new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]),
+          );
         }
         const expDisbDateArray = data.timeline?.expectedDisbursementDate as unknown as number[];
         if (expDisbDateArray) {
-          this.expectedDisbursementDate = new Date(
-            expDisbDateArray[0],
-            expDisbDateArray[1] - 1,
-            expDisbDateArray[2],
+          this.expectedDisbursementDate = toIsoDate(
+            new Date(expDisbDateArray[0], expDisbDateArray[1] - 1, expDisbDateArray[2]),
           );
         }
 

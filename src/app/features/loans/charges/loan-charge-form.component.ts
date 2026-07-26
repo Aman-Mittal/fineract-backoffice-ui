@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -61,8 +62,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -74,6 +73,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -103,12 +105,21 @@ import {
               ></ion-input>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'LOAN_CHARGES.DUE_DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="picker" name="dueDate" [(ngModel)]="dueDate" />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'LOAN_CHARGES.DUE_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="dueDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="dueDate-picker"
+                    data-testid="dueDate-picker"
+                    presentation="date"
+                    name="dueDate"
+                    [(ngModel)]="dueDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -152,7 +163,7 @@ export class LoanChargeFormComponent implements OnInit {
   isSaving = false;
 
   charge: PostLoansLoanIdChargesRequest = {};
-  dueDate: Date | null = null;
+  dueDate: string | null = null;
   chargeOptions: GetLoanChargeTemplateChargeOptions[] = [];
 
   ngOnInit(): void {

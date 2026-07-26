@@ -23,8 +23,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MeetingsService, MeetingCreateRequest } from '../../api';
 import {
   IonButton,
@@ -32,15 +30,19 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 /**
@@ -56,8 +58,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -67,6 +67,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -79,18 +82,22 @@ import {
 
         <ion-card-content>
           <form #meetingForm="ngForm" (ngSubmit)="onSubmit()" class="meeting-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MEETINGS.MEETING_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="meetingDate"
-                [(ngModel)]="meetingDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MEETINGS.MEETING_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="meetingDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="meetingDate-picker"
+                    data-testid="meetingDate-picker"
+                    presentation="date"
+                    name="meetingDate"
+                    [(ngModel)]="meetingDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MEETINGS.CALENDAR_ID' | translate }}</ion-label>
@@ -150,7 +157,7 @@ export class MeetingFormComponent implements OnInit {
   isEditMode = false;
   isSaving = false;
 
-  meetingDate: Date | null = null;
+  meetingDate: string | null = null;
   calendarId: number | null = null;
 
   ngOnInit(): void {
@@ -178,7 +185,7 @@ export class MeetingFormComponent implements OnInit {
     this.meetingsService
       .getEntityTypeEntityIdMeetingsMeetingId(this.meetingId, this.entityType, this.entityId)
       .subscribe((data) => {
-        this.meetingDate = data.meetingDate ? new Date(data.meetingDate) : null;
+        this.meetingDate = data.meetingDate ? toIsoDate(new Date(data.meetingDate)) : null;
         this.calendarId = data.calendarData?.id ?? this.calendarId;
       });
   }

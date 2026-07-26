@@ -23,8 +23,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { SelfDividendService } from '../../../api';
 import {
   IonButton,
@@ -32,9 +30,12 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -57,8 +58,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -68,6 +67,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -88,31 +90,43 @@ import {
               ></ion-input>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SHARE_DIVIDENDS.PERIOD_START_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="startPicker"
-                name="dividendPeriodStartDate"
-                [(ngModel)]="dividendPeriodStartDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'SHARE_DIVIDENDS.PERIOD_START_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="dividendPeriodStartDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="dividendPeriodStartDate-picker"
+                    data-testid="dividendPeriodStartDate-picker"
+                    presentation="date"
+                    name="dividendPeriodStartDate"
+                    [(ngModel)]="dividendPeriodStartDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SHARE_DIVIDENDS.PERIOD_END_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="endPicker"
-                name="dividendPeriodEndDate"
-                [(ngModel)]="dividendPeriodEndDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'SHARE_DIVIDENDS.PERIOD_END_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="dividendPeriodEndDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="dividendPeriodEndDate-picker"
+                    data-testid="dividendPeriodEndDate-picker"
+                    presentation="date"
+                    name="dividendPeriodEndDate"
+                    [(ngModel)]="dividendPeriodEndDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -160,8 +174,8 @@ export class ShareDividendFormComponent implements OnInit {
   isSaving = false;
 
   dividendAmount: number | null = null;
-  dividendPeriodStartDate: Date | null = null;
-  dividendPeriodEndDate: Date | null = null;
+  dividendPeriodStartDate: string | null = null;
+  dividendPeriodEndDate: string | null = null;
 
   ngOnInit(): void {
     this.productId = Number(this.route.snapshot.paramMap.get('productId'));

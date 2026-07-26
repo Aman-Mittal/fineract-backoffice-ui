@@ -79,7 +79,7 @@ describe('StaffFormComponent', () => {
       of({}) as unknown as ReturnType<StaffService['postStaff']>,
     );
     component.staff = { officeId: 1, firstname: 'Ada', lastname: 'Lovelace', isLoanOfficer: true };
-    component.joiningDate = new Date(2026, 0, 15);
+    component.joiningDate = '2026-01-15';
 
     component.onSubmit();
 

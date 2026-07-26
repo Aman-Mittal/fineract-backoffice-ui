@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   LoanTransactionsService,
   LoansService,
@@ -42,14 +40,18 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -88,8 +90,6 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -103,6 +103,9 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -125,27 +128,28 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
             <div class="form-grid">
               @if (transactionType !== 'undoDisbursal') {
                 <!-- Transaction Date -->
-                <mat-form-field
-                  appearance="outline"
-                  [attr.title]="'HELP.TRANSACTION_DATE_DESC' | translate"
-                >
-                  <mat-label>
+                <ion-item fill="outline" [attr.title]="'HELP.TRANSACTION_DATE_DESC' | translate">
+                  <ion-label position="stacked">
                     {{
                       transactionType === 'approve'
                         ? ('COMMON.ACTIVATION_DATE' | translate)
                         : ('COMMON.TRANSACTION_DATE' | translate)
                     }}
-                  </mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="picker"
-                    name="transactionDate"
-                    [(ngModel)]="transactionDate"
-                    required
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                  <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
+                  </ion-label>
+                  <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="transactionDate-picker"
+                        data-testid="transactionDate-picker"
+                        presentation="date"
+                        name="transactionDate"
+                        [(ngModel)]="transactionDate"
+                        required
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
               }
 
               @if (amountVisible) {
@@ -271,7 +275,7 @@ export class LoanTransactionFormComponent implements OnInit {
   isSaving = false;
 
   transaction: PostLoansLoanIdTransactionsRequest = {};
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   paymentTypeOptions: GetPaymentTypeOptions[] = [];
   loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
 
@@ -318,7 +322,9 @@ export class LoanTransactionFormComponent implements OnInit {
           this.transaction.transactionAmount = template.amount;
           const dateArray = template.date as unknown as number[];
           if (dateArray) {
-            this.transactionDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+            this.transactionDate = toIsoDate(
+              new Date(dateArray[0], dateArray[1] - 1, dateArray[2]),
+            );
           }
           this.paymentTypeOptions = template.paymentTypeOptions || [];
         },
@@ -349,9 +355,7 @@ export class LoanTransactionFormComponent implements OnInit {
   private performSubmit(): void {
     this.isSaving = true;
 
-    const formattedDate = `${this.transactionDate.getFullYear()}-${String(
-      this.transactionDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.transactionDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.transactionDate);
 
     if (this.transactionType === 'approve') {
       const payload = {

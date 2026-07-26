@@ -134,8 +134,8 @@ describe('ClientFormComponent', () => {
         legalFormId: 1,
         active: true,
       };
-      component.submittedOnDate = new Date(2026, 5, 16);
-      component.activationDate = new Date(2026, 5, 17);
+      component.submittedOnDate = '2026-06-16';
+      component.activationDate = '2026-06-17';
 
       component.onSubmit();
 

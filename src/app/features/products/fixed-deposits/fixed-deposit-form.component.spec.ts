@@ -31,6 +31,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+const SUBMITTED_ON = '2026-06-11';
+
 describe('FixedDepositAccountFormComponent', () => {
   let component: FixedDepositAccountFormComponent;
   let fixture: ComponentFixture<FixedDepositAccountFormComponent>;
@@ -179,7 +181,7 @@ describe('FixedDepositAccountFormComponent', () => {
     expect(component.account['clientId']).toBe(1);
     expect(component.account['productId']).toBe(101);
     expect(component.account['nominalAnnualInterestRate']).toBe(4.5);
-    expect(component.submittedOnDate).toEqual(new Date(2026, 5, 11));
+    expect(component.submittedOnDate).toEqual(SUBMITTED_ON);
   });
 
   it('should handle error when loading account data', () => {
@@ -211,7 +213,7 @@ describe('FixedDepositAccountFormComponent', () => {
       depositPeriodFrequencyId: 2,
       nominalAnnualInterestRate: 5.0,
     };
-    component.submittedOnDate = new Date(2026, 5, 11);
+    component.submittedOnDate = SUBMITTED_ON;
 
     component.onSubmit();
 
@@ -231,7 +233,7 @@ describe('FixedDepositAccountFormComponent', () => {
       depositPeriodFrequencyId: 2,
       nominalAnnualInterestRate: 6.0,
     };
-    component.submittedOnDate = new Date(2026, 5, 11);
+    component.submittedOnDate = SUBMITTED_ON;
 
     component.onSubmit();
 

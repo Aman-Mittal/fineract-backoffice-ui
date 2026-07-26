@@ -24,21 +24,23 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../../core/utils/date-formatter';
 import {
   OfficesService,
   PostOfficesRequest,
@@ -54,8 +56,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -67,6 +67,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -108,21 +111,22 @@ import {
                 <ion-input name="externalId" [(ngModel)]="office.externalId"></ion-input>
               </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.OPENING_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'OFFICES.OPENING_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="openingDate"
-                  [(ngModel)]="openingDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.OPENING_DATE_DESC' | translate">
+                <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
+                <ion-datetime-button datetime="openingDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="openingDate-picker"
+                      data-testid="openingDate-picker"
+                      presentation="date"
+                      name="openingDate"
+                      [(ngModel)]="openingDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
             </div>
 
             <div class="form-actions">
@@ -175,7 +179,7 @@ export class OfficeFormComponent implements OnInit {
   isSaving = false;
 
   office: PostOfficesRequest = {};
-  openingDate: Date = new Date();
+  openingDate = toIsoDate(new Date());
   offices: GetOfficesResponse[] = [];
 
   ngOnInit() {
@@ -201,7 +205,7 @@ export class OfficeFormComponent implements OnInit {
     this.officesService.getOfficesOfficeId(this.officeId).subscribe((data) => {
       const dateArray = data.openingDate as unknown as number[];
       if (dateArray) {
-        this.openingDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+        this.openingDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
       }
       this.office = {
         name: data.name,
@@ -213,9 +217,7 @@ export class OfficeFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formattedDate = `${this.openingDate.getFullYear()}-${String(
-      this.openingDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.openingDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.openingDate);
 
     if (this.isEditMode && this.officeId) {
       const payload: PutOfficesOfficeIdRequest = {

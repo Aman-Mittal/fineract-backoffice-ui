@@ -23,8 +23,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { DecimalPipe } from '@angular/common';
 import {
   LoanTransactionsService,
@@ -33,12 +31,16 @@ import {
 import { DialogService } from '../../core/services/dialog.service';
 import {
   IonButton,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 
 export interface TransactionDetailDialogData {
   loanId: number;
@@ -61,8 +63,6 @@ const DATE_FORMAT = 'yyyy-MM-dd';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     DecimalPipe,
     IonIcon,
     IonButton,
@@ -70,6 +70,9 @@ const DATE_FORMAT = 'yyyy-MM-dd';
     IonTextarea,
     IonItem,
     IonLabel,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <h2 mat-dialog-title>{{ 'LOANS.TRANSACTION_DETAILS' | translate }}</h2>
@@ -142,17 +145,23 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           } @else {
             <div class="adjust-form">
               <p class="adjust-warning">{{ 'LOANS.CONFIRM_ADJUST_TRANSACTION' | translate }}</p>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.TRANSACTION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  [(ngModel)]="adjustDate"
-                  name="adjustDate"
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'COMMON.TRANSACTION_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="adjustDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="adjustDate-picker"
+                      data-testid="adjustDate-picker"
+                      presentation="date"
+                      name="adjustDate"
+                      [(ngModel)]="adjustDate"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
                   'COMMON.TRANSACTION_AMOUNT' | translate
@@ -229,7 +238,7 @@ export class TransactionDetailDialogComponent implements OnInit {
   showAdjustForm = signal(false);
   isSaving = signal(false);
 
-  adjustDate: Date = new Date();
+  adjustDate = toIsoDate(new Date());
   adjustAmount = 0;
   adjustNote = '';
 
@@ -244,7 +253,7 @@ export class TransactionDetailDialogComponent implements OnInit {
           this.adjustAmount = data.amount ?? 0;
           const dateArray = data.date as unknown as number[];
           if (Array.isArray(dateArray)) {
-            this.adjustDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+            this.adjustDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
           }
         },
         error: (err) => console.error('Failed to load transaction detail', err),
@@ -282,9 +291,7 @@ export class TransactionDetailDialogComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         this.isSaving.set(true);
-        const formattedDate = `${this.adjustDate.getFullYear()}-${String(
-          this.adjustDate.getMonth() + 1,
-        ).padStart(2, '0')}-${String(this.adjustDate.getDate()).padStart(2, '0')}`;
+        const formattedDate = toIsoDate(this.adjustDate);
         this.transactionsService
           .postLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId, {
             transactionDate: formattedDate,

@@ -57,7 +57,7 @@ describe('ProvisioningEntriesFormComponent', () => {
     serviceSpy.postProvisioningentries.and.returnValue(
       of({}) as unknown as ReturnType<ProvisioningEntriesService['postProvisioningentries']>,
     );
-    component.date = new Date('2026-06-15');
+    component.date = '2026-06-15';
     component.createjournalentries = true;
     component.onSubmit();
     expect(serviceSpy.postProvisioningentries).toHaveBeenCalled();

@@ -95,7 +95,7 @@ describe('OfficeFormComponent', () => {
         parentId: 1,
         externalId: 'extNew',
       };
-      component.openingDate = new Date(2026, 5, 15);
+      component.openingDate = '2026-06-15';
 
       component.onSubmit();
 
@@ -164,7 +164,7 @@ describe('OfficeFormComponent', () => {
       expect(component.office.name).toBe(TEST_OFFICE);
 
       officesServiceSpy.putOfficesOfficeId.and.returnValue(of({}) as unknown as Observable<never>);
-      component.openingDate = new Date(2026, 5, 16);
+      component.openingDate = '2026-06-16';
       component.onSubmit();
 
       expect(officesServiceSpy.putOfficesOfficeId).toHaveBeenCalledWith(

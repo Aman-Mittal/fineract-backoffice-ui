@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -70,8 +71,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -84,6 +83,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -123,29 +125,41 @@ import {
               ></ion-input>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.SUBMITTED_ON_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="submittedPicker"
-                name="submittedOnDate"
-                [(ngModel)]="submittedOnDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="submittedPicker"></mat-datepicker-toggle>
-              <mat-datepicker #submittedPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.SUBMITTED_ON_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="submittedOnDate-picker"
+                    data-testid="submittedOnDate-picker"
+                    presentation="date"
+                    name="submittedOnDate"
+                    [(ngModel)]="submittedOnDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.EXPECTED_DISBURSEMENT_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="disbursePicker"
-                name="expectedDisbursementDate"
-                [(ngModel)]="expectedDisbursementDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="disbursePicker"></mat-datepicker-toggle>
-              <mat-datepicker #disbursePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.EXPECTED_DISBURSEMENT_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="expectedDisbursementDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="expectedDisbursementDate-picker"
+                    data-testid="expectedDisbursementDate-picker"
+                    presentation="date"
+                    name="expectedDisbursementDate"
+                    [(ngModel)]="expectedDisbursementDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
@@ -285,8 +299,8 @@ export class WcLoanFormComponent implements OnInit {
   isSaving = false;
 
   loan: Partial<PostWorkingCapitalLoansRequest> = {};
-  submittedOnDate: Date | null = null;
-  expectedDisbursementDate: Date | null = null;
+  submittedOnDate: string | null = null;
+  expectedDisbursementDate: string | null = null;
 
   productOptions: GetWorkingCapitalLoanProductsResponse[] = [];
   breachOptions: GetWorkingCapitalLoanBreach[] = [];

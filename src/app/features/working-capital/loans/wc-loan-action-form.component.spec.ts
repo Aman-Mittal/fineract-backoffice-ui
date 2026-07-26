@@ -78,7 +78,7 @@ describe('WcLoanActionFormComponent', () => {
 
   it('should call postWorkingCapitalLoansLoanId for approve command', () => {
     createComponent('approve');
-    component.approvedOnDate = new Date('2026-01-15');
+    component.approvedOnDate = '2026-01-15';
     component.onSubmit();
     expect(loansSpy.postWorkingCapitalLoansLoanId).toHaveBeenCalledWith(
       42,
@@ -89,7 +89,7 @@ describe('WcLoanActionFormComponent', () => {
 
   it('should call postWorkingCapitalLoansLoanId for disburse command', () => {
     createComponent('disburse');
-    component.actualDisbursementDate = new Date('2026-01-20');
+    component.actualDisbursementDate = '2026-01-20';
     component.lifecycle.transactionAmount = 5000;
     component.onSubmit();
     expect(loansSpy.postWorkingCapitalLoansLoanId).toHaveBeenCalledWith(
@@ -101,7 +101,7 @@ describe('WcLoanActionFormComponent', () => {
 
   it('should call postWorkingCapitalLoanTransactions for repayment command', () => {
     createComponent('repayment');
-    component.transactionDate = new Date('2026-02-01');
+    component.transactionDate = '2026-02-01';
     component.repayment.transactionAmount = 1000;
     component.onSubmit();
     expect(txSpy.postWorkingCapitalLoansLoanIdTransactions).toHaveBeenCalledWith(

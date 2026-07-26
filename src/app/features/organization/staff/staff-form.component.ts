@@ -23,8 +23,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
@@ -33,9 +31,12 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
@@ -50,6 +51,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 @Component({
@@ -60,8 +62,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonInput,
     IonItem,
@@ -73,6 +73,9 @@ import {
     IonSelectOption,
     IonSelect,
     IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -147,18 +150,24 @@ import {
                 ></ion-input>
               </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACTIONS.ACTIVATION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="joiningPicker"
-                  name="joiningDate"
-                  [(ngModel)]="joiningDate"
-                  [disabled]="isEditMode"
-                />
-                <mat-datepicker-toggle matSuffix [for]="joiningPicker"></mat-datepicker-toggle>
-                <mat-datepicker #joiningPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'ACTIONS.ACTIVATION_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="joiningDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="joiningDate-picker"
+                      data-testid="joiningDate-picker"
+                      presentation="date"
+                      name="joiningDate"
+                      [(ngModel)]="joiningDate"
+                      [disabled]="isEditMode"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
             </div>
 
             <div class="checkbox-group">
@@ -229,7 +238,7 @@ export class StaffFormComponent implements OnInit {
   staffId?: number;
   isEditMode = false;
   offices = signal<GetOfficesResponse[]>([]);
-  joiningDate: Date = new Date();
+  joiningDate = toIsoDate(new Date());
 
   staff: Partial<StaffCreateRequest> = {
     officeId: undefined,
@@ -271,7 +280,7 @@ export class StaffFormComponent implements OnInit {
       };
       if (data.joiningDate) {
         const jd = data.joiningDate as unknown as number[];
-        this.joiningDate = new Date(jd[0], jd[1] - 1, jd[2]);
+        this.joiningDate = toIsoDate(new Date(jd[0], jd[1] - 1, jd[2]));
       }
     });
   }

@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
@@ -37,10 +35,13 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -56,6 +57,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 @Component({
@@ -66,8 +68,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
     HelpIconComponent,
     IonIcon,
@@ -83,6 +83,9 @@ import {
     IonSelectOption,
     IonSelect,
     IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -148,40 +151,42 @@ import {
               </div>
 
               <!-- Submitted On Date -->
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="subPicker"
-                  name="submittedOnDate"
-                  [(ngModel)]="submittedOnDate"
-                  required
-                  [disabled]="isEditMode"
-                />
-                <mat-datepicker-toggle matSuffix [for]="subPicker"></mat-datepicker-toggle>
-                <mat-datepicker #subPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
+                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="submittedOnDate-picker"
+                      data-testid="submittedOnDate-picker"
+                      presentation="date"
+                      name="submittedOnDate"
+                      [(ngModel)]="submittedOnDate"
+                      required
+                      [disabled]="isEditMode"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Activation Date -->
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.ACTIVATION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="activationDate"
-                  [(ngModel)]="activationDate"
-                  required
-                  [disabled]="isEditMode"
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.ACTIVATION_DATE' | translate }}</ion-label>
+                <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="activationDate-picker"
+                      data-testid="activationDate-picker"
+                      presentation="date"
+                      name="activationDate"
+                      [(ngModel)]="activationDate"
+                      required
+                      [disabled]="isEditMode"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Active -->
               <div class="checkbox-container">
@@ -222,20 +227,23 @@ import {
                   <ion-input name="lastname" [(ngModel)]="client.lastname" required></ion-input>
                 </ion-item>
 
-                <mat-form-field
-                  appearance="outline"
-                  [attr.title]="'HELP.DATE_OF_BIRTH_DESC' | translate"
-                >
-                  <mat-label>{{ 'CLIENTS.DATE_OF_BIRTH' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="dobPicker"
-                    name="dateOfBirth"
-                    [(ngModel)]="dateOfBirth"
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #dobPicker></mat-datepicker>
-                </mat-form-field>
+                <ion-item fill="outline" [attr.title]="'HELP.DATE_OF_BIRTH_DESC' | translate">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.DATE_OF_BIRTH' | translate
+                  }}</ion-label>
+                  <ion-datetime-button datetime="dateOfBirth-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="dateOfBirth-picker"
+                        data-testid="dateOfBirth-picker"
+                        presentation="date"
+                        name="dateOfBirth"
+                        [(ngModel)]="dateOfBirth"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
               }
 
               <!-- Common fields -->
@@ -348,9 +356,9 @@ export class ClientFormComponent implements OnInit {
     active: true,
   };
 
-  submittedOnDate: Date = new Date();
-  activationDate: Date = new Date();
-  dateOfBirth: Date | null = null;
+  submittedOnDate = toIsoDate(new Date());
+  activationDate = toIsoDate(new Date());
+  dateOfBirth: string | null = null;
   offices: GetOfficesResponse[] = [];
 
   ngOnInit() {
@@ -389,19 +397,25 @@ export class ClientFormComponent implements OnInit {
       const clientData = data as any;
       const actDateArray = clientData.activationDate as unknown as number[];
       if (actDateArray) {
-        this.activationDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
+        this.activationDate = toIsoDate(
+          new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]),
+        );
       }
 
       const subDateArray = clientData.submittedOnDate as unknown as number[];
       if (subDateArray) {
-        this.submittedOnDate = new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]);
+        this.submittedOnDate = toIsoDate(
+          new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]),
+        );
       } else if (actDateArray) {
-        this.submittedOnDate = new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]);
+        this.submittedOnDate = toIsoDate(
+          new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]),
+        );
       }
 
       const dobArray = clientData.dateOfBirth as unknown as number[];
       if (dobArray) {
-        this.dateOfBirth = new Date(dobArray[0], dobArray[1] - 1, dobArray[2]);
+        this.dateOfBirth = toIsoDate(new Date(dobArray[0], dobArray[1] - 1, dobArray[2]));
       }
 
       this.originalActive = !!clientData.active;

@@ -119,7 +119,7 @@ describe('StandingInstructionFormComponent', () => {
       component.request.toAccountId = '22';
       component.request.toAccountType = '2';
       component.request.amount = '100';
-      component.validFrom = new Date(2026, 5, 16);
+      component.validFrom = '2026-06-16';
 
       component.onSubmit();
 

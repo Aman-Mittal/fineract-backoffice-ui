@@ -24,23 +24,25 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonNote,
   IonSelect,
   IonSelectOption,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../../core/utils/date-formatter';
 import {
   RescheduleLoansService,
   PostCreateRescheduleLoansRequest,
@@ -62,8 +64,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -77,6 +77,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -150,32 +153,39 @@ import {
               </div>
 
               <!-- Submitted On Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>Submitted On Date</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="subPicker"
-                  name="submittedOnDate"
-                  [(ngModel)]="submittedOnDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="subPicker"></mat-datepicker-toggle>
-                <mat-datepicker #subPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Submitted On Date</ion-label>
+                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="submittedOnDate-picker"
+                      data-testid="submittedOnDate-picker"
+                      presentation="date"
+                      name="submittedOnDate"
+                      [(ngModel)]="submittedOnDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Adjusted Due Date (Optional) -->
-              <mat-form-field appearance="outline">
-                <mat-label>Adjusted Due Date (Optional)</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="adjPicker"
-                  name="adjustedDueDate"
-                  [(ngModel)]="adjustedDueDate"
-                />
-                <mat-datepicker-toggle matSuffix [for]="adjPicker"></mat-datepicker-toggle>
-                <mat-datepicker #adjPicker></mat-datepicker>
-                <mat-hint>New date for the rescheduled installment</mat-hint>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Adjusted Due Date (Optional)</ion-label>
+                <ion-datetime-button datetime="adjustedDueDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="adjustedDueDate-picker"
+                      data-testid="adjustedDueDate-picker"
+                      presentation="date"
+                      name="adjustedDueDate"
+                      [(ngModel)]="adjustedDueDate"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Comment -->
               <ion-item fill="outline" class="full-width">
@@ -296,8 +306,8 @@ export class RescheduleFormComponent implements OnInit {
     extraTerms: 0,
   };
   rescheduleFromDateString = '';
-  submittedOnDate = new Date();
-  adjustedDueDate: Date | null = null;
+  submittedOnDate = toIsoDate(new Date());
+  adjustedDueDate: string | null = null;
   reasons: Record<string, unknown>[] = [];
   unpaidInstallments: GetLoansLoanIdRepaymentPeriod[] = [];
 
@@ -374,15 +384,11 @@ export class RescheduleFormComponent implements OnInit {
 
     this.request.rescheduleFromDate = this.rescheduleFromDateString;
 
-    const formattedSubDate = `${this.submittedOnDate.getFullYear()}-${String(
-      this.submittedOnDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.submittedOnDate.getDate()).padStart(2, '0')}`;
+    const formattedSubDate = toIsoDate(this.submittedOnDate);
     this.request.submittedOnDate = formattedSubDate;
 
     if (this.adjustedDueDate) {
-      this.request.adjustedDueDate = `${this.adjustedDueDate.getFullYear()}-${String(
-        this.adjustedDueDate.getMonth() + 1,
-      ).padStart(2, '0')}-${String(this.adjustedDueDate.getDate()).padStart(2, '0')}`;
+      this.request.adjustedDueDate = toIsoDate(this.adjustedDueDate);
     } else {
       delete this.request.adjustedDueDate;
     }

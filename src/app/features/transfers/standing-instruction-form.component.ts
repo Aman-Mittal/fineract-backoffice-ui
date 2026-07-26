@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
@@ -50,6 +51,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 export interface MiniAccount {
@@ -66,8 +68,6 @@ export interface MiniAccount {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonInput,
     IonItem,
@@ -78,6 +78,9 @@ export interface MiniAccount {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -306,30 +309,38 @@ export interface MiniAccount {
                   ></ion-input>
                 </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.VALID_FROM' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="fromPicker"
-                    name="validFrom"
-                    [(ngModel)]="validFrom"
-                    required
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #fromPicker></mat-datepicker>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.VALID_FROM' | translate }}</ion-label>
+                  <ion-datetime-button datetime="validFrom-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="validFrom-picker"
+                        data-testid="validFrom-picker"
+                        presentation="date"
+                        name="validFrom"
+                        [(ngModel)]="validFrom"
+                        required
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.VALID_TILL' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="tillPicker"
-                    name="validTill"
-                    [(ngModel)]="validTill"
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="tillPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #tillPicker></mat-datepicker>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.VALID_TILL' | translate }}</ion-label>
+                  <ion-datetime-button datetime="validTill-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="validTill-picker"
+                        data-testid="validTill-picker"
+                        presentation="date"
+                        name="validTill"
+                        [(ngModel)]="validTill"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
               </div>
             </div>
 
@@ -406,7 +417,7 @@ export class StandingInstructionFormComponent implements OnInit {
   fromAccounts = signal<MiniAccount[]>([]);
   toAccounts = signal<MiniAccount[]>([]);
 
-  validFrom = new Date();
+  validFrom = toIsoDate(new Date());
   validTill?: Date;
 
   request: StandingInstructionCreationRequest = {
@@ -486,7 +497,7 @@ export class StandingInstructionFormComponent implements OnInit {
   private populateDates(data: GetStandingInstructionsStandingInstructionIdResponse): void {
     if (data.validFrom) {
       const vf = data.validFrom as unknown as number[];
-      this.validFrom = new Date(vf[0], vf[1] - 1, vf[2]);
+      this.validFrom = toIsoDate(new Date(vf[0], vf[1] - 1, vf[2]));
     }
     const rawData = data as unknown as Record<string, unknown>;
     if (rawData['validTill']) {

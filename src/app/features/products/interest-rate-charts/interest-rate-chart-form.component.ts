@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -46,6 +47,7 @@ import {
   formatArrayDate,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 /**
@@ -61,8 +63,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -72,6 +72,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -103,18 +106,24 @@ import {
             </ion-item>
 
             @if (!isEditMode) {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'INTEREST_RATE_CHARTS.FROM_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="fromDate"
-                  [(ngModel)]="fromDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'INTEREST_RATE_CHARTS.FROM_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="fromDate-picker"
+                      data-testid="fromDate-picker"
+                      presentation="date"
+                      name="fromDate"
+                      [(ngModel)]="fromDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
             }
 
             <div class="form-actions">
@@ -163,7 +172,7 @@ export class InterestRateChartFormComponent implements OnInit {
 
   name = '';
   description = '';
-  fromDate: Date = new Date();
+  fromDate = toIsoDate(new Date());
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -183,8 +192,8 @@ export class InterestRateChartFormComponent implements OnInit {
       this.name = (data['name'] as string | undefined) ?? '';
       this.description = (data['description'] as string | undefined) ?? '';
       this.fromDate = data['fromDate']
-        ? new Date(formatArrayDate(data['fromDate'] as string))
-        : new Date();
+        ? toIsoDate(new Date(formatArrayDate(data['fromDate'] as string)))
+        : toIsoDate(new Date());
     });
   }
 

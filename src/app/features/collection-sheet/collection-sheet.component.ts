@@ -23,15 +23,17 @@ import { JsonPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   CollectionSheetService,
   OfficesService,
   CollectionSheetRequest,
   PostCollectionSheetResponse,
 } from '../../api';
-import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/date-formatter';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  toIsoDate,
+} from '../../core/utils/date-formatter';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -39,9 +41,12 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -56,8 +61,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -69,6 +72,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <ion-card>
@@ -93,18 +99,22 @@ import {
               </ion-select>
             </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'COLLECTION_SHEET.DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="transactionDate"
-                [(ngModel)]="transactionDate"
-                required
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'COLLECTION_SHEET.DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="transactionDate-picker"
+                    data-testid="transactionDate-picker"
+                    presentation="date"
+                    name="transactionDate"
+                    [(ngModel)]="transactionDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.STAFF' | translate }}</ion-label>
@@ -174,7 +184,7 @@ export class CollectionSheetComponent implements OnInit {
   generated = false;
   isLoading = false;
   collectionData: PostCollectionSheetResponse | null = null;
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   staffId: number | null = null;
   request: CollectionSheetRequest = { locale: 'en' };
 

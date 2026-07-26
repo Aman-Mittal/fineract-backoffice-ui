@@ -23,8 +23,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { CalendarService, CalendarRequest, EnumOptionData } from '../../api';
 import {
   IonButton,
@@ -32,17 +30,21 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 /**
@@ -58,8 +60,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -71,6 +71,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -88,18 +91,22 @@ import {
               <ion-input name="title" [(ngModel)]="title" required></ion-input>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CALENDARS.START_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="startDate"
-                [(ngModel)]="startDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CALENDARS.START_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="startDate-picker"
+                    data-testid="startDate-picker"
+                    presentation="date"
+                    name="startDate"
+                    [(ngModel)]="startDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CALENDARS.TYPE' | translate }}</ion-label>
@@ -159,7 +166,7 @@ export class CalendarFormComponent implements OnInit {
   isSaving = false;
 
   title = '';
-  startDate: Date | null = null;
+  startDate: string | null = null;
   typeId: string | null = null;
   typeOptions: EnumOptionData[] = [];
 
@@ -187,7 +194,7 @@ export class CalendarFormComponent implements OnInit {
       .getEntityTypeEntityIdCalendarsCalendarId(this.calendarId, this.entityType, this.entityId)
       .subscribe((data) => {
         this.title = data.title ?? '';
-        this.startDate = data.startDate ? new Date(data.startDate) : null;
+        this.startDate = data.startDate ? toIsoDate(new Date(data.startDate)) : null;
         this.typeId = data.typeId ?? (data.type?.id != null ? String(data.type.id) : null);
       });
   }

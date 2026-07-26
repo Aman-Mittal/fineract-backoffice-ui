@@ -25,21 +25,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { GuarantorsService, GuarantorsRequest, EnumOptionData } from '../../../api';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -58,8 +60,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -71,6 +71,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -142,12 +145,21 @@ import {
               <ion-input type="number" name="amount" [(ngModel)]="guarantor.amount"></ion-input>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.DOB' | translate }}</mat-label>
-              <input matInput [matDatepicker]="dobPicker" name="dobDate" [(ngModel)]="dobDate" />
-              <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-              <mat-datepicker #dobPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.DOB' | translate }}</ion-label>
+              <ion-datetime-button datetime="dobDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="dobDate-picker"
+                    data-testid="dobDate-picker"
+                    presentation="date"
+                    name="dobDate"
+                    [(ngModel)]="dobDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -198,7 +210,7 @@ export class GuarantorFormComponent implements OnInit {
 
   guarantor: GuarantorsRequest = {};
   guarantorTypeOptions: EnumOptionData[] = [];
-  dobDate: Date | null = null;
+  dobDate: string | null = null;
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
@@ -234,8 +246,8 @@ export class GuarantorFormComponent implements OnInit {
         if (data.dob) {
           const dob = data.dob as unknown as number[];
           this.dobDate = Array.isArray(dob)
-            ? new Date(dob[0], dob[1] - 1, dob[2])
-            : new Date(data.dob);
+            ? toIsoDate(new Date(dob[0], dob[1] - 1, dob[2]))
+            : toIsoDate(new Date(data.dob));
         }
       });
   }

@@ -23,19 +23,21 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
+import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonTextarea,
@@ -50,8 +52,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonInput,
     IonTextarea,
@@ -63,6 +63,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -103,17 +106,21 @@ import {
               <ion-textarea name="emailMessage" [(ngModel)]="emailMessage" rows="5"></ion-textarea>
             </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.SCHEDULE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="schedulePicker"
-                name="scheduledStartDate"
-                [(ngModel)]="scheduledStartDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="schedulePicker"></mat-datepicker-toggle>
-              <mat-datepicker #schedulePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.SCHEDULE' | translate }}</ion-label>
+              <ion-datetime-button datetime="scheduledStartDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="scheduledStartDate-picker"
+                    data-testid="scheduledStartDate-picker"
+                    presentation="date"
+                    name="scheduledStartDate"
+                    [(ngModel)]="scheduledStartDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
@@ -175,7 +182,7 @@ export class EmailCampaignFormComponent implements OnInit {
   campaignType: number | null = null;
   emailSubject = '';
   emailMessage = '';
-  scheduledStartDate: Date | null = null;
+  scheduledStartDate: string | null = null;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -221,7 +228,7 @@ export class EmailCampaignFormComponent implements OnInit {
           this.emailSubject = parsed?.emailSubject ?? '';
           this.emailMessage = parsed?.emailMessage ?? '';
           if (parsed?.recurrenceStartDate) {
-            this.scheduledStartDate = new Date(parsed.recurrenceStartDate);
+            this.scheduledStartDate = toIsoDate(new Date(parsed.recurrenceStartDate));
           }
         } catch {
           console.error('Failed to parse email campaign data');
@@ -232,24 +239,6 @@ export class EmailCampaignFormComponent implements OnInit {
         this.notifications.error('Failed to load campaign data');
       },
     });
-  }
-
-  private formatDate(date: Date): string {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   }
 
   onSubmit(): void {
@@ -265,7 +254,7 @@ export class EmailCampaignFormComponent implements OnInit {
     };
 
     if (this.scheduledStartDate) {
-      payload['recurrenceStartDate'] = this.formatDate(this.scheduledStartDate);
+      payload['recurrenceStartDate'] = formatDateToFineract(this.scheduledStartDate);
     }
 
     const body = JSON.stringify(payload);

@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -46,6 +47,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 /**
@@ -61,8 +63,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -74,6 +74,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -86,18 +89,24 @@ import {
 
         <ion-card-content>
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="rd-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'RECURRING_DEPOSIT_TRANSACTIONS.DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="transactionDate"
-                [(ngModel)]="transactionDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'RECURRING_DEPOSIT_TRANSACTIONS.DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="transactionDate-picker"
+                    data-testid="transactionDate-picker"
+                    presentation="date"
+                    name="transactionDate"
+                    [(ngModel)]="transactionDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{
@@ -167,7 +176,7 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
   accountId!: number;
   isSaving = false;
 
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   transactionAmount: number | null = null;
   paymentTypeId: number | null = null;
   paymentTypeOptions: number[] = [];

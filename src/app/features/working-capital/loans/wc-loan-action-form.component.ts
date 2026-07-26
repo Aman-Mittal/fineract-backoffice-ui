@@ -23,17 +23,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
@@ -44,9 +45,10 @@ import {
   PostWorkingCapitalLoanTransactionsRequest,
 } from '../../../api';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 /**
@@ -62,8 +64,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -74,6 +74,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -85,18 +88,24 @@ import {
         <ion-card-content>
           <form #actionForm="ngForm" (ngSubmit)="onSubmit()" class="wc-form">
             @if (command === 'approve') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'WC_LOANS.ACTIONS.APPROVED_ON_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="approvePicker"
-                  name="approvedOnDate"
-                  [(ngModel)]="approvedOnDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="approvePicker"></mat-datepicker-toggle>
-                <mat-datepicker #approvePicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.APPROVED_ON_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="approvedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="approvedOnDate-picker"
+                      data-testid="approvedOnDate-picker"
+                      presentation="date"
+                      name="approvedOnDate"
+                      [(ngModel)]="approvedOnDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.APPROVED_AMOUNT' | translate
@@ -110,34 +119,43 @@ import {
             }
 
             @if (command === 'disburse') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate
-                }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="expectedDisbursePicker"
-                  name="expectedDisbursementDate"
-                  [(ngModel)]="expectedDisbursementDate"
-                />
-                <mat-datepicker-toggle
-                  matSuffix
-                  [for]="expectedDisbursePicker"
-                ></mat-datepicker-toggle>
-                <mat-datepicker #expectedDisbursePicker></mat-datepicker>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'WC_LOANS.ACTIONS.ACTUAL_DISBURSEMENT_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="disbursePicker"
-                  name="actualDisbursementDate"
-                  [(ngModel)]="actualDisbursementDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="disbursePicker"></mat-datepicker-toggle>
-                <mat-datepicker #disbursePicker></mat-datepicker>
-              </mat-form-field>
+                }}</ion-label>
+                <ion-datetime-button
+                  datetime="expectedDisbursementDate-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="expectedDisbursementDate-picker"
+                      data-testid="expectedDisbursementDate-picker"
+                      presentation="date"
+                      name="expectedDisbursementDate"
+                      [(ngModel)]="expectedDisbursementDate"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.ACTUAL_DISBURSEMENT_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="actualDisbursementDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="actualDisbursementDate-picker"
+                      data-testid="actualDisbursementDate-picker"
+                      presentation="date"
+                      name="actualDisbursementDate"
+                      [(ngModel)]="actualDisbursementDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | translate
@@ -162,33 +180,45 @@ import {
             }
 
             @if (command === 'reject') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'WC_LOANS.ACTIONS.REJECTED_ON_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="rejectPicker"
-                  name="rejectedOnDate"
-                  [(ngModel)]="rejectedOnDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="rejectPicker"></mat-datepicker-toggle>
-                <mat-datepicker #rejectPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.REJECTED_ON_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="rejectedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="rejectedOnDate-picker"
+                      data-testid="rejectedOnDate-picker"
+                      presentation="date"
+                      name="rejectedOnDate"
+                      [(ngModel)]="rejectedOnDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
             }
 
             @if (command === 'repayment') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'WC_LOANS.ACTIONS.TRANSACTION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="repayPicker"
-                  name="transactionDate"
-                  [(ngModel)]="transactionDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="repayPicker"></mat-datepicker-toggle>
-                <mat-datepicker #repayPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.TRANSACTION_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="transactionDate-picker"
+                      data-testid="transactionDate-picker"
+                      presentation="date"
+                      name="transactionDate"
+                      [(ngModel)]="transactionDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | translate
@@ -265,11 +295,11 @@ export class WcLoanActionFormComponent implements OnInit {
     locale: FINERACT_LOCALE,
   };
 
-  approvedOnDate: Date | null = null;
-  expectedDisbursementDate: Date | null = null;
-  actualDisbursementDate: Date | null = null;
-  rejectedOnDate: Date | null = null;
-  transactionDate: Date | null = new Date();
+  approvedOnDate: string | null = null;
+  expectedDisbursementDate: string | null = null;
+  actualDisbursementDate: string | null = null;
+  rejectedOnDate: string | null = null;
+  transactionDate: string | null = toIsoDate(new Date());
 
   get title(): string {
     const map: Record<string, string> = {

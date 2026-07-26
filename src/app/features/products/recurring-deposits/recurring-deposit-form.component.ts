@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -36,10 +34,13 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -55,6 +56,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 /**
@@ -71,8 +73,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
     ClientSearchComponent,
     IonIcon,
@@ -88,6 +88,9 @@ import {
     IonSelectOption,
     IonSelect,
     IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -183,21 +186,22 @@ import {
               </ion-item>
 
               <!-- Submitted On -->
-              <mat-form-field
-                appearance="outline"
-                [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="submittedOnDate"
-                  [(ngModel)]="submittedOnDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
+                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="submittedOnDate-picker"
+                      data-testid="submittedOnDate-picker"
+                      presentation="date"
+                      name="submittedOnDate"
+                      [(ngModel)]="submittedOnDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Deposit Period -->
               <ion-item fill="outline" [attr.title]="'HELP.DEPOSIT_PERIOD_DESC' | translate">
@@ -378,7 +382,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   };
   isCalendarInherited = false;
   /** Submitted date for template binding */
-  submittedOnDate: Date = new Date();
+  submittedOnDate = toIsoDate(new Date());
   /** Available products list */
   products: GetRecurringProductOptions[] = [];
 
@@ -454,7 +458,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
       next: (data: GetRecurringDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
-          this.submittedOnDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+          this.submittedOnDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
         }
         this.account = {
           clientId: data.clientId,

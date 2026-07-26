@@ -54,7 +54,7 @@ describe('RunAccrualsComponent', () => {
       of({}) as unknown as ReturnType<PeriodicAccrualAccountingService['postRunaccruals']>,
     );
 
-    component.tillDate = new Date(2026, 0, 15);
+    component.tillDate = '2026-01-15';
     component.onSubmit();
 
     expect(serviceSpy.postRunaccruals).toHaveBeenCalled();

@@ -25,8 +25,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   IonButton,
   IonCard,
@@ -34,13 +32,17 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 import {
   CentersService,
   OfficesService,
@@ -66,8 +68,6 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -80,6 +80,9 @@ import {
     IonSelectOption,
     IonSelect,
     IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -120,21 +123,24 @@ import {
 
               <!-- Activation Date -->
               @if (!isEditMode) {
-                <mat-form-field
-                  appearance="outline"
-                  [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate"
-                >
-                  <mat-label>{{ 'COMMON.ACTIVATION_DATE' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="picker"
-                    name="activationDate"
-                    [(ngModel)]="activationDate"
-                    [required]="!!center.active"
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                  <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
+                <ion-item fill="outline" [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate">
+                  <ion-label position="stacked">{{
+                    'COMMON.ACTIVATION_DATE' | translate
+                  }}</ion-label>
+                  <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="activationDate-picker"
+                        data-testid="activationDate-picker"
+                        presentation="date"
+                        name="activationDate"
+                        [(ngModel)]="activationDate"
+                        required
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
               }
 
               <!-- Active -->
@@ -232,7 +238,7 @@ export class CenterFormComponent implements OnInit {
     active: true,
   };
 
-  activationDate: Date = new Date();
+  activationDate = toIsoDate(new Date());
   offices: GetOfficesResponse[] = [];
 
   ngOnInit(): void {
@@ -269,9 +275,7 @@ export class CenterFormComponent implements OnInit {
     if (!this.centerId || !this.activationDate) return;
     this.isSaving = true;
 
-    const formattedDate = `${this.activationDate.getFullYear()}-${String(
-      this.activationDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.activationDate);
 
     const payload = {
       activationDate: formattedDate,
@@ -303,9 +307,7 @@ export class CenterFormComponent implements OnInit {
         error: () => (this.isSaving = false),
       });
     } else {
-      const formattedDate = `${this.activationDate.getFullYear()}-${String(
-        this.activationDate.getMonth() + 1,
-      ).padStart(2, '0')}-${String(this.activationDate.getDate()).padStart(2, '0')}`;
+      const formattedDate = toIsoDate(this.activationDate);
 
       // Assert as Record to include mandatory undocumented fields for activation
       const payload: Record<string, unknown> = {

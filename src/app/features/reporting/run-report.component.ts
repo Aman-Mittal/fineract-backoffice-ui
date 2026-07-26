@@ -32,6 +32,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 import { PageEvent } from '../../shared/models/table.model';
+import { toIsoDate } from '../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
@@ -237,12 +238,8 @@ export class RunReportComponent implements OnInit {
 
   onDownloadCSV(): void {
     this.isLoading = true;
-    const formattedFrom = this.fromDate
-      ? `${this.fromDate.getFullYear()}-${String(this.fromDate.getMonth() + 1).padStart(2, '0')}-${String(this.fromDate.getDate()).padStart(2, '0')}`
-      : undefined;
-    const formattedTo = this.toDate
-      ? `${this.toDate.getFullYear()}-${String(this.toDate.getMonth() + 1).padStart(2, '0')}-${String(this.toDate.getDate()).padStart(2, '0')}`
-      : undefined;
+    const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
+    const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
     this.runReportsService
       .getRunreportsReportName(
@@ -282,12 +279,8 @@ export class RunReportComponent implements OnInit {
 
   onRun(): void {
     this.isLoading = true;
-    const formattedFrom = this.fromDate
-      ? `${this.fromDate.getFullYear()}-${String(this.fromDate.getMonth() + 1).padStart(2, '0')}-${String(this.fromDate.getDate()).padStart(2, '0')}`
-      : undefined;
-    const formattedTo = this.toDate
-      ? `${this.toDate.getFullYear()}-${String(this.toDate.getMonth() + 1).padStart(2, '0')}-${String(this.toDate.getDate()).padStart(2, '0')}`
-      : undefined;
+    const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
+    const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
     this.runReportsService
       .getRunreportsReportName(

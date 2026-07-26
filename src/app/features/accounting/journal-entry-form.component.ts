@@ -24,8 +24,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   JournalEntriesService,
   JournalEntryCommand,
@@ -45,15 +43,19 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 
 /**
  * Component for creating manual accounting journal entries.
@@ -68,8 +70,6 @@ import {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     HelpIconComponent,
     IonIcon,
     IonButton,
@@ -84,6 +84,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -121,18 +124,22 @@ import {
               </ion-item>
 
               <!-- Transaction Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>Transaction Date</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="transactionDate"
-                  [(ngModel)]="transactionDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Transaction Date</ion-label>
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="transactionDate-picker"
+                      data-testid="transactionDate-picker"
+                      presentation="date"
+                      name="transactionDate"
+                      [(ngModel)]="transactionDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Reference Number -->
               <ion-item fill="outline">
@@ -321,7 +328,7 @@ export class JournalEntryFormComponent implements OnInit {
     referenceNumber: '',
   };
 
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   debits: SingleDebitOrCreditEntryCommand[] = [{ glAccountId: undefined, amount: 0 }];
   credits: SingleDebitOrCreditEntryCommand[] = [{ glAccountId: undefined, amount: 0 }];
 
@@ -370,9 +377,7 @@ export class JournalEntryFormComponent implements OnInit {
   onSubmit() {
     this.isSaving = true;
 
-    const formattedDate = `${this.transactionDate.getFullYear()}-${String(
-      this.transactionDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.transactionDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.transactionDate);
 
     this.command.transactionDate = formattedDate;
     this.command.dateFormat = 'yyyy-MM-dd';

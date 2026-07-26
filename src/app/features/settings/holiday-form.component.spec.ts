@@ -93,11 +93,11 @@ describe('HolidayFormComponent', () => {
       name: 'Christmas',
       description: 'Merry Christmas',
     };
-    component.fromDate = new Date(2026, 11, 25);
-    component.toDate = new Date(2026, 11, 26);
+    component.fromDate = '2026-12-25';
+    component.toDate = '2026-12-26';
     component.selectedOfficeIds = [1];
     component.reschedulingType = 2;
-    component.repaymentsRescheduledTo = new Date(2026, 11, 28);
+    component.repaymentsRescheduledTo = '2026-12-28';
 
     component.onSubmit();
 

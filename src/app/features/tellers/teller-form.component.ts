@@ -22,6 +22,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { toIsoDate } from '../../core/utils/date-formatter';
 import {
   IonCard,
   IonCardHeader,
@@ -353,7 +354,7 @@ export class TellerFormComponent implements OnInit {
    */
   onSubmit(): void {
     this.isSaving = true;
-    const formattedDate = `${this.startDate.getFullYear()}-${String(this.startDate.getMonth() + 1).padStart(2, '0')}-${String(this.startDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.startDate);
 
     if (this.isEditMode && this.tellerId) {
       const payload: Record<string, unknown> = {

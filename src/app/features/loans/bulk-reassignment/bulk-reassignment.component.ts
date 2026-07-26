@@ -23,8 +23,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { BulkLoansService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -33,8 +31,11 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -77,8 +78,6 @@ interface ReassignmentTemplate {
     TranslateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonButton,
     IonSpinner,
     IonItem,
@@ -89,6 +88,9 @@ interface ReassignmentTemplate {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -135,18 +137,24 @@ interface ReassignmentTemplate {
               </ion-select>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'BULK_REASSIGNMENT.ASSIGNMENT_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="assignmentDate"
-                [(ngModel)]="assignmentDate"
-                required
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'BULK_REASSIGNMENT.ASSIGNMENT_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="assignmentDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="assignmentDate-picker"
+                    data-testid="assignmentDate-picker"
+                    presentation="date"
+                    name="assignmentDate"
+                    [(ngModel)]="assignmentDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
@@ -197,7 +205,7 @@ export class BulkReassignmentComponent implements OnInit {
   officeId: number | null = null;
   fromLoanOfficerId: number | null = null;
   toLoanOfficerId: number | null = null;
-  assignmentDate: Date | null = null;
+  assignmentDate: string | null = null;
 
   officeOptions: ReassignmentOption[] = [];
   loanOfficerOptions: ReassignmentOption[] = [];
