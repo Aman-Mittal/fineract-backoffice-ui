@@ -38,6 +38,7 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ConfigService } from './core/services/config.service';
 import { CustomPaginatorIntl } from './core/utils/custom-paginator-intl';
+import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { BASE_PATH } from './api/variables';
 
@@ -50,6 +51,7 @@ export function initializeApp(configService: ConfigService) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideIonicAngular({ mode: 'md' }),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),

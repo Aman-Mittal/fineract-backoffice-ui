@@ -219,8 +219,7 @@ export class ReportMailingJobsListComponent implements OnInit {
         const historyList = Array.isArray(data)
           ? data
           : (((data as Record<string, unknown>)?.[`pageItems`] as
-              | ReportMailingJobRunHistoryData[]
-              | undefined) ?? []);
+              ReportMailingJobRunHistoryData[] | undefined) ?? []);
         this.runHistory.set(historyList);
         this.historyLoaded = true;
         this.historyLoading = false;

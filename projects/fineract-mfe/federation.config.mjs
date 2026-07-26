@@ -40,6 +40,13 @@ export default withNativeFederation({
             build: 'package',
             includeSecondaries: { keepAll: true },
           },
+          '@ionic/angular': {
+            singleton: true,
+            strictVersion: true,
+            requiredVersion: 'auto',
+            build: 'package',
+            includeSecondaries: { keepAll: true },
+          },
         },
       },
     ),
