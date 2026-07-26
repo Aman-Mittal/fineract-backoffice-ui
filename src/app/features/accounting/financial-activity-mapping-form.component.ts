@@ -150,8 +150,7 @@ export class FinancialActivityMappingFormComponent implements OnInit {
       .subscribe((mapping) => {
         const mappingData = mapping as Record<string, unknown>;
         const financialActivityData = mappingData['financialActivityData'] as
-          | Record<string, unknown>
-          | undefined;
+          Record<string, unknown> | undefined;
         const glAccountData = mappingData['glAccountData'] as Record<string, unknown> | undefined;
         this.mappingForm.patchValue({
           financialActivityId: financialActivityData?.['id'],
