@@ -27,6 +27,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 jobs:
   e2e:
@@ -125,35 +126,39 @@ jobs:
         if: always() && github.event_name == 'pull_request'
         with:
           script: |
-            const runId = context.runId;
-            const repo = context.repo;
-            const prNumber = context.payload.pull_request.number;
+            try {
+              const runId = context.runId;
+              const repo = context.repo;
+              const prNumber = context.payload.pull_request.number;
 
-            const commentBody = `### 🎭 Playwright E2E Test Report
+              const commentBody = `### 🎭 Playwright E2E Test Report
 
-            The Playwright E2E test suite has finished. You can download the full HTML test report along with recorded runs/videos from the workflow artifacts:
+              The Playwright E2E test suite has finished. You can download the full HTML test report along with recorded runs/videos from the workflow artifacts:
 
-            🔗 [Download Playwright E2E Report & Videos](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})`;
+              🔗 [Download Playwright E2E Report & Videos](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})`;
 
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: repo.owner,
-              repo: repo.repo,
-              issue_number: prNumber,
-            });
-            const botComment = comments.find(comment => comment.body.includes('### 🎭 Playwright E2E Test Report'));
-
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: repo.owner,
-                repo: repo.repo,
-                comment_id: botComment.id,
-                body: commentBody
-              });
-            } else {
-              await github.rest.issues.createComment({
+              const { data: comments } = await github.rest.issues.listComments({
                 owner: repo.owner,
                 repo: repo.repo,
                 issue_number: prNumber,
-                body: commentBody
               });
+              const botComment = comments.find(comment => comment.body.includes('### 🎭 Playwright E2E Test Report'));
+
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: repo.owner,
+                  repo: repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: repo.owner,
+                  repo: repo.repo,
+                  issue_number: prNumber,
+                  body: commentBody
+                });
+              }
+            } catch (error) {
+              console.warn('Unable to post PR comment due to permissions or environment constraints:', error.message);
             }
