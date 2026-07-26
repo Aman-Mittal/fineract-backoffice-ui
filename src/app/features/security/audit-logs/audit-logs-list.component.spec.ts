@@ -20,23 +20,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AuditLogsListComponent } from './audit-logs-list.component';
 import { AuditsService } from '../../../api';
-import { MatDialog } from '@angular/material/dialog';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
+import { provideIonicTesting } from '../../../testing/ionic-testing';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('AuditLogsListComponent', () => {
   let component: AuditLogsListComponent;
   let fixture: ComponentFixture<AuditLogsListComponent>;
   let auditsServiceSpy: jasmine.SpyObj<AuditsService>;
-  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let dialogSpy: jasmine.SpyObj<DialogService>;
 
   const MOCK_PAYLOAD = '{"key":"value"}';
 
   beforeEach(async () => {
     auditsServiceSpy = jasmine.createSpyObj('AuditsService', ['getAudits']);
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
 
     const mockResponse = {
       pageItems: [
@@ -61,14 +62,15 @@ describe('AuditLogsListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AuditLogsListComponent, TranslateModule.forRoot()],
       providers: [
+        provideIonicTesting(),
         { provide: AuditsService, useValue: auditsServiceSpy },
-        { provide: MatDialog, useValue: dialogSpy },
+        { provide: DialogService, useValue: dialogSpy },
         provideNoopAnimations(),
       ],
     })
       .overrideComponent(AuditLogsListComponent, {
         add: {
-          providers: [{ provide: MatDialog, useValue: dialogSpy }],
+          providers: [{ provide: DialogService, useValue: dialogSpy }],
         },
       })
       .compileComponents();
@@ -116,21 +118,20 @@ describe('AuditLogsListComponent', () => {
     expect(component.pageIndex()).toBe(0);
   });
 
-  it('should open details dialog', () => {
+  it('should open details dialog', async () => {
     fixture.detectChanges();
 
     const mockRow = {
       id: 1,
       commandAsJson: MOCK_PAYLOAD,
     };
-    component.onViewDetails(mockRow);
+    dialogSpy.open.and.resolveTo(undefined);
+
+    await component.onViewDetails(mockRow);
 
     expect(dialogSpy.open).toHaveBeenCalledWith(
       jasmine.any(Function),
-      jasmine.objectContaining({
-        width: '600px',
-        data: { payload: MOCK_PAYLOAD },
-      }),
+      jasmine.objectContaining({ data: { payload: MOCK_PAYLOAD } }),
     );
   });
 });

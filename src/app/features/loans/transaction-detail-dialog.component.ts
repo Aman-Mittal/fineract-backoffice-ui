@@ -17,10 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import {
   LoanTransactionsService,
@@ -37,6 +36,7 @@ import {
   IonLabel,
   IonModal,
   IonTextarea,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../core/utils/date-formatter';
 
@@ -58,7 +58,6 @@ const DATE_FORMAT = 'yyyy-MM-dd';
   imports: [
     FormsModule,
     TranslateModule,
-    MatDialogModule,
     DecimalPipe,
     IonIcon,
     IonButton,
@@ -71,8 +70,8 @@ const DATE_FORMAT = 'yyyy-MM-dd';
     IonModal,
   ],
   template: `
-    <h2 mat-dialog-title>{{ 'LOANS.TRANSACTION_DETAILS' | translate }}</h2>
-    <mat-dialog-content>
+    <h2 class="dialog-title">{{ 'LOANS.TRANSACTION_DETAILS' | translate }}</h2>
+    <div class="dialog-content">
       @if (detail(); as tx) {
         <table class="detail-table">
           <tr>
@@ -174,9 +173,9 @@ const DATE_FORMAT = 'yyyy-MM-dd';
       } @else {
         <p>{{ 'COMMON.LOADING' | translate }}</p>
       }
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <ion-button fill="clear" (click)="dialogRef.close(false)">{{
+    </div>
+    <div class="dialog-actions">
+      <ion-button fill="clear" (click)="modalController.dismiss(false)">{{
         'COMMON.CLOSE' | translate
       }}</ion-button>
       @if (showAdjustForm()) {
@@ -184,7 +183,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | translate }}
         </ion-button>
       }
-    </mat-dialog-actions>
+    </div>
   `,
   styles: [
     `
@@ -225,7 +224,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
   ],
 })
 export class TransactionDetailDialogComponent implements OnInit {
-  readonly dialogRef = inject(MatDialogRef<TransactionDetailDialogComponent>);
+  readonly modalController = inject(ModalController);
   private readonly transactionsService = inject(LoanTransactionsService);
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
@@ -238,7 +237,7 @@ export class TransactionDetailDialogComponent implements OnInit {
   adjustAmount = 0;
   adjustNote = '';
 
-  readonly data: TransactionDetailDialogData = inject(MAT_DIALOG_DATA);
+  @Input({ required: true }) data!: TransactionDetailDialogData;
 
   ngOnInit(): void {
     this.transactionsService
@@ -299,7 +298,7 @@ export class TransactionDetailDialogComponent implements OnInit {
           .subscribe({
             next: () => {
               this.isSaving.set(false);
-              this.dialogRef.close(true);
+              this.modalController.dismiss(true);
             },
             error: (err) => {
               console.error('Failed to adjust transaction', err);

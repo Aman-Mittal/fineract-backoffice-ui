@@ -23,11 +23,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HolidaysListComponent } from './holidays-list.component';
 import { HolidaysService, OfficesService, GetHolidaysResponse } from '../../api';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../core/services/notification.service';
+
+import { provideIonicTesting } from '../../testing/ionic-testing';
+import { DialogService } from '../../core/services/dialog.service';
 
 describe('HolidaysListComponent', () => {
   let component: HolidaysListComponent;
@@ -35,7 +37,7 @@ describe('HolidaysListComponent', () => {
   let holidaysServiceSpy: jasmine.SpyObj<HolidaysService>;
   let officesServiceSpy: jasmine.SpyObj<OfficesService>;
   let routerSpy: jasmine.SpyObj<Router>;
-  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let dialogSpy: jasmine.SpyObj<DialogService>;
   let notificationsSpy: jasmine.SpyObj<NotificationService>;
 
   beforeEach(async () => {
@@ -45,7 +47,7 @@ describe('HolidaysListComponent', () => {
     ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
     notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
       'success',
       'error',
@@ -60,10 +62,11 @@ describe('HolidaysListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HolidaysListComponent, TranslateModule.forRoot()],
       providers: [
+        provideIonicTesting(),
         { provide: HolidaysService, useValue: holidaysServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: MatDialog, useValue: dialogSpy },
+        { provide: DialogService, useValue: dialogSpy },
         { provide: NotificationService, useValue: notificationsSpy },
         provideNoopAnimations(),
       ],
@@ -71,7 +74,7 @@ describe('HolidaysListComponent', () => {
       .overrideComponent(HolidaysListComponent, {
         add: {
           providers: [
-            { provide: MatDialog, useValue: dialogSpy },
+            { provide: DialogService, useValue: dialogSpy },
             { provide: NotificationService, useValue: notificationsSpy },
           ],
         },
@@ -121,43 +124,43 @@ describe('HolidaysListComponent', () => {
     expect(component.formatArrayDate(null)).toBe('-');
   });
 
-  it('should activate holiday on dialog confirmation', () => {
+  it('should activate holiday on dialog confirmation', async () => {
     fixture.detectChanges();
     const holiday = {
       id: 10,
       name: 'Holiday to activate',
       status: { code: 'holidayStatusType.pending.for.activation' },
     };
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(true));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+    const modalControllerSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    modalControllerSpy.afterClosed.and.returnValue(of(true));
+    dialogSpy.open.and.resolveTo(true);
     holidaysServiceSpy.postHolidaysHolidayId.and.returnValue(
       of({}) as unknown as Observable<never>,
     );
 
-    component.onActivateHoliday(holiday);
+    await component.onActivateHoliday(holiday);
 
     expect(dialogSpy.open).toHaveBeenCalled();
     expect(holidaysServiceSpy.postHolidaysHolidayId).toHaveBeenCalledWith(10, {}, 'activate');
     expect(notificationsSpy.success).toHaveBeenCalledWith('Holiday activated successfully');
   });
 
-  it('should handle activation error', () => {
+  it('should handle activation error', async () => {
     fixture.detectChanges();
     const holiday = {
       id: 10,
       name: 'Holiday to activate',
       status: { code: 'holidayStatusType.pending.for.activation' },
     };
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(true));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+    const modalControllerSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    modalControllerSpy.afterClosed.and.returnValue(of(true));
+    dialogSpy.open.and.resolveTo(true);
     holidaysServiceSpy.postHolidaysHolidayId.and.returnValue(
       throwError(() => new Error('Error')) as unknown as Observable<never>,
     );
     spyOn(console, 'error');
 
-    component.onActivateHoliday(holiday);
+    await component.onActivateHoliday(holiday);
 
     expect(console.error).toHaveBeenCalled();
     expect(notificationsSpy.error).toHaveBeenCalledWith('Failed to activate holiday');

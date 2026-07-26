@@ -22,7 +22,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -1140,7 +1139,6 @@ export class LoanViewComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
@@ -1442,18 +1440,18 @@ export class LoanViewComponent implements OnInit {
   }
 
   onViewTransaction(tx: GetLoansLoanIdTransactions): void {
-    const dialogRef = this.dialog.open(TransactionDetailDialogComponent, {
-      width: '480px',
-      data: {
-        loanId: this.loanId,
-        transactionId: tx.id,
-        currencySymbol: this.loan()?.currency?.displaySymbol,
-        adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
-      },
-    });
-    dialogRef.afterClosed().subscribe((adjusted) => {
-      if (adjusted) this.loadLoanData();
-    });
+    this.dialogService
+      .open(TransactionDetailDialogComponent, {
+        data: {
+          loanId: this.loanId,
+          transactionId: tx.id,
+          currencySymbol: this.loan()?.currency?.displaySymbol,
+          adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
+        },
+      })
+      .then((adjusted) => {
+        if (adjusted) this.loadLoanData();
+      });
   }
 
   private confirm(titleKey: string, messageKey: string, destructive = false): Observable<boolean> {

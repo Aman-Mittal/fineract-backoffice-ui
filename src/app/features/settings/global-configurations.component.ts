@@ -20,7 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import {
   GlobalConfigurationService,
@@ -30,6 +29,7 @@ import {
 import { EditConfigurationDialogComponent } from './edit-configuration-dialog.component';
 import { IonButton, IonIcon, IonToggle } from '@ionic/angular/standalone';
 import { NotificationService } from '../../core/services/notification.service';
+import { DialogService } from '../../core/services/dialog.service';
 
 /**
  * Component for managing global system configurations.
@@ -39,7 +39,6 @@ import { NotificationService } from '../../core/services/notification.service';
   standalone: true,
   imports: [
     TranslateModule,
-    MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
     IonIcon,
@@ -82,7 +81,7 @@ import { NotificationService } from '../../core/services/notification.service';
 export class GlobalConfigurationsListComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
   private readonly notifications = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'SETTINGS.CONFIG_NAME', sortable: true },
@@ -127,16 +126,13 @@ export class GlobalConfigurationsListComponent implements OnInit {
   }
 
   onEditConfig(config: Record<string, unknown>): void {
-    const dialogRef = this.dialog.open(EditConfigurationDialogComponent, {
-      width: '450px',
-      data: { config },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.notifications.success('Configuration updated successfully');
-        this.loadConfigurations();
-      }
-    });
+    this.dialogService
+      .open(EditConfigurationDialogComponent, { data: { config } })
+      .then((result) => {
+        if (result) {
+          this.notifications.success('Configuration updated successfully');
+          this.loadConfigurations();
+        }
+      });
   }
 }

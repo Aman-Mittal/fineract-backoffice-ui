@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton } from '@ionic/angular/standalone';
 
@@ -29,15 +28,15 @@ import { IonButton } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-view-payload-dialog',
   standalone: true,
-  imports: [MatDialogModule, TranslateModule, IonButton],
+  imports: [TranslateModule, IonButton],
   template: `
-    <h2 mat-dialog-title>Command Payload</h2>
-    <mat-dialog-content>
+    <h2 class="dialog-title">Command Payload</h2>
+    <div class="dialog-content">
       <pre class="payload-code">{{ formattedJson }}</pre>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <ion-button fill="clear" mat-dialog-close color="primary">CLOSE</ion-button>
-    </mat-dialog-actions>
+    </div>
+    <div class="dialog-actions">
+      <ion-button fill="clear" color="primary">CLOSE</ion-button>
+    </div>
   `,
   styles: [
     `
@@ -56,7 +55,7 @@ import { IonButton } from '@ionic/angular/standalone';
   ],
 })
 export class ViewPayloadDialogComponent {
-  private readonly data = inject<{ payload: string }>(MAT_DIALOG_DATA);
+  @Input({ required: true }) data!: { payload: string };
   formattedJson: string;
 
   constructor() {

@@ -18,8 +18,7 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ModalController } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, Observable } from 'rxjs';
 import {
@@ -27,11 +26,12 @@ import {
   ClientActionDialogData,
 } from './client-action-dialog.component';
 import { CodesService, CodeValuesService, BusinessDateManagementService } from '../../api';
+import { provideIonicTesting } from '../../testing/ionic-testing';
 
 describe('ClientActionDialogComponent', () => {
   let component: ClientActionDialogComponent;
   let fixture: ComponentFixture<ClientActionDialogComponent>;
-  let dialogRefSpy: jasmine.SpyObj<MatDialogRef<ClientActionDialogComponent>>;
+  let modalControllerSpy: jasmine.SpyObj<ModalController>;
   let codesServiceSpy: jasmine.SpyObj<CodesService>;
   let codeValuesServiceSpy: jasmine.SpyObj<CodeValuesService>;
   let businessDateServiceSpy: jasmine.SpyObj<BusinessDateManagementService>;
@@ -43,7 +43,7 @@ describe('ClientActionDialogComponent', () => {
   };
 
   const setupTestBed = (data: ClientActionDialogData) => {
-    dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+    modalControllerSpy = jasmine.createSpyObj<ModalController>('ModalController', ['dismiss']);
     codesServiceSpy = jasmine.createSpyObj('CodesService', ['getCodesNameCodeName']);
     codeValuesServiceSpy = jasmine.createSpyObj('CodeValuesService', ['getCodesCodeIdCodevalues']);
     businessDateServiceSpy = jasmine.createSpyObj('BusinessDateManagementService', [
@@ -51,10 +51,10 @@ describe('ClientActionDialogComponent', () => {
     ]);
 
     TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule, ClientActionDialogComponent],
+      imports: [TranslateModule.forRoot(), ClientActionDialogComponent],
       providers: [
-        { provide: MatDialogRef, useValue: dialogRefSpy },
-        { provide: MAT_DIALOG_DATA, useValue: data },
+        provideIonicTesting(),
+        { provide: ModalController, useValue: modalControllerSpy },
         { provide: CodesService, useValue: codesServiceSpy },
         { provide: CodeValuesService, useValue: codeValuesServiceSpy },
         { provide: BusinessDateManagementService, useValue: businessDateServiceSpy },
@@ -65,6 +65,8 @@ describe('ClientActionDialogComponent', () => {
 
     fixture = TestBed.createComponent(ClientActionDialogComponent);
     component = fixture.componentInstance;
+    // Ionic passes componentProps onto the instance, so the payload is an @Input now.
+    fixture.componentRef.setInput('data', data);
   };
 
   describe('with Activate command', () => {
@@ -82,7 +84,7 @@ describe('ClientActionDialogComponent', () => {
 
     it('should close dialog with data on confirmation', () => {
       component.onConfirm();
-      expect(dialogRefSpy.close).toHaveBeenCalledWith({
+      expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
         actionDate: jasmine.any(Date),
         reasonId: undefined,
         note: '',
@@ -91,7 +93,7 @@ describe('ClientActionDialogComponent', () => {
 
     it('should close dialog without data on cancel', () => {
       component.onCancel();
-      expect(dialogRefSpy.close).toHaveBeenCalledWith();
+      expect(modalControllerSpy.dismiss).toHaveBeenCalledWith();
     });
 
     it('should be invalid if actionDate is null/falsy', () => {
@@ -142,7 +144,7 @@ describe('ClientActionDialogComponent', () => {
       component.reasonId = 101;
       component.note = 'Rejecting due to duplicates';
       component.onConfirm();
-      expect(dialogRefSpy.close).toHaveBeenCalledWith({
+      expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
         actionDate: jasmine.any(Date),
         reasonId: 101,
         note: 'Rejecting due to duplicates',

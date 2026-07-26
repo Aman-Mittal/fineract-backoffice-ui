@@ -21,7 +21,6 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import {
   ClientService,
@@ -47,6 +46,7 @@ import { ClientNotesListComponent } from './tabs/client-notes-list.component';
 import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { CdkTableModule } from '@angular/cdk/table';
+import { DialogService } from '../../core/services/dialog.service';
 import {
   IonButton,
   IonCard,
@@ -59,6 +59,13 @@ import {
   IonSegmentButton,
 } from '@ionic/angular/standalone';
 
+/** Shape the client action dialog resolves with. */
+interface ClientActionResult {
+  actionDate: Date;
+  reasonId?: number;
+  note?: string;
+}
+
 @Component({
   selector: 'app-client-view',
   standalone: true,
@@ -67,7 +74,6 @@ import {
     TranslateModule,
     MatMenuModule,
     CdkTableModule,
-    MatDialogModule,
     StatusBadgeComponent,
     HasPermissionDirective,
     ClientIdentifiersListComponent,
@@ -779,7 +785,7 @@ export class ClientViewComponent implements OnInit {
   private readonly notesService = inject(NotesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
 
   clientId = 0;
   client = signal<GetClientsClientIdResponse | null>(null);
@@ -882,48 +888,47 @@ export class ClientViewComponent implements OnInit {
   }
 
   onClientAction(command: string) {
-    const dialogRef = this.dialog.open(ClientActionDialogComponent, {
-      width: '400px',
-      data: {
-        title: `ACTIONS.${command.toUpperCase()}_CLIENT`,
-        command: command,
-        clientId: this.clientId,
-      },
-    });
+    this.dialogService
+      .open<ClientActionResult>(ClientActionDialogComponent, {
+        data: {
+          title: `ACTIONS.${command.toUpperCase()}_CLIENT`,
+          command: command,
+          clientId: this.clientId,
+        },
+      })
+      .then((result) => {
+        if (!result) return;
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) return;
+        const formattedDate = formatDateToFineract(result.actionDate);
+        const payload = this.buildClientActionPayload(command, result, formattedDate);
 
-      const formattedDate = formatDateToFineract(result.actionDate);
-      const payload = this.buildClientActionPayload(command, result, formattedDate);
+        this.clientService
+          .postClientsClientId(this.clientId, payload as PostClientsClientIdRequest, command)
+          .subscribe({
+            next: () => {
+              const isNoteOnlyCommand =
+                command === 'activate' ||
+                command === 'reactivate' ||
+                command === 'undoReject' ||
+                command === 'undoWithdraw';
 
-      this.clientService
-        .postClientsClientId(this.clientId, payload as PostClientsClientIdRequest, command)
-        .subscribe({
-          next: () => {
-            const isNoteOnlyCommand =
-              command === 'activate' ||
-              command === 'reactivate' ||
-              command === 'undoReject' ||
-              command === 'undoWithdraw';
-
-            if (result.note && isNoteOnlyCommand) {
-              this.notesService
-                .postResourceTypeResourceIdNotes('clients', this.clientId, { note: result.note })
-                .subscribe({
-                  next: () => this.loadClientData(),
-                  error: (err) => {
-                    console.error('Failed to save activation note', err);
-                    this.loadClientData();
-                  },
-                });
-            } else {
-              this.loadClientData();
-            }
-          },
-          error: (err) => console.error(`Failed to execute ${command}`, err),
-        });
-    });
+              if (result.note && isNoteOnlyCommand) {
+                this.notesService
+                  .postResourceTypeResourceIdNotes('clients', this.clientId, { note: result.note })
+                  .subscribe({
+                    next: () => this.loadClientData(),
+                    error: (err) => {
+                      console.error('Failed to save activation note', err);
+                      this.loadClientData();
+                    },
+                  });
+              } else {
+                this.loadClientData();
+              }
+            },
+            error: (err) => console.error(`Failed to execute ${command}`, err),
+          });
+      });
   }
 
   onDeleteClient() {

@@ -17,22 +17,21 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../../api';
-import { IonButton, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-edit-configuration-dialog',
   standalone: true,
-  imports: [FormsModule, TranslateModule, MatDialogModule, IonButton, IonInput, IonItem, IonLabel],
+  imports: [FormsModule, TranslateModule, IonButton, IonInput, IonItem, IonLabel],
   template: `
-    <h2 mat-dialog-title>
+    <h2 class="dialog-title">
       {{ 'SETTINGS.EDIT_CONFIG_TITLE' | translate: { name: config['name'] } }}
     </h2>
-    <mat-dialog-content>
+    <div class="dialog-content">
       <div class="config-details">
         @if (config['description']) {
           <p class="description">{{ config['description'] }}</p>
@@ -45,13 +44,13 @@ import { IonButton, IonInput, IonItem, IonLabel } from '@ionic/angular/standalon
           <ion-input type="number" name="value" [(ngModel)]="value" required></ion-input>
         </ion-item>
       </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
+    </div>
+    <div class="dialog-actions">
       <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
       <ion-button color="primary" [disabled]="configForm.invalid || isSaving" (click)="onSubmit()">
         {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
       </ion-button>
-    </mat-dialog-actions>
+    </div>
   `,
   styles: [
     `
@@ -78,10 +77,12 @@ import { IonButton, IonInput, IonItem, IonLabel } from '@ionic/angular/standalon
 })
 export class EditConfigurationDialogComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
-  private readonly dialogRef = inject(MatDialogRef<EditConfigurationDialogComponent>);
-  private readonly data = inject<{ config: Record<string, unknown> }>(MAT_DIALOG_DATA);
+  private readonly modalController = inject(ModalController);
+  @Input({ required: true }) data!: { config: Record<string, unknown> };
 
-  config = this.data.config;
+  get config(): Record<string, unknown> {
+    return this.data.config;
+  }
   value = 0;
   isSaving = false;
 
@@ -97,12 +98,12 @@ export class EditConfigurationDialogComponent implements OnInit {
 
     const configId = this.config['id'] as number;
     this.configService.putConfigurationsConfigId(configId, request).subscribe({
-      next: () => this.dialogRef.close({ ...this.config, value: this.value }),
+      next: () => this.modalController.dismiss({ ...this.config, value: this.value }),
       error: () => (this.isSaving = false),
     });
   }
 
   onCancel() {
-    this.dialogRef.close();
+    this.modalController.dismiss();
   }
 }

@@ -17,10 +17,9 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -29,7 +28,9 @@ import {
   IonLabel,
   IonSelect,
   IonSelectOption,
+  ModalController,
 } from '@ionic/angular/standalone';
+import { DialogService } from '../../core/services/dialog.service';
 import {
   DataTableComponent,
   ColumnDef,
@@ -49,35 +50,34 @@ import {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatDialogModule,
-    IonIcon,
-    IonButton,
-    IonItem,
-    IonLabel,
-    IonSelectOption,
-    IonSelect,
-  ],
+  imports: [TranslateModule, IonIcon, IonButton, IonItem, IonLabel, IonSelectOption, IonSelect],
   template: `
-    <h2 mat-dialog-title>{{ data.title | translate }}</h2>
-    <mat-dialog-content>
+    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <div class="dialog-content">
       <p>{{ data.message | translate: data.params }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <ion-button fill="clear" [mat-dialog-close]="false">{{
-        'COMMON.CANCEL' | translate
-      }}</ion-button>
-      <ion-button color="primary" [mat-dialog-close]="true">
+    </div>
+    <div class="dialog-actions">
+      <ion-button fill="clear" (click)="dismiss(false)">
+        {{ 'COMMON.CANCEL' | translate }}
+      </ion-button>
+      <ion-button color="primary" (click)="dismiss(true)">
         {{ 'COMMON.CONFIRM' | translate }}
       </ion-button>
-    </mat-dialog-actions>
+    </div>
   `,
 })
 export class ConfirmDialogComponent {
-  readonly data = inject<{ title: string; message: string; params?: Record<string, unknown> }>(
-    MAT_DIALOG_DATA,
-  );
+  private readonly modalController = inject(ModalController);
+
+  @Input({ required: true }) data!: {
+    title: string;
+    message: string;
+    params?: Record<string, unknown>;
+  };
+
+  dismiss(confirmed: boolean): void {
+    this.modalController.dismiss(confirmed);
+  }
 }
 
 /**
@@ -88,7 +88,6 @@ export class ConfirmDialogComponent {
   standalone: true,
   imports: [
     TranslateModule,
-    MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
@@ -167,7 +166,7 @@ export class HolidaysListComponent implements OnInit {
   private readonly holidaysService = inject(HolidaysService);
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
 
   readonly columns: ColumnDef[] = [
@@ -228,32 +227,31 @@ export class HolidaysListComponent implements OnInit {
     this.router.navigate(['/settings/holidays/create']);
   }
 
-  onActivateHoliday(holiday: GetHolidaysResponse): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'HOLIDAYS.ACTIVATE_TITLE',
-        message: 'HOLIDAYS.ACTIVATE_CONFIRM',
-        params: { name: holiday.name },
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.isLoading = true;
-        this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
-          next: () => {
-            this.notifications.success('Holiday activated successfully');
-            this.loadHolidays();
-          },
-          error: (err) => {
-            this.isLoading = false;
-            console.error('Failed to activate holiday', err);
-            this.notifications.error('Failed to activate holiday');
-          },
-        });
-      }
-    });
+  onActivateHoliday(holiday: GetHolidaysResponse): Promise<void> {
+    return this.dialogService
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'HOLIDAYS.ACTIVATE_TITLE',
+          message: 'HOLIDAYS.ACTIVATE_CONFIRM',
+          params: { name: holiday.name },
+        },
+      })
+      .then((result) => {
+        if (result) {
+          this.isLoading = true;
+          this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
+            next: () => {
+              this.notifications.success('Holiday activated successfully');
+              this.loadHolidays();
+            },
+            error: (err) => {
+              this.isLoading = false;
+              console.error('Failed to activate holiday', err);
+              this.notifications.error('Failed to activate holiday');
+            },
+          });
+        }
+      });
   }
 
   formatArrayDate(dateArray: unknown): string {

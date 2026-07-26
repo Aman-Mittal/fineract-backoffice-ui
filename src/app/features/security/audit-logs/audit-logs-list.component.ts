@@ -30,10 +30,10 @@ import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { AuditsService } from '../../../api';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   IonButton,
   IonIcon,
@@ -67,7 +67,6 @@ export interface AuditFilters {
     FormsModule,
     DataTableComponent,
     CellTemplateDirective,
-    MatDialogModule,
     DatePipe,
     IonIcon,
     IonButton,
@@ -213,7 +212,7 @@ export interface AuditFilters {
 })
 export class AuditLogsListComponent implements OnInit {
   private readonly auditsService = inject(AuditsService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
 
   columns: ColumnDef[] = [
     { key: 'id', label: 'ID', sortable: true },
@@ -362,11 +361,10 @@ export class AuditLogsListComponent implements OnInit {
     this.sortSubject.next(sort);
   }
 
-  onViewDetails(row: Record<string, unknown>): void {
+  onViewDetails(row: Record<string, unknown>): Promise<void> {
     const payload = (row['commandAsJson'] as string) || JSON.stringify(row, null, 2);
-    this.dialog.open(ViewPayloadDialogComponent, {
-      width: '600px',
-      data: { payload },
-    });
+    return this.dialogService
+      .open(ViewPayloadDialogComponent, { data: { payload } })
+      .then(() => undefined);
   }
 }

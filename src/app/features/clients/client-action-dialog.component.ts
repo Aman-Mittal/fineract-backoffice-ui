@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { Component, OnInit, inject, Input } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -32,6 +31,7 @@ import {
   IonSelect,
   IonSelectOption,
   IonTextarea,
+  ModalController,
 } from '@ionic/angular/standalone';
 import {
   CodesService,
@@ -50,7 +50,6 @@ export interface ClientActionDialogData {
   selector: 'app-client-action-dialog',
   standalone: true,
   imports: [
-    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
@@ -66,8 +65,8 @@ export interface ClientActionDialogData {
     IonSelect,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.title | translate }}</h2>
-    <mat-dialog-content>
+    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <div class="dialog-content">
       <div class="dialog-form">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ dateLabel | translate }}</mat-label>
@@ -98,13 +97,13 @@ export interface ClientActionDialogData {
           <ion-textarea [(ngModel)]="note" rows="3"></ion-textarea>
         </ion-item>
       </div>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
+    </div>
+    <div class="dialog-actions">
       <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
       <ion-button color="primary" (click)="onConfirm()" [disabled]="!isValid">
         {{ 'COMMON.CONFIRM' | translate }}
       </ion-button>
-    </mat-dialog-actions>
+    </div>
   `,
   styles: [
     `
@@ -125,8 +124,8 @@ export class ClientActionDialogComponent implements OnInit {
   private readonly codesService = inject(CodesService);
   private readonly codeValuesService = inject(CodeValuesService);
   private readonly businessDateService = inject(BusinessDateManagementService);
-  public readonly dialogRef = inject(MatDialogRef<ClientActionDialogComponent>);
-  public readonly data = inject<ClientActionDialogData>(MAT_DIALOG_DATA);
+  public readonly modalController = inject(ModalController);
+  @Input({ required: true }) data!: ClientActionDialogData;
 
   actionDate: Date = new Date();
   maxDate?: Date;
@@ -212,12 +211,12 @@ export class ClientActionDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.modalController.dismiss();
   }
 
   onConfirm(): void {
     if (this.isValid) {
-      this.dialogRef.close({
+      this.modalController.dismiss({
         actionDate: this.actionDate,
         reasonId: this.reasonId,
         note: this.note,
