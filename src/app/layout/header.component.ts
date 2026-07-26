@@ -22,14 +22,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
 import { Router, RouterModule } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { IonIcon, IonItem, IonLabel, IonList, IonSearchbar } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { GuidanceService } from '../core/services/guidance.service';
@@ -49,11 +42,11 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
   imports: [
     RouterModule,
     TranslateModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
+    IonIcon,
+    IonSearchbar,
+    IonList,
+    IonItem,
+    IonLabel,
     FormsModule,
   ],
   template: `
@@ -64,40 +57,48 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
           (click)="sidebarService.toggle()"
           [attr.aria-label]="'Toggle Sidebar'"
         >
-          <mat-icon>{{ sidebarService.isCollapsed() ? 'menu' : 'menu_open' }}</mat-icon>
+          <ion-icon
+            [name]="sidebarService.isCollapsed() ? 'menu-outline' : 'chevron-back-outline'"
+          ></ion-icon>
         </button>
         <img src="favicon.png" alt="Fineract Logo" class="logo" />
         <span class="app-title">{{ 'app.title' | translate }}</span>
       </div>
 
       <div class="search-section">
-        <mat-form-field appearance="outline" class="global-search-field">
-          <mat-icon matPrefix>search</mat-icon>
-          <input
-            matInput
-            [placeholder]="'COMMON.SEARCH' | translate"
-            [(ngModel)]="searchQuery"
-            [matAutocomplete]="auto"
-            (input)="onSearchKeyUp()"
-          />
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            (optionSelected)="onResultSelected($event)"
-            [displayWith]="displayFn"
-          >
+        <ion-searchbar
+          class="global-search-field"
+          id="global-search"
+          data-testid="global-search"
+          [placeholder]="'COMMON.SEARCH' | translate"
+          [value]="searchQuery"
+          (ionInput)="onSearchInput($event)"
+          (ionBlur)="onSearchBlur()"
+        ></ion-searchbar>
+
+        <!-- Ionic has no autocomplete, so results render as a dropdown under the searchbar. -->
+        @if (showResults() && searchResults().length > 0) {
+          <ion-list class="search-results" role="listbox" data-testid="global-search-results">
             @for (result of searchResults(); track result.entityId) {
-              <mat-option [value]="result">
-                <div class="search-result-item">
-                  <span class="result-type">{{ result.entityType }}</span>
-                  <span class="result-name">{{ result.entityName }}</span>
-                  @if (result.entityAccountNo) {
-                    <span class="result-acc">#{{ result.entityAccountNo }}</span>
-                  }
-                </div>
-              </mat-option>
+              <ion-item
+                button
+                role="option"
+                [attr.data-testid]="'search-result-' + result.entityId"
+                (click)="onResultSelected(result)"
+              >
+                <ion-label>
+                  <div class="search-result-item">
+                    <span class="result-type">{{ result.entityType }}</span>
+                    <span class="result-name">{{ result.entityName }}</span>
+                    @if (result.entityAccountNo) {
+                      <span class="result-acc">#{{ result.entityAccountNo }}</span>
+                    }
+                  </div>
+                </ion-label>
+              </ion-item>
             }
-          </mat-autocomplete>
-        </mat-form-field>
+          </ion-list>
+        }
       </div>
 
       <div class="header-actions">
@@ -115,13 +116,16 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         <button
           class="theme-toggle-btn"
           (click)="themeService.toggleDarkMode()"
-          [matTooltip]="'COMMON.TOGGLE_THEME' | translate"
+          [attr.title]="'COMMON.TOGGLE_THEME' | translate"
+          [attr.aria-label]="'COMMON.TOGGLE_THEME' | translate"
         >
-          <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <ion-icon
+            [name]="themeService.isDarkMode() ? 'sunny-outline' : 'moon-outline'"
+          ></ion-icon>
         </button>
 
         <button class="tour-btn" (click)="startTour()" [attr.aria-label]="'Help Tour'">
-          <mat-icon>explore</mat-icon>
+          <ion-icon name="compass-outline"></ion-icon>
           Guide
         </button>
 
@@ -178,16 +182,25 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         flex: 1;
         max-width: 500px;
         margin: 0 2rem;
+        position: relative;
       }
       .global-search-field {
         width: 100%;
+        padding: 0;
+        --box-shadow: none;
+        --border-radius: 8px;
       }
-      .global-search-field ::ng-deep .mat-mdc-form-field-wrapper {
-        padding-bottom: 0;
-      }
-      .global-search-field ::ng-deep .mat-mdc-form-field-flex {
-        height: 40px;
-        align-items: center;
+      .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1200;
+        max-height: 320px;
+        overflow-y: auto;
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        padding: 0;
       }
       .search-result-item {
         display: flex;
@@ -250,7 +263,7 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         background-color: #f0f2f5;
         color: #111;
       }
-      .toggle-btn mat-icon {
+      .toggle-btn ion-icon {
         font-size: 24px;
         width: 24px;
         height: 24px;
@@ -333,7 +346,7 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
       .tour-btn:hover {
         background-color: #303f9f;
       }
-      .tour-btn mat-icon {
+      .tour-btn ion-icon {
         font-size: 18px;
         width: 18px;
         height: 18px;
@@ -353,6 +366,7 @@ export class HeaderComponent implements OnInit {
 
   searchQuery = '';
   searchResults = signal<GetSearchResponse[]>([]);
+  protected readonly showResults = signal(false);
   private searchSubject = new Subject<string>();
 
   businessDate = signal<string>('-');
@@ -394,13 +408,24 @@ export class HeaderComponent implements OnInit {
     setInterval(updateTime, 60000);
   }
 
-  onSearchKeyUp() {
+  onSearchInput(event: Event) {
+    const detail = (event as CustomEvent<{ value?: string }>).detail;
+    this.searchQuery = detail?.value ?? (event.target as HTMLInputElement)?.value ?? '';
+    this.showResults.set(true);
     this.searchSubject.next(this.searchQuery);
   }
 
-  onResultSelected(event: MatAutocompleteSelectedEvent) {
-    const result = event.option.value as GetSearchResponse;
-    setTimeout(() => (this.searchQuery = ''), 0);
+  /**
+   * Hides the results after a beat — hiding immediately on blur would unmount the list
+   * before the click that caused the blur lands on a result.
+   */
+  onSearchBlur() {
+    setTimeout(() => this.showResults.set(false), 150);
+  }
+
+  onResultSelected(result: GetSearchResponse) {
+    this.searchQuery = '';
+    this.showResults.set(false);
 
     if (result.entityType === 'CLIENT') {
       this.router.navigate(['/clients/view', result.entityId]);
@@ -411,9 +436,6 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  displayFn() {
-    return '';
-  }
   /**
    * Switches the application language at runtime.
    * @param lang - The target language code (e.g., 'en', 'hi', 'ko')

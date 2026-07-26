@@ -19,8 +19,7 @@
 
 import { Component, inject } from '@angular/core';
 
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
+import { IonButton, ModalController } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 
 /**
@@ -31,41 +30,59 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-inactivity-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslateModule],
+  imports: [IonButton, TranslateModule],
   template: `
-    <h2 mat-dialog-title>{{ 'idle.warning.title' | translate }}</h2>
-    <mat-dialog-content>
-      <p>{{ 'idle.warning.message' | translate }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onLogout()">{{ 'app.logout' | translate }}</button>
-      <button mat-raised-button color="primary" (click)="onExtend()">
-        {{ 'idle.warning.extend' | translate }}
-      </button>
-    </mat-dialog-actions>
+    <div class="dialog">
+      <h2 class="dialog-title">{{ 'idle.warning.title' | translate }}</h2>
+      <p class="dialog-message">{{ 'idle.warning.message' | translate }}</p>
+      <div class="dialog-actions">
+        <ion-button data-testid="idle-logout" fill="clear" color="medium" (click)="onLogout()">
+          {{ 'app.logout' | translate }}
+        </ion-button>
+        <ion-button data-testid="idle-extend" color="primary" (click)="onExtend()">
+          {{ 'idle.warning.extend' | translate }}
+        </ion-button>
+      </div>
+    </div>
   `,
   styles: [
     `
-      mat-dialog-content {
+      .dialog {
+        padding: 20px 24px 12px;
+        background: var(--card-bg);
+        color: var(--text-color);
         min-width: 300px;
+      }
+      .dialog-title {
+        margin: 0 0 12px;
+        font-size: 1.25rem;
+      }
+      .dialog-message {
+        margin: 0;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
       }
     `,
   ],
 })
 export class InactivityDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<InactivityDialogComponent>);
+  private readonly modalController = inject(ModalController);
 
   /**
    * Closes the dialog and signals that the session should be extended.
    */
   onExtend(): void {
-    this.dialogRef.close(true);
+    this.modalController.dismiss(true);
   }
 
   /**
    * Closes the dialog and signals that the user wishes to logout.
    */
   onLogout(): void {
-    this.dialogRef.close(false);
+    this.modalController.dismiss(false);
   }
 }

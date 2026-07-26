@@ -22,7 +22,7 @@ import { NgTemplateOutlet } from '@angular/common';
 
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
+import { IonIcon } from '@ionic/angular/standalone';
 import { SidebarService } from '../core/services/sidebar.service';
 import { NavigationConfigService } from '../core/services/navigation-config.service';
 
@@ -36,7 +36,7 @@ import { NavigationConfigService } from '../core/services/navigation-config.serv
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, TranslateModule, MatIconModule, NgTemplateOutlet],
+  imports: [RouterModule, TranslateModule, IonIcon, NgTemplateOutlet],
   template: `
     <nav
       class="sidebar"
@@ -78,7 +78,7 @@ import { NavigationConfigService } from '../core/services/navigation-config.serv
               [class.sub-item]="depth > 0"
             >
               @if (item.icon) {
-                <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+                <ion-icon class="nav-icon" [name]="item.icon"></ion-icon>
               }
               <span class="nav-text">{{ item.labelKey | translate }}</span>
             </a>

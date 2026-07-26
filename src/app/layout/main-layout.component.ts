@@ -20,7 +20,7 @@
 import { Component, inject } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { IonProgressBar } from '@ionic/angular/standalone';
 import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
 import { GuidanceTourComponent } from '../shared';
@@ -36,17 +36,11 @@ import { SidebarService } from '../core/services/sidebar.service';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [
-    RouterModule,
-    MatProgressBarModule,
-    HeaderComponent,
-    SidebarComponent,
-    GuidanceTourComponent,
-  ],
+  imports: [RouterModule, IonProgressBar, HeaderComponent, SidebarComponent, GuidanceTourComponent],
   template: `
     <div class="app-container" [class.sidebar-collapsed]="sidebarService.isCollapsed()">
       @if (loadingService.isLoading()) {
-        <mat-progress-bar mode="indeterminate" class="global-loader"></mat-progress-bar>
+        <ion-progress-bar type="indeterminate" class="global-loader"></ion-progress-bar>
       }
       <app-header />
       <div class="main-wrapper">

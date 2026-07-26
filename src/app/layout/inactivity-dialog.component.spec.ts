@@ -19,20 +19,24 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InactivityDialogComponent } from './inactivity-dialog.component';
-import { MatDialogRef } from '@angular/material/dialog';
+import { ModalController } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
+import { provideIonicTesting } from '../testing/ionic-testing';
 
 describe('InactivityDialogComponent', () => {
   let component: InactivityDialogComponent;
   let fixture: ComponentFixture<InactivityDialogComponent>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<InactivityDialogComponent>>;
+  let mockModalController: jasmine.SpyObj<ModalController>;
 
   beforeEach(async () => {
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockModalController = jasmine.createSpyObj<ModalController>('ModalController', ['dismiss']);
 
     await TestBed.configureTestingModule({
       imports: [InactivityDialogComponent, TranslateModule.forRoot()],
-      providers: [{ provide: MatDialogRef, useValue: mockDialogRef }],
+      providers: [
+        provideIonicTesting(),
+        { provide: ModalController, useValue: mockModalController },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InactivityDialogComponent);
@@ -44,13 +48,13 @@ describe('InactivityDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should close dialog with true on extend', () => {
+  it('should dismiss with true on extend', () => {
     component.onExtend();
-    expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+    expect(mockModalController.dismiss).toHaveBeenCalledWith(true);
   });
 
-  it('should close dialog with false on logout', () => {
+  it('should dismiss with false on logout', () => {
     component.onLogout();
-    expect(mockDialogRef.close).toHaveBeenCalledWith(false);
+    expect(mockModalController.dismiss).toHaveBeenCalledWith(false);
   });
 });
