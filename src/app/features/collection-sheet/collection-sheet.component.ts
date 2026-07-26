@@ -21,8 +21,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import {
   CollectionSheetService,
   OfficesService,
@@ -59,8 +57,6 @@ import {
     FormsModule,
     JsonPipe,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     IonButton,
     IonSpinner,
     IonInput,

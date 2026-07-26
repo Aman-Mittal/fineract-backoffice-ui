@@ -22,8 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -70,8 +68,6 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     ClientSearchComponent,
     IonIcon,
     IonButton,

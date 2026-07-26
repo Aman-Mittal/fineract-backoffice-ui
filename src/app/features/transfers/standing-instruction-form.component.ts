@@ -21,8 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import {
   IonButton,
   IonCard,
@@ -66,8 +64,6 @@ export interface MiniAccount {
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     IonButton,
     IonInput,
     IonItem,

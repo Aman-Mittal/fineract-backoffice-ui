@@ -20,8 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
@@ -55,8 +53,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     IonButton,
     IonSpinner,
     IonCardContent,

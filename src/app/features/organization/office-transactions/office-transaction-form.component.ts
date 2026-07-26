@@ -21,8 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -54,8 +52,6 @@ import {
     FormsModule,
     RouterModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     IonButton,
     IonInput,
     IonItem,

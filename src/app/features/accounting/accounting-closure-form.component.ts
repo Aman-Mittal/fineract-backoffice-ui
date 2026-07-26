@@ -22,8 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import {
   AccountingClosureService,
   PostGlClosuresRequest,
@@ -58,8 +56,6 @@ import { toIsoDate } from '../../core/utils/date-formatter';
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     HelpIconComponent,
     IonButton,
     IonSpinner,

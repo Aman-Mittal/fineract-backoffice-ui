@@ -20,8 +20,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { PeriodicAccrualAccountingService, PostRunaccrualsRequest } from '../../../api';
 import {
   IonButton,
@@ -52,8 +50,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     IonButton,
     IonSpinner,
     IonCardContent,

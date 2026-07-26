@@ -21,8 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { DecimalPipe } from '@angular/common';
 import {
   LoanTransactionsService,
@@ -61,8 +59,6 @@ const DATE_FORMAT = 'yyyy-MM-dd';
     FormsModule,
     TranslateModule,
     MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
     DecimalPipe,
     IonIcon,
     IonButton,

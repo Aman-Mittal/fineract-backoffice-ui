@@ -22,8 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import {
   LoanTransactionsService,
   LoansService,
@@ -88,8 +86,6 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
     IonButton,
     IonSpinner,
     IonInput,
