@@ -164,10 +164,11 @@ import { ConfigService } from '../../core/services/config.service';
       }
       .login-card {
         position: relative;
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        background: var(--card-bg);
+        color: var(--text-color);
+        padding: var(--space-6);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
         width: 100%;
         max-width: 440px;
       }
@@ -210,40 +211,45 @@ import { ConfigService } from '../../core/services/config.service';
         gap: 0.25rem;
       }
       label {
-        font-weight: 600;
-        font-size: 0.8rem;
-        color: #444;
+        font-weight: 500;
+        font-size: 0.75rem;
+        color: var(--text-muted);
         cursor: help;
       }
       input,
       select {
-        padding: 0.6rem;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-family: inherit;
         font-size: 0.9rem;
-        transition: border-color 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
       }
       input:focus,
       select:focus {
         outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        border-color: var(--primary-color);
+        box-shadow: var(--focus-ring);
       }
       .error-message {
-        background-color: #ffebee;
-        color: #c62828;
-        padding: 0.6rem;
-        border-radius: 6px;
+        background-color: color-mix(in srgb, var(--error-color) 12%, transparent);
+        color: var(--error-color);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--border-radius);
         font-size: 0.8rem;
-        border-left: 4px solid #c62828;
+        border-left: 4px solid var(--error-color);
       }
       .submit-btn {
-        margin-top: 0.5rem;
-        padding: 0.75rem;
-        background-color: #3498db;
-        color: white;
+        margin-top: var(--space-2);
+        padding: var(--space-3);
+        background-color: var(--primary-color);
+        color: #fff;
         border: none;
-        border-radius: 6px;
+        border-radius: var(--border-radius);
         font-weight: 600;
         font-size: 0.95rem;
         cursor: pointer;

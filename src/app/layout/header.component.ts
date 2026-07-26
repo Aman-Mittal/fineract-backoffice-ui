@@ -209,7 +209,7 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         font-size: 14px;
       }
       .result-type {
-        background: #f0f2f5;
+        background: var(--surface-sunken);
         padding: 2px 6px;
         border-radius: 4px;
         font-size: 11px;
@@ -228,7 +228,7 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         font-size: 11px;
         margin-right: 1rem;
         padding: 4px 8px;
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--hover-bg);
         border-radius: 4px;
       }
       .info-group {
@@ -260,8 +260,31 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
           color 0.2s;
       }
       .toggle-btn:hover {
-        background-color: #f0f2f5;
+        background-color: var(--hover-bg);
         color: #111;
+      }
+      /* Native select, kept for its keyboard behaviour, styled to sit with the Ionic
+         controls around it rather than reading as browser default chrome. */
+      #lang-select {
+        padding: var(--space-2) var(--space-3);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-family: inherit;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      #lang-select:hover {
+        border-color: var(--primary-color);
+      }
+      #lang-select:focus-visible {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: var(--focus-ring);
       }
       .toggle-btn ion-icon {
         font-size: 24px;
@@ -327,14 +350,14 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         transition: background-color 0.2s;
       }
       .theme-toggle-btn:hover {
-        background-color: #f0f2f5;
+        background-color: var(--hover-bg);
       }
       .tour-btn {
         display: flex;
         align-items: center;
         gap: 6px;
         padding: 0.5rem 0.75rem;
-        background-color: #3f51b5;
+        background-color: var(--primary-dark);
         color: white;
         border: none;
         border-radius: 4px;

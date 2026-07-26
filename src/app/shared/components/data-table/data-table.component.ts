@@ -197,28 +197,38 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         margin: 24px;
         position: relative;
       }
+      /* ion-card-header stacks its children in a column by default. The title and its
+         actions belong on one line — the action is a response to the title, not a
+         separate thought. */
       ion-card-header {
         display: flex;
-        justify-content: space-between;
+        flex-direction: row;
         align-items: center;
-        margin-bottom: 16px;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--border-color);
       }
       ion-card-title {
         display: flex;
         align-items: center;
         margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--secondary-color);
       }
       .header-actions {
-        margin-left: auto;
         display: flex;
-        gap: 8px;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
       }
       .table-header {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        gap: 16px;
-        margin-bottom: 8px;
+        gap: var(--space-4);
+        margin: var(--space-4) 0 var(--space-2);
       }
       .search-container {
         display: flex;
@@ -233,7 +243,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
       }
       .data-table th,
       .data-table td {
-        padding: 12px 16px;
+        padding: var(--space-3) var(--space-4);
         text-align: left;
         border-bottom: 1px solid var(--border-color, #e0e0e0);
       }
@@ -246,8 +256,14 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         cursor: pointer;
         user-select: none;
       }
+      .data-table th.sortable:hover {
+        color: var(--primary-color);
+      }
+      .data-table th[aria-sort] {
+        color: var(--primary-color);
+      }
       .data-table tr:hover td {
-        background-color: rgba(0, 0, 0, 0.02);
+        background-color: var(--hover-bg);
       }
       .sort-indicator {
         font-size: 14px;
@@ -264,7 +280,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.6);
+        background: var(--overlay-bg);
         z-index: 10;
         display: flex;
         align-items: center;

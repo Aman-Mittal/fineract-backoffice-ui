@@ -103,9 +103,9 @@ import { GuidanceService } from '../../../core/services/guidance.service';
         animation: guidanceSlideUp 0.3s ease-out;
       }
       .guidance-card {
-        border-left: 5px solid #3f51b5;
+        border-left: 4px solid var(--primary-color);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-        background: #fff !important;
+        background: var(--card-bg);
       }
       .guidance-card ion-card-title {
         display: flex;
@@ -113,12 +113,12 @@ import { GuidanceService } from '../../../core/services/guidance.service';
         gap: 8px;
         font-size: 16px;
         font-weight: 600;
-        color: #2c3e50;
+        color: var(--secondary-color);
       }
       .guidance-card p {
         margin: 12px 0;
         font-size: 14px;
-        color: #5f6368;
+        color: var(--text-muted);
         line-height: 1.5;
       }
       .progress-info {
