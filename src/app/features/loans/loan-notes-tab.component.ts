@@ -24,10 +24,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialog } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { NotesService, NoteData } from '../../api';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 
 // Notes are treated as an append-only audit trail (who said what, when) —
 // staff can add and remove entries, but existing note text is not editable
@@ -137,7 +136,7 @@ export class LoanNotesTabComponent implements OnInit {
   @Input({ required: true }) loanId!: number;
 
   private readonly notesService = inject(NotesService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
   notes = signal<NoteData[]>([]);
@@ -181,21 +180,20 @@ export class LoanNotesTabComponent implements OnInit {
   }
 
   onDeleteNote(noteId: number): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    this.dialogService
+      .confirm({
         title: this.translate.instant('COMMON.DELETE'),
         message: this.translate.instant('LOANS.CONFIRM_DELETE_NOTE'),
         destructive: true,
-      },
-    });
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.notesService
-        .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId, noteId)
-        .subscribe({
-          next: () => this.loadNotes(),
-          error: (err) => console.error('Failed to delete loan note', err),
-        });
-    });
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.notesService
+          .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId, noteId)
+          .subscribe({
+            next: () => this.loadNotes(),
+            error: (err) => console.error('Failed to delete loan note', err),
+          });
+      });
   }
 }

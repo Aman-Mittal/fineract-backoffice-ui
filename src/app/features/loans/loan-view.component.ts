@@ -20,8 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +38,7 @@ import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
@@ -1113,6 +1112,7 @@ export class LoanViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
   loanId = 0;
@@ -1428,14 +1428,13 @@ export class LoanViewComponent implements OnInit {
   }
 
   private confirm(titleKey: string, messageKey: string, destructive = false): Observable<boolean> {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    return from(
+      this.dialogService.confirm({
         title: this.translate.instant(titleKey),
         message: this.translate.instant(messageKey),
         destructive,
-      },
-    });
-    return dialogRef.afterClosed().pipe(map((result) => !!result));
+      }),
+    );
   }
 
   isDebitTransaction(tx: GetLoansLoanIdTransactions): boolean {

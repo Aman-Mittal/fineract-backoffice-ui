@@ -32,13 +32,7 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
 @Component({
   selector: 'app-tax-components-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonButton,
-    IonIcon,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       title="nav.taxComponents"

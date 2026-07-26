@@ -68,7 +68,8 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
 
   onInput(event: Event | CustomEvent) {
     const customEvt = event as CustomEvent;
-    const value = (customEvt.detail?.value as string) || (event.target as HTMLInputElement)?.value || '';
+    const value =
+      (customEvt.detail?.value as string) || (event.target as HTMLInputElement)?.value || '';
     this.searchSubject.next(value.trim());
   }
 

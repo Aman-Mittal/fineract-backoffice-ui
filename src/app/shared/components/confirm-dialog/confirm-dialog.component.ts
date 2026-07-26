@@ -17,11 +17,9 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 
 export interface ConfirmDialogData {
   title: string;
@@ -32,49 +30,72 @@ export interface ConfirmDialogData {
   destructive?: boolean;
 }
 
+/**
+ * Confirmation modal. Prefer opening it through `DialogService.confirm()` rather than
+ * instantiating it directly.
+ */
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslateModule, MatDialogModule, MatButtonModule, MatIconModule],
+  imports: [TranslateModule, IonButton, IonIcon],
   template: `
-    <h2 mat-dialog-title class="dialog-title">
-      @if (data.destructive) {
-        <mat-icon color="warn">warning</mat-icon>
-      }
-      {{ data.title }}
-    </h2>
-    <mat-dialog-content>
-      <p>{{ data.message }}</p>
-      @if (data.details?.length) {
-        <table class="details-table">
-          @for (item of data.details; track item.label) {
-            <tr>
-              <td class="label">{{ item.label }}</td>
-              <td class="value">{{ item.value }}</td>
-            </tr>
-          }
-        </table>
-      }
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close(false)">
-        {{ data.cancelText || ('COMMON.CANCEL' | translate) }}
-      </button>
-      <button
-        mat-raised-button
-        [color]="data.destructive ? 'warn' : 'primary'"
-        (click)="dialogRef.close(true)"
-      >
-        {{ data.confirmText || ('COMMON.CONFIRM' | translate) }}
-      </button>
-    </mat-dialog-actions>
+    <div class="dialog">
+      <h2 class="dialog-title">
+        @if (data.destructive) {
+          <ion-icon name="warning-outline" color="danger"></ion-icon>
+        }
+        {{ data.title }}
+      </h2>
+
+      <div class="dialog-content">
+        <p>{{ data.message }}</p>
+        @if (data.details?.length) {
+          <table class="details-table">
+            @for (item of data.details; track item.label) {
+              <tr>
+                <td class="label">{{ item.label }}</td>
+                <td class="value">{{ item.value }}</td>
+              </tr>
+            }
+          </table>
+        }
+      </div>
+
+      <div class="dialog-actions">
+        <ion-button
+          data-testid="confirm-dialog-cancel"
+          fill="clear"
+          color="medium"
+          (click)="dismiss(false)"
+        >
+          {{ data.cancelText || ('COMMON.CANCEL' | translate) }}
+        </ion-button>
+        <ion-button
+          data-testid="confirm-dialog-confirm"
+          [color]="data.destructive ? 'danger' : 'primary'"
+          (click)="dismiss(true)"
+        >
+          {{ data.confirmText || ('COMMON.CONFIRM' | translate) }}
+        </ion-button>
+      </div>
+    </div>
   `,
   styles: [
     `
+      .dialog {
+        padding: 20px 24px 12px;
+        background: var(--card-bg);
+        color: var(--text-color);
+      }
       .dialog-title {
         display: flex;
         align-items: center;
         gap: 8px;
+        margin: 0 0 12px;
+        font-size: 1.25rem;
+      }
+      .dialog-content {
+        min-width: 300px;
       }
       .details-table {
         margin-top: 12px;
@@ -93,10 +114,21 @@ export interface ConfirmDialogData {
         text-align: right;
         font-weight: 600;
       }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
+      }
     `,
   ],
 })
 export class ConfirmDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
-  readonly data: ConfirmDialogData = inject(MAT_DIALOG_DATA);
+  private readonly modalController = inject(ModalController);
+
+  @Input({ required: true }) data!: ConfirmDialogData;
+
+  dismiss(confirmed: boolean): void {
+    this.modalController.dismiss(confirmed);
+  }
 }

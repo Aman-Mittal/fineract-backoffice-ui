@@ -121,7 +121,14 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" id="identifier-cancel-btn" data-testid="identifier-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="identifier-cancel-btn"
+                data-testid="identifier-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button

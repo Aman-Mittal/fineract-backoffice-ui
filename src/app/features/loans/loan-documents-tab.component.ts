@@ -27,9 +27,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
 import { DocumentsService, DocumentData, BASE_PATH } from '../../api';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 
 // Loan-level documents are the evidentiary record for underwriting/servicing
 // decisions (signed application, ID proof, collateral photos) — staff need
@@ -153,7 +152,7 @@ export class LoanDocumentsTabComponent implements OnInit {
   @Input({ required: true }) loanId!: number;
 
   private readonly documentsService = inject(DocumentsService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
   private readonly httpClient = inject(HttpClient);
   private readonly basePath = inject(BASE_PATH);
@@ -244,21 +243,20 @@ export class LoanDocumentsTabComponent implements OnInit {
   }
 
   onDelete(id: number): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    this.dialogService
+      .confirm({
         title: this.translate.instant('COMMON.DELETE'),
         message: this.translate.instant('LOANS.CONFIRM_DELETE_DOCUMENT'),
         destructive: true,
-      },
-    });
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.documentsService
-        .deleteEntityTypeEntityIdDocumentsDocumentId('loans', this.loanId, id)
-        .subscribe({
-          next: () => this.loadDocuments(),
-          error: (err) => console.error('Failed to delete loan document', err),
-        });
-    });
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.documentsService
+          .deleteEntityTypeEntityIdDocumentsDocumentId('loans', this.loanId, id)
+          .subscribe({
+            next: () => this.loadDocuments(),
+            error: (err) => console.error('Failed to delete loan document', err),
+          });
+      });
   }
 }

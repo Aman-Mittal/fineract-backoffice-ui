@@ -108,7 +108,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.SHORT_NAME' | translate
+                    }}</ion-label>
                     <ion-input
                       id="loan-product-short-name"
                       data-testid="loan-product-short-name"
@@ -123,7 +125,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DESCRIPTION' | translate
+                    }}</ion-label>
                     <ion-textarea
                       id="loan-product-description"
                       data-testid="loan-product-description"
@@ -167,7 +171,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DELINQUENCY_BUCKET' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-delinquency-bucket-id"
                       data-testid="loan-product-delinquency-bucket-id"
@@ -202,7 +208,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DECIMAL_PLACES' | translate
+                    }}</ion-label>
                     <ion-input
                       id="loan-product-digits-after-decimal"
                       data-testid="loan-product-digits-after-decimal"
@@ -230,7 +238,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_RATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.INTEREST_RATE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="loan-product-interest-rate"
                       data-testid="loan-product-interest-rate"
@@ -244,7 +254,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'LOANS.REPAYMENTS_COUNT' | translate
+                    }}</ion-label>
                     <ion-input
                       id="loan-product-repayments-count"
                       data-testid="loan-product-repayments-count"
@@ -258,7 +270,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'LOANS.REPAYMENT_EVERY' | translate
+                    }}</ion-label>
                     <ion-input
                       id="loan-product-repayment-every"
                       data-testid="loan-product-repayment-every"
@@ -281,10 +295,18 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.repaymentFrequencyType"
                       required
                     >
-                      <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
-                      <ion-select-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</ion-select-option>
-                      <ion-select-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</ion-select-option>
-                      <ion-select-option [value]="3">{{ 'COMMON.YEARS' | translate }}</ion-select-option>
+                      <ion-select-option [value]="0">{{
+                        'COMMON.DAYS' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="1">{{
+                        'COMMON.WEEKS' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="2">{{
+                        'COMMON.MONTHS' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="3">{{
+                        'COMMON.YEARS' | translate
+                      }}</ion-select-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -292,7 +314,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 <!-- Interest Rate Frequency Type -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-interest-frequency"
                       data-testid="loan-product-interest-frequency"
@@ -300,8 +324,12 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.interestRateFrequencyType"
                       required
                     >
-                      <ion-select-option [value]="2">{{ 'COMMON.PER_MONTH' | translate }}</ion-select-option>
-                      <ion-select-option [value]="3">{{ 'COMMON.PER_YEAR' | translate }}</ion-select-option>
+                      <ion-select-option [value]="2">{{
+                        'COMMON.PER_MONTH' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="3">{{
+                        'COMMON.PER_YEAR' | translate
+                      }}</ion-select-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -309,7 +337,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 <!-- Amortization Type -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.AMORTIZATION_TYPE' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-amortization-type"
                       data-testid="loan-product-amortization-type"
@@ -317,8 +347,12 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.amortizationType"
                       required
                     >
-                      <ion-select-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</ion-select-option>
-                      <ion-select-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</ion-select-option>
+                      <ion-select-option [value]="1">{{
+                        'LOANS.EQUAL_INSTALLMENTS' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="0">{{
+                        'LOANS.EQUAL_PRINCIPAL' | translate
+                      }}</ion-select-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -326,7 +360,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 <!-- Interest Type -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.INTEREST_TYPE' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-interest-type"
                       data-testid="loan-product-interest-type"
@@ -334,8 +370,12 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.interestType"
                       required
                     >
-                      <ion-select-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</ion-select-option>
-                      <ion-select-option [value]="1">{{ 'LOANS.FLAT' | translate }}</ion-select-option>
+                      <ion-select-option [value]="0">{{
+                        'LOANS.DECLINING_BALANCE' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="1">{{
+                        'LOANS.FLAT' | translate
+                      }}</ion-select-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -343,7 +383,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 <!-- Interest Calculation Period Type -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-interest-calc-period"
                       data-testid="loan-product-interest-calc-period"
@@ -351,8 +393,12 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.interestCalculationPeriodType"
                       required
                     >
-                      <ion-select-option [value]="0">{{ 'LOANS.DAILY' | translate }}</ion-select-option>
-                      <ion-select-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</ion-select-option>
+                      <ion-select-option [value]="0">{{
+                        'LOANS.DAILY' | translate
+                      }}</ion-select-option>
+                      <ion-select-option [value]="1">{{
+                        'LOANS.SAME_AS_REPAYMENT' | translate
+                      }}</ion-select-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -360,7 +406,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 <!-- Loan Schedule Type -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-schedule-type"
                       data-testid="loan-product-schedule-type"
@@ -370,7 +418,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       required
                     >
                       @for (option of loanScheduleTypeOptions; track option.code) {
-                        <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
+                        <ion-select-option [value]="option.code">{{
+                          option.value
+                        }}</ion-select-option>
                       }
                     </ion-select>
                   </ion-item>
@@ -379,7 +429,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 <!-- Transaction Processing Strategy Code -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate
+                    }}</ion-label>
                     <ion-select
                       id="loan-product-transaction-strategy"
                       data-testid="loan-product-transaction-strategy"
@@ -389,7 +441,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       required
                     >
                       @for (option of transactionProcessingStrategyOptions; track option.code) {
-                        <ion-select-option [value]="option.code">{{ option.name }}</ion-select-option>
+                        <ion-select-option [value]="option.code">{{
+                          option.name
+                        }}</ion-select-option>
                       }
                     </ion-select>
                   </ion-item>
@@ -399,7 +453,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 @if (isProgressive) {
                   <ion-col size="12" size-md="6">
                     <ion-item fill="outline" class="form-item">
-                      <ion-label position="stacked">{{ 'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate }}</ion-label>
+                      <ion-label position="stacked">{{
+                        'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate
+                      }}</ion-label>
                       <ion-select
                         id="loan-product-schedule-processing-type"
                         data-testid="loan-product-schedule-processing-type"
@@ -408,7 +464,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                         required
                       >
                         @for (option of loanScheduleProcessingTypeOptions; track option.code) {
-                          <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
+                          <ion-select-option [value]="option.code">{{
+                            option.value
+                          }}</ion-select-option>
                         }
                       </ion-select>
                     </ion-item>

@@ -17,14 +17,17 @@
  * under the License.
  */
 
-import { bootstrapApplication } from '@angular/platform-browser';
-import { addIcons } from 'ionicons';
-import { appConfig } from './app/app.config';
-import { AppComponent } from './app/app.component';
-import { APP_ICONS } from './app/core/icons';
+import { EnvironmentProviders, Provider } from '@angular/core';
+import { provideIonicAngular } from '@ionic/angular/standalone';
 
-// Register every ionicon before the first component renders, so <ion-icon name="..."> never
-// falls back to a lazy SVG fetch.
-addIcons(APP_ICONS);
-
-bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
+/**
+ * Providers required by any TestBed rendering a component that uses Ionic overlays
+ * (`ToastController`, `ModalController`, `AlertController`) — directly or through
+ * `NotificationService` / `DialogService`.
+ *
+ * Without these the component fails to construct with `NG0201: No provider found for
+ * _ModalController`. Mirrors the `mode: 'md'` configuration used in `app.config.ts`.
+ */
+export function provideIonicTesting(): (Provider | EnvironmentProviders)[] {
+  return [provideIonicAngular({ mode: 'md' })];
+}

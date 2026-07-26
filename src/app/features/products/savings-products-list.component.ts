@@ -31,13 +31,7 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
 @Component({
   selector: 'app-savings-products-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonButton,
-    IonIcon,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       title="nav.savingsProducts"

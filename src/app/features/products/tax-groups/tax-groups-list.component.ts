@@ -31,13 +31,7 @@ import { TaxGroupService, GetTaxesGroupResponse } from '../../../api';
 @Component({
   selector: 'app-tax-groups-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonButton,
-    IonIcon,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       title="nav.taxGroups"

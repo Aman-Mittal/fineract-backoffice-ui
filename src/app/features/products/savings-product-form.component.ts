@@ -99,7 +99,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.SHORT_NAME' | translate
+                    }}</ion-label>
                     <ion-input
                       id="savings-product-short-name"
                       data-testid="savings-product-short-name"
@@ -113,7 +115,9 @@ import {
 
                 <ion-col size="12">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DESCRIPTION' | translate
+                    }}</ion-label>
                     <ion-textarea
                       id="savings-product-description"
                       data-testid="savings-product-description"
@@ -143,7 +147,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DECIMAL_PLACES' | translate
+                    }}</ion-label>
                     <ion-input
                       id="savings-product-decimal-places"
                       data-testid="savings-product-decimal-places"
@@ -157,7 +163,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.NOMINAL_ANNUAL_INTEREST_RATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.NOMINAL_ANNUAL_INTEREST_RATE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="savings-product-interest-rate"
                       data-testid="savings-product-interest-rate"

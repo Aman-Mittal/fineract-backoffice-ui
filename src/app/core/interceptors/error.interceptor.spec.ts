@@ -20,24 +20,29 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../services/notification.service';
 import { errorInterceptor } from './error.interceptor';
 
 describe('errorInterceptor', () => {
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
-  let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+  let notificationsSpy: jasmine.SpyObj<NotificationService>;
   const testUrl = '/api/test';
   const expectedErrorMsg = 'expected an error';
 
   beforeEach(() => {
-    snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
+      'success',
+      'error',
+      'show',
+    ]);
+    notificationsSpy.error.and.resolveTo();
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting(),
-        { provide: MatSnackBar, useValue: snackBarSpy },
+        { provide: NotificationService, useValue: notificationsSpy },
       ],
     });
 
@@ -57,7 +62,7 @@ describe('errorInterceptor', () => {
     const req = httpTestingController.expectOne(testUrl);
     req.flush({ data: 'ok' });
 
-    expect(snackBarSpy.open).not.toHaveBeenCalled();
+    expect(notificationsSpy.error).not.toHaveBeenCalled();
   });
 
   it('should handle Client-side / Network Error Event', () => {
@@ -73,11 +78,7 @@ describe('errorInterceptor', () => {
     const req = httpTestingController.expectOne(testUrl);
     req.error(errorEvent);
 
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      'Error: Failed to connect',
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.error).toHaveBeenCalledWith('Error: Failed to connect');
   });
 
   it('should handle validation errors array from API', () => {
@@ -99,7 +100,7 @@ describe('errorInterceptor', () => {
 
     const expectedMessage =
       'Validation failed\n\n• [username] Username already exists\n• Invalid email format';
-    expect(snackBarSpy.open).toHaveBeenCalledWith(expectedMessage, 'Close', jasmine.any(Object));
+    expect(notificationsSpy.error).toHaveBeenCalledWith(expectedMessage);
   });
 
   it('should handle single developerMessage or defaultUserMessage', () => {
@@ -114,14 +115,10 @@ describe('errorInterceptor', () => {
       { status: 500, statusText: 'Server Error' },
     );
 
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      'Custom dev message',
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.error).toHaveBeenCalledWith('Custom dev message');
 
     // Reset spy
-    snackBarSpy.open.calls.reset();
+    notificationsSpy.error.calls.reset();
 
     httpClient.get('/api/test2').subscribe({
       next: () => fail(expectedErrorMsg),
@@ -134,11 +131,7 @@ describe('errorInterceptor', () => {
       { status: 404, statusText: 'Not Found' },
     );
 
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      'Custom user message',
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.error).toHaveBeenCalledWith('Custom user message');
   });
 
   it('should handle status 0 when no message is present', () => {
@@ -150,10 +143,8 @@ describe('errorInterceptor', () => {
     const req = httpTestingController.expectOne(testUrl);
     req.flush(null, { status: 0, statusText: '' });
 
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
+    expect(notificationsSpy.error).toHaveBeenCalledWith(
       'Unable to connect to the server. Please check your network or CORS settings.',
-      'Close',
-      jasmine.any(Object),
     );
   });
 
@@ -166,10 +157,6 @@ describe('errorInterceptor', () => {
     const req = httpTestingController.expectOne(testUrl);
     req.flush('Plain error body', { status: 503, statusText: 'Service Unavailable' });
 
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      jasmine.stringMatching(/Error Code: 503/),
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.error).toHaveBeenCalledWith(jasmine.stringMatching(/Error Code: 503/));
   });
 });

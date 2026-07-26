@@ -91,25 +91,55 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
-                    <ion-input type="text" name="firstName" [(ngModel)]="member.firstName" required id="family-first-name-input" data-testid="family-first-name-input"></ion-input>
+                    <ion-input
+                      type="text"
+                      name="firstName"
+                      [(ngModel)]="member.firstName"
+                      required
+                      id="family-first-name-input"
+                      data-testid="family-first-name-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.MIDDLE_NAME' | translate }}</ion-label>
-                    <ion-input type="text" name="middleName" [(ngModel)]="member.middleName" id="family-middle-name-input" data-testid="family-middle-name-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.MIDDLE_NAME' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="middleName"
+                      [(ngModel)]="member.middleName"
+                      id="family-middle-name-input"
+                      data-testid="family-middle-name-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
-                    <ion-input type="text" name="lastName" [(ngModel)]="member.lastName" required id="family-last-name-input" data-testid="family-last-name-input"></ion-input>
+                    <ion-input
+                      type="text"
+                      name="lastName"
+                      [(ngModel)]="member.lastName"
+                      required
+                      id="family-last-name-input"
+                      data-testid="family-last-name-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.RELATIONSHIP' | translate }}</ion-label>
-                    <ion-select name="relationshipId" [(ngModel)]="member.relationshipId" required id="family-relationship-select" data-testid="family-relationship-select">
+                    <ion-label position="stacked">{{
+                      'CLIENTS.RELATIONSHIP' | translate
+                    }}</ion-label>
+                    <ion-select
+                      name="relationshipId"
+                      [(ngModel)]="member.relationshipId"
+                      required
+                      id="family-relationship-select"
+                      data-testid="family-relationship-select"
+                    >
                       @for (opt of relationshipOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -119,7 +149,12 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.GENDER' | translate }}</ion-label>
-                    <ion-select name="genderId" [(ngModel)]="member.genderId" id="family-gender-select" data-testid="family-gender-select">
+                    <ion-select
+                      name="genderId"
+                      [(ngModel)]="member.genderId"
+                      id="family-gender-select"
+                      data-testid="family-gender-select"
+                    >
                       @for (opt of genderOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -128,8 +163,15 @@ import {
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.MARITAL_STATUS' | translate }}</ion-label>
-                    <ion-select name="maritalStatusId" [(ngModel)]="member.maritalStatusId" id="family-marital-status-select" data-testid="family-marital-status-select">
+                    <ion-label position="stacked">{{
+                      'CLIENTS.MARITAL_STATUS' | translate
+                    }}</ion-label>
+                    <ion-select
+                      name="maritalStatusId"
+                      [(ngModel)]="member.maritalStatusId"
+                      id="family-marital-status-select"
+                      data-testid="family-marital-status-select"
+                    >
                       @for (opt of maritalStatusOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -139,7 +181,12 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.PROFESSION' | translate }}</ion-label>
-                    <ion-select name="professionId" [(ngModel)]="member.professionId" id="family-profession-select" data-testid="family-profession-select">
+                    <ion-select
+                      name="professionId"
+                      [(ngModel)]="member.professionId"
+                      id="family-profession-select"
+                      data-testid="family-profession-select"
+                    >
                       @for (opt of professionOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -148,19 +195,35 @@ import {
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.QUALIFICATION' | translate }}</ion-label>
-                    <ion-input type="text" name="qualification" [(ngModel)]="member.qualification" id="family-qualification-input" data-testid="family-qualification-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.QUALIFICATION' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="qualification"
+                      [(ngModel)]="member.qualification"
+                      id="family-qualification-input"
+                      data-testid="family-qualification-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.MOBILE_NO' | translate }}</ion-label>
-                    <ion-input type="text" name="mobileNumber" [(ngModel)]="member.mobileNumber" id="family-mobile-input" data-testid="family-mobile-input"></ion-input>
+                    <ion-input
+                      type="text"
+                      name="mobileNumber"
+                      [(ngModel)]="member.mobileNumber"
+                      id="family-mobile-input"
+                      data-testid="family-mobile-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.DATE_OF_BIRTH' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.DATE_OF_BIRTH' | translate
+                    }}</ion-label>
                     <ion-datetime-button datetime="family-dob-picker"></ion-datetime-button>
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
@@ -177,23 +240,48 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.AGE' | translate }}</ion-label>
-                    <ion-input type="number" name="age" [(ngModel)]="member.age" id="family-age-input" data-testid="family-age-input"></ion-input>
+                    <ion-input
+                      type="number"
+                      name="age"
+                      [(ngModel)]="member.age"
+                      id="family-age-input"
+                      data-testid="family-age-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col size="12">
                   <ion-item>
                     <ion-label>{{ 'CLIENTS.IS_DEPENDENT' | translate }}</ion-label>
-                    <ion-toggle name="isDependent" [(ngModel)]="member.isDependent" id="family-dependent-toggle" data-testid="family-dependent-toggle" slot="end"></ion-toggle>
+                    <ion-toggle
+                      name="isDependent"
+                      [(ngModel)]="member.isDependent"
+                      id="family-dependent-toggle"
+                      data-testid="family-dependent-toggle"
+                      slot="end"
+                    ></ion-toggle>
                   </ion-item>
                 </ion-col>
               </ion-row>
             </ion-grid>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" id="family-cancel-btn" data-testid="family-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="family-cancel-btn"
+                data-testid="family-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="!familyForm.form.valid" id="family-submit-btn" data-testid="family-submit-btn">
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="!familyForm.form.valid"
+                id="family-submit-btn"
+                data-testid="family-submit-btn"
+              >
                 {{ 'COMMON.SAVE' | translate }}
               </ion-button>
             </div>

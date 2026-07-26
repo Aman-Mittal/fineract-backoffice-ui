@@ -72,7 +72,14 @@ import { NotesService, NoteCreateRequest } from '../../../api';
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" id="client-note-cancel-btn" data-testid="client-note-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="client-note-cancel-btn"
+                data-testid="client-note-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button

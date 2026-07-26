@@ -165,7 +165,9 @@ import {
                   required
                 >
                   @for (staff of staffOptions; track staff.id) {
-                    <ion-select-option [value]="staff.id">{{ staff.displayName }}</ion-select-option>
+                    <ion-select-option [value]="staff.id">{{
+                      staff.displayName
+                    }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
@@ -219,7 +221,9 @@ import {
             <!-- Expected Disbursement Date (Only for Loan Approval) -->
             @if (command === 'approve' && accountType === 'loan') {
               <ion-item fill="outline" class="form-item">
-                <ion-label position="stacked">{{ 'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate }}</ion-label>
+                <ion-label position="stacked">{{
+                  'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate
+                }}</ion-label>
                 <ion-input
                   id="account-action-disbursement-date"
                   data-testid="account-action-disbursement-date"

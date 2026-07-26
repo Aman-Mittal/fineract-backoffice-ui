@@ -84,8 +84,16 @@ import {
               <ion-row>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_TYPE' | translate }}</ion-label>
-                    <ion-select name="addressTypeId" [(ngModel)]="address.addressTypeId" required id="address-type-select" data-testid="address-type-select">
+                    <ion-label position="stacked">{{
+                      'CLIENTS.ADDRESS_TYPE' | translate
+                    }}</ion-label>
+                    <ion-select
+                      name="addressTypeId"
+                      [(ngModel)]="address.addressTypeId"
+                      required
+                      id="address-type-select"
+                      data-testid="address-type-select"
+                    >
                       @for (type of addressTypes(); track type.id) {
                         <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                       }
@@ -95,50 +103,102 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_LINE_1' | translate }}</ion-label>
-                    <ion-input type="text" name="addressLine1" [(ngModel)]="address.addressLine1" required id="address-line1-input" data-testid="address-line1-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.ADDRESS_LINE_1' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="addressLine1"
+                      [(ngModel)]="address.addressLine1"
+                      required
+                      id="address-line1-input"
+                      data-testid="address-line1-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_LINE_2' | translate }}</ion-label>
-                    <ion-input type="text" name="addressLine2" [(ngModel)]="address.addressLine2" id="address-line2-input" data-testid="address-line2-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.ADDRESS_LINE_2' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="addressLine2"
+                      [(ngModel)]="address.addressLine2"
+                      id="address-line2-input"
+                      data-testid="address-line2-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.ADDRESS_LINE_3' | translate }}</ion-label>
-                    <ion-input type="text" name="addressLine3" [(ngModel)]="address.addressLine3" id="address-line3-input" data-testid="address-line3-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.ADDRESS_LINE_3' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="addressLine3"
+                      [(ngModel)]="address.addressLine3"
+                      id="address-line3-input"
+                      data-testid="address-line3-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.CITY' | translate }}</ion-label>
-                    <ion-input type="text" name="city" [(ngModel)]="address.city" id="address-city-input" data-testid="address-city-input"></ion-input>
+                    <ion-input
+                      type="text"
+                      name="city"
+                      [(ngModel)]="address.city"
+                      id="address-city-input"
+                      data-testid="address-city-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.TOWN_VILLAGE' | translate }}</ion-label>
-                    <ion-input type="text" name="townVillage" [(ngModel)]="address.townVillage" id="address-town-input" data-testid="address-town-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.TOWN_VILLAGE' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="townVillage"
+                      [(ngModel)]="address.townVillage"
+                      id="address-town-input"
+                      data-testid="address-town-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.COUNTY_DISTRICT' | translate }}</ion-label>
-                    <ion-input type="text" name="countyDistrict" [(ngModel)]="address.countyDistrict" id="address-county-input" data-testid="address-county-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.COUNTY_DISTRICT' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="countyDistrict"
+                      [(ngModel)]="address.countyDistrict"
+                      id="address-county-input"
+                      data-testid="address-county-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.STATE' | translate }}</ion-label>
-                    <ion-select name="stateProvinceId" [(ngModel)]="address.stateProvinceId" id="address-state-select" data-testid="address-state-select">
+                    <ion-select
+                      name="stateProvinceId"
+                      [(ngModel)]="address.stateProvinceId"
+                      id="address-state-select"
+                      data-testid="address-state-select"
+                    >
                       @for (state of states(); track state.id) {
                         <ion-select-option [value]="state.id">{{ state.name }}</ion-select-option>
                       }
@@ -149,9 +209,16 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.COUNTRY' | translate }}</ion-label>
-                    <ion-select name="countryId" [(ngModel)]="address.countryId" id="address-country-select" data-testid="address-country-select">
+                    <ion-select
+                      name="countryId"
+                      [(ngModel)]="address.countryId"
+                      id="address-country-select"
+                      data-testid="address-country-select"
+                    >
                       @for (country of countries(); track country.id) {
-                        <ion-select-option [value]="country.id">{{ country.name }}</ion-select-option>
+                        <ion-select-option [value]="country.id">{{
+                          country.name
+                        }}</ion-select-option>
                       }
                     </ion-select>
                   </ion-item>
@@ -159,39 +226,78 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'CLIENTS.POSTAL_CODE' | translate }}</ion-label>
-                    <ion-input type="text" name="postalCode" [(ngModel)]="address.postalCode" id="address-postal-input" data-testid="address-postal-input"></ion-input>
+                    <ion-label position="stacked">{{
+                      'CLIENTS.POSTAL_CODE' | translate
+                    }}</ion-label>
+                    <ion-input
+                      type="text"
+                      name="postalCode"
+                      [(ngModel)]="address.postalCode"
+                      id="address-postal-input"
+                      data-testid="address-postal-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.LATITUDE' | translate }}</ion-label>
-                    <ion-input type="number" name="latitude" [(ngModel)]="address.latitude" id="address-latitude-input" data-testid="address-latitude-input"></ion-input>
+                    <ion-input
+                      type="number"
+                      name="latitude"
+                      [(ngModel)]="address.latitude"
+                      id="address-latitude-input"
+                      data-testid="address-latitude-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.LONGITUDE' | translate }}</ion-label>
-                    <ion-input type="number" name="longitude" [(ngModel)]="address.longitude" id="address-longitude-input" data-testid="address-longitude-input"></ion-input>
+                    <ion-input
+                      type="number"
+                      name="longitude"
+                      [(ngModel)]="address.longitude"
+                      id="address-longitude-input"
+                      data-testid="address-longitude-input"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
                   <ion-item>
                     <ion-label>{{ 'COMMON.ACTIVE' | translate }}</ion-label>
-                    <ion-toggle name="isActive" [(ngModel)]="address.isActive" id="address-active-toggle" data-testid="address-active-toggle" slot="end"></ion-toggle>
+                    <ion-toggle
+                      name="isActive"
+                      [(ngModel)]="address.isActive"
+                      id="address-active-toggle"
+                      data-testid="address-active-toggle"
+                      slot="end"
+                    ></ion-toggle>
                   </ion-item>
                 </ion-col>
               </ion-row>
             </ion-grid>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" id="address-cancel-btn" data-testid="address-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="address-cancel-btn"
+                data-testid="address-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="!addressForm.form.valid" id="address-submit-btn" data-testid="address-submit-btn">
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="!addressForm.form.valid"
+                id="address-submit-btn"
+                data-testid="address-submit-btn"
+              >
                 {{ 'COMMON.SAVE' | translate }}
               </ion-button>
             </div>

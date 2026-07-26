@@ -39,13 +39,7 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
 @Component({
   selector: 'app-tellers-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonButton,
-    IonIcon,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       title="nav.tellers"

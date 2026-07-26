@@ -104,31 +104,64 @@ import {
               <ion-row>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.NAME' | translate }}</ion-label>
-                    <ion-input id="wc-product-name" data-testid="wc-product-name" name="name" [(ngModel)]="product.name" required></ion-input>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.NAME' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="wc-product-name"
+                      data-testid="wc-product-name"
+                      name="name"
+                      [(ngModel)]="product.name"
+                      required
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.SHORT_NAME' | translate }}</ion-label>
-                    <ion-input id="wc-product-short-name" data-testid="wc-product-short-name" name="shortName" [(ngModel)]="product.shortName" required></ion-input>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.SHORT_NAME' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="wc-product-short-name"
+                      data-testid="wc-product-short-name"
+                      name="shortName"
+                      [(ngModel)]="product.shortName"
+                      required
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.DESCRIPTION' | translate }}</ion-label>
-                    <ion-textarea id="wc-product-description" data-testid="wc-product-description" name="description" [(ngModel)]="product.description"></ion-textarea>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.DESCRIPTION' | translate
+                    }}</ion-label>
+                    <ion-textarea
+                      id="wc-product-description"
+                      data-testid="wc-product-description"
+                      name="description"
+                      [(ngModel)]="product.description"
+                    ></ion-textarea>
                   </ion-item>
                 </ion-col>
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.CURRENCY' | translate }}</ion-label>
-                    <ion-select id="wc-product-currency-code" data-testid="wc-product-currency-code" name="currencyCode" [(ngModel)]="product.currencyCode" required>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.CURRENCY' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-currency-code"
+                      data-testid="wc-product-currency-code"
+                      name="currencyCode"
+                      [(ngModel)]="product.currencyCode"
+                      required
+                    >
                       @for (opt of currencyOptions; track opt.code) {
-                        <ion-select-option [value]="opt.code">{{ opt.name }} ({{ opt.code }})</ion-select-option>
+                        <ion-select-option [value]="opt.code"
+                          >{{ opt.name }} ({{ opt.code }})</ion-select-option
+                        >
                       }
                     </ion-select>
                   </ion-item>
@@ -136,7 +169,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.DIGITS_AFTER_DECIMAL' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.DIGITS_AFTER_DECIMAL' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-digits-after-decimal"
                       data-testid="wc-product-digits-after-decimal"
@@ -150,7 +185,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.IN_MULTIPLES_OF' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.IN_MULTIPLES_OF' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-in-multiples-of"
                       data-testid="wc-product-in-multiples-of"
@@ -163,7 +200,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.PRINCIPAL' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.PRINCIPAL' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-principal"
                       data-testid="wc-product-principal"
@@ -177,7 +216,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.PERIOD_PAYMENT_RATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.PERIOD_PAYMENT_RATE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-period-payment-rate"
                       data-testid="wc-product-period-payment-rate"
@@ -191,7 +232,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.REPAYMENT_EVERY' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.REPAYMENT_EVERY' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-repayment-every"
                       data-testid="wc-product-repayment-every"
@@ -205,7 +248,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.REPAYMENT_FREQUENCY' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.REPAYMENT_FREQUENCY' | translate
+                    }}</ion-label>
                     <ion-select
                       id="wc-product-repayment-frequency"
                       data-testid="wc-product-repayment-frequency"
@@ -222,8 +267,16 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.AMORTIZATION_TYPE' | translate }}</ion-label>
-                    <ion-select id="wc-product-amortization-type" data-testid="wc-product-amortization-type" name="amortizationType" [(ngModel)]="product.amortizationType" required>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.AMORTIZATION_TYPE' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-amortization-type"
+                      data-testid="wc-product-amortization-type"
+                      name="amortizationType"
+                      [(ngModel)]="product.amortizationType"
+                      required
+                    >
                       @for (opt of amortizationTypeOptions; track opt.id) {
                         <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                       }
@@ -233,7 +286,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.NPV_DAY_COUNT' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.NPV_DAY_COUNT' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-npv-day-count"
                       data-testid="wc-product-npv-day-count"
@@ -247,7 +302,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.MIN_PRINCIPAL' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.MIN_PRINCIPAL' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-min-principal"
                       data-testid="wc-product-min-principal"
@@ -260,7 +317,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.MAX_PRINCIPAL' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.MAX_PRINCIPAL' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-max-principal"
                       data-testid="wc-product-max-principal"
@@ -273,7 +332,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.MIN_PERIOD_PAYMENT_RATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.MIN_PERIOD_PAYMENT_RATE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-min-period-payment-rate"
                       data-testid="wc-product-min-period-payment-rate"
@@ -286,7 +347,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.MAX_PERIOD_PAYMENT_RATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.MAX_PERIOD_PAYMENT_RATE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="wc-product-max-period-payment-rate"
                       data-testid="wc-product-max-period-payment-rate"
@@ -299,8 +362,15 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | translate }}</ion-label>
-                    <ion-select id="wc-product-accounting-rule" data-testid="wc-product-accounting-rule" name="accountingRule" [(ngModel)]="product.accountingRule">
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-accounting-rule"
+                      data-testid="wc-product-accounting-rule"
+                      name="accountingRule"
+                      [(ngModel)]="product.accountingRule"
+                    >
                       @for (opt of accountingRuleOptions; track opt.id) {
                         <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                       }
@@ -310,8 +380,15 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.BREACH' | translate }}</ion-label>
-                    <ion-select id="wc-product-breach-id" data-testid="wc-product-breach-id" name="breachId" [(ngModel)]="product.breachId">
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.BREACH' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-breach-id"
+                      data-testid="wc-product-breach-id"
+                      name="breachId"
+                      [(ngModel)]="product.breachId"
+                    >
                       @for (opt of breachOptions; track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -321,8 +398,15 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.NEAR_BREACH' | translate }}</ion-label>
-                    <ion-select id="wc-product-near-breach-id" data-testid="wc-product-near-breach-id" name="nearBreachId" [(ngModel)]="product.nearBreachId">
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.NEAR_BREACH' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-near-breach-id"
+                      data-testid="wc-product-near-breach-id"
+                      name="nearBreachId"
+                      [(ngModel)]="product.nearBreachId"
+                    >
                       @for (opt of nearBreachOptions; track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -332,8 +416,15 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.DELINQUENCY_BUCKET' | translate }}</ion-label>
-                    <ion-select id="wc-product-delinquency-bucket-id" data-testid="wc-product-delinquency-bucket-id" name="delinquencyBucketId" [(ngModel)]="product.delinquencyBucketId">
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.DELINQUENCY_BUCKET' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-delinquency-bucket-id"
+                      data-testid="wc-product-delinquency-bucket-id"
+                      name="delinquencyBucketId"
+                      [(ngModel)]="product.delinquencyBucketId"
+                    >
                       @for (opt of delinquencyBucketOptions; track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -343,8 +434,15 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.FUND' | translate }}</ion-label>
-                    <ion-select id="wc-product-fund-id" data-testid="wc-product-fund-id" name="fundId" [(ngModel)]="product.fundId">
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.FUND' | translate
+                    }}</ion-label>
+                    <ion-select
+                      id="wc-product-fund-id"
+                      data-testid="wc-product-fund-id"
+                      name="fundId"
+                      [(ngModel)]="product.fundId"
+                    >
                       @for (opt of fundOptions; track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
@@ -354,7 +452,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.START_DATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.START_DATE' | translate
+                    }}</ion-label>
                     <input
                       id="wc-product-start-date"
                       data-testid="wc-product-start-date"
@@ -370,7 +470,9 @@ import {
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.CLOSE_DATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.CLOSE_DATE' | translate
+                    }}</ion-label>
                     <input
                       id="wc-product-close-date"
                       data-testid="wc-product-close-date"
@@ -386,15 +488,30 @@ import {
 
                 <ion-col size="12">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'WC_LOAN_PRODUCTS.EXTERNAL_ID' | translate }}</ion-label>
-                    <ion-input id="wc-product-external-id" data-testid="wc-product-external-id" name="externalId" [(ngModel)]="product.externalId"></ion-input>
+                    <ion-label position="stacked">{{
+                      'WC_LOAN_PRODUCTS.EXTERNAL_ID' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="wc-product-external-id"
+                      data-testid="wc-product-external-id"
+                      name="externalId"
+                      [(ngModel)]="product.externalId"
+                    ></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
             </ion-grid>
 
             <div class="form-actions">
-              <ion-button id="wc-product-cancel-btn" data-testid="wc-product-cancel-btn" fill="clear" color="medium" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                id="wc-product-cancel-btn"
+                data-testid="wc-product-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button

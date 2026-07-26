@@ -20,12 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,7 +32,7 @@ import {
   LoanTransactionsService,
   GetLoansLoanIdTransactionsTransactionIdResponse,
 } from '../../api';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 
 export interface TransactionDetailDialogData {
   loanId: number;
@@ -213,7 +208,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 export class TransactionDetailDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<TransactionDetailDialogComponent>);
   private readonly transactionsService = inject(LoanTransactionsService);
-  private readonly confirmDialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
   detail = signal<GetLoansLoanIdTransactionsTransactionIdResponse | null>(null);
@@ -264,37 +259,36 @@ export class TransactionDetailDialogComponent implements OnInit {
   }
 
   onConfirmAdjust(): void {
-    const confirmRef = this.confirmDialog.open(ConfirmDialogComponent, {
-      data: {
+    this.dialogService
+      .confirm({
         title: this.translate.instant('LOANS.ACTIONS.ADJUST_TRANSACTION'),
         message: this.translate.instant('LOANS.CONFIRM_ADJUST_TRANSACTION'),
         destructive: true,
-      },
-    });
-    confirmRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.isSaving.set(true);
-      const formattedDate = `${this.adjustDate.getFullYear()}-${String(
-        this.adjustDate.getMonth() + 1,
-      ).padStart(2, '0')}-${String(this.adjustDate.getDate()).padStart(2, '0')}`;
-      this.transactionsService
-        .postLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId, {
-          transactionDate: formattedDate,
-          transactionAmount: this.adjustAmount,
-          note: this.adjustNote,
-          dateFormat: DATE_FORMAT,
-          locale: 'en',
-        })
-        .subscribe({
-          next: () => {
-            this.isSaving.set(false);
-            this.dialogRef.close(true);
-          },
-          error: (err) => {
-            console.error('Failed to adjust transaction', err);
-            this.isSaving.set(false);
-          },
-        });
-    });
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.isSaving.set(true);
+        const formattedDate = `${this.adjustDate.getFullYear()}-${String(
+          this.adjustDate.getMonth() + 1,
+        ).padStart(2, '0')}-${String(this.adjustDate.getDate()).padStart(2, '0')}`;
+        this.transactionsService
+          .postLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId, {
+            transactionDate: formattedDate,
+            transactionAmount: this.adjustAmount,
+            note: this.adjustNote,
+            dateFormat: DATE_FORMAT,
+            locale: 'en',
+          })
+          .subscribe({
+            next: () => {
+              this.isSaving.set(false);
+              this.dialogRef.close(true);
+            },
+            error: (err) => {
+              console.error('Failed to adjust transaction', err);
+              this.isSaving.set(false);
+            },
+          });
+      });
   }
 }

@@ -137,8 +137,14 @@ import {
 
                 <!-- Description -->
                 <ion-col size="12">
-                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_DESCRIPTION_DESC' | translate" class="full-width">
-                    <ion-label position="stacked">{{ 'TELLERS.DESCRIPTION' | translate }}</ion-label>
+                  <ion-item
+                    fill="outline"
+                    [attr.title]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
+                    class="full-width"
+                  >
+                    <ion-label position="stacked">{{
+                      'TELLERS.DESCRIPTION' | translate
+                    }}</ion-label>
                     <ion-textarea
                       name="description"
                       [(ngModel)]="teller.description"
@@ -178,8 +184,12 @@ import {
                       id="teller-status-select"
                       data-testid="teller-status-select"
                     >
-                      <ion-select-option value="ACTIVE">{{ 'COMMON.ACTIVE' | translate }}</ion-select-option>
-                      <ion-select-option value="INACTIVE">{{ 'COMMON.INACTIVE' | translate }}</ion-select-option>
+                      <ion-select-option value="ACTIVE">{{
+                        'COMMON.ACTIVE' | translate
+                      }}</ion-select-option>
+                      <ion-select-option value="INACTIVE">{{
+                        'COMMON.INACTIVE' | translate
+                      }}</ion-select-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -203,7 +213,15 @@ import {
             </ion-grid>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" [disabled]="isSaving" id="teller-cancel-btn" data-testid="teller-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+                id="teller-cancel-btn"
+                data-testid="teller-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button

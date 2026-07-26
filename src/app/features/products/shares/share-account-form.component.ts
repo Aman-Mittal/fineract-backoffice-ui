@@ -155,7 +155,9 @@ interface ShareAccountTemplateResponse {
                         [disabled]="isEditMode"
                       >
                         @for (product of products; track product.id) {
-                          <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
+                          <ion-select-option [value]="product.id">{{
+                            product.name
+                          }}</ion-select-option>
                         }
                       </ion-select>
                     </ion-item>
@@ -176,7 +178,9 @@ interface ShareAccountTemplateResponse {
                 <!-- Requested Shares -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate
+                    }}</ion-label>
                     <ion-input
                       id="share-account-requested-shares"
                       data-testid="share-account-requested-shares"
@@ -191,7 +195,9 @@ interface ShareAccountTemplateResponse {
                 <!-- Application Date -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'SHARE_ACCOUNTS.APPLICATION_DATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'SHARE_ACCOUNTS.APPLICATION_DATE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="share-account-application-date"
                       data-testid="share-account-application-date"
@@ -207,7 +213,9 @@ interface ShareAccountTemplateResponse {
                 <!-- Savings Account ID (Optional but recommended) -->
                 <ion-col size="12">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate
+                    }}</ion-label>
                     <ion-select
                       id="share-account-savings-select"
                       data-testid="share-account-savings-select"

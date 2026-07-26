@@ -29,13 +29,7 @@ import {
 } from '@angular/core';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonList,
-  IonSpinner,
-} from '@ionic/angular/standalone';
+import { IonItem, IonLabel, IonInput, IonList, IonSpinner } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
 import { ClientService, GetClientsResponse } from '../../../api';
@@ -49,15 +43,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
 @Component({
   selector: 'app-client-search',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonList,
-    IonSpinner,
-    TranslateModule,
-  ],
+  imports: [ReactiveFormsModule, IonItem, IonLabel, IonInput, IonList, IonSpinner, TranslateModule],
   template: `
     <div class="client-search-wrapper">
       <ion-item fill="outline">
@@ -77,7 +63,11 @@ import { ClientService, GetClientsResponse } from '../../../api';
       </ion-item>
 
       @if (showDropdown && filteredClients.length > 0) {
-        <ion-list class="autocomplete-list" id="client-search-results" data-testid="client-search-results">
+        <ion-list
+          class="autocomplete-list"
+          id="client-search-results"
+          data-testid="client-search-results"
+        >
           @for (client of filteredClients; track client['id']) {
             <ion-item
               button

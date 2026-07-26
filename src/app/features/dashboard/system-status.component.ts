@@ -72,7 +72,11 @@ import {
       <ion-grid class="widgets-grid-container">
         <ion-row>
           <ion-col size="12" size-sm="6" size-lg="3">
-            <ion-card class="widget-card clients" id="dashboard-clients-widget" data-testid="dashboard-clients-widget">
+            <ion-card
+              class="widget-card clients"
+              id="dashboard-clients-widget"
+              data-testid="dashboard-clients-widget"
+            >
               <ion-card-content>
                 <div class="widget-header">
                   <ion-icon name="people-outline"></ion-icon>
@@ -91,7 +95,11 @@ import {
           </ion-col>
 
           <ion-col size="12" size-sm="6" size-lg="3">
-            <ion-card class="widget-card loans" id="dashboard-loans-widget" data-testid="dashboard-loans-widget">
+            <ion-card
+              class="widget-card loans"
+              id="dashboard-loans-widget"
+              data-testid="dashboard-loans-widget"
+            >
               <ion-card-content>
                 <div class="widget-header">
                   <ion-icon name="wallet-outline"></ion-icon>
@@ -112,7 +120,11 @@ import {
           </ion-col>
 
           <ion-col size="12" size-sm="6" size-lg="3">
-            <ion-card class="widget-card savings" id="dashboard-savings-widget" data-testid="dashboard-savings-widget">
+            <ion-card
+              class="widget-card savings"
+              id="dashboard-savings-widget"
+              data-testid="dashboard-savings-widget"
+            >
               <ion-card-content>
                 <div class="widget-header">
                   <ion-icon name="card-outline"></ion-icon>
@@ -133,7 +145,11 @@ import {
           </ion-col>
 
           <ion-col size="12" size-sm="6" size-lg="3">
-            <ion-card class="widget-card status" id="dashboard-health-widget" data-testid="dashboard-health-widget">
+            <ion-card
+              class="widget-card status"
+              id="dashboard-health-widget"
+              data-testid="dashboard-health-widget"
+            >
               <ion-card-content>
                 <div class="widget-header">
                   <ion-icon name="hardware-chip-outline"></ion-icon>

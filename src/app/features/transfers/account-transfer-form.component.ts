@@ -110,7 +110,9 @@ export interface MiniAccount {
                         data-testid="transfer-from-office-select"
                       >
                         @for (office of offices(); track office.id) {
-                          <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
+                          <ion-select-option [value]="office.id">{{
+                            office.name
+                          }}</ion-select-option>
                         }
                       </ion-select>
                     </ion-item>
@@ -126,13 +128,17 @@ export interface MiniAccount {
                         data-testid="transfer-from-client-select"
                       >
                         @for (client of fromClients(); track client.id) {
-                          <ion-select-option [value]="client.id">{{ client.displayName }}</ion-select-option>
+                          <ion-select-option [value]="client.id">{{
+                            client.displayName
+                          }}</ion-select-option>
                         }
                       </ion-select>
                     </ion-item>
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</ion-label>
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_TYPE' | translate
+                      }}</ion-label>
                       <ion-select
                         name="fromAccountType"
                         [(ngModel)]="request.fromAccountType"
@@ -141,13 +147,19 @@ export interface MiniAccount {
                         id="transfer-from-account-type-select"
                         data-testid="transfer-from-account-type-select"
                       >
-                        <ion-select-option [value]="'2'">{{ 'nav.savingsAccounts' | translate }}</ion-select-option>
-                        <ion-select-option [value]="'1'">{{ 'nav.loanAccounts' | translate }}</ion-select-option>
+                        <ion-select-option [value]="'2'">{{
+                          'nav.savingsAccounts' | translate
+                        }}</ion-select-option>
+                        <ion-select-option [value]="'1'">{{
+                          'nav.loanAccounts' | translate
+                        }}</ion-select-option>
                       </ion-select>
                     </ion-item>
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_NO' | translate }}</ion-label>
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_NO' | translate
+                      }}</ion-label>
                       <ion-select
                         name="fromAccountId"
                         [(ngModel)]="request.fromAccountId"
@@ -180,7 +192,9 @@ export interface MiniAccount {
                         data-testid="transfer-to-office-select"
                       >
                         @for (office of offices(); track office.id) {
-                          <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
+                          <ion-select-option [value]="office.id">{{
+                            office.name
+                          }}</ion-select-option>
                         }
                       </ion-select>
                     </ion-item>
@@ -196,13 +210,17 @@ export interface MiniAccount {
                         data-testid="transfer-to-client-select"
                       >
                         @for (client of toClients(); track client.id) {
-                          <ion-select-option [value]="client.id">{{ client.displayName }}</ion-select-option>
+                          <ion-select-option [value]="client.id">{{
+                            client.displayName
+                          }}</ion-select-option>
                         }
                       </ion-select>
                     </ion-item>
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</ion-label>
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_TYPE' | translate
+                      }}</ion-label>
                       <ion-select
                         name="toAccountType"
                         [(ngModel)]="request.toAccountType"
@@ -211,13 +229,19 @@ export interface MiniAccount {
                         id="transfer-to-account-type-select"
                         data-testid="transfer-to-account-type-select"
                       >
-                        <ion-select-option [value]="'2'">{{ 'nav.savingsAccounts' | translate }}</ion-select-option>
-                        <ion-select-option [value]="'1'">{{ 'nav.loanAccounts' | translate }}</ion-select-option>
+                        <ion-select-option [value]="'2'">{{
+                          'nav.savingsAccounts' | translate
+                        }}</ion-select-option>
+                        <ion-select-option [value]="'1'">{{
+                          'nav.loanAccounts' | translate
+                        }}</ion-select-option>
                       </ion-select>
                     </ion-item>
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_NO' | translate }}</ion-label>
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_NO' | translate
+                      }}</ion-label>
                       <ion-select
                         name="toAccountId"
                         [(ngModel)]="request.toAccountId"
@@ -239,7 +263,9 @@ export interface MiniAccount {
 
             <div class="transfer-details">
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.TRANSFER_AMOUNT' | translate }}</ion-label>
+                <ion-label position="stacked">{{
+                  'CLIENTS.TRANSFER_AMOUNT' | translate
+                }}</ion-label>
                 <ion-input
                   type="number"
                   name="transferAmount"
@@ -278,7 +304,14 @@ export interface MiniAccount {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" id="transfer-cancel-btn" data-testid="transfer-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="transfer-cancel-btn"
+                data-testid="transfer-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button

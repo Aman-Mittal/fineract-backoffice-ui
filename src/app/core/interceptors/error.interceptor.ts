@@ -19,15 +19,15 @@
 
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, throwError } from 'rxjs';
+import { NotificationService } from '../services/notification.service';
 
 /**
  * Functional HTTP Interceptor that catches API errors and displays all validation
- * errors in a stacked notification using a Snackbar.
+ * errors in a stacked notification toast.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const snackBar = inject(MatSnackBar);
+  const notifications = inject(NotificationService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -65,12 +65,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      snackBar.open(errorMessage, 'Close', {
-        duration: 10000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-        panelClass: ['error-snackbar'],
-      });
+      notifications.error(errorMessage);
 
       return throwError(() => error);
     }),

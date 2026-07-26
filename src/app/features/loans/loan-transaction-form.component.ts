@@ -32,7 +32,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
 import {
   LoanTransactionsService,
   LoansService,
@@ -40,7 +39,7 @@ import {
   GetLoansLoanIdTransactionsTemplateResponse,
   GetPaymentTypeOptions,
 } from '../../api';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -251,7 +250,7 @@ export class LoanTransactionFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
@@ -320,18 +319,17 @@ export class LoanTransactionFormComponent implements OnInit {
 
   onSubmit(): void {
     if (DESTRUCTIVE_TYPES.has(this.transactionType)) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: {
+      this.dialogService
+        .confirm({
           title: this.translate.instant(this.transactionTitleKey),
           message: this.translate.instant(
             CONFIRM_MESSAGE_KEYS[this.transactionType] || 'COMMON.CONFIRM',
           ),
           destructive: true,
-        },
-      });
-      dialogRef.afterClosed().subscribe((confirmed) => {
-        if (confirmed) this.performSubmit();
-      });
+        })
+        .then((confirmed) => {
+          if (confirmed) this.performSubmit();
+        });
     } else {
       this.performSubmit();
     }

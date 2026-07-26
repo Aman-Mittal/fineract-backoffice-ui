@@ -99,7 +99,9 @@ const PRODUCT_TYPE = 'share';
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.SHORT_NAME' | translate
+                    }}</ion-label>
                     <ion-input
                       id="share-product-short-name"
                       data-testid="share-product-short-name"
@@ -113,7 +115,9 @@ const PRODUCT_TYPE = 'share';
 
                 <ion-col size="12">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DESCRIPTION' | translate
+                    }}</ion-label>
                     <ion-textarea
                       id="share-product-description"
                       data-testid="share-product-description"
@@ -134,7 +138,9 @@ const PRODUCT_TYPE = 'share';
                       [(ngModel)]="product.currencyCode"
                       required
                     >
-                      <ion-select-option [value]="DEFAULT_CURRENCY">{{ DEFAULT_CURRENCY }}</ion-select-option>
+                      <ion-select-option [value]="DEFAULT_CURRENCY">{{
+                        DEFAULT_CURRENCY
+                      }}</ion-select-option>
                       <ion-select-option value="EUR">EUR</ion-select-option>
                       <ion-select-option value="INR">INR</ion-select-option>
                     </ion-select>
@@ -143,7 +149,9 @@ const PRODUCT_TYPE = 'share';
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.TOTAL_SHARES' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.TOTAL_SHARES' | translate
+                    }}</ion-label>
                     <ion-input
                       id="share-product-total-shares"
                       data-testid="share-product-total-shares"
@@ -157,7 +165,9 @@ const PRODUCT_TYPE = 'share';
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.UNIT_PRICE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.UNIT_PRICE' | translate
+                    }}</ion-label>
                     <ion-input
                       id="share-product-unit-price"
                       data-testid="share-product-unit-price"
@@ -171,7 +181,9 @@ const PRODUCT_TYPE = 'share';
 
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{ 'PRODUCTS.NOMINAL_SHARES' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.NOMINAL_SHARES' | translate
+                    }}</ion-label>
                     <ion-input
                       id="share-product-nominal-shares"
                       data-testid="share-product-nominal-shares"

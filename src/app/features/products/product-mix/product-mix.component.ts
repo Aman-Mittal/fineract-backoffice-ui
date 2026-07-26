@@ -68,7 +68,9 @@ import { ProductMixService, LoanProductData } from '../../../api';
         <ion-card-content>
           <form #mixForm="ngForm" (ngSubmit)="onSubmit()" class="mix-form">
             <ion-item fill="outline" class="form-item">
-              <ion-label position="stacked">{{ 'PRODUCT_MIX.RESTRICTED_PRODUCTS' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'PRODUCT_MIX.RESTRICTED_PRODUCTS' | translate
+              }}</ion-label>
               <ion-select
                 id="product-mix-restricted-products"
                 data-testid="product-mix-restricted-products"
@@ -178,7 +180,7 @@ export class ProductMixComponent implements OnInit {
           .filter((id): id is number => id !== undefined);
         this.hasMix = restricted.length > 0;
       },
-  error: (err) => console.error('Failed to load product mix', err),
+      error: (err) => console.error('Failed to load product mix', err),
     });
   }
 

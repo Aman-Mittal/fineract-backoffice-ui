@@ -99,7 +99,9 @@ import {
                       data-testid="cashier-staff-select"
                     >
                       @for (member of staff; track member.id) {
-                        <ion-select-option [value]="member.id">{{ member.displayName }}</ion-select-option>
+                        <ion-select-option [value]="member.id">{{
+                          member.displayName
+                        }}</ion-select-option>
                       }
                     </ion-select>
                   </ion-item>
@@ -172,7 +174,15 @@ import {
             </ion-grid>
 
             <div class="form-actions">
-              <ion-button fill="clear" color="medium" type="button" (click)="onCancel()" [disabled]="isSaving" id="cashier-cancel-btn" data-testid="cashier-cancel-btn">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+                id="cashier-cancel-btn"
+                data-testid="cashier-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button

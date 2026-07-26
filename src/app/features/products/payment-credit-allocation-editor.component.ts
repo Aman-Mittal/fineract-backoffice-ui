@@ -77,7 +77,9 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
             </div>
 
             <ion-item fill="outline" class="future-installment-field form-item">
-              <ion-label position="stacked">{{ 'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate
+              }}</ion-label>
               <ion-select
                 [(ngModel)]="rule.futureInstallmentAllocationRule"
                 [name]="'futureInstallmentRule' + ruleIndex"
@@ -125,7 +127,9 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
         @if (availablePaymentTransactionTypes().length) {
           <div class="add-transaction-type-row">
             <ion-item fill="outline" class="form-item flex-1">
-              <ion-label position="stacked">{{ 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
+              }}</ion-label>
               <ion-select name="newPaymentTransactionType" [(ngModel)]="newPaymentTransactionType">
                 @for (option of availablePaymentTransactionTypes(); track option.code) {
                   <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
@@ -204,7 +208,9 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
         @if (availableCreditTransactionTypes().length) {
           <div class="add-transaction-type-row">
             <ion-item fill="outline" class="form-item flex-1">
-              <ion-label position="stacked">{{ 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
+              }}</ion-label>
               <ion-select name="newCreditTransactionType" [(ngModel)]="newCreditTransactionType">
                 @for (option of availableCreditTransactionTypes(); track option.code) {
                   <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>

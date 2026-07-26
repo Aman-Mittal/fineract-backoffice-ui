@@ -19,12 +19,7 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
-import {
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-} from '@ionic/angular/standalone';
+import { IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { TranslateModule } from '@ngx-translate/core';
 

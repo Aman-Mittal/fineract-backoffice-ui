@@ -30,6 +30,7 @@ import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
+import { provideIonicTesting } from '../../testing/ionic-testing';
 
 describe('LoanViewComponent', () => {
   let component: LoanViewComponent;
@@ -57,6 +58,7 @@ describe('LoanViewComponent', () => {
       imports: [LoanViewComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
+        provideIonicTesting(),
         { provide: LoansService, useValue: loansServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },

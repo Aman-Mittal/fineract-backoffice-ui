@@ -29,13 +29,7 @@ import {
 @Component({
   selector: 'app-standing-instruction-history',
   standalone: true,
-  imports: [
-    TranslateModule,
-    DataTableComponent,
-    CellTemplateDirective,
-    DatePipe,
-    DecimalPipe,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, DatePipe, DecimalPipe],
   template: `
     <app-data-table
       title="CLIENTS.STANDING_INSTRUCTIONS_HISTORY"

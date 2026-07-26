@@ -85,7 +85,9 @@ import {
             </ion-item>
 
             <ion-item fill="outline" class="form-item">
-              <ion-label position="stacked">{{ 'TAX_COMPONENTS.PERCENTAGE' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'TAX_COMPONENTS.PERCENTAGE' | translate
+              }}</ion-label>
               <ion-input
                 id="tax-component-percentage"
                 data-testid="tax-component-percentage"
