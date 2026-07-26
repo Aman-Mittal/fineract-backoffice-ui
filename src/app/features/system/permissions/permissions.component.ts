@@ -20,11 +20,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+} from '@ionic/angular/standalone';
 
 /**
  * Maker-checker permission configuration: lists permissions grouped by their
@@ -37,55 +42,58 @@ import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } fro
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatTableModule,
-    MatCheckboxModule,
-    MatButtonModule,
+    CdkTableModule,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
     <div class="permissions-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'PERMISSIONS.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'PERMISSIONS.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           @for (group of groupNames; track group) {
             <h3 class="group-heading">{{ group }}</h3>
-            <table mat-table [dataSource]="grouped[group]" class="permissions-table">
-              <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PERMISSIONS.CODE' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+            <table cdk-table [dataSource]="grouped[group]" class="permissions-table">
+              <ng-container cdkColumnDef="code">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.CODE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.code }}</td>
               </ng-container>
-              <ng-container matColumnDef="entityName">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PERMISSIONS.ENTITY' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.entityName }}</td>
+              <ng-container cdkColumnDef="entityName">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.ENTITY' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.entityName }}</td>
               </ng-container>
-              <ng-container matColumnDef="actionName">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PERMISSIONS.ACTION' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.actionName }}</td>
+              <ng-container cdkColumnDef="actionName">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.ACTION' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.actionName }}</td>
               </ng-container>
-              <ng-container matColumnDef="selected">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="selected">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'PERMISSIONS.MAKER_CHECKER' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">
-                  <mat-checkbox
+                <td cdk-cell *cdkCellDef="let row">
+                  <ion-checkbox
                     [(ngModel)]="row.selected"
                     (ngModelChange)="onToggle(row)"
-                  ></mat-checkbox>
+                  ></ion-checkbox>
                 </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
             </table>
           }
           <div class="actions">
-            <button mat-raised-button color="primary" [disabled]="isSaving" (click)="onSave()">
+            <ion-button color="primary" [disabled]="isSaving" (click)="onSave()">
               {{ 'COMMON.SAVE' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

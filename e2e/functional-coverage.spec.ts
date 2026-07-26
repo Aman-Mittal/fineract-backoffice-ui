@@ -18,14 +18,14 @@ const TEST_PASSWORD = 'password';
 const TENANT_DEFAULT = 'default';
 const API_BASE = '/api/v1';
 const HEAD_OFFICE = 'Head Office';
-const CARD_TITLE = 'mat-card-title';
+const CARD_TITLE = 'ion-card-title';
 const BTN_SAVE = 'Save';
 const BTN_CANCEL = 'Cancel';
 
 const URL_CLIENTS_CREATE = '/clients/create';
-const SELECT_LEGAL_FORM = 'mat-select[name="legalFormId"]';
-const SELECT_OFFICE = 'mat-select[name="officeId"]';
-const MAT_OPTION = 'mat-option';
+const SELECT_LEGAL_FORM = 'ion-select[name="legalFormId"]';
+const SELECT_OFFICE = 'ion-select[name="officeId"]';
+const OPTION = 'ion-alert [role="radio"], ion-popover [role="radio"]';
 const ROUTE_CLIENT_2001 = '**/api/v1/clients/2001**';
 const URL_CLIENT_2001 = '/clients/2001';
 const ARIA_SELECTED = 'aria-selected';
@@ -180,10 +180,13 @@ test.describe('Client CRUD Workflow', () => {
 
     /* fill required fields */
     await page.locator(SELECT_LEGAL_FORM).click();
-    await page.getByRole('option', { name: /Person/i }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: /Person/i })
+      .click();
 
     await page.locator(SELECT_OFFICE).click();
-    await page.locator(MAT_OPTION).first().click();
+    await page.locator(OPTION).first().click();
 
     /* set submitted on date */
     await page.locator('input[name="submittedOnDate"]').click();
@@ -221,11 +224,14 @@ test.describe('Client CRUD Workflow', () => {
 
     /* select Entity legal form */
     await page.locator(SELECT_LEGAL_FORM).click();
-    await page.getByRole('option', { name: /Entity/i }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: /Entity/i })
+      .click();
 
     /* fill required office */
     await page.locator(SELECT_OFFICE).click();
-    await page.locator(MAT_OPTION).first().click();
+    await page.locator(OPTION).first().click();
 
     /* date pickers */
     await page.locator('input[name="submittedOnDate"]').click();
@@ -507,12 +513,12 @@ test.describe('Search & Filter Interactions', () => {
     await page.getByRole('link', { name: 'Groups' }).click();
 
     /* verify office filter dropdown is present */
-    const officeFilter = page.locator('mat-select').first();
+    const officeFilter = page.locator('ion-select').first();
     await expect(officeFilter).toBeVisible();
 
     /* open the dropdown and check options */
     await officeFilter.click();
-    await expect(page.getByRole('option').first()).toBeVisible();
+    await expect(page.locator('ion-alert, ion-popover').getByRole('radio').first()).toBeVisible();
     await page.keyboard.press('Escape');
   });
 
@@ -689,8 +695,8 @@ test.describe('Office CRUD', () => {
     await page.locator('input[name="name"]').fill('Branch Office');
 
     /* select parent office */
-    await page.locator('mat-select[name="parentId"]').click();
-    await page.locator(MAT_OPTION).first().click();
+    await page.locator('ion-select[name="parentId"]').click();
+    await page.locator(OPTION).first().click();
 
     /* fill opening date */
     await page.locator('input[name="openingDate"]').click();
@@ -1033,8 +1039,8 @@ test.describe('Reporting — Run Report Flow', () => {
     await expect(page).toHaveURL(/\/reporting\/run/);
 
     /* select office and run */
-    await page.locator('mat-select').click();
-    await page.getByRole('option', { name: HEAD_OFFICE }).click();
+    await page.locator('ion-select').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
     await page.getByRole('button', { name: 'Run Report' }).click();
 
     /* verify results */
@@ -1088,12 +1094,14 @@ test.describe('Create Office Dialog from Client Form', () => {
     await expect(page).toHaveURL(URL_CLIENTS_CREATE);
 
     /* click the add office button (the + icon) */
-    const addOfficeBtn = page.locator('button mat-icon', { hasText: 'add_circle' }).first();
+    const addOfficeBtn = page
+      .locator('ion-ion-button:has(ion-icon[name="add-circle-outline"])')
+      .first();
     await expect(addOfficeBtn).toBeVisible();
     await addOfficeBtn.click();
 
     /* verify dialog opens */
-    const dialog = page.locator('mat-dialog-container');
+    const dialog = page.locator('ion-modal');
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText(/Create Office/i);
   });

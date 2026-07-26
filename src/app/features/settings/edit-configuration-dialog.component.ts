@@ -17,31 +17,21 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../../api';
+import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-edit-configuration-dialog',
   standalone: true,
-  imports: [
-    FormsModule,
-    TranslateModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-  ],
+  imports: [FormsModule, TranslateModule, IonButton, IonInput, IonItem, IonLabel],
   template: `
-    <h2 mat-dialog-title>
+    <h2 class="dialog-title">
       {{ 'SETTINGS.EDIT_CONFIG_TITLE' | translate: { name: config['name'] } }}
     </h2>
-    <mat-dialog-content>
+    <div class="dialog-content">
       <div class="config-details">
         @if (config['description']) {
           <p class="description">{{ config['description'] }}</p>
@@ -49,23 +39,18 @@ import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../.
       </div>
 
       <form #configForm="ngForm" class="config-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'COMMON.VALUE' | translate }}</mat-label>
-          <input matInput type="number" name="value" [(ngModel)]="value" required />
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'COMMON.VALUE' | translate }}</ion-label>
+          <ion-input type="number" name="value" [(ngModel)]="value" required></ion-input>
+        </ion-item>
       </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="configForm.invalid || isSaving"
-        (click)="onSubmit()"
-      >
+    </div>
+    <div class="dialog-actions">
+      <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+      <ion-button color="primary" [disabled]="configForm.invalid || isSaving" (click)="onSubmit()">
         {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-      </button>
-    </mat-dialog-actions>
+      </ion-button>
+    </div>
   `,
   styles: [
     `
@@ -92,10 +77,12 @@ import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../.
 })
 export class EditConfigurationDialogComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
-  private readonly dialogRef = inject(MatDialogRef<EditConfigurationDialogComponent>);
-  private readonly data = inject<{ config: Record<string, unknown> }>(MAT_DIALOG_DATA);
+  private readonly modalController = inject(ModalController);
+  @Input({ required: true }) data!: { config: Record<string, unknown> };
 
-  config = this.data.config;
+  get config(): Record<string, unknown> {
+    return this.data.config;
+  }
   value = 0;
   isSaving = false;
 
@@ -111,12 +98,12 @@ export class EditConfigurationDialogComponent implements OnInit {
 
     const configId = this.config['id'] as number;
     this.configService.putConfigurationsConfigId(configId, request).subscribe({
-      next: () => this.dialogRef.close({ ...this.config, value: this.value }),
+      next: () => this.modalController.dismiss({ ...this.config, value: this.value }),
       error: () => (this.isSaving = false),
     });
   }
 
   onCancel() {
-    this.dialogRef.close();
+    this.modalController.dismiss();
   }
 }

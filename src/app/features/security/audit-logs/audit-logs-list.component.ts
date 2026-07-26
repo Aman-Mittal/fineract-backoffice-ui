@@ -20,25 +20,30 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatInputModule } from '@angular/material/input';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { AuditsService } from '../../../api';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
+import { PageEvent, SortEvent } from '../../../shared/models/table.model';
+import { DialogService } from '../../../core/services/dialog.service';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import {
+  IonAccordion,
+  IonAccordionGroup,
+  IonButton,
+  IonDatetime,
+  IonDatetimeButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 export interface AuditFilters {
   actionName: string;
@@ -55,107 +60,125 @@ export interface AuditFilters {
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatInputModule,
-    MatExpansionModule,
     FormsModule,
     DataTableComponent,
     CellTemplateDirective,
-    MatDialogModule,
     DatePipe,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonAccordion,
+    IonAccordionGroup,
+    TooltipDirective,
   ],
   template: `
     <div class="audit-logs-container">
-      <mat-expansion-panel class="filter-panel" [expanded]="false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>filter_list</mat-icon>
-            {{ 'COMMON.FILTERS' | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+      <ion-accordion-group class="filter-panel">
+        <ion-accordion value="filters">
+          <ion-item slot="header">
+            <ion-icon slot="start" name="filter-outline"></ion-icon>
+            <ion-label>{{ 'COMMON.FILTERS' | translate }}</ion-label>
+          </ion-item>
+          <div slot="content">
+            <div class="filter-grid">
+              <ion-item fill="outline">
+                <ion-label position="stacked">Action Name</ion-label>
+                <ion-input
+                  [(ngModel)]="activeFilters.actionName"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-        <div class="filter-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Action Name</mat-label>
-            <input
-              matInput
-              [(ngModel)]="activeFilters.actionName"
-              (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Entity Name</ion-label>
+                <ion-input
+                  [(ngModel)]="activeFilters.entityName"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Entity Name</mat-label>
-            <input
-              matInput
-              [(ngModel)]="activeFilters.entityName"
-              (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Resource ID</ion-label>
+                <ion-input
+                  type="number"
+                  [(ngModel)]="activeFilters.resourceId"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Resource ID</mat-label>
-            <input
-              matInput
-              type="number"
-              [(ngModel)]="activeFilters.resourceId"
-              (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Maker ID</ion-label>
+                <ion-input
+                  type="number"
+                  [(ngModel)]="activeFilters.makerId"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Maker ID</mat-label>
-            <input
-              matInput
-              type="number"
-              [(ngModel)]="activeFilters.makerId"
-              (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Maker Date From</ion-label>
+                <ion-datetime-button
+                  datetime="activeFiltersmakerDateTimeFrom-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="activeFiltersmakerDateTimeFrom-picker"
+                      data-testid="activeFiltersmakerDateTimeFrom-picker"
+                      presentation="date"
+                      name="activeFiltersmakerDateTimeFrom"
+                      [(ngModel)]="activeFilters.makerDateTimeFrom"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Maker Date From</mat-label>
-            <input
-              matInput
-              [matDatepicker]="makerFrom"
-              [(ngModel)]="activeFilters.makerDateTimeFrom"
-            />
-            <mat-datepicker-toggle matSuffix [for]="makerFrom"></mat-datepicker-toggle>
-            <mat-datepicker #makerFrom></mat-datepicker>
-          </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Maker Date To</ion-label>
+                <ion-datetime-button
+                  datetime="activeFiltersmakerDateTimeTo-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="activeFiltersmakerDateTimeTo-picker"
+                      data-testid="activeFiltersmakerDateTimeTo-picker"
+                      presentation="date"
+                      name="activeFiltersmakerDateTimeTo"
+                      [(ngModel)]="activeFilters.makerDateTimeTo"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Maker Date To</mat-label>
-            <input matInput [matDatepicker]="makerTo" [(ngModel)]="activeFilters.makerDateTimeTo" />
-            <mat-datepicker-toggle matSuffix [for]="makerTo"></mat-datepicker-toggle>
-            <mat-datepicker #makerTo></mat-datepicker>
-          </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Processing Result</ion-label>
+                <ion-select interface="popover" [(ngModel)]="activeFilters.processingResult">
+                  <ion-select-option value="">All</ion-select-option>
+                  <ion-select-option value="success">Success</ion-select-option>
+                  <ion-select-option value="failure">Failure</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Processing Result</mat-label>
-            <mat-select [(ngModel)]="activeFilters.processingResult">
-              <mat-option value="">All</mat-option>
-              <mat-option value="success">Success</mat-option>
-              <mat-option value="failure">Failure</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <mat-action-row>
-          <button mat-button color="warn" (click)="onResetFilters()">
-            {{ 'COMMON.RESET' | translate }}
-          </button>
-          <button mat-raised-button color="primary" (click)="onApplyFilters()">
-            {{ 'COMMON.APPLY' | translate }}
-          </button>
-        </mat-action-row>
-      </mat-expansion-panel>
+            <div class="filter-actions">
+              <ion-button fill="clear" color="danger" (click)="onResetFilters()">
+                {{ 'COMMON.RESET' | translate }}
+              </ion-button>
+              <ion-button color="primary" (click)="onApplyFilters()">
+                {{ 'COMMON.APPLY' | translate }}
+              </ion-button>
+            </div>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
 
       <app-data-table
         title="SECURITY.AUDIT_LOGS"
@@ -178,14 +201,14 @@ export interface AuditFilters {
         </ng-template>
 
         <ng-template appCellTemplate="actions" let-row>
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             (click)="onViewDetails(row)"
-            [matTooltip]="'COMMON.VIEW_DETAILS' | translate"
+            [appTooltip]="'COMMON.VIEW_DETAILS' | translate"
           >
-            <mat-icon>visibility</mat-icon>
-          </button>
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
         </ng-template>
       </app-data-table>
     </div>
@@ -194,6 +217,12 @@ export interface AuditFilters {
     `
       .audit-logs-container {
         padding: 16px;
+      }
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 8px 0;
       }
       .filter-panel {
         margin: 24px;
@@ -210,7 +239,7 @@ export interface AuditFilters {
 })
 export class AuditLogsListComponent implements OnInit {
   private readonly auditsService = inject(AuditsService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
 
   columns: ColumnDef[] = [
     { key: 'id', label: 'ID', sortable: true },
@@ -241,11 +270,11 @@ export class AuditLogsListComponent implements OnInit {
     processingResult: '',
   };
 
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
   private filterSubject = new Subject<void>();
 
-  private currentSort: Sort = { active: 'id', direction: 'desc' };
+  private currentSort: SortEvent = { active: 'id', direction: 'desc' };
 
   ngOnInit(): void {
     merge(this.sortSubject, this.pageSubject, this.filterSubject)
@@ -353,17 +382,16 @@ export class AuditLogsListComponent implements OnInit {
     this.pageSubject.next(event);
   }
 
-  onSort(sort: Sort): void {
+  onSort(sort: SortEvent): void {
     this.currentSort = sort;
     this.pageIndex.set(0);
     this.sortSubject.next(sort);
   }
 
-  onViewDetails(row: Record<string, unknown>): void {
+  onViewDetails(row: Record<string, unknown>): Promise<void> {
     const payload = (row['commandAsJson'] as string) || JSON.stringify(row, null, 2);
-    this.dialog.open(ViewPayloadDialogComponent, {
-      width: '600px',
-      data: { payload },
-    });
+    return this.dialogService
+      .open(ViewPayloadDialogComponent, { data: { payload } })
+      .then(() => undefined);
   }
 }

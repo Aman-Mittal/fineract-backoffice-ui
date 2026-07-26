@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('OfficeFormComponent', () => {
   let component: OfficeFormComponent;
@@ -61,7 +60,7 @@ describe('OfficeFormComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [OfficeFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [OfficeFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -96,7 +95,7 @@ describe('OfficeFormComponent', () => {
         parentId: 1,
         externalId: 'extNew',
       };
-      component.openingDate = new Date(2026, 5, 15);
+      component.openingDate = '2026-06-15';
 
       component.onSubmit();
 
@@ -141,7 +140,7 @@ describe('OfficeFormComponent', () => {
       });
 
       await TestBed.configureTestingModule({
-        imports: [OfficeFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+        imports: [OfficeFormComponent, TranslateModule.forRoot()],
         providers: [
           { provide: OfficesService, useValue: officesServiceSpy },
           { provide: Router, useValue: routerSpy },
@@ -165,7 +164,7 @@ describe('OfficeFormComponent', () => {
       expect(component.office.name).toBe(TEST_OFFICE);
 
       officesServiceSpy.putOfficesOfficeId.and.returnValue(of({}) as unknown as Observable<never>);
-      component.openingDate = new Date(2026, 5, 16);
+      component.openingDate = '2026-06-16';
       component.onSubmit();
 
       expect(officesServiceSpy.putOfficesOfficeId).toHaveBeenCalledWith(

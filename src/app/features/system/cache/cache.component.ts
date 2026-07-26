@@ -20,12 +20,17 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CacheService, CacheData } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonRadio,
+  IonRadioGroup,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Cache configuration: list available cache types and switch the enabled one
@@ -37,49 +42,48 @@ import { CacheService, CacheData } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonRadio,
+    IonRadioGroup,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'CACHE.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'CACHE.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
-          <mat-radio-group class="cache-group" [(ngModel)]="selectedCacheType">
+        <ion-card-content>
+          <ion-radio-group class="cache-group" [(ngModel)]="selectedCacheType">
             @for (cache of caches; track cache.cacheType?.id) {
-              <mat-radio-button [value]="cache.cacheType?.id">
+              <ion-radio [value]="cache.cacheType?.id">
                 {{ cache.cacheType?.value }}
-              </mat-radio-button>
+              </ion-radio>
             }
-          </mat-radio-group>
+          </ion-radio-group>
 
           <div class="form-actions">
-            <button
-              mat-raised-button
+            <ion-button
               color="primary"
               type="button"
               [disabled]="selectedCacheType === null || isSaving"
               (click)="onSave()"
             >
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'COMMON.SAVE' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

@@ -22,15 +22,24 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
+import { toIsoDate } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   OfficesService,
   PostOfficesRequest,
@@ -44,106 +53,97 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('OFFICES.EDIT_OFFICE' | translate)
                 : ('OFFICES.CREATE_OFFICE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #officeForm="ngForm" (ngSubmit)="onSubmit()" class="office-form">
             <div class="form-grid">
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.OFFICE_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'OFFICES.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="office.name" required />
-              </mat-form-field>
+              <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_NAME_DESC' | translate">
+                <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="office.name" required></ion-input>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.PARENT_OFFICE_DESC' | translate"
-              >
-                <mat-label>{{ 'OFFICES.PARENT' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline" [appTooltip]="'HELP.PARENT_OFFICE_DESC' | translate">
+                <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
+                <ion-select
+                  interface="popover"
                   name="parentId"
                   [(ngModel)]="office.parentId"
                   required
                   [disabled]="isEditMode"
                 >
                   @for (o of offices; track o.id) {
-                    <mat-option [value]="o.id">{{ o.name }}</mat-option>
+                    <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
-              >
-                <mat-label>{{ 'OFFICES.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="office.externalId" />
-              </mat-form-field>
+              <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
+                <ion-label position="stacked">{{ 'OFFICES.EXTERNAL_ID' | translate }}</ion-label>
+                <ion-input name="externalId" [(ngModel)]="office.externalId"></ion-input>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.OPENING_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'OFFICES.OPENING_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="openingDate"
-                  [(ngModel)]="openingDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | translate">
+                <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
+                <ion-datetime-button datetime="openingDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="openingDate-picker"
+                      data-testid="openingDate-picker"
+                      presentation="date"
+                      name="openingDate"
+                      [(ngModel)]="openingDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="officeForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="officeForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -178,7 +178,7 @@ export class OfficeFormComponent implements OnInit {
   isSaving = false;
 
   office: PostOfficesRequest = {};
-  openingDate: Date = new Date();
+  openingDate = toIsoDate(new Date());
   offices: GetOfficesResponse[] = [];
 
   ngOnInit() {
@@ -204,7 +204,7 @@ export class OfficeFormComponent implements OnInit {
     this.officesService.getOfficesOfficeId(this.officeId).subscribe((data) => {
       const dateArray = data.openingDate as unknown as number[];
       if (dateArray) {
-        this.openingDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+        this.openingDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
       }
       this.office = {
         name: data.name,
@@ -216,9 +216,7 @@ export class OfficeFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formattedDate = `${this.openingDate.getFullYear()}-${String(
-      this.openingDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.openingDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.openingDate);
 
     if (this.isEditMode && this.officeId) {
       const payload: PutOfficesOfficeIdRequest = {

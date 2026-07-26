@@ -20,11 +20,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ExternalEventConfigurationService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+  IonToggle,
+} from '@ionic/angular/standalone';
 
 interface EventToggle {
   type: string;
@@ -41,46 +46,45 @@ interface EventToggle {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatSlideToggleModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonToggle,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'nav.externalEvents' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'nav.externalEvents' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <div class="event-list">
             @for (event of events; track event.type) {
-              <mat-slide-toggle [(ngModel)]="event.enabled">{{ event.type }}</mat-slide-toggle>
+              <ion-toggle [(ngModel)]="event.enabled">{{ event.type }}</ion-toggle>
             }
           </div>
 
           <div class="form-actions">
-            <button
-              mat-raised-button
+            <ion-button
               color="primary"
               type="button"
               [disabled]="!events.length || isSaving"
               (click)="onSave()"
             >
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'COMMON.SAVE' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

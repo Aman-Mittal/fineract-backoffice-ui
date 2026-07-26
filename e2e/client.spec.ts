@@ -120,16 +120,16 @@ test.describe('Client Management', () => {
     // Navigate to Clients
     await page.getByRole('link', { name: 'Clients' }).click();
     await expect(page).toHaveURL('/clients');
-    await expect(page.locator('mat-card-title').first()).toContainText('Clients');
+    await expect(page.locator('ion-card-title').first()).toContainText('Clients');
 
     // Click Create Client
     await page.getByRole('button', { name: 'Create Client', exact: true }).click();
     await expect(page).toHaveURL('/clients/create');
-    await expect(page.locator('mat-card-title').first()).toContainText('Create Client');
+    await expect(page.locator('ion-card-title').first()).toContainText('Create Client');
 
     // Fill Client Form
-    await page.locator('mat-select[name="legalFormId"]').click();
-    await page.getByRole('option', { name: 'Person' }).click();
+    await page.locator('ion-select[name="legalFormId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Person' }).click();
 
     const firstName = `TestUser${Date.now()}`;
     const lastName = 'E2E';
@@ -138,8 +138,8 @@ test.describe('Client Management', () => {
     await page.locator('input[name="lastname"]').fill(lastName);
 
     // Select Office (assuming HEAD_OFFICE is available)
-    await page.locator('mat-select[name="officeId"]').click();
-    await page.locator('mat-option').first().click();
+    await page.locator('ion-select[name="officeId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
 
     // Submit
     await page.getByRole('button', { name: 'Save' }).click();

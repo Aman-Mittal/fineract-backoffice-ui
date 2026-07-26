@@ -21,15 +21,25 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-email-campaign-form',
@@ -38,82 +48,91 @@ import { DefaultService } from '../../../api';
     FormsModule,
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSnackBarModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             @if (isEditMode()) {
               {{ 'EMAIL_CAMPAIGNS.EDIT' | translate }}
             } @else {
               {{ 'EMAIL_CAMPAIGNS.CREATE' | translate }}
             }
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #campaignForm="ngForm" (ngSubmit)="onSubmit()" class="campaign-form">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.NAME' | translate }}</mat-label>
-              <input matInput name="campaignName" [(ngModel)]="campaignName" required />
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.NAME' | translate }}</ion-label>
+              <ion-input name="campaignName" [(ngModel)]="campaignName" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.TYPE' | translate }}</mat-label>
-              <mat-select name="campaignType" [(ngModel)]="campaignType">
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.TYPE' | translate }}</ion-label>
+              <ion-select interface="popover" name="campaignType" [(ngModel)]="campaignType">
                 @for (option of campaignTypeOptions(); track option.id) {
-                  <mat-option [value]="option.id">{{ option.value }}</mat-option>
+                  <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.SUBJECT' | translate }}</mat-label>
-              <input matInput name="emailSubject" [(ngModel)]="emailSubject" />
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.SUBJECT' | translate }}</ion-label>
+              <ion-input name="emailSubject" [(ngModel)]="emailSubject"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.MESSAGE' | translate }}</mat-label>
-              <textarea matInput name="emailMessage" [(ngModel)]="emailMessage" rows="5"></textarea>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.MESSAGE' | translate }}</ion-label>
+              <ion-textarea name="emailMessage" [(ngModel)]="emailMessage" rows="5"></ion-textarea>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.SCHEDULE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="schedulePicker"
-                name="scheduledStartDate"
-                [(ngModel)]="scheduledStartDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="schedulePicker"></mat-datepicker-toggle>
-              <mat-datepicker #schedulePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.SCHEDULE' | translate }}</ion-label>
+              <ion-datetime-button datetime="scheduledStartDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="scheduledStartDate-picker"
+                    data-testid="scheduledStartDate-picker"
+                    presentation="date"
+                    name="scheduledStartDate"
+                    [(ngModel)]="scheduledStartDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving()">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="campaignForm.invalid || isSaving()"
               >
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -145,7 +164,7 @@ export class EmailCampaignFormComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/campaigns/email';
 
@@ -159,7 +178,7 @@ export class EmailCampaignFormComponent implements OnInit {
   campaignType: number | null = null;
   emailSubject = '';
   emailMessage = '';
-  scheduledStartDate: Date | null = null;
+  scheduledStartDate: string | null = null;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -205,7 +224,7 @@ export class EmailCampaignFormComponent implements OnInit {
           this.emailSubject = parsed?.emailSubject ?? '';
           this.emailMessage = parsed?.emailMessage ?? '';
           if (parsed?.recurrenceStartDate) {
-            this.scheduledStartDate = new Date(parsed.recurrenceStartDate);
+            this.scheduledStartDate = toIsoDate(new Date(parsed.recurrenceStartDate));
           }
         } catch {
           console.error('Failed to parse email campaign data');
@@ -213,27 +232,9 @@ export class EmailCampaignFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load email campaign', err);
-        this.snackBar.open('Failed to load campaign data', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to load campaign data');
       },
     });
-  }
-
-  private formatDate(date: Date): string {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   }
 
   onSubmit(): void {
@@ -249,7 +250,7 @@ export class EmailCampaignFormComponent implements OnInit {
     };
 
     if (this.scheduledStartDate) {
-      payload['recurrenceStartDate'] = this.formatDate(this.scheduledStartDate);
+      payload['recurrenceStartDate'] = formatDateToFineract(this.scheduledStartDate);
     }
 
     const body = JSON.stringify(payload);
@@ -257,25 +258,25 @@ export class EmailCampaignFormComponent implements OnInit {
     if (this.isEditMode() && this.campaignId !== null) {
       this.api.putEmailCampaignResourceId(this.campaignId, body).subscribe({
         next: () => {
-          this.snackBar.open('Email campaign updated successfully', 'Close', { duration: 3000 });
+          this.notifications.success('Email campaign updated successfully');
           this.router.navigate([this.LIST_PATH]);
         },
         error: (err) => {
           this.isSaving.set(false);
           console.error('Failed to update email campaign', err);
-          this.snackBar.open('Failed to update campaign', 'Close', { duration: 3000 });
+          this.notifications.error('Failed to update campaign');
         },
       });
     } else {
       this.api.postEmailCampaign(body).subscribe({
         next: () => {
-          this.snackBar.open('Email campaign created successfully', 'Close', { duration: 3000 });
+          this.notifications.success('Email campaign created successfully');
           this.router.navigate([this.LIST_PATH]);
         },
         error: (err) => {
           this.isSaving.set(false);
           console.error('Failed to create email campaign', err);
-          this.snackBar.open('Failed to create campaign', 'Close', { duration: 3000 });
+          this.notifications.error('Failed to create campaign');
         },
       });
     }

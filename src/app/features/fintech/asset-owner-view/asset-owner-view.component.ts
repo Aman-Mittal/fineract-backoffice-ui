@@ -21,12 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import {
@@ -38,6 +32,18 @@ import {
   ExternalAssetOwnerLoanProductAttributesService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../shared';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-asset-owner-view',
@@ -46,14 +52,18 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
     CommonModule,
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatDividerModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     DataTableComponent,
     StatusBadgeComponent,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
   ],
   template: `
     @if (transfer$ | async; as transfer) {
@@ -62,24 +72,24 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
           <a routerLink="/fintech/asset-owners">External Asset Owners</a> /
           <span>{{ transfer.owner?.externalId }}</span>
         </div>
-        <mat-card class="header-card">
-          <mat-card-header>
-            <mat-card-title>
+        <ion-card class="header-card">
+          <ion-card-header>
+            <ion-card-title>
               Asset Owner: {{ transfer.owner?.externalId }}
               <app-status-badge [status]="transfer.status"></app-status-badge>
-            </mat-card-title>
+            </ion-card-title>
             <div class="header-actions">
-              <button
-                mat-stroked-button
+              <ion-button
+                fill="outline"
                 color="primary"
                 [routerLink]="['/loans/view', transfer.loan?.loanId]"
               >
-                <mat-icon>account_balance</mat-icon>
+                <ion-icon name="business-outline"></ion-icon>
                 View Loan Account
-              </button>
+              </ion-button>
             </div>
-          </mat-card-header>
-          <mat-card-content>
+          </ion-card-header>
+          <ion-card-content>
             <div class="details-grid">
               <div class="detail-item">
                 <span class="label">Transfer ID:</span>
@@ -106,50 +116,57 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
                 <span class="value">{{ transfer.effectiveTo || 'N/A' }}</span>
               </div>
             </div>
-          </mat-card-content>
-        </mat-card>
-        <mat-tab-group class="content-tabs">
-          <mat-tab label="Journal Entries">
-            <app-data-table
-              title="Journal Entries"
-              [columns]="journalColumns"
-              [data]="(journalEntries$ | async) || []"
-              [showSearch]="false"
-              [localLogic]="true"
-            >
-            </app-data-table>
-          </mat-tab>
-          <mat-tab label="{{ 'ASSET_OWNERS.LOAN_PRODUCT_ATTRIBUTES' | translate }}">
-            <div class="tab-content">
-              @if (attributes().length === 0) {
-                <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
-              } @else {
-                <table mat-table [dataSource]="attributes()" class="full-width-table">
-                  <ng-container matColumnDef="attributeKey">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'ASSET_OWNERS.ATTRIBUTE_KEY' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.attributeKey }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="attributeValue">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'ASSET_OWNERS.ATTRIBUTE_VALUE' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.attributeValue }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let row">
-                      <!-- placeholder for edit action -->
-                    </td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="attributeColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: attributeColumns"></tr>
-                </table>
-              }
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+          </ion-card-content>
+        </ion-card>
+        <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+          <ion-segment-button value="0">
+            <ion-label>Journal Entries</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="1">
+            <ion-label>{{ 'ASSET_OWNERS.LOAN_PRODUCT_ATTRIBUTES' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        @if (activeTab() === '0') {
+          <app-data-table
+            title="Journal Entries"
+            [columns]="journalColumns"
+            [data]="(journalEntries$ | async) || []"
+            [showSearch]="false"
+            [localLogic]="true"
+          >
+          </app-data-table>
+        }
+        @if (activeTab() === '1') {
+          <div class="tab-content">
+            @if (attributes().length === 0) {
+              <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+            } @else {
+              <table cdk-table [dataSource]="attributes()" class="full-width-table">
+                <ng-container cdkColumnDef="attributeKey">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'ASSET_OWNERS.ATTRIBUTE_KEY' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.attributeKey }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="attributeValue">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'ASSET_OWNERS.ATTRIBUTE_VALUE' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.attributeValue }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="actions">
+                  <th cdk-header-cell *cdkHeaderCellDef></th>
+                  <td cdk-cell *cdkCellDef="let row">
+                    <!-- placeholder for edit action -->
+                  </td>
+                </ng-container>
+                <tr cdk-header-row *cdkHeaderRowDef="attributeColumns"></tr>
+                <tr cdk-row *cdkRowDef="let row; columns: attributeColumns"></tr>
+              </table>
+            }
+          </div>
+        }
       </div>
     }
   `,
@@ -213,6 +230,8 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
   ],
 })
 export class AssetOwnerViewComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly route = inject(ActivatedRoute);
   private readonly assetOwnersService = inject(ExternalAssetOwnersService);
   private readonly attributesService = inject(ExternalAssetOwnerLoanProductAttributesService);

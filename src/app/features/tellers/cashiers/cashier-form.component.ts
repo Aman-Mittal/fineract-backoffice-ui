@@ -22,16 +22,29 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { toIsoDate } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonInput,
+  IonTextarea,
+  IonToggle,
+  IonButton,
+  IonSpinner,
+  IonDatetime,
+  IonDatetimeButton,
+  IonModal,
+} from '@ionic/angular/standalone';
 import {
   TellerCashManagementService,
   StaffService,
@@ -45,137 +58,157 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonInput,
+    IonTextarea,
+    IonToggle,
+    IonButton,
+    IonSpinner,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'TELLERS.ALLOCATE_CASHIER' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'TELLERS.ALLOCATE_CASHIER' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #cashierForm="ngForm" (ngSubmit)="onSubmit()" class="cashier-form">
-            <div class="form-grid">
-              <!-- Staff Selection -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.CASHIER_STAFF_DESC' | translate"
-              >
-                <mat-label>{{ 'TELLERS.STAFF' | translate }}</mat-label>
-                <mat-select name="staffId" [(ngModel)]="cashier.staffId" required>
-                  @for (member of staff; track member.id) {
-                    <mat-option [value]="member.id">{{ member.displayName }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <!-- Staff Selection -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" [appTooltip]="'HELP.CASHIER_STAFF_DESC' | translate">
+                    <ion-label position="stacked">{{ 'TELLERS.STAFF' | translate }}</ion-label>
+                    <ion-select
+                      interface="popover"
+                      name="staffId"
+                      [(ngModel)]="cashier.staffId"
+                      required
+                      id="cashier-staff-select"
+                      data-testid="cashier-staff-select"
+                    >
+                      @for (member of staff; track member.id) {
+                        <ion-select-option [value]="member.id">{{
+                          member.displayName
+                        }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Start Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'TELLERS.START_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="startPicker"
-                  name="startDate"
-                  [(ngModel)]="startDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-                <mat-datepicker #startPicker></mat-datepicker>
-              </mat-form-field>
+                <!-- Start Date -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
+                    <ion-datetime-button datetime="cashier-start-date-picker"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="cashier-start-date-picker"
+                          data-testid="cashier-start-date-picker"
+                          presentation="date"
+                          (ionChange)="onStartDateChange($event)"
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
+                  </ion-item>
+                </ion-col>
 
-              <!-- End Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'TELLERS.END_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="endPicker"
-                  name="endDate"
-                  [(ngModel)]="endDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-                <mat-datepicker #endPicker></mat-datepicker>
-              </mat-form-field>
+                <!-- End Date -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'TELLERS.END_DATE' | translate }}</ion-label>
+                    <ion-datetime-button datetime="cashier-end-date-picker"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="cashier-end-date-picker"
+                          data-testid="cashier-end-date-picker"
+                          presentation="date"
+                          (ionChange)="onEndDateChange($event)"
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Full Time -->
-              <div class="checkbox-container">
-                <mat-checkbox name="isFullDay" [(ngModel)]="cashier.isFullDay">
-                  {{ 'TELLERS.IS_FULL_TIME' | translate }}
-                </mat-checkbox>
-              </div>
+                <!-- Full Time Toggle -->
+                <ion-col size="12" size-md="6">
+                  <ion-item>
+                    <ion-label>{{ 'TELLERS.IS_FULL_TIME' | translate }}</ion-label>
+                    <ion-toggle
+                      name="isFullDay"
+                      [(ngModel)]="cashier.isFullDay"
+                      id="cashier-full-day-toggle"
+                      data-testid="cashier-full-day-toggle"
+                      slot="end"
+                    ></ion-toggle>
+                  </ion-item>
+                </ion-col>
 
-              <!-- Description -->
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                <textarea
-                  matInput
-                  name="description"
-                  [(ngModel)]="cashier.description"
-                  rows="2"
-                ></textarea>
-              </mat-form-field>
-            </div>
+                <!-- Description -->
+                <ion-col size="12">
+                  <ion-item fill="outline" class="full-width">
+                    <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                    <ion-textarea
+                      name="description"
+                      [(ngModel)]="cashier.description"
+                      rows="2"
+                      id="cashier-description-textarea"
+                      data-testid="cashier-description-textarea"
+                    ></ion-textarea>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+                id="cashier-cancel-btn"
+                data-testid="cashier-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="cashierForm.invalid || isSaving"
+                id="cashier-submit-btn"
+                data-testid="cashier-submit-btn"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
-  styles: [
-    `
-      .form-container {
-        padding: 24px;
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .cashier-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-      .checkbox-container {
-        display: flex;
-        align-items: center;
-        height: 60px;
-      }
-    `,
-  ],
 })
 export class CashierFormComponent implements OnInit {
   private readonly tellerService = inject(TellerCashManagementService);
@@ -201,6 +234,18 @@ export class CashierFormComponent implements OnInit {
     this.loadStaff();
   }
 
+  onStartDateChange(event: CustomEvent): void {
+    if (event.detail.value) {
+      this.startDate = new Date(event.detail.value as string);
+    }
+  }
+
+  onEndDateChange(event: CustomEvent): void {
+    if (event.detail.value) {
+      this.endDate = new Date(event.detail.value as string);
+    }
+  }
+
   private loadStaff(): void {
     this.staffService.getStaff().subscribe({
       next: (data: StaffData[]) => {
@@ -215,8 +260,8 @@ export class CashierFormComponent implements OnInit {
   onSubmit(): void {
     this.isSaving = true;
 
-    const formattedStartDate = `${this.startDate.getFullYear()}-${String(this.startDate.getMonth() + 1).padStart(2, '0')}-${String(this.startDate.getDate()).padStart(2, '0')}`;
-    const formattedEndDate = `${this.endDate.getFullYear()}-${String(this.endDate.getMonth() + 1).padStart(2, '0')}-${String(this.endDate.getDate()).padStart(2, '0')}`;
+    const formattedStartDate = toIsoDate(this.startDate);
+    const formattedEndDate = toIsoDate(this.endDate);
 
     this.cashier.startDate = formattedStartDate;
     this.cashier.endDate = formattedEndDate;

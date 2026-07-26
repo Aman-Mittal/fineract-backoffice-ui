@@ -82,7 +82,7 @@ describe('WcLoanFormComponent', () => {
       of({}) as unknown as ReturnType<WorkingCapitalLoansService['postWorkingCapitalLoans']>,
     );
     component.loan = { clientId: 7, productId: 1, principalAmount: 5000 };
-    component.submittedOnDate = new Date(2026, 0, 15);
+    component.submittedOnDate = '2026-01-15';
     component.onSubmit();
     const arg = serviceSpy.postWorkingCapitalLoans.calls.mostRecent().args[0];
     expect(arg.submittedOnDate).toBe('15 January 2026');

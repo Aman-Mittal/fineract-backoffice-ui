@@ -49,7 +49,7 @@ test.describe('Loan servicing: notes and transaction adjustment', () => {
     await expect(page.getByText(noteText)).toBeVisible({ timeout: 10000 });
 
     // Deleting must go through the Material confirm dialog, not a native confirm().
-    await page.locator('button:has(mat-icon:text("delete"))').first().click();
+    await page.locator('ion-button:has(ion-icon[name="trash-outline"])').first().click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/delete this note/i)).toBeVisible();
@@ -58,7 +58,7 @@ test.describe('Loan servicing: notes and transaction adjustment', () => {
     await expect(dialog).toHaveCount(0);
     await expect(page.getByText(noteText)).toBeVisible();
 
-    await page.locator('button:has(mat-icon:text("delete"))').first().click();
+    await page.locator('ion-button:has(ion-icon[name="trash-outline"])').first().click();
     await page.getByRole('dialog').getByRole('button', { name: 'Confirm' }).click();
     await expect(page.getByText(noteText)).toHaveCount(0);
     await expect(page.getByText('No notes recorded for this loan yet.')).toBeVisible();
@@ -86,7 +86,7 @@ test.describe('Loan servicing: notes and transaction adjustment', () => {
     await expect(repaymentRow).toBeVisible({ timeout: 10000 });
 
     // View: shows a full breakdown, not just the raw enum code.
-    await repaymentRow.locator('mat-icon:text("visibility")').click();
+    await repaymentRow.locator('ion-icon[name="eye-outline"]').click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText('Repayment', { exact: true })).toBeVisible({ timeout: 10000 });

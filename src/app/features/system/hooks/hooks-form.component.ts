@@ -21,14 +21,21 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HooksService, HookCreateRequest, HookTemplateData } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Create / edit form for a Fineract hook. The hook "name" is the template type and is
@@ -40,67 +47,70 @@ import { HooksService, HookCreateRequest, HookTemplateData } from '../../../api'
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('HOOKS.EDIT' | translate) : ('HOOKS.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #hookForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'HOOKS.NAME' | translate }}</mat-label>
-              <mat-select name="name" [(ngModel)]="hook.name" required [disabled]="isEditMode">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'HOOKS.NAME' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="name"
+                [(ngModel)]="hook.name"
+                required
+                [disabled]="isEditMode"
+              >
                 @for (tpl of templateOptions; track tpl.id) {
-                  <mat-option [value]="tpl.name">{{ tpl.name }}</mat-option>
+                  <ion-select-option [value]="tpl.name">{{ tpl.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'HOOKS.DISPLAY_NAME' | translate }}</mat-label>
-              <input matInput name="displayName" [(ngModel)]="hook.displayName" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'HOOKS.DISPLAY_NAME' | translate }}</ion-label>
+              <ion-input name="displayName" [(ngModel)]="hook.displayName" required></ion-input>
+            </ion-item>
 
-            <mat-checkbox name="isActive" [(ngModel)]="hook.isActive">
+            <ion-checkbox name="isActive" [(ngModel)]="hook.isActive">
               {{ 'HOOKS.IS_ACTIVE' | translate }}
-            </mat-checkbox>
+            </ion-checkbox>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="hookForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="hookForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

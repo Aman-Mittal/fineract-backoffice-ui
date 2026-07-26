@@ -17,16 +17,22 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
+import { Component, OnInit, inject, Input } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  ModalController,
+} from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 import {
   CodesService,
   CodeValuesService,
@@ -44,57 +50,64 @@ export interface ClientActionDialogData {
   selector: 'app-client-action-dialog',
   standalone: true,
   imports: [
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,
+    IonButton,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.title | translate }}</h2>
-    <mat-dialog-content>
+    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <div class="dialog-content">
       <div class="dialog-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ dateLabel | translate }}</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            [(ngModel)]="actionDate"
-            [max]="maxDate"
-            required
-          />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ dateLabel | translate }}</ion-label>
+          <ion-datetime-button datetime="actionDate-picker"></ion-datetime-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime
+                id="actionDate-picker"
+                data-testid="actionDate-picker"
+                presentation="date"
+                name="actionDate"
+                [(ngModel)]="actionDate"
+                required
+                [max]="maxDate"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </ion-item>
 
         @if (showReasonDropdown) {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ reasonLabel | translate }}</mat-label>
-            <mat-select [(ngModel)]="reasonId" required>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ reasonLabel | translate }}</ion-label>
+            <ion-select interface="popover" [(ngModel)]="reasonId" required>
               @for (reason of reasonOptions; track reason.id) {
-                <mat-option [value]="reason.id">{{ reason.name }}</mat-option>
+                <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
         }
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-          <textarea matInput [(ngModel)]="note" rows="3"></textarea>
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+          <ion-textarea [(ngModel)]="note" rows="3"></ion-textarea>
+        </ion-item>
       </div>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="!isValid">
+    </div>
+    <div class="dialog-actions">
+      <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+      <ion-button color="primary" (click)="onConfirm()" [disabled]="!isValid">
         {{ 'COMMON.CONFIRM' | translate }}
-      </button>
-    </mat-dialog-actions>
+      </ion-button>
+    </div>
   `,
   styles: [
     `
@@ -115,11 +128,11 @@ export class ClientActionDialogComponent implements OnInit {
   private readonly codesService = inject(CodesService);
   private readonly codeValuesService = inject(CodeValuesService);
   private readonly businessDateService = inject(BusinessDateManagementService);
-  public readonly dialogRef = inject(MatDialogRef<ClientActionDialogComponent>);
-  public readonly data = inject<ClientActionDialogData>(MAT_DIALOG_DATA);
+  public readonly modalController = inject(ModalController);
+  @Input({ required: true }) data!: ClientActionDialogData;
 
-  actionDate: Date = new Date();
-  maxDate?: Date;
+  actionDate = toIsoDate(new Date());
+  maxDate?: string;
   reasonId?: number;
   note = '';
 
@@ -140,7 +153,8 @@ export class ClientActionDialogComponent implements OnInit {
         const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
         if (bd && bd.date) {
           const d = bd.date as unknown as number[];
-          const bDate = new Date(d[0], d[1] - 1, d[2]);
+          // ion-datetime works in ISO strings, including its max bound.
+          const bDate = toIsoDate(new Date(d[0], d[1] - 1, d[2]));
           this.actionDate = bDate;
           this.maxDate = bDate;
         }
@@ -202,12 +216,12 @@ export class ClientActionDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.modalController.dismiss();
   }
 
   onConfirm(): void {
     if (this.isValid) {
-      this.dialogRef.close({
+      this.modalController.dismiss({
         actionDate: this.actionDate,
         reasonId: this.reasonId,
         note: this.note,

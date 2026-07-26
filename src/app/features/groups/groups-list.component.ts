@@ -20,12 +20,7 @@
 import { Component, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import {
@@ -35,18 +30,19 @@ import {
   ColumnDef,
 } from '../../shared';
 import { GroupsService, GetGroupsPageItems } from '../../api';
+import { PageEvent, SortEvent } from '../../shared/models/table.model';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-groups-list',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -66,15 +62,15 @@ import { GroupsService, GetGroupsPageItems } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-group>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Group"
+          title="Edit Group"
           (click)="onEditGroup(group)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,
@@ -95,11 +91,11 @@ export class GroupsListComponent {
   totalRecords = 0;
 
   private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
 
   private currentFilter = '';
-  private currentSort: Sort = { active: '', direction: '' };
+  private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
 
   constructor() {
@@ -149,7 +145,7 @@ export class GroupsListComponent {
     this.searchSubject.next(filterValue);
   }
 
-  onSort(sort: Sort) {
+  onSort(sort: SortEvent) {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
     this.sortSubject.next(sort);

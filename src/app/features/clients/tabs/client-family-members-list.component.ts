@@ -20,9 +20,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataTableComponent,
   ColumnDef,
@@ -30,6 +27,8 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { ClientFamilyMemberService, ClientFamilyMembersData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-client-family-members-list',
@@ -37,24 +36,23 @@ import { ClientFamilyMemberService, ClientFamilyMembersData } from '../../../api
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <div class="tab-actions">
-      <button
-        mat-raised-button
+      <ion-button
         color="primary"
         [routerLink]="['/clients', clientId, 'family-members', 'create']"
         *appHasPermission="'CREATE_CLIENTFAMILYMEMBER'"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'CLIENTS.ADD_FAMILY_MEMBER' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     <app-data-table
@@ -69,24 +67,24 @@ import { ClientFamilyMemberService, ClientFamilyMembersData } from '../../../api
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             [routerLink]="['/clients', clientId, 'family-members', 'edit', row.id]"
             *appHasPermission="'UPDATE_CLIENTFAMILYMEMBER'"
-            [matTooltip]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
           >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            color="warn"
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="clear"
+            color="danger"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_CLIENTFAMILYMEMBER'"
-            [matTooltip]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
           >
-            <mat-icon>delete</mat-icon>
-          </button>
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

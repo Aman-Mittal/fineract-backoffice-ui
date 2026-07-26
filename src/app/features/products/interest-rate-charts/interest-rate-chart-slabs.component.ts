@@ -21,13 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   InterestRateSlabAKAInterestBandsService,
   InterestRateChartSlabData,
@@ -35,6 +28,20 @@ import {
   EnumOptionData,
 } from '../../../api';
 import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 /** A single editable slab row used by the inline add form. */
 interface SlabRow {
@@ -57,22 +64,27 @@ interface SlabRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    TooltipDirective,
   ],
   template: `
     <div class="slabs-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'INTEREST_RATE_CHARTS.SLABS' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'INTEREST_RATE_CHARTS.SLABS' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <table class="slabs-table">
             <thead>
               <tr>
@@ -95,16 +107,16 @@ interface SlabRow {
                   <td>{{ slab.amountRangeTo }}</td>
                   <td>{{ slab.annualInterestRate }}</td>
                   <td>
-                    <button
-                      mat-icon-button
-                      color="warn"
+                    <ion-button
+                      fill="clear"
+                      color="danger"
                       type="button"
                       [attr.aria-label]="'COMMON.DELETE' | translate"
-                      [matTooltip]="'COMMON.DELETE' | translate"
+                      [appTooltip]="'COMMON.DELETE' | translate"
                       (click)="onDelete(slab)"
                     >
-                      <mat-icon>delete</mat-icon>
-                    </button>
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
                   </td>
                 </tr>
               }
@@ -112,73 +124,87 @@ interface SlabRow {
           </table>
 
           <form #slabForm="ngForm" (ngSubmit)="onAdd()" class="add-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_RATE_CHARTS.PERIOD_TYPE' | translate }}</mat-label>
-              <mat-select name="periodType" [(ngModel)]="newSlab.periodType">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_RATE_CHARTS.PERIOD_TYPE' | translate
+              }}</ion-label>
+              <ion-select interface="popover" name="periodType" [(ngModel)]="newSlab.periodType">
                 @for (opt of periodTypeOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.value }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_RATE_CHARTS.FROM_PERIOD' | translate }}</mat-label>
-              <input matInput type="number" name="fromPeriod" [(ngModel)]="newSlab.fromPeriod" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_RATE_CHARTS.FROM_PERIOD' | translate
+              }}</ion-label>
+              <ion-input
+                type="number"
+                name="fromPeriod"
+                [(ngModel)]="newSlab.fromPeriod"
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_RATE_CHARTS.TO_PERIOD' | translate }}</mat-label>
-              <input matInput type="number" name="toPeriod" [(ngModel)]="newSlab.toPeriod" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_RATE_CHARTS.TO_PERIOD' | translate
+              }}</ion-label>
+              <ion-input type="number" name="toPeriod" [(ngModel)]="newSlab.toPeriod"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_RATE_CHARTS.AMOUNT_RANGE_FROM' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_RATE_CHARTS.AMOUNT_RANGE_FROM' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="amountRangeFrom"
                 [(ngModel)]="newSlab.amountRangeFrom"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_RATE_CHARTS.AMOUNT_RANGE_TO' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_RATE_CHARTS.AMOUNT_RANGE_TO' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="amountRangeTo"
                 [(ngModel)]="newSlab.amountRangeTo"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_RATE_CHARTS.ANNUAL_INTEREST_RATE' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_RATE_CHARTS.ANNUAL_INTEREST_RATE' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="annualInterestRate"
                 [(ngModel)]="newSlab.annualInterestRate"
                 required
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <button
-              mat-stroked-button
+            <ion-button
+              fill="outline"
               color="primary"
               type="submit"
               [disabled]="slabForm.invalid || isSaving"
             >
-              <mat-icon>add</mat-icon> {{ 'INTEREST_RATE_CHARTS.ADD_SLAB' | translate }}
-            </button>
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'INTEREST_RATE_CHARTS.ADD_SLAB' | translate }}
+            </ion-button>
           </form>
 
           <div class="back-action">
-            <button mat-button type="button" (click)="onBack()">
+            <ion-button fill="clear" type="button" (click)="onBack()">
               {{ 'COMMON.BACK' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

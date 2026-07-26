@@ -79,3 +79,28 @@ export function formatArrayDate(value: unknown): string {
   }
   return `${value[0]}-${String(value[1]).padStart(2, '0')}-${String(value[2]).padStart(2, '0')}`;
 }
+
+/**
+ * Formats a date as `YYYY-MM-DD` in **local** time, the wire format Fineract expects
+ * alongside `dateFormat: 'yyyy-MM-dd'`.
+ *
+ * Deliberately not `Date.prototype.toISOString()`, which converts to UTC and can shift the
+ * date by a day for users east or west of Greenwich.
+ *
+ * @param date - A Date, or an ISO string such as the value emitted by `ion-datetime`.
+ * @returns The `YYYY-MM-DD` string, or empty string when the input is not a valid date.
+ */
+export function toIsoDate(date: Date | string | null | undefined): string {
+  if (!date) return '';
+
+  if (typeof date === 'string') {
+    // ion-datetime emits a full local ISO timestamp; the date part is already correct.
+    return date.split('T')[0];
+  }
+
+  if (isNaN(date.getTime())) return '';
+
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}

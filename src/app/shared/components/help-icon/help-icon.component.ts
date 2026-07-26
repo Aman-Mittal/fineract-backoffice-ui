@@ -18,25 +18,29 @@
  */
 
 import { Component, Input } from '@angular/core';
-
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Inline help affordance rendering the BFSI definition for a field or table.
+ *
+ * Ionic has no tooltip component, so the help text is rendered by TooltipDirective and
+ * duplicated into `aria-label` for assistive technology.
+ */
 @Component({
   selector: 'app-help-icon',
   standalone: true,
-  imports: [MatIconModule, MatTooltipModule, TranslateModule],
+  imports: [IonIcon, TranslateModule, TooltipDirective],
   template: `
-    <mat-icon
+    <ion-icon
       class="help-icon"
-      [matTooltip]="helpTextKey | translate"
-      matTooltipPosition="above"
-      aria-hidden="false"
-      [attr.aria-label]="'COMMON.HELP' | translate"
-    >
-      help_outline
-    </mat-icon>
+      name="help-circle-outline"
+      data-testid="help-icon"
+      [appTooltip]="helpTextKey | translate"
+      [attr.aria-label]="helpTextKey | translate"
+      role="img"
+    ></ion-icon>
   `,
   styles: [
     `
@@ -44,13 +48,13 @@ import { TranslateModule } from '@ngx-translate/core';
         font-size: 18px;
         height: 18px;
         width: 18px;
-        color: #757575;
+        color: var(--text-muted, #757575);
         cursor: help;
         vertical-align: middle;
         margin-left: 8px;
       }
       .help-icon:hover {
-        color: #1976d2;
+        color: var(--primary-color, #1976d2);
       }
     `,
   ],

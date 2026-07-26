@@ -21,14 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoanInterestPauseService, InterestPauseRequestDto } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -45,73 +51,79 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonItem,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonLabel,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'INTEREST_PAUSES.CREATE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'INTEREST_PAUSES.CREATE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #pauseForm="ngForm" (ngSubmit)="onSubmit()" class="pause-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_PAUSES.START_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="startPicker"
-                name="startDate"
-                [(ngModel)]="startDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'INTEREST_PAUSES.START_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="startDate-picker"
+                    data-testid="startDate-picker"
+                    presentation="date"
+                    name="startDate"
+                    [(ngModel)]="startDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'INTEREST_PAUSES.END_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="endPicker"
-                name="endDate"
-                [(ngModel)]="endDate"
-                required
-              />
-              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEREST_PAUSES.END_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="endDate-picker"
+                    data-testid="endDate-picker"
+                    presentation="date"
+                    name="endDate"
+                    [(ngModel)]="endDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="pauseForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="pauseForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -137,8 +149,8 @@ export class InterestPauseFormComponent implements OnInit {
   loanId: number | null = null;
   isSaving = false;
 
-  startDate: Date | null = null;
-  endDate: Date | null = null;
+  startDate: string | null = null;
+  endDate: string | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('loanId');

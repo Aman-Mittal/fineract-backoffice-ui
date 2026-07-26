@@ -20,11 +20,16 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { InstanceModeService, ChangeInstanceModeRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+  IonToggle,
+} from '@ionic/angular/standalone';
 
 /**
  * Instance mode: write-only screen exposing the read / write / batch toggles and
@@ -36,52 +41,46 @@ import { InstanceModeService, ChangeInstanceModeRequest } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatSlideToggleModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonToggle,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'INSTANCE_MODE.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'INSTANCE_MODE.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <div class="toggle-list">
-            <mat-slide-toggle [(ngModel)]="mode.readEnabled">
+            <ion-toggle [(ngModel)]="mode.readEnabled">
               {{ 'INSTANCE_MODE.READ_ENABLED' | translate }}
-            </mat-slide-toggle>
-            <mat-slide-toggle [(ngModel)]="mode.writeEnabled">
+            </ion-toggle>
+            <ion-toggle [(ngModel)]="mode.writeEnabled">
               {{ 'INSTANCE_MODE.WRITE_ENABLED' | translate }}
-            </mat-slide-toggle>
-            <mat-slide-toggle [(ngModel)]="mode.batchWorkerEnabled">
+            </ion-toggle>
+            <ion-toggle [(ngModel)]="mode.batchWorkerEnabled">
               {{ 'INSTANCE_MODE.BATCH_WORKER_ENABLED' | translate }}
-            </mat-slide-toggle>
+            </ion-toggle>
           </div>
 
           <div class="form-actions">
-            <button
-              mat-raised-button
-              color="primary"
-              type="button"
-              [disabled]="isSaving"
-              (click)="onSave()"
-            >
+            <ion-button color="primary" type="button" [disabled]="isSaving" (click)="onSave()">
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'COMMON.SAVE' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

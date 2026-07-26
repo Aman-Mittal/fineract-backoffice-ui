@@ -20,14 +20,22 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService, CommandWrapper, SmsCampaignData } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-sms-campaign-form',
@@ -35,89 +43,92 @@ import { DefaultService, CommandWrapper, SmsCampaignData } from '../../../api';
   imports: [
     FormsModule,
     RouterModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
           {{ (isEditMode ? 'SMS_CAMPAIGNS.EDIT' : 'SMS_CAMPAIGNS.CREATE') | translate }}
-        </mat-card-title>
-      </mat-card-header>
+        </ion-card-title>
+      </ion-card-header>
 
-      <mat-card-content>
+      <ion-card-content>
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit(campaignForm)">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'SMS_CAMPAIGNS.NAME' | translate }}</mat-label>
-            <input matInput name="campaignName" [(ngModel)]="model.campaignName" required />
-          </mat-form-field>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.NAME' | translate }}</ion-label>
+            <ion-input name="campaignName" [(ngModel)]="model.campaignName" required></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'SMS_CAMPAIGNS.CAMPAIGN_TYPE' | translate }}</mat-label>
-            <mat-select name="campaignType" [(ngModel)]="model.campaignType">
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{
+              'SMS_CAMPAIGNS.CAMPAIGN_TYPE' | translate
+            }}</ion-label>
+            <ion-select interface="popover" name="campaignType" [(ngModel)]="model.campaignType">
               @for (opt of campaignTypeOptions; track opt.id) {
-                <mat-option [value]="opt.id">{{ opt.value }}</mat-option>
+                <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'SMS_CAMPAIGNS.TRIGGER_TYPE' | translate }}</mat-label>
-            <mat-select name="triggerType" [(ngModel)]="model.triggerType">
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.TRIGGER_TYPE' | translate }}</ion-label>
+            <ion-select interface="popover" name="triggerType" [(ngModel)]="model.triggerType">
               @for (opt of triggerTypeOptions; track opt.id) {
-                <mat-option [value]="opt.id">{{ opt.value }}</mat-option>
+                <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'SMS_CAMPAIGNS.RUN_DAY' | translate }}</mat-label>
-            <input
-              matInput
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.RUN_DAY' | translate }}</ion-label>
+            <ion-input
               type="number"
               name="runOnDayOfMonth"
               [(ngModel)]="model.runOnDayOfMonth"
               min="1"
               max="31"
-            />
-          </mat-form-field>
+            ></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'SMS_CAMPAIGNS.MESSAGE' | translate }}</mat-label>
-            <textarea
-              matInput
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.MESSAGE' | translate }}</ion-label>
+            <ion-textarea
               name="message"
               [(ngModel)]="model.message"
               required
               rows="4"
-            ></textarea>
-          </mat-form-field>
+            ></ion-textarea>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Parameterized Message</mat-label>
-            <input matInput name="parameterizedMessage" [(ngModel)]="model.parameterizedMessage" />
-          </mat-form-field>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">Parameterized Message</ion-label>
+            <ion-input
+              name="parameterizedMessage"
+              [(ngModel)]="model.parameterizedMessage"
+            ></ion-input>
+          </ion-item>
 
           <div class="form-actions">
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="campaignForm.invalid"
-            >
+            <ion-button color="primary" type="submit" [disabled]="campaignForm.invalid">
               {{ 'SMS_CAMPAIGNS.SAVE' | translate }}
-            </button>
-            <button mat-button type="button" (click)="cancel()">Cancel</button>
+            </ion-button>
+            <ion-button fill="clear" type="button" (click)="cancel()">Cancel</ion-button>
           </div>
         </form>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -140,7 +151,7 @@ export class SmsCampaignFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(DefaultService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
   isEditMode = false;
@@ -243,12 +254,12 @@ export class SmsCampaignFormComponent implements OnInit {
   private onSuccess(): void {
     const key = this.isEditMode ? 'SMS_CAMPAIGNS.EDIT' : 'SMS_CAMPAIGNS.CREATE';
     this.translate.get(key).subscribe((msg: string) => {
-      this.snackBar.open(msg, 'OK', { duration: 3000 });
+      this.notifications.success(msg);
     });
     this.router.navigate(['/campaigns/sms']);
   }
 
   private onError(): void {
-    this.snackBar.open('An error occurred. Please try again.', 'Close', { duration: 4000 });
+    this.notifications.error('An error occurred. Please try again.');
   }
 }

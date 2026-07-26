@@ -21,11 +21,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientFormComponent } from './client-form.component';
 import { ClientService, OfficesService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { DialogService } from '../../core/services/dialog.service';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
+import { provideIonicTesting } from '../../testing/ionic-testing';
 
 describe('ClientFormComponent', () => {
   const HEAD_OFFICE = 'Head Office';
@@ -35,7 +35,7 @@ describe('ClientFormComponent', () => {
   let clientServiceSpy: jasmine.SpyObj<ClientService>;
   let officesServiceSpy: jasmine.SpyObj<OfficesService>;
   let routerSpy: jasmine.SpyObj<Router>;
-  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let dialogSpy: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     clientServiceSpy = jasmine.createSpyObj('ClientService', [
@@ -45,7 +45,8 @@ describe('ClientFormComponent', () => {
     ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
+    dialogSpy.open.and.resolveTo(undefined);
 
     officesServiceSpy.getOffices.and.returnValue(
       of([{ id: 1, name: HEAD_OFFICE }]) as unknown as Observable<never>,
@@ -64,12 +65,13 @@ describe('ClientFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ClientFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [ClientFormComponent, TranslateModule.forRoot()],
       providers: [
+        provideIonicTesting(),
         { provide: ClientService, useValue: clientServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: MatDialog, useValue: dialogSpy },
+        { provide: DialogService, useValue: dialogSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -85,13 +87,7 @@ describe('ClientFormComponent', () => {
         },
         provideNoopAnimations(),
       ],
-    })
-      .overrideComponent(ClientFormComponent, {
-        add: {
-          providers: [{ provide: MatDialog, useValue: dialogSpy }],
-        },
-      })
-      .compileComponents();
+    }).compileComponents();
   });
 
   describe('Create Mode', () => {
@@ -107,10 +103,8 @@ describe('ClientFormComponent', () => {
       expect(component.isEditMode).toBeFalse();
     });
 
-    it('should open create office dialog and add new office', () => {
-      const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-      dialogRefSpy.afterClosed.and.returnValue(of(2));
-      dialogSpy.open.and.returnValue(dialogRefSpy);
+    it('should open create office dialog and add new office', async () => {
+      dialogSpy.open.and.resolveTo(2);
 
       // Initially offices has 1 office.
       component.offices = [{ id: 1, name: HEAD_OFFICE }];
@@ -122,7 +116,7 @@ describe('ClientFormComponent', () => {
         ]) as unknown as Observable<never>,
       );
 
-      component.addOffice();
+      await component.addOffice();
 
       expect(dialogSpy.open).toHaveBeenCalled();
       expect(component.offices.length).toBe(2);
@@ -140,8 +134,8 @@ describe('ClientFormComponent', () => {
         legalFormId: 1,
         active: true,
       };
-      component.submittedOnDate = new Date(2026, 5, 16);
-      component.activationDate = new Date(2026, 5, 17);
+      component.submittedOnDate = '2026-06-16';
+      component.activationDate = '2026-06-17';
 
       component.onSubmit();
 
@@ -160,12 +154,12 @@ describe('ClientFormComponent', () => {
       TestBed.resetTestingModule();
 
       await TestBed.configureTestingModule({
-        imports: [ClientFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+        imports: [ClientFormComponent, TranslateModule.forRoot()],
         providers: [
           { provide: ClientService, useValue: clientServiceSpy },
           { provide: OfficesService, useValue: officesServiceSpy },
           { provide: Router, useValue: routerSpy },
-          { provide: MatDialog, useValue: dialogSpy },
+          { provide: DialogService, useValue: dialogSpy },
           {
             provide: ActivatedRoute,
             useValue: {

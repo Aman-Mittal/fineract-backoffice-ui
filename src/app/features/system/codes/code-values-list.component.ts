@@ -21,11 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   CodeValuesService,
   CodesService,
@@ -33,72 +28,85 @@ import {
   GetCodesResponse,
 } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-code-values-list',
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
+    CdkTableModule,
     StatusBadgeComponent,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="list-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'CODE_VALUES.FOR_CODE' | translate }}
             @if (codeName()) {
               : {{ codeName() }}
             }
-          </mat-card-title>
+          </ion-card-title>
           <div class="header-actions">
-            <button mat-button (click)="onBack()">
-              <mat-icon>arrow_back</mat-icon>
+            <ion-button fill="clear" (click)="onBack()">
+              <ion-icon name="arrow-back-outline"></ion-icon>
               {{ 'CODE_VALUES.BACK' | translate }}
-            </button>
-            <button mat-raised-button color="primary" (click)="onAddValue()">
-              <mat-icon>add</mat-icon>
+            </ion-button>
+            <ion-button color="primary" (click)="onAddValue()">
+              <ion-icon name="add-outline"></ion-icon>
               {{ 'CODE_VALUES.ADD_VALUE' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-header>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (loading()) {
             <div class="spinner-container">
-              <mat-spinner diameter="40"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
-            <table mat-table [dataSource]="codeValues()" class="full-width-table">
+            <table cdk-table [dataSource]="codeValues()" class="full-width-table">
               <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+              <ng-container cdkColumnDef="name">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.NAME' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
               </ng-container>
 
               <!-- Description Column -->
-              <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="description">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CODE_VALUES.DESCRIPTION' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
               </ng-container>
 
               <!-- Position Column -->
-              <ng-container matColumnDef="position">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.POSITION' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.position }}</td>
+              <ng-container cdkColumnDef="position">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.POSITION' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.position }}</td>
               </ng-container>
 
               <!-- Active Column -->
-              <ng-container matColumnDef="isActive">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.ACTIVE' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="isActive">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.ACTIVE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   @if (row.isActive === true) {
                     <app-status-badge status="Active"></app-status-badge>
                   } @else {
@@ -108,28 +116,28 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
               </ng-container>
 
               <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <button mat-button color="primary" (click)="onEdit(row)">
-                    <mat-icon>edit</mat-icon>
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.ACTIONS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
+                  <ion-button fill="clear" color="primary" (click)="onEdit(row)">
+                    <ion-icon name="create-outline"></ion-icon>
                     {{ 'CODE_VALUES.EDIT' | translate }}
-                  </button>
+                  </ion-button>
                   @if (row.isSystemDefined !== true) {
-                    <button mat-button color="warn" (click)="onDelete(row)">
-                      <mat-icon>delete</mat-icon>
+                    <ion-button fill="clear" color="danger" (click)="onDelete(row)">
+                      <ion-icon name="trash-outline"></ion-icon>
                       {{ 'CODE_VALUES.DELETE' | translate }}
-                    </button>
+                    </ion-button>
                   }
                 </td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

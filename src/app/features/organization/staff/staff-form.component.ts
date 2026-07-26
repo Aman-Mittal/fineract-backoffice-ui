@@ -21,17 +21,23 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 import {
   StaffService,
   StaffCreateRequest,
@@ -43,6 +49,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 @Component({
@@ -51,136 +58,142 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatSnackBarModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('ORGANIZATION.EDIT_STAFF' | translate)
                 : ('ORGANIZATION.CREATE_STAFF' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #staffForm="ngForm" (ngSubmit)="onSubmit()" class="staff-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                <ion-select
+                  interface="popover"
                   name="officeId"
                   [(ngModel)]="staff.officeId"
                   required
                   [disabled]="isEditMode"
                 >
                   @for (office of offices(); track office.id) {
-                    <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                    <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
+                <ion-input
                   name="firstname"
                   [(ngModel)]="staff.firstname"
                   required
                   [disabled]="isEditMode"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
+                <ion-input
                   name="lastname"
                   [(ngModel)]="staff.lastname"
                   required
                   [disabled]="isEditMode"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="staff.externalId" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
+                <ion-input name="externalId" [(ngModel)]="staff.externalId"></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.MOBILE_NO' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'CLIENTS.MOBILE_NO' | translate }}</ion-label>
+                <ion-input
                   name="mobileNo"
                   [(ngModel)]="staff.mobileNo"
                   [disabled]="isEditMode"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
-                <input matInput type="email" name="emailAddress" [(ngModel)]="staff.emailAddress" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
+                <ion-input
+                  type="email"
+                  name="emailAddress"
+                  [(ngModel)]="staff.emailAddress"
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACTIONS.ACTIVATION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="joiningPicker"
-                  name="joiningDate"
-                  [(ngModel)]="joiningDate"
-                  [disabled]="isEditMode"
-                />
-                <mat-datepicker-toggle matSuffix [for]="joiningPicker"></mat-datepicker-toggle>
-                <mat-datepicker #joiningPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'ACTIONS.ACTIVATION_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="joiningDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="joiningDate-picker"
+                      data-testid="joiningDate-picker"
+                      presentation="date"
+                      name="joiningDate"
+                      [(ngModel)]="joiningDate"
+                      [disabled]="isEditMode"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
             </div>
 
             <div class="checkbox-group">
-              <mat-checkbox name="isLoanOfficer" [(ngModel)]="staff.isLoanOfficer">
+              <ion-checkbox name="isLoanOfficer" [(ngModel)]="staff.isLoanOfficer">
                 {{ 'ORGANIZATION.IS_LOAN_OFFICER' | translate }}
-              </mat-checkbox>
+              </ion-checkbox>
 
-              <mat-checkbox name="forceStatus" [(ngModel)]="staff.forceStatus">
+              <ion-checkbox name="forceStatus" [(ngModel)]="staff.forceStatus">
                 Force Status
-              </mat-checkbox>
+              </ion-checkbox>
 
               @if (!isEditMode) {
-                <mat-checkbox name="isActive" [(ngModel)]="staff.isActive">
+                <ion-checkbox name="isActive" [(ngModel)]="staff.isActive">
                   {{ 'COMMON.ACTIVE' | translate }}
-                </mat-checkbox>
+                </ion-checkbox>
               }
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button fill="clear" type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="!staffForm.form.valid"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="!staffForm.form.valid">
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -215,14 +228,14 @@ export class StaffFormComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly staffListPath = '/organization/staff';
 
   staffId?: number;
   isEditMode = false;
   offices = signal<GetOfficesResponse[]>([]);
-  joiningDate: Date = new Date();
+  joiningDate = toIsoDate(new Date());
 
   staff: Partial<StaffCreateRequest> = {
     officeId: undefined,
@@ -264,7 +277,7 @@ export class StaffFormComponent implements OnInit {
       };
       if (data.joiningDate) {
         const jd = data.joiningDate as unknown as number[];
-        this.joiningDate = new Date(jd[0], jd[1] - 1, jd[2]);
+        this.joiningDate = toIsoDate(new Date(jd[0], jd[1] - 1, jd[2]));
       }
     });
   }
@@ -277,8 +290,7 @@ export class StaffFormComponent implements OnInit {
       };
       this.staffService.putStaffStaffId(this.staffId!, updatePayload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
-        error: () =>
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+        error: () => this.notifications.error('Operation failed. Please try again.'),
       });
     } else {
       const payload = {
@@ -289,8 +301,7 @@ export class StaffFormComponent implements OnInit {
       } as StaffCreateRequest;
       this.staffService.postStaff(payload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
-        error: () =>
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+        error: () => this.notifications.error('Operation failed. Please try again.'),
       });
     }
   }

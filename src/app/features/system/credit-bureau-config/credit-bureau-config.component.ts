@@ -21,14 +21,20 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { HelpIconComponent } from '../../../shared';
 import { CreditBureauConfigurationService, CreditBureauIntegrationService } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface CreditBureauRow {
   id?: number;
@@ -58,118 +64,124 @@ interface LoanProductMappingRow {
     JsonPipe,
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatTableModule,
-    MatProgressSpinnerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
+    CdkTableModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="cbc-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'CREDIT_BUREAU_CONFIG.TITLE' | translate }}
             <app-help-icon helpTextKey="HELP.CREDIT_BUREAU_CONFIG_DESC"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           @if (isLoading) {
-            <mat-spinner diameter="32"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else {
             <h3>{{ 'CREDIT_BUREAU_CONFIG.BUREAUS' | translate }}</h3>
-            <table mat-table [dataSource]="bureaus" class="cbc-table">
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>
+            <table cdk-table [dataSource]="bureaus" class="cbc-table">
+              <ng-container cdkColumnDef="id">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.ID' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
               </ng-container>
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="name">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.NAME' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
               </ng-container>
-              <ng-container matColumnDef="product">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="product">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.PRODUCT' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.product }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.product }}</td>
               </ng-container>
-              <ng-container matColumnDef="country">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="country">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.COUNTRY' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.country }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.country }}</td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="bureauColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: bureauColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="bureauColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: bureauColumns"></tr>
             </table>
 
             <h3 class="cbc-section">{{ 'CREDIT_BUREAU_CONFIG.MAPPINGS' | translate }}</h3>
-            <table mat-table [dataSource]="mappings" class="cbc-table">
-              <ng-container matColumnDef="loanProductName">
-                <th mat-header-cell *matHeaderCellDef>
+            <table cdk-table [dataSource]="mappings" class="cbc-table">
+              <ng-container cdkColumnDef="loanProductName">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.LOAN_PRODUCT' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.loanProductName }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.loanProductName }}</td>
               </ng-container>
-              <ng-container matColumnDef="organisationCreditBureauId">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="organisationCreditBureauId">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.ORG_BUREAU_ID' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.organisationCreditBureauId }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.organisationCreditBureauId }}</td>
               </ng-container>
-              <ng-container matColumnDef="alias">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="alias">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.ALIAS' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.alias }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.alias }}</td>
               </ng-container>
-              <ng-container matColumnDef="isCreditCheckMandatory">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="isCreditCheckMandatory">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.MANDATORY' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.isCreditCheckMandatory }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.isCreditCheckMandatory }}</td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="mappingColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: mappingColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="mappingColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: mappingColumns"></tr>
             </table>
 
             <h3 class="cbc-section">{{ 'CREDIT_BUREAU_CONFIG.INTEGRATION' | translate }}</h3>
 
             <div class="integration-form">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate }}</mat-label>
-                <input matInput [(ngModel)]="nationalId" name="nationalId" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate
+                }}</ion-label>
+                <ion-input [(ngModel)]="nationalId" name="nationalId"></ion-input>
+              </ion-item>
 
               @for (bureau of bureaus; track bureau.id) {
                 <div class="bureau-actions">
                   <span class="bureau-label">{{ bureau.name }}</span>
-                  <button
-                    mat-stroked-button
+                  <ion-button
+                    fill="outline"
                     (click)="fetchReport(bureau.id)"
                     [disabled]="integrationLoading()"
                   >
                     {{ 'CREDIT_BUREAU_CONFIG.FETCH_REPORT' | translate }}
-                  </button>
-                  <button
-                    mat-stroked-button
+                  </ion-button>
+                  <ion-button
+                    fill="outline"
                     (click)="searchByNationalId(bureau.id)"
                     [disabled]="!nationalId || integrationLoading()"
                   >
                     {{ 'CREDIT_BUREAU_CONFIG.SEARCH_NATIONAL_ID' | translate }}
-                  </button>
+                  </ion-button>
                 </div>
               }
             </div>
 
             @if (integrationLoading()) {
-              <mat-spinner diameter="24"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             }
 
             @if (creditReport().length > 0) {
@@ -178,8 +190,8 @@ interface LoanProductMappingRow {
               <p class="no-report">{{ 'CREDIT_BUREAU_CONFIG.NO_REPORT' | translate }}</p>
             }
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

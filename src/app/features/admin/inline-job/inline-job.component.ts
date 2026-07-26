@@ -19,13 +19,20 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { InlineJobService, InlineJobRequest, InlineJobResponse } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-inline-job',
@@ -33,58 +40,58 @@ import { InlineJobService, InlineJobRequest, InlineJobResponse } from '../../../
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'INLINE_JOB.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'INLINE_JOB.JOB_NAME' | translate }}</mat-label>
-          <input matInput [(ngModel)]="jobName" required />
-        </mat-form-field>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'INLINE_JOB.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'INLINE_JOB.JOB_NAME' | translate }}</ion-label>
+          <ion-input [(ngModel)]="jobName" required></ion-input>
+        </ion-item>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'INLINE_JOB.BODY' | translate }}</mat-label>
-          <textarea matInput [(ngModel)]="jobBody" rows="6" placeholder="{}"></textarea>
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'INLINE_JOB.BODY' | translate }}</ion-label>
+          <ion-textarea [(ngModel)]="jobBody" rows="6" placeholder="{}"></ion-textarea>
+        </ion-item>
 
         @if (error()) {
           <p class="error-text">{{ error() }}</p>
         }
-      </mat-card-content>
-      <mat-card-actions>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="runJob()"
-          [disabled]="isRunning || !jobName.trim()"
-        >
+      </ion-card-content>
+      <div class="card-actions">
+        <ion-button color="primary" (click)="runJob()" [disabled]="isRunning || !jobName.trim()">
           @if (isRunning) {
-            <mat-spinner diameter="20"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else {
             {{ 'INLINE_JOB.RUN' | translate }}
           }
-        </button>
-      </mat-card-actions>
-    </mat-card>
+        </ion-button>
+      </div>
+    </ion-card>
 
     @if (result() !== null) {
-      <mat-card class="results-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'INLINE_JOB.RESULT' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card class="results-card">
+        <ion-card-header>
+          <ion-card-title>{{ 'INLINE_JOB.RESULT' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <pre><code>{{ result() | json }}</code></pre>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     }
   `,
   styles: [
@@ -105,7 +112,7 @@ import { InlineJobService, InlineJobRequest, InlineJobResponse } from '../../../
         border-radius: 4px;
         overflow: auto;
       }
-      mat-spinner {
+      ion-spinner {
         display: inline-block;
       }
     `,

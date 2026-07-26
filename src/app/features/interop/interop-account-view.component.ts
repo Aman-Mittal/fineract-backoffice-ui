@@ -19,13 +19,18 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 import {
   InterOperationService,
   InteropAccountData,
@@ -40,53 +45,46 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'INTEROP.ACCOUNT_TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field>
-          <mat-label>{{ 'INTEROP.ACCOUNT_ID' | translate }}</mat-label>
-          <input matInput [(ngModel)]="accountId" />
-        </mat-form-field>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'INTEROP.ACCOUNT_TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item fill="outline">
+          <ion-label position="stacked">{{ 'INTEROP.ACCOUNT_ID' | translate }}</ion-label>
+          <ion-input [(ngModel)]="accountId"></ion-input>
+        </ion-item>
 
         <div class="button-row">
-          <button mat-raised-button color="primary" (click)="loadAccount()" [disabled]="!accountId">
+          <ion-button color="primary" (click)="loadAccount()" [disabled]="!accountId">
             {{ 'INTEROP.LOAD_ACCOUNT' | translate }}
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="loadIdentifiers()"
-            [disabled]="!accountId"
-          >
+          </ion-button>
+          <ion-button color="primary" (click)="loadIdentifiers()" [disabled]="!accountId">
             {{ 'INTEROP.LOAD_IDENTIFIERS' | translate }}
-          </button>
-          <button mat-raised-button color="primary" (click)="loadKyc()" [disabled]="!accountId">
+          </ion-button>
+          <ion-button color="primary" (click)="loadKyc()" [disabled]="!accountId">
             {{ 'INTEROP.LOAD_KYC' | translate }}
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="loadTransactions()"
-            [disabled]="!accountId"
-          >
+          </ion-button>
+          <ion-button color="primary" (click)="loadTransactions()" [disabled]="!accountId">
             {{ 'INTEROP.LOAD_TRANSACTIONS' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         <div class="filter-row">
-          <mat-checkbox [(ngModel)]="debitFilter">{{ 'INTEROP.DEBIT' | translate }}</mat-checkbox>
-          <mat-checkbox [(ngModel)]="creditFilter">{{ 'INTEROP.CREDIT' | translate }}</mat-checkbox>
+          <ion-checkbox [(ngModel)]="debitFilter">{{ 'INTEROP.DEBIT' | translate }}</ion-checkbox>
+          <ion-checkbox [(ngModel)]="creditFilter">{{ 'INTEROP.CREDIT' | translate }}</ion-checkbox>
         </div>
 
         @if (accountData()) {
@@ -108,12 +106,12 @@ import {
           <h3>Transactions</h3>
           <pre>{{ transactions() | json }}</pre>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
-      mat-form-field {
+      ion-item {
         width: 300px;
         display: block;
         margin-bottom: 16px;

@@ -438,8 +438,8 @@ test.describe('E2E: Offices', () => {
 
     await page.locator('input[name="name"]').fill('Test Office');
 
-    await page.locator('mat-select[name="parentId"]').click();
-    await page.getByRole('option', { name: HEAD_OFFICE }).click();
+    await page.locator('ion-select[name="parentId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
 
     await page.locator('input[name="openingDate"]').click();
     await page.getByText('15').first().click();
@@ -590,10 +590,14 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    await page.locator('mat-select[name="officeId"]').click();
+    await page.locator('ion-select[name="officeId"]').click();
 
-    await expect(page.getByRole('option', { name: HEAD_OFFICE })).toBeVisible();
-    await expect(page.getByRole('option', { name: BRANCH_OFFICE })).toBeVisible();
+    await expect(
+      page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }),
+    ).toBeVisible();
+    await expect(
+      page.locator('ion-alert, ion-popover').getByRole('radio', { name: BRANCH_OFFICE }),
+    ).toBeVisible();
     await page.keyboard.press('Escape');
   });
 
@@ -606,11 +610,11 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    await page.locator('mat-select[name="legalFormId"]').click();
-    await page.getByRole('option', { name: 'Person' }).click();
+    await page.locator('ion-select[name="legalFormId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Person' }).click();
 
-    await page.locator('mat-select[name="officeId"]').click();
-    await page.getByRole('option', { name: HEAD_OFFICE }).click();
+    await page.locator('ion-select[name="officeId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
 
     await page.getByRole('textbox', { name: 'First Name' }).fill('Jane');
     await page.getByRole('textbox', { name: 'Last Name' }).fill('Smith');
@@ -627,11 +631,11 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    await page.locator('mat-select[name="legalFormId"]').click();
-    await page.getByRole('option', { name: 'Person' }).click();
+    await page.locator('ion-select[name="legalFormId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Person' }).click();
 
-    await page.locator('mat-select[name="officeId"]').click();
-    await page.getByRole('option', { name: HEAD_OFFICE }).click();
+    await page.locator('ion-select[name="officeId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
 
     await page.getByRole('textbox', { name: 'First Name' }).fill('Jane');
     await page.getByRole('textbox', { name: 'Last Name' }).fill('Smith');
@@ -657,7 +661,7 @@ test.describe('E2E: Client Creation', () => {
 
     const addOfficeBtn = page
       .locator('button')
-      .filter({ has: page.locator('mat-icon:text("add_circle")') });
+      .filter({ has: page.locator('ion-icon[name="add-circle-outline"]') });
     await expect(addOfficeBtn).toBeVisible();
   });
 
@@ -666,7 +670,7 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    await expect(page.locator('mat-icon:text("help_outline")').first()).toBeVisible();
+    await expect(page.locator('ion-icon[name="help-circle-outline"]').first()).toBeVisible();
   });
 
   test('should have calendar buttons for date fields', async ({ page }) => {
@@ -693,7 +697,7 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    const checkbox = page.locator('mat-checkbox').filter({ hasText: 'Active' });
+    const checkbox = page.locator('ion-checkbox').filter({ hasText: 'Active' });
     await expect(checkbox).toBeChecked();
   });
 
@@ -702,8 +706,8 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    await page.locator('mat-select[name="legalFormId"]').click();
-    await page.getByRole('option', { name: 'Entity' }).click();
+    await page.locator('ion-select[name="legalFormId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Entity' }).click();
 
     await expect(page.locator('input[name="fullname"]')).toBeVisible();
   });

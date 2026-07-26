@@ -21,26 +21,35 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { IdleService } from './idle.service';
 import { AuthService } from './auth.service';
-import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { ModalController } from '@ionic/angular/standalone';
 
 describe('IdleService', () => {
   let service: IdleService;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
-  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let modalControllerSpy: jasmine.SpyObj<ModalController>;
+  let modalSpy: jasmine.SpyObj<HTMLIonModalElement>;
 
   beforeEach(() => {
     authServiceSpy = jasmine.createSpyObj('AuthService', ['logout', 'isAuthenticated']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    modalControllerSpy = jasmine.createSpyObj<ModalController>('ModalController', ['create']);
+    modalSpy = jasmine.createSpyObj<HTMLIonModalElement>('IonModal', [
+      'present',
+      'dismiss',
+      'onWillDismiss',
+    ]);
+    modalSpy.present.and.resolveTo();
+    modalSpy.dismiss.and.resolveTo(true);
+    modalSpy.onWillDismiss.and.resolveTo({ data: undefined } as never);
+    modalControllerSpy.create.and.resolveTo(modalSpy);
 
     TestBed.configureTestingModule({
       providers: [
         IdleService,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: MatDialog, useValue: dialogSpy },
+        { provide: ModalController, useValue: modalControllerSpy },
       ],
     });
 
@@ -54,30 +63,27 @@ describe('IdleService', () => {
 
   it('should show warning dialog before timeout', fakeAsync(() => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
-    dialogRefSpy.afterClosed.and.returnValue(of(true));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+    modalSpy.onWillDismiss.and.resolveTo({ data: true } as never);
 
     service = TestBed.inject(IdleService);
 
     // Total 15m, Warning at 13m. Advance to 13m
     tick(13 * 60 * 1000 + 1000);
 
-    expect(dialogSpy.open).toHaveBeenCalled();
+    expect(modalControllerSpy.create).toHaveBeenCalled();
     service.ngOnDestroy();
   }));
 
   it('should logout if user does not respond to warning', fakeAsync(() => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
-    dialogRefSpy.afterClosed.and.returnValue(of(null)); // Still open or closed without action
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+    // The user never answers the warning, so the hard logout timer must fire.
+    modalSpy.onWillDismiss.and.returnValue(new Promise(() => undefined) as never);
 
     service = TestBed.inject(IdleService);
 
     // Advance to 13m (warning shows)
     tick(13 * 60 * 1000 + 1000);
-    expect(dialogSpy.open).toHaveBeenCalled();
+    expect(modalControllerSpy.create).toHaveBeenCalled();
 
     // Advance remaining 2m
     tick(2 * 60 * 1000 + 1000);

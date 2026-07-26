@@ -21,16 +21,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BulkLoansService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -67,94 +74,115 @@ interface ReassignmentTemplate {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'BULK_REASSIGNMENT.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'BULK_REASSIGNMENT.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #reassignForm="ngForm" (ngSubmit)="onSubmit()" class="reassign-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'BULK_REASSIGNMENT.OFFICE' | translate }}</mat-label>
-              <mat-select
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'BULK_REASSIGNMENT.OFFICE' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
                 name="officeId"
                 [(ngModel)]="officeId"
-                (selectionChange)="onOfficeChange()"
+                (ionChange)="onOfficeChange()"
                 required
               >
                 @for (opt of officeOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'BULK_REASSIGNMENT.FROM_OFFICER' | translate }}</mat-label>
-              <mat-select name="fromLoanOfficerId" [(ngModel)]="fromLoanOfficerId" required>
-                @for (opt of loanOfficerOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.displayName }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'BULK_REASSIGNMENT.TO_OFFICER' | translate }}</mat-label>
-              <mat-select name="toLoanOfficerId" [(ngModel)]="toLoanOfficerId" required>
-                @for (opt of loanOfficerOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.displayName }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'BULK_REASSIGNMENT.ASSIGNMENT_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="assignmentDate"
-                [(ngModel)]="assignmentDate"
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'BULK_REASSIGNMENT.FROM_OFFICER' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="fromLoanOfficerId"
+                [(ngModel)]="fromLoanOfficerId"
                 required
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+              >
+                @for (opt of loanOfficerOptions; track opt.id) {
+                  <ion-select-option [value]="opt.id">{{ opt.displayName }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'BULK_REASSIGNMENT.TO_OFFICER' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="toLoanOfficerId"
+                [(ngModel)]="toLoanOfficerId"
+                required
+              >
+                @for (opt of loanOfficerOptions; track opt.id) {
+                  <ion-select-option [value]="opt.id">{{ opt.displayName }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'BULK_REASSIGNMENT.ASSIGNMENT_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="assignmentDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="assignmentDate-picker"
+                    data-testid="assignmentDate-picker"
+                    presentation="date"
+                    name="assignmentDate"
+                    [(ngModel)]="assignmentDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="reassignForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'BULK_REASSIGNMENT.REASSIGN' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -175,7 +203,7 @@ interface ReassignmentTemplate {
 export class BulkReassignmentComponent implements OnInit {
   private readonly bulkLoansService = inject(BulkLoansService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/loans';
 
@@ -184,7 +212,7 @@ export class BulkReassignmentComponent implements OnInit {
   officeId: number | null = null;
   fromLoanOfficerId: number | null = null;
   toLoanOfficerId: number | null = null;
-  assignmentDate: Date | null = null;
+  assignmentDate: string | null = null;
 
   officeOptions: ReassignmentOption[] = [];
   loanOfficerOptions: ReassignmentOption[] = [];
@@ -220,7 +248,7 @@ export class BulkReassignmentComponent implements OnInit {
 
     this.bulkLoansService.postLoansLoanreassignment(body).subscribe({
       next: () => {
-        this.snackBar.open('Loans reassigned successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Loans reassigned successfully');
         this.router.navigate([this.LIST_PATH]);
       },
       error: () => (this.isSaving = false),

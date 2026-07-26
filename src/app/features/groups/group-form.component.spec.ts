@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('GroupFormComponent', () => {
   let component: GroupFormComponent;
@@ -43,7 +42,7 @@ describe('GroupFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [GroupFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [GroupFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: GroupsService, useValue: groupsServiceSpy },
@@ -76,7 +75,7 @@ describe('GroupFormComponent', () => {
   it('should format activationDate correctly on submit in create mode', () => {
     component.isEditMode = false;
     component.group = { name: 'Test Group', officeId: 1, active: true };
-    const testDate = new Date(2026, 4, 9); // May 9, 2026
+    const testDate = '2026-05-09'; // May 9, 2026
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

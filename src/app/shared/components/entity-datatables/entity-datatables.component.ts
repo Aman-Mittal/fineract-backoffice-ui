@@ -19,12 +19,16 @@
 
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {
+  IonButton,
+  IonIcon,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
+import { DialogService } from '../../../core/services/dialog.service';
 import { DataTableComponent, ColumnDef } from '../data-table/data-table.component';
 import { DatatableEntryDialogComponent } from '../datatable-entry-dialog/datatable-entry-dialog.component';
 
@@ -35,41 +39,56 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
   standalone: true,
   imports: [
     TranslateModule,
-    MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonButton,
+    IonIcon,
+    IonSpinner,
     DataTableComponent,
   ],
   template: `
     <div class="entity-datatables-container">
       @if (isLoading()) {
         <div class="loading-overlay">
-          <mat-spinner diameter="40"></mat-spinner>
+          <ion-spinner name="crescent"></ion-spinner>
         </div>
       }
 
       @if (datatables().length > 0) {
-        <mat-tab-group (selectedTabChange)="onTabChange($event)">
+        <ion-segment
+          scrollable
+          data-testid="entity-datatables-tabs"
+          [value]="activeTable?.registeredTableName"
+          (ionChange)="onTabChange($event)"
+        >
           @for (dt of datatables(); track dt.registeredTableName) {
-            <mat-tab [label]="dt.registeredTableName!">
-              <div class="tab-content">
-                <app-data-table
-                  [columns]="getColumnDefs(dt)"
-                  [data]="tableData()"
-                  [isLoading]="isTableLoading()"
-                  [localLogic]="true"
-                >
-                  <button headerActions mat-raised-button color="primary" (click)="onAddEntry(dt)">
-                    <mat-icon>add</mat-icon>
-                    {{ 'SYSTEM.ADD_ENTRY' | translate }}
-                  </button>
-                </app-data-table>
-              </div>
-            </mat-tab>
+            <ion-segment-button [value]="dt.registeredTableName!">
+              <ion-label>{{ dt.registeredTableName }}</ion-label>
+            </ion-segment-button>
           }
-        </mat-tab-group>
+        </ion-segment>
+
+        @if (activeTable; as dt) {
+          <div class="tab-content">
+            <app-data-table
+              [columns]="getColumnDefs(dt)"
+              [data]="tableData()"
+              [isLoading]="isTableLoading()"
+              [localLogic]="true"
+            >
+              <ion-button
+                headerActions
+                data-testid="entity-datatables-add"
+                color="primary"
+                (click)="onAddEntry(dt)"
+              >
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                {{ 'SYSTEM.ADD_ENTRY' | translate }}
+              </ion-button>
+            </app-data-table>
+          </div>
+        }
       } @else if (!isLoading()) {
         <p class="no-data">{{ 'SYSTEM.NO_DATA_TABLES_REGISTERED' | translate }}</p>
       }
@@ -92,7 +111,7 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
       .no-data {
         padding: 24px;
         text-align: center;
-        color: rgba(0, 0, 0, 0.6);
+        color: var(--text-muted, rgba(0, 0, 0, 0.6));
       }
     `,
   ],
@@ -102,7 +121,7 @@ export class EntityDatatablesComponent implements OnInit {
   @Input({ required: true }) entityId!: number;
 
   private readonly datatablesService = inject(DataTablesService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
 
   datatables = signal<GetDataTablesResponse[]>([]);
   isLoading = signal<boolean>(false);
@@ -183,25 +202,28 @@ export class EntityDatatablesComponent implements OnInit {
       }));
   }
 
-  onTabChange(event: { tab: { textLabel: string } }): void {
-    const tableName = event.tab.textLabel;
+  onTabChange(event: Event): void {
+    const detail = (event as CustomEvent<{ value?: string }>).detail;
+    const tableName = detail?.value ?? (event.target as HTMLInputElement)?.value;
+    if (!tableName) return;
+
     this.activeTable = this.datatables().find((d) => d.registeredTableName === tableName);
     this.loadTableData(tableName);
   }
 
-  onAddEntry(dt: GetDataTablesResponse): void {
-    const dialogRef = this.dialog.open(DatatableEntryDialogComponent, {
-      data: {
-        datatableName: dt.registeredTableName!,
-        apptableId: this.entityId,
-        columns: dt.columnHeaderData || [],
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((saved) => {
-      if (saved) {
-        this.loadTableData(dt.registeredTableName!);
-      }
-    });
+  onAddEntry(dt: GetDataTablesResponse): Promise<void> {
+    return this.dialogService
+      .open<boolean>(DatatableEntryDialogComponent, {
+        data: {
+          datatableName: dt.registeredTableName!,
+          apptableId: this.entityId,
+          columns: dt.columnHeaderData || [],
+        },
+      })
+      .then((saved) => {
+        if (saved) {
+          this.loadTableData(dt.registeredTableName!);
+        }
+      });
   }
 }

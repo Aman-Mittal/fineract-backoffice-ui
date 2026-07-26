@@ -17,16 +17,21 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
+import {
+  IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  ModalController,
+} from '@ionic/angular/standalone';
+import { DialogService } from '../../core/services/dialog.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   DataTableComponent,
   ColumnDef,
@@ -46,24 +51,43 @@ import {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslateModule, MatDialogModule, MatButtonModule],
+  imports: [
+    TranslateModule,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+    TooltipDirective,
+  ],
   template: `
-    <h2 mat-dialog-title>{{ data.title | translate }}</h2>
-    <mat-dialog-content>
+    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <div class="dialog-content">
       <p>{{ data.message | translate: data.params }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="false">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" [mat-dialog-close]="true">
+    </div>
+    <div class="dialog-actions">
+      <ion-button fill="clear" (click)="dismiss(false)">
+        {{ 'COMMON.CANCEL' | translate }}
+      </ion-button>
+      <ion-button color="primary" (click)="dismiss(true)">
         {{ 'COMMON.CONFIRM' | translate }}
-      </button>
-    </mat-dialog-actions>
+      </ion-button>
+    </div>
   `,
 })
 export class ConfirmDialogComponent {
-  readonly data = inject<{ title: string; message: string; params?: Record<string, unknown> }>(
-    MAT_DIALOG_DATA,
-  );
+  private readonly modalController = inject(ModalController);
+
+  @Input({ required: true }) data!: {
+    title: string;
+    message: string;
+    params?: Record<string, unknown>;
+  };
+
+  dismiss(confirmed: boolean): void {
+    this.modalController.dismiss(confirmed);
+  }
 }
 
 /**
@@ -74,16 +98,16 @@ export class ConfirmDialogComponent {
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDialogModule,
-    MatSnackBarModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -99,14 +123,18 @@ export class ConfirmDialogComponent {
       (create)="onCreateHoliday()"
     >
       <div filters class="office-filter-container">
-        <mat-form-field appearance="outline" class="office-filter-field">
-          <mat-label>{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</mat-label>
-          <mat-select [value]="selectedOfficeId" (selectionChange)="onOfficeChange($event.value)">
+        <ion-item fill="outline" class="office-filter-field">
+          <ion-label position="stacked">{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</ion-label>
+          <ion-select
+            interface="popover"
+            [value]="selectedOfficeId"
+            (ionChange)="onOfficeChange($event.detail.value)"
+          >
             @for (office of offices; track office.id) {
-              <mat-option [value]="office.id">{{ office.name }}</mat-option>
+              <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
             }
-          </mat-select>
-        </mat-form-field>
+          </ion-select>
+        </ion-item>
       </div>
 
       <ng-template appCellTemplate="fromDate" let-holiday>
@@ -123,14 +151,14 @@ export class ConfirmDialogComponent {
 
       <ng-template appCellTemplate="actions" let-holiday>
         @if (holiday.status?.code === 'holidayStatusType.pending.for.activation') {
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
-            [matTooltip]="'HOLIDAYS.ACTIVATE' | translate"
+            [appTooltip]="'HOLIDAYS.ACTIVATE' | translate"
             (click)="onActivateHoliday(holiday)"
           >
-            <mat-icon>check_circle</mat-icon>
-          </button>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
         }
       </ng-template>
     </app-data-table>
@@ -153,8 +181,8 @@ export class HolidaysListComponent implements OnInit {
   private readonly holidaysService = inject(HolidaysService);
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialogService = inject(DialogService);
+  private readonly notifications = inject(NotificationService);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
@@ -214,32 +242,31 @@ export class HolidaysListComponent implements OnInit {
     this.router.navigate(['/settings/holidays/create']);
   }
 
-  onActivateHoliday(holiday: GetHolidaysResponse): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'HOLIDAYS.ACTIVATE_TITLE',
-        message: 'HOLIDAYS.ACTIVATE_CONFIRM',
-        params: { name: holiday.name },
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.isLoading = true;
-        this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
-          next: () => {
-            this.snackBar.open('Holiday activated successfully', 'Close', { duration: 3000 });
-            this.loadHolidays();
-          },
-          error: (err) => {
-            this.isLoading = false;
-            console.error('Failed to activate holiday', err);
-            this.snackBar.open('Failed to activate holiday', 'Close', { duration: 3000 });
-          },
-        });
-      }
-    });
+  onActivateHoliday(holiday: GetHolidaysResponse): Promise<void> {
+    return this.dialogService
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'HOLIDAYS.ACTIVATE_TITLE',
+          message: 'HOLIDAYS.ACTIVATE_CONFIRM',
+          params: { name: holiday.name },
+        },
+      })
+      .then((result) => {
+        if (result) {
+          this.isLoading = true;
+          this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
+            next: () => {
+              this.notifications.success('Holiday activated successfully');
+              this.loadHolidays();
+            },
+            error: (err) => {
+              this.isLoading = false;
+              console.error('Failed to activate holiday', err);
+              this.notifications.error('Failed to activate holiday');
+            },
+          });
+        }
+      });
   }
 
   formatArrayDate(dateArray: unknown): string {

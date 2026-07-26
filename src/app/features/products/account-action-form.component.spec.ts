@@ -32,7 +32,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('AccountActionFormComponent', () => {
   const SAVINGS_PATH = '/products/savings-accounts';
@@ -115,7 +114,7 @@ describe('AccountActionFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [AccountActionFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [AccountActionFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: SavingsAccountService, useValue: savingsSpy },
         { provide: FixedDepositAccountService, useValue: fixedSpy },

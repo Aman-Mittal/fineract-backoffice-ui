@@ -1,0 +1,142 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/*
+ * Bridges Ionic's theming variables onto the application's own design tokens
+ * (defined in `_common.scss`), so Ionic components inherit the Fineract palette
+ * instead of rendering in stock Ionic Material colours.
+ *
+ * Ionic resolves colours through `--ion-color-<name>` plus the -rgb, -shade,
+ * -tint and -contrast companions; all five are required for a colour to render
+ * correctly across fills, ripples and contrast text.
+ *
+ * Dark mode is driven by the existing `[data-theme='dark']` attribute set by
+ * `ThemeService`, not by Ionic's own `.ion-palette-dark` class or a
+ * prefers-color-scheme query — there is one switch, and this follows it.
+ */
+
+:root {
+  /* Primary — #3498db */
+  --ion-color-primary: #3498db;
+  --ion-color-primary-rgb: 52, 152, 219;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #2e86c1;
+  --ion-color-primary-tint: #48a2df;
+
+  /* Secondary — #2c3e50 */
+  --ion-color-secondary: #2c3e50;
+  --ion-color-secondary-rgb: 44, 62, 80;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #273746;
+  --ion-color-secondary-tint: #415162;
+
+  /* Success — #2ecc71 */
+  --ion-color-success: #2ecc71;
+  --ion-color-success-rgb: 46, 204, 113;
+  --ion-color-success-contrast: #000000;
+  --ion-color-success-contrast-rgb: 0, 0, 0;
+  --ion-color-success-shade: #28b463;
+  --ion-color-success-tint: #43d17f;
+
+  /* Warning — #f39c12 */
+  --ion-color-warning: #f39c12;
+  --ion-color-warning-rgb: 243, 156, 18;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d68910;
+  --ion-color-warning-tint: #f4a62a;
+
+  /* Danger — #e74c3c */
+  --ion-color-danger: #e74c3c;
+  --ion-color-danger-rgb: 231, 76, 60;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cb4335;
+  --ion-color-danger-tint: #e95e50;
+
+  /* Surfaces and text follow the app tokens directly. */
+  --ion-background-color: var(--bg-color);
+  --ion-background-color-rgb: 240, 242, 245;
+  --ion-text-color: var(--text-color);
+  --ion-text-color-rgb: 51, 51, 51;
+
+  --ion-item-background: var(--card-bg);
+  --ion-card-background: var(--card-bg);
+  --ion-toolbar-background: var(--card-bg);
+  --ion-border-color: var(--border-color);
+
+  /* Ionic defaults to its own stack; the app is set in Inter. */
+  --ion-font-family: inherit;
+}
+
+[data-theme='dark'] {
+  --ion-background-color: var(--bg-color);
+  --ion-background-color-rgb: 18, 18, 18;
+  --ion-text-color: var(--text-color);
+  --ion-text-color-rgb: 224, 224, 224;
+
+  --ion-item-background: var(--card-bg);
+  --ion-card-background: var(--card-bg);
+  --ion-toolbar-background: var(--card-bg);
+  --ion-border-color: var(--border-color);
+
+  /* Ionic's neutral step scale drives borders, dividers, placeholders and the
+     disabled states of most components. Left at its light-mode values these
+     read as near-white smears on the dark surfaces. */
+  --ion-color-step-50: #1e1e1e;
+  --ion-color-step-100: #2a2a2a;
+  --ion-color-step-150: #363636;
+  --ion-color-step-200: #414141;
+  --ion-color-step-250: #4d4d4d;
+  --ion-color-step-300: #595959;
+  --ion-color-step-350: #656565;
+  --ion-color-step-400: #717171;
+  --ion-color-step-450: #7d7d7d;
+  --ion-color-step-500: #898989;
+  --ion-color-step-550: #949494;
+  --ion-color-step-600: #a0a0a0;
+  --ion-color-step-650: #acacac;
+  --ion-color-step-700: #b8b8b8;
+  --ion-color-step-750: #c4c4c4;
+  --ion-color-step-800: #d0d0d0;
+  --ion-color-step-850: #dbdbdb;
+  --ion-color-step-900: #e7e7e7;
+  --ion-color-step-950: #f3f3f3;
+}
+
+/* Toast styling for NotificationService. Ionic exposes the toast internals as
+   shadow parts; the message part needs pre-wrap because the Fineract API
+   returns stacked validation errors separated by newlines. */
+ion-toast.error-toast {
+  --background: var(--error-color);
+  --color: #ffffff;
+  --button-color: #ffffff;
+}
+
+ion-toast.error-toast::part(message) {
+  white-space: pre-wrap;
+}
+
+ion-toast.success-toast {
+  --background: var(--success-color);
+  --color: #ffffff;
+  --button-color: #ffffff;
+}

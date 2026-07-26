@@ -21,14 +21,20 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 import {
   DataTablesService,
   PostDataTablesRequest,
@@ -42,65 +48,69 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('SYSTEM.EDIT_DATA_TABLE' | translate)
                 : ('SYSTEM.CREATE_DATA_TABLE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #dtForm="ngForm" (ngSubmit)="onSubmit()" class="dt-form">
             <div class="header-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'SYSTEM.TABLE_NAME' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'SYSTEM.TABLE_NAME' | translate }}</ion-label>
+                <ion-input
                   name="datatableName"
                   [(ngModel)]="datatable.datatableName"
                   required
                   [disabled]="isEditMode"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'SYSTEM.APP_TABLE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'SYSTEM.APP_TABLE' | translate }}</ion-label>
+                <ion-select
+                  interface="popover"
                   name="apptableName"
                   [(ngModel)]="datatable.apptableName"
                   required
                   [disabled]="isEditMode"
                 >
                   @for (table of appTables; track table) {
-                    <mat-option [value]="table">{{ table }}</mat-option>
+                    <ion-select-option [value]="table">{{ table }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
             </div>
 
             <div class="checkbox-row">
-              <mat-checkbox
+              <ion-checkbox
                 name="multiRow"
                 [(ngModel)]="datatable.multiRow"
                 [disabled]="isEditMode"
               >
                 {{ 'SYSTEM.MULTI_ROW' | translate }}
-              </mat-checkbox>
+              </ion-checkbox>
             </div>
 
             <div class="columns-section">
@@ -108,109 +118,104 @@ import {
 
               @for (column of datatable.columns; track $index; let i = $index) {
                 <div class="column-row">
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                    <input
-                      matInput
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                    <ion-input
                       [name]="'colName' + i"
                       [(ngModel)]="column.name"
                       required
                       [disabled]="isEditMode"
-                    />
-                  </mat-form-field>
+                    ></ion-input>
+                  </ion-item>
 
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'COMMON.TYPE' | translate }}</mat-label>
-                    <mat-select
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
+                    <ion-select
+                      interface="popover"
                       [name]="'colType' + i"
                       [(ngModel)]="column.type"
                       required
                       [disabled]="isEditMode"
                     >
                       @for (type of columnTypes; track type) {
-                        <mat-option [value]="type">{{ type }}</mat-option>
+                        <ion-select-option [value]="type">{{ type }}</ion-select-option>
                       }
-                    </mat-select>
-                  </mat-form-field>
+                    </ion-select>
+                  </ion-item>
 
                   @if (column.type === 'String') {
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'SYSTEM.LENGTH' | translate }}</mat-label>
-                      <input
-                        matInput
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'SYSTEM.LENGTH' | translate }}</ion-label>
+                      <ion-input
                         type="number"
                         [name]="'colLength' + i"
                         [(ngModel)]="column.length"
                         required
                         [disabled]="isEditMode"
-                      />
-                    </mat-form-field>
+                      ></ion-input>
+                    </ion-item>
                   } @else if (column.type === 'Dropdown') {
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'SYSTEM.CODE' | translate }}</mat-label>
-                      <mat-select
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'SYSTEM.CODE' | translate }}</ion-label>
+                      <ion-select
+                        interface="popover"
                         [name]="'colCode' + i"
                         [(ngModel)]="column.code"
                         required
                         [disabled]="isEditMode"
                       >
                         @for (code of codes(); track code.id) {
-                          <mat-option [value]="code.name">{{ code.name }}</mat-option>
+                          <ion-select-option [value]="code.name">{{ code.name }}</ion-select-option>
                         }
-                      </mat-select>
-                    </mat-form-field>
+                      </ion-select>
+                    </ion-item>
                   } @else {
                     <div class="placeholder-cell"></div>
                   }
 
                   <div class="column-checkboxes">
-                    <mat-checkbox
+                    <ion-checkbox
                       [name]="'colMandatory' + i"
                       [(ngModel)]="column.mandatory"
                       [disabled]="isEditMode"
                     >
                       {{ 'SYSTEM.MANDATORY' | translate }}
-                    </mat-checkbox>
+                    </ion-checkbox>
                   </div>
 
                   @if (!isEditMode) {
-                    <button mat-icon-button color="warn" type="button" (click)="removeColumn(i)">
-                      <mat-icon>delete</mat-icon>
-                    </button>
+                    <ion-button fill="clear" color="danger" type="button" (click)="removeColumn(i)">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
                   }
                 </div>
               }
 
               @if (!isEditMode) {
-                <button
-                  mat-stroked-button
+                <ion-button
+                  fill="outline"
                   color="primary"
                   type="button"
                   (click)="addColumn()"
                   class="add-col-btn"
                 >
-                  <mat-icon>add</mat-icon>
+                  <ion-icon name="add-outline"></ion-icon>
                   {{ 'SYSTEM.ADD_COLUMN' | translate }}
-                </button>
+                </ion-button>
               }
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button fill="clear" type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="!dtForm.form.valid"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="!dtForm.form.valid">
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

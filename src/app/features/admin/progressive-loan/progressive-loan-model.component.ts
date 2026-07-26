@@ -19,14 +19,20 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProgressiveLoanService, ProgressiveLoanInterestScheduleModel } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-progressive-loan-model',
@@ -34,38 +40,41 @@ import { ProgressiveLoanService, ProgressiveLoanInterestScheduleModel } from '..
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'PROGRESSIVE_LOAN.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'PROGRESSIVE_LOAN.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="row-actions">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'PROGRESSIVE_LOAN.LOAN_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="loanId" />
-          </mat-form-field>
-          <button mat-raised-button color="primary" (click)="loadModel()" [disabled]="isLoading">
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'PROGRESSIVE_LOAN.LOAN_ID' | translate }}</ion-label>
+            <ion-input type="number" [(ngModel)]="loanId"></ion-input>
+          </ion-item>
+          <ion-button color="primary" (click)="loadModel()" [disabled]="isLoading">
             {{ 'PROGRESSIVE_LOAN.LOAD' | translate }}
-          </button>
-          <button mat-raised-button color="accent" (click)="createModel()" [disabled]="isLoading">
+          </ion-button>
+          <ion-button color="secondary" (click)="createModel()" [disabled]="isLoading">
             {{ 'PROGRESSIVE_LOAN.CREATE' | translate }}
-          </button>
-          <button mat-raised-button color="warn" (click)="deleteModel()" [disabled]="isLoading">
+          </ion-button>
+          <ion-button color="danger" (click)="deleteModel()" [disabled]="isLoading">
             {{ 'PROGRESSIVE_LOAN.DELETE' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         @if (isLoading) {
-          <mat-spinner diameter="32"></mat-spinner>
+          <ion-spinner name="crescent"></ion-spinner>
         }
 
         @if (model() !== null) {
@@ -74,8 +83,8 @@ import { ProgressiveLoanService, ProgressiveLoanInterestScheduleModel } from '..
             <pre>{{ model() | json }}</pre>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -98,7 +107,7 @@ import { ProgressiveLoanService, ProgressiveLoanInterestScheduleModel } from '..
 })
 export class ProgressiveLoanModelComponent {
   private progressiveLoanService = inject(ProgressiveLoanService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   loanId = 0;
@@ -149,14 +158,10 @@ export class ProgressiveLoanModelComponent {
   }
 
   private showSuccess(): void {
-    this.snackBar.open(this.translate.instant('PROGRESSIVE_LOAN.SUCCESS'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.success(this.translate.instant('PROGRESSIVE_LOAN.SUCCESS'));
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('PROGRESSIVE_LOAN.ERROR'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.error(this.translate.instant('PROGRESSIVE_LOAN.ERROR'));
   }
 }

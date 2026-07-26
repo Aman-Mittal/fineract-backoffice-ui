@@ -21,10 +21,16 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+  IonButton,
+} from '@ionic/angular/standalone';
 import { NotesService, NoteCreateRequest } from '../../../api';
 
 @Component({
@@ -33,43 +39,62 @@ import { NotesService, NoteCreateRequest } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonTextarea,
+    IonButton,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('CLIENTS.EDIT_NOTE' | translate) : ('CLIENTS.ADD_NOTE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #noteForm="ngForm" (ngSubmit)="onSubmit()" class="note-form">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-              <textarea matInput name="note" [(ngModel)]="note.note" required rows="6"></textarea>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+              <ion-textarea
+                name="note"
+                [(ngModel)]="note.note"
+                required
+                rows="6"
+                id="client-note-textarea"
+                data-testid="client-note-textarea"
+              ></ion-textarea>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="client-note-cancel-btn"
+                data-testid="client-note-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="!noteForm.form.valid"
+                id="client-note-submit-btn"
+                data-testid="client-note-submit-btn"
               >
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

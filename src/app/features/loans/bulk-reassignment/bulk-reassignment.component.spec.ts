@@ -75,7 +75,7 @@ describe('BulkReassignmentComponent', () => {
     component.officeId = 1;
     component.fromLoanOfficerId = 10;
     component.toLoanOfficerId = 11;
-    component.assignmentDate = new Date(2026, 0, 15);
+    component.assignmentDate = '2026-01-15';
 
     component.onSubmit();
 

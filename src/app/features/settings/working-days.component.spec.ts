@@ -20,10 +20,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WorkingDaysComponent } from './working-days.component';
 import { WorkingDaysService } from '../../api';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { NotificationService } from '../../core/services/notification.service';
 
 describe('WorkingDaysComponent', () => {
   let component: WorkingDaysComponent;
@@ -53,7 +53,14 @@ describe('WorkingDaysComponent', () => {
       imports: [WorkingDaysComponent, TranslateModule.forRoot()],
       providers: [
         { provide: WorkingDaysService, useValue: workingDaysServiceSpy },
-        { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open']) },
+        {
+          provide: NotificationService,
+          useValue: jasmine.createSpyObj<NotificationService>('NotificationService', [
+            'success',
+            'error',
+            'show',
+          ]),
+        },
         provideNoopAnimations(),
       ],
     }).compileComponents();

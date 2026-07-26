@@ -22,6 +22,22 @@ import { AuthService } from './auth.service';
 import { InstitutionConfigService, InstitutionFeature } from './institution-config.service';
 import { environment } from '../../../environments/environment';
 
+// Icon names shared by several nav items, hoisted so the strings are not duplicated.
+const ICON_BUSINESS_OUTLINE = 'business-outline';
+const ICON_CALCULATOR_OUTLINE = 'calculator-outline';
+const ICON_CALENDAR_OUTLINE = 'calendar-outline';
+const ICON_DOCUMENT_TEXT_OUTLINE = 'document-text-outline';
+const ICON_GIT_NETWORK_OUTLINE = 'git-network-outline';
+const ICON_GRID_OUTLINE = 'grid-outline';
+const ICON_LOCK_CLOSED_OUTLINE = 'lock-closed-outline';
+const ICON_OPTIONS_OUTLINE = 'options-outline';
+const ICON_PEOPLE_OUTLINE = 'people-outline';
+const ICON_RECEIPT_OUTLINE = 'receipt-outline';
+const ICON_SWAP_HORIZONTAL_OUTLINE = 'swap-horizontal-outline';
+const ICON_TIME_OUTLINE = 'time-outline';
+const ICON_TRENDING_UP_OUTLINE = 'trending-up-outline';
+const ICON_WALLET_OUTLINE = 'wallet-outline';
+
 /**
  * A single entry in the application's navigation tree. Group headers omit
  * `route`; leaf items omit `children`. A `divider` entry is a purely visual
@@ -52,29 +68,41 @@ export interface NavItemConfig {
  * to `sidebar.component.ts` — no new gates are introduced here.
  */
 const NAV_CONFIG: readonly NavItemConfig[] = [
-  { route: '/dashboard', labelKey: 'nav.dashboard', icon: 'dashboard' },
-  { route: '/notifications', labelKey: 'nav.notifications', icon: 'notifications' },
-  { route: '/search', labelKey: 'SIDEBAR.SEARCH', icon: 'search' },
-  { route: '/profile', labelKey: 'SIDEBAR.PROFILE', icon: 'account_circle' },
-  { route: '/clients', labelKey: 'nav.clients', icon: 'people' },
-  { route: '/clients/search', labelKey: 'nav.clientSearchV2', icon: 'manage_search' },
-  { route: '/groups', labelKey: 'nav.groups', icon: 'group', featureFlag: 'groups' },
-  { route: '/centers', labelKey: 'nav.centers', icon: 'place', featureFlag: 'centers' },
+  { route: '/dashboard', labelKey: 'nav.dashboard', icon: ICON_GRID_OUTLINE },
+  { route: '/notifications', labelKey: 'nav.notifications', icon: 'notifications-outline' },
+  { route: '/search', labelKey: 'SIDEBAR.SEARCH', icon: 'search-outline' },
+  { route: '/profile', labelKey: 'SIDEBAR.PROFILE', icon: 'person-circle-outline' },
+  { route: '/clients', labelKey: 'nav.clients', icon: ICON_PEOPLE_OUTLINE },
+  { route: '/clients/search', labelKey: 'nav.clientSearchV2', icon: 'search-circle-outline' },
+  { route: '/groups', labelKey: 'nav.groups', icon: ICON_PEOPLE_OUTLINE, featureFlag: 'groups' },
+  { route: '/centers', labelKey: 'nav.centers', icon: 'location-outline', featureFlag: 'centers' },
   {
     route: '/collection-sheet',
     labelKey: 'nav.collectionSheet',
-    icon: 'receipt_long',
+    icon: ICON_RECEIPT_OUTLINE,
     featureFlag: 'collection_sheet',
   },
-  { route: '/loans', labelKey: 'nav.loans', icon: 'payments' },
-  { route: '/loans/bulk-reassignment', labelKey: 'nav.bulkReassignment', icon: 'swap_horiz' },
-  { route: '/loans/point-in-time', labelKey: 'nav.loansPointInTime', icon: 'schedule' },
-  { route: '/loans/account-locks', labelKey: 'LOAN_ACCOUNT_LOCK.TITLE', icon: 'lock' },
-  { route: '/loans/cob-catchup', labelKey: 'LOAN_COB_CATCHUP.TITLE', icon: 'update' },
+  { route: '/loans', labelKey: 'nav.loans', icon: 'cash-outline' },
+  {
+    route: '/loans/bulk-reassignment',
+    labelKey: 'nav.bulkReassignment',
+    icon: ICON_SWAP_HORIZONTAL_OUTLINE,
+  },
+  { route: '/loans/point-in-time', labelKey: 'nav.loansPointInTime', icon: ICON_TIME_OUTLINE },
+  {
+    route: '/loans/account-locks',
+    labelKey: 'LOAN_ACCOUNT_LOCK.TITLE',
+    icon: ICON_LOCK_CLOSED_OUTLINE,
+  },
+  {
+    route: '/loans/cob-catchup',
+    labelKey: 'LOAN_COB_CATCHUP.TITLE',
+    icon: 'refresh-circle-outline',
+  },
   {
     route: '/loans/schedule-modify',
     labelKey: 'LOAN_SCHEDULE_MODIFY.TITLE',
-    icon: 'edit_calendar',
+    icon: 'calendar-number-outline',
   },
   {
     labelKey: 'nav.transfers',
@@ -82,60 +110,84 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/transfers/account-transfer',
         labelKey: 'nav.accountTransfer',
-        icon: 'swap_horiz',
+        icon: ICON_SWAP_HORIZONTAL_OUTLINE,
         requiredPermissions: 'READ_ACCOUNTTRANSFER',
       },
       {
         route: '/transfers/standing-instructions',
         labelKey: 'nav.standingInstructions',
-        icon: 'schedule_send',
+        icon: 'paper-plane-outline',
         requiredPermissions: 'READ_STANDINGINSTRUCTION',
       },
       {
         route: '/transfers/standing-instructions/history',
         labelKey: 'nav.standingInstructionsHistory',
-        icon: 'history',
+        icon: ICON_TIME_OUTLINE,
         requiredPermissions: 'READ_STANDINGINSTRUCTION',
       },
-      { route: '/transfers/history', labelKey: 'nav.transferHistory', icon: 'history' },
+      { route: '/transfers/history', labelKey: 'nav.transferHistory', icon: ICON_TIME_OUTLINE },
     ],
   },
   {
     labelKey: 'nav.products',
     children: [
-      { route: '/products/loan', labelKey: 'nav.loanProducts', icon: 'currency_exchange' },
-      { route: '/products/savings', labelKey: 'nav.savingsProducts', icon: 'savings' },
-      { route: '/products/fixed', labelKey: 'nav.fixedDepositProducts', icon: 'account_balance' },
+      { route: '/products/loan', labelKey: 'nav.loanProducts', icon: ICON_SWAP_HORIZONTAL_OUTLINE },
+      { route: '/products/savings', labelKey: 'nav.savingsProducts', icon: ICON_WALLET_OUTLINE },
+      {
+        route: '/products/fixed',
+        labelKey: 'nav.fixedDepositProducts',
+        icon: ICON_BUSINESS_OUTLINE,
+      },
       {
         route: '/products/recurring',
         labelKey: 'nav.recurringDepositProducts',
-        icon: 'autorenew',
+        icon: 'refresh-outline',
       },
-      { route: '/products/share', labelKey: 'nav.shareProducts', icon: 'pie_chart' },
-      { route: '/products/tax-components', labelKey: 'nav.taxComponents', icon: 'percent' },
-      { route: '/products/tax-groups', labelKey: 'nav.taxGroups', icon: 'receipt_long' },
-      { route: '/products/floating-rates', labelKey: 'nav.floatingRates', icon: 'trending_up' },
-      { route: '/products/rates', labelKey: 'nav.rates', icon: 'percent' },
+      { route: '/products/share', labelKey: 'nav.shareProducts', icon: 'pie-chart-outline' },
+      {
+        route: '/products/tax-components',
+        labelKey: 'nav.taxComponents',
+        icon: ICON_CALCULATOR_OUTLINE,
+      },
+      { route: '/products/tax-groups', labelKey: 'nav.taxGroups', icon: ICON_RECEIPT_OUTLINE },
+      {
+        route: '/products/floating-rates',
+        labelKey: 'nav.floatingRates',
+        icon: ICON_TRENDING_UP_OUTLINE,
+      },
+      { route: '/products/rates', labelKey: 'nav.rates', icon: ICON_CALCULATOR_OUTLINE },
       {
         route: '/products/interest-rate-charts',
         labelKey: 'nav.interestRateCharts',
-        icon: 'show_chart',
+        icon: ICON_TRENDING_UP_OUTLINE,
       },
       {
         route: '/products/loan-originators',
         labelKey: 'nav.loanOriginators',
-        icon: 'groups',
+        icon: 'people-circle-outline',
       },
       {
         route: '/products/collateral-management',
         labelKey: 'nav.collateralManagement',
-        icon: 'inventory_2',
+        icon: 'cube-outline',
       },
       { labelKey: '', divider: true },
-      { route: '/products/savings-accounts', labelKey: 'nav.savingsAccounts', icon: 'wallet' },
-      { route: '/products/fixed-deposits', labelKey: 'nav.fixedDeposits', icon: 'lock' },
-      { route: '/products/recurring-deposits', labelKey: 'nav.recurringDeposits', icon: 'history' },
-      { route: '/products/shares', labelKey: 'nav.shares', icon: 'show_chart' },
+      {
+        route: '/products/savings-accounts',
+        labelKey: 'nav.savingsAccounts',
+        icon: ICON_WALLET_OUTLINE,
+      },
+      {
+        route: '/products/fixed-deposits',
+        labelKey: 'nav.fixedDeposits',
+        icon: ICON_LOCK_CLOSED_OUTLINE,
+      },
+      {
+        route: '/products/recurring-deposits',
+        labelKey: 'nav.recurringDeposits',
+        icon: ICON_TIME_OUTLINE,
+      },
+      { route: '/products/shares', labelKey: 'nav.shares', icon: ICON_TRENDING_UP_OUTLINE },
     ],
   },
   {
@@ -144,50 +196,54 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/working-capital/loans',
         labelKey: 'nav.wcLoans',
-        icon: 'account_balance',
+        icon: ICON_BUSINESS_OUTLINE,
         requiredPermissions: 'READ_WORKINGCAPITALLOAN',
       },
       {
         route: '/working-capital/loan-products',
         labelKey: 'nav.wcLoanProducts',
-        icon: 'account_balance_wallet',
+        icon: ICON_WALLET_OUTLINE,
         requiredPermissions: 'READ_WORKINGCAPITALLOANPRODUCT',
       },
       {
         route: '/working-capital/breach',
         labelKey: 'nav.wcBreach',
-        icon: 'report_problem',
+        icon: 'warning-outline',
         requiredPermissions: 'READ_WORKINGCAPITALBREACH',
       },
       {
         route: '/working-capital/near-breach',
         labelKey: 'nav.wcNearBreach',
-        icon: 'warning_amber',
+        icon: 'warning-outline',
         requiredPermissions: 'READ_WORKINGCAPITALNEARBREACH',
       },
       {
         route: '/working-capital/loans/account-locks',
         labelKey: 'WC_LOAN_ACCOUNT_LOCK.TITLE',
-        icon: 'lock',
+        icon: ICON_LOCK_CLOSED_OUTLINE,
       },
       {
         route: '/working-capital/loans/cob-catchup',
         labelKey: 'WC_LOAN_COB_CATCHUP.TITLE',
-        icon: 'update',
+        icon: 'refresh-circle-outline',
       },
-      { route: '/admin/wc-cob-tools', labelKey: 'WC_COB_TOOLS.TITLE', icon: 'settings_suggest' },
+      { route: '/admin/wc-cob-tools', labelKey: 'WC_COB_TOOLS.TITLE', icon: ICON_OPTIONS_OUTLINE },
     ],
   },
   {
     labelKey: 'nav.spmMix',
     children: [
-      { route: '/spm/surveys', labelKey: 'nav.spmSurveys', icon: 'poll' },
-      { route: '/spm/poverty-line', labelKey: 'nav.povertyLine', icon: 'trending_down' },
-      { route: '/spm/likelihood', labelKey: 'nav.likelihood', icon: 'analytics' },
-      { route: '/mix/mapping', labelKey: 'nav.mixMapping', icon: 'link' },
-      { route: '/mix/report', labelKey: 'nav.mixReport', icon: 'summarize' },
-      { route: '/mix/taxonomy', labelKey: 'nav.mixTaxonomy', icon: 'schema' },
-      { route: '/spm/survey-responses', labelKey: 'SURVEY_RESPONSES.TITLE', icon: 'quiz' },
+      { route: '/spm/surveys', labelKey: 'nav.spmSurveys', icon: 'bar-chart-outline' },
+      { route: '/spm/poverty-line', labelKey: 'nav.povertyLine', icon: 'trending-down-outline' },
+      { route: '/spm/likelihood', labelKey: 'nav.likelihood', icon: 'analytics-outline' },
+      { route: '/mix/mapping', labelKey: 'nav.mixMapping', icon: 'link-outline' },
+      { route: '/mix/report', labelKey: 'nav.mixReport', icon: ICON_DOCUMENT_TEXT_OUTLINE },
+      { route: '/mix/taxonomy', labelKey: 'nav.mixTaxonomy', icon: ICON_GIT_NETWORK_OUTLINE },
+      {
+        route: '/spm/survey-responses',
+        labelKey: 'SURVEY_RESPONSES.TITLE',
+        icon: 'help-circle-outline',
+      },
     ],
   },
   {
@@ -196,16 +252,20 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/campaigns/email',
         labelKey: 'EMAIL_CAMPAIGNS.TITLE',
-        icon: 'campaign',
+        icon: 'megaphone-outline',
         requiredPermissions: 'READ_EMAIL_CAMPAIGN',
       },
       {
         route: '/campaigns/sms',
         labelKey: 'SMS_CAMPAIGNS.TITLE',
-        icon: 'sms',
+        icon: 'chatbubble-outline',
         requiredPermissions: 'READ_SMSCAMPAIGN',
       },
-      { route: '/campaigns/email-messages', labelKey: 'EMAIL_MESSAGES.TITLE', icon: 'mail' },
+      {
+        route: '/campaigns/email-messages',
+        labelKey: 'EMAIL_MESSAGES.TITLE',
+        icon: 'mail-outline',
+      },
     ],
   },
   {
@@ -214,23 +274,27 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/interop/parties',
         labelKey: 'INTEROP.PARTY_TITLE',
-        icon: 'people',
+        icon: ICON_PEOPLE_OUTLINE,
         requiredPermissions: 'READ_INTERID',
       },
-      { route: '/interop/accounts', labelKey: 'INTEROP.ACCOUNT_TITLE', icon: 'account_balance' },
+      {
+        route: '/interop/accounts',
+        labelKey: 'INTEROP.ACCOUNT_TITLE',
+        icon: ICON_BUSINESS_OUTLINE,
+      },
       {
         route: '/interop/quotes',
         labelKey: 'INTEROP.QUOTES_TITLE',
-        icon: 'request_quote',
+        icon: ICON_DOCUMENT_TEXT_OUTLINE,
         requiredPermissions: 'READ_INTERQUOTE',
       },
       {
         route: '/interop/transfers',
         labelKey: 'INTEROP.TRANSFER_TITLE',
-        icon: 'transfer_within_a_station',
+        icon: ICON_SWAP_HORIZONTAL_OUTLINE,
         requiredPermissions: 'READ_INTERTRANSFER',
       },
-      { route: '/interop/health', labelKey: 'INTEROP.HEALTH_TITLE', icon: 'monitor_heart' },
+      { route: '/interop/health', labelKey: 'INTEROP.HEALTH_TITLE', icon: 'pulse-outline' },
     ],
   },
   {
@@ -240,16 +304,20 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/admin/batch-operations',
         labelKey: 'BATCH_OPERATIONS.TITLE',
-        icon: 'batch_prediction',
+        icon: 'layers-outline',
       },
-      { route: '/admin/inline-job', labelKey: 'INLINE_JOB.TITLE', icon: 'play_circle' },
-      { route: '/admin/cob-tools', labelKey: 'COB_TOOLS.TITLE', icon: 'engineering' },
-      { route: '/admin/wc-cob-tools', labelKey: 'WC_COB_TOOLS.TITLE', icon: 'build' },
-      { route: '/admin/external-events', labelKey: 'EXTERNAL_EVENTS.TITLE', icon: 'event_note' },
+      { route: '/admin/inline-job', labelKey: 'INLINE_JOB.TITLE', icon: 'play-circle-outline' },
+      { route: '/admin/cob-tools', labelKey: 'COB_TOOLS.TITLE', icon: 'construct-outline' },
+      { route: '/admin/wc-cob-tools', labelKey: 'WC_COB_TOOLS.TITLE', icon: 'build-outline' },
+      {
+        route: '/admin/external-events',
+        labelKey: 'EXTERNAL_EVENTS.TITLE',
+        icon: ICON_CALENDAR_OUTLINE,
+      },
       {
         route: '/admin/progressive-loan',
         labelKey: 'PROGRESSIVE_LOAN.TITLE',
-        icon: 'trending_up',
+        icon: ICON_TRENDING_UP_OUTLINE,
       },
     ],
   },
@@ -259,7 +327,7 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/fintech/asset-owners',
         labelKey: 'nav.assetOwners',
-        icon: 'admin_panel_settings',
+        icon: 'shield-checkmark-outline',
       },
     ],
   },
@@ -270,59 +338,65 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/accounting/chart-of-accounts',
         labelKey: 'nav.chartOfAccounts',
-        icon: 'account_tree',
+        icon: ICON_GIT_NETWORK_OUTLINE,
       },
       {
         route: '/accounting/journal-entries',
         labelKey: 'nav.journalEntries',
-        icon: 'menu_book',
+        icon: 'book-outline',
       },
       {
         route: '/accounting/closures',
         labelKey: 'nav.accountingClosures',
-        icon: 'assignment_turned_in',
+        icon: 'clipboard-outline',
       },
-      { route: '/accounting/rules', labelKey: 'nav.accountingRules', icon: 'gavel' },
+      { route: '/accounting/rules', labelKey: 'nav.accountingRules', icon: 'hammer-outline' },
       {
         route: '/accounting/financial-activity-mappings',
         labelKey: 'nav.financialActivityMappings',
-        icon: 'swap_horiz',
+        icon: ICON_SWAP_HORIZONTAL_OUTLINE,
       },
-      { route: '/accounting/charges', labelKey: 'nav.charges', icon: 'percent' },
+      { route: '/accounting/charges', labelKey: 'nav.charges', icon: ICON_CALCULATOR_OUTLINE },
       {
         route: '/accounting/provisioning-categories',
         labelKey: 'nav.provisioningCategories',
-        icon: 'category',
+        icon: 'pricetags-outline',
       },
       {
         route: '/accounting/provisioning-criteria',
         labelKey: 'nav.provisioningCriteria',
-        icon: 'rule',
+        icon: 'checkbox-outline',
       },
       {
         route: '/accounting/provisioning-entries',
         labelKey: 'nav.provisioningEntries',
-        icon: 'receipt',
+        icon: ICON_RECEIPT_OUTLINE,
       },
-      { route: '/accounting/run-accruals', labelKey: 'nav.runAccruals', icon: 'calculate' },
+      {
+        route: '/accounting/run-accruals',
+        labelKey: 'nav.runAccruals',
+        icon: ICON_CALCULATOR_OUTLINE,
+      },
     ],
   },
   {
     labelKey: 'nav.tasks',
-    children: [{ route: '/tasks/checker-inbox', labelKey: 'nav.checker_inbox', icon: 'inbox' }],
+    children: [
+      { route: '/tasks/checker-inbox', labelKey: 'nav.checker_inbox', icon: 'file-tray-outline' },
+    ],
   },
   {
     labelKey: 'nav.security',
     requiredPermissions: ['READ_USER', 'READ_ROLE', 'READ_AUDIT'],
     children: [
-      { route: '/security/users', labelKey: 'nav.users', icon: 'person_outline' },
-      { route: '/security/roles', labelKey: 'nav.roles', icon: 'manage_accounts' },
-      { route: '/security/audits', labelKey: 'nav.audits', icon: 'history_edits' },
+      { route: '/security/users', labelKey: 'nav.users', icon: 'person-outline' },
+      { route: '/security/roles', labelKey: 'nav.roles', icon: 'person-circle-outline' },
+      { route: '/security/audits', labelKey: 'nav.audits', icon: 'git-commit-outline' },
     ],
   },
   {
     labelKey: 'nav.reporting',
-    children: [{ route: '/reporting', labelKey: 'nav.reports', icon: 'assessment' }],
+    children: [{ route: '/reporting', labelKey: 'nav.reports', icon: 'bar-chart-outline' }],
   },
   {
     labelKey: 'nav.settings',
@@ -331,63 +405,63 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
       {
         route: '/settings/configurations',
         labelKey: 'nav.globalConfigurations',
-        icon: 'tune',
+        icon: ICON_OPTIONS_OUTLINE,
       },
-      { route: '/settings/holidays', labelKey: 'nav.holidays', icon: 'event_busy' },
-      { route: '/settings/working-days', labelKey: 'nav.workingDays', icon: 'calendar_today' },
+      { route: '/settings/holidays', labelKey: 'nav.holidays', icon: 'calendar-clear-outline' },
+      { route: '/settings/working-days', labelKey: 'nav.workingDays', icon: ICON_CALENDAR_OUTLINE },
       {
         route: '/settings/two-factor',
         labelKey: 'TWO_FACTOR_CONFIG.TITLE',
-        icon: 'security',
+        icon: 'shield-outline',
       },
       {
         route: '/auth/forgot-password',
         labelKey: 'FORGOT_PASSWORD.TITLE',
-        icon: 'lock_reset',
+        icon: ICON_LOCK_CLOSED_OUTLINE,
       },
     ],
   },
   {
     labelKey: 'nav.tellerOperations',
     children: [
-      { route: '/tellers', labelKey: 'nav.tellers', icon: 'storefront' },
+      { route: '/tellers', labelKey: 'nav.tellers', icon: 'storefront-outline' },
       {
         route: '/tellers/cashier-journals',
         labelKey: 'nav.cashierJournals',
-        icon: 'menu_book',
+        icon: 'book-outline',
       },
     ],
   },
   {
     labelKey: 'nav.organization',
     children: [
-      { route: '/organization/offices', labelKey: 'nav.offices', icon: 'corporate_fare' },
-      { route: '/organization/staff', labelKey: 'nav.staff', icon: 'badge' },
-      { route: '/organization/funds', labelKey: 'nav.funds', icon: 'savings' },
+      { route: '/organization/offices', labelKey: 'nav.offices', icon: ICON_BUSINESS_OUTLINE },
+      { route: '/organization/staff', labelKey: 'nav.staff', icon: 'id-card-outline' },
+      { route: '/organization/funds', labelKey: 'nav.funds', icon: ICON_WALLET_OUTLINE },
       {
         route: '/organization/payment-types',
         labelKey: 'nav.paymentTypes',
-        icon: 'payments',
+        icon: 'cash-outline',
       },
       {
         route: '/organization/group-levels',
         labelKey: 'nav.groupLevels',
-        icon: 'account_tree',
+        icon: ICON_GIT_NETWORK_OUTLINE,
       },
       {
         route: '/organization/currencies',
         labelKey: 'nav.currencies',
-        icon: 'currency_exchange',
+        icon: ICON_SWAP_HORIZONTAL_OUTLINE,
       },
       {
         route: '/organization/account-number-formats',
         labelKey: 'nav.accountNumberFormats',
-        icon: 'format_list_numbered',
+        icon: 'list-outline',
       },
       {
         route: '/organization/office-transactions',
         labelKey: 'OFFICE_TRANSACTIONS.TITLE',
-        icon: 'swap_horiz',
+        icon: ICON_SWAP_HORIZONTAL_OUTLINE,
       },
     ],
   },
@@ -395,87 +469,91 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
     labelKey: 'nav.system',
     requiredPermissions: ['READ_DATATABLE', 'READ_HOOK'],
     children: [
-      { route: '/system/data-tables', labelKey: 'nav.dataTables', icon: 'table_chart' },
-      { route: '/system/bulk-import', labelKey: 'nav.bulkImport', icon: 'publish' },
-      { route: '/system/delinquency', labelKey: 'nav.delinquency', icon: 'gavel' },
-      { route: '/system/hooks', labelKey: 'nav.hooks', icon: 'webhook' },
+      { route: '/system/data-tables', labelKey: 'nav.dataTables', icon: ICON_GRID_OUTLINE },
+      { route: '/system/bulk-import', labelKey: 'nav.bulkImport', icon: 'cloud-upload-outline' },
+      { route: '/system/delinquency', labelKey: 'nav.delinquency', icon: 'hammer-outline' },
+      { route: '/system/hooks', labelKey: 'nav.hooks', icon: ICON_GIT_NETWORK_OUTLINE },
       {
         route: '/system/credit-bureau-config',
         labelKey: 'nav.creditBureauConfig',
-        icon: 'credit_score',
+        icon: 'card-outline',
       },
-      { route: '/system/adhoc-query', labelKey: 'nav.adhocQuery', icon: 'query_stats' },
-      { route: '/system/sms', labelKey: 'nav.sms', icon: 'sms' },
+      { route: '/system/adhoc-query', labelKey: 'nav.adhocQuery', icon: 'analytics-outline' },
+      { route: '/system/sms', labelKey: 'nav.sms', icon: 'chatbubble-outline' },
       {
         route: '/system/report-mailing-jobs',
         labelKey: 'nav.reportMailingJobs',
-        icon: 'mark_email_read',
+        icon: 'mail-open-outline',
       },
       {
         route: '/system/entity-data-table-checks',
         labelKey: 'nav.entityDataTableChecks',
-        icon: 'fact_check',
+        icon: 'checkbox-outline',
       },
       {
         route: '/system/entity-mapping',
         labelKey: 'nav.entityMapping',
-        icon: 'account_tree',
+        icon: ICON_GIT_NETWORK_OUTLINE,
       },
       {
         route: '/system/scheduler-jobs',
         labelKey: 'nav.schedulerJobs',
-        icon: 'schedule',
+        icon: ICON_TIME_OUTLINE,
       },
-      { route: '/system/permissions', labelKey: 'nav.permissions', icon: 'verified_user' },
+      {
+        route: '/system/permissions',
+        labelKey: 'nav.permissions',
+        icon: 'shield-checkmark-outline',
+      },
       {
         route: '/system/business-steps',
         labelKey: 'nav.businessSteps',
-        icon: 'linear_scale',
+        icon: ICON_OPTIONS_OUTLINE,
       },
-      { route: '/system/cache', labelKey: 'nav.cache', icon: 'memory' },
+      { route: '/system/cache', labelKey: 'nav.cache', icon: 'hardware-chip-outline' },
       {
         route: '/system/external-events',
         labelKey: 'nav.externalEvents',
-        icon: 'event_note',
+        icon: ICON_CALENDAR_OUTLINE,
       },
       {
         route: '/system/external-services',
         labelKey: 'nav.externalServices',
-        icon: 'cloud',
+        icon: 'cloud-outline',
       },
       {
         route: '/system/password-preferences',
         labelKey: 'nav.passwordPreferences',
-        icon: 'password',
+        icon: 'key-outline',
       },
       {
         route: '/system/notifications-config',
         labelKey: 'nav.notificationsConfig',
-        icon: 'notifications',
+        icon: 'notifications-outline',
       },
       {
         route: '/system/instance-mode',
         labelKey: 'nav.instanceMode',
-        icon: 'tune',
+        icon: ICON_OPTIONS_OUTLINE,
       },
-      { route: '/system/oidc-config', labelKey: 'nav.oidcConfig', icon: 'vpn_key' },
+      { route: '/system/oidc-config', labelKey: 'nav.oidcConfig', icon: 'key-outline' },
       {
         route: '/system/field-configuration',
         labelKey: 'nav.fieldConfiguration',
-        icon: 'view_column',
+        icon: ICON_GRID_OUTLINE,
       },
       {
         route: '/system/loan-product-details',
         labelKey: 'nav.loanProductDetails',
-        icon: 'description',
+        icon: ICON_DOCUMENT_TEXT_OUTLINE,
       },
-      { route: '/system/codes', labelKey: 'nav.codes', icon: 'code' },
+      { route: '/system/codes', labelKey: 'nav.codes', icon: 'code-slash-outline' },
       {
         route: '/system/business-dates',
         labelKey: 'nav.businessDates',
-        icon: 'today',
+        icon: 'today-outline',
       },
-      { route: '/system/templates', labelKey: 'nav.templates', icon: 'description' },
+      { route: '/system/templates', labelKey: 'nav.templates', icon: ICON_DOCUMENT_TEXT_OUTLINE },
     ],
   },
 ];

@@ -20,6 +20,7 @@
 import {
   Component,
   Input,
+  signal,
   Output,
   EventEmitter,
   ContentChildren,
@@ -28,22 +29,25 @@ import {
   TemplateRef,
   OnChanges,
   SimpleChanges,
-  ViewChild,
-  AfterViewInit,
 } from '@angular/core';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CdkTableModule } from '@angular/cdk/table';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { HelpIconComponent } from '../help-icon/help-icon.component';
 import { SearchFilterComponent } from '../search-filter/search-filter.component';
+import { PaginatorComponent } from '../paginator/paginator.component';
+import { PageEvent, SortDirection, SortEvent } from '../../models/table.model';
 import { CellTemplateDirective } from './cell-template.directive';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 export interface ColumnDef {
   key: string;
@@ -52,9 +56,20 @@ export interface ColumnDef {
   tooltip?: string;
 }
 
+/** Tri-state cycle used by the sortable column headers, matching the previous mat-sort behaviour. */
+const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
+  '': 'asc',
+  asc: 'desc',
+  desc: '',
+};
+
 /**
  * A highly reusable, generic data table component.
  * Supports both server-side and local pagination/sorting/filtering.
+ *
+ * Built on `cdk-table` for row/column rendering with Ionic chrome. When `localLogic` is
+ * false the component is purely presentational and the parent is responsible for
+ * fetching the right page; when true it filters, sorts and paginates `data` itself.
  *
  * @template T - The type of data to be displayed in the table.
  */
@@ -65,45 +80,47 @@ export interface ColumnDef {
     '[attr.title]': 'null',
   },
   imports: [
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    CdkTableModule,
     TranslateModule,
+    NgTemplateOutlet,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonButton,
+    IonIcon,
+    IonSpinner,
     HelpIconComponent,
     SearchFilterComponent,
-    NgTemplateOutlet,
+    PaginatorComponent,
+    TooltipDirective,
   ],
   template: `
-    <mat-card class="data-table-card">
+    <ion-card class="data-table-card">
       @if (isLoading) {
         <div class="loading-overlay">
-          <mat-spinner diameter="40"></mat-spinner>
+          <ion-spinner name="crescent" data-testid="data-table-spinner"></ion-spinner>
         </div>
       }
-      <mat-card-header>
-        <mat-card-title>
+      <ion-card-header>
+        <ion-card-title>
           {{ title | translate }}
           @if (helpTextKey) {
             <app-help-icon [helpTextKey]="helpTextKey"></app-help-icon>
           }
-        </mat-card-title>
+        </ion-card-title>
         <div class="header-actions">
           @if (createButtonLabel) {
-            <button mat-raised-button color="primary" (click)="onCreate()">
-              <mat-icon>add</mat-icon>
+            <ion-button data-testid="data-table-create" color="primary" (click)="onCreate()">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
               {{ createButtonLabel | translate }}
-            </button>
+            </ion-button>
           }
           <ng-content select="[headerActions]"></ng-content>
         </div>
-      </mat-card-header>
+      </ion-card-header>
 
-      <mat-card-content>
+      <ion-card-content>
         <div class="table-header">
           @if (showSearch) {
             <div class="search-container">
@@ -120,30 +137,34 @@ export interface ColumnDef {
         </div>
 
         <div class="table-container">
-          <table
-            mat-table
-            [dataSource]="dataSource"
-            matSort
-            (matSortChange)="onSort($event)"
-            class="mat-elevation-z1"
-          >
+          <table cdk-table [dataSource]="rows()" class="data-table">
             @for (col of columns; track col.key) {
-              <ng-container [matColumnDef]="col.key">
+              <ng-container [cdkColumnDef]="col.key">
                 <th
-                  mat-header-cell
-                  *matHeaderCellDef
-                  [mat-sort-header]="col.key"
-                  [disabled]="!col.sortable"
+                  cdk-header-cell
+                  *cdkHeaderCellDef
+                  [appTooltip]="col.tooltip || ''"
+                  [attr.aria-sort]="ariaSortFor(col)"
+                  [class.sortable]="col.sortable"
+                  (click)="onSortHeaderClick(col)"
                 >
                   {{ col.label | translate }}
+                  @if (col.sortable && sort().active === col.key && sort().direction) {
+                    <ion-icon
+                      class="sort-indicator"
+                      [name]="
+                        sort().direction === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'
+                      "
+                    ></ion-icon>
+                  }
                 </th>
-                <td mat-cell *matCellDef="let row">
+                <td cdk-cell *cdkCellDef="let row">
                   @if (columnTemplates[col.key]) {
                     <ng-container
                       *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
                     ></ng-container>
                   } @else {
-                    <span class="truncate-text" [matTooltip]="getTooltipText(row, col.key)">
+                    <span class="truncate-text" [appTooltip]="getTooltipText(row, col.key)">
                       {{ getCellValue(row, col.key) }}
                     </span>
                   }
@@ -151,28 +172,26 @@ export interface ColumnDef {
               </ng-container>
             }
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
 
-            <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <tr class="no-data-row" *cdkNoDataRow>
+              <td [attr.colspan]="displayedColumns.length">
                 {{ 'COMMON.NO_DATA' | translate }}
               </td>
             </tr>
           </table>
 
-          <mat-paginator
-            [length]="totalRecords"
-            [pageSize]="pageSize"
-            [pageIndex]="pageIndex"
+          <app-paginator
+            [length]="displayedTotal()"
+            [pageSize]="effectivePageSize"
+            [pageIndex]="effectivePageIndex"
             [pageSizeOptions]="pageSizeOptions"
             (page)="onPage($event)"
-            aria-label="Select page"
-          >
-          </mat-paginator>
+          ></app-paginator>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -180,28 +199,38 @@ export interface ColumnDef {
         margin: 24px;
         position: relative;
       }
-      mat-card-header {
+      /* ion-card-header stacks its children in a column by default. The title and its
+         actions belong on one line — the action is a response to the title, not a
+         separate thought. */
+      ion-card-header {
         display: flex;
-        justify-content: space-between;
+        flex-direction: row;
         align-items: center;
-        margin-bottom: 16px;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--border-color);
       }
-      mat-card-title {
+      ion-card-title {
         display: flex;
         align-items: center;
         margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--secondary-color);
       }
       .header-actions {
-        margin-left: auto;
         display: flex;
-        gap: 8px;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
       }
       .table-header {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        gap: 16px;
-        margin-bottom: 8px;
+        gap: var(--space-4);
+        margin: var(--space-4) 0 var(--space-2);
       }
       .search-container {
         display: flex;
@@ -210,8 +239,42 @@ export interface ColumnDef {
       .table-container {
         overflow: auto;
       }
-      table {
+      .data-table {
         width: 100%;
+        border-collapse: collapse;
+      }
+      .data-table th,
+      .data-table td {
+        padding: var(--space-3) var(--space-4);
+        text-align: left;
+        border-bottom: 1px solid var(--border-color, #e0e0e0);
+      }
+      .data-table th {
+        font-weight: 600;
+        color: var(--secondary-color);
+        white-space: nowrap;
+      }
+      .data-table th.sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+      .data-table th.sortable:hover {
+        color: var(--primary-color);
+      }
+      .data-table th[aria-sort] {
+        color: var(--primary-color);
+      }
+      .data-table tr:hover td {
+        background-color: var(--hover-bg);
+      }
+      .sort-indicator {
+        font-size: 14px;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+      .no-data-row td {
+        text-align: center;
+        color: var(--text-muted, #7f8c8d);
       }
       .loading-overlay {
         position: absolute;
@@ -219,7 +282,7 @@ export interface ColumnDef {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.6);
+        background: var(--overlay-bg);
         z-index: 10;
         display: flex;
         align-items: center;
@@ -237,7 +300,7 @@ export interface ColumnDef {
     `,
   ],
 })
-export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, OnChanges {
+export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   @Input() title = '';
   @Input() helpTextKey = '';
   @Input() createButtonLabel = '';
@@ -257,63 +320,97 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
 
   @Output() create = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
-  @Output() sortChange = new EventEmitter<Sort>();
+  @Output() sortChange = new EventEmitter<SortEvent>();
   @Output() pageChange = new EventEmitter<PageEvent>();
 
   @ContentChildren(CellTemplateDirective) cellTemplates!: QueryList<CellTemplateDirective>;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  /**
+   * Rows currently rendered — the visible page when `localLogic`, otherwise `data` verbatim.
+   *
+   * Signals rather than plain fields so the view refreshes whenever the derived state changes,
+   * independently of how change detection was triggered.
+   */
+  readonly rows = signal<T[]>([]);
+  /** Record count reported to the paginator; local filtering shrinks it. */
+  readonly displayedTotal = signal(0);
+  readonly sort = signal<SortEvent>({ active: '', direction: '' });
 
-  dataSource = new MatTableDataSource<T>([]);
   columnTemplates: Record<string, TemplateRef<unknown>> = {};
+
+  private filterText = '';
+  private readonly localPageIndex = signal(0);
+  private readonly localPageSize = signal(10);
 
   get displayedColumns(): string[] {
     return this.columns.map((c) => c.key);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['data']) {
-      this.dataSource.data = this.data;
-      if (this.localLogic && this.paginator) {
-        this.dataSource.paginator = this.paginator;
-      }
-    }
+  get effectivePageIndex(): number {
+    return this.localLogic ? this.localPageIndex() : this.pageIndex;
   }
 
-  ngAfterContentInit() {
+  get effectivePageSize(): number {
+    return this.localLogic ? this.localPageSize() : this.pageSize;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['pageSize']) {
+      this.localPageSize.set(this.pageSize);
+    }
+    if (changes['pageIndex']) {
+      this.localPageIndex.set(this.pageIndex);
+    }
+    this.recompute();
+  }
+
+  ngAfterContentInit(): void {
     this.cellTemplates.forEach((directive) => {
       this.columnTemplates[directive.columnName] = directive.template;
     });
   }
 
-  ngAfterViewInit() {
-    if (this.localLogic) {
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }
-  }
-
-  onCreate() {
+  onCreate(): void {
     this.create.emit();
   }
 
-  onSearch(value: string) {
+  onSearch(value: string): void {
     if (this.localLogic) {
-      this.dataSource.filter = value.trim().toLowerCase();
-      if (this.dataSource.paginator) {
-        this.dataSource.paginator.firstPage();
-      }
+      this.filterText = value.trim().toLowerCase();
+      // A narrower result set can leave the current page out of range.
+      this.localPageIndex.set(0);
+      this.recompute();
     }
     this.searchChange.emit(value);
   }
 
-  onSort(sort: Sort) {
-    this.sortChange.emit(sort);
+  onSortHeaderClick(col: ColumnDef): void {
+    if (!col.sortable) return;
+
+    const current = this.sort();
+    const direction =
+      current.active === col.key ? NEXT_DIRECTION[current.direction] : ('asc' as SortDirection);
+    this.sort.set({ active: direction ? col.key : '', direction });
+
+    if (this.localLogic) {
+      this.recompute();
+    }
+    this.sortChange.emit(this.sort());
   }
 
-  onPage(event: PageEvent) {
+  onPage(event: PageEvent): void {
+    if (this.localLogic) {
+      this.localPageIndex.set(event.pageIndex);
+      this.localPageSize.set(event.pageSize);
+      this.recompute();
+    }
     this.pageChange.emit(event);
+  }
+
+  ariaSortFor(col: ColumnDef): string | null {
+    const { active, direction } = this.sort();
+    if (!col.sortable || active !== col.key || !direction) return null;
+    return direction === 'asc' ? 'ascending' : 'descending';
   }
 
   getCellValue(row: T, key: string): unknown {
@@ -333,5 +430,58 @@ export class DataTableComponent<T> implements AfterContentInit, AfterViewInit, O
     const val = this.getCellValue(row, key);
     if (val === null || val === undefined) return '';
     return String(val);
+  }
+
+  /** Recomputes the rendered rows. Server-side mode passes `data` straight through. */
+  private recompute(): void {
+    if (!this.localLogic) {
+      this.rows.set(this.data ?? []);
+      this.displayedTotal.set(this.totalRecords);
+      return;
+    }
+
+    let result = [...(this.data ?? [])];
+
+    if (this.filterText) {
+      result = result.filter((row) => this.matchesFilter(row));
+    }
+    const { active, direction } = this.sort();
+    if (active && direction) {
+      result = this.sortRows(result, active, direction);
+    }
+
+    this.displayedTotal.set(result.length);
+
+    const pageSize = this.localPageSize();
+    const start = this.localPageIndex() * pageSize;
+    this.rows.set(result.slice(start, start + pageSize));
+  }
+
+  /** Matches the row against the search text across every displayed column. */
+  private matchesFilter(row: T): boolean {
+    return this.columns.some((col) => {
+      const value = this.getCellValue(row, col.key);
+      return value !== null && value !== undefined
+        ? String(value).toLowerCase().includes(this.filterText)
+        : false;
+    });
+  }
+
+  private sortRows(rows: T[], active: string, direction: SortDirection): T[] {
+    const factor = direction === 'asc' ? 1 : -1;
+
+    return rows.sort((a, b) => {
+      const left = this.getCellValue(a, active);
+      const right = this.getCellValue(b, active);
+
+      // Nulls sort last regardless of direction, so empty cells never lead the table.
+      if (left === null || left === undefined) return right === null || right === undefined ? 0 : 1;
+      if (right === null || right === undefined) return -1;
+
+      if (typeof left === 'number' && typeof right === 'number') {
+        return (left - right) * factor;
+      }
+      return String(left).localeCompare(String(right), undefined, { numeric: true }) * factor;
+    });
   }
 }

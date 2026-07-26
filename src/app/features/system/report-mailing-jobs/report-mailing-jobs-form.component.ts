@@ -21,12 +21,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   ReportMailingJobsService,
   PostReportMailingJobsRequest,
@@ -53,87 +60,95 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('REPORT_MAILING_JOBS.EDIT' | translate)
                 : ('REPORT_MAILING_JOBS.CREATE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #jobForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REPORT_MAILING_JOBS.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="job.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'REPORT_MAILING_JOBS.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="job.name" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REPORT_MAILING_JOBS.DESCRIPTION' | translate }}</mat-label>
-              <textarea matInput name="description" [(ngModel)]="job.description"></textarea>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'REPORT_MAILING_JOBS.DESCRIPTION' | translate
+              }}</ion-label>
+              <ion-textarea name="description" [(ngModel)]="job.description"></ion-textarea>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REPORT_MAILING_JOBS.EMAIL_RECIPIENTS' | translate }}</mat-label>
-              <input matInput name="emailRecipients" [(ngModel)]="job.emailRecipients" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'REPORT_MAILING_JOBS.EMAIL_RECIPIENTS' | translate
+              }}</ion-label>
+              <ion-input
+                name="emailRecipients"
+                [(ngModel)]="job.emailRecipients"
+                required
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REPORT_MAILING_JOBS.EMAIL_SUBJECT' | translate }}</mat-label>
-              <input matInput name="emailSubject" [(ngModel)]="job.emailSubject" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'REPORT_MAILING_JOBS.EMAIL_SUBJECT' | translate
+              }}</ion-label>
+              <ion-input name="emailSubject" [(ngModel)]="job.emailSubject" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REPORT_MAILING_JOBS.STRETCHY_REPORT_ID' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'REPORT_MAILING_JOBS.STRETCHY_REPORT_ID' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="stretchyReportId"
                 [(ngModel)]="job.stretchyReportId"
                 required
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-checkbox name="isActive" [(ngModel)]="job.isActive">
+            <ion-checkbox name="isActive" [(ngModel)]="job.isActive">
               {{ 'REPORT_MAILING_JOBS.IS_ACTIVE' | translate }}
-            </mat-checkbox>
+            </ion-checkbox>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="jobForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="jobForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

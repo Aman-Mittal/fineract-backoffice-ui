@@ -21,12 +21,11 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { TellerCashManagementService, GetTellersResponse } from '../../api';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 /**
  * Component for displaying a list of branch tellers.
@@ -43,11 +42,11 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonButton,
+    IonIcon,
     DataTableComponent,
     CellTemplateDirective,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -66,24 +65,28 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-teller>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Teller Details"
+          [appTooltip]="'Edit Teller Details'"
           (click)="onEditTeller(teller)"
+          [id]="'edit-teller-btn-' + teller.id"
+          [attr.data-testid]="'edit-teller-btn-' + teller.id"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          color="accent"
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="secondary"
           [attr.aria-label]="'TELLERS.CASHIERS' | translate"
-          matTooltip="Manage Cashiers"
+          [appTooltip]="'Manage Cashiers'"
           (click)="onManageCashiers(teller)"
+          [id]="'manage-cashiers-btn-' + teller.id"
+          [attr.data-testid]="'manage-cashiers-btn-' + teller.id"
         >
-          <mat-icon>people</mat-icon>
-        </button>
+          <ion-icon name="people-outline" slot="icon-only"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

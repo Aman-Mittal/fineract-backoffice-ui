@@ -63,8 +63,8 @@ describe('ShareDividendFormComponent', () => {
       of('') as unknown as ReturnType<SelfDividendService['postShareproductProductIdDividend']>,
     );
     component.dividendAmount = 100;
-    component.dividendPeriodStartDate = new Date(2026, 0, 1);
-    component.dividendPeriodEndDate = new Date(2026, 11, 31);
+    component.dividendPeriodStartDate = '2026-01-01';
+    component.dividendPeriodEndDate = '2026-12-31';
     component.onSubmit();
 
     expect(serviceSpy.postShareproductProductIdDividend).toHaveBeenCalled();

@@ -18,12 +18,19 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardTitle,
+  IonCheckbox,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   CurrencyService,
   CurrencyConfigurationData,
@@ -35,78 +42,89 @@ import {
   selector: 'app-currencies',
   standalone: true,
   imports: [
-    MatCardModule,
-    MatListModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardTitle,
+    IonCard,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonCheckbox,
   ],
   template: `
-    <mat-card>
-      <mat-card-title>{{ 'CURRENCIES.TITLE' | translate }}</mat-card-title>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-title>{{ 'CURRENCIES.TITLE' | translate }}</ion-card-title>
+      <ion-card-content>
         @if (isLoading) {
           <div class="form-container" style="display:flex;justify-content:center;padding:2rem;">
-            <mat-spinner></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         } @else {
           <div class="form-container" style="display:flex;gap:1rem;align-items:flex-start;">
             <div style="flex:1;">
               <h3>{{ 'CURRENCIES.AVAILABLE' | translate }}</h3>
-              <mat-selection-list #availableList>
+              <ion-list>
                 @for (currency of availableCurrencies; track currency.code) {
-                  <mat-list-option [value]="currency">
-                    {{ currency.displayLabel ?? currency.name }}
-                  </mat-list-option>
+                  <ion-item>
+                    <ion-checkbox
+                      justify="start"
+                      labelPlacement="end"
+                      [checked]="availableSelection.has(currency.code!)"
+                      (ionChange)="toggle(availableSelection, currency.code!, $event)"
+                    >
+                      {{ currency.displayLabel ?? currency.name }}
+                    </ion-checkbox>
+                  </ion-item>
                 }
-              </mat-selection-list>
+              </ion-list>
             </div>
 
             <div
               style="display:flex;flex-direction:column;gap:0.5rem;justify-content:center;padding-top:3rem;"
             >
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="addSelected(availableList.selectedOptions.selected)"
-              >
+              <ion-button color="primary" (click)="addSelected()">
                 {{ 'CURRENCIES.ADD' | translate }} →
-              </button>
-              <button
-                mat-raised-button
-                (click)="removeSelected(selectedList.selectedOptions.selected)"
-              >
+              </ion-button>
+              <ion-button (click)="removeSelected()">
                 ← {{ 'CURRENCIES.REMOVE' | translate }}
-              </button>
+              </ion-button>
             </div>
 
             <div style="flex:1;">
               <h3>{{ 'CURRENCIES.SELECTED' | translate }}</h3>
-              <mat-selection-list #selectedList>
+              <ion-list>
                 @for (currency of selectedCurrencies; track currency.code) {
-                  <mat-list-option [value]="currency">
-                    {{ currency.displayLabel ?? currency.name }}
-                  </mat-list-option>
+                  <ion-item>
+                    <ion-checkbox
+                      justify="start"
+                      labelPlacement="end"
+                      [checked]="selectedSelection.has(currency.code!)"
+                      (ionChange)="toggle(selectedSelection, currency.code!, $event)"
+                    >
+                      {{ currency.displayLabel ?? currency.name }}
+                    </ion-checkbox>
+                  </ion-item>
                 }
-              </mat-selection-list>
+              </ion-list>
             </div>
           </div>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" (click)="save()">
+            <ion-button color="primary" (click)="save()">
               {{ 'CURRENCIES.SAVE' | translate }}
-            </button>
+            </ion-button>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [],
 })
 export class CurrenciesComponent implements OnInit {
   private currencyService = inject(CurrencyService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   isLoading = true;
@@ -129,18 +147,33 @@ export class CurrenciesComponent implements OnInit {
     });
   }
 
-  addSelected(selected: { value: CurrencyData }[]): void {
-    const toAdd = selected.map((s) => s.value);
+  /**
+   * Checked codes on each side. mat-selection-list tracked this itself; ion-list does not,
+   * so the two panes hold their own selection.
+   */
+  readonly availableSelection = new Set<string>();
+  readonly selectedSelection = new Set<string>();
+
+  toggle(selection: Set<string>, code: string, event: Event): void {
+    const checked = (event as CustomEvent<{ checked?: boolean }>).detail?.checked;
+    if (checked) selection.add(code);
+    else selection.delete(code);
+  }
+
+  addSelected(): void {
+    const toAdd = this.availableCurrencies.filter((c) => this.availableSelection.has(c.code!));
     const addCodes = new Set(toAdd.map((c) => c.code));
     this.selectedCurrencies = [...this.selectedCurrencies, ...toAdd];
     this.availableCurrencies = this.availableCurrencies.filter((c) => !addCodes.has(c.code));
+    this.availableSelection.clear();
   }
 
-  removeSelected(selected: { value: CurrencyData }[]): void {
-    const toRemove = selected.map((s) => s.value);
+  removeSelected(): void {
+    const toRemove = this.selectedCurrencies.filter((c) => this.selectedSelection.has(c.code!));
     const removeCodes = new Set(toRemove.map((c) => c.code));
     this.availableCurrencies = [...this.availableCurrencies, ...toRemove];
     this.selectedCurrencies = this.selectedCurrencies.filter((c) => !removeCodes.has(c.code));
+    this.selectedSelection.clear();
   }
 
   save(): void {
@@ -150,11 +183,11 @@ export class CurrenciesComponent implements OnInit {
     this.currencyService.putCurrencies(body).subscribe({
       next: () => {
         this.translate.get('CURRENCIES.SAVED_SUCCESS').subscribe((msg: string) => {
-          this.snackBar.open(msg, undefined, { duration: 3000 });
+          this.notifications.success(msg);
         });
       },
       error: () => {
-        this.snackBar.open('Save failed', undefined, { duration: 3000 });
+        this.notifications.error('Save failed');
       },
     });
   }

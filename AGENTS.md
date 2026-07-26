@@ -47,6 +47,26 @@ enforced server-side (see `security.md`).
 - Every source file carries the ASF Apache-2.0 license header.
 - `localStorage` keys are snake*case, `fineract*`-prefixed.
 
+## UI components — Ionic
+
+The UI layer is **Ionic** (`@ionic/angular` v8) in `mode: 'md'`. Angular Material has been
+removed and `npm run lint` blocks any import of it. `@angular/cdk` is retained for unstyled
+primitives. `STYLE.md` holds the full component mapping — the essentials:
+
+- Import individual components from `@ionic/angular/standalone` into the component's `imports`
+  array; never `IonicModule`.
+- `MatSnackBar` → `NotificationService`, `MatDialog` → `DialogService`
+  (both in `src/app/core/services/`).
+- Icons are ionicons and **must** be registered in `src/app/core/icons.ts`, which `bootstrap.ts`
+  feeds to `addIcons()`. An unregistered name renders blank with no error.
+- Ionic events carry their payload on `CustomEvent.detail.value`; keep a `target.value` fallback
+  because unit tests dispatch plain DOM events.
+- TestBeds rendering components that use Ionic overlays need `provideIonicTesting()` from
+  `src/app/testing/ionic-testing.ts`, or they fail with `NG0201: No provider found for
+_ModalController`.
+- Theming flows through `src/styles/_ionic-theme.scss`, which maps `--ion-color-*` onto the design
+  tokens in `_common.scss`. Dark mode is the `[data-theme='dark']` attribute set by `ThemeService`.
+
 ## RBAC and feature flags
 
 ### `environment.rbacEnabled`

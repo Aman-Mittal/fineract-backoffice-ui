@@ -18,17 +18,24 @@
  */
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { SurveyService, PostSurveySurveyNameApptableIdRequest } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 interface SurveyResponse {
   id?: number;
@@ -42,99 +49,105 @@ interface SurveyResponse {
   standalone: true,
   imports: [
     FormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTableModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'SURVEY_RESPONSES.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'SURVEY_RESPONSES.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <!-- Step 1: Select survey + client -->
         <div class="filter-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'SURVEY_RESPONSES.SURVEY' | translate }}</mat-label>
-            <mat-select [(ngModel)]="selectedSurveyName">
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'SURVEY_RESPONSES.SURVEY' | translate }}</ion-label>
+            <ion-select interface="popover" [(ngModel)]="selectedSurveyName">
               @for (s of surveys(); track s.name) {
-                <mat-option [value]="s.name">{{ s.name }}</mat-option>
+                <ion-select-option [value]="s.name">{{ s.name }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'SURVEY_RESPONSES.CLIENT_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="clientId" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'SURVEY_RESPONSES.CLIENT_ID' | translate }}</ion-label>
+            <ion-input type="number" [(ngModel)]="clientId"></ion-input>
+          </ion-item>
 
-          <button mat-raised-button color="primary" (click)="loadResponses()" [disabled]="loading">
+          <ion-button color="primary" (click)="loadResponses()" [disabled]="loading">
             {{ 'SURVEY_RESPONSES.LOAD' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         @if (loading) {
-          <mat-spinner diameter="40"></mat-spinner>
+          <ion-spinner name="crescent"></ion-spinner>
         }
 
         <!-- Step 2: Responses table -->
         @if (responses().length > 0) {
           <h3>{{ 'SURVEY_RESPONSES.RESPONSES' | translate }}</h3>
-          <mat-table [dataSource]="responses()" class="full-width">
-            <ng-container matColumnDef="id">
-              <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
-              <mat-cell *matCellDef="let row">{{ row.id ?? row.entryId }}</mat-cell>
+          <cdk-table [dataSource]="responses()" class="full-width">
+            <ng-container cdkColumnDef="id">
+              <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">{{ row.id ?? row.entryId }}</cdk-cell>
             </ng-container>
 
-            <ng-container matColumnDef="score">
-              <mat-header-cell *matHeaderCellDef>Score</mat-header-cell>
-              <mat-cell *matCellDef="let row">{{ row.score }}</mat-cell>
+            <ng-container cdkColumnDef="score">
+              <cdk-header-cell *cdkHeaderCellDef>Score</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">{{ row.score }}</cdk-cell>
             </ng-container>
 
-            <ng-container matColumnDef="date">
-              <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
-              <mat-cell *matCellDef="let row">{{ row.date }}</mat-cell>
+            <ng-container cdkColumnDef="date">
+              <cdk-header-cell *cdkHeaderCellDef>Date</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">{{ row.date }}</cdk-cell>
             </ng-container>
 
-            <ng-container matColumnDef="actions">
-              <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-              <mat-cell *matCellDef="let row">
-                <button
-                  mat-icon-button
-                  color="warn"
+            <ng-container cdkColumnDef="actions">
+              <cdk-header-cell *cdkHeaderCellDef>Actions</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">
+                <ion-button
+                  fill="clear"
+                  color="danger"
                   (click)="deleteResponse(row.id ?? row.entryId)"
                   [title]="'SURVEY_RESPONSES.DELETE' | translate"
                 >
                   &#x1F5D1;
-                </button>
-              </mat-cell>
+                </ion-button>
+              </cdk-cell>
             </ng-container>
 
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-          </mat-table>
+            <cdk-header-row *cdkHeaderRowDef="displayedColumns"></cdk-header-row>
+            <cdk-row *cdkRowDef="let row; columns: displayedColumns"></cdk-row>
+          </cdk-table>
         }
 
-        <mat-divider class="section-divider"></mat-divider>
+        <hr class="divider" />
 
         <!-- Step 3: Submit new response -->
         <h3>{{ 'SURVEY_RESPONSES.SUBMIT_RESPONSE' | translate }}</h3>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'SURVEY_RESPONSES.RESPONSE_BODY' | translate }}</mat-label>
-          <textarea matInput rows="6" [(ngModel)]="responseBody"></textarea>
-        </mat-form-field>
-        <button mat-raised-button color="accent" (click)="submitResponse()" [disabled]="submitting">
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{
+            'SURVEY_RESPONSES.RESPONSE_BODY' | translate
+          }}</ion-label>
+          <ion-textarea rows="6" [(ngModel)]="responseBody"></ion-textarea>
+        </ion-item>
+        <ion-button color="secondary" (click)="submitResponse()" [disabled]="submitting">
           {{ 'SURVEY_RESPONSES.SUBMIT' | translate }}
-        </button>
-      </mat-card-content>
-    </mat-card>
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -151,7 +164,7 @@ interface SurveyResponse {
       .section-divider {
         margin: 24px 0;
       }
-      mat-spinner {
+      ion-spinner {
         margin: 16px auto;
       }
     `,
@@ -159,7 +172,7 @@ interface SurveyResponse {
 })
 export class SurveyResponsesComponent implements OnInit {
   private surveyService = inject(SurveyService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   surveys = signal<{ name: string; enabled?: boolean }[]>([]);
   responses = signal<SurveyResponse[]>([]);
@@ -215,7 +228,7 @@ export class SurveyResponsesComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.snackBar.open('SURVEY_RESPONSES.SUCCESS', undefined, { duration: 3000 });
+          this.notifications.success('SURVEY_RESPONSES.SUCCESS');
           this.loadResponses();
         },
       });
@@ -227,7 +240,7 @@ export class SurveyResponsesComponent implements OnInit {
     try {
       body = JSON.parse(this.responseBody);
     } catch {
-      this.snackBar.open('Invalid JSON', undefined, { duration: 3000 });
+      this.notifications.error('Invalid JSON');
       return;
     }
     this.submitting = true;
@@ -235,7 +248,7 @@ export class SurveyResponsesComponent implements OnInit {
       .postSurveySurveyNameApptableId(this.selectedSurveyName, this.clientId, body)
       .subscribe({
         next: () => {
-          this.snackBar.open('SURVEY_RESPONSES.SUCCESS', undefined, { duration: 3000 });
+          this.notifications.success('SURVEY_RESPONSES.SUCCESS');
           this.responseBody = '';
           this.submitting = false;
           this.loadResponses();

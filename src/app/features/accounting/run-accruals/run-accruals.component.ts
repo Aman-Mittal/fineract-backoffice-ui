@@ -20,14 +20,20 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PeriodicAccrualAccountingService, PostRunaccrualsRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -44,22 +50,26 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonItem,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonLabel,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'RUN_ACCRUALS.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'RUN_ACCRUALS.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <p class="hint">{{ 'HELP.RUN_ACCRUALS_DESC' | translate }}</p>
 
           @if (successMessage) {
@@ -67,40 +77,40 @@ import {
           }
 
           <form #accrualForm="ngForm" (ngSubmit)="onSubmit()" class="accrual-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'RUN_ACCRUALS.TILL_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                name="tillDate"
-                [matDatepicker]="tillPicker"
-                [(ngModel)]="tillDate"
-                required
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="tillPicker"></mat-datepicker-toggle>
-              <mat-datepicker #tillPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'RUN_ACCRUALS.TILL_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="tillDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="tillDate-picker"
+                    data-testid="tillDate-picker"
+                    presentation="date"
+                    name="tillDate"
+                    [(ngModel)]="tillDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="accrualForm.invalid || isSubmitting"
               >
                 @if (isSubmitting) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'RUN_ACCRUALS.RUNNING' | translate }}
                 } @else {
                   {{ 'RUN_ACCRUALS.RUN' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -132,7 +142,7 @@ import {
 export class RunAccrualsComponent {
   private readonly accrualService = inject(PeriodicAccrualAccountingService);
 
-  tillDate: Date | null = null;
+  tillDate: string | null = null;
   isSubmitting = false;
   successMessage = '';
 

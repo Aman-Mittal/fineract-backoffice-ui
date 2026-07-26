@@ -18,9 +18,11 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HelpIconComponent } from './help-icon.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { HelpIconComponent } from './help-icon.component';
+import { provideIonicTesting } from '../../../testing/ionic-testing';
+
+const HELP_KEY = 'TEST.HELP_KEY';
 
 describe('HelpIconComponent', () => {
   let component: HelpIconComponent;
@@ -28,12 +30,13 @@ describe('HelpIconComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HelpIconComponent, TranslateModule.forRoot(), MatTooltipModule],
+      imports: [HelpIconComponent, TranslateModule.forRoot()],
+      providers: [provideIonicTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HelpIconComponent);
     component = fixture.componentInstance;
-    component.helpTextKey = 'TEST.HELP_KEY';
+    fixture.componentRef.setInput('helpTextKey', HELP_KEY);
     fixture.detectChanges();
   });
 
@@ -42,12 +45,21 @@ describe('HelpIconComponent', () => {
   });
 
   it('should have helpTextKey as input', () => {
-    expect(component.helpTextKey).toBe('TEST.HELP_KEY');
+    expect(component.helpTextKey).toBe(HELP_KEY);
   });
 
-  it('should render mat-icon', () => {
-    const icon = fixture.nativeElement.querySelector('mat-icon');
+  it('renders the ionicon help glyph', () => {
+    const icon = fixture.nativeElement.querySelector('ion-icon');
+
     expect(icon).toBeTruthy();
-    expect(icon.textContent.trim()).toBe('help_outline');
+    expect(icon.getAttribute('name')).toBe('help-circle-outline');
+  });
+
+  it('exposes the help text to assistive technology', () => {
+    // The hover text is rendered by TooltipDirective; aria-label carries the same
+    // string for screen readers, which never see the tooltip element.
+    const icon = fixture.nativeElement.querySelector('ion-icon');
+
+    expect(icon.getAttribute('aria-label')).toBe(HELP_KEY);
   });
 });

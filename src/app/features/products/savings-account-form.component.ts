@@ -22,18 +22,26 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
+import { NotificationService } from '../../core/services/notification.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   SavingsAccountService,
   SavingsProductService,
@@ -45,6 +53,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 @Component({
@@ -53,33 +62,38 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     ClientSearchComponent,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('SAVINGS.EDIT_ACCOUNT' | translate)
                 : ('SAVINGS.CREATE_ACCOUNT' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="savings-form">
             <div class="form-grid">
               <!-- Client Search with Create Option -->
@@ -92,104 +106,98 @@ import {
                   class="flex-grow"
                 >
                 </app-client-search>
-                <button
-                  mat-icon-button
+                <ion-button
+                  fill="clear"
                   type="button"
-                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [appTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
+                  <ion-icon color="primary" name="add-circle-outline"></ion-icon>
+                </ion-button>
               </div>
 
               <!-- Product Selection with Create Option -->
               <div class="field-container-row">
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
+                <ion-item
+                  fill="outline"
+                  [appTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
-                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                  <mat-select
+                  <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="productId"
                     [(ngModel)]="account.productId"
                     required
                     [disabled]="isEditMode"
                   >
                     @for (product of products; track product.id) {
-                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                      <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
-                <button
-                  mat-icon-button
+                  </ion-select>
+                </ion-item>
+                <ion-button
+                  fill="clear"
                   type="button"
-                  [matTooltip]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
+                  [appTooltip]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
+                  <ion-icon color="primary" name="add-circle-outline"></ion-icon>
+                </ion-button>
               </div>
 
               <!-- Submitted On -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="submittedOnDate"
-                  [(ngModel)]="submittedOnDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
+                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="submittedOnDate-picker"
+                      data-testid="submittedOnDate-picker"
+                      presentation="date"
+                      name="submittedOnDate"
+                      [(ngModel)]="submittedOnDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Nominal Annual Interest Rate -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.INTEREST_RATE' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [appTooltip]="'HELP.INTEREST_RATE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="nominalAnnualInterestRate"
                   [(ngModel)]="interestRate"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="accountForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -225,7 +233,7 @@ export class SavingsAccountFormComponent implements OnInit {
   private readonly productService = inject(SavingsProductService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/products/savings-accounts';
 
@@ -236,7 +244,7 @@ export class SavingsAccountFormComponent implements OnInit {
   account: PostSavingsAccountsRequest = {};
   /** Interest rate bound separately as it's missing from model */
   interestRate = 0;
-  submittedOnDate: Date = new Date();
+  submittedOnDate = toIsoDate(new Date());
   products: GetSavingsProductsResponse[] = [];
 
   ngOnInit(): void {
@@ -273,8 +281,7 @@ export class SavingsAccountFormComponent implements OnInit {
       next: (data: GetSavingsProductsResponse[]) => {
         this.products = data || [];
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.notifications.error('Operation failed. Please try again.'),
     });
   }
 
@@ -284,7 +291,7 @@ export class SavingsAccountFormComponent implements OnInit {
       next: (data: SavingsAccountData) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
-          this.submittedOnDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+          this.submittedOnDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
         }
         this.account = {
           clientId: data.clientId,
@@ -292,8 +299,7 @@ export class SavingsAccountFormComponent implements OnInit {
         };
         this.interestRate = data.nominalAnnualInterestRate || 0;
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.notifications.error('Operation failed. Please try again.'),
     });
   }
 

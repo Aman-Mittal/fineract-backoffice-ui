@@ -203,7 +203,8 @@
     "MAKER": "निर्माता",
     "ACTION": "कार्य",
     "ENTITY": "संस्था",
-    "DATE": "तारीख"
+    "DATE": "तारीख",
+    "SELECT_PAGE": "पृष्ठ चुनें"
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "नया खाता",

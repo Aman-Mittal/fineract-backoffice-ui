@@ -18,13 +18,10 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DataTableComponent, ColumnDef } from './data-table.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
-import { Component, ViewChild } from '@angular/core';
+import { DataTableComponent, ColumnDef } from './data-table.component';
+import { PageEvent, SortEvent } from '../../models/table.model';
+import { provideIonicTesting } from '../../../testing/ionic-testing';
 
 interface TestData {
   id: number;
@@ -32,111 +29,232 @@ interface TestData {
   status: { value: string; code: string };
 }
 
-@Component({
-  template: `
-    <app-data-table
-      [title]="'Test Table'"
-      [columns]="columns"
-      [data]="data"
-      [localLogic]="true"
-      [showSearch]="true"
-      (create)="onCreate()"
-      (searchChange)="onSearch($event)"
-    >
-    </app-data-table>
-  `,
-  imports: [DataTableComponent],
-  providers: [provideNoopAnimations()],
-  standalone: true,
-})
-class TestHostComponent {
-  @ViewChild(DataTableComponent) dataTable!: DataTableComponent<TestData>;
+const COLUMNS: ColumnDef[] = [
+  { key: 'id', label: 'ID', sortable: true },
+  { key: 'name', label: 'Name', sortable: true },
+  { key: 'status', label: 'Status', sortable: false },
+];
 
-  columns: ColumnDef[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'status', label: 'Status', sortable: false },
-  ];
-
-  data: TestData[] = [
-    { id: 1, name: 'Alice', status: { value: 'Active', code: 'active' } },
-    { id: 2, name: 'Bob', status: { value: 'Inactive', code: 'inactive' } },
-  ];
-
-  onCreate() {
-    console.log('onCreate');
-  }
-  onSearch(val: string) {
-    console.log('onSearch', val);
-  }
-}
+const ROWS: TestData[] = [
+  { id: 1, name: 'Alice', status: { value: 'Active', code: 'active' } },
+  { id: 2, name: 'Bob', status: { value: 'Inactive', code: 'inactive' } },
+];
 
 describe('DataTableComponent', () => {
-  let component: TestHostComponent;
-  let fixture: ComponentFixture<TestHostComponent>;
+  let fixture: ComponentFixture<DataTableComponent<TestData>>;
+  let component: DataTableComponent<TestData>;
+
+  /** Names in the second column of each rendered row, in render order. */
+  const renderedNames = (): string[] =>
+    Array.from(fixture.nativeElement.querySelectorAll('tr[cdk-row]')).map((row) =>
+      (row as HTMLElement).children[1].textContent!.trim(),
+    );
+
+  const setInputs = (inputs: Record<string, unknown>): void => {
+    Object.entries(inputs).forEach(([key, value]) => fixture.componentRef.setInput(key, value));
+    fixture.detectChanges();
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        TestHostComponent,
-        TranslateModule.forRoot(),
-        MatPaginatorModule,
-        MatSortModule,
-        MatTableModule,
-      ],
-      providers: [provideNoopAnimations()],
+      imports: [DataTableComponent, TranslateModule.forRoot()],
+      providers: [provideIonicTesting()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TestHostComponent);
+    fixture = TestBed.createComponent<DataTableComponent<TestData>>(DataTableComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    setInputs({ columns: COLUMNS, data: ROWS, localLogic: true });
   });
 
   it('should create', () => {
-    expect(component.dataTable).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 
-  it('should set data correctly', () => {
-    expect(component.dataTable.dataSource.data.length).toBe(2);
-    expect(component.dataTable.dataSource.data[0].name).toBe('Alice');
+  it('renders a row per record', () => {
+    expect(component.rows().length).toBe(2);
+    expect(renderedNames()).toEqual(['Alice', 'Bob']);
   });
 
-  it('should correctly resolve nested cell values', () => {
-    const val = component.dataTable.getCellValue(component.data[0], 'status');
-    expect(val).toBe('Active');
+  it('renders the no-data row when there are no records', () => {
+    setInputs({ data: [] });
+
+    expect(fixture.nativeElement.querySelector('.no-data-row')).toBeTruthy();
   });
 
-  it('should resolve nested values using dot notation', () => {
-    const nestedData = {
-      user: {
-        profile: {
-          name: 'John Doe',
-        },
-      },
-    };
-    const val = component.dataTable.getCellValue(
-      nestedData as unknown as Record<string, unknown> as never,
-      'user.profile.name',
-    );
-    expect(val).toBe('John Doe');
+  describe('cell values', () => {
+    it('unwraps Fineract { value, code } option objects', () => {
+      expect(component.getCellValue(ROWS[0], 'status')).toBe('Active');
+    });
+
+    it('resolves nested values using dot notation', () => {
+      const nested = { user: { profile: { name: 'John Doe' } } };
+
+      expect(component.getCellValue(nested as unknown as TestData, 'user.profile.name')).toBe(
+        'John Doe',
+      );
+    });
+
+    it('returns undefined rather than throwing on a missing branch', () => {
+      expect(component.getCellValue({} as TestData, 'user.profile.name')).toBeUndefined();
+    });
   });
 
-  it('should filter data locally when localLogic is true', () => {
-    component.dataTable.onSearch('Alice');
-    expect(component.dataTable.dataSource.filter).toBe('alice');
-    expect(component.dataTable.dataSource.filteredData.length).toBe(1);
-    expect(component.dataTable.dataSource.filteredData[0].name).toBe('Alice');
+  describe('local logic', () => {
+    it('filters rows on search', () => {
+      component.onSearch('alice');
+      fixture.detectChanges();
+
+      expect(renderedNames()).toEqual(['Alice']);
+    });
+
+    it('matches case-insensitively across any displayed column', () => {
+      component.onSearch('INACTIVE');
+      fixture.detectChanges();
+
+      expect(renderedNames()).toEqual(['Bob']);
+    });
+
+    it('sorts ascending, then descending, then clears', () => {
+      const nameColumn = COLUMNS[1];
+
+      component.onSortHeaderClick(nameColumn);
+      fixture.detectChanges();
+      expect(renderedNames()).toEqual(['Alice', 'Bob']);
+
+      component.onSortHeaderClick(nameColumn);
+      fixture.detectChanges();
+      expect(renderedNames()).toEqual(['Bob', 'Alice']);
+
+      component.onSortHeaderClick(nameColumn);
+      fixture.detectChanges();
+      expect(component.sort()).toEqual({ active: '', direction: '' });
+    });
+
+    it('ignores clicks on non-sortable columns', () => {
+      let emitted: SortEvent | undefined;
+      component.sortChange.subscribe((event) => (emitted = event));
+
+      component.onSortHeaderClick(COLUMNS[2]);
+
+      expect(component.sort().direction).toBe('');
+      expect(emitted).toBeUndefined();
+    });
+
+    it('sorts numerically rather than lexically', () => {
+      setInputs({
+        data: [
+          { id: 10, name: 'Ten', status: { value: 'A', code: 'a' } },
+          { id: 9, name: 'Nine', status: { value: 'B', code: 'b' } },
+        ],
+      });
+
+      component.onSortHeaderClick(COLUMNS[0]);
+      fixture.detectChanges();
+
+      expect(renderedNames()).toEqual(['Nine', 'Ten']);
+    });
+
+    it('sorts rows with a missing value last, in both directions', () => {
+      setInputs({
+        data: [
+          { id: 1, name: 'Zoe', status: { value: 'A', code: 'a' } },
+          { id: 2, name: null as unknown as string, status: { value: 'B', code: 'b' } },
+          { id: 3, name: 'Amy', status: { value: 'C', code: 'c' } },
+        ],
+      });
+
+      component.onSortHeaderClick(COLUMNS[1]);
+      fixture.detectChanges();
+      expect(renderedNames()).toEqual(['Amy', 'Zoe', '']);
+
+      component.onSortHeaderClick(COLUMNS[1]);
+      fixture.detectChanges();
+      expect(renderedNames()).toEqual(['Zoe', 'Amy', '']);
+    });
+
+    it('paginates and reports the filtered total', () => {
+      setInputs({ pageSize: 1 });
+
+      expect(component.rows().length).toBe(1);
+      expect(component.displayedTotal()).toBe(2);
+
+      component.onPage({ pageIndex: 1, pageSize: 1, length: 2 });
+      fixture.detectChanges();
+
+      expect(renderedNames()).toEqual(['Bob']);
+    });
+
+    it('returns to the first page when a search narrows the results', () => {
+      setInputs({ pageSize: 1 });
+      component.onPage({ pageIndex: 1, pageSize: 1, length: 2 });
+
+      component.onSearch('alice');
+      fixture.detectChanges();
+
+      expect(renderedNames()).toEqual(['Alice']);
+    });
   });
 
-  it('should emit create event', () => {
-    spyOn(component.dataTable.create, 'emit');
-    component.dataTable.onCreate();
-    expect(component.dataTable.create.emit).toHaveBeenCalled();
+  describe('server-side mode', () => {
+    beforeEach(() => {
+      setInputs({ localLogic: false, totalRecords: 250 });
+    });
+
+    it('passes data straight through without slicing', () => {
+      expect(renderedNames()).toEqual(['Alice', 'Bob']);
+      expect(component.displayedTotal()).toBe(250);
+    });
+
+    it('does not filter locally, leaving the parent to refetch', () => {
+      component.onSearch('alice');
+      fixture.detectChanges();
+
+      expect(renderedNames()).toEqual(['Alice', 'Bob']);
+    });
+
+    it('emits sort changes for the parent to act on', () => {
+      let emitted: SortEvent | undefined;
+      component.sortChange.subscribe((event) => (emitted = event));
+
+      component.onSortHeaderClick(COLUMNS[1]);
+
+      expect(emitted).toEqual({ active: 'name', direction: 'asc' });
+    });
   });
 
-  it('should emit searchChange event', () => {
-    spyOn(component.dataTable.searchChange, 'emit');
-    component.dataTable.onSearch('test');
-    expect(component.dataTable.searchChange.emit).toHaveBeenCalledWith('test');
+  describe('outputs', () => {
+    it('emits create', () => {
+      spyOn(component.create, 'emit');
+      component.onCreate();
+
+      expect(component.create.emit).toHaveBeenCalled();
+    });
+
+    it('emits searchChange', () => {
+      spyOn(component.searchChange, 'emit');
+      component.onSearch('test');
+
+      expect(component.searchChange.emit).toHaveBeenCalledWith('test');
+    });
+
+    it('emits pageChange', () => {
+      let emitted: PageEvent | undefined;
+      component.pageChange.subscribe((event) => (emitted = event));
+
+      component.onPage({ pageIndex: 1, pageSize: 10, length: 2 });
+
+      expect(emitted).toEqual({ pageIndex: 1, pageSize: 10, length: 2 });
+    });
+  });
+
+  describe('accessibility', () => {
+    it('exposes the sorted column via aria-sort', () => {
+      component.onSortHeaderClick(COLUMNS[1]);
+      fixture.detectChanges();
+
+      const headers = fixture.nativeElement.querySelectorAll('th[cdk-header-cell]');
+      expect(headers[1].getAttribute('aria-sort')).toBe('ascending');
+      expect(headers[0].getAttribute('aria-sort')).toBeNull();
+    });
   });
 });

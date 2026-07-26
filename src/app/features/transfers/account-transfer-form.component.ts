@@ -21,14 +21,25 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonInput,
+  IonTextarea,
+  IonButton,
+  IonDatetime,
+  IonDatetimeButton,
+  IonModal,
+} from '@ionic/angular/standalone';
 import {
   AccountTransfersService,
   OfficesService,
@@ -55,190 +66,275 @@ export interface MiniAccount {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonInput,
+    IonTextarea,
+    IonButton,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'ACTIONS.ACCOUNT_TRANSFER' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'ACTIONS.ACCOUNT_TRANSFER' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #transferForm="ngForm" (ngSubmit)="onSubmit()" class="transfer-form">
-            <div class="transfer-grid">
-              <!-- From Account Section -->
-              <div class="section">
-                <h3>{{ 'CLIENTS.TRANSFER_FROM' | translate }}</h3>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                  <mat-select
-                    name="fromOfficeId"
-                    [(ngModel)]="request.fromOfficeId"
-                    (selectionChange)="onOfficeChange('from')"
-                    required
-                  >
-                    @for (office of offices(); track office.id) {
-                      <mat-option [value]="office.id">{{ office.name }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.CLIENT' | translate }}</mat-label>
-                  <mat-select
-                    name="fromClientId"
-                    [(ngModel)]="request.fromClientId"
-                    (selectionChange)="onClientChange('from')"
-                    required
-                  >
-                    @for (client of fromClients(); track client.id) {
-                      <mat-option [value]="client.id">{{ client.displayName }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</mat-label>
-                  <mat-select
-                    name="fromAccountType"
-                    [(ngModel)]="request.fromAccountType"
-                    (selectionChange)="onAccountTypeChange('from')"
-                    required
-                  >
-                    <mat-option [value]="'2'">{{ 'nav.savingsAccounts' | translate }}</mat-option>
-                    <mat-option [value]="'1'">{{ 'nav.loanAccounts' | translate }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_NO' | translate }}</mat-label>
-                  <mat-select name="fromAccountId" [(ngModel)]="request.fromAccountId" required>
-                    @for (account of fromAccounts(); track account.id) {
-                      <mat-option [value]="account.id"
-                        >{{ account.accountNo }} ({{ account.productName }})</mat-option
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <!-- From Account Section -->
+                <ion-col size="12" size-md="6">
+                  <div class="section">
+                    <h3>{{ 'CLIENTS.TRANSFER_FROM' | translate }}</h3>
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="fromOfficeId"
+                        [(ngModel)]="request.fromOfficeId"
+                        (ionChange)="onOfficeChange('from')"
+                        required
+                        id="transfer-from-office-select"
+                        data-testid="transfer-from-office-select"
                       >
-                    }
-                  </mat-select>
-                </mat-form-field>
-              </div>
+                        @for (office of offices(); track office.id) {
+                          <ion-select-option [value]="office.id">{{
+                            office.name
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
 
-              <!-- To Account Section -->
-              <div class="section">
-                <h3>{{ 'CLIENTS.TRANSFER_TO' | translate }}</h3>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                  <mat-select
-                    name="toOfficeId"
-                    [(ngModel)]="request.toOfficeId"
-                    (selectionChange)="onOfficeChange('to')"
-                    required
-                  >
-                    @for (office of offices(); track office.id) {
-                      <mat-option [value]="office.id">{{ office.name }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.CLIENT' | translate }}</mat-label>
-                  <mat-select
-                    name="toClientId"
-                    [(ngModel)]="request.toClientId"
-                    (selectionChange)="onClientChange('to')"
-                    required
-                  >
-                    @for (client of toClients(); track client.id) {
-                      <mat-option [value]="client.id">{{ client.displayName }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</mat-label>
-                  <mat-select
-                    name="toAccountType"
-                    [(ngModel)]="request.toAccountType"
-                    (selectionChange)="onAccountTypeChange('to')"
-                    required
-                  >
-                    <mat-option [value]="'2'">{{ 'nav.savingsAccounts' | translate }}</mat-option>
-                    <mat-option [value]="'1'">{{ 'nav.loanAccounts' | translate }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_NO' | translate }}</mat-label>
-                  <mat-select name="toAccountId" [(ngModel)]="request.toAccountId" required>
-                    @for (account of toAccounts(); track account.id) {
-                      <mat-option [value]="account.id"
-                        >{{ account.accountNo }} ({{ account.productName }})</mat-option
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="fromClientId"
+                        [(ngModel)]="request.fromClientId"
+                        (ionChange)="onClientChange('from')"
+                        required
+                        id="transfer-from-client-select"
+                        data-testid="transfer-from-client-select"
                       >
-                    }
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
+                        @for (client of fromClients(); track client.id) {
+                          <ion-select-option [value]="client.id">{{
+                            client.displayName
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_TYPE' | translate
+                      }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="fromAccountType"
+                        [(ngModel)]="request.fromAccountType"
+                        (ionChange)="onAccountTypeChange('from')"
+                        required
+                        id="transfer-from-account-type-select"
+                        data-testid="transfer-from-account-type-select"
+                      >
+                        <ion-select-option [value]="'2'">{{
+                          'nav.savingsAccounts' | translate
+                        }}</ion-select-option>
+                        <ion-select-option [value]="'1'">{{
+                          'nav.loanAccounts' | translate
+                        }}</ion-select-option>
+                      </ion-select>
+                    </ion-item>
+
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_NO' | translate
+                      }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="fromAccountId"
+                        [(ngModel)]="request.fromAccountId"
+                        required
+                        id="transfer-from-account-select"
+                        data-testid="transfer-from-account-select"
+                      >
+                        @for (account of fromAccounts(); track account.id) {
+                          <ion-select-option [value]="account.id"
+                            >{{ account.accountNo }} ({{ account.productName }})</ion-select-option
+                          >
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                </ion-col>
+
+                <!-- To Account Section -->
+                <ion-col size="12" size-md="6">
+                  <div class="section">
+                    <h3>{{ 'CLIENTS.TRANSFER_TO' | translate }}</h3>
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="toOfficeId"
+                        [(ngModel)]="request.toOfficeId"
+                        (ionChange)="onOfficeChange('to')"
+                        required
+                        id="transfer-to-office-select"
+                        data-testid="transfer-to-office-select"
+                      >
+                        @for (office of offices(); track office.id) {
+                          <ion-select-option [value]="office.id">{{
+                            office.name
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="toClientId"
+                        [(ngModel)]="request.toClientId"
+                        (ionChange)="onClientChange('to')"
+                        required
+                        id="transfer-to-client-select"
+                        data-testid="transfer-to-client-select"
+                      >
+                        @for (client of toClients(); track client.id) {
+                          <ion-select-option [value]="client.id">{{
+                            client.displayName
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_TYPE' | translate
+                      }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="toAccountType"
+                        [(ngModel)]="request.toAccountType"
+                        (ionChange)="onAccountTypeChange('to')"
+                        required
+                        id="transfer-to-account-type-select"
+                        data-testid="transfer-to-account-type-select"
+                      >
+                        <ion-select-option [value]="'2'">{{
+                          'nav.savingsAccounts' | translate
+                        }}</ion-select-option>
+                        <ion-select-option [value]="'1'">{{
+                          'nav.loanAccounts' | translate
+                        }}</ion-select-option>
+                      </ion-select>
+                    </ion-item>
+
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'CLIENTS.ACCOUNT_NO' | translate
+                      }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        name="toAccountId"
+                        [(ngModel)]="request.toAccountId"
+                        required
+                        id="transfer-to-account-select"
+                        data-testid="transfer-to-account-select"
+                      >
+                        @for (account of toAccounts(); track account.id) {
+                          <ion-select-option [value]="account.id"
+                            >{{ account.accountNo }} ({{ account.productName }})</ion-select-option
+                          >
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             <div class="transfer-details">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.TRANSFER_AMOUNT' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'CLIENTS.TRANSFER_AMOUNT' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="transferAmount"
                   [(ngModel)]="request.transferAmount"
                   required
-                />
-              </mat-form-field>
+                  id="transfer-amount-input"
+                  data-testid="transfer-amount-input"
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.TRANSFER_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="transferPicker"
-                  name="transferDate"
-                  [(ngModel)]="transferDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="transferPicker"></mat-datepicker-toggle>
-                <mat-datepicker #transferPicker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'CLIENTS.TRANSFER_DATE' | translate }}</ion-label>
+                <ion-datetime-button datetime="transfer-date-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="transfer-date-picker"
+                      data-testid="transfer-date-picker"
+                      presentation="date"
+                      (ionChange)="onTransferDateChange($event)"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+                <ion-textarea
                   name="transferDescription"
                   [(ngModel)]="request.transferDescription"
                   rows="2"
-                ></textarea>
-              </mat-form-field>
+                  id="transfer-description-input"
+                  data-testid="transfer-description-input"
+                ></ion-textarea>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="transfer-cancel-btn"
+                data-testid="transfer-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="!transferForm.form.valid"
+                id="transfer-submit-btn"
+                data-testid="transfer-submit-btn"
               >
                 {{ 'COMMON.CONFIRM' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -386,6 +482,12 @@ export class AccountTransferFormComponent implements OnInit {
         else this.toAccounts.set(loans);
       }
     });
+  }
+
+  onTransferDateChange(event: CustomEvent): void {
+    if (event.detail.value) {
+      this.transferDate = new Date(event.detail.value as string);
+    }
   }
 
   onSubmit(): void {

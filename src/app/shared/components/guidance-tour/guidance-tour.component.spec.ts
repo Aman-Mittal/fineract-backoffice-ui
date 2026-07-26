@@ -61,13 +61,13 @@ describe('GuidanceTourComponent', () => {
   });
 
   it('should call nextStep on next click', () => {
-    const nextBtn = fixture.debugElement.queryAll(By.css('button'))[2]; // Exit, Back, Next/Finish
+    const nextBtn = fixture.debugElement.queryAll(By.css('ion-button'))[2]; // Exit, Back, Next/Finish
     nextBtn.nativeElement.click();
     expect(guidanceServiceSpy.nextStep).toHaveBeenCalled();
   });
 
   it('should call endTour on exit click', () => {
-    const exitBtn = fixture.debugElement.queryAll(By.css('button'))[0];
+    const exitBtn = fixture.debugElement.queryAll(By.css('ion-button'))[0];
     exitBtn.nativeElement.click();
     expect(guidanceServiceSpy.endTour).toHaveBeenCalled();
   });

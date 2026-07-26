@@ -18,20 +18,26 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonIcon,
+  IonSpinner,
+  IonGrid,
+  IonRow,
+  IonCol,
+} from '@ionic/angular/standalone';
 import { ClientSearchComponent, HelpIconComponent } from '../../../shared';
 import {
   ShareAccountService,
@@ -46,6 +52,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { DatePipe } from '@angular/common';
 
 interface ShareAccountTemplateResponse {
   productOptions?: Set<GetAccountsTypeProductOptions>;
@@ -58,37 +65,43 @@ interface ShareAccountTemplateResponse {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonIcon,
+    IonSpinner,
+    IonGrid,
+    IonRow,
+    IonCol,
+    DatePipe,
     ClientSearchComponent,
     HelpIconComponent,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('SHARE_ACCOUNTS.EDIT' | translate)
                 : ('SHARE_ACCOUNTS.CREATE' | translate)
             }}
             <app-help-icon [helpTextKey]="'HELP.SHARE_ACCOUNTS_DESC'"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (!isEditMode) {
             <div class="info-banner">
-              <mat-icon class="info-banner-icon">info_outline</mat-icon>
+              <ion-icon name="information-circle-outline" class="info-banner-icon"></ion-icon>
               <div class="info-banner-content">
                 <strong>{{ 'SHARE_ACCOUNTS.PREREQUISITES_TITLE' | translate }}</strong>
                 <ol class="prereq-list">
@@ -101,163 +114,159 @@ interface ShareAccountTemplateResponse {
           }
 
           <form #shareForm="ngForm" (ngSubmit)="onSubmit()" class="share-account-form">
-            <div class="form-grid">
-              <!-- Client Search with Create Option -->
-              <div class="field-container-row">
-                <app-client-search
-                  [label]="'COMMON.CLIENT' | translate"
-                  [required]="true"
-                  [initialClientId]="account.clientId || null"
-                  (clientSelected)="onClientSelected($event)"
-                  class="flex-grow"
-                >
-                </app-client-search>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
-                  (click)="onCreateClient()"
-                  style="margin-top: 4px;"
-                >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
-              </div>
-
-              <!-- Product with Create Option -->
-              <div class="field-container-row">
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.SHARE_PRODUCT_DESC' | translate"
-                  class="flex-grow"
-                >
-                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                  <mat-select
-                    name="productId"
-                    [(ngModel)]="account.productId"
-                    (selectionChange)="onProductSelected($event.value)"
-                    required
-                    [disabled]="isEditMode"
-                  >
-                    @for (product of products; track product.id) {
-                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                <button
-                  mat-icon-button
-                  type="button"
-                  [matTooltip]="'PRODUCTS.CREATE_SHARE_PRODUCT' | translate"
-                  (click)="onCreateProduct()"
-                  style="margin-top: 4px;"
-                  [disabled]="isEditMode"
-                >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
-              </div>
-
-              <!-- Requested Shares -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.REQUESTED_SHARES_DESC' | translate"
-              >
-                <mat-label>{{ 'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="requestedShares"
-                  [(ngModel)]="account.requestedShares"
-                  required
-                />
-              </mat-form-field>
-
-              <!-- Application Date -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.APPLICATION_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'SHARE_ACCOUNTS.APPLICATION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="applicationDate"
-                  [(ngModel)]="applicationDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
-
-              <!-- Savings Account ID (Optional but recommended) -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.SAVINGS_ACCOUNT_ID_DESC' | translate"
-              >
-                <mat-label>{{ 'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate }}</mat-label>
-                <mat-select
-                  name="savingsAccountId"
-                  [(ngModel)]="account.savingsAccountId"
-                  [disabled]="!account.clientId"
-                >
-                  <mat-select-trigger>
-                    {{ getSelectedSavingsAccountLabel() }}
-                  </mat-select-trigger>
-                  <div
-                    class="select-search-container"
-                    (click)="$event.stopPropagation()"
-                    (keydown)="$event.stopPropagation()"
-                    tabindex="-1"
-                  >
-                    <input
-                      matInput
-                      placeholder="Search accounts..."
-                      (input)="onSavingsSearch($event)"
-                      class="select-search-input"
-                    />
+            <ion-grid>
+              <ion-row>
+                <!-- Client Search with Create Option -->
+                <ion-col size="12" size-md="6">
+                  <div class="field-container-row">
+                    <app-client-search
+                      [label]="'COMMON.CLIENT' | translate"
+                      [required]="true"
+                      [initialClientId]="account.clientId || null"
+                      (clientSelected)="onClientSelected($event)"
+                      class="flex-grow"
+                    >
+                    </app-client-search>
+                    <ion-button
+                      id="share-account-client-add-btn"
+                      data-testid="share-account-client-add-btn"
+                      fill="clear"
+                      color="primary"
+                      type="button"
+                      (click)="onCreateClient()"
+                    >
+                      <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
                   </div>
-                  <mat-option [value]="null">-- None --</mat-option>
-                  @for (sa of filteredSavingsAccounts; track sa.id) {
-                    <mat-option [value]="sa.id">
-                      {{ sa.accountNo }} - {{ sa.savingsProductName }}
-                    </mat-option>
-                  }
-                  @if (filteredSavingsAccounts.length === 0 && savingsAccounts.length === 0) {
-                    <mat-option disabled>
-                      {{ 'SHARE_ACCOUNTS.NO_SAVINGS_HINT' | translate }}
-                    </mat-option>
-                  }
-                  @if (filteredSavingsAccounts.length === 0 && savingsAccounts.length > 0) {
-                    <mat-option disabled>
-                      {{ 'COMMON.NO_DATA' | translate }}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
+                </ion-col>
+
+                <!-- Product with Create Option -->
+                <ion-col size="12" size-md="6">
+                  <div class="field-container-row">
+                    <ion-item fill="outline" class="form-item flex-grow">
+                      <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
+                      <ion-select
+                        interface="popover"
+                        id="share-account-product-select"
+                        data-testid="share-account-product-select"
+                        name="productId"
+                        [(ngModel)]="account.productId"
+                        (ionChange)="onProductSelected($event.detail.value)"
+                        required
+                        [disabled]="isEditMode"
+                      >
+                        @for (product of products; track product.id) {
+                          <ion-select-option [value]="product.id">{{
+                            product.name
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                    <ion-button
+                      id="share-account-product-add-btn"
+                      data-testid="share-account-product-add-btn"
+                      fill="clear"
+                      color="primary"
+                      type="button"
+                      (click)="onCreateProduct()"
+                      [disabled]="isEditMode"
+                    >
+                      <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  </div>
+                </ion-col>
+
+                <!-- Requested Shares -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="share-account-requested-shares"
+                      data-testid="share-account-requested-shares"
+                      type="number"
+                      name="requestedShares"
+                      [(ngModel)]="account.requestedShares"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
+
+                <!-- Application Date -->
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'SHARE_ACCOUNTS.APPLICATION_DATE' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="share-account-application-date"
+                      data-testid="share-account-application-date"
+                      type="date"
+                      name="applicationDate"
+                      [ngModel]="applicationDate | date: 'yyyy-MM-dd'"
+                      (ngModelChange)="onApplicationDateChange($event)"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
+
+                <!-- Savings Account ID (Optional but recommended) -->
+                <ion-col size="12">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate
+                    }}</ion-label>
+                    <ion-select
+                      interface="popover"
+                      id="share-account-savings-select"
+                      data-testid="share-account-savings-select"
+                      name="savingsAccountId"
+                      [(ngModel)]="account.savingsAccountId"
+                      [disabled]="!account.clientId"
+                    >
+                      <ion-select-option [value]="null">-- None --</ion-select-option>
+                      @for (sa of savingsAccounts; track sa.id) {
+                        <ion-select-option [value]="sa.id">
+                          {{ sa.accountNo }} - {{ sa.savingsProductName }}
+                        </ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                id="share-account-cancel-btn"
+                data-testid="share-account-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
+                id="share-account-submit-btn"
+                data-testid="share-account-submit-btn"
                 color="primary"
                 type="submit"
                 [disabled]="shareForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -351,6 +360,10 @@ export class ShareAccountFormComponent implements OnInit {
   savingsAccounts: SavingsAccountData[] = [];
   filteredSavingsAccounts: SavingsAccountData[] = [];
   savingsSearchVal = '';
+
+  onApplicationDateChange(val: string): void {
+    this.applicationDate = val ? new Date(val) : new Date();
+  }
 
   ngOnInit(): void {
     // Check for clientId in query params for pre-population

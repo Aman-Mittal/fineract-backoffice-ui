@@ -21,22 +21,21 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { ReportsService, GetReportsResponse } from '../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-reports-list',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -49,15 +48,15 @@ import { ReportsService, GetReportsResponse } from '../../api';
       [localLogic]="true"
     >
       <ng-template appCellTemplate="actions" let-report>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.RUN' | translate"
-          [matTooltip]="'REPORTS.RUN' | translate"
+          [appTooltip]="'REPORTS.RUN' | translate"
           (click)="onRunReport(report)"
         >
-          <mat-icon>play_arrow</mat-icon>
-        </button>
+          <ion-icon name="play-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

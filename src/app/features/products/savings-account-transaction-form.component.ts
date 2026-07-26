@@ -22,16 +22,26 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   SavingsAccountTransactionsService,
   PostSavingsAccountTransactionsRequest,
@@ -43,113 +53,117 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               command === 'deposit'
                 ? ('SAVINGS.DEPOSIT' | translate)
                 : ('SAVINGS.WITHDRAWAL' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="transaction-form">
             <div class="form-grid">
               <!-- Transaction Date -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.TRANSACTION_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="transactionDate"
-                  [(ngModel)]="transactionDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate">
+                <ion-label position="stacked">{{
+                  'COMMON.TRANSACTION_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="transactionDate-picker"
+                      data-testid="transactionDate-picker"
+                      presentation="date"
+                      name="transactionDate"
+                      [(ngModel)]="transactionDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Transaction Amount -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.TRANSACTION_AMOUNT' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
+                <ion-label position="stacked">{{
+                  'COMMON.TRANSACTION_AMOUNT' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="transactionAmount"
                   [(ngModel)]="transaction.transactionAmount"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Payment Type -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.PAYMENT_TYPE' | translate }}</mat-label>
-                <mat-select name="paymentTypeId" [(ngModel)]="transaction.paymentTypeId">
+              <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
+                <ion-select
+                  interface="popover"
+                  name="paymentTypeId"
+                  [(ngModel)]="transaction.paymentTypeId"
+                >
                   @for (type of paymentTypeOptions; track type['id']) {
-                    <mat-option [value]="type['id']">{{ type['name'] }}</mat-option>
+                    <ion-select-option [value]="type['id']">{{ type['name'] }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Note -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.NOTE_DESC' | translate"
+              <ion-item
+                fill="outline"
+                [appTooltip]="'HELP.NOTE_DESC' | translate"
                 class="full-width"
               >
-                <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                <textarea matInput name="note" [(ngModel)]="note" rows="3"></textarea>
-              </mat-form-field>
+                <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                <ion-textarea name="note" [(ngModel)]="note" rows="3"></ion-textarea>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="transactionForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -176,7 +190,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   private readonly transactionService = inject(SavingsAccountTransactionsService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   accountId = 0;
   command = '';
@@ -185,7 +199,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   transaction: PostSavingsAccountTransactionsRequest = {};
   /** Note bound separately as it might not be in the direct model */
   note = '';
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   paymentTypeOptions: Record<string, unknown>[] = [];
 
   ngOnInit(): void {
@@ -205,11 +219,13 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
           const data = typeof template === 'string' ? JSON.parse(template) : template;
           this.paymentTypeOptions = data.paymentTypeOptions || [];
           if (data.date) {
-            this.transactionDate = new Date(data.date[0], data.date[1] - 1, data.date[2]);
+            this.transactionDate = toIsoDate(
+              new Date(data.date[0], data.date[1] - 1, data.date[2]),
+            );
           }
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
         },
       });
   }
@@ -217,9 +233,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   onSubmit(): void {
     this.isSaving = true;
 
-    const formattedDate = `${this.transactionDate.getFullYear()}-${String(
-      this.transactionDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.transactionDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.transactionDate);
 
     this.transaction.transactionDate = formattedDate;
     this.transaction.dateFormat = 'yyyy-MM-dd';

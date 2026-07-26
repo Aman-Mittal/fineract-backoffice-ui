@@ -20,9 +20,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { CurrencyPipe } from '@angular/common';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -34,9 +32,8 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonButton,
+    IonIcon,
     DataTableComponent,
     CellTemplateDirective,
     CurrencyPipe,
@@ -57,14 +54,14 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-product>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
-          [matTooltip]="'COMMON.EDIT' | translate"
+          [attr.aria-label]="'COMMON.EDIT' | translate"
           (click)="onEdit(product)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

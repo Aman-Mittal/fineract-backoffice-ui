@@ -23,9 +23,9 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
+import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
 
 /**
  * Component providing the user login interface.
@@ -36,7 +36,7 @@ import { ConfigService } from '../../core/services/config.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, MatTooltipModule],
+  imports: [ReactiveFormsModule, TranslateModule, HelpIconComponent],
   template: `
     <div class="login-page">
       <div class="login-card" role="main">
@@ -65,8 +65,9 @@ import { ConfigService } from '../../core/services/config.service';
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-field">
-            <label for="serverUrl" [matTooltip]="'login.tooltips.serverUrl' | translate">
-              {{ 'login.serverUrl' | translate }} ℹ️
+            <label for="serverUrl">
+              {{ 'login.serverUrl' | translate }}
+              <app-help-icon helpTextKey="login.tooltips.serverUrl"></app-help-icon>
             </label>
             <select id="serverUrl" formControlName="serverUrl">
               <option value="https://demo.mifos.io/fineract-provider/api/v1">
@@ -98,8 +99,9 @@ import { ConfigService } from '../../core/services/config.service';
           }
 
           <div class="form-field">
-            <label for="tenantId" [matTooltip]="'login.tooltips.tenantId' | translate">
-              {{ 'login.tenantId' | translate }} ℹ️
+            <label for="tenantId">
+              {{ 'login.tenantId' | translate }}
+              <app-help-icon helpTextKey="login.tooltips.tenantId"></app-help-icon>
             </label>
             <input
               id="tenantId"
@@ -165,22 +167,22 @@ import { ConfigService } from '../../core/services/config.service';
       }
       .login-card {
         position: relative;
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        background: var(--card-bg);
+        color: var(--text-color);
+        padding: var(--space-6);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
         width: 100%;
         max-width: 440px;
       }
       .lang-selector {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: var(--space-4);
       }
       .lang-selector select {
-        padding: 0.25rem 0.5rem;
+        padding: var(--space-1) var(--space-2);
         font-size: 0.8rem;
-        border-radius: 4px;
       }
       .login-header {
         text-align: center;
@@ -211,40 +213,46 @@ import { ConfigService } from '../../core/services/config.service';
         gap: 0.25rem;
       }
       label {
-        font-weight: 600;
-        font-size: 0.8rem;
-        color: #444;
-        cursor: help;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        font-size: 0.75rem;
+        color: var(--text-muted);
       }
       input,
       select {
-        padding: 0.6rem;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-family: inherit;
         font-size: 0.9rem;
-        transition: border-color 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
       }
       input:focus,
       select:focus {
         outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        border-color: var(--primary-color);
+        box-shadow: var(--focus-ring);
       }
       .error-message {
-        background-color: #ffebee;
-        color: #c62828;
-        padding: 0.6rem;
-        border-radius: 6px;
+        background-color: color-mix(in srgb, var(--error-color) 12%, transparent);
+        color: var(--error-color);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--border-radius);
         font-size: 0.8rem;
-        border-left: 4px solid #c62828;
+        border-left: 4px solid var(--error-color);
       }
       .submit-btn {
-        margin-top: 0.5rem;
-        padding: 0.75rem;
-        background-color: #3498db;
-        color: white;
+        margin-top: var(--space-2);
+        padding: var(--space-3);
+        background-color: var(--primary-color);
+        color: #fff;
         border: none;
-        border-radius: 6px;
+        border-radius: var(--border-radius);
         font-weight: 600;
         font-size: 0.95rem;
         cursor: pointer;

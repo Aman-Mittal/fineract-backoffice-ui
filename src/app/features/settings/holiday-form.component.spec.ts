@@ -21,11 +21,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HolidayFormComponent } from './holiday-form.component';
 import { HolidaysService, OfficesService } from '../../api';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
+import { NotificationService } from '../../core/services/notification.service';
 
 describe('HolidayFormComponent', () => {
   let component: HolidayFormComponent;
@@ -33,7 +32,7 @@ describe('HolidayFormComponent', () => {
   let holidaysServiceSpy: jasmine.SpyObj<HolidaysService>;
   let officesServiceSpy: jasmine.SpyObj<OfficesService>;
   let routerSpy: jasmine.SpyObj<Router>;
-  let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+  let notificationsSpy: jasmine.SpyObj<NotificationService>;
 
   beforeEach(async () => {
     holidaysServiceSpy = jasmine.createSpyObj('HolidaysService', [
@@ -42,7 +41,11 @@ describe('HolidayFormComponent', () => {
     ]);
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
+      'success',
+      'error',
+      'show',
+    ]);
 
     officesServiceSpy.getOffices.and.returnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
@@ -55,18 +58,18 @@ describe('HolidayFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [HolidayFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [HolidayFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: HolidaysService, useValue: holidaysServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: MatSnackBar, useValue: snackBarSpy },
+        { provide: NotificationService, useValue: notificationsSpy },
         provideNoopAnimations(),
       ],
     })
       .overrideComponent(HolidayFormComponent, {
         add: {
-          providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
+          providers: [{ provide: NotificationService, useValue: notificationsSpy }],
         },
       })
       .compileComponents();
@@ -90,11 +93,11 @@ describe('HolidayFormComponent', () => {
       name: 'Christmas',
       description: 'Merry Christmas',
     };
-    component.fromDate = new Date(2026, 11, 25);
-    component.toDate = new Date(2026, 11, 26);
+    component.fromDate = '2026-12-25';
+    component.toDate = '2026-12-26';
     component.selectedOfficeIds = [1];
     component.reschedulingType = 2;
-    component.repaymentsRescheduledTo = new Date(2026, 11, 28);
+    component.repaymentsRescheduledTo = '2026-12-28';
 
     component.onSubmit();
 
@@ -110,11 +113,7 @@ describe('HolidayFormComponent', () => {
         repaymentsRescheduledTo: '28 December 2026',
       }),
     );
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      'Holiday created successfully',
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.success).toHaveBeenCalledWith('Holiday created successfully');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/settings/holidays']);
   });
 

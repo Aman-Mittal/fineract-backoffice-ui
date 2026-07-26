@@ -21,12 +21,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { TaxGroupService, TaxComponentData, PostTaxesGroupRequest } from '../../../api';
 import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-formatter';
 
@@ -39,62 +46,87 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonSpinner,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('TAX_GROUPS.EDIT' | translate) : ('TAX_GROUPS.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #tgForm="ngForm" (ngSubmit)="onSubmit()" class="tg-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'TAX_GROUPS.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="name" required />
-            </mat-form-field>
+            <ion-item fill="outline" class="form-item">
+              <ion-label position="stacked">{{ 'TAX_GROUPS.NAME' | translate }}</ion-label>
+              <ion-input
+                id="tax-group-name"
+                data-testid="tax-group-name"
+                name="name"
+                [(ngModel)]="name"
+                required
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'TAX_GROUPS.COMPONENTS' | translate }}</mat-label>
-              <mat-select name="components" [(ngModel)]="selectedComponentIds" multiple required>
+            <ion-item fill="outline" class="form-item">
+              <ion-label position="stacked">{{ 'TAX_GROUPS.COMPONENTS' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                id="tax-group-components"
+                data-testid="tax-group-components"
+                name="components"
+                [(ngModel)]="selectedComponentIds"
+                multiple="true"
+                required
+              >
                 @for (c of availableComponents; track c.id) {
-                  <mat-option [value]="c.id">{{ c.name }}</mat-option>
+                  <ion-select-option [value]="c.id">{{ c.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                id="tax-group-cancel-btn"
+                data-testid="tax-group-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
+                id="tax-group-submit-btn"
+                data-testid="tax-group-submit-btn"
                 color="primary"
                 type="submit"
                 [disabled]="tgForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -108,6 +140,15 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
         display: flex;
         flex-direction: column;
         gap: 16px;
+      }
+      .form-item {
+        margin-bottom: 12px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
       }
     `,
   ],

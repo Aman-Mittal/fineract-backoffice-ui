@@ -20,22 +20,29 @@
 import { Page, expect } from '@playwright/test';
 
 /**
- * Opens a mat-select combobox and picks an option by name, retrying the open
- * if the option list hasn't rendered yet (async template loads) or a stray
- * overlay from a prior interaction is still blocking the click.
+ * Opens an ion-select and picks an option by name, retrying the open if the option list
+ * hasn't rendered yet (async template loads) or a stray overlay from a prior interaction
+ * is still on screen.
+ *
+ * Synchronises on `ion-alert`/`ion-popover` rather than Material's `.cdk-overlay-backdrop`:
+ * ion-select presents its options in one of those, and they mount and unmount on their own
+ * animation timing.
  */
-export async function selectMatOption(
+export async function selectOption(
   page: Page,
   comboboxName: string,
   optionName: string,
 ): Promise<void> {
   const combobox = page.getByRole('combobox', { name: comboboxName });
-  const option = page.getByRole('option', { name: optionName, exact: true });
+  const overlay = page.locator('ion-alert, ion-popover, ion-action-sheet');
+  // Ionic renders select options as radios inside the overlay, not as role="option".
+  const option = overlay.getByRole('radio', { name: optionName, exact: true });
+
   await combobox.scrollIntoViewIfNeeded();
   for (let attempt = 0; attempt < 5; attempt++) {
     await page.keyboard.press('Escape');
-    await expect(page.locator('.cdk-overlay-backdrop')).toHaveCount(0);
-    await combobox.click({ force: true });
+    await expect(overlay).toHaveCount(0);
+    await combobox.click();
     try {
       await expect(option).toBeVisible({ timeout: 8000 });
       break;
@@ -44,5 +51,8 @@ export async function selectMatOption(
     }
   }
   await option.click();
-  await expect(page.locator('.cdk-overlay-backdrop')).toHaveCount(0);
+  // The alert interface needs an explicit confirmation; the popover selects on click.
+  const confirm = overlay.getByRole('button', { name: /^(ok|done)$/i });
+  if (await confirm.count()) await confirm.first().click();
+  await expect(overlay).toHaveCount(0);
 }

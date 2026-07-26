@@ -21,9 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { CurrencyPipe } from '@angular/common';
 import {
   DataTableComponent,
@@ -32,19 +29,21 @@ import {
   StatusBadgeComponent,
 } from '../../../shared';
 import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-fixed-deposits-list',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
     CurrencyPipe,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -72,24 +71,24 @@ import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../
 
       <ng-template appCellTemplate="actions" let-account>
         @if (account.status?.value === 'Submitted and pending approval') {
-          <button
-            mat-icon-button
-            color="accent"
-            [matTooltip]="'LOANS.APPROVE' | translate"
+          <ion-button
+            fill="clear"
+            color="secondary"
+            [appTooltip]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
           >
-            <mat-icon>check_circle</mat-icon>
-          </button>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
         }
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Account Details"
+          title="Edit Account Details"
           (click)="onEditAccount(account)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

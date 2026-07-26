@@ -22,14 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   AccountingClosureService,
   PostGlClosuresRequest,
@@ -37,6 +29,23 @@ import {
   GetOfficesResponse,
 } from '../../api';
 import { HelpIconComponent } from '../../shared';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 
 /**
  * Component for closing an accounting period for an office.
@@ -47,89 +56,99 @@ import { HelpIconComponent } from '../../shared';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             Close Accounting Period
             <app-help-icon [helpTextKey]="'HELP.ACCOUNTING_CLOSURES_DESC'"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #closureForm="ngForm" (ngSubmit)="onSubmit()" class="closure-form">
             <div class="form-grid">
               <!-- Office -->
-              <mat-form-field appearance="outline">
-                <mat-label>Office</mat-label>
-                <mat-select name="officeId" [(ngModel)]="request.officeId" required>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Office</ion-label>
+                <ion-select
+                  interface="popover"
+                  name="officeId"
+                  [(ngModel)]="request.officeId"
+                  required
+                >
                   @for (office of offices; track office.id) {
-                    <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                    <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Closing Date -->
-              <mat-form-field appearance="outline">
-                <mat-label>Closing Date</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="closingDate"
-                  [(ngModel)]="closingDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Closing Date</ion-label>
+                <ion-datetime-button datetime="closingDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="closingDate-picker"
+                      data-testid="closingDate-picker"
+                      presentation="date"
+                      name="closingDate"
+                      [(ngModel)]="closingDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
               <!-- Comments -->
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Comments</mat-label>
-                <textarea
-                  matInput
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">Comments</ion-label>
+                <ion-textarea
                   name="comments"
                   [(ngModel)]="request.comments"
                   rows="3"
-                ></textarea>
-              </mat-form-field>
+                ></ion-textarea>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 Cancel
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="closureForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   Saving...
                 } @else {
                   Close Period
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -162,7 +181,7 @@ export class AccountingClosureFormComponent implements OnInit {
     officeId: undefined,
     comments: '',
   };
-  closingDate: Date = new Date();
+  closingDate = toIsoDate(new Date());
   isSaving = false;
 
   ngOnInit() {
@@ -173,9 +192,7 @@ export class AccountingClosureFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving = true;
-    const formattedDate = `${this.closingDate.getFullYear()}-${String(
-      this.closingDate.getMonth() + 1,
-    ).padStart(2, '0')}-${String(this.closingDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = toIsoDate(this.closingDate);
 
     this.request.closingDate = formattedDate;
     this.request.dateFormat = 'yyyy-MM-dd';

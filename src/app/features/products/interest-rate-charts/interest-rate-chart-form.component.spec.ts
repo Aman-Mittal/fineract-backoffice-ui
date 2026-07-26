@@ -66,7 +66,7 @@ describe('InterestRateChartFormComponent', () => {
     );
     component.name = 'New Chart';
     component.description = 'desc';
-    component.fromDate = new Date(2024, 0, 1);
+    component.fromDate = '2024-01-01';
     component.onSubmit();
     expect(serviceSpy.postInterestratecharts).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/interest-rate-charts']);

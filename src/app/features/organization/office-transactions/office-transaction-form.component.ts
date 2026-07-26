@@ -21,19 +21,28 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 @Component({
@@ -43,83 +52,108 @@ import {
     FormsModule,
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSnackBarModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'OFFICE_TRANSACTIONS.CREATE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'OFFICE_TRANSACTIONS.CREATE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #txForm="ngForm" (ngSubmit)="onSubmit()" class="tx-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate }}</mat-label>
-                <mat-select name="fromOfficeId" [(ngModel)]="fromOfficeId" required>
-                  @for (opt of fromOfficeOptions; track opt.id) {
-                    <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.TO_OFFICE' | translate }}</mat-label>
-                <mat-select name="toOfficeId" [(ngModel)]="toOfficeId" required>
-                  @for (opt of toOfficeOptions; track opt.id) {
-                    <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" name="amount" [(ngModel)]="amount" required min="0" />
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="picker"
-                  name="transactionDate"
-                  [(ngModel)]="transactionDate"
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate
+                }}</ion-label>
+                <ion-select
+                  interface="popover"
+                  name="fromOfficeId"
+                  [(ngModel)]="fromOfficeId"
                   required
-                />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
+                >
+                  @for (opt of fromOfficeOptions; track opt.id) {
+                    <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline" class="full-span">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.DESC' | translate }}</mat-label>
-                <input matInput name="description" [(ngModel)]="description" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.TO_OFFICE' | translate
+                }}</ion-label>
+                <ion-select interface="popover" name="toOfficeId" [(ngModel)]="toOfficeId" required>
+                  @for (opt of toOfficeOptions; track opt.id) {
+                    <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.AMOUNT' | translate
+                }}</ion-label>
+                <ion-input
+                  type="number"
+                  name="amount"
+                  [(ngModel)]="amount"
+                  required
+                  min="0"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="transactionDate-picker"
+                      data-testid="transactionDate-picker"
+                      presentation="date"
+                      name="transactionDate"
+                      [(ngModel)]="transactionDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+
+              <ion-item fill="outline" class="full-span">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.DESC' | translate
+                }}</ion-label>
+                <ion-input name="description" [(ngModel)]="description"></ion-input>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" routerLink="/organization/office-transactions">
+              <ion-button fill="clear" type="button" routerLink="/organization/office-transactions">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="txForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="txForm.invalid || isSaving">
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -153,7 +187,7 @@ import {
 export class OfficeTransactionFormComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   fromOfficeOptions: { id: number; name: string }[] = [];
   toOfficeOptions: { id: number; name: string }[] = [];
@@ -161,7 +195,7 @@ export class OfficeTransactionFormComponent implements OnInit {
   fromOfficeId: number | null = null;
   toOfficeId: number | null = null;
   amount: number | null = null;
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   description = '';
   isSaving = false;
 
@@ -201,12 +235,12 @@ export class OfficeTransactionFormComponent implements OnInit {
 
     this.api.postOfficetransactions(JSON.stringify(body)).subscribe({
       next: () => {
-        this.snackBar.open('Office transaction created', 'Close', { duration: 3000 });
+        this.notifications.success('Office transaction created');
         this.router.navigate(['/organization/office-transactions']);
       },
       error: (err: unknown) => {
         console.error('Failed to create office transaction', err);
-        this.snackBar.open('Failed to create transaction', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to create transaction');
         this.isSaving = false;
       },
     });

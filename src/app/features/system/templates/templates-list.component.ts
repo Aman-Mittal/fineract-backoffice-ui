@@ -19,61 +19,75 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { TranslateModule } from '@ngx-translate/core';
 import { TemplatesService, TemplateData } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-templates-list',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCardModule, TranslateModule],
+  imports: [
+    CdkTableModule,
+    TranslateModule,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+  ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'TEMPLATES.TITLE' | translate }}</mat-card-title>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'TEMPLATES.TITLE' | translate }}</ion-card-title>
         <span class="spacer"></span>
-        <button mat-raised-button color="primary" (click)="onCreate()">
-          <mat-icon>add</mat-icon>
+        <ion-button color="primary" (click)="onCreate()">
+          <ion-icon name="add-outline"></ion-icon>
           {{ 'TEMPLATES.CREATE_TITLE' | translate }}
-        </button>
-      </mat-card-header>
-      <mat-card-content>
-        <table mat-table [dataSource]="templates" class="full-width">
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.NAME' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+        </ion-button>
+      </ion-card-header>
+      <ion-card-content>
+        <table cdk-table [dataSource]="templates" class="full-width">
+          <ng-container cdkColumnDef="name">
+            <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.NAME' | translate }}</th>
+            <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="entity">
-            <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.ENTITY' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ translateEntity(row.entity) }}</td>
+          <ng-container cdkColumnDef="entity">
+            <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.ENTITY' | translate }}</th>
+            <td cdk-cell *cdkCellDef="let row">{{ translateEntity(row.entity) }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.TYPE' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ translateType(row.type) }}</td>
+          <ng-container cdkColumnDef="type">
+            <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.TYPE' | translate }}</th>
+            <td cdk-cell *cdkCellDef="let row">{{ translateType(row.type) }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-              <button mat-icon-button color="primary" (click)="onEdit(row)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="onDelete(row)">
-                <mat-icon>delete</mat-icon>
-              </button>
+          <ng-container cdkColumnDef="actions">
+            <th cdk-header-cell *cdkHeaderCellDef></th>
+            <td cdk-cell *cdkCellDef="let row">
+              <ion-button fill="clear" color="primary" (click)="onEdit(row)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" color="danger" (click)="onDelete(row)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+          <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
         </table>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

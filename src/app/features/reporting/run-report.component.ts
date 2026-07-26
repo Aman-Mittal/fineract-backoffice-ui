@@ -17,26 +17,33 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
 import { HelpIconComponent } from '../../shared';
+import { NotificationService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
+import { PageEvent } from '../../shared/models/table.model';
+import { toIsoDate } from '../../core/utils/date-formatter';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-run-report',
@@ -44,103 +51,123 @@ import { HelpIconComponent } from '../../shared';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatTableModule,
-    MatDividerModule,
-    MatPaginatorModule,
-    MatIconModule,
-    MatSnackBarModule,
+    CdkTableModule,
+    PaginatorComponent,
     HelpIconComponent,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'REPORTS.RUN_TITLE' | translate }}: {{ reportName }}
             <app-help-icon [helpTextKey]="'HELP.REPORTS_DESC'"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <div class="report-parameters form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-              <mat-select [(ngModel)]="officeId">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+              <ion-select interface="popover" [(ngModel)]="officeId">
                 @for (office of offices; track office.id) {
-                  <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                  <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.FROM_DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" />
-              <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-              <mat-datepicker #fromPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.FROM_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="fromDate-picker"
+                    data-testid="fromDate-picker"
+                    presentation="date"
+                    name="fromDate"
+                    [(ngModel)]="fromDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.TO_DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" />
-              <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-              <mat-datepicker #toPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.TO_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="toDate-picker"
+                    data-testid="toDate-picker"
+                    presentation="date"
+                    name="toDate"
+                    [(ngModel)]="toDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
           </div>
 
           <div class="form-actions">
-            <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="onDownloadCSV()"
-              [disabled]="isLoading"
-            >
-              <mat-icon>download</mat-icon>
+            <ion-button fill="clear" (click)="onCancel()">{{
+              'COMMON.CANCEL' | translate
+            }}</ion-button>
+            <ion-button color="secondary" (click)="onDownloadCSV()" [disabled]="isLoading">
+              <ion-icon name="download-outline"></ion-icon>
               {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
-            </button>
-            <button mat-raised-button color="primary" (click)="onRun()" [disabled]="isLoading">
+            </ion-button>
+            <ion-button color="primary" (click)="onRun()" [disabled]="isLoading">
               {{ isLoading ? ('COMMON.LOADING' | translate) : ('REPORTS.RUN' | translate) }}
-            </button>
+            </ion-button>
           </div>
 
           @if (reportData) {
             <div class="report-results mt-4">
-              <mat-divider></mat-divider>
+              <hr class="divider" />
               <div class="results-header">
                 <h3 class="mt-2">{{ 'REPORTS.RESULTS' | translate }}</h3>
-                <button mat-raised-button color="primary" (click)="downloadCSV()">
-                  <mat-icon>download</mat-icon>
+                <ion-button color="primary" (click)="downloadCSV()">
+                  <ion-icon name="download-outline"></ion-icon>
                   {{ 'REPORTS.DOWNLOAD_RESULTS_CSV' | translate }}
-                </button>
+                </ion-button>
               </div>
-              <div class="table-container mat-elevation-z1">
-                <table mat-table [dataSource]="dataSource">
+              <div class="table-container">
+                <table cdk-table [dataSource]="pagedRows()">
                   @for (col of displayedColumns; track col; let i = $index) {
-                    <ng-container [matColumnDef]="col">
-                      <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
-                      <td mat-cell *matCellDef="let row">{{ getReportCellValue(row, i) }}</td>
+                    <ng-container [cdkColumnDef]="col">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ col }}</th>
+                      <td cdk-cell *cdkCellDef="let row">{{ getReportCellValue(row, i) }}</td>
                     </ng-container>
                   }
-                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                  <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
                 </table>
-                <mat-paginator
+                <app-paginator
+                  [length]="dataRows.length"
+                  [pageSize]="pageSize()"
+                  [pageIndex]="pageIndex()"
                   [pageSizeOptions]="[10, 20, 50, 100]"
-                  showFirstLastButtons
-                ></mat-paginator>
+                  (page)="onPage($event)"
+                ></app-paginator>
               </div>
             </div>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -180,27 +207,33 @@ export class RunReportComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   reportName = '';
   reportType = '';
   isLoading = false;
 
   officeId: number | undefined = undefined;
-  fromDate: Date | null = null;
-  toDate: Date | null = null;
+  fromDate: string | null = null;
+  toDate: string | null = null;
 
   offices: GetOfficesResponse[] = [];
   reportData: Record<string, unknown> | null = null;
   displayedColumns: string[] = [];
   dataRows: Record<string, unknown>[] = [];
-  dataSource = new MatTableDataSource<Record<string, unknown>>([]);
+  /** Report results are fetched whole, so paging happens client-side. */
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly rows = signal<Record<string, unknown>[]>([]);
 
-  private paginator!: MatPaginator;
+  readonly pagedRows = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.rows().slice(start, start + this.pageSize());
+  });
 
-  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
-    this.paginator = mp;
-    this.dataSource.paginator = this.paginator;
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   ngOnInit(): void {
@@ -221,12 +254,8 @@ export class RunReportComponent implements OnInit {
 
   onDownloadCSV(): void {
     this.isLoading = true;
-    const formattedFrom = this.fromDate
-      ? `${this.fromDate.getFullYear()}-${String(this.fromDate.getMonth() + 1).padStart(2, '0')}-${String(this.fromDate.getDate()).padStart(2, '0')}`
-      : undefined;
-    const formattedTo = this.toDate
-      ? `${this.toDate.getFullYear()}-${String(this.toDate.getMonth() + 1).padStart(2, '0')}-${String(this.toDate.getDate()).padStart(2, '0')}`
-      : undefined;
+    const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
+    const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
     this.runReportsService
       .getRunreportsReportName(
@@ -258,7 +287,7 @@ export class RunReportComponent implements OnInit {
           this.isLoading = false;
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
           this.isLoading = false;
         },
       });
@@ -266,12 +295,8 @@ export class RunReportComponent implements OnInit {
 
   onRun(): void {
     this.isLoading = true;
-    const formattedFrom = this.fromDate
-      ? `${this.fromDate.getFullYear()}-${String(this.fromDate.getMonth() + 1).padStart(2, '0')}-${String(this.fromDate.getDate()).padStart(2, '0')}`
-      : undefined;
-    const formattedTo = this.toDate
-      ? `${this.toDate.getFullYear()}-${String(this.toDate.getMonth() + 1).padStart(2, '0')}-${String(this.toDate.getDate()).padStart(2, '0')}`
-      : undefined;
+    const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
+    const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
     this.runReportsService
       .getRunreportsReportName(
@@ -291,11 +316,12 @@ export class RunReportComponent implements OnInit {
           const columnHeaders = (result['columnHeaders'] as Record<string, unknown>[]) || [];
           this.displayedColumns = columnHeaders.map((h) => h['columnName'] as string);
           this.dataRows = (result['data'] as Record<string, unknown>[]) || [];
-          this.dataSource.data = this.dataRows;
+          this.rows.set(this.dataRows);
+          this.pageIndex.set(0);
           this.isLoading = false;
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
           this.isLoading = false;
         },
       });

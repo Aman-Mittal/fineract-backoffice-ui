@@ -21,12 +21,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SMSService, SmsCreationRequest, SmsUpdateRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 /**
  * Create / edit form for an individual SMS message. The Fineract create endpoint accepts
@@ -38,68 +45,64 @@ import { SMSService, SmsCreationRequest, SmsUpdateRequest } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('SMS.EDIT' | translate) : ('SMS.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #smsForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SMS.MESSAGE' | translate }}</mat-label>
-              <textarea matInput name="message" [(ngModel)]="message" required></textarea>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SMS.MESSAGE' | translate }}</ion-label>
+              <ion-textarea name="message" [(ngModel)]="message" required></ion-textarea>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SMS.MOBILE_NO' | translate }}</mat-label>
-              <input matInput name="mobileNo" [(ngModel)]="mobileNo" [disabled]="isEditMode" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SMS.MOBILE_NO' | translate }}</ion-label>
+              <ion-input name="mobileNo" [(ngModel)]="mobileNo" [disabled]="isEditMode"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SMS.CLIENT_ID' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SMS.CLIENT_ID' | translate }}</ion-label>
+              <ion-input
                 type="number"
                 name="clientId"
                 [(ngModel)]="clientId"
                 [disabled]="isEditMode"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="smsForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="smsForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

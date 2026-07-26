@@ -20,30 +20,19 @@
 import { Component, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../../shared';
 import { MakerCheckerOr4EyeFunctionalityService, AuditData } from '../../../api';
 import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { NotificationService } from '../../../core/services/notification.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-checker-inbox',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatSnackBarModule,
-    MatDialogModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
       title="nav.checker_inbox"
@@ -59,25 +48,20 @@ import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
 
       <ng-template appCellTemplate="actions" let-task>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
-            matTooltip="View Payload"
+            title="View Payload"
             (click)="onViewPayload(task)"
           >
-            <mat-icon>visibility</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            class="approve-btn"
-            matTooltip="Approve"
-            (click)="onApprove(task)"
-          >
-            <mat-icon>check_circle</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" matTooltip="Reject" (click)="onReject(task)">
-            <mat-icon>cancel</mat-icon>
-          </button>
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" class="approve-btn" title="Approve" (click)="onApprove(task)">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="danger" title="Reject" (click)="onReject(task)">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>
@@ -96,8 +80,8 @@ import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
 })
 export class CheckerInboxComponent {
   private readonly makerCheckerService = inject(MakerCheckerOr4EyeFunctionalityService);
-  private readonly snackBar = inject(MatSnackBar);
-  private readonly dialog = inject(MatDialog);
+  private readonly notifications = inject(NotificationService);
+  private readonly dialogService = inject(DialogService);
 
   columns: ColumnDef[] = [
     { key: 'id', label: 'COMMON.ID', sortable: true },
@@ -118,7 +102,7 @@ export class CheckerInboxComponent {
         switchMap(() =>
           this.makerCheckerService.getMakercheckers().pipe(
             catchError(() => {
-              this.snackBar.open('Error fetching pending tasks', 'Close', { duration: 3000 });
+              this.notifications.error('Error fetching pending tasks');
               return of([]);
             }),
           ),
@@ -141,21 +125,20 @@ export class CheckerInboxComponent {
     // Local sorting handled by DataTableComponent if localLogic is true
   }
 
-  onViewPayload(task: Record<string, unknown>) {
-    this.dialog.open(ViewPayloadDialogComponent, {
-      width: '600px',
-      data: { payload: task['commandAsJson'] as string },
-    });
+  onViewPayload(task: Record<string, unknown>): Promise<void> {
+    return this.dialogService
+      .open(ViewPayloadDialogComponent, { data: { payload: task['commandAsJson'] as string } })
+      .then(() => undefined);
   }
 
   onApprove(task: Record<string, unknown>) {
     this.makerCheckerService.postMakercheckersAuditId(task['id'] as number, 'approve').subscribe({
       next: () => {
-        this.snackBar.open('Task approved successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Task approved successfully');
         this.refreshSubject.next();
       },
       error: () => {
-        this.snackBar.open('Failed to approve task', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to approve task');
       },
     });
   }
@@ -164,11 +147,11 @@ export class CheckerInboxComponent {
     if (confirm('Are you sure you want to reject this task?')) {
       this.makerCheckerService.deleteMakercheckersAuditId(task['id'] as number).subscribe({
         next: () => {
-          this.snackBar.open('Task rejected successfully', 'Close', { duration: 3000 });
+          this.notifications.success('Task rejected successfully');
           this.refreshSubject.next();
         },
         error: () => {
-          this.snackBar.open('Failed to reject task', 'Close', { duration: 3000 });
+          this.notifications.error('Failed to reject task');
         },
       });
     }

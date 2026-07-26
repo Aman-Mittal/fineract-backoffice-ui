@@ -21,12 +21,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   WorkingCapitalBreachService,
   WorkingCapitalBreachRequest,
@@ -43,86 +50,96 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('WC_BREACH.EDIT' | translate) : ('WC_BREACH.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #breachForm="ngForm" (ngSubmit)="onSubmit()" class="wc-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_BREACH.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="breach.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_BREACH.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="breach.name" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_BREACH.BREACH_AMOUNT' | translate }}</mat-label>
-              <input matInput type="number" name="breachAmount" [(ngModel)]="breach.breachAmount" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_BREACH.BREACH_AMOUNT' | translate }}</ion-label>
+              <ion-input
+                type="number"
+                name="breachAmount"
+                [(ngModel)]="breach.breachAmount"
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_BREACH.CALCULATION_TYPE' | translate }}</mat-label>
-              <mat-select name="calcType" [(ngModel)]="breach.breachAmountCalculationType">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_BREACH.CALCULATION_TYPE' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="calcType"
+                [(ngModel)]="breach.breachAmountCalculationType"
+              >
                 @for (opt of calculationTypeOptions; track opt.id) {
-                  <mat-option [value]="opt.code">{{ opt.value }}</mat-option>
+                  <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_BREACH.FREQUENCY' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_BREACH.FREQUENCY' | translate }}</ion-label>
+              <ion-input
                 type="number"
                 name="breachFrequency"
                 [(ngModel)]="breach.breachFrequency"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_BREACH.FREQUENCY_TYPE' | translate }}</mat-label>
-              <mat-select name="freqType" [(ngModel)]="breach.breachFrequencyType">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_BREACH.FREQUENCY_TYPE' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="freqType"
+                [(ngModel)]="breach.breachFrequencyType"
+              >
                 @for (opt of frequencyTypeOptions; track opt.id) {
-                  <mat-option [value]="opt.code">{{ opt.value }}</mat-option>
+                  <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="breachForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="breachForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

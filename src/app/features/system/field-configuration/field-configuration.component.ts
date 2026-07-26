@@ -20,12 +20,17 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { ColumnDef } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { EntityFieldConfigurationService, FieldConfigurationData } from '../../../api';
+import {
+  IonCard,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 /**
  * Read-only entity field configuration viewer. The user picks an entity (CLIENT,
@@ -37,25 +42,28 @@ import { EntityFieldConfigurationService, FieldConfigurationData } from '../../.
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
     DataTableComponent,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="field-config-container">
-      <mat-card>
-        <mat-card-content>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'FIELD_CONFIG.ENTITY' | translate }}</mat-label>
-            <mat-select [(ngModel)]="entity" (ngModelChange)="load()">
+      <ion-card>
+        <ion-card-content>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'FIELD_CONFIG.ENTITY' | translate }}</ion-label>
+            <ion-select interface="popover" [(ngModel)]="entity" (ngModelChange)="load()">
               @for (opt of entityOptions; track opt) {
-                <mat-option [value]="opt">{{ opt }}</mat-option>
+                <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
+            </ion-select>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <app-data-table
@@ -71,7 +79,7 @@ import { EntityFieldConfigurationService, FieldConfigurationData } from '../../.
       .field-config-container {
         padding: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 320px;
       }
     `,

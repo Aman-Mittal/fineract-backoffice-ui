@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('TellerFormComponent', () => {
   let component: TellerFormComponent;
@@ -44,7 +43,7 @@ describe('TellerFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [TellerFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [TellerFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: TellerCashManagementService, useValue: tellerServiceSpy },

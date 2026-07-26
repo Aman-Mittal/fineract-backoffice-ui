@@ -21,22 +21,34 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   CollectionSheetService,
   OfficesService,
   CollectionSheetRequest,
   PostCollectionSheetResponse,
 } from '../../api';
-import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/date-formatter';
+import {
+  formatDateToFineract,
+  FINERACT_DATE_FORMAT,
+  toIsoDate,
+} from '../../core/utils/date-formatter';
+import { NotificationService } from '../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-collection-sheet',
@@ -45,66 +57,75 @@ import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/dat
     FormsModule,
     JsonPipe,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'COLLECTION_SHEET.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'COLLECTION_SHEET.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         @if (isLoading) {
           <div class="spinner-container">
-            <mat-spinner diameter="48"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
         @if (!generated && !isLoading) {
           <form #filterForm="ngForm" (ngSubmit)="generate()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'COLLECTION_SHEET.OFFICE' | translate }}</mat-label>
-              <mat-select name="officeId" [(ngModel)]="request.officeId" required>
-                @for (office of offices; track office.id) {
-                  <mat-option [value]="office.id">{{ office.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'COLLECTION_SHEET.DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                name="transactionDate"
-                [(ngModel)]="transactionDate"
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'COLLECTION_SHEET.OFFICE' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="officeId"
+                [(ngModel)]="request.officeId"
                 required
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+              >
+                @for (office of offices; track office.id) {
+                  <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'COLLECTION_SHEET.STAFF' | translate }}</mat-label>
-              <input matInput type="number" name="staffId" [(ngModel)]="staffId" />
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'COLLECTION_SHEET.DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="transactionDate-picker"
+                    data-testid="transactionDate-picker"
+                    presentation="date"
+                    name="transactionDate"
+                    [(ngModel)]="transactionDate"
+                    required
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
+
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'COLLECTION_SHEET.STAFF' | translate }}</ion-label>
+              <ion-input type="number" name="staffId" [(ngModel)]="staffId"></ion-input>
+            </ion-item>
 
             <div class="actions">
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="filterForm.invalid"
-              >
+              <ion-button color="primary" type="submit" [disabled]="filterForm.invalid">
                 {{ 'COLLECTION_SHEET.GENERATE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
         }
@@ -113,20 +134,20 @@ import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/dat
           <h3>{{ 'COLLECTION_SHEET.RESULTS' | translate }}</h3>
           <pre class="json-output">{{ collectionData | json }}</pre>
           <div class="actions">
-            <button mat-button (click)="back()">
+            <ion-button fill="clear" (click)="back()">
               {{ 'COLLECTION_SHEET.BACK' | translate }}
-            </button>
-            <button mat-raised-button color="primary" (click)="save()">
+            </ion-button>
+            <ion-button color="primary" (click)="save()">
               {{ 'COLLECTION_SHEET.SAVE' | translate }}
-            </button>
+            </ion-button>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
-      mat-card {
+      ion-card {
         max-width: 640px;
         margin: 24px auto;
       }
@@ -159,12 +180,12 @@ import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/dat
 export class CollectionSheetComponent implements OnInit {
   private collectionSheetService = inject(CollectionSheetService);
   private officesService = inject(OfficesService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   generated = false;
   isLoading = false;
   collectionData: PostCollectionSheetResponse | null = null;
-  transactionDate: Date = new Date();
+  transactionDate = toIsoDate(new Date());
   staffId: number | null = null;
   request: CollectionSheetRequest = { locale: 'en' };
 
@@ -176,7 +197,7 @@ export class CollectionSheetComponent implements OnInit {
         this.offices = Array.isArray(res) ? (res as { id?: number; name?: string }[]) : [];
       },
       error: () => {
-        this.snackBar.open('Failed to load offices', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to load offices');
       },
     });
   }
@@ -199,7 +220,7 @@ export class CollectionSheetComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.snackBar.open('Failed to generate collection sheet', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to generate collection sheet');
         this.isLoading = false;
       },
     });
@@ -210,12 +231,12 @@ export class CollectionSheetComponent implements OnInit {
     const body = this.buildBody();
     this.collectionSheetService.postCollectionsheet(body, 'save').subscribe({
       next: () => {
-        this.snackBar.open('Collection sheet saved successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Collection sheet saved successfully');
         this.isLoading = false;
         this.back();
       },
       error: () => {
-        this.snackBar.open('Failed to save collection sheet', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to save collection sheet');
         this.isLoading = false;
       },
     });

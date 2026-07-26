@@ -24,7 +24,6 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('RunReportComponent', () => {
   const REPORT_NAME = 'Active Clients';
@@ -41,7 +40,7 @@ describe('RunReportComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [RunReportComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [RunReportComponent, TranslateModule.forRoot()],
       providers: [
         { provide: RunReportsService, useValue: runReportsServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },

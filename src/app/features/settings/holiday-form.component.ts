@@ -21,16 +21,26 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
+import { formatDateToFineract } from '../../core/utils/date-formatter';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   HolidaysService,
   OfficesService,
@@ -44,156 +54,188 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'HOLIDAYS.CREATE_HOLIDAY' | translate }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #holidayForm="ngForm" (ngSubmit)="onSubmit()" class="holiday-form">
             <div class="form-grid">
-              <mat-form-field
-                appearance="outline"
+              <ion-item
+                fill="outline"
                 class="full-width"
-                [matTooltip]="'HELP.HOLIDAY_NAME_DESC' | translate"
+                [appTooltip]="'HELP.HOLIDAY_NAME_DESC' | translate"
               >
-                <mat-label>{{ 'HOLIDAYS.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="holiday.name" required />
-              </mat-form-field>
+                <ion-label position="stacked">{{ 'HOLIDAYS.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="holiday.name" required></ion-input>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
+              <ion-item
+                fill="outline"
                 class="full-width"
-                [matTooltip]="'HELP.APPLICABLE_OFFICES_DESC' | translate"
+                [appTooltip]="'HELP.APPLICABLE_OFFICES_DESC' | translate"
               >
-                <mat-label>{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</mat-label>
-                <mat-select name="offices" [(ngModel)]="selectedOfficeIds" multiple required>
+                <ion-label position="stacked">{{
+                  'HOLIDAYS.APPLICABLE_OFFICES' | translate
+                }}</ion-label>
+                <ion-select
+                  interface="popover"
+                  name="offices"
+                  [(ngModel)]="selectedOfficeIds"
+                  multiple
+                  required
+                >
                   @for (office of offices; track office.id) {
-                    <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                    <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
+              <ion-item
+                fill="outline"
                 class="full-width"
-                [matTooltip]="'HELP.FROM_DATE_DESC' | translate"
+                [appTooltip]="'HELP.FROM_DATE_DESC' | translate"
               >
-                <mat-label>{{ 'HOLIDAYS.FROM_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="fromPicker"
-                  name="fromDate"
-                  [(ngModel)]="fromDate"
+                <ion-label position="stacked">{{ 'HOLIDAYS.FROM_DATE' | translate }}</ion-label>
+                <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="fromDate-picker"
+                      data-testid="fromDate-picker"
+                      presentation="date"
+                      name="fromDate"
+                      [(ngModel)]="fromDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+
+              <ion-item
+                fill="outline"
+                class="full-width"
+                [appTooltip]="'HELP.TO_DATE_DESC' | translate"
+              >
+                <ion-label position="stacked">{{ 'HOLIDAYS.TO_DATE' | translate }}</ion-label>
+                <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="toDate-picker"
+                      data-testid="toDate-picker"
+                      presentation="date"
+                      name="toDate"
+                      [(ngModel)]="toDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+
+              <ion-item
+                fill="outline"
+                class="full-width"
+                [appTooltip]="'HELP.RESCHEDULING_TYPE_DESC' | translate"
+              >
+                <ion-label position="stacked">{{
+                  'HOLIDAYS.RESCHEDULING_TYPE' | translate
+                }}</ion-label>
+                <ion-select
+                  interface="popover"
+                  name="reschedulingType"
+                  [(ngModel)]="reschedulingType"
                   required
-                />
-                <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-                <mat-datepicker #fromPicker></mat-datepicker>
-              </mat-form-field>
-
-              <mat-form-field
-                appearance="outline"
-                class="full-width"
-                [matTooltip]="'HELP.TO_DATE_DESC' | translate"
-              >
-                <mat-label>{{ 'HOLIDAYS.TO_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="toPicker"
-                  name="toDate"
-                  [(ngModel)]="toDate"
-                  required
-                />
-                <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-                <mat-datepicker #toPicker></mat-datepicker>
-              </mat-form-field>
-
-              <mat-form-field
-                appearance="outline"
-                class="full-width"
-                [matTooltip]="'HELP.RESCHEDULING_TYPE_DESC' | translate"
-              >
-                <mat-label>{{ 'HOLIDAYS.RESCHEDULING_TYPE' | translate }}</mat-label>
-                <mat-select name="reschedulingType" [(ngModel)]="reschedulingType" required>
+                >
                   @for (option of reschedulingTypeOptions; track option.id) {
-                    <mat-option [value]="option.id">{{ option.value }}</mat-option>
+                    <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               @if (reschedulingType === 2) {
-                <mat-form-field
-                  appearance="outline"
+                <ion-item
+                  fill="outline"
                   class="full-width"
-                  [matTooltip]="'HELP.REPAYMENTS_RESCHEDULED_TO_DESC' | translate"
+                  [appTooltip]="'HELP.REPAYMENTS_RESCHEDULED_TO_DESC' | translate"
                 >
-                  <mat-label>{{ 'HOLIDAYS.REPAYMENTS_RESCHEDULED_TO' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="reschedulePicker"
-                    name="repaymentsRescheduledTo"
-                    [(ngModel)]="repaymentsRescheduledTo"
-                    required
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="reschedulePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #reschedulePicker></mat-datepicker>
-                </mat-form-field>
+                  <ion-label position="stacked">{{
+                    'HOLIDAYS.REPAYMENTS_RESCHEDULED_TO' | translate
+                  }}</ion-label>
+                  <ion-datetime-button
+                    datetime="repaymentsRescheduledTo-picker"
+                  ></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="repaymentsRescheduledTo-picker"
+                        data-testid="repaymentsRescheduledTo-picker"
+                        presentation="date"
+                        name="repaymentsRescheduledTo"
+                        [(ngModel)]="repaymentsRescheduledTo"
+                        required
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
               }
             </div>
 
-            <mat-form-field
-              appearance="outline"
+            <ion-item
+              fill="outline"
               class="full-width"
-              [matTooltip]="'HELP.HOLIDAY_DESCRIPTION_DESC' | translate"
+              [appTooltip]="'HELP.HOLIDAY_DESCRIPTION_DESC' | translate"
             >
-              <mat-label>{{ 'HOLIDAYS.DESCRIPTION' | translate }}</mat-label>
-              <textarea
-                matInput
+              <ion-label position="stacked">{{ 'HOLIDAYS.DESCRIPTION' | translate }}</ion-label>
+              <ion-textarea
                 name="description"
                 [(ngModel)]="holiday.description"
                 rows="3"
-              ></textarea>
-            </mat-form-field>
+              ></ion-textarea>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="holidayForm.invalid || isSaving || selectedOfficeIds.length === 0"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -223,15 +265,15 @@ export class HolidayFormComponent implements OnInit {
   private readonly holidaysService = inject(HolidaysService);
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/settings/holidays';
 
   isSaving = false;
   holiday: PostHolidaysRequest = {};
-  fromDate: Date | null = null;
-  toDate: Date | null = null;
-  repaymentsRescheduledTo: Date | null = null;
+  fromDate: string | null = null;
+  toDate: string | null = null;
+  repaymentsRescheduledTo: string | null = null;
 
   offices: GetOfficesResponse[] = [];
   selectedOfficeIds: number[] = [];
@@ -251,7 +293,7 @@ export class HolidayFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load offices', err);
-        this.snackBar.open('Failed to load offices', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to load offices');
       },
     });
   }
@@ -278,24 +320,6 @@ export class HolidayFormComponent implements OnInit {
     });
   }
 
-  private formatDate(date: Date): string {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-  }
-
   onSubmit(): void {
     if (!this.fromDate || !this.toDate) {
       return;
@@ -310,8 +334,8 @@ export class HolidayFormComponent implements OnInit {
     const payload: Record<string, unknown> = {
       name: this.holiday.name,
       description: this.holiday.description,
-      fromDate: this.formatDate(this.fromDate),
-      toDate: this.formatDate(this.toDate),
+      fromDate: formatDateToFineract(this.fromDate),
+      toDate: formatDateToFineract(this.toDate),
       offices: this.selectedOfficeIds.map((id) => ({ officeId: id })),
       reschedulingType: this.reschedulingType,
       dateFormat: 'dd MMMM yyyy',
@@ -319,12 +343,12 @@ export class HolidayFormComponent implements OnInit {
     };
 
     if (this.reschedulingType === 2 && this.repaymentsRescheduledTo) {
-      payload['repaymentsRescheduledTo'] = this.formatDate(this.repaymentsRescheduledTo);
+      payload['repaymentsRescheduledTo'] = formatDateToFineract(this.repaymentsRescheduledTo);
     }
 
     this.holidaysService.postHolidays(payload as PostHolidaysRequest).subscribe({
       next: () => {
-        this.snackBar.open('Holiday created successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Holiday created successfully');
         this.router.navigate([this.LIST_PATH]);
       },
       error: (err) => {

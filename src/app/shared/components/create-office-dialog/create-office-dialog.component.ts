@@ -21,15 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  IonButton,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { OfficesService, PostOfficesRequest, GetOfficesResponse } from '../../../api';
+import { toIsoDate } from '../../../core/utils/date-formatter';
 
 /**
  * Dialog for inline creation of a branch office.
@@ -40,61 +45,91 @@ import { OfficesService, PostOfficesRequest, GetOfficesResponse } from '../../..
   imports: [
     FormsModule,
     TranslateModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
-    <h2 mat-dialog-title>{{ 'OFFICES.CREATE_OFFICE' | translate }}</h2>
-    <mat-dialog-content>
+    <div class="dialog">
+      <h2 class="dialog-title">{{ 'OFFICES.CREATE_OFFICE' | translate }}</h2>
+
       <form #officeForm="ngForm" class="office-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'OFFICES.NAME' | translate }}</mat-label>
-          <input matInput name="name" [(ngModel)]="office.name" required />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'OFFICES.PARENT' | translate }}</mat-label>
-          <mat-select name="parentId" [(ngModel)]="office.parentId" required>
-            @for (o of offices; track o.id) {
-              <mat-option [value]="o.id">{{ o.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'OFFICES.OPENING_DATE' | translate }}</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            name="openingDate"
-            [(ngModel)]="openingDate"
+        <ion-item fill="outline">
+          <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
+          <ion-input
+            id="office-name"
+            data-testid="office-name"
+            name="name"
+            [(ngModel)]="office.name"
             required
-          />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
+          ></ion-input>
+        </ion-item>
+
+        <ion-item fill="outline">
+          <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
+          <ion-select
+            interface="popover"
+            id="office-parent"
+            data-testid="office-parent"
+            name="parentId"
+            [(ngModel)]="office.parentId"
+            required
+          >
+            @for (o of offices; track o.id) {
+              <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <ion-item fill="outline">
+          <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
+          <ion-datetime-button datetime="office-opening-date"></ion-datetime-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime
+                id="office-opening-date"
+                data-testid="office-opening-date"
+                presentation="date"
+                [value]="openingDate"
+                (ionChange)="onOpeningDateChange($event)"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </ion-item>
       </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="officeForm.invalid || isSaving"
-        (click)="onSubmit()"
-      >
-        {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-      </button>
-    </mat-dialog-actions>
+
+      <div class="dialog-actions">
+        <ion-button data-testid="office-cancel" fill="clear" color="medium" (click)="onCancel()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </ion-button>
+        <ion-button
+          data-testid="office-submit"
+          color="primary"
+          [disabled]="officeForm.invalid || isSaving"
+          (click)="onSubmit()"
+        >
+          {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+        </ion-button>
+      </div>
+    </div>
   `,
   styles: [
     `
+      .dialog {
+        padding: 20px 24px 12px;
+        background: var(--card-bg);
+        color: var(--text-color);
+      }
+      .dialog-title {
+        margin: 0 0 12px;
+        font-size: 1.25rem;
+      }
       .office-form {
         display: flex;
         flex-direction: column;
@@ -102,20 +137,23 @@ import { OfficesService, PostOfficesRequest, GetOfficesResponse } from '../../..
         padding-top: 8px;
         min-width: 400px;
       }
-      .full-width {
-        width: 100%;
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
       }
     `,
   ],
 })
 export class CreateOfficeDialogComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
-  private readonly dialogRef = inject(MatDialogRef<CreateOfficeDialogComponent>);
+  private readonly modalController = inject(ModalController);
 
   office: PostOfficesRequest = {
     parentId: 1, // Default to head office
   };
-  openingDate = new Date();
+  openingDate = toIsoDate(new Date());
   offices: GetOfficesResponse[] = [];
   isSaving = false;
 
@@ -125,19 +163,26 @@ export class CreateOfficeDialogComponent implements OnInit {
     });
   }
 
+  onOpeningDateChange(event: Event): void {
+    const detail = (event as CustomEvent<{ value?: string }>).detail;
+    const value = detail?.value ?? (event.target as HTMLInputElement)?.value;
+    // ion-datetime yields a full ISO timestamp; the API wants the date part only.
+    if (value) this.openingDate = value.split('T')[0];
+  }
+
   onSubmit() {
     this.isSaving = true;
-    this.office.openingDate = `${this.openingDate.getFullYear()}-${String(this.openingDate.getMonth() + 1).padStart(2, '0')}-${String(this.openingDate.getDate()).padStart(2, '0')}`;
+    this.office.openingDate = this.openingDate;
     this.office.dateFormat = 'yyyy-MM-dd';
     this.office.locale = 'en';
 
     this.officesService.postOffices(this.office).subscribe({
-      next: (response) => this.dialogRef.close(response.resourceId),
+      next: (response) => this.modalController.dismiss(response.resourceId),
       error: () => (this.isSaving = false),
     });
   }
 
   onCancel() {
-    this.dialogRef.close();
+    this.modalController.dismiss();
   }
 }

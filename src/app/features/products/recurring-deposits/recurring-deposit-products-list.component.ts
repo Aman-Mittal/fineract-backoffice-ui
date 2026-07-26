@@ -20,26 +20,25 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DecimalPipe } from '@angular/common';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RecurringDepositProductService, GetRecurringDepositProductsResponse } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-recurring-deposit-products-list',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     DecimalPipe,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -57,14 +56,14 @@ import { RecurringDepositProductService, GetRecurringDepositProductsResponse } f
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-product>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
-          [matTooltip]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(product)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

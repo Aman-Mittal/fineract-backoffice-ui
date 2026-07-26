@@ -21,12 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
 import {
   BulkImportService,
@@ -36,6 +30,19 @@ import {
   JournalEntriesService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-bulk-import',
@@ -43,43 +50,54 @@ import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../s
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    TooltipDirective,
   ],
   template: `
     <div class="bulk-import-container">
-      <mat-card class="import-config-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'SYSTEM.BULK_IMPORT' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card class="import-config-card">
+        <ion-card-header>
+          <ion-card-title>{{ 'SYSTEM.BULK_IMPORT' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <div class="config-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SYSTEM.ENTITY_TYPE' | translate }}</mat-label>
-              <mat-select [(ngModel)]="selectedEntity" (selectionChange)="onEntityChange()">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SYSTEM.ENTITY_TYPE' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                [(ngModel)]="selectedEntity"
+                (ionChange)="onEntityChange()"
+              >
                 @for (entity of entityTypes; track entity.value) {
-                  <mat-option [value]="entity.value">{{ entity.label | translate }}</mat-option>
+                  <ion-select-option [value]="entity.value">{{
+                    entity.label | translate
+                  }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
             <div class="actions">
-              <button mat-stroked-button color="primary" (click)="onDownloadTemplate()">
-                <mat-icon>download</mat-icon>
+              <ion-button fill="outline" color="primary" (click)="onDownloadTemplate()">
+                <ion-icon name="download-outline"></ion-icon>
                 {{ 'SYSTEM.DOWNLOAD_TEMPLATE' | translate }}
-              </button>
+              </ion-button>
 
-              <button mat-raised-button color="primary" (click)="fileInput.click()">
-                <mat-icon>upload</mat-icon>
+              <ion-button color="primary" (click)="fileInput.click()">
+                <ion-icon name="cloud-upload-outline"></ion-icon>
                 {{ 'SYSTEM.UPLOAD_CSV' | translate }}
-              </button>
+              </ion-button>
               <input
                 #fileInput
                 type="file"
@@ -88,8 +106,8 @@ import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../s
               />
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
 
       <app-data-table
         [title]="'SYSTEM.IMPORT_HISTORY' | translate"
@@ -103,14 +121,14 @@ import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../s
         </ng-template>
 
         <ng-template appCellTemplate="actions" let-row>
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             (click)="onDownloadResult(row['importDocumentId'])"
-            [matTooltip]="'SYSTEM.DOWNLOAD_RESULT' | translate"
+            [appTooltip]="'SYSTEM.DOWNLOAD_RESULT' | translate"
           >
-            <mat-icon>file_download</mat-icon>
-          </button>
+            <ion-icon name="download-outline"></ion-icon>
+          </ion-button>
         </ng-template>
       </app-data-table>
     </div>
@@ -133,7 +151,7 @@ import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../s
         display: flex;
         gap: 12px;
       }
-      mat-form-field {
+      ion-item {
         min-width: 250px;
       }
     `,

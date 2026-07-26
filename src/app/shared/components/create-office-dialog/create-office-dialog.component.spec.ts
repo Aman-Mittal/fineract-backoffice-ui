@@ -19,9 +19,9 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateOfficeDialogComponent } from './create-office-dialog.component';
-import { MatDialogRef } from '@angular/material/dialog';
+import { ModalController } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { OfficesService, GetOfficesResponse, PostOfficesResponse } from '../../../api';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
@@ -29,11 +29,11 @@ import { HttpEvent } from '@angular/common/http';
 describe('CreateOfficeDialogComponent', () => {
   let component: CreateOfficeDialogComponent;
   let fixture: ComponentFixture<CreateOfficeDialogComponent>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<CreateOfficeDialogComponent>>;
+  let mockModalController: jasmine.SpyObj<ModalController>;
   let mockOfficesService: jasmine.SpyObj<OfficesService>;
 
   beforeEach(async () => {
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockModalController = jasmine.createSpyObj<ModalController>('ModalController', ['dismiss']);
     mockOfficesService = jasmine.createSpyObj('OfficesService', ['getOffices', 'postOffices']);
 
     mockOfficesService.getOffices.and.returnValue(
@@ -50,8 +50,8 @@ describe('CreateOfficeDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CreateOfficeDialogComponent, TranslateModule.forRoot()],
       providers: [
-        provideNoopAnimations(),
-        { provide: MatDialogRef, useValue: mockDialogRef },
+        provideIonicTesting(),
+        { provide: ModalController, useValue: mockModalController },
         { provide: OfficesService, useValue: mockOfficesService },
       ],
     }).compileComponents();
@@ -69,12 +69,12 @@ describe('CreateOfficeDialogComponent', () => {
 
   it('should close dialog on cancel', () => {
     component.onCancel();
-    expect(mockDialogRef.close).toHaveBeenCalled();
+    expect(mockModalController.dismiss).toHaveBeenCalled();
   });
 
   it('should submit office data and close dialog with resourceId', () => {
     component.office.name = 'Test Office';
-    component.openingDate = new Date(2026, 0, 15); // Month is 0-indexed in JS Date
+    component.openingDate = '2026-01-15';
 
     component.onSubmit();
 
@@ -84,7 +84,7 @@ describe('CreateOfficeDialogComponent', () => {
     expect(args.name).toBe('Test Office');
     expect(args.openingDate).toBe('2026-01-15');
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith(10);
+    expect(mockModalController.dismiss).toHaveBeenCalledWith(10);
   });
 
   it('should reset isSaving to false on error during submit', () => {
@@ -93,6 +93,6 @@ describe('CreateOfficeDialogComponent', () => {
     component.onSubmit();
 
     expect(component.isSaving).toBe(false);
-    expect(mockDialogRef.close).not.toHaveBeenCalled();
+    expect(mockModalController.dismiss).not.toHaveBeenCalled();
   });
 });

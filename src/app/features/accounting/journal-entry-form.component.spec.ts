@@ -33,7 +33,6 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 import { HttpEvent } from '@angular/common/http';
 
 describe('JournalEntryFormComponent', () => {
@@ -53,7 +52,7 @@ describe('JournalEntryFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [JournalEntryFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [JournalEntryFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: JournalEntriesService, useValue: journalServiceSpy },
@@ -97,7 +96,7 @@ describe('JournalEntryFormComponent', () => {
   it('should format payload correctly on submission', () => {
     component.command.officeId = 1;
     component.command.currencyCode = 'USD';
-    component.transactionDate = new Date(2026, 4, 15);
+    component.transactionDate = '2026-05-15';
     component.debits = [{ glAccountId: 10, amount: 500 }];
     component.credits = [{ glAccountId: 20, amount: 500 }];
 

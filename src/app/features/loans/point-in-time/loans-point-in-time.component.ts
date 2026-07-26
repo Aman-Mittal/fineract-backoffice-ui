@@ -21,14 +21,22 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CdkTableModule } from '@angular/cdk/table';
+import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 import {
   LoansPointInTimeService,
@@ -43,48 +51,60 @@ import {
     FormsModule,
     DecimalPipe,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTableModule,
-    MatProgressSpinnerModule,
+    CdkTableModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
+    IonSpinner,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'LOANS_POINT_IN_TIME.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'LOANS_POINT_IN_TIME.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
 
-      <mat-card-content>
+      <ion-card-content>
         <div class="search-form">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOANS_POINT_IN_TIME.DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="picker" [(ngModel)]="searchDate" required />
-            <mat-datepicker-toggle matIconSuffix [for]="picker" />
-            <mat-datepicker #picker />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'LOANS_POINT_IN_TIME.DATE' | translate }}</ion-label>
+            <ion-datetime-button datetime="searchDate-picker"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  id="searchDate-picker"
+                  data-testid="searchDate-picker"
+                  presentation="date"
+                  name="searchDate"
+                  [(ngModel)]="searchDate"
+                  required
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOANS_POINT_IN_TIME.LOAN_IDS' | translate }}</mat-label>
-            <input matInput [(ngModel)]="loanIdsInput" placeholder="1, 2, 3" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'LOANS_POINT_IN_TIME.LOAN_IDS' | translate
+            }}</ion-label>
+            <ion-input [(ngModel)]="loanIdsInput" placeholder="1, 2, 3"></ion-input>
+          </ion-item>
 
-          <button
-            mat-raised-button
-            color="primary"
-            [disabled]="!searchDate || isLoading"
-            (click)="onSearch()"
-          >
+          <ion-button color="primary" [disabled]="!searchDate || isLoading" (click)="onSearch()">
             {{ 'LOANS_POINT_IN_TIME.SEARCH' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         @if (isLoading) {
           <div class="spinner-container">
-            <mat-spinner diameter="48" />
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
@@ -93,54 +113,54 @@ import {
         }
 
         @if (!isLoading && results().length > 0) {
-          <table mat-table [dataSource]="results()" class="results-table">
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>Loan ID</th>
-              <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+          <table cdk-table [dataSource]="results()" class="results-table">
+            <ng-container cdkColumnDef="id">
+              <th cdk-header-cell *cdkHeaderCellDef>Loan ID</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="accountNo">
-              <th mat-header-cell *matHeaderCellDef>Account No</th>
-              <td mat-cell *matCellDef="let row">{{ row.accountNo }}</td>
+            <ng-container cdkColumnDef="accountNo">
+              <th cdk-header-cell *cdkHeaderCellDef>Account No</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.accountNo }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let row">{{ row.status?.value }}</td>
+            <ng-container cdkColumnDef="status">
+              <th cdk-header-cell *cdkHeaderCellDef>Status</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.status?.value }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="principalDisbursed">
-              <th mat-header-cell *matHeaderCellDef>Principal Disbursed</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="principalDisbursed">
+              <th cdk-header-cell *cdkHeaderCellDef>Principal Disbursed</th>
+              <td cdk-cell *cdkCellDef="let row">
                 {{ row.principal?.principalDisbursed | number: '1.2-2' }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="principalOutstanding">
-              <th mat-header-cell *matHeaderCellDef>Principal Outstanding</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="principalOutstanding">
+              <th cdk-header-cell *cdkHeaderCellDef>Principal Outstanding</th>
+              <td cdk-cell *cdkCellDef="let row">
                 {{ row.principal?.principalOutstanding | number: '1.2-2' }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="totalOutstanding">
-              <th mat-header-cell *matHeaderCellDef>Total Outstanding</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="totalOutstanding">
+              <th cdk-header-cell *cdkHeaderCellDef>Total Outstanding</th>
+              <td cdk-cell *cdkCellDef="let row">
                 {{ row.total?.totalOutstanding | number: '1.2-2' }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="currency">
-              <th mat-header-cell *matHeaderCellDef>Currency</th>
-              <td mat-cell *matCellDef="let row">{{ row.currency?.code }}</td>
+            <ng-container cdkColumnDef="currency">
+              <th cdk-header-cell *cdkHeaderCellDef>Currency</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.currency?.code }}</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
           </table>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -175,7 +195,7 @@ import {
   ],
 })
 export class LoansPointInTimeComponent {
-  searchDate: Date = new Date();
+  searchDate = toIsoDate(new Date());
   loanIdsInput = '';
   results = signal<LoanPointInTimeData[]>([]);
   isLoading = false;
@@ -204,7 +224,7 @@ export class LoansPointInTimeComponent {
       .map((s) => Number(s))
       .filter((n) => !isNaN(n));
 
-    const dateStr = this.formatDate(this.searchDate);
+    const dateStr = formatDateToFineract(this.searchDate);
 
     const body: RetrieveLoansPointInTimeRequest = {
       date: dateStr as unknown as object,
@@ -225,12 +245,5 @@ export class LoansPointInTimeComponent {
         this.isLoading = false;
       },
     });
-  }
-
-  private formatDate(date: Date): string {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
   }
 }

@@ -21,14 +21,19 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface EmailCampaign {
   id: number;
@@ -44,114 +49,116 @@ interface EmailCampaign {
     CommonModule,
     FormsModule,
     RouterModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'EMAIL_CAMPAIGNS.TITLE' | translate }}</mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'EMAIL_CAMPAIGNS.TITLE' | translate }}</ion-card-title>
           <div class="actions-header">
-            <button mat-raised-button color="primary" (click)="navigateToCreate()">
-              <mat-icon>add</mat-icon>
+            <ion-button color="primary" (click)="navigateToCreate()">
+              <ion-icon name="add-outline"></ion-icon>
               {{ 'EMAIL_CAMPAIGNS.CREATE' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-header>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (isLoading()) {
             <div class="spinner-container">
-              <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
-            <table mat-table [dataSource]="campaigns()" class="mat-elevation-z1">
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>{{ 'EMAIL_CAMPAIGNS.ID' | translate }}</th>
-                <td mat-cell *matCellDef="let campaign">{{ campaign.id }}</td>
+            <table cdk-table [dataSource]="campaigns()">
+              <ng-container cdkColumnDef="id">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'EMAIL_CAMPAIGNS.ID' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let campaign">{{ campaign.id }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="campaignName">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="campaignName">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'EMAIL_CAMPAIGNS.CAMPAIGN_NAME' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let campaign">{{ campaign.campaignName }}</td>
+                <td cdk-cell *cdkCellDef="let campaign">{{ campaign.campaignName }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="campaignType">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="campaignType">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'EMAIL_CAMPAIGNS.CAMPAIGN_TYPE' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let campaign">{{ campaign.campaignType }}</td>
+                <td cdk-cell *cdkCellDef="let campaign">{{ campaign.campaignType }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="status">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'EMAIL_CAMPAIGNS.STATUS' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let campaign">
+                <td cdk-cell *cdkCellDef="let campaign">
                   {{ campaign.status?.value ?? campaign.status }}
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'EMAIL_CAMPAIGNS.ACTIONS' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let campaign">
-                  <button
-                    mat-icon-button
+                <td cdk-cell *cdkCellDef="let campaign">
+                  <ion-button
+                    fill="clear"
                     color="primary"
                     [title]="'EMAIL_CAMPAIGNS.EDIT' | translate"
                     (click)="navigateToEdit(campaign.id)"
                   >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
-                    color="accent"
+                    <ion-icon name="create-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    color="secondary"
                     [title]="'EMAIL_CAMPAIGNS.ACTIVATE' | translate"
                     (click)="activate(campaign.id)"
                   >
-                    <mat-icon>play_arrow</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
-                    color="warn"
+                    <ion-icon name="play-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    color="danger"
                     [title]="'EMAIL_CAMPAIGNS.DEACTIVATE' | translate"
                     (click)="deactivate(campaign.id)"
                   >
-                    <mat-icon>pause</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
-                    color="warn"
+                    <ion-icon name="pause-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    color="danger"
                     [title]="'EMAIL_CAMPAIGNS.DELETE' | translate"
                     (click)="delete(campaign.id)"
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
                 </td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
 
-              <tr *matNoDataRow>
+              <tr *cdkNoDataRow>
                 <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
                   {{ 'EMAIL_CAMPAIGNS.NO_DATA' | translate }}
                 </td>
               </tr>
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -188,7 +195,7 @@ interface EmailCampaign {
 export class EmailCampaignsListComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
   campaigns = signal<EmailCampaign[]>([]);
@@ -260,13 +267,13 @@ export class EmailCampaignsListComponent implements OnInit {
 
   private showSuccess(key: string): void {
     this.translate.get(key).subscribe((msg: string) => {
-      this.snackBar.open(msg, '', { duration: 3000 });
+      this.notifications.success(msg);
     });
   }
 
   private showError(key: string): void {
     this.translate.get(key).subscribe((msg: string) => {
-      this.snackBar.open(msg, '', { duration: 4000, panelClass: ['error-snack'] });
+      this.notifications.error(msg);
     });
   }
 }

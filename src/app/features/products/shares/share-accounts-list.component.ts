@@ -18,13 +18,9 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { PageEvent } from '@angular/material/paginator';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import {
   DataTableComponent,
   ColumnDef,
@@ -32,6 +28,7 @@ import {
   StatusBadgeComponent,
 } from '../../../shared';
 import { ShareAccountService, GetAccountsTypeResponse, GetAccountsPageItems } from '../../../api';
+import { PageEvent } from '../../../shared/models/table.model';
 
 /**
  * Component for listing customer share accounts.
@@ -44,9 +41,8 @@ import { ShareAccountService, GetAccountsTypeResponse, GetAccountsPageItems } fr
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    IonButton,
+    IonIcon,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
@@ -68,15 +64,14 @@ import { ShareAccountService, GetAccountsTypeResponse, GetAccountsPageItems } fr
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Account Details"
           (click)="onEditAccount(account)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

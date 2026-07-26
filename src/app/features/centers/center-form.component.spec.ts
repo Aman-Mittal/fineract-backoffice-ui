@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('CenterFormComponent', () => {
   let component: CenterFormComponent;
@@ -43,7 +42,7 @@ describe('CenterFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [CenterFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
@@ -76,7 +75,7 @@ describe('CenterFormComponent', () => {
   it('should format activationDate correctly on submit in create mode', () => {
     component.isEditMode = false;
     component.center = { name: 'Test Center', officeId: 1, active: true };
-    const testDate = new Date(2026, 4, 9); // May 9, 2026
+    const testDate = '2026-05-09'; // May 9, 2026
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,7 +111,7 @@ describe('CenterFormComponent', () => {
     // Re-configure for edit mode test
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [CenterFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },

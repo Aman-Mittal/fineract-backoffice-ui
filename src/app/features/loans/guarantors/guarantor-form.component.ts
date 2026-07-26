@@ -21,20 +21,29 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GuarantorsService, GuarantorsRequest, EnumOptionData } from '../../../api';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Create / edit form for a loan guarantor. The guarantor-type options come from the
@@ -47,111 +56,132 @@ import { MatNativeDateModule } from '@angular/material/core';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('GUARANTORS.EDIT' | translate) : ('GUARANTORS.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #guarantorForm="ngForm" (ngSubmit)="onSubmit()" class="guarantor-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.TYPE' | translate }}</mat-label>
-              <mat-select name="guarantorTypeId" [(ngModel)]="guarantor.guarantorTypeId" required>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.TYPE' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="guarantorTypeId"
+                [(ngModel)]="guarantor.guarantorTypeId"
+                required
+              >
                 @for (opt of guarantorTypeOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.value }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.ENTITY_ID' | translate }}</mat-label>
-              <input matInput type="number" name="entityId" [(ngModel)]="guarantor.entityId" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.ENTITY_ID' | translate }}</ion-label>
+              <ion-input type="number" name="entityId" [(ngModel)]="guarantor.entityId"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.FIRST_NAME' | translate }}</mat-label>
-              <input matInput name="firstname" [(ngModel)]="guarantor.firstname" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.FIRST_NAME' | translate }}</ion-label>
+              <ion-input name="firstname" [(ngModel)]="guarantor.firstname"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.LAST_NAME' | translate }}</mat-label>
-              <input matInput name="lastname" [(ngModel)]="guarantor.lastname" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.LAST_NAME' | translate }}</ion-label>
+              <ion-input name="lastname" [(ngModel)]="guarantor.lastname"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.ADDRESS_LINE1' | translate }}</mat-label>
-              <input matInput name="addressLine1" [(ngModel)]="guarantor.addressLine1" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.ADDRESS_LINE1' | translate }}</ion-label>
+              <ion-input name="addressLine1" [(ngModel)]="guarantor.addressLine1"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.MOBILE_NUMBER' | translate }}</mat-label>
-              <input matInput name="mobileNumber" [(ngModel)]="guarantor.mobileNumber" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.MOBILE_NUMBER' | translate }}</ion-label>
+              <ion-input name="mobileNumber" [(ngModel)]="guarantor.mobileNumber"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.SAVINGS_ID' | translate }}</mat-label>
-              <input matInput type="number" name="savingsId" [(ngModel)]="guarantor.savingsId" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.SAVINGS_ID' | translate }}</ion-label>
+              <ion-input
+                type="number"
+                name="savingsId"
+                [(ngModel)]="guarantor.savingsId"
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.CLIENT_RELATIONSHIP_TYPE_ID' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'GUARANTORS.CLIENT_RELATIONSHIP_TYPE_ID' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="clientRelationshipTypeId"
                 [(ngModel)]="guarantor.clientRelationshipTypeId"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.AMOUNT' | translate }}</mat-label>
-              <input matInput type="number" name="amount" [(ngModel)]="guarantor.amount" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.AMOUNT' | translate }}</ion-label>
+              <ion-input type="number" name="amount" [(ngModel)]="guarantor.amount"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'GUARANTORS.DOB' | translate }}</mat-label>
-              <input matInput [matDatepicker]="dobPicker" name="dobDate" [(ngModel)]="dobDate" />
-              <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-              <mat-datepicker #dobPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'GUARANTORS.DOB' | translate }}</ion-label>
+              <ion-datetime-button datetime="dobDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="dobDate-picker"
+                    data-testid="dobDate-picker"
+                    presentation="date"
+                    name="dobDate"
+                    [(ngModel)]="dobDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="guarantorForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -181,7 +211,7 @@ export class GuarantorFormComponent implements OnInit {
 
   guarantor: GuarantorsRequest = {};
   guarantorTypeOptions: EnumOptionData[] = [];
-  dobDate: Date | null = null;
+  dobDate: string | null = null;
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
@@ -217,8 +247,8 @@ export class GuarantorFormComponent implements OnInit {
         if (data.dob) {
           const dob = data.dob as unknown as number[];
           this.dobDate = Array.isArray(dob)
-            ? new Date(dob[0], dob[1] - 1, dob[2])
-            : new Date(data.dob);
+            ? toIsoDate(new Date(dob[0], dob[1] - 1, dob[2]))
+            : toIsoDate(new Date(data.dob));
         }
       });
   }

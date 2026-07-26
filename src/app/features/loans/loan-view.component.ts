@@ -20,29 +20,35 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
+import { Observable, from } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
+import { NotificationService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonChip,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
+  IonSegment,
+  IonSegmentButton,
+} from '@ionic/angular/standalone';
 import {
   LoansService,
   GetLoansLoanIdResponse,
@@ -65,17 +71,7 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-    MatTooltipModule,
-    MatMenuModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-    MatChipsModule,
+    CdkTableModule,
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
@@ -84,16 +80,31 @@ import {
     DecimalPipe,
     NgClass,
     JsonPipe,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonChip,
+    IonSegment,
+    IonSegmentButton,
+    IonPopover,
+    IonList,
+    TooltipDirective,
   ],
   template: `
     @if (loan()) {
       <div class="view-container">
         <!-- Header Actions Card -->
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div class="loan-title-area">
               <div class="avatar-circle">
-                <mat-icon>monetization_on</mat-icon>
+                <ion-icon name="cash-outline"></ion-icon>
               </div>
               <div class="title-details">
                 <h2>{{ loan()?.loanProductName }}</h2>
@@ -106,839 +117,861 @@ import {
                     class="status-badge"
                   ></app-status-badge>
                   @if (loan()?.loanScheduleType?.value) {
-                    <mat-chip-set>
-                      <mat-chip
-                        [color]="isProgressiveLoan() ? 'accent' : 'primary'"
+                    <div>
+                      <ion-chip
+                        [color]="isProgressiveLoan() ? 'secondary' : 'primary'"
                         highlighted
-                        [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+                        [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
                       >
                         {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
                         {{ loan()?.loanScheduleType?.value }}
-                      </mat-chip>
-                    </mat-chip-set>
+                      </ion-chip>
+                    </div>
                   }
                 </div>
               </div>
             </div>
             <div class="actions-area">
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 (click)="onRepayment()"
-                [matTooltip]="'LOANS.REPAYMENT' | translate"
+                [appTooltip]="'LOANS.REPAYMENT' | translate"
               >
-                <mat-icon>payment</mat-icon>
+                <ion-icon name="card-outline"></ion-icon>
                 {{ 'LOANS.REPAYMENT' | translate }}
-              </button>
+              </ion-button>
 
               @if (isLoanPendingApproval) {
-                <button
-                  mat-raised-button
-                  color="accent"
+                <ion-button
+                  color="secondary"
                   (click)="onLoanAction('approve')"
-                  [matTooltip]="'LOANS.APPROVE' | translate"
+                  [appTooltip]="'LOANS.APPROVE' | translate"
                 >
-                  <mat-icon>check_circle</mat-icon>
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
                   {{ 'LOANS.APPROVE' | translate }}
-                </button>
+                </ion-button>
               }
 
               @if (isLoanApproved) {
-                <button
-                  mat-raised-button
-                  color="accent"
+                <ion-button
+                  color="secondary"
                   (click)="onDisburse()"
-                  [matTooltip]="'LOANS.DISBURSE' | translate"
+                  [appTooltip]="'LOANS.DISBURSE' | translate"
                 >
-                  <mat-icon>launch</mat-icon>
+                  <ion-icon name="open-outline"></ion-icon>
                   {{ 'LOANS.DISBURSE' | translate }}
-                </button>
+                </ion-button>
               }
 
               <!-- Actions Dropdown Menu -->
-              <button mat-raised-button color="primary" [matMenuTriggerFor]="loanMenu">
-                <mat-icon>arrow_drop_down</mat-icon>
+              <ion-button color="primary" id="loanMenu-trigger">
+                <ion-icon name="caret-down-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
-              </button>
-              <mat-menu #loanMenu="matMenu">
-                <button mat-menu-item (click)="onAddCharge()">
-                  <mat-icon>add</mat-icon>
-                  <span>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</span>
-                </button>
+              </ion-button>
+              <ion-popover trigger="loanMenu-trigger" [dismissOnSelect]="true">
+                <ng-template>
+                  <ion-list>
+                    <ion-item button (click)="onAddCharge()">
+                      <ion-icon slot="start" name="add-outline"></ion-icon>
+                      <ion-label>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</ion-label>
+                    </ion-item>
 
-                @if (isLoanPendingApproval) {
-                  <button mat-menu-item (click)="onModifyLoan()">
-                    <mat-icon>edit</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</span>
-                  </button>
+                    @if (isLoanPendingApproval) {
+                      <ion-item button (click)="onModifyLoan()">
+                        <ion-icon slot="start" name="create-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanAction('reject')">
-                    <mat-icon>cancel</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.REJECT' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanAction('reject')">
+                        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.REJECT' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanAction('withdrawnByClient')">
-                    <mat-icon>reply</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanAction('withdrawnByClient')">
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onDeleteLoan()">
-                    <mat-icon>delete</mat-icon>
-                    <span>{{ 'COMMON.DELETE' | translate }}</span>
-                  </button>
-                }
+                      <ion-item button (click)="onDeleteLoan()">
+                        <ion-icon slot="start" name="trash-outline"></ion-icon>
+                        <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
+                      </ion-item>
+                    }
 
-                <button mat-menu-item (click)="onAddCollateral()">
-                  <mat-icon>security</mat-icon>
-                  <span>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</span>
-                </button>
+                    <ion-item button (click)="onAddCollateral()">
+                      <ion-icon slot="start" name="shield-outline"></ion-icon>
+                      <ion-label>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</ion-label>
+                    </ion-item>
 
-                <button mat-menu-item (click)="onAssignLoanOfficer()">
-                  <mat-icon>person_add</mat-icon>
-                  <span>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</span>
-                </button>
+                    <ion-item button (click)="onAssignLoanOfficer()">
+                      <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                      <ion-label>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</ion-label>
+                    </ion-item>
 
-                @if (isLoanActive) {
-                  <button mat-menu-item (click)="onUndoDisbursal()">
-                    <mat-icon>undo</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
-                  </button>
+                    @if (isLoanActive) {
+                      <ion-item button (click)="onUndoDisbursal()">
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('waiveinterest')">
-                    <mat-icon>money_off</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('waiveinterest')">
+                        <ion-icon slot="start" name="cash-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('prepayLoan')">
-                    <mat-icon>fast_forward</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('prepayLoan')">
+                        <ion-icon slot="start" name="play-forward-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('foreclosure')">
-                    <mat-icon>flag</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('foreclosure')">
+                        <ion-icon slot="start" name="flag-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('close')">
-                    <mat-icon>lock</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('close')">
+                        <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button
-                    mat-menu-item
-                    class="warn-item"
-                    (click)="onLoanTransactionAction('writeoff')"
-                  >
-                    <mat-icon color="warn">delete_forever</mat-icon>
-                    <span>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</span>
-                  </button>
-                }
-              </mat-menu>
+                      <ion-item
+                        button
+                        class="warn-item"
+                        (click)="onLoanTransactionAction('writeoff')"
+                      >
+                        <ion-icon slot="start" color="danger" name="trash-bin-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                  </ion-list>
+                </ng-template>
+              </ion-popover>
 
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              <ion-button fill="clear" (click)="onBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         <!-- Tabs Section -->
-        <mat-tab-group class="tab-group" animationDuration="0ms">
-          <!-- Overview -->
-          <mat-tab [label]="'LOANS.OVERVIEW' | translate">
-            <div class="tab-content">
-              <div class="info-grid">
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>info</mat-icon>
-                      {{ 'LOANS.LOAN_TERMS' | translate }}
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</span>
-                      <span class="value">
-                        {{ loan()?.currency?.displaySymbol }}
-                        {{ loan()?.principal | number: '1.2-2' }}
-                      </span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.ANNUAL_INTEREST_RATE' | translate }}</span>
-                      <span class="value">{{ loan()?.annualInterestRate }}%</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.REPAYMENTS' | translate }}</span>
-                      <span class="value">
-                        {{ loan()?.numberOfRepayments }} {{ 'COMMON.EVERY' | translate }}
-                        {{ loan()?.repaymentEvery }}
-                        {{ repaymentFrequencyValue }}
-                      </span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.LOAN_OFFICER' | translate }}</span>
-                      <span class="value">{{ loan()?.loanOfficerName || '-' }}</span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
+        <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+          <ion-segment-button value="0">
+            <ion-label>{{ 'LOANS.OVERVIEW' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="1">
+            <ion-label>{{ 'LOANS.REPAYMENT_SCHEDULE' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="2">
+            <ion-label>{{ 'LOANS.TRANSACTIONS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="3">
+            <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="4">
+            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="5">
+            <ion-label>{{ 'LOANS.NOTES' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="6">
+            <ion-label>{{ 'LOANS.DOCUMENTS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="7">
+            <ion-label>{{ 'LOANS.BUY_DOWN_FEES' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="8">
+            <ion-label>{{ 'LOANS.CAPITALIZED_INCOME' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="9">
+            <ion-label>{{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="10">
+            <ion-label>{{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
 
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>timeline</mat-icon>
-                      {{ 'LOANS.TIMELINE_STATUS' | translate }}
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.SUBMITTED_DATE' | translate }}</span>
-                      <span class="value">{{ formattedSubmittedDate }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</span>
-                      <span class="value">{{ formattedExpectedDisbursementDate }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.TOTAL_DISBURSED' | translate }}</span>
-                      <span class="value">
-                        {{ loan()?.currency?.displaySymbol }}
-                        {{ loan()?.summary?.principalDisbursed || 0 | number: '1.2-2' }}
-                      </span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'LOANS.TOTAL_OUTSTANDING' | translate }}</span>
-                      <span class="value">
-                        {{ loan()?.currency?.displaySymbol }}
-                        {{ loan()?.summary?.totalOutstanding || 0 | number: '1.2-2' }}
-                      </span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              </div>
-            </div>
-          </mat-tab>
-
-          <!-- Repayment Schedule -->
-          <mat-tab [label]="'LOANS.REPAYMENT_SCHEDULE' | translate">
-            <div class="tab-content">
-              <mat-card class="table-card" style="overflow-x: auto;">
-                <mat-card-content>
-                  @if (periods().length > 0) {
-                    <table mat-table [dataSource]="periods()" class="full-width-table">
-                      <!-- Category Headers -->
-                      <ng-container matColumnDef="empty-header">
-                        <th mat-header-cell *matHeaderCellDef [attr.colspan]="5"></th>
-                      </ng-container>
-
-                      <ng-container matColumnDef="balance-header">
-                        <th
-                          mat-header-cell
-                          *matHeaderCellDef
-                          [attr.colspan]="2"
-                          style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
-                        >
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE' | translate }}
-                        </th>
-                      </ng-container>
-
-                      <ng-container matColumnDef="cost-header">
-                        <th
-                          mat-header-cell
-                          *matHeaderCellDef
-                          [attr.colspan]="3"
-                          style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
-                        >
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.COST' | translate }}
-                        </th>
-                      </ng-container>
-
-                      <ng-container matColumnDef="totals-header">
-                        <th
-                          mat-header-cell
-                          *matHeaderCellDef
-                          [attr.colspan]="5"
-                          style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
-                        >
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.TOTALS' | translate }}
-                        </th>
-                      </ng-container>
-
-                      <!-- Column Containers -->
-                      <ng-container matColumnDef="period">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.HASH' | translate }}</th>
-                        <td mat-cell *matCellDef="let p">{{ p.period || '' }}</td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong>{{ 'COMMON.TOTAL' | translate }}</strong>
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="days">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DAYS' | translate }}</th>
-                        <td mat-cell *matCellDef="let p">{{ p.daysInPeriod || '' }}</td>
-                        <td mat-footer-cell *matFooterCellDef></td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="dueDate">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                        <td mat-cell *matCellDef="let p">{{ formatPeriodDate(p.dueDate) }}</td>
-                        <td mat-footer-cell *matFooterCellDef></td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="paidDate">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID_DATE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{ formatPeriodDate(p.obligationsMetOnDate) }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef></td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="check">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let p">
-                          @if (p.obligationsMetOnDate) {
-                            <mat-icon style="color: #2ecc71">check</mat-icon>
-                          }
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef></td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="balance">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.principalLoanBalanceOutstanding !== undefined &&
-                            p.principalLoanBalanceOutstanding !== null
-                              ? (p.principalLoanBalanceOutstanding | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef></td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="principal">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.principalDue !== undefined && p.principalDue !== null && p.period
-                              ? (p.principalDue | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalPrincipalDue | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="interest">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.interestDue !== undefined && p.interestDue !== null
-                              ? (p.interestDue | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalInterestDue | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="fees">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.feeChargesDue !== undefined && p.feeChargesDue !== null
-                              ? (p.feeChargesDue | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalFeesDue | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="penalties">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.penaltyChargesDue !== undefined &&
-                            p.penaltyChargesDue !== null &&
-                            p.period
-                              ? (p.penaltyChargesDue | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalPenaltiesDue | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="due">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.totalDueForPeriod !== undefined && p.totalDueForPeriod !== null
-                              ? (p.totalDueForPeriod | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalDue | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="paid">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.totalPaidForPeriod !== undefined && p.totalPaidForPeriod !== null
-                              ? (p.totalPaidForPeriod | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalPaid | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="inAdvance">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.IN_ADVANCE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.totalPaidInAdvanceForPeriod !== undefined &&
-                            p.totalPaidInAdvanceForPeriod !== null &&
-                            p.period
-                              ? (p.totalPaidInAdvanceForPeriod | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalPaidInAdvance | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="late">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.LATE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.totalPaidLateForPeriod !== undefined &&
-                            p.totalPaidLateForPeriod !== null &&
-                            p.period
-                              ? (p.totalPaidLateForPeriod | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalPaidLate | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let p">
-                          {{
-                            p.totalOutstandingForPeriod !== undefined &&
-                            p.totalOutstandingForPeriod !== null &&
-                            p.period
-                              ? (p.totalOutstandingForPeriod | number: '1.2-2')
-                              : ''
-                          }}
-                        </td>
-                        <td mat-footer-cell *matFooterCellDef>
-                          <strong
-                            >{{ loan()?.currency?.displaySymbol
-                            }}{{ totalOutstanding | number: '1.2-2' }}</strong
-                          >
-                        </td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="categoryHeaderColumns"></tr>
-                      <tr mat-header-row *matHeaderRowDef="scheduleColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: scheduleColumns"></tr>
-                      <tr mat-footer-row *matFooterRowDef="scheduleColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>calendar_today</mat-icon>
-                      <p>{{ 'LOANS.NO_REPAYMENT_SCHEDULE' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-
-          <!-- Transactions -->
-          <mat-tab [label]="'LOANS.TRANSACTIONS' | translate">
-            <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
-                  @if (transactions().length > 0) {
-                    <table mat-table [dataSource]="transactions()" class="full-width-table">
-                      <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.TRANSACTION_DATE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let tx">{{ formatPeriodDate(tx.date) }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.type?.value }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">
-                          <span
-                            [ngClass]="{
-                              'debit-amount': isDebitTransaction(tx) && !tx.manuallyReversed,
-                              'credit-amount': isCreditTransaction(tx) && !tx.manuallyReversed,
-                              'reversed-amount': tx.manuallyReversed,
-                            }"
-                          >
-                            {{ isDebitTransaction(tx) ? '-' : isCreditTransaction(tx) ? '+' : '' }}
-                            {{ loan()?.currency?.displaySymbol }}{{ tx.amount | number: '1.2-2' }}
-                          </span>
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="txActions">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let tx">
-                          <button
-                            mat-icon-button
-                            (click)="onViewTransaction(tx)"
-                            [matTooltip]="'COMMON.VIEW' | translate"
-                          >
-                            <mat-icon>visibility</mat-icon>
-                          </button>
-                        </td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>receipt</mat-icon>
-                      <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-
-          <!-- Charges -->
-          <mat-tab [label]="'LOANS.CHARGES' | translate">
-            <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
-                  @if (charges().length > 0) {
-                    <table mat-table [dataSource]="charges()" class="full-width-table">
-                      <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">
-                          {{ loan()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="due">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let c">
-                          {{ loan()?.currency?.displaySymbol }} {{ c.amountDue | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let c">
-                          {{ loan()?.currency?.displaySymbol }}
-                          {{ c.amountOutstanding | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="chargeColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: chargeColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>monetization_on</mat-icon>
-                      <p>{{ 'LOANS.CHARGES' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-
-          <!-- Custom Fields -->
-          <mat-tab [label]="'SYSTEM.CUSTOM_FIELDS' | translate">
-            <div class="tab-content">
-              <app-entity-datatables
-                apptableName="m_loan"
-                [entityId]="loanId"
-              ></app-entity-datatables>
-            </div>
-          </mat-tab>
-
-          <!-- Notes -->
-          <mat-tab [label]="'LOANS.NOTES' | translate">
-            <div class="tab-content">
-              <app-loan-notes-tab [loanId]="loanId"></app-loan-notes-tab>
-            </div>
-          </mat-tab>
-
-          <!-- Documents -->
-          <mat-tab [label]="'LOANS.DOCUMENTS' | translate">
-            <div class="tab-content">
-              <app-loan-documents-tab [loanId]="loanId"></app-loan-documents-tab>
-            </div>
-          </mat-tab>
-
-          <!-- Buy-Down Fees -->
-          <mat-tab [label]="'LOANS.BUY_DOWN_FEES' | translate">
-            <div class="tab-content">
-              @if (buyDownFees().length === 0) {
-                <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
-              } @else {
-                <table mat-table [dataSource]="buyDownFees()" class="full-width-table">
-                  <ng-container matColumnDef="transactionId">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'LOANS.TRANSACTION_ID' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.transactionId }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="buyDownFeeAmount">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'LOANS.BUY_DOWN_FEE_AMOUNT' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.buyDownFeeAmount | number }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="amortizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.amortizedAmount | number }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="notYetAmortizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="buyDownFeeColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: buyDownFeeColumns"></tr>
-                </table>
-              }
-            </div>
-          </mat-tab>
-
-          <!-- Capitalized Income -->
-          <mat-tab [label]="'LOANS.CAPITALIZED_INCOME' | translate">
-            <div class="tab-content">
-              @if (capitalizedIncomes().length === 0) {
-                <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
-              } @else {
-                <table mat-table [dataSource]="capitalizedIncomes()" class="full-width-table">
-                  <ng-container matColumnDef="amount">
-                    <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                    <td mat-cell *matCellDef="let row">{{ row.amount | number }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="amortizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.amortizedAmount | number }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="unrecognizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ 'LOANS.UNRECOGNIZED_AMOUNT' | translate }}
-                    </th>
-                    <td mat-cell *matCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="capitalizedIncomeColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: capitalizedIncomeColumns"></tr>
-                </table>
-              }
-            </div>
-          </mat-tab>
-
-          <!-- Disbursement Details -->
-          <mat-tab [label]="'LOANS.DISBURSEMENT_DETAILS' | translate">
-            <div class="tab-content">
-              <mat-card class="info-card" style="margin-bottom: 24px;">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>launch</mat-icon>
-                    {{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div
-                    class="form-row"
-                    style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
-                  >
-                    <mat-form-field appearance="outline" style="flex: 1;">
-                      <mat-label>{{ 'LOANS.DISBURSEMENT_ID' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="editDisbId" />
-                    </mat-form-field>
-                    <button mat-raised-button color="primary" (click)="loadDisbursementDetail()">
-                      <mat-icon>search</mat-icon>
-                      {{ 'LOANS.LOAD_DISBURSEMENT' | translate }}
-                    </button>
+        @if (activeTab() === '0') {
+          <div class="tab-content">
+            <div class="info-grid">
+              <ion-card class="info-card">
+                <ion-card-header>
+                  <ion-card-title>
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    {{ 'LOANS.LOAN_TERMS' | translate }}
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content class="details-list">
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</span>
+                    <span class="value">
+                      {{ loan()?.currency?.displaySymbol }}
+                      {{ loan()?.principal | number: '1.2-2' }}
+                    </span>
                   </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.ANNUAL_INTEREST_RATE' | translate }}</span>
+                    <span class="value">{{ loan()?.annualInterestRate }}%</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.REPAYMENTS' | translate }}</span>
+                    <span class="value">
+                      {{ loan()?.numberOfRepayments }} {{ 'COMMON.EVERY' | translate }}
+                      {{ loan()?.repaymentEvery }}
+                      {{ repaymentFrequencyValue }}
+                    </span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.LOAN_OFFICER' | translate }}</span>
+                    <span class="value">{{ loan()?.loanOfficerName || '-' }}</span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
 
-                  @if (disbursementDetail()) {
-                    <pre class="json-block">{{ disbursementDetail() | json }}</pre>
+              <ion-card class="info-card">
+                <ion-card-header>
+                  <ion-card-title>
+                    <ion-icon name="pulse-outline"></ion-icon>
+                    {{ 'LOANS.TIMELINE_STATUS' | translate }}
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content class="details-list">
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.SUBMITTED_DATE' | translate }}</span>
+                    <span class="value">{{ formattedSubmittedDate }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</span>
+                    <span class="value">{{ formattedExpectedDisbursementDate }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.TOTAL_DISBURSED' | translate }}</span>
+                    <span class="value">
+                      {{ loan()?.currency?.displaySymbol }}
+                      {{ loan()?.summary?.principalDisbursed || 0 | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'LOANS.TOTAL_OUTSTANDING' | translate }}</span>
+                    <span class="value">
+                      {{ loan()?.currency?.displaySymbol }}
+                      {{ loan()?.summary?.totalOutstanding || 0 | number: '1.2-2' }}
+                    </span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </div>
+        }
+        @if (activeTab() === '1') {
+          <div class="tab-content">
+            <ion-card class="table-card" style="overflow-x: auto;">
+              <ion-card-content>
+                @if (periods().length > 0) {
+                  <table cdk-table [dataSource]="periods()" class="full-width-table">
+                    <!-- Category Headers -->
+                    <ng-container cdkColumnDef="empty-header">
+                      <th cdk-header-cell *cdkHeaderCellDef [attr.colspan]="5"></th>
+                    </ng-container>
 
-                    <div
-                      class="edit-form"
-                      style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;"
-                    >
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
-                        <input
-                          matInput
-                          [(ngModel)]="disbursementEditForm.expectedDisbursementDate"
-                        />
-                      </mat-form-field>
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          [(ngModel)]="disbursementEditForm.principal"
-                        />
-                      </mat-form-field>
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                        <input matInput [(ngModel)]="disbursementEditForm.note" />
-                      </mat-form-field>
-                      <div>
-                        <button mat-raised-button color="accent" (click)="saveDisbursementDetail()">
-                          <mat-icon>save</mat-icon>
-                          {{ 'COMMON.SAVE' | translate }}
-                        </button>
-                      </div>
+                    <ng-container cdkColumnDef="balance-header">
+                      <th
+                        cdk-header-cell
+                        *cdkHeaderCellDef
+                        [attr.colspan]="2"
+                        style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
+                      >
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE' | translate }}
+                      </th>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="cost-header">
+                      <th
+                        cdk-header-cell
+                        *cdkHeaderCellDef
+                        [attr.colspan]="3"
+                        style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
+                      >
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.COST' | translate }}
+                      </th>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="totals-header">
+                      <th
+                        cdk-header-cell
+                        *cdkHeaderCellDef
+                        [attr.colspan]="5"
+                        style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
+                      >
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.TOTALS' | translate }}
+                      </th>
+                    </ng-container>
+
+                    <!-- Column Containers -->
+                    <ng-container cdkColumnDef="period">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.HASH' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let p">{{ p.period || '' }}</td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong>{{ 'COMMON.TOTAL' | translate }}</strong>
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="days">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DAYS' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let p">{{ p.daysInPeriod || '' }}</td>
+                      <td cdk-footer-cell *cdkFooterCellDef></td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="dueDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let p">{{ formatPeriodDate(p.dueDate) }}</td>
+                      <td cdk-footer-cell *cdkFooterCellDef></td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="paidDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID_DATE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{ formatPeriodDate(p.obligationsMetOnDate) }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef></td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="check">
+                      <th cdk-header-cell *cdkHeaderCellDef></th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        @if (p.obligationsMetOnDate) {
+                          <ion-icon style="color: #2ecc71" name="checkmark-outline"></ion-icon>
+                        }
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef></td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="balance">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.principalLoanBalanceOutstanding !== undefined &&
+                          p.principalLoanBalanceOutstanding !== null
+                            ? (p.principalLoanBalanceOutstanding | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef></td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="principal">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.principalDue !== undefined && p.principalDue !== null && p.period
+                            ? (p.principalDue | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalPrincipalDue | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="interest">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.interestDue !== undefined && p.interestDue !== null
+                            ? (p.interestDue | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalInterestDue | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="fees">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.feeChargesDue !== undefined && p.feeChargesDue !== null
+                            ? (p.feeChargesDue | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalFeesDue | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="penalties">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.penaltyChargesDue !== undefined &&
+                          p.penaltyChargesDue !== null &&
+                          p.period
+                            ? (p.penaltyChargesDue | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalPenaltiesDue | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="due">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.totalDueForPeriod !== undefined && p.totalDueForPeriod !== null
+                            ? (p.totalDueForPeriod | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalDue | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="paid">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.totalPaidForPeriod !== undefined && p.totalPaidForPeriod !== null
+                            ? (p.totalPaidForPeriod | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalPaid | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="inAdvance">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.IN_ADVANCE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.totalPaidInAdvanceForPeriod !== undefined &&
+                          p.totalPaidInAdvanceForPeriod !== null &&
+                          p.period
+                            ? (p.totalPaidInAdvanceForPeriod | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalPaidInAdvance | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="late">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.LATE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.totalPaidLateForPeriod !== undefined &&
+                          p.totalPaidLateForPeriod !== null &&
+                          p.period
+                            ? (p.totalPaidLateForPeriod | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalPaidLate | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="outstanding">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{
+                          p.totalOutstandingForPeriod !== undefined &&
+                          p.totalOutstandingForPeriod !== null &&
+                          p.period
+                            ? (p.totalOutstandingForPeriod | number: '1.2-2')
+                            : ''
+                        }}
+                      </td>
+                      <td cdk-footer-cell *cdkFooterCellDef>
+                        <strong
+                          >{{ loan()?.currency?.displaySymbol
+                          }}{{ totalOutstanding | number: '1.2-2' }}</strong
+                        >
+                      </td>
+                    </ng-container>
+
+                    <tr cdk-header-row *cdkHeaderRowDef="categoryHeaderColumns"></tr>
+                    <tr cdk-header-row *cdkHeaderRowDef="scheduleColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: scheduleColumns"></tr>
+                    <tr cdk-footer-row *cdkFooterRowDef="scheduleColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <p>{{ 'LOANS.NO_REPAYMENT_SCHEDULE' | translate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === '2') {
+          <div class="tab-content">
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if (transactions().length > 0) {
+                  <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                    <ng-container cdkColumnDef="id">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="date">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.TRANSACTION_DATE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ formatPeriodDate(tx.date) }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="type">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.type?.value }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">
+                        <span
+                          [ngClass]="{
+                            'debit-amount': isDebitTransaction(tx) && !tx.manuallyReversed,
+                            'credit-amount': isCreditTransaction(tx) && !tx.manuallyReversed,
+                            'reversed-amount': tx.manuallyReversed,
+                          }"
+                        >
+                          {{ isDebitTransaction(tx) ? '-' : isCreditTransaction(tx) ? '+' : '' }}
+                          {{ loan()?.currency?.displaySymbol }}{{ tx.amount | number: '1.2-2' }}
+                        </span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="txActions">
+                      <th cdk-header-cell *cdkHeaderCellDef></th>
+                      <td cdk-cell *cdkCellDef="let tx">
+                        <ion-button
+                          fill="clear"
+                          (click)="onViewTransaction(tx)"
+                          [appTooltip]="'COMMON.VIEW' | translate"
+                        >
+                          <ion-icon name="eye-outline"></ion-icon>
+                        </ion-button>
+                      </td>
+                    </ng-container>
+
+                    <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: transactionColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state">
+                    <ion-icon name="receipt-outline"></ion-icon>
+                    <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === '3') {
+          <div class="tab-content">
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if (charges().length > 0) {
+                  <table cdk-table [dataSource]="charges()" class="full-width-table">
+                    <ng-container cdkColumnDef="name">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ loan()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="due">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ loan()?.currency?.displaySymbol }} {{ c.amountDue | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="outstanding">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ loan()?.currency?.displaySymbol }}
+                        {{ c.amountOutstanding | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+
+                    <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state">
+                    <ion-icon name="cash-outline"></ion-icon>
+                    <p>{{ 'LOANS.CHARGES' | translate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === '4') {
+          <div class="tab-content">
+            <app-entity-datatables
+              apptableName="m_loan"
+              [entityId]="loanId"
+            ></app-entity-datatables>
+          </div>
+        }
+        @if (activeTab() === '5') {
+          <div class="tab-content">
+            <app-loan-notes-tab [loanId]="loanId"></app-loan-notes-tab>
+          </div>
+        }
+        @if (activeTab() === '6') {
+          <div class="tab-content">
+            <app-loan-documents-tab [loanId]="loanId"></app-loan-documents-tab>
+          </div>
+        }
+        @if (activeTab() === '7') {
+          <div class="tab-content">
+            @if (buyDownFees().length === 0) {
+              <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+            } @else {
+              <table cdk-table [dataSource]="buyDownFees()" class="full-width-table">
+                <ng-container cdkColumnDef="transactionId">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.TRANSACTION_ID' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.transactionId }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="buyDownFeeAmount">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.BUY_DOWN_FEE_AMOUNT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.buyDownFeeAmount | number }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="amortizedAmount">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.amortizedAmount | number }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="notYetAmortizedAmount">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
+                </ng-container>
+                <tr cdk-header-row *cdkHeaderRowDef="buyDownFeeColumns"></tr>
+                <tr cdk-row *cdkRowDef="let row; columns: buyDownFeeColumns"></tr>
+              </table>
+            }
+          </div>
+        }
+        @if (activeTab() === '8') {
+          <div class="tab-content">
+            @if (capitalizedIncomes().length === 0) {
+              <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+            } @else {
+              <table cdk-table [dataSource]="capitalizedIncomes()" class="full-width-table">
+                <ng-container cdkColumnDef="amount">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.amount | number }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="amortizedAmount">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.amortizedAmount | number }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="unrecognizedAmount">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.UNRECOGNIZED_AMOUNT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
+                </ng-container>
+                <tr cdk-header-row *cdkHeaderRowDef="capitalizedIncomeColumns"></tr>
+                <tr cdk-row *cdkRowDef="let row; columns: capitalizedIncomeColumns"></tr>
+              </table>
+            }
+          </div>
+        }
+        @if (activeTab() === '9') {
+          <div class="tab-content">
+            <ion-card class="info-card" style="margin-bottom: 24px;">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="open-outline"></ion-icon>
+                  {{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div
+                  class="form-row"
+                  style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
+                >
+                  <ion-item fill="outline" style="flex: 1;">
+                    <ion-label position="stacked">{{
+                      'LOANS.DISBURSEMENT_ID' | translate
+                    }}</ion-label>
+                    <ion-input type="number" [(ngModel)]="editDisbId"></ion-input>
+                  </ion-item>
+                  <ion-button color="primary" (click)="loadDisbursementDetail()">
+                    <ion-icon name="search-outline"></ion-icon>
+                    {{ 'LOANS.LOAD_DISBURSEMENT' | translate }}
+                  </ion-button>
+                </div>
+
+                @if (disbursementDetail()) {
+                  <pre class="json-block">{{ disbursementDetail() | json }}</pre>
+
+                  <div
+                    class="edit-form"
+                    style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;"
+                  >
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'LOANS.EXPECTED_DISBURSEMENT' | translate
+                      }}</ion-label>
+                      <ion-input
+                        [(ngModel)]="disbursementEditForm.expectedDisbursementDate"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'LOANS.PRINCIPAL_AMOUNT' | translate
+                      }}</ion-label>
+                      <ion-input
+                        type="number"
+                        [(ngModel)]="disbursementEditForm.principal"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                      <ion-input [(ngModel)]="disbursementEditForm.note"></ion-input>
+                    </ion-item>
+                    <div>
+                      <ion-button color="secondary" (click)="saveDisbursementDetail()">
+                        <ion-icon name="save-outline"></ion-icon>
+                        {{ 'COMMON.SAVE' | translate }}
+                      </ion-button>
                     </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-
-          <!-- Collateral Management -->
-          <mat-tab [label]="'LOANS.COLLATERAL_MANAGEMENT' | translate">
-            <div class="tab-content">
-              <mat-card class="info-card" style="margin-bottom: 24px;">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>security</mat-icon>
-                    {{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <!-- Load collateral -->
-                  <div
-                    class="form-row"
-                    style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
-                  >
-                    <mat-form-field appearance="outline" style="flex: 1;">
-                      <mat-label>{{ 'LOANS.COLLATERAL_ID' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="collateralDetailId" />
-                    </mat-form-field>
-                    <button mat-raised-button color="primary" (click)="loadCollateralDetail()">
-                      <mat-icon>search</mat-icon>
-                      {{ 'LOANS.LOAD_COLLATERAL' | translate }}
-                    </button>
                   </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === '10') {
+          <div class="tab-content">
+            <ion-card class="info-card" style="margin-bottom: 24px;">
+              <ion-card-header>
+                <ion-card-title>
+                  <ion-icon name="shield-outline"></ion-icon>
+                  {{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <!-- Load collateral -->
+                <div
+                  class="form-row"
+                  style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
+                >
+                  <ion-item fill="outline" style="flex: 1;">
+                    <ion-label position="stacked">{{
+                      'LOANS.COLLATERAL_ID' | translate
+                    }}</ion-label>
+                    <ion-input type="number" [(ngModel)]="collateralDetailId"></ion-input>
+                  </ion-item>
+                  <ion-button color="primary" (click)="loadCollateralDetail()">
+                    <ion-icon name="search-outline"></ion-icon>
+                    {{ 'LOANS.LOAD_COLLATERAL' | translate }}
+                  </ion-button>
+                </div>
 
-                  @if (collateralDetail()) {
-                    <pre class="json-block">{{ collateralDetail() | json }}</pre>
-                  }
+                @if (collateralDetail()) {
+                  <pre class="json-block">{{ collateralDetail() | json }}</pre>
+                }
 
-                  <!-- Delete collateral -->
-                  <div
-                    class="form-row"
-                    style="display: flex; gap: 12px; align-items: center; margin-top: 24px;"
-                  >
-                    <mat-form-field appearance="outline" style="flex: 1;">
-                      <mat-label>{{ 'LOANS.COLLATERAL_ID' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="deleteCollateralId" />
-                    </mat-form-field>
-                    <button mat-raised-button color="warn" (click)="deleteCollateral()">
-                      <mat-icon>delete</mat-icon>
-                      {{ 'LOANS.DELETE_COLLATERAL' | translate }}
-                    </button>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+                <!-- Delete collateral -->
+                <div
+                  class="form-row"
+                  style="display: flex; gap: 12px; align-items: center; margin-top: 24px;"
+                >
+                  <ion-item fill="outline" style="flex: 1;">
+                    <ion-label position="stacked">{{
+                      'LOANS.COLLATERAL_ID' | translate
+                    }}</ion-label>
+                    <ion-input type="number" [(ngModel)]="deleteCollateralId"></ion-input>
+                  </ion-item>
+                  <ion-button color="danger" (click)="deleteCollateral()">
+                    <ion-icon name="trash-outline"></ion-icon>
+                    {{ 'LOANS.DELETE_COLLATERAL' | translate }}
+                  </ion-button>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
       </div>
     }
   `,
@@ -1104,15 +1137,17 @@ import {
   ],
 })
 export class LoanViewComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly loansService = inject(LoansService);
   private readonly buyDownFeesService = inject(LoanBuyDownFeesService);
   private readonly capitalizedIncomeService = inject(LoanCapitalizedIncomeService);
   private readonly disbursementDetailsService = inject(LoanDisbursementDetailsService);
   private readonly collateralManagementService = inject(LoanCollateralManagementService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
   loanId = 0;
@@ -1323,7 +1358,7 @@ export class LoanViewComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.snackBar.open('Disbursement saved successfully.', 'Close', { duration: 3000 });
+          this.notifications.success('Disbursement saved successfully.');
           this.loadDisbursementDetail();
         },
         error: (err) => console.error('Failed to save disbursement detail', err),
@@ -1349,7 +1384,7 @@ export class LoanViewComponent implements OnInit {
           .deleteLoanCollateralManagementId(this.loanId, this.deleteCollateralId)
           .subscribe({
             next: () => {
-              this.snackBar.open('Collateral deleted successfully.', 'Close', { duration: 3000 });
+              this.notifications.success('Collateral deleted successfully.');
               this.deleteCollateralId = 0;
             },
             error: (err) => console.error('Failed to delete collateral', err),
@@ -1413,29 +1448,28 @@ export class LoanViewComponent implements OnInit {
   }
 
   onViewTransaction(tx: GetLoansLoanIdTransactions): void {
-    const dialogRef = this.dialog.open(TransactionDetailDialogComponent, {
-      width: '480px',
-      data: {
-        loanId: this.loanId,
-        transactionId: tx.id,
-        currencySymbol: this.loan()?.currency?.displaySymbol,
-        adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
-      },
-    });
-    dialogRef.afterClosed().subscribe((adjusted) => {
-      if (adjusted) this.loadLoanData();
-    });
+    this.dialogService
+      .open(TransactionDetailDialogComponent, {
+        data: {
+          loanId: this.loanId,
+          transactionId: tx.id,
+          currencySymbol: this.loan()?.currency?.displaySymbol,
+          adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
+        },
+      })
+      .then((adjusted) => {
+        if (adjusted) this.loadLoanData();
+      });
   }
 
   private confirm(titleKey: string, messageKey: string, destructive = false): Observable<boolean> {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    return from(
+      this.dialogService.confirm({
         title: this.translate.instant(titleKey),
         message: this.translate.instant(messageKey),
         destructive,
-      },
-    });
-    return dialogRef.afterClosed().pipe(map((result) => !!result));
+      }),
+    );
   }
 
   isDebitTransaction(tx: GetLoansLoanIdTransactions): boolean {

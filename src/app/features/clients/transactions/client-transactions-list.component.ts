@@ -20,13 +20,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { ClientTransactionService, GetClientsPageItems } from '../../../api';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists the transactions for a single client. The client id is read from the route
@@ -38,11 +37,11 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -60,16 +59,16 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
         {{ row.type?.value }}
       </ng-template>
       <ng-template appCellTemplate="actions" let-row>
-        <button
-          mat-icon-button
-          color="warn"
+        <ion-button
+          fill="clear"
+          color="danger"
           [attr.aria-label]="'CLIENT_TRANSACTIONS.UNDO' | translate"
-          [matTooltip]="'CLIENT_TRANSACTIONS.UNDO' | translate"
+          [appTooltip]="'CLIENT_TRANSACTIONS.UNDO' | translate"
           [disabled]="row.reversed"
           (click)="onUndo(row)"
         >
-          <mat-icon>undo</mat-icon>
-        </button>
+          <ion-icon name="arrow-undo-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

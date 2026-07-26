@@ -20,13 +20,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonList,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonIcon,
+} from '@ionic/angular/standalone';
 import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../../api';
 
 @Component({
@@ -35,185 +41,204 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatTooltipModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonList,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonIcon,
   ],
   template: `
-    <mat-card class="allocation-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card class="allocation-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         @for (rule of paymentAllocation; track rule.transactionType; let ruleIndex = $index) {
           <div class="allocation-block">
             <div class="allocation-block-header">
               <strong>{{
                 transactionTypeLabel(rule.transactionType, transactionTypeOptions)
               }}</strong>
-              <button
-                mat-icon-button
+              <ion-button
+                fill="clear"
                 type="button"
-                color="warn"
-                [matTooltip]="'COMMON.DELETE' | translate"
+                color="danger"
+                [attr.aria-label]="'COMMON.DELETE' | translate"
                 (click)="removePaymentTransactionType(ruleIndex)"
               >
-                <mat-icon>delete</mat-icon>
-              </button>
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
             </div>
 
-            <mat-form-field appearance="outline" class="future-installment-field">
-              <mat-label>{{ 'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate }}</mat-label>
-              <mat-select
+            <ion-item fill="outline" class="future-installment-field form-item">
+              <ion-label position="stacked">{{
+                'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
                 [(ngModel)]="rule.futureInstallmentAllocationRule"
                 [name]="'futureInstallmentRule' + ruleIndex"
                 (ngModelChange)="emitPaymentAllocation()"
               >
                 @for (option of futureInstallmentOptions; track option.code) {
-                  <mat-option [value]="option.code">{{ option.value }}</mat-option>
+                  <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-list class="allocation-order-list">
+            <ion-list class="allocation-order-list">
               @for (
                 order of rule.paymentAllocationOrder;
                 track order.paymentAllocationRule;
                 let orderIndex = $index
               ) {
-                <mat-list-item>
+                <ion-item class="allocation-item">
                   <span class="order-index">{{ orderIndex + 1 }}.</span>
                   <span class="order-label">{{
                     allocationRuleLabel(order.paymentAllocationRule, allocationRuleOptions)
                   }}</span>
-                  <button
-                    mat-icon-button
+                  <ion-button
+                    fill="clear"
                     type="button"
                     [disabled]="orderIndex === 0"
                     (click)="moveOrderEntry(rule.paymentAllocationOrder!, orderIndex, -1)"
                   >
-                    <mat-icon>arrow_upward</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     type="button"
                     [disabled]="orderIndex === rule.paymentAllocationOrder!.length - 1"
                     (click)="moveOrderEntry(rule.paymentAllocationOrder!, orderIndex, 1)"
                   >
-                    <mat-icon>arrow_downward</mat-icon>
-                  </button>
-                </mat-list-item>
+                    <ion-icon name="arrow-down-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
               }
-            </mat-list>
+            </ion-list>
           </div>
         }
 
         @if (availablePaymentTransactionTypes().length) {
           <div class="add-transaction-type-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate }}</mat-label>
-              <mat-select name="newPaymentTransactionType" [(ngModel)]="newPaymentTransactionType">
+            <ion-item fill="outline" class="form-item flex-1">
+              <ion-label position="stacked">{{
+                'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="newPaymentTransactionType"
+                [(ngModel)]="newPaymentTransactionType"
+              >
                 @for (option of availablePaymentTransactionTypes(); track option.code) {
-                  <mat-option [value]="option.code">{{ option.value }}</mat-option>
+                  <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
-            <button
-              mat-stroked-button
+              </ion-select>
+            </ion-item>
+            <ion-button
+              fill="outline"
               type="button"
               [disabled]="!newPaymentTransactionType"
               (click)="addPaymentTransactionType()"
             >
-              <mat-icon>add</mat-icon>
+              <ion-icon name="add-outline" slot="start"></ion-icon>
               {{ 'COMMON.ADD' | translate }}
-            </button>
+            </ion-button>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
 
-    <mat-card class="allocation-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card class="allocation-card">
+      <ion-card-header>
+        <ion-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         @for (rule of creditAllocation; track rule.transactionType; let ruleIndex = $index) {
           <div class="allocation-block">
             <div class="allocation-block-header">
               <strong>{{
                 transactionTypeLabel(rule.transactionType, creditTransactionTypeOptions)
               }}</strong>
-              <button
-                mat-icon-button
+              <ion-button
+                fill="clear"
                 type="button"
-                color="warn"
-                [matTooltip]="'COMMON.DELETE' | translate"
+                color="danger"
+                [attr.aria-label]="'COMMON.DELETE' | translate"
                 (click)="removeCreditTransactionType(ruleIndex)"
               >
-                <mat-icon>delete</mat-icon>
-              </button>
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
             </div>
 
-            <mat-list class="allocation-order-list">
+            <ion-list class="allocation-order-list">
               @for (
                 order of rule.creditAllocationOrder;
                 track order.creditAllocationRule;
                 let orderIndex = $index
               ) {
-                <mat-list-item>
+                <ion-item class="allocation-item">
                   <span class="order-index">{{ orderIndex + 1 }}.</span>
                   <span class="order-label">{{
                     allocationRuleLabel(order.creditAllocationRule, creditAllocationRuleOptions)
                   }}</span>
-                  <button
-                    mat-icon-button
+                  <ion-button
+                    fill="clear"
                     type="button"
                     [disabled]="orderIndex === 0"
                     (click)="moveOrderEntry(rule.creditAllocationOrder!, orderIndex, -1)"
                   >
-                    <mat-icon>arrow_upward</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     type="button"
                     [disabled]="orderIndex === rule.creditAllocationOrder!.length - 1"
                     (click)="moveOrderEntry(rule.creditAllocationOrder!, orderIndex, 1)"
                   >
-                    <mat-icon>arrow_downward</mat-icon>
-                  </button>
-                </mat-list-item>
+                    <ion-icon name="arrow-down-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </ion-item>
               }
-            </mat-list>
+            </ion-list>
           </div>
         }
 
         @if (availableCreditTransactionTypes().length) {
           <div class="add-transaction-type-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate }}</mat-label>
-              <mat-select name="newCreditTransactionType" [(ngModel)]="newCreditTransactionType">
+            <ion-item fill="outline" class="form-item flex-1">
+              <ion-label position="stacked">{{
+                'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="newCreditTransactionType"
+                [(ngModel)]="newCreditTransactionType"
+              >
                 @for (option of availableCreditTransactionTypes(); track option.code) {
-                  <mat-option [value]="option.code">{{ option.value }}</mat-option>
+                  <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
-            <button
-              mat-stroked-button
+              </ion-select>
+            </ion-item>
+            <ion-button
+              fill="outline"
               type="button"
               [disabled]="!newCreditTransactionType"
               (click)="addCreditTransactionType()"
             >
-              <mat-icon>add</mat-icon>
+              <ion-icon name="add-outline" slot="start"></ion-icon>
               {{ 'COMMON.ADD' | translate }}
-            </button>
+            </ion-button>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

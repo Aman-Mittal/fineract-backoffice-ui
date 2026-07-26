@@ -83,7 +83,7 @@ test.describe('Reporting', () => {
     // Navigate to Reporting
     await page.getByRole('link', { name: 'Reports' }).click();
     await expect(page).toHaveURL('/reporting');
-    await expect(page.locator('mat-card-title').first()).toContainText('Reports');
+    await expect(page.locator('ion-card-title').first()).toContainText('Reports');
 
     // Verify some report types are visible
     await expect(page.locator('table')).toContainText('Client');
@@ -99,6 +99,6 @@ test.describe('Reporting', () => {
 
     // Should be on run-report page
     await expect(page).toHaveURL(/\/reporting\/run\//);
-    await expect(page.locator('mat-card-title')).toContainText('Active Clients Summary');
+    await expect(page.locator('ion-card-title')).toContainText('Active Clients Summary');
   });
 });

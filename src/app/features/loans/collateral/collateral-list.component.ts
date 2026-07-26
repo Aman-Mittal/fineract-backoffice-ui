@@ -21,11 +21,9 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { LoanCollateralService, CollateralData, LoansService } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Component for listing collateral associated with a specific loan.
@@ -33,14 +31,7 @@ import { LoanCollateralService, CollateralData, LoansService } from '../../../ap
 @Component({
   selector: 'app-collateral-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     @if (loanSummary) {
       <div class="loan-context">
@@ -65,24 +56,24 @@ import { LoanCollateralService, CollateralData, LoansService } from '../../../ap
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-collateral>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Collateral"
+          title="Edit Collateral"
           (click)="onEditCollateral(collateral)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          color="warn"
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          matTooltip="Delete Collateral"
+          title="Delete Collateral"
           (click)="onDeleteCollateral(collateral)"
         >
-          <mat-icon>delete</mat-icon>
-        </button>
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

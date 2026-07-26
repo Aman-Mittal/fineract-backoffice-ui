@@ -18,36 +18,50 @@
  */
 import { Component, signal, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { InterOperationService } from '../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-interop-health',
   standalone: true,
-  imports: [JsonPipe, MatCardModule, MatButtonModule, MatProgressSpinnerModule, TranslateModule],
+  imports: [
+    JsonPipe,
+    TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+  ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'INTEROP.HEALTH_TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <button mat-raised-button color="primary" (click)="checkHealth()" [disabled]="isLoading">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'INTEROP.HEALTH_TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button color="primary" (click)="checkHealth()" [disabled]="isLoading">
           {{ 'INTEROP.CHECK_HEALTH' | translate }}
-        </button>
+        </ion-button>
 
         @if (isLoading) {
-          <mat-spinner diameter="40" style="margin-top: 16px;"></mat-spinner>
+          <ion-spinner name="crescent"></ion-spinner>
         }
 
         @if (health()) {
           <h3>{{ 'INTEROP.HEALTH_STATUS' | translate }}</h3>
           <pre>{{ health() | json }}</pre>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

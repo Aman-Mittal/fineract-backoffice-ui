@@ -21,13 +21,18 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   SpmSurveysService,
   SurveyData,
@@ -45,90 +50,85 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-    MatDividerModule,
+    CdkTableModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('SPM_SURVEYS.EDIT' | translate) : ('SPM_SURVEYS.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #surveyForm="ngForm" (ngSubmit)="onSubmit()" class="spm-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SPM_SURVEYS.KEY' | translate }}</mat-label>
-              <input matInput name="key" [(ngModel)]="survey.key" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SPM_SURVEYS.KEY' | translate }}</ion-label>
+              <ion-input name="key" [(ngModel)]="survey.key" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SPM_SURVEYS.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="survey.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SPM_SURVEYS.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="survey.name" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SPM_SURVEYS.COUNTRY_CODE' | translate }}</mat-label>
-              <input matInput name="countryCode" [(ngModel)]="survey.countryCode" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SPM_SURVEYS.COUNTRY_CODE' | translate }}</ion-label>
+              <ion-input name="countryCode" [(ngModel)]="survey.countryCode"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'SPM_SURVEYS.DESCRIPTION' | translate }}</mat-label>
-              <input matInput name="description" [(ngModel)]="survey.description" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'SPM_SURVEYS.DESCRIPTION' | translate }}</ion-label>
+              <ion-input name="description" [(ngModel)]="survey.description"></ion-input>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="surveyForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="surveyForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
 
           @if (isEditMode && surveyId) {
-            <mat-divider style="margin: 24px 0"></mat-divider>
+            <hr class="divider" />
             <h3>{{ 'SPM.LOOKUP_TABLES' | translate }}</h3>
             @if (lookupTables().length === 0) {
               <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
             } @else {
-              <table mat-table [dataSource]="lookupTables()" class="full-width-table">
-                <ng-container matColumnDef="key">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'SPM.LOOKUP_KEY' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.key }}</td>
+              <table cdk-table [dataSource]="lookupTables()" class="full-width-table">
+                <ng-container cdkColumnDef="key">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'SPM.LOOKUP_KEY' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.key }}</td>
                 </ng-container>
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DESCRIPTION' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                <ng-container cdkColumnDef="description">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="lookupTableColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: lookupTableColumns"></tr>
+                <tr cdk-header-row *cdkHeaderRowDef="lookupTableColumns"></tr>
+                <tr cdk-row *cdkRowDef="let row; columns: lookupTableColumns"></tr>
               </table>
             }
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

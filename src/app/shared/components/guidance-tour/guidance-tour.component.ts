@@ -20,15 +20,28 @@
 import { Component, inject, effect, Renderer2, ViewEncapsulation } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 import { GuidanceService } from '../../../core/services/guidance.service';
 
 @Component({
   selector: 'app-guidance-tour',
   standalone: true,
-  imports: [TranslateModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [
+    TranslateModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonButton,
+    IonIcon,
+  ],
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class.active]': 'guidanceService.isPlaying()',
@@ -36,39 +49,39 @@ import { GuidanceService } from '../../../core/services/guidance.service';
   template: `
     @if (guidanceService.isPlaying() && guidanceService.currentStep()) {
       <div class="guidance-overlay">
-        <mat-card class="guidance-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>help_outline</mat-icon>
+        <ion-card class="guidance-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="help-circle-outline"></ion-icon>
               {{ guidanceService.currentStep()?.titleKey | translate }}
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
             <p>{{ guidanceService.currentStep()?.descriptionKey | translate }}</p>
             <div class="progress-info">
               Step {{ guidanceService.currentStepIndex() + 1 }} of
               {{ guidanceService.activeSteps().length }}
             </div>
-          </mat-card-content>
-          <mat-card-actions class="guidance-actions">
-            <button mat-button (click)="onExit()">Exit</button>
+          </ion-card-content>
+          <div class="guidance-actions">
+            <ion-button fill="clear" color="medium" (click)="onExit()">Exit</ion-button>
             <span class="guidance-spacer"></span>
-            <button
-              mat-button
+            <ion-button
+              fill="clear"
               [disabled]="guidanceService.currentStepIndex() === 0"
               (click)="onBack()"
             >
               Back
-            </button>
-            <button mat-raised-button color="primary" (click)="onNext()">
+            </ion-button>
+            <ion-button color="primary" (click)="onNext()">
               {{
                 guidanceService.currentStepIndex() === guidanceService.activeSteps().length - 1
                   ? 'Finish'
                   : 'Next'
               }}
-            </button>
-          </mat-card-actions>
-        </mat-card>
+            </ion-button>
+          </div>
+        </ion-card>
       </div>
     }
   `,
@@ -90,22 +103,22 @@ import { GuidanceService } from '../../../core/services/guidance.service';
         animation: guidanceSlideUp 0.3s ease-out;
       }
       .guidance-card {
-        border-left: 5px solid #3f51b5;
+        border-left: 4px solid var(--primary-color);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-        background: #fff !important;
+        background: var(--card-bg);
       }
-      .guidance-card mat-card-title {
+      .guidance-card ion-card-title {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 16px;
         font-weight: 600;
-        color: #2c3e50;
+        color: var(--secondary-color);
       }
       .guidance-card p {
         margin: 12px 0;
         font-size: 14px;
-        color: #5f6368;
+        color: var(--text-muted);
         line-height: 1.5;
       }
       .progress-info {

@@ -20,9 +20,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataTableComponent,
   ColumnDef,
@@ -30,6 +27,8 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { DocumentsService, DocumentData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-client-documents-list',
@@ -37,24 +36,23 @@ import { DocumentsService, DocumentData } from '../../../api';
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <div class="tab-actions">
-      <button
-        mat-raised-button
+      <ion-button
         color="primary"
         [routerLink]="['/clients', clientId, 'documents', 'create']"
         *appHasPermission="'CREATE_DOCUMENT'"
       >
-        <mat-icon>upload</mat-icon>
+        <ion-icon name="cloud-upload-outline"></ion-icon>
         {{ 'CLIENTS.ADD_DOCUMENT' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     <app-data-table
@@ -65,24 +63,24 @@ import { DocumentsService, DocumentData } from '../../../api';
     >
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             (click)="onDownload(row.id)"
             *appHasPermission="'READ_DOCUMENT'"
-            [matTooltip]="'COMMON.DOWNLOAD' | translate"
+            [appTooltip]="'COMMON.DOWNLOAD' | translate"
           >
-            <mat-icon>download</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            color="warn"
+            <ion-icon name="download-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="clear"
+            color="danger"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_DOCUMENT'"
-            [matTooltip]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
           >
-            <mat-icon>delete</mat-icon>
-          </button>
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

@@ -203,7 +203,8 @@
     "MAKER": "생성자",
     "ACTION": "동작",
     "ENTITY": "엔티티",
-    "DATE": "날짜"
+    "DATE": "날짜",
+    "SELECT_PAGE": "페이지 선택"
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "새 계좌",

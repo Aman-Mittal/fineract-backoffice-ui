@@ -75,7 +75,7 @@ describe('MeetingFormComponent', () => {
     serviceSpy.postEntityTypeEntityIdMeetings.and.returnValue(
       of({}) as unknown as ReturnType<MeetingsService['postEntityTypeEntityIdMeetings']>,
     );
-    component.meetingDate = new Date(2026, 0, 15);
+    component.meetingDate = '2026-01-15';
     component.calendarId = 7;
     component.onSubmit();
     expect(serviceSpy.postEntityTypeEntityIdMeetings).toHaveBeenCalled();

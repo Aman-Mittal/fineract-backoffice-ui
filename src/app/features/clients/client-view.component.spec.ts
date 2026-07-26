@@ -35,6 +35,7 @@ import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
+import { provideIonicTesting } from '../../testing/ionic-testing';
 
 describe('ClientViewComponent', () => {
   let component: ClientViewComponent;
@@ -86,6 +87,7 @@ describe('ClientViewComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ClientViewComponent, TranslateModule.forRoot()],
       providers: [
+        provideIonicTesting(),
         provideNoopAnimations(),
         { provide: ClientService, useValue: clientServiceSpy },
         { provide: NotesService, useValue: notesServiceSpy },

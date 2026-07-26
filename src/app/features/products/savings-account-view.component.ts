@@ -19,14 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
@@ -35,6 +28,20 @@ import {
   SavingsAccountChargeData,
 } from '../../api';
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
+import { NotificationService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
+} from '@ionic/angular/standalone';
 import {
   resolveAccountActionType,
   resolveAccountRoutePrefix,
@@ -46,27 +53,31 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-    MatTooltipModule,
-    MatSnackBarModule,
+    CdkTableModule,
     StatusBadgeComponent,
     HasPermissionDirective,
     DecimalPipe,
     NgClass,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    TooltipDirective,
   ],
   template: `
     @if (account()) {
       <div class="view-container">
         <!-- Header Actions Card -->
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div class="savings-title-area">
               <div class="avatar-circle">
-                <mat-icon>account_balance_wallet</mat-icon>
+                <ion-icon name="wallet-outline"></ion-icon>
               </div>
               <div class="title-details">
                 <h2>{{ account()?.savingsProductName }}</h2>
@@ -83,245 +94,242 @@ import {
             </div>
             <div class="actions-area">
               @if (account()?.status?.submittedAndPendingApproval) {
-                <button
-                  mat-raised-button
-                  color="accent"
+                <ion-button
+                  color="secondary"
                   *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('approve')"
-                  [matTooltip]="'SAVINGS.APPROVE' | translate"
+                  [appTooltip]="'SAVINGS.APPROVE' | translate"
                 >
-                  <mat-icon>check_circle</mat-icon>
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
                   Approve
-                </button>
+                </ion-button>
               }
               @if (account()?.status?.approved) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="primary"
                   *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('activate')"
-                  [matTooltip]="'SAVINGS.ACTIVATE' | translate"
+                  [appTooltip]="'SAVINGS.ACTIVATE' | translate"
                 >
-                  <mat-icon>play_circle_outline</mat-icon>
+                  <ion-icon name="play-circle-outline"></ion-icon>
                   Activate
-                </button>
+                </ion-button>
               }
               @if (account()?.status?.active) {
-                <button
-                  mat-raised-button
-                  color="warn"
+                <ion-button
+                  color="danger"
                   *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('close')"
-                  [matTooltip]="'SAVINGS.CLOSE' | translate"
+                  [appTooltip]="'SAVINGS.CLOSE' | translate"
                 >
-                  <mat-icon>power_settings_new</mat-icon>
+                  <ion-icon name="power-outline"></ion-icon>
                   Close
-                </button>
+                </ion-button>
               }
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
                 (click)="onTransaction('deposit')"
-                [matTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
+                [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
-                <mat-icon>add_circle_outline</mat-icon>
+                <ion-icon name="add-circle-outline"></ion-icon>
                 Deposit
-              </button>
-              <button
-                mat-raised-button
-                color="warn"
+              </ion-button>
+              <ion-button
+                color="danger"
                 *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
                 (click)="onTransaction('withdrawal')"
-                [matTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
+                [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
               >
-                <mat-icon>remove_circle_outline</mat-icon>
+                <ion-icon name="remove-circle-outline"></ion-icon>
                 Withdraw
-              </button>
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              </ion-button>
+              <ion-button fill="clear" (click)="onBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         <!-- Tabs Section -->
-        <mat-tab-group class="tab-group" animationDuration="0ms">
-          <!-- Overview -->
-          <mat-tab label="Overview">
-            <div class="tab-content">
-              <div class="info-grid">
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>info</mat-icon>
-                      Interest Settings
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">Nominal Annual Interest Rate</span>
-                      <span class="value">{{ account()?.nominalAnnualInterestRate }}%</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Compounding Period</span>
-                      <span class="value">{{
-                        account()?.interestCompoundingPeriodType?.value
-                      }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Posting Period</span>
-                      <span class="value">{{ account()?.interestPostingPeriodType?.value }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Interest Calculation Day-in-Year</span>
-                      <span class="value">{{
-                        account()?.interestCalculationDaysInYearType?.value
-                      }}</span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
+        <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+          <ion-segment-button value="0">
+            <ion-label>Overview</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="1">
+            <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="2">
+            <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
 
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>timeline</mat-icon>
-                      Timeline & Balance
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">Submitted On Date</span>
-                      <span class="value">{{ formattedSubmittedDate }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Activated On Date</span>
-                      <span class="value">{{ formattedActivatedDate }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Field Officer</span>
-                      <span class="value">{{ account()?.fieldOfficerName || '-' }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">Account Balance</span>
-                      <span class="value">
+        @if (activeTab() === '0') {
+          <div class="tab-content">
+            <div class="info-grid">
+              <ion-card class="info-card">
+                <ion-card-header>
+                  <ion-card-title>
+                    <ion-icon name="information-circle-outline"></ion-icon>
+                    Interest Settings
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content class="details-list">
+                  <div class="detail-item">
+                    <span class="label">Nominal Annual Interest Rate</span>
+                    <span class="value">{{ account()?.nominalAnnualInterestRate }}%</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Compounding Period</span>
+                    <span class="value">{{ account()?.interestCompoundingPeriodType?.value }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Posting Period</span>
+                    <span class="value">{{ account()?.interestPostingPeriodType?.value }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Interest Calculation Day-in-Year</span>
+                    <span class="value">{{
+                      account()?.interestCalculationDaysInYearType?.value
+                    }}</span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+
+              <ion-card class="info-card">
+                <ion-card-header>
+                  <ion-card-title>
+                    <ion-icon name="pulse-outline"></ion-icon>
+                    Timeline & Balance
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content class="details-list">
+                  <div class="detail-item">
+                    <span class="label">Submitted On Date</span>
+                    <span class="value">{{ formattedSubmittedDate }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Activated On Date</span>
+                    <span class="value">{{ formattedActivatedDate }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Field Officer</span>
+                    <span class="value">{{ account()?.fieldOfficerName || '-' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Account Balance</span>
+                    <span class="value">
+                      {{ account()?.currency?.displaySymbol }}
+                      {{ account()?.summary?.accountBalance || 0 | number: '1.2-2' }}
+                    </span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </div>
+        }
+        @if (activeTab() === '1') {
+          <div class="tab-content">
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if (transactions().length > 0) {
+                  <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                    <ng-container cdkColumnDef="id">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="date">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ formatDate(tx.date) }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="type">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">
+                        <span
+                          [ngClass]="{
+                            'debit-amount': tx.debit && !tx.reversed,
+                            'credit-amount': tx.credit && !tx.reversed,
+                            'reversed-amount': tx.reversed,
+                          }"
+                        >
+                          {{ tx.debit ? '-' : tx.credit ? '+' : '' }}
+                          {{ account()?.currency?.displaySymbol }}{{ tx.amount | number: '1.2-2' }}
+                        </span>
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="runningBalance">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.RUNNING_BALANCE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let tx">
                         {{ account()?.currency?.displaySymbol }}
-                        {{ account()?.summary?.accountBalance || 0 | number: '1.2-2' }}
-                      </span>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              </div>
-            </div>
-          </mat-tab>
+                        {{ tx.runningBalance || 0 | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
 
-          <!-- Transactions -->
-          <mat-tab [label]="'COMMON.TRANSACTIONS' | translate">
-            <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
-                  @if (transactions().length > 0) {
-                    <table mat-table [dataSource]="transactions()" class="full-width-table">
-                      <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
-                      </ng-container>
+                    <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: transactionColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state">
+                    <ion-icon name="receipt-outline"></ion-icon>
+                    <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === '2') {
+          <div class="tab-content">
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if (charges().length > 0) {
+                  <table cdk-table [dataSource]="charges()" class="full-width-table">
+                    <ng-container cdkColumnDef="name">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
+                    </ng-container>
 
-                      <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ formatDate(tx.date) }}</td>
-                      </ng-container>
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ account()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
 
-                      <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.transactionType?.value }}</td>
-                      </ng-container>
+                    <ng-container cdkColumnDef="outstanding">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ account()?.currency?.displaySymbol }}
+                        {{ c.amountOutstanding | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
 
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">
-                          <span
-                            [ngClass]="{
-                              'debit-amount': tx.debit && !tx.reversed,
-                              'credit-amount': tx.credit && !tx.reversed,
-                              'reversed-amount': tx.reversed,
-                            }"
-                          >
-                            {{ tx.debit ? '-' : tx.credit ? '+' : '' }}
-                            {{ account()?.currency?.displaySymbol
-                            }}{{ tx.amount | number: '1.2-2' }}
-                          </span>
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="runningBalance">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'COMMON.RUNNING_BALANCE' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let tx">
-                          {{ account()?.currency?.displaySymbol }}
-                          {{ tx.runningBalance || 0 | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>receipt</mat-icon>
-                      <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-
-          <!-- Charges -->
-          <mat-tab [label]="'LOANS.CHARGES' | translate">
-            <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
-                  @if (charges().length > 0) {
-                    <table mat-table [dataSource]="charges()" class="full-width-table">
-                      <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">
-                          {{ account()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>
-                          {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
-                        </th>
-                        <td mat-cell *matCellDef="let c">
-                          {{ account()?.currency?.displaySymbol }}
-                          {{ c.amountOutstanding | number: '1.2-2' }}
-                        </td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="chargeColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: chargeColumns"></tr>
-                    </table>
-                  } @else {
-                    <div class="empty-state">
-                      <mat-icon>monetization_on</mat-icon>
-                      <p>{{ 'SAVINGS.NO_CHARGES' | translate }}</p>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+                    <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state">
+                    <ion-icon name="cash-outline"></ion-icon>
+                    <p>{{ 'SAVINGS.NO_CHARGES' | translate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
       </div>
     }
   `,
@@ -477,10 +485,12 @@ import {
   ],
 })
 export class SavingsAccountViewComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly savingsService = inject(SavingsAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   accountId = 0;
   account = signal<SavingsAccountData | null>(null);
@@ -532,8 +542,7 @@ export class SavingsAccountViewComponent implements OnInit {
           this.transactions.set(data.transactions || []);
           this.charges.set(data.charges || []);
         },
-        error: () =>
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+        error: () => this.notifications.error('Operation failed. Please try again.'),
       });
   }
 

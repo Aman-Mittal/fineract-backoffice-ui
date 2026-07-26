@@ -20,10 +20,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
+import { IonButton, IonBadge, IonIcon } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -37,10 +34,9 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatChipsModule,
+    IonButton,
+    IonBadge,
+    IonIcon,
     DataTableComponent,
     CellTemplateDirective,
   ],
@@ -58,32 +54,28 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
     >
       <ng-template appCellTemplate="loanScheduleType" let-product>
         @if (getLoanScheduleType(product); as scheduleType) {
-          <mat-chip-set>
-            <mat-chip [color]="scheduleType === 'PROGRESSIVE' ? 'accent' : 'primary'" highlighted>
-              {{ getLoanScheduleTypeLabel(product) }}
-            </mat-chip>
-          </mat-chip-set>
+          <ion-badge [color]="scheduleType === 'PROGRESSIVE' ? 'tertiary' : 'primary'">
+            {{ getLoanScheduleTypeLabel(product) }}
+          </ion-badge>
         }
       </ng-template>
       <ng-template appCellTemplate="actions" let-product>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.VIEW' | translate"
-          [matTooltip]="'COMMON.VIEW' | translate"
           (click)="onViewProduct(product)"
         >
-          <mat-icon>visibility</mat-icon>
-        </button>
-        <button
-          mat-icon-button
+          <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [matTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditProduct(product)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

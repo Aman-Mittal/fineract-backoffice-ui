@@ -19,15 +19,19 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../../api';
+import { NotificationService } from '../../../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-wc-loan-cob-catchup',
@@ -35,26 +39,27 @@ import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'WC_LOAN_COB_CATCHUP.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'WC_LOAN_COB_CATCHUP.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <!-- Check Status Section -->
         <section class="section">
-          <button mat-raised-button color="primary" (click)="checkStatus()">
+          <ion-button color="primary" (click)="checkStatus()">
             {{ 'WC_LOAN_COB_CATCHUP.CHECK_STATUS' | translate }}
-          </button>
+          </ion-button>
           @if (isRunning() !== null) {
             <p class="result-text">
               {{ 'WC_LOAN_COB_CATCHUP.IS_RUNNING' | translate }}: {{ isRunning() | json }}
@@ -62,18 +67,20 @@ import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '
           }
         </section>
 
-        <mat-divider />
+        <hr class="divider" />
 
         <!-- Get Oldest COB Date Section -->
         <section class="section">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="loanId" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate
+            }}</ion-label>
+            <ion-input type="number" [(ngModel)]="loanId"></ion-input>
+          </ion-item>
 
-          <button mat-raised-button color="accent" [disabled]="!loanId" (click)="getOldestDate()">
+          <ion-button color="secondary" [disabled]="!loanId" (click)="getOldestDate()">
             {{ 'WC_LOAN_COB_CATCHUP.GET_OLDEST_DATE' | translate }}
-          </button>
+          </ion-button>
 
           @if (oldestDate() !== null) {
             <p class="result-text">
@@ -82,21 +89,23 @@ import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '
           }
         </section>
 
-        <mat-divider />
+        <hr class="divider" />
 
         <!-- Run COB Catch-Up Section -->
         <section class="section">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="catchupLoanId" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate
+            }}</ion-label>
+            <ion-input type="number" [(ngModel)]="catchupLoanId"></ion-input>
+          </ion-item>
 
-          <button mat-raised-button color="warn" [disabled]="!catchupLoanId" (click)="runCatchup()">
+          <ion-button color="danger" [disabled]="!catchupLoanId" (click)="runCatchup()">
             {{ 'WC_LOAN_COB_CATCHUP.RUN_CATCHUP' | translate }}
-          </button>
+          </ion-button>
         </section>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -113,7 +122,7 @@ import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '
         color: rgba(0, 0, 0, 0.6);
         word-break: break-all;
       }
-      mat-divider {
+      hr.divider {
         margin: 8px 0;
       }
     `,
@@ -121,7 +130,7 @@ import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '
 })
 export class WcLoanCobCatchupComponent {
   private cobCatchupService = inject(WorkingCapitalLoanCOBCatchUpService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   isRunning = signal<boolean | null>(null);
@@ -146,17 +155,13 @@ export class WcLoanCobCatchupComponent {
   runCatchup(): void {
     this.cobCatchupService.postWorkingCapitalLoansCatchUp().subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('WC_LOAN_COB_CATCHUP.SUCCESS'), undefined, {
-          duration: 3000,
-        });
+        this.notifications.success(this.translate.instant('WC_LOAN_COB_CATCHUP.SUCCESS'));
       },
       error: () => this.showError(),
     });
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('WC_LOAN_COB_CATCHUP.ERROR'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.error(this.translate.instant('WC_LOAN_COB_CATCHUP.ERROR'));
   }
 }

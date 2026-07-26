@@ -21,14 +21,21 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { RateService, RateRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Create / edit form for an interest rate (name + percentage + active flag).
@@ -39,77 +46,77 @@ import { RateService, RateRequest } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('RATES.EDIT' | translate) : ('RATES.CREATE' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #rateForm="ngForm" (ngSubmit)="onSubmit()" class="rate-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'RATES.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="rate.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'RATES.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="rate.name" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'RATES.PERCENTAGE' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'RATES.PERCENTAGE' | translate }}</ion-label>
+              <ion-input
                 type="number"
                 name="percentage"
                 [(ngModel)]="rate.percentage"
                 required
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'RATES.PRODUCT_APPLY' | translate }}</mat-label>
-              <mat-select name="productApply" [(ngModel)]="rate.productApply">
-                <mat-option [value]="1">{{ 'RATES.PRODUCT_APPLY_LOAN' | translate }}</mat-option>
-                <mat-option [value]="2">{{ 'RATES.PRODUCT_APPLY_SAVINGS' | translate }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'RATES.PRODUCT_APPLY' | translate }}</ion-label>
+              <ion-select interface="popover" name="productApply" [(ngModel)]="rate.productApply">
+                <ion-select-option [value]="1">{{
+                  'RATES.PRODUCT_APPLY_LOAN' | translate
+                }}</ion-select-option>
+                <ion-select-option [value]="2">{{
+                  'RATES.PRODUCT_APPLY_SAVINGS' | translate
+                }}</ion-select-option>
+              </ion-select>
+            </ion-item>
 
-            <mat-checkbox name="active" [(ngModel)]="rate.active">
+            <ion-checkbox name="active" [(ngModel)]="rate.active">
               {{ 'COMMON.ACTIVE' | translate }}
-            </mat-checkbox>
+            </ion-checkbox>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="rateForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="rateForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

@@ -19,22 +19,29 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   InterOperationService,
   InteropTransferRequestData,
   InteropTransferResponseData,
 } from '../../api';
 
-const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
@@ -43,112 +50,115 @@ const ERROR_OCCURRED = 'Error occurred';
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonSegment,
+    IonSegmentButton,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'INTEROP.TRANSFER_TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-tab-group>
-          <!-- Tab 1: Get Transfer -->
-          <mat-tab [label]="'INTEROP.LOAD_TRANSFER' | translate">
-            <div class="tab-content">
-              <mat-form-field>
-                <mat-label>{{ 'INTEROP.TRANSACTION_CODE' | translate }}</mat-label>
-                <input matInput [(ngModel)]="transactionCode" />
-              </mat-form-field>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'INTEROP.TRANSFER_TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+          <ion-segment-button value="0">
+            <ion-label>{{ 'INTEROP.LOAD_TRANSFER' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="1">
+            <ion-label>{{ 'INTEROP.CREATE_TRANSFER' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="2">
+            <ion-label>Disburse / Repay</ion-label>
+          </ion-segment-button>
+        </ion-segment>
 
-              <mat-form-field>
-                <mat-label>{{ 'INTEROP.TRANSFER_CODE' | translate }}</mat-label>
-                <input matInput [(ngModel)]="transferCode" />
-              </mat-form-field>
+        @if (activeTab() === '0') {
+          <div class="tab-content">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.TRANSACTION_CODE' | translate }}</ion-label>
+              <ion-input [(ngModel)]="transactionCode"></ion-input>
+            </ion-item>
 
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="loadTransfer()"
-                [disabled]="!transactionCode || !transferCode"
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.TRANSFER_CODE' | translate }}</ion-label>
+              <ion-input [(ngModel)]="transferCode"></ion-input>
+            </ion-item>
+
+            <ion-button
+              color="primary"
+              (click)="loadTransfer()"
+              [disabled]="!transactionCode || !transferCode"
+            >
+              {{ 'INTEROP.LOAD_TRANSFER' | translate }}
+            </ion-button>
+
+            @if (result()) {
+              <pre>{{ result() | json }}</pre>
+            }
+          </div>
+        }
+        @if (activeTab() === '1') {
+          <div class="tab-content">
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'INTEROP.TRANSFER_BODY' | translate }}</ion-label>
+              <ion-textarea rows="10" [(ngModel)]="transferBodyJson"></ion-textarea>
+            </ion-item>
+
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.ACTION' | translate }}</ion-label>
+              <ion-select interface="popover" [(ngModel)]="transferAction">
+                <ion-select-option value="prepare">prepare</ion-select-option>
+                <ion-select-option value="create">create</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-button color="secondary" (click)="createTransfer()">
+              {{ 'INTEROP.CREATE_TRANSFER' | translate }}
+            </ion-button>
+
+            @if (result()) {
+              <pre>{{ result() | json }}</pre>
+            }
+          </div>
+        }
+        @if (activeTab() === '2') {
+          <div class="tab-content">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.ACCOUNT_ID' | translate }}</ion-label>
+              <ion-input [(ngModel)]="disburseAccountId"></ion-input>
+            </ion-item>
+
+            <div class="button-row">
+              <ion-button color="primary" (click)="disburse()" [disabled]="!disburseAccountId">
+                {{ 'INTEROP.DISBURSE' | translate }}
+              </ion-button>
+              <ion-button
+                color="secondary"
+                (click)="loanRepayment()"
+                [disabled]="!disburseAccountId"
               >
-                {{ 'INTEROP.LOAD_TRANSFER' | translate }}
-              </button>
-
-              @if (result()) {
-                <pre>{{ result() | json }}</pre>
-              }
+                {{ 'INTEROP.LOAN_REPAYMENT' | translate }}
+              </ion-button>
             </div>
-          </mat-tab>
 
-          <!-- Tab 2: Create Transfer -->
-          <mat-tab [label]="'INTEROP.CREATE_TRANSFER' | translate">
-            <div class="tab-content">
-              <mat-form-field class="full-width">
-                <mat-label>{{ 'INTEROP.TRANSFER_BODY' | translate }}</mat-label>
-                <textarea matInput rows="10" [(ngModel)]="transferBodyJson"></textarea>
-              </mat-form-field>
-
-              <mat-form-field>
-                <mat-label>{{ 'INTEROP.ACTION' | translate }}</mat-label>
-                <mat-select [(ngModel)]="transferAction">
-                  <mat-option value="prepare">prepare</mat-option>
-                  <mat-option value="create">create</mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <button mat-raised-button color="accent" (click)="createTransfer()">
-                {{ 'INTEROP.CREATE_TRANSFER' | translate }}
-              </button>
-
-              @if (result()) {
-                <pre>{{ result() | json }}</pre>
-              }
-            </div>
-          </mat-tab>
-
-          <!-- Tab 3: Disburse / Repay -->
-          <mat-tab label="Disburse / Repay">
-            <div class="tab-content">
-              <mat-form-field>
-                <mat-label>{{ 'INTEROP.ACCOUNT_ID' | translate }}</mat-label>
-                <input matInput [(ngModel)]="disburseAccountId" />
-              </mat-form-field>
-
-              <div class="button-row">
-                <button
-                  mat-raised-button
-                  color="primary"
-                  (click)="disburse()"
-                  [disabled]="!disburseAccountId"
-                >
-                  {{ 'INTEROP.DISBURSE' | translate }}
-                </button>
-                <button
-                  mat-raised-button
-                  color="accent"
-                  (click)="loanRepayment()"
-                  [disabled]="!disburseAccountId"
-                >
-                  {{ 'INTEROP.LOAN_REPAYMENT' | translate }}
-                </button>
-              </div>
-
-              @if (result()) {
-                <pre>{{ result() | json }}</pre>
-              }
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </mat-card-content>
-    </mat-card>
+            @if (result()) {
+              <pre>{{ result() | json }}</pre>
+            }
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -158,7 +168,7 @@ const ERROR_OCCURRED = 'Error occurred';
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 300px;
       }
       .full-width {
@@ -178,8 +188,10 @@ const ERROR_OCCURRED = 'Error occurred';
   ],
 })
 export class InteropTransfersComponent {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private interopService = inject(InterOperationService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   result = signal<InteropTransferResponseData | string | null>(null);
 
@@ -201,7 +213,7 @@ export class InteropTransfersComponent {
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
-          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+          this.notifications.error(err.message || ERROR_OCCURRED),
       });
   }
 
@@ -211,13 +223,12 @@ export class InteropTransfersComponent {
     try {
       body = JSON.parse(this.transferBodyJson) as InteropTransferRequestData;
     } catch {
-      this.snackBar.open('Invalid JSON', CLOSE_LABEL, { duration: 4000 });
+      this.notifications.error('Invalid JSON');
       return;
     }
     this.interopService.postInteroperationTransfers(body, this.transferAction).subscribe({
       next: (data) => this.result.set(data),
-      error: (err: { message?: string }) =>
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+      error: (err: { message?: string }) => this.notifications.error(err.message || ERROR_OCCURRED),
     });
   }
 
@@ -228,7 +239,7 @@ export class InteropTransfersComponent {
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
-          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+          this.notifications.error(err.message || ERROR_OCCURRED),
       });
   }
 
@@ -239,7 +250,7 @@ export class InteropTransfersComponent {
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
-          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+          this.notifications.error(err.message || ERROR_OCCURRED),
       });
   }
 }

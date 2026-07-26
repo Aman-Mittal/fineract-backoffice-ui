@@ -21,13 +21,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonTextarea,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonSpinner,
+  IonGrid,
+  IonRow,
+  IonCol,
+} from '@ionic/angular/standalone';
 import { ProductsService, PostProductsTypeRequest } from '../../../api';
 
 const DEFAULT_CURRENCY = 'USD';
@@ -41,123 +51,183 @@ const PRODUCT_TYPE = 'share';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonTextarea,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonSpinner,
+    IonGrid,
+    IonRow,
+    IonCol,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('PRODUCTS.EDIT_SHARE_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_SHARE_PRODUCT' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="product-form">
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="product.name" required />
-              </mat-form-field>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                    <ion-input
+                      id="share-product-name"
+                      data-testid="share-product-name"
+                      name="name"
+                      [(ngModel)]="product.name"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.SHORT_NAME' | translate }}</mat-label>
-                <input
-                  matInput
-                  name="shortName"
-                  [(ngModel)]="product.shortName"
-                  required
-                  maxlength="4"
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.SHORT_NAME' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="share-product-short-name"
+                      data-testid="share-product-short-name"
+                      name="shortName"
+                      [(ngModel)]="product.shortName"
+                      required
+                      maxlength="4"
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
-                  name="description"
-                  [(ngModel)]="product.description"
-                  rows="2"
-                ></textarea>
-              </mat-form-field>
+                <ion-col size="12">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.DESCRIPTION' | translate
+                    }}</ion-label>
+                    <ion-textarea
+                      id="share-product-description"
+                      data-testid="share-product-description"
+                      name="description"
+                      [(ngModel)]="product.description"
+                      rows="2"
+                    ></ion-textarea>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.CURRENCY' | translate }}</mat-label>
-                <mat-select name="currencyCode" [(ngModel)]="product.currencyCode" required>
-                  <mat-option [value]="DEFAULT_CURRENCY">{{ DEFAULT_CURRENCY }}</mat-option>
-                  <mat-option value="EUR">EUR</mat-option>
-                  <mat-option value="INR">INR</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
+                    <ion-select
+                      interface="popover"
+                      id="share-product-currency-code"
+                      data-testid="share-product-currency-code"
+                      name="currencyCode"
+                      [(ngModel)]="product.currencyCode"
+                      required
+                    >
+                      <ion-select-option [value]="DEFAULT_CURRENCY">{{
+                        DEFAULT_CURRENCY
+                      }}</ion-select-option>
+                      <ion-select-option value="EUR">EUR</ion-select-option>
+                      <ion-select-option value="INR">INR</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.TOTAL_SHARES' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="totalShares"
-                  [(ngModel)]="product.totalShares"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.TOTAL_SHARES' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="share-product-total-shares"
+                      data-testid="share-product-total-shares"
+                      type="number"
+                      name="totalShares"
+                      [(ngModel)]="product.totalShares"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.UNIT_PRICE' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="unitPrice"
-                  [(ngModel)]="product.unitPrice"
-                  required
-                />
-              </mat-form-field>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.UNIT_PRICE' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="share-product-unit-price"
+                      data-testid="share-product-unit-price"
+                      type="number"
+                      name="unitPrice"
+                      [(ngModel)]="product.unitPrice"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.NOMINAL_SHARES' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  name="nominalShares"
-                  [(ngModel)]="product.nominalShares"
-                  required
-                />
-              </mat-form-field>
-            </div>
+                <ion-col size="12" size-md="6">
+                  <ion-item fill="outline" class="form-item">
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.NOMINAL_SHARES' | translate
+                    }}</ion-label>
+                    <ion-input
+                      id="share-product-nominal-shares"
+                      data-testid="share-product-nominal-shares"
+                      type="number"
+                      name="nominalShares"
+                      [(ngModel)]="product.nominalShares"
+                      required
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                id="share-product-cancel-btn"
+                data-testid="share-product-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
+                id="share-product-submit-btn"
+                data-testid="share-product-submit-btn"
                 color="primary"
                 type="submit"
                 [disabled]="productForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -172,10 +242,14 @@ const PRODUCT_TYPE = 'share';
         flex-direction: column;
         gap: 16px;
       }
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+      .form-item {
+        margin-bottom: 12px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 16px;
       }
     `,
   ],

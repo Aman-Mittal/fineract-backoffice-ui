@@ -20,15 +20,21 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../../shared';
 import { LikelihoodService } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface LikelihoodRow {
   id?: number;
@@ -49,93 +55,91 @@ interface LikelihoodRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatTableModule,
-    MatProgressSpinnerModule,
+    CdkTableModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
     <div class="lk-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'LIKELIHOOD.TITLE' | translate }}
             <app-help-icon helpTextKey="HELP.LIKELIHOOD_DESC"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <form #lkForm="ngForm" (ngSubmit)="load()" class="lk-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'LIKELIHOOD.PPI_NAME' | translate }}</mat-label>
-              <input matInput name="ppiName" [(ngModel)]="ppiName" required />
-            </mat-form-field>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="lkForm.invalid || isLoading"
-            >
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'LIKELIHOOD.PPI_NAME' | translate }}</ion-label>
+              <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
+            </ion-item>
+            <ion-button color="primary" type="submit" [disabled]="lkForm.invalid || isLoading">
               {{ 'LIKELIHOOD.LOAD' | translate }}
-            </button>
+            </ion-button>
           </form>
 
           @if (isLoading) {
-            <mat-spinner diameter="32"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
-            <table mat-table [dataSource]="rows" class="lk-table">
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{ 'LIKELIHOOD.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+            <table cdk-table [dataSource]="rows" class="lk-table">
+              <ng-container cdkColumnDef="name">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'LIKELIHOOD.NAME' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
               </ng-container>
-              <ng-container matColumnDef="likelihood">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="likelihood">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'LIKELIHOOD.LIKELIHOOD' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">
-                  <mat-form-field appearance="outline" class="lk-inline">
-                    <input
-                      matInput
+                <td cdk-cell *cdkCellDef="let row">
+                  <ion-item fill="outline" class="lk-inline">
+                    <ion-input
                       type="number"
                       [name]="'likelihood-' + row.id"
                       [(ngModel)]="row.likelihood"
-                    />
-                  </mat-form-field>
+                    ></ion-input>
+                  </ion-item>
                 </td>
               </ng-container>
-              <ng-container matColumnDef="enabled">
-                <th mat-header-cell *matHeaderCellDef>{{ 'LIKELIHOOD.ENABLED' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <mat-checkbox
+              <ng-container cdkColumnDef="enabled">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'LIKELIHOOD.ENABLED' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
+                  <ion-checkbox
                     [ngModel]="row.enabled === 100"
                     [name]="'enabled-' + row.id"
                     (ngModelChange)="row.enabled = $event ? 100 : 0"
-                  ></mat-checkbox>
+                  ></ion-checkbox>
                 </td>
               </ng-container>
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <button
-                    mat-button
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
+                  <ion-button
+                    fill="clear"
                     color="primary"
                     type="button"
                     [disabled]="isSaving"
                     (click)="onSave(row)"
                   >
                     {{ 'COMMON.SAVE' | translate }}
-                  </button>
+                  </ion-button>
                 </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="columns"></tr>
-              <tr mat-row *matRowDef="let row; columns: columns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

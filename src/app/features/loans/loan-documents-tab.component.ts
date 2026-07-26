@@ -21,15 +21,11 @@ import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
 import { DocumentsService, DocumentData, BASE_PATH } from '../../api';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
+import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 // Loan-level documents are the evidentiary record for underwriting/servicing
 // decisions (signed application, ID proof, collateral photos) — staff need
@@ -41,40 +37,36 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
   imports: [
     FormsModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTableModule,
-    MatTooltipModule,
+    CdkTableModule,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    TooltipDirective,
   ],
   template: `
     <div class="upload-row">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-        <input matInput [(ngModel)]="newDocName" name="docName" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="description-input">
-        <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
-        <input matInput [(ngModel)]="newDocDescription" name="docDescription" />
-      </mat-form-field>
-      <button mat-stroked-button type="button" (click)="fileInput.click()">
-        <mat-icon>attach_file</mat-icon>
+      <ion-item fill="outline">
+        <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+        <ion-input [(ngModel)]="newDocName" name="docName"></ion-input>
+      </ion-item>
+      <ion-item fill="outline" class="description-input">
+        <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+        <ion-input [(ngModel)]="newDocDescription" name="docDescription"></ion-input>
+      </ion-item>
+      <ion-button fill="outline" type="button" (click)="fileInput.click()">
+        <ion-icon name="attach-outline"></ion-icon>
         {{ 'LOANS.SELECT_FILE' | translate }}
-      </button>
+      </ion-button>
       <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" />
       <span class="file-name">{{
         selectedFile?.name || ('LOANS.NO_FILE_SELECTED' | translate)
       }}</span>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="!selectedFile || isSaving()"
-        (click)="onUpload()"
-      >
-        <mat-icon>upload</mat-icon>
+      <ion-button color="primary" [disabled]="!selectedFile || isSaving()" (click)="onUpload()">
+        <ion-icon name="cloud-upload-outline"></ion-icon>
         {{ 'LOANS.UPLOAD' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     @if (isLoading()) {
@@ -82,42 +74,42 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
     } @else if (documents().length === 0) {
       <p class="empty-state">{{ 'LOANS.NO_DOCUMENTS' | translate }}</p>
     } @else {
-      <table mat-table [dataSource]="documents()" class="full-width-table">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">{{ doc.name }}</td>
+      <table cdk-table [dataSource]="documents()" class="full-width-table">
+        <ng-container cdkColumnDef="name">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">{{ doc.name }}</td>
         </ng-container>
-        <ng-container matColumnDef="fileName">
-          <th mat-header-cell *matHeaderCellDef>{{ 'LOANS.FILE_NAME' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">{{ doc.fileName }}</td>
+        <ng-container cdkColumnDef="fileName">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'LOANS.FILE_NAME' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">{{ doc.fileName }}</td>
         </ng-container>
-        <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">{{ doc.type }}</td>
+        <ng-container cdkColumnDef="type">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">{{ doc.type }}</td>
         </ng-container>
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">
-            <button
-              mat-icon-button
+        <ng-container cdkColumnDef="actions">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">
+            <ion-button
+              fill="clear"
               color="primary"
               (click)="onDownload(doc.id)"
-              [matTooltip]="'COMMON.DOWNLOAD' | translate"
+              [appTooltip]="'COMMON.DOWNLOAD' | translate"
             >
-              <mat-icon>download</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="warn"
+              <ion-icon name="download-outline"></ion-icon>
+            </ion-button>
+            <ion-button
+              fill="clear"
+              color="danger"
               (click)="onDelete(doc.id)"
-              [matTooltip]="'COMMON.DELETE' | translate"
+              [appTooltip]="'COMMON.DELETE' | translate"
             >
-              <mat-icon>delete</mat-icon>
-            </button>
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </td>
         </ng-container>
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+        <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
       </table>
     }
   `,
@@ -153,7 +145,7 @@ export class LoanDocumentsTabComponent implements OnInit {
   @Input({ required: true }) loanId!: number;
 
   private readonly documentsService = inject(DocumentsService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
   private readonly httpClient = inject(HttpClient);
   private readonly basePath = inject(BASE_PATH);
@@ -244,21 +236,20 @@ export class LoanDocumentsTabComponent implements OnInit {
   }
 
   onDelete(id: number): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    this.dialogService
+      .confirm({
         title: this.translate.instant('COMMON.DELETE'),
         message: this.translate.instant('LOANS.CONFIRM_DELETE_DOCUMENT'),
         destructive: true,
-      },
-    });
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.documentsService
-        .deleteEntityTypeEntityIdDocumentsDocumentId('loans', this.loanId, id)
-        .subscribe({
-          next: () => this.loadDocuments(),
-          error: (err) => console.error('Failed to delete loan document', err),
-        });
-    });
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.documentsService
+          .deleteEntityTypeEntityIdDocumentsDocumentId('loans', this.loanId, id)
+          .subscribe({
+            next: () => this.loadDocuments(),
+            error: (err) => console.error('Failed to delete loan document', err),
+          });
+      });
   }
 }

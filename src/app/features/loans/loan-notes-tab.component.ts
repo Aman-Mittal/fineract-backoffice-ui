@@ -20,14 +20,10 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDialog } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { NotesService, NoteData } from '../../api';
-import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
+import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angular/standalone';
 
 // Notes are treated as an append-only audit trail (who said what, when) —
 // staff can add and remove entries, but existing note text is not editable
@@ -38,27 +34,27 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
   imports: [
     FormsModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     DatePipe,
+    IonIcon,
+    IonButton,
+    IonTextarea,
+    IonItem,
+    IonLabel,
   ],
   template: `
     <div class="add-note-row">
-      <mat-form-field appearance="outline" class="note-input">
-        <mat-label>{{ 'LOANS.ADD_NOTE' | translate }}</mat-label>
-        <textarea matInput rows="2" [(ngModel)]="newNoteText" name="newNote"></textarea>
-      </mat-form-field>
-      <button
-        mat-raised-button
+      <ion-item fill="outline" class="note-input">
+        <ion-label position="stacked">{{ 'LOANS.ADD_NOTE' | translate }}</ion-label>
+        <ion-textarea rows="2" [(ngModel)]="newNoteText" name="newNote"></ion-textarea>
+      </ion-item>
+      <ion-button
         color="primary"
         [disabled]="!newNoteText.trim() || isSaving()"
         (click)="onAddNote()"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'COMMON.SAVE' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     @if (isLoading()) {
@@ -75,14 +71,14 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
               <span>&middot;</span>
               <span>{{ note.createdOn | date: 'medium' }}</span>
             </div>
-            <button
-              mat-icon-button
-              color="warn"
+            <ion-button
+              fill="clear"
+              color="danger"
               class="delete-btn"
               (click)="onDeleteNote(note.id!)"
             >
-              <mat-icon>delete</mat-icon>
-            </button>
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </div>
         }
       </div>
@@ -137,7 +133,7 @@ export class LoanNotesTabComponent implements OnInit {
   @Input({ required: true }) loanId!: number;
 
   private readonly notesService = inject(NotesService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
   notes = signal<NoteData[]>([]);
@@ -181,21 +177,20 @@ export class LoanNotesTabComponent implements OnInit {
   }
 
   onDeleteNote(noteId: number): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
+    this.dialogService
+      .confirm({
         title: this.translate.instant('COMMON.DELETE'),
         message: this.translate.instant('LOANS.CONFIRM_DELETE_NOTE'),
         destructive: true,
-      },
-    });
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.notesService
-        .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId, noteId)
-        .subscribe({
-          next: () => this.loadNotes(),
-          error: (err) => console.error('Failed to delete loan note', err),
-        });
-    });
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.notesService
+          .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId, noteId)
+          .subscribe({
+            next: () => this.loadNotes(),
+            error: (err) => console.error('Failed to delete loan note', err),
+          });
+      });
   }
 }

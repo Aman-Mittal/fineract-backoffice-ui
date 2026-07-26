@@ -20,14 +20,21 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DecimalPipe } from '@angular/common';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
+  IonSegment,
+  IonSegmentButton,
+} from '@ionic/angular/standalone';
+import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -53,22 +60,27 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
-    MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-    MatMenuModule,
-    MatTooltipModule,
+    CdkTableModule,
     DecimalPipe,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCard,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonPopover,
+    IonList,
+    IonItem,
+    TooltipDirective,
   ],
   template: `
     <div class="view-container">
-      <mat-card class="header-card">
-        <mat-card-content class="header-content">
+      <ion-card class="header-card">
+        <ion-card-content class="header-content">
           <div class="loan-title-area">
             <div class="avatar-circle">
-              <mat-icon>account_balance</mat-icon>
+              <ion-icon name="business-outline"></ion-icon>
             </div>
             <div class="title-details">
               <h2>#{{ loan()?.accountNo || loanId }}</h2>
@@ -80,337 +92,342 @@ import {
             </div>
           </div>
           <div class="actions-area">
-            <button mat-button (click)="onBack()">
-              <mat-icon>arrow_back</mat-icon>
+            <ion-button fill="clear" (click)="onBack()">
+              <ion-icon name="arrow-back-outline"></ion-icon>
               {{ 'COMMON.BACK' | translate }}
-            </button>
+            </ion-button>
 
             @if (isLoanActive) {
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 (click)="onRepayment()"
-                [matTooltip]="'WC_LOANS.REPAYMENT' | translate"
+                [appTooltip]="'WC_LOANS.REPAYMENT' | translate"
               >
-                <mat-icon>payments</mat-icon>
+                <ion-icon name="cash-outline"></ion-icon>
                 {{ 'WC_LOANS.REPAYMENT' | translate }}
-              </button>
+              </ion-button>
             }
 
             @if (isLoanPendingApproval) {
-              <button
-                mat-raised-button
-                color="accent"
+              <ion-button
+                color="secondary"
                 (click)="onAction('approve')"
-                [matTooltip]="'WC_LOANS.APPROVE' | translate"
+                [appTooltip]="'WC_LOANS.APPROVE' | translate"
               >
-                <mat-icon>check_circle</mat-icon>
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
                 {{ 'WC_LOANS.APPROVE' | translate }}
-              </button>
+              </ion-button>
             }
 
             @if (isLoanApproved) {
-              <button
-                mat-raised-button
-                color="accent"
+              <ion-button
+                color="secondary"
                 (click)="onAction('disburse')"
-                [matTooltip]="'WC_LOANS.DISBURSE' | translate"
+                [appTooltip]="'WC_LOANS.DISBURSE' | translate"
               >
-                <mat-icon>launch</mat-icon>
+                <ion-icon name="open-outline"></ion-icon>
                 {{ 'WC_LOANS.DISBURSE' | translate }}
-              </button>
+              </ion-button>
             }
 
-            <button mat-raised-button [matMenuTriggerFor]="loanMenu">
-              <mat-icon>arrow_drop_down</mat-icon>
+            <ion-button id="loanMenu-trigger">
+              <ion-icon name="caret-down-outline"></ion-icon>
               {{ 'COMMON.ACTIONS' | translate }}
-            </button>
-            <mat-menu #loanMenu="matMenu">
-              @if (isLoanPendingApproval) {
-                <button mat-menu-item (click)="onEdit()">
-                  <mat-icon>edit</mat-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.MODIFY' | translate }}</span>
-                </button>
-                <button mat-menu-item (click)="onAction('reject')">
-                  <mat-icon>cancel</mat-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.REJECT' | translate }}</span>
-                </button>
+            </ion-button>
+            <ion-popover trigger="loanMenu-trigger" [dismissOnSelect]="true">
+              <ng-template>
+                <ion-list>
+                  @if (isLoanPendingApproval) {
+                    <ion-item button (click)="onEdit()">
+                      <ion-icon slot="start" name="create-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.MODIFY' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item button (click)="onAction('reject')">
+                      <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.REJECT' | translate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanApproved) {
+                    <ion-item button (click)="onAction('undoapproval')">
+                      <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanActive) {
+                    <ion-item button (click)="onAction('undodisbursal')">
+                      <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
+                    </ion-item>
+                  }
+                  <ion-item button (click)="onDelete()">
+                    <ion-icon slot="start" name="trash-outline"></ion-icon>
+                    <ion-label>{{ 'WC_LOANS.ACTIONS.DELETE' | translate }}</ion-label>
+                  </ion-item>
+                </ion-list>
+              </ng-template>
+            </ion-popover>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+        <ion-segment-button value="0">
+          <ion-label>{{ 'WC_LOANS.TABS.DETAILS' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="1">
+          <ion-label>{{ 'WC_LOANS.TABS.CHARGES' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="2">
+          <ion-label>{{ 'WC_LOANS.TABS.TRANSACTIONS' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="3">
+          <ion-label>{{ 'WC_LOANS.TABS.DELINQUENCY_ACTIONS' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="4">
+          <ion-label>{{ 'WC_LOANS.TABS.DELINQUENCY_RANGE_SCHEDULE' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="5">
+          <ion-label>{{ 'WC_LOANS.TABS.BREACH_SCHEDULE' | translate }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      @if (activeTab() === '0') {
+        <div class="tab-content">
+          <ion-card class="info-card">
+            <ion-card-content class="details-list">
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.ACCOUNT_NO' | translate }}</span>
+                <span class="value">{{ loan()?.accountNo || '-' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.CLIENT' | translate }}</span>
+                <span class="value">{{ loan()?.client?.displayName || '-' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.PRODUCT' | translate }}</span>
+                <span class="value">{{ loan()?.product?.name || '-' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.PRINCIPAL' | translate }}</span>
+                <span class="value">
+                  {{ loan()?.currency?.displaySymbol }}
+                  {{ loan()?.proposedPrincipal ?? loan()?.approvedPrincipal | number: '1.2-2' }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.STATUS' | translate }}</span>
+                <span class="value">{{ loan()?.status?.value || '-' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.REPAYMENT_EVERY' | translate }}</span>
+                <span class="value">
+                  {{ loan()?.repaymentEvery || '-' }}
+                  {{ loan()?.repaymentFrequencyType?.value }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="label">{{ 'WC_LOANS.BREACH' | translate }}</span>
+                <span class="value">{{ loan()?.breach?.name || '-' }}</span>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === '1') {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (charges().length > 0) {
+                <table cdk-table [dataSource]="charges()" class="full-width-table">
+                  <ng-container cdkColumnDef="name">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="amount">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let c">{{ c.amount | number: '1.2-2' }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="paid">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PAID' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let c">{{ c.amountPaid | number: '1.2-2' }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="outstanding">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.OUTSTANDING' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let c">
+                      {{ c.amountOutstanding | number: '1.2-2' }}
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="cash-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
               }
-              @if (isLoanApproved) {
-                <button mat-menu-item (click)="onAction('undoapproval')">
-                  <mat-icon>undo</mat-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</span>
-                </button>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === '2') {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (transactions().length > 0) {
+                <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                  <ng-container cdkColumnDef="id">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="date">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="type">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let tx">{{ tx.type?.value }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="amount">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let tx">
+                      {{ tx.transactionAmount | number: '1.2-2' }}
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: transactionColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="receipt-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
               }
-              @if (isLoanActive) {
-                <button mat-menu-item (click)="onAction('undodisbursal')">
-                  <mat-icon>undo</mat-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
-                </button>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === '3') {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (delinquencyActions().length > 0) {
+                <table cdk-table [dataSource]="delinquencyActions()" class="full-width-table">
+                  <ng-container cdkColumnDef="action">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.ACTION' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.action }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="startDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.START_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.startDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="endDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.END_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.endDate }}</td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="delinquencyActionColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: delinquencyActionColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="hammer-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
               }
-              <button mat-menu-item (click)="onDelete()">
-                <mat-icon>delete</mat-icon>
-                <span>{{ 'WC_LOANS.ACTIONS.DELETE' | translate }}</span>
-              </button>
-            </mat-menu>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-tab-group class="tab-group" animationDuration="0ms">
-        <!-- Details -->
-        <mat-tab [label]="'WC_LOANS.TABS.DETAILS' | translate">
-          <div class="tab-content">
-            <mat-card class="info-card">
-              <mat-card-content class="details-list">
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.ACCOUNT_NO' | translate }}</span>
-                  <span class="value">{{ loan()?.accountNo || '-' }}</span>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === '4') {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (delinquencyRangeSchedule().length > 0) {
+                <table cdk-table [dataSource]="delinquencyRangeSchedule()" class="full-width-table">
+                  <ng-container cdkColumnDef="periodNumber">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let r">{{ r.periodNumber }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="fromDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.FROM_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">{{ r.fromDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="toDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.TO_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">{{ r.toDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="outstanding">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.OUTSTANDING' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">
+                      {{ r.outstandingAmount | number: '1.2-2' }}
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="delinquencyRangeColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: delinquencyRangeColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                 </div>
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.CLIENT' | translate }}</span>
-                  <span class="value">{{ loan()?.client?.displayName || '-' }}</span>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === '5') {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (breachSchedule().length > 0) {
+                <table cdk-table [dataSource]="breachSchedule()" class="full-width-table">
+                  <ng-container cdkColumnDef="periodNumber">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let b">{{ b.periodNumber }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="fromDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.FROM_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let b">{{ b.fromDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="toDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.TO_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let b">{{ b.toDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="breach">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.BREACH' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let b">
+                      {{ (b.breach ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="breachScheduleColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: breachScheduleColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                 </div>
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.PRODUCT' | translate }}</span>
-                  <span class="value">{{ loan()?.product?.name || '-' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.PRINCIPAL' | translate }}</span>
-                  <span class="value">
-                    {{ loan()?.currency?.displaySymbol }}
-                    {{ loan()?.proposedPrincipal ?? loan()?.approvedPrincipal | number: '1.2-2' }}
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.STATUS' | translate }}</span>
-                  <span class="value">{{ loan()?.status?.value || '-' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.REPAYMENT_EVERY' | translate }}</span>
-                  <span class="value">
-                    {{ loan()?.repaymentEvery || '-' }}
-                    {{ loan()?.repaymentFrequencyType?.value }}
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">{{ 'WC_LOANS.BREACH' | translate }}</span>
-                  <span class="value">{{ loan()?.breach?.name || '-' }}</span>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
-
-        <!-- Charges -->
-        <mat-tab [label]="'WC_LOANS.TABS.CHARGES' | translate">
-          <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
-                @if (charges().length > 0) {
-                  <table mat-table [dataSource]="charges()" class="full-width-table">
-                    <ng-container matColumnDef="name">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-                      <td mat-cell *matCellDef="let c">{{ c.name }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="amount">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                      <td mat-cell *matCellDef="let c">{{ c.amount | number: '1.2-2' }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="paid">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.PAID' | translate }}</th>
-                      <td mat-cell *matCellDef="let c">{{ c.amountPaid | number: '1.2-2' }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="outstanding">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.OUTSTANDING' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let c">
-                        {{ c.amountOutstanding | number: '1.2-2' }}
-                      </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="chargeColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: chargeColumns"></tr>
-                  </table>
-                } @else {
-                  <div class="empty-state">
-                    <mat-icon>monetization_on</mat-icon>
-                    <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
-
-        <!-- Transactions -->
-        <mat-tab [label]="'WC_LOANS.TABS.TRANSACTIONS' | translate">
-          <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
-                @if (transactions().length > 0) {
-                  <table mat-table [dataSource]="transactions()" class="full-width-table">
-                    <ng-container matColumnDef="id">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="date">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">{{ tx.transactionDate }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="type">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">{{ tx.type?.value }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="amount">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">
-                        {{ tx.transactionAmount | number: '1.2-2' }}
-                      </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
-                  </table>
-                } @else {
-                  <div class="empty-state">
-                    <mat-icon>receipt</mat-icon>
-                    <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
-
-        <!-- Delinquency Actions -->
-        <mat-tab [label]="'WC_LOANS.TABS.DELINQUENCY_ACTIONS' | translate">
-          <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
-                @if (delinquencyActions().length > 0) {
-                  <table mat-table [dataSource]="delinquencyActions()" class="full-width-table">
-                    <ng-container matColumnDef="action">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.ACTION' | translate }}</th>
-                      <td mat-cell *matCellDef="let a">{{ a.action }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="startDate">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.START_DATE' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let a">{{ a.startDate }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="endDate">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.END_DATE' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let a">{{ a.endDate }}</td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="delinquencyActionColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: delinquencyActionColumns"></tr>
-                  </table>
-                } @else {
-                  <div class="empty-state">
-                    <mat-icon>gavel</mat-icon>
-                    <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
-
-        <!-- Delinquency Range Schedule -->
-        <mat-tab [label]="'WC_LOANS.TABS.DELINQUENCY_RANGE_SCHEDULE' | translate">
-          <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
-                @if (delinquencyRangeSchedule().length > 0) {
-                  <table
-                    mat-table
-                    [dataSource]="delinquencyRangeSchedule()"
-                    class="full-width-table"
-                  >
-                    <ng-container matColumnDef="periodNumber">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
-                      <td mat-cell *matCellDef="let r">{{ r.periodNumber }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="fromDate">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.FROM_DATE' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let r">{{ r.fromDate }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="toDate">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.TO_DATE' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let r">{{ r.toDate }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="outstanding">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.OUTSTANDING' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let r">
-                        {{ r.outstandingAmount | number: '1.2-2' }}
-                      </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="delinquencyRangeColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: delinquencyRangeColumns"></tr>
-                  </table>
-                } @else {
-                  <div class="empty-state">
-                    <mat-icon>schedule</mat-icon>
-                    <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
-
-        <!-- Breach Schedule -->
-        <mat-tab [label]="'WC_LOANS.TABS.BREACH_SCHEDULE' | translate">
-          <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
-                @if (breachSchedule().length > 0) {
-                  <table mat-table [dataSource]="breachSchedule()" class="full-width-table">
-                    <ng-container matColumnDef="periodNumber">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
-                      <td mat-cell *matCellDef="let b">{{ b.periodNumber }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="fromDate">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.FROM_DATE' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let b">{{ b.fromDate }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="toDate">
-                      <th mat-header-cell *matHeaderCellDef>
-                        {{ 'WC_LOANS.TO_DATE' | translate }}
-                      </th>
-                      <td mat-cell *matCellDef="let b">{{ b.toDate }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="breach">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.BREACH' | translate }}</th>
-                      <td mat-cell *matCellDef="let b">
-                        {{ (b.breach ? 'COMMON.YES' : 'COMMON.NO') | translate }}
-                      </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="breachScheduleColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: breachScheduleColumns"></tr>
-                  </table>
-                } @else {
-                  <div class="empty-state">
-                    <mat-icon>report_problem</mat-icon>
-                    <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -530,6 +547,8 @@ import {
   ],
 })
 export class WcLoanViewComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly loansService = inject(WorkingCapitalLoansService);
   private readonly chargesService = inject(WorkingCapitalLoanChargesService);
   private readonly transactionsService = inject(WorkingCapitalLoanTransactionsService);

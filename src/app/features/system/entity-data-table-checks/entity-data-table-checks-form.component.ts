@@ -21,13 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { EntityDataTableService, PostEntityDatatableChecksTemplateRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Create form for an entity data-table check. No update endpoint exists, so this form is
@@ -39,70 +46,84 @@ import { EntityDataTableService, PostEntityDatatableChecksTemplateRequest } from
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'ENTITY_DATA_TABLE_CHECKS.CREATE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'ENTITY_DATA_TABLE_CHECKS.CREATE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #checkForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ENTITY_DATA_TABLE_CHECKS.ENTITY' | translate }}</mat-label>
-              <mat-select name="entity" [(ngModel)]="check.entity" required>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'ENTITY_DATA_TABLE_CHECKS.ENTITY' | translate
+              }}</ion-label>
+              <ion-select interface="popover" name="entity" [(ngModel)]="check.entity" required>
                 @for (ent of entityOptions; track ent) {
-                  <mat-option [value]="ent">{{ ent }}</mat-option>
+                  <ion-select-option [value]="ent">{{ ent }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ENTITY_DATA_TABLE_CHECKS.DATATABLE_NAME' | translate }}</mat-label>
-              <input matInput name="datatableName" [(ngModel)]="check.datatableName" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'ENTITY_DATA_TABLE_CHECKS.DATATABLE_NAME' | translate
+              }}</ion-label>
+              <ion-input
+                name="datatableName"
+                [(ngModel)]="check.datatableName"
+                required
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ENTITY_DATA_TABLE_CHECKS.STATUS' | translate }}</mat-label>
-              <input matInput type="number" name="status" [(ngModel)]="check.status" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'ENTITY_DATA_TABLE_CHECKS.STATUS' | translate
+              }}</ion-label>
+              <ion-input
+                type="number"
+                name="status"
+                [(ngModel)]="check.status"
+                required
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ENTITY_DATA_TABLE_CHECKS.PRODUCT_ID' | translate }}</mat-label>
-              <input matInput type="number" name="productId" [(ngModel)]="check.productId" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'ENTITY_DATA_TABLE_CHECKS.PRODUCT_ID' | translate
+              }}</ion-label>
+              <ion-input type="number" name="productId" [(ngModel)]="check.productId"></ion-input>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="checkForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="checkForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

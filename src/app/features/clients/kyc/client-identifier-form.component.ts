@@ -21,12 +21,19 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  IonButton,
+} from '@ionic/angular/standalone';
 import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from '../../../api';
 
 @Component({
@@ -35,100 +42,112 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea,
+    IonButton,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CLIENTS.EDIT_IDENTIFIER' | translate)
                 : ('CLIENTS.ADD_IDENTIFIER' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #identifierForm="ngForm" (ngSubmit)="onSubmit()" class="identifier-form">
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.DOCUMENT_TYPE' | translate }}</mat-label>
-                <mat-select name="documentTypeId" [(ngModel)]="identifier.documentTypeId" required>
-                  @for (type of documentTypes(); track type.id) {
-                    <mat-option [value]="type.id">{{ type.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CLIENTS.DOCUMENT_TYPE' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="documentTypeId"
+                [(ngModel)]="identifier.documentTypeId"
+                required
+                id="identifier-document-type-select"
+                data-testid="identifier-document-type-select"
+              >
+                @for (type of documentTypes(); track type.id) {
+                  <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.DOCUMENT_KEY' | translate }}</mat-label>
-                <input matInput name="documentKey" [(ngModel)]="identifier.documentKey" required />
-              </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CLIENTS.DOCUMENT_KEY' | translate }}</ion-label>
+              <ion-input
+                type="text"
+                name="documentKey"
+                [(ngModel)]="identifier.documentKey"
+                required
+                id="identifier-document-key-input"
+                data-testid="identifier-document-key-input"
+              ></ion-input>
+            </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
-                <mat-select name="status" [(ngModel)]="identifier.status">
-                  <mat-option value="Active">Active</mat-option>
-                  <mat-option value="Inactive">Inactive</mat-option>
-                </mat-select>
-              </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="status"
+                [(ngModel)]="identifier.status"
+                id="identifier-status-select"
+                data-testid="identifier-status-select"
+              >
+                <ion-select-option value="Active">Active</ion-select-option>
+                <ion-select-option value="Inactive">Inactive</ion-select-option>
+              </ion-select>
+            </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
-                  name="description"
-                  [(ngModel)]="identifier.description"
-                  rows="3"
-                ></textarea>
-              </mat-form-field>
-            </div>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+              <ion-textarea
+                name="description"
+                [(ngModel)]="identifier.description"
+                rows="3"
+                id="identifier-description-textarea"
+                data-testid="identifier-description-textarea"
+              ></ion-textarea>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                id="identifier-cancel-btn"
+                data-testid="identifier-cancel-btn"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="!identifierForm.form.valid"
+                id="identifier-submit-btn"
+                data-testid="identifier-submit-btn"
               >
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
-  styles: [
-    `
-      .form-container {
-        padding: 24px;
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .identifier-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding-top: 16px;
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-    `,
-  ],
 })
 export class ClientIdentifierFormComponent implements OnInit {
   private readonly identifierService = inject(ClientIdentifierService);

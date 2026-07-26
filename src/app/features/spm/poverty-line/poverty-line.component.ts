@@ -20,14 +20,20 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../../shared';
 import { PovertyLineService } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface PovertyLineRow {
   scoreFrom?: number;
@@ -46,69 +52,68 @@ interface PovertyLineRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatTableModule,
-    MatProgressSpinnerModule,
+    CdkTableModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="pl-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'POVERTY_LINE.TITLE' | translate }}
             <app-help-icon helpTextKey="HELP.POVERTY_LINE_DESC"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <form #plForm="ngForm" (ngSubmit)="load()" class="pl-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'POVERTY_LINE.PPI_NAME' | translate }}</mat-label>
-              <input matInput name="ppiName" [(ngModel)]="ppiName" required />
-            </mat-form-field>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="plForm.invalid || isLoading"
-            >
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'POVERTY_LINE.PPI_NAME' | translate }}</ion-label>
+              <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
+            </ion-item>
+            <ion-button color="primary" type="submit" [disabled]="plForm.invalid || isLoading">
               {{ 'POVERTY_LINE.LOAD' | translate }}
-            </button>
+            </ion-button>
           </form>
 
           @if (isLoading) {
-            <mat-spinner diameter="32"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
-            <table mat-table [dataSource]="rows" class="pl-table">
-              <ng-container matColumnDef="scoreFrom">
-                <th mat-header-cell *matHeaderCellDef>
+            <table cdk-table [dataSource]="rows" class="pl-table">
+              <ng-container cdkColumnDef="scoreFrom">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'POVERTY_LINE.SCORE_FROM' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.scoreFrom }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.scoreFrom }}</td>
               </ng-container>
-              <ng-container matColumnDef="scoreTo">
-                <th mat-header-cell *matHeaderCellDef>{{ 'POVERTY_LINE.SCORE_TO' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.scoreTo }}</td>
+              <ng-container cdkColumnDef="scoreTo">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'POVERTY_LINE.SCORE_TO' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.scoreTo }}</td>
               </ng-container>
-              <ng-container matColumnDef="povertyLine">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="povertyLine">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'POVERTY_LINE.POVERTY_LINE' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.povertyLine }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.povertyLine }}</td>
               </ng-container>
-              <ng-container matColumnDef="enabled">
-                <th mat-header-cell *matHeaderCellDef>{{ 'POVERTY_LINE.ENABLED' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.enabled }}</td>
+              <ng-container cdkColumnDef="enabled">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'POVERTY_LINE.ENABLED' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.enabled }}</td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="columns"></tr>
-              <tr mat-row *matRowDef="let row; columns: columns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

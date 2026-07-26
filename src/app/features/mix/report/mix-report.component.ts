@@ -20,12 +20,18 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MixReportService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Read-only view of the generated MIX (XBRL) report. The endpoint returns the report as
@@ -37,56 +43,61 @@ import { MixReportService } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="report-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'MIX_REPORT.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'MIX_REPORT.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #reportForm="ngForm" (ngSubmit)="onGenerate()" class="mix-report-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MIX_REPORT.START_DATE' | translate }}</mat-label>
-              <input matInput name="startDate" [(ngModel)]="startDate" placeholder="yyyy-MM-dd" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MIX_REPORT.START_DATE' | translate }}</ion-label>
+              <ion-input
+                name="startDate"
+                [(ngModel)]="startDate"
+                placeholder="yyyy-MM-dd"
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MIX_REPORT.END_DATE' | translate }}</mat-label>
-              <input matInput name="endDate" [(ngModel)]="endDate" placeholder="yyyy-MM-dd" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MIX_REPORT.END_DATE' | translate }}</ion-label>
+              <ion-input name="endDate" [(ngModel)]="endDate" placeholder="yyyy-MM-dd"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MIX_REPORT.CURRENCY' | translate }}</mat-label>
-              <input matInput name="currency" [(ngModel)]="currency" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MIX_REPORT.CURRENCY' | translate }}</ion-label>
+              <ion-input name="currency" [(ngModel)]="currency"></ion-input>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+              <ion-button color="primary" type="submit" [disabled]="isLoading">
                 @if (isLoading) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'MIX_REPORT.GENERATING' | translate }}
                 } @else {
                   {{ 'MIX_REPORT.GENERATE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
 
           @if (report) {
             <pre class="mix-report-output">{{ report }}</pre>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

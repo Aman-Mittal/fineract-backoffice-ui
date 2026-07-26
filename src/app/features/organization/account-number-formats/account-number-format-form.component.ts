@@ -21,11 +21,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   AccountNumberFormatService,
   EnumOptionData,
@@ -41,31 +48,39 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('ACCOUNT_NUMBER_FORMATS.EDIT_TITLE' | translate)
                 : ('ACCOUNT_NUMBER_FORMATS.CREATE_TITLE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #formatForm="ngForm" (ngSubmit)="onSubmit()" class="format-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACCOUNT_NUMBER_FORMATS.ACCOUNT_TYPE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'ACCOUNT_NUMBER_FORMATS.ACCOUNT_TYPE' | translate
+                }}</ion-label>
+                <ion-select
+                  interface="popover"
                   name="accountType"
                   [(ngModel)]="format.accountType"
                   (ngModelChange)="onAccountTypeChange($event)"
@@ -73,49 +88,44 @@ import {
                   [disabled]="isEditMode"
                 >
                   @for (option of accountTypeOptions; track option.id) {
-                    <mat-option [value]="option.id">{{ option.value }}</mat-option>
+                    <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACCOUNT_NUMBER_FORMATS.PREFIX_TYPE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'ACCOUNT_NUMBER_FORMATS.PREFIX_TYPE' | translate
+                }}</ion-label>
+                <ion-select
+                  interface="popover"
                   name="prefixType"
                   [(ngModel)]="format.prefixType"
                   [disabled]="prefixTypeOptions.length === 0"
                 >
                   @for (option of prefixTypeOptions; track option.id) {
-                    <mat-option [value]="option.id">{{ option.value }}</mat-option>
+                    <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'ACCOUNT_NUMBER_FORMATS.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="formatForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="formatForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'ACCOUNT_NUMBER_FORMATS.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

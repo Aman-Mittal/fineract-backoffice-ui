@@ -64,8 +64,8 @@ describe('InterestPauseFormComponent', () => {
     serviceSpy.postLoansLoanIdInterestPauses.and.returnValue(
       of({}) as unknown as ReturnType<LoanInterestPauseService['postLoansLoanIdInterestPauses']>,
     );
-    component.startDate = new Date(2026, 0, 1);
-    component.endDate = new Date(2026, 1, 1);
+    component.startDate = '2026-01-01';
+    component.endDate = '2026-02-01';
 
     component.onSubmit();
 

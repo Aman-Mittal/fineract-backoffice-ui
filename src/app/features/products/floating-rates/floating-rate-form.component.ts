@@ -21,16 +21,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FloatingRatesService, FloatingRateRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -53,123 +60,128 @@ interface RatePeriodRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('FLOATING_RATES.EDIT' | translate)
                 : ('FLOATING_RATES.CREATE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #frForm="ngForm" (ngSubmit)="onSubmit()" class="fr-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'FLOATING_RATES.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="rate.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'FLOATING_RATES.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="rate.name" required></ion-input>
+            </ion-item>
 
             <div class="checkboxes">
-              <mat-checkbox name="isBaseLendingRate" [(ngModel)]="rate.isBaseLendingRate">
+              <ion-checkbox name="isBaseLendingRate" [(ngModel)]="rate.isBaseLendingRate">
                 {{ 'FLOATING_RATES.IS_BASE_LENDING_RATE' | translate }}
-              </mat-checkbox>
-              <mat-checkbox name="isActive" [(ngModel)]="rate.isActive">
+              </ion-checkbox>
+              <ion-checkbox name="isActive" [(ngModel)]="rate.isActive">
                 {{ 'COMMON.ACTIVE' | translate }}
-              </mat-checkbox>
+              </ion-checkbox>
             </div>
 
             <div class="periods">
               <div class="periods-header">
                 <h3>{{ 'FLOATING_RATES.RATE_PERIODS' | translate }}</h3>
-                <button mat-stroked-button type="button" (click)="addPeriod()">
-                  <mat-icon>add</mat-icon> {{ 'FLOATING_RATES.ADD_PERIOD' | translate }}
-                </button>
+                <ion-button fill="outline" type="button" (click)="addPeriod()">
+                  <ion-icon name="add-outline"></ion-icon>
+                  {{ 'FLOATING_RATES.ADD_PERIOD' | translate }}
+                </ion-button>
               </div>
 
               @for (period of periods; track $index) {
                 <div class="period-row">
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'FLOATING_RATES.FROM_DATE' | translate }}</mat-label>
-                    <input
-                      matInput
-                      [matDatepicker]="picker"
-                      [name]="'fromDate' + $index"
-                      [(ngModel)]="period.fromDate"
-                      required
-                    />
-                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
-                  </mat-form-field>
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{
+                      'FLOATING_RATES.FROM_DATE' | translate
+                    }}</ion-label>
+                    <ion-datetime-button datetime="periodfromDate-picker"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="periodfromDate-picker"
+                          data-testid="periodfromDate-picker"
+                          presentation="date"
+                          name="periodfromDate"
+                          [(ngModel)]="period.fromDate"
+                          required
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
+                  </ion-item>
 
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'FLOATING_RATES.INTEREST_RATE' | translate }}</mat-label>
-                    <input
-                      matInput
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{
+                      'FLOATING_RATES.INTEREST_RATE' | translate
+                    }}</ion-label>
+                    <ion-input
                       type="number"
                       [name]="'interestRate' + $index"
                       [(ngModel)]="period.interestRate"
                       required
-                    />
-                  </mat-form-field>
+                    ></ion-input>
+                  </ion-item>
 
-                  <mat-checkbox
+                  <ion-checkbox
                     [name]="'isDifferential' + $index"
                     [(ngModel)]="period.isDifferentialToBaseLendingRate"
                   >
                     {{ 'FLOATING_RATES.IS_DIFFERENTIAL' | translate }}
-                  </mat-checkbox>
+                  </ion-checkbox>
 
-                  <button
-                    mat-icon-button
-                    color="warn"
+                  <ion-button
+                    fill="clear"
+                    color="danger"
                     type="button"
                     [attr.aria-label]="'COMMON.DELETE' | translate"
                     (click)="removePeriod($index)"
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
                 </div>
               }
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="frForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="frForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

@@ -22,13 +22,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatRadioModule } from '@angular/material/radio';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
+import {
+  IonButton,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonRadio,
+  IonRadioGroup,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-accounting-rule-form',
@@ -36,120 +42,124 @@ import { AccountingRulesService } from '../../api/api/accountingRules.service';
   imports: [
     RouterModule,
     ReactiveFormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatRadioModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
+    IonRadio,
+    IonRadioGroup,
   ],
   template: `
     <div class="container">
       <h1>{{ isEdit ? 'Edit' : 'Create' }} Accounting Rule</h1>
 
       <form [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Rule Name</mat-label>
-          <input matInput formControlName="name" required />
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">Rule Name</ion-label>
+          <ion-input formControlName="name" required></ion-input>
+        </ion-item>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Office</mat-label>
-          <mat-select formControlName="officeId" required>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">Office</ion-label>
+          <ion-select interface="popover" formControlName="officeId" required>
             @for (office of offices; track office['id']) {
-              <mat-option [value]="office['id']">
+              <ion-select-option [value]="office['id']">
                 {{ office['name'] }}
-              </mat-option>
+              </ion-select-option>
             }
-          </mat-select>
-        </mat-form-field>
+          </ion-select>
+        </ion-item>
 
         <div class="section">
           <h3>Debit Details</h3>
-          <mat-radio-group formControlName="debitRuleType" class="radio-group">
-            <mat-radio-button value="fixedAccount">Fixed Account</mat-radio-button>
-            <mat-radio-button value="tags">Account Tags</mat-radio-button>
-          </mat-radio-group>
+          <ion-radio-group formControlName="debitRuleType" class="radio-group">
+            <ion-radio value="fixedAccount">Fixed Account</ion-radio>
+            <ion-radio value="tags">Account Tags</ion-radio>
+          </ion-radio-group>
 
           @if (ruleForm.get('debitRuleType')?.value === 'fixedAccount') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Account to Debit</mat-label>
-              <mat-select formControlName="accountToDebit">
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">Account to Debit</ion-label>
+              <ion-select interface="popover" formControlName="accountToDebit">
                 @for (account of accounts; track account['id']) {
-                  <mat-option [value]="account['id']">
+                  <ion-select-option [value]="account['id']">
                     {{ account['name'] }} ({{ account['glCode'] }})
-                  </mat-option>
+                  </ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
           }
 
           @if (ruleForm.get('debitRuleType')?.value === 'tags') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Debit Tags</mat-label>
-              <mat-select formControlName="debitTags" multiple>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">Debit Tags</ion-label>
+              <ion-select interface="popover" formControlName="debitTags" multiple>
                 @for (tag of debitTags; track tag['id']) {
-                  <mat-option [value]="tag['id']">
+                  <ion-select-option [value]="tag['id']">
                     {{ tag['name'] }}
-                  </mat-option>
+                  </ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
           }
 
-          <mat-checkbox formControlName="allowMultipleDebitEntries">
+          <ion-checkbox formControlName="allowMultipleDebitEntries">
             Allow Multiple Debit Entries
-          </mat-checkbox>
+          </ion-checkbox>
         </div>
 
         <div class="section">
           <h3>Credit Details</h3>
-          <mat-radio-group formControlName="creditRuleType" class="radio-group">
-            <mat-radio-button value="fixedAccount">Fixed Account</mat-radio-button>
-            <mat-radio-button value="tags">Account Tags</mat-radio-button>
-          </mat-radio-group>
+          <ion-radio-group formControlName="creditRuleType" class="radio-group">
+            <ion-radio value="fixedAccount">Fixed Account</ion-radio>
+            <ion-radio value="tags">Account Tags</ion-radio>
+          </ion-radio-group>
 
           @if (ruleForm.get('creditRuleType')?.value === 'fixedAccount') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Account to Credit</mat-label>
-              <mat-select formControlName="accountToCredit">
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">Account to Credit</ion-label>
+              <ion-select interface="popover" formControlName="accountToCredit">
                 @for (account of accounts; track account['id']) {
-                  <mat-option [value]="account['id']">
+                  <ion-select-option [value]="account['id']">
                     {{ account['name'] }} ({{ account['glCode'] }})
-                  </mat-option>
+                  </ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
           }
 
           @if (ruleForm.get('creditRuleType')?.value === 'tags') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Credit Tags</mat-label>
-              <mat-select formControlName="creditTags" multiple>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">Credit Tags</ion-label>
+              <ion-select interface="popover" formControlName="creditTags" multiple>
                 @for (tag of creditTags; track tag['id']) {
-                  <mat-option [value]="tag['id']">
+                  <ion-select-option [value]="tag['id']">
                     {{ tag['name'] }}
-                  </mat-option>
+                  </ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
           }
 
-          <mat-checkbox formControlName="allowMultipleCreditEntries">
+          <ion-checkbox formControlName="allowMultipleCreditEntries">
             Allow Multiple Credit Entries
-          </mat-checkbox>
+          </ion-checkbox>
         </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3"></textarea>
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">Description</ion-label>
+          <ion-textarea formControlName="description" rows="3"></ion-textarea>
+        </ion-item>
 
         <div class="actions">
-          <button mat-button type="button" routerLink="/accounting/rules">Cancel</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="ruleForm.invalid">
+          <ion-button fill="clear" type="button" routerLink="/accounting/rules">Cancel</ion-button>
+          <ion-button color="primary" type="submit" [disabled]="ruleForm.invalid">
             {{ isEdit ? 'Update' : 'Create' }}
-          </button>
+          </ion-button>
         </div>
       </form>
     </div>

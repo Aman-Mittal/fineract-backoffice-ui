@@ -21,15 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonTextarea,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { Observable } from 'rxjs';
 import {
   SavingsAccountService,
@@ -44,7 +49,6 @@ import {
   StaffData,
   ChargeData,
 } from '../../api';
-import { MatSelectModule } from '@angular/material/select';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   formatDateToFineract,
@@ -58,27 +62,29 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,
-    MatDividerModule,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonTextarea,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+    IonSpinner,
     DatePipe,
     CurrencyPipe,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ title | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ title | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (accountDetails) {
             <div class="account-summary-panel">
               <div class="summary-grid">
@@ -144,104 +150,136 @@ import {
                 }
               </div>
             </div>
-            <mat-divider style="margin: 16px 0;"></mat-divider>
           }
 
           <form #actionForm="ngForm" (ngSubmit)="onSubmit()" class="action-form">
             <!-- Staff selection (only for assignloanofficer) -->
             @if (command === 'assignloanofficer') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.LOAN_OFFICER' | translate }}</mat-label>
-                <mat-select name="toLoanOfficerId" [(ngModel)]="toLoanOfficerId" required>
+              <ion-item fill="outline" class="form-item">
+                <ion-label position="stacked">{{ 'LOANS.LOAN_OFFICER' | translate }}</ion-label>
+                <ion-select
+                  interface="popover"
+                  id="account-action-officer"
+                  data-testid="account-action-officer"
+                  name="toLoanOfficerId"
+                  [(ngModel)]="toLoanOfficerId"
+                  required
+                >
                   @for (staff of staffOptions; track staff.id) {
-                    <mat-option [value]="staff.id">{{ staff.displayName }}</mat-option>
+                    <ion-select-option [value]="staff.id">{{
+                      staff.displayName
+                    }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
             }
 
             <!-- Charge selection (only for applycharges) -->
             @if (command === 'applycharges') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.CHARGE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline" class="form-item">
+                <ion-label position="stacked">{{ 'LOANS.CHARGE' | translate }}</ion-label>
+                <ion-select
+                  interface="popover"
+                  id="account-action-charge"
+                  data-testid="account-action-charge"
                   name="chargeId"
                   [(ngModel)]="chargeId"
-                  (valueChange)="onChargeSelected($event)"
+                  (ionChange)="onChargeSelected($event.detail.value)"
                   required
                 >
                   @for (charge of chargeOptions; track charge.id) {
-                    <mat-option [value]="charge.id">{{ charge.name }}</mat-option>
+                    <ion-select-option [value]="charge.id">{{ charge.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" name="amount" [(ngModel)]="amount" required />
-              </mat-form-field>
+              <ion-item fill="outline" class="form-item">
+                <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
+                <ion-input
+                  id="account-action-amount"
+                  data-testid="account-action-amount"
+                  type="number"
+                  name="amount"
+                  [(ngModel)]="amount"
+                  required
+                ></ion-input>
+              </ion-item>
             }
 
             <!-- Action Date -->
-            <mat-form-field appearance="outline">
-              <mat-label>{{ dateLabel | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
+            <ion-item fill="outline" class="form-item">
+              <ion-label position="stacked">{{ dateLabel | translate }}</ion-label>
+              <ion-input
+                id="account-action-date"
+                data-testid="account-action-date"
+                type="date"
                 name="actionDate"
-                [(ngModel)]="actionDate"
+                [ngModel]="actionDate | date: 'yyyy-MM-dd'"
+                (ngModelChange)="onActionDateChange($event)"
                 required
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
             <!-- Expected Disbursement Date (Only for Loan Approval) -->
             @if (command === 'approve' && accountType === 'loan') {
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate }}</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="disbursementPicker"
+              <ion-item fill="outline" class="form-item">
+                <ion-label position="stacked">{{
+                  'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate
+                }}</ion-label>
+                <ion-input
+                  id="account-action-disbursement-date"
+                  data-testid="account-action-disbursement-date"
+                  type="date"
                   name="expectedDisbursementDate"
-                  [(ngModel)]="expectedDisbursementDate"
+                  [ngModel]="expectedDisbursementDate | date: 'yyyy-MM-dd'"
+                  (ngModelChange)="onExpectedDisbursementDateChange($event)"
                   required
-                />
-                <mat-datepicker-toggle matSuffix [for]="disbursementPicker"></mat-datepicker-toggle>
-                <mat-datepicker #disbursementPicker></mat-datepicker>
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
             }
 
             <!-- Note -->
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-              <textarea matInput name="note" [(ngModel)]="note" rows="4"></textarea>
-            </mat-form-field>
+            <ion-item fill="outline" class="form-item">
+              <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+              <ion-textarea
+                id="account-action-note"
+                data-testid="account-action-note"
+                name="note"
+                [(ngModel)]="note"
+                rows="4"
+              ></ion-textarea>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button
+                id="account-action-cancel-btn"
+                data-testid="account-action-cancel-btn"
+                fill="clear"
+                color="medium"
+                type="button"
+                (click)="onCancel()"
+                [disabled]="isSaving"
+              >
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
+                id="account-action-submit-btn"
+                data-testid="account-action-submit-btn"
                 color="primary"
                 type="submit"
                 [disabled]="actionForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -310,6 +348,14 @@ export class AccountActionFormComponent implements OnInit {
   actionDate: Date = new Date();
   expectedDisbursementDate: Date | null = null;
   note = '';
+
+  onActionDateChange(val: string): void {
+    this.actionDate = val ? new Date(val) : new Date();
+  }
+
+  onExpectedDisbursementDateChange(val: string): void {
+    this.expectedDisbursementDate = val ? new Date(val) : null;
+  }
 
   title = '';
   dateLabel = '';

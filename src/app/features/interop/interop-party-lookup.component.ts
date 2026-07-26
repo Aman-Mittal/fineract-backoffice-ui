@@ -19,13 +19,19 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '../../core/services/notification.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   InterOperationService,
   InteropIdentifierAccountResponseData,
@@ -43,7 +49,6 @@ type IdType =
   | 'ALIAS'
   | 'BBAN';
 
-const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
@@ -52,59 +57,62 @@ const ERROR_OCCURRED = 'Error occurred';
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'INTEROP.PARTY_TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'INTEROP.PARTY_TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="form-row">
-          <mat-form-field>
-            <mat-label>{{ 'INTEROP.ID_TYPE' | translate }}</mat-label>
-            <input matInput [(ngModel)]="idType" placeholder="e.g. MSISDN" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'INTEROP.ID_TYPE' | translate }}</ion-label>
+            <ion-input [(ngModel)]="idType" placeholder="e.g. MSISDN"></ion-input>
+          </ion-item>
 
-          <mat-form-field>
-            <mat-label>{{ 'INTEROP.ID_VALUE' | translate }}</mat-label>
-            <input matInput [(ngModel)]="idValue" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'INTEROP.ID_VALUE' | translate }}</ion-label>
+            <ion-input [(ngModel)]="idValue"></ion-input>
+          </ion-item>
 
-          <mat-form-field>
-            <mat-label>{{ 'INTEROP.SUB_ID' | translate }}</mat-label>
-            <input matInput [(ngModel)]="subIdOrType" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'INTEROP.SUB_ID' | translate }}</ion-label>
+            <ion-input [(ngModel)]="subIdOrType"></ion-input>
+          </ion-item>
         </div>
 
         <div class="button-row">
-          <button mat-raised-button color="primary" (click)="lookup()" [disabled]="isLoading">
+          <ion-button color="primary" (click)="lookup()" [disabled]="isLoading">
             {{ 'INTEROP.LOOKUP' | translate }}
-          </button>
-          <button mat-raised-button color="accent" (click)="register()" [disabled]="isLoading">
+          </ion-button>
+          <ion-button color="secondary" (click)="register()" [disabled]="isLoading">
             {{ 'INTEROP.REGISTER' | translate }}
-          </button>
-          <button mat-raised-button color="warn" (click)="deregister()" [disabled]="isLoading">
+          </ion-button>
+          <ion-button color="danger" (click)="deregister()" [disabled]="isLoading">
             {{ 'INTEROP.DEREGISTER' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         @if (isLoading) {
-          <mat-spinner diameter="40"></mat-spinner>
+          <ion-spinner name="crescent"></ion-spinner>
         }
 
         @if (result()) {
           <h3>{{ 'INTEROP.RESULT' | translate }}</h3>
           <pre>{{ result() | json }}</pre>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `
@@ -130,7 +138,7 @@ const ERROR_OCCURRED = 'Error occurred';
 })
 export class InteropPartyLookupComponent {
   private interopService = inject(InterOperationService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   result = signal<InteropIdentifierAccountResponseData | null>(null);
   isLoading = false;
@@ -158,7 +166,7 @@ export class InteropPartyLookupComponent {
         this.isLoading = false;
       },
       error: (err: { message?: string }) => {
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
+        this.notifications.error(err.message || ERROR_OCCURRED);
         this.isLoading = false;
       },
     });
@@ -187,7 +195,7 @@ export class InteropPartyLookupComponent {
         this.isLoading = false;
       },
       error: (err: { message?: string }) => {
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
+        this.notifications.error(err.message || ERROR_OCCURRED);
         this.isLoading = false;
       },
     });
@@ -216,7 +224,7 @@ export class InteropPartyLookupComponent {
         this.isLoading = false;
       },
       error: (err: { message?: string }) => {
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
+        this.notifications.error(err.message || ERROR_OCCURRED);
         this.isLoading = false;
       },
     });

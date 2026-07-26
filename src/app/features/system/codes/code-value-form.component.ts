@@ -22,12 +22,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   CodeValuesService,
   GetCodeValuesDataResponse,
@@ -41,73 +47,73 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CODE_VALUES.EDIT_TITLE' | translate)
                 : ('CODE_VALUES.CREATE_TITLE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #codeValueForm="ngForm" (ngSubmit)="onSubmit()" class="code-value-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CODE_VALUES.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="codeValue.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CODE_VALUES.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="codeValue.name" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CODE_VALUES.DESCRIPTION' | translate }}</mat-label>
-              <input matInput name="description" [(ngModel)]="codeValue.description" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CODE_VALUES.DESCRIPTION' | translate }}</ion-label>
+              <ion-input name="description" [(ngModel)]="codeValue.description"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CODE_VALUES.POSITION' | translate }}</mat-label>
-              <input matInput type="number" name="position" [(ngModel)]="codeValue.position" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CODE_VALUES.POSITION' | translate }}</ion-label>
+              <ion-input type="number" name="position" [(ngModel)]="codeValue.position"></ion-input>
+            </ion-item>
 
             <div class="checkbox-field">
-              <mat-checkbox name="isActive" [(ngModel)]="codeValue.isActive">
+              <ion-checkbox name="isActive" [(ngModel)]="codeValue.isActive">
                 {{ 'CODE_VALUES.ACTIVE' | translate }}
-              </mat-checkbox>
+              </ion-checkbox>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'CODE_VALUES.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="codeValueForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'CODE_VALUES.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -122,7 +128,7 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 100%;
       }
       .checkbox-field {

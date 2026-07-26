@@ -21,11 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
 import { CurrencyPipe } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -37,6 +32,9 @@ import {
   HasPermissionDirective,
 } from '../../shared';
 import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
+import { PageEvent, SortEvent } from '../../shared/models/table.model';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   resolveAccountActionType,
   resolveAccountRoutePrefix,
@@ -48,14 +46,14 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
     HasPermissionDirective,
     CurrencyPipe,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -70,16 +68,15 @@ import {
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
     >
-      <button
+      <ion-button
         headerActions
-        mat-raised-button
         color="primary"
         *appHasPermission="'CREATE_SAVINGSACCOUNT'"
         (click)="onCreateAccount()"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'SAVINGS.CREATE_ACCOUNT' | translate }}
-      </button>
+      </ion-button>
 
       <ng-template appCellTemplate="accountNo" let-account>
         <a
@@ -99,46 +96,46 @@ import {
 
       <ng-template appCellTemplate="actions" let-account>
         @if (account.status?.submittedAndPendingApproval) {
-          <button
-            mat-icon-button
-            color="accent"
-            [matTooltip]="'LOANS.APPROVE' | translate"
+          <ion-button
+            fill="clear"
+            color="secondary"
+            [appTooltip]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
             *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
           >
-            <mat-icon>check_circle</mat-icon>
-          </button>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
         }
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [matTooltip]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditAccount(account)"
           *appHasPermission="'UPDATE_SAVINGSACCOUNT'"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          color="accent"
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="secondary"
           [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
-          [matTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
+          [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
           (click)="onTransaction(account, 'deposit')"
           *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
         >
-          <mat-icon>add_circle_outline</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          color="warn"
+          <ion-icon name="add-circle-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="danger"
           [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
-          [matTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
+          [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
           (click)="onTransaction(account, 'withdrawal')"
           *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
         >
-          <mat-icon>remove_circle_outline</mat-icon>
-        </button>
+          <ion-icon name="remove-circle-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,
@@ -161,11 +158,11 @@ export class SavingsAccountsListComponent implements OnInit {
   isLoading = false;
 
   private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
 
   private currentFilter = '';
-  private currentSort: Sort = { active: '', direction: '' };
+  private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
 
   ngOnInit(): void {
@@ -221,7 +218,7 @@ export class SavingsAccountsListComponent implements OnInit {
     this.searchSubject.next(query);
   }
 
-  onSort(sort: Sort): void {
+  onSort(sort: SortEvent): void {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
     this.sortSubject.next(sort);

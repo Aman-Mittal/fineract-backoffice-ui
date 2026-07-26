@@ -83,7 +83,7 @@ describe('PostDatedCheckFormComponent', () => {
     component.name = 'Updated';
     component.amount = 2000;
     component.accountNo = 34;
-    component.date = new Date(2026, 0, 1);
+    component.date = '2026-01-01';
 
     component.onSubmit();
 

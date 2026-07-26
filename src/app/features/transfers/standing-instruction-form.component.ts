@@ -21,14 +21,21 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 import {
   StandingInstructionsService,
   OfficesService,
@@ -42,6 +49,7 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 export interface MiniAccount {
@@ -56,265 +64,330 @@ export interface MiniAccount {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CLIENTS.EDIT_STANDING_INSTRUCTION' | translate)
                 : ('CLIENTS.CREATE_STANDING_INSTRUCTION' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #instructionForm="ngForm" (ngSubmit)="onSubmit()" class="instruction-form">
             <div class="form-grid">
               <!-- Header Info -->
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="request.name" required />
-              </mat-form-field>
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="request.name" required></ion-input>
+              </ion-item>
 
               <!-- From Account Section -->
               <div class="section-group">
                 <h3>{{ 'CLIENTS.TRANSFER_FROM' | translate }}</h3>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="fromOfficeId"
                     [(ngModel)]="request.fromOfficeId"
-                    (selectionChange)="onOfficeChange('from')"
+                    (ionChange)="onOfficeChange('from')"
                     required
                   >
                     @for (office of offices(); track office.id) {
-                      <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                      <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.CLIENT' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="fromClientId"
                     [(ngModel)]="request.fromClientId"
-                    (selectionChange)="onClientChange('from')"
+                    (ionChange)="onClientChange('from')"
                     required
                   >
                     @for (client of fromClients(); track client.id) {
-                      <mat-option [value]="client.id">{{ client.displayName }}</mat-option>
+                      <ion-select-option [value]="client.id">{{
+                        client.displayName
+                      }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="fromAccountType"
                     [(ngModel)]="request.fromAccountType"
-                    (selectionChange)="onAccountTypeChange('from')"
+                    (ionChange)="onAccountTypeChange('from')"
                     required
                   >
-                    <mat-option [value]="'2'">{{ 'nav.savingsAccounts' | translate }}</mat-option>
-                    <mat-option [value]="'1'">{{ 'nav.loanAccounts' | translate }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                    <ion-select-option [value]="'2'">{{
+                      'nav.savingsAccounts' | translate
+                    }}</ion-select-option>
+                    <ion-select-option [value]="'1'">{{
+                      'nav.loanAccounts' | translate
+                    }}</ion-select-option>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_NO' | translate }}</mat-label>
-                  <mat-select name="fromAccountId" [(ngModel)]="request.fromAccountId" required>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_NO' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="fromAccountId"
+                    [(ngModel)]="request.fromAccountId"
+                    required
+                  >
                     @for (account of fromAccounts(); track account.id) {
-                      <mat-option [value]="account.id"
-                        >{{ account.accountNo }} ({{ account.productName }})</mat-option
+                      <ion-select-option [value]="account.id"
+                        >{{ account.accountNo }} ({{ account.productName }})</ion-select-option
                       >
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
               </div>
 
               <!-- To Account Section -->
               <div class="section-group">
                 <h3>{{ 'CLIENTS.TRANSFER_TO' | translate }}</h3>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="toOfficeId"
                     [(ngModel)]="request.toOfficeId"
-                    (selectionChange)="onOfficeChange('to')"
+                    (ionChange)="onOfficeChange('to')"
                     required
                   >
                     @for (office of offices(); track office.id) {
-                      <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                      <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.CLIENT' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="toClientId"
                     [(ngModel)]="request.toClientId"
-                    (selectionChange)="onClientChange('to')"
+                    (ionChange)="onClientChange('to')"
                     required
                   >
                     @for (client of toClients(); track client.id) {
-                      <mat-option [value]="client.id">{{ client.displayName }}</mat-option>
+                      <ion-select-option [value]="client.id">{{
+                        client.displayName
+                      }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="toAccountType"
                     [(ngModel)]="request.toAccountType"
-                    (selectionChange)="onAccountTypeChange('to')"
+                    (ionChange)="onAccountTypeChange('to')"
                     required
                   >
-                    <mat-option [value]="'2'">{{ 'nav.savingsAccounts' | translate }}</mat-option>
-                    <mat-option [value]="'1'">{{ 'nav.loanAccounts' | translate }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                    <ion-select-option [value]="'2'">{{
+                      'nav.savingsAccounts' | translate
+                    }}</ion-select-option>
+                    <ion-select-option [value]="'1'">{{
+                      'nav.loanAccounts' | translate
+                    }}</ion-select-option>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.ACCOUNT_NO' | translate }}</mat-label>
-                  <mat-select name="toAccountId" [(ngModel)]="request.toAccountId" required>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_NO' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="toAccountId"
+                    [(ngModel)]="request.toAccountId"
+                    required
+                  >
                     @for (account of toAccounts(); track account.id) {
-                      <mat-option [value]="account.id"
-                        >{{ account.accountNo }} ({{ account.productName }})</mat-option
+                      <ion-select-option [value]="account.id"
+                        >{{ account.accountNo }} ({{ account.productName }})</ion-select-option
                       >
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
               </div>
 
               <!-- Transfer Details -->
               <div class="section-group full-width details-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.TRANSFER_TYPE' | translate }}</mat-label>
-                  <mat-select name="transferType" [(ngModel)]="request.transferType" required>
-                    <mat-option [value]="'1'">Account Transfer</mat-option>
-                    <mat-option [value]="'2'">Loan Repayment</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.TRANSFER_TYPE' | translate
+                  }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="transferType"
+                    [(ngModel)]="request.transferType"
+                    required
+                  >
+                    <ion-select-option [value]="'1'">Account Transfer</ion-select-option>
+                    <ion-select-option [value]="'2'">Loan Repayment</ion-select-option>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
-                  <input
-                    matInput
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
+                  <ion-input
                     type="number"
                     name="amount"
                     [(ngModel)]="request.amount"
                     required
-                  />
-                </mat-form-field>
+                  ></ion-input>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.INSTRUCTION_TYPE' | translate }}</mat-label>
-                  <mat-select name="instructionType" [(ngModel)]="request.instructionType" required>
-                    <mat-option [value]="'1'">Fixed</mat-option>
-                    <mat-option [value]="'2'">Dues</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.INSTRUCTION_TYPE' | translate
+                  }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="instructionType"
+                    [(ngModel)]="request.instructionType"
+                    required
+                  >
+                    <ion-select-option [value]="'1'">Fixed</ion-select-option>
+                    <ion-select-option [value]="'2'">Dues</ion-select-option>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'COMMON.PRIORITY' | translate }}</mat-label>
-                  <mat-select name="priority" [(ngModel)]="request.priority" required>
-                    <mat-option [value]="'1'">High</mat-option>
-                    <mat-option [value]="'2'">Medium</mat-option>
-                    <mat-option [value]="'3'">Low</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'COMMON.PRIORITY' | translate }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="priority"
+                    [(ngModel)]="request.priority"
+                    required
+                  >
+                    <ion-select-option [value]="'1'">High</ion-select-option>
+                    <ion-select-option [value]="'2'">Medium</ion-select-option>
+                    <ion-select-option [value]="'3'">Low</ion-select-option>
+                  </ion-select>
+                </ion-item>
               </div>
 
               <!-- Recurrence -->
               <div class="section-group full-width recurrence-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.RECURRENCE_TYPE' | translate }}</mat-label>
-                  <mat-select name="recurrenceType" [(ngModel)]="request.recurrenceType" required>
-                    <mat-option [value]="'1'">Periodic</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.RECURRENCE_TYPE' | translate
+                  }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="recurrenceType"
+                    [(ngModel)]="request.recurrenceType"
+                    required
+                  >
+                    <ion-select-option [value]="'1'">Periodic</ion-select-option>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.RECURRENCE_FREQUENCY' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.RECURRENCE_FREQUENCY' | translate
+                  }}</ion-label>
+                  <ion-select
+                    interface="popover"
                     name="recurrenceFrequency"
                     [(ngModel)]="request.recurrenceFrequency"
                     required
                   >
-                    <mat-option [value]="'1'">Days</mat-option>
-                    <mat-option [value]="'2'">Weeks</mat-option>
-                    <mat-option [value]="'3'">Months</mat-option>
-                    <mat-option [value]="'4'">Years</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                    <ion-select-option [value]="'1'">Days</ion-select-option>
+                    <ion-select-option [value]="'2'">Weeks</ion-select-option>
+                    <ion-select-option [value]="'3'">Months</ion-select-option>
+                    <ion-select-option [value]="'4'">Years</ion-select-option>
+                  </ion-select>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.RECURRENCE_INTERVAL' | translate }}</mat-label>
-                  <input
-                    matInput
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.RECURRENCE_INTERVAL' | translate
+                  }}</ion-label>
+                  <ion-input
                     type="number"
                     name="recurrenceInterval"
                     [(ngModel)]="request.recurrenceInterval"
                     required
-                  />
-                </mat-form-field>
+                  ></ion-input>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.VALID_FROM' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="fromPicker"
-                    name="validFrom"
-                    [(ngModel)]="validFrom"
-                    required
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #fromPicker></mat-datepicker>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.VALID_FROM' | translate }}</ion-label>
+                  <ion-datetime-button datetime="validFrom-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="validFrom-picker"
+                        data-testid="validFrom-picker"
+                        presentation="date"
+                        name="validFrom"
+                        [(ngModel)]="validFrom"
+                        required
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'CLIENTS.VALID_TILL' | translate }}</mat-label>
-                  <input
-                    matInput
-                    [matDatepicker]="tillPicker"
-                    name="validTill"
-                    [(ngModel)]="validTill"
-                  />
-                  <mat-datepicker-toggle matSuffix [for]="tillPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #tillPicker></mat-datepicker>
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'CLIENTS.VALID_TILL' | translate }}</ion-label>
+                  <ion-datetime-button datetime="validTill-picker"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="validTill-picker"
+                        data-testid="validTill-picker"
+                        presentation="date"
+                        name="validTill"
+                        [(ngModel)]="validTill"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
               </div>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button fill="clear" type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="!instructionForm.form.valid"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="!instructionForm.form.valid">
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -377,7 +450,7 @@ export class StandingInstructionFormComponent implements OnInit {
   fromAccounts = signal<MiniAccount[]>([]);
   toAccounts = signal<MiniAccount[]>([]);
 
-  validFrom = new Date();
+  validFrom = toIsoDate(new Date());
   validTill?: Date;
 
   request: StandingInstructionCreationRequest = {
@@ -457,7 +530,7 @@ export class StandingInstructionFormComponent implements OnInit {
   private populateDates(data: GetStandingInstructionsStandingInstructionIdResponse): void {
     if (data.validFrom) {
       const vf = data.validFrom as unknown as number[];
-      this.validFrom = new Date(vf[0], vf[1] - 1, vf[2]);
+      this.validFrom = toIsoDate(new Date(vf[0], vf[1] - 1, vf[2]));
     }
     const rawData = data as unknown as Record<string, unknown>;
     if (rawData['validTill']) {

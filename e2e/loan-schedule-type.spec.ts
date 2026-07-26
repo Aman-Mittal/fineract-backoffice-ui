@@ -53,7 +53,7 @@ import { login, uniqueSuffix } from './utils/fineract-login';
 test.use({ video: 'on', trace: 'on' });
 
 const LOAN_SCHEDULE_TYPE_LABEL = 'Loan Schedule Type';
-const ALLOCATION_ORDER_ITEM_SELECTOR = '.allocation-order-list mat-list-item';
+const ALLOCATION_ORDER_ITEM_SELECTOR = '.allocation-order-list ion-item';
 
 test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
   // These tests hit a real shared backend (the public Mifos community
@@ -72,7 +72,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     await page.goto('/products/loan');
     await expect(page.getByRole('columnheader', { name: LOAN_SCHEDULE_TYPE_LABEL })).toBeVisible();
     // At least one chip (Cumulative or Progressive) should render in the table.
-    await expect(page.locator('mat-chip').first()).toBeVisible();
+    await expect(page.locator('ion-chip').first()).toBeVisible();
   });
 
   test('create a Progressive loan product end-to-end and verify it round-trips', async ({
@@ -93,17 +93,20 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       page.getByText('Penalties, Fees, Interest, Principal order', { exact: true }),
     ).toBeVisible({ timeout: 15000 });
 
-    await page.getByRole('textbox', { name: 'Name', exact: true }).fill(productName);
-    await page.getByRole('textbox', { name: 'Short Name' }).fill(shortName);
-    await page.getByRole('spinbutton', { name: 'Principal' }).fill('5000');
-    await page.getByRole('spinbutton', { name: 'Interest Rate' }).fill('10');
-    await page.getByRole('spinbutton', { name: 'Number of Repayments' }).fill('6');
-    await page.getByRole('spinbutton', { name: 'Repayment Every' }).fill('1');
+    await page.getByTestId('loan-product-name').fill(productName);
+    await page.getByTestId('loan-product-short-name').fill(shortName);
+    await page.getByTestId('loan-product-principal').fill('5000');
+    await page.getByTestId('loan-product-interest-rate').fill('10');
+    await page.getByTestId('loan-product-repayments-count').fill('6');
+    await page.getByTestId('loan-product-repayment-every').fill('1');
 
     // Switch to Progressive and verify the reactive strategy lock + processing
     // type field appear immediately (no page reload needed).
-    await page.getByRole('combobox', { name: LOAN_SCHEDULE_TYPE_LABEL }).click();
-    await page.getByRole('option', { name: 'Progressive' }).click();
+    await page.getByTestId('loan-product-schedule-type').click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: 'Progressive' })
+      .click();
 
     const strategySelect = page.getByRole('combobox', { name: 'Repayment Strategy' });
     await expect(strategySelect).toBeDisabled();
@@ -128,7 +131,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       .textContent();
     expect(firstRuleTextAfter).not.toEqual(firstRuleTextBefore);
 
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('loan-product-submit-btn').click();
 
     // Successful save navigates back to the list. The list paginates at 10
     // rows and this shared environment accumulates products across test
@@ -142,7 +145,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       await page.getByPlaceholder('Type to search...').fill(productName);
       await expect(productRow).toBeVisible({ timeout: 3000 });
     }).toPass({ timeout: 20000, intervals: [1000, 2000, 3000] });
-    await expect(productRow.locator('mat-chip')).toHaveText('Progressive');
+    await expect(productRow.locator('ion-chip')).toHaveText('Progressive');
 
     // View page: confirm the Loan Schedule section and payment allocation
     // survive the round trip through the real backend.
@@ -188,7 +191,10 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     // click hangs until timeout.
     await page.goto('/loans/create', { waitUntil: 'networkidle' });
     await page.getByRole('combobox', { name: 'Product' }).click();
-    await page.getByRole('option', { name: productName!, exact: true }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: productName!, exact: true })
+      .click();
 
     await expect(page.getByText(/Loan Schedule Type:\s*Progressive/)).toBeVisible({
       timeout: 15000,

@@ -20,13 +20,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { IonButton, IonCard, IonIcon, IonToggle } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   SCHEDULERJOBService,
   SchedulerService,
@@ -46,26 +43,29 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatCardModule,
-    MatSlideToggleModule,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    IonCard,
+    IonToggle,
+    TooltipDirective,
   ],
   template: `
-    <mat-card class="scheduler-status">
+    <ion-card class="scheduler-status">
       <div class="status-row">
         <span class="status-label">{{ 'SCHEDULER_JOBS.GLOBAL_STATUS' | translate }}:</span>
         <span>{{
           (schedulerActive ? 'SCHEDULER_JOBS.RUNNING' : 'SCHEDULER_JOBS.STOPPED') | translate
         }}</span>
-        <mat-slide-toggle [checked]="schedulerActive" (change)="onToggleScheduler($event.checked)">
+        <ion-toggle
+          [checked]="schedulerActive"
+          (ionChange)="onToggleScheduler($event.detail.checked)"
+        >
           {{ 'SCHEDULER_JOBS.TOGGLE_SCHEDULER' | translate }}
-        </mat-slide-toggle>
+        </ion-toggle>
       </div>
-    </mat-card>
+    </ion-card>
 
     <app-data-table
       title="nav.schedulerJobs"
@@ -79,24 +79,24 @@ import {
         {{ (row.active ? 'COMMON.YES' : 'COMMON.NO') | translate }}
       </ng-template>
       <ng-template appCellTemplate="actions" let-row>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'SCHEDULER_JOBS.RUN_NOW' | translate"
-          [matTooltip]="'SCHEDULER_JOBS.RUN_NOW' | translate"
+          [appTooltip]="'SCHEDULER_JOBS.RUN_NOW' | translate"
           (click)="onRunNow(row)"
         >
-          <mat-icon>play_arrow</mat-icon>
-        </button>
-        <button
-          mat-icon-button
+          <ion-icon name="play-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'SCHEDULER_JOBS.HISTORY' | translate"
-          [matTooltip]="'SCHEDULER_JOBS.HISTORY' | translate"
+          [appTooltip]="'SCHEDULER_JOBS.HISTORY' | translate"
           (click)="onHistory(row)"
         >
-          <mat-icon>history</mat-icon>
-        </button>
+          <ion-icon name="time-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

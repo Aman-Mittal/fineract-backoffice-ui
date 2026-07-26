@@ -76,7 +76,7 @@ describe('CalendarFormComponent', () => {
       of({}) as unknown as ReturnType<CalendarService['postEntityTypeEntityIdCalendars']>,
     );
     component.title = 'Weekly';
-    component.startDate = new Date(2026, 0, 15);
+    component.startDate = '2026-01-15';
     component.typeId = '1';
     component.onSubmit();
     expect(serviceSpy.postEntityTypeEntityIdCalendars).toHaveBeenCalledWith(

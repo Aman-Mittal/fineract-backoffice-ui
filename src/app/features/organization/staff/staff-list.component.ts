@@ -20,9 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataTableComponent,
   ColumnDef,
@@ -30,6 +27,8 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { StaffService, StaffData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-staff-list',
@@ -37,12 +36,12 @@ import { StaffService, StaffData } from '../../../api';
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -52,40 +51,41 @@ import { StaffService, StaffData } from '../../../api';
       [isLoading]="isLoading()"
       [localLogic]="true"
     >
-      <button
+      <ion-button
         headerActions
-        mat-raised-button
         color="primary"
         [routerLink]="['create']"
         *appHasPermission="'CREATE_STAFF'"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'ORGANIZATION.CREATE_STAFF' | translate }}
-      </button>
+      </ion-button>
 
       <ng-template appCellTemplate="isLoanOfficer" let-row>
-        <mat-icon [color]="row.isLoanOfficer ? 'primary' : 'warn'">
-          {{ row.isLoanOfficer ? 'check_circle' : 'cancel' }}
-        </mat-icon>
+        <ion-icon
+          [color]="row.isLoanOfficer ? 'primary' : 'danger'"
+          [name]="row.isLoanOfficer ? 'checkmark-circle-outline' : 'close-circle-outline'"
+        ></ion-icon>
       </ng-template>
 
       <ng-template appCellTemplate="isActive" let-row>
-        <mat-icon [color]="row.isActive ? 'primary' : 'warn'">
-          {{ row.isActive ? 'check_circle' : 'cancel' }}
-        </mat-icon>
+        <ion-icon
+          [color]="row.isActive ? 'primary' : 'danger'"
+          [name]="row.isActive ? 'checkmark-circle-outline' : 'close-circle-outline'"
+        ></ion-icon>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             [routerLink]="['edit', row.id]"
             *appHasPermission="'UPDATE_STAFF'"
-            [matTooltip]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
           >
-            <mat-icon>edit</mat-icon>
-          </button>
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

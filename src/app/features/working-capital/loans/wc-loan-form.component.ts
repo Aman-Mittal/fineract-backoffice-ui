@@ -21,14 +21,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalNearBreachService,
@@ -58,186 +67,220 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'WC_LOANS.CREATE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'WC_LOANS.CREATE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #loanForm="ngForm" (ngSubmit)="onSubmit()" class="wc-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.CLIENT_ID' | translate }}</mat-label>
-              <input matInput type="number" name="clientId" [(ngModel)]="loan.clientId" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.CLIENT_ID' | translate }}</ion-label>
+              <ion-input
+                type="number"
+                name="clientId"
+                [(ngModel)]="loan.clientId"
+                required
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.PRODUCT' | translate }}</mat-label>
-              <mat-select name="productId" [(ngModel)]="loan.productId" required>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.PRODUCT' | translate }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="productId"
+                [(ngModel)]="loan.productId"
+                required
+              >
                 @for (opt of productOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.PRINCIPAL' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.PRINCIPAL' | translate }}</ion-label>
+              <ion-input
                 type="number"
                 name="principalAmount"
                 [(ngModel)]="loan.principalAmount"
                 required
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.SUBMITTED_ON_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="submittedPicker"
-                name="submittedOnDate"
-                [(ngModel)]="submittedOnDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="submittedPicker"></mat-datepicker-toggle>
-              <mat-datepicker #submittedPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.SUBMITTED_ON_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="submittedOnDate-picker"
+                    data-testid="submittedOnDate-picker"
+                    presentation="date"
+                    name="submittedOnDate"
+                    [(ngModel)]="submittedOnDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.EXPECTED_DISBURSEMENT_DATE' | translate }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="disbursePicker"
-                name="expectedDisbursementDate"
-                [(ngModel)]="expectedDisbursementDate"
-              />
-              <mat-datepicker-toggle matSuffix [for]="disbursePicker"></mat-datepicker-toggle>
-              <mat-datepicker #disbursePicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.EXPECTED_DISBURSEMENT_DATE' | translate
+              }}</ion-label>
+              <ion-datetime-button datetime="expectedDisbursementDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="expectedDisbursementDate-picker"
+                    data-testid="expectedDisbursementDate-picker"
+                    presentation="date"
+                    name="expectedDisbursementDate"
+                    [(ngModel)]="expectedDisbursementDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.REPAYMENT_EVERY' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
+              <ion-input
                 type="number"
                 name="repaymentEvery"
                 [(ngModel)]="loan.repaymentEvery"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.REPAYMENT_FREQUENCY_TYPE' | translate }}</mat-label>
-              <mat-select name="repaymentFrequencyType" [(ngModel)]="loan.repaymentFrequencyType">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.REPAYMENT_FREQUENCY_TYPE' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="repaymentFrequencyType"
+                [(ngModel)]="loan.repaymentFrequencyType"
+              >
                 @for (opt of repaymentFrequencyTypeOptions; track opt.id) {
-                  <mat-option [value]="opt.code">{{ opt.value }}</mat-option>
+                  <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.BREACH' | translate }}</mat-label>
-              <mat-select name="breachId" [(ngModel)]="loan.breachId">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.BREACH' | translate }}</ion-label>
+              <ion-select interface="popover" name="breachId" [(ngModel)]="loan.breachId">
                 @for (opt of breachOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.NEAR_BREACH' | translate }}</mat-label>
-              <mat-select name="nearBreachId" [(ngModel)]="loan.nearBreachId">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.NEAR_BREACH' | translate }}</ion-label>
+              <ion-select interface="popover" name="nearBreachId" [(ngModel)]="loan.nearBreachId">
                 @for (opt of nearBreachOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.DELINQUENCY_BUCKET' | translate }}</mat-label>
-              <mat-select name="delinquencyBucketId" [(ngModel)]="loan.delinquencyBucketId">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.DELINQUENCY_BUCKET' | translate
+              }}</ion-label>
+              <ion-select
+                interface="popover"
+                name="delinquencyBucketId"
+                [(ngModel)]="loan.delinquencyBucketId"
+              >
                 @for (opt of delinquencyBucketOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.FUND' | translate }}</mat-label>
-              <mat-select name="fundId" [(ngModel)]="loan.fundId">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.FUND' | translate }}</ion-label>
+              <ion-select interface="popover" name="fundId" [(ngModel)]="loan.fundId">
                 @for (opt of fundOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.PERIOD_PAYMENT_RATE' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.PERIOD_PAYMENT_RATE' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="periodPaymentRate"
                 [(ngModel)]="loan.periodPaymentRate"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.TOTAL_PAYMENT_VOLUME' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.TOTAL_PAYMENT_VOLUME' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="totalPaymentVolume"
                 [(ngModel)]="loan.totalPaymentVolume"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.EXTERNAL_ID' | translate }}</mat-label>
-              <input matInput name="externalId" [(ngModel)]="loan.externalId" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'WC_LOANS.EXTERNAL_ID' | translate }}</ion-label>
+              <ion-input name="externalId" [(ngModel)]="loan.externalId"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'WC_LOANS.SUBMITTED_ON_NOTE' | translate }}</mat-label>
-              <textarea
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'WC_LOANS.SUBMITTED_ON_NOTE' | translate
+              }}</ion-label>
+              <ion-textarea
                 name="submittedOnNote"
                 [(ngModel)]="loan.submittedOnNote"
-              ></textarea>
-            </mat-form-field>
+              ></ion-textarea>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="loanForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [
@@ -265,8 +308,8 @@ export class WcLoanFormComponent implements OnInit {
   isSaving = false;
 
   loan: Partial<PostWorkingCapitalLoansRequest> = {};
-  submittedOnDate: Date | null = null;
-  expectedDisbursementDate: Date | null = null;
+  submittedOnDate: string | null = null;
+  expectedDisbursementDate: string | null = null;
 
   productOptions: GetWorkingCapitalLoanProductsResponse[] = [];
   breachOptions: GetWorkingCapitalLoanBreach[] = [];

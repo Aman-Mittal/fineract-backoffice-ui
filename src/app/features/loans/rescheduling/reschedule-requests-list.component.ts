@@ -21,9 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataTableComponent,
   ColumnDef,
@@ -31,6 +28,7 @@ import {
   StatusBadgeComponent,
 } from '../../../shared';
 import { RescheduleLoansService, GetLoanRescheduleRequestResponse } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Component for listing loan reschedule requests.
@@ -42,12 +40,11 @@ import { RescheduleLoansService, GetLoanRescheduleRequestResponse } from '../../
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -74,15 +71,15 @@ import { RescheduleLoansService, GetLoanRescheduleRequestResponse } from '../../
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-request>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.VIEW' | translate"
-          matTooltip="View Request Details"
+          title="View Request Details"
           (click)="onViewRequest(request)"
         >
-          <mat-icon>visibility</mat-icon>
-        </button>
+          <ion-icon name="eye-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

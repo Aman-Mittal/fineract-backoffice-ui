@@ -23,7 +23,28 @@ module.exports = withNativeFederation({
   name: 'fineract-backoffice-ui',
 
   shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    ...shareAll(
+      { singleton: true, strictVersion: true, requiredVersion: 'auto' },
+      {
+        overrides: {
+          // Mirrors the remote's override in
+          // projects/fineract-mfe/federation.config.mjs. The host imports the
+          // secondary entry point '@ionic/angular/standalone', so without
+          // includeSecondaries the host and remote can resolve two separate
+          // Ionic instances. Ionic registers its web components into the single
+          // global customElements registry and provideIonicAngular() holds
+          // global overlay config, so a duplicate instance surfaces as
+          // "element already defined" errors or silently dead overlays.
+          '@ionic/angular': {
+            singleton: true,
+            strictVersion: true,
+            requiredVersion: 'auto',
+            build: 'package',
+            includeSecondaries: { keepAll: true },
+          },
+        },
+      },
+    ),
   },
 
   skip: [

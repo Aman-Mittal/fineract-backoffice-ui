@@ -18,7 +18,13 @@
  */
 
 import { bootstrapApplication } from '@angular/platform-browser';
+import { addIcons } from 'ionicons';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
+import { APP_ICONS } from './app/core/icons';
+
+// Register every ionicon before the first component renders, so <ion-icon name="..."> never
+// falls back to a lazy SVG fetch.
+addIcons(APP_ICONS);
 
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
