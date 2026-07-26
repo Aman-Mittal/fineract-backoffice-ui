@@ -74,7 +74,7 @@ import {
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SEARCH.RESOURCE_TYPE' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedResource" name="resource">
+            <ion-select interface="popover" [(ngModel)]="selectedResource" name="resource">
               <ion-select-option value="">{{ 'SEARCH.ALL_TYPES' | translate }}</ion-select-option>
               @for (type of allowedSearchTypes; track type) {
                 <ion-select-option [value]="type">{{ type }}</ion-select-option>

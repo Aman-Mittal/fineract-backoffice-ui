@@ -130,6 +130,7 @@ import {
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="productId"
                     [(ngModel)]="account['productId']"
                     (ngModelChange)="onProductSelected($event)"
@@ -199,6 +200,7 @@ import {
               <ion-item fill="outline" [attr.title]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="depositPeriodFrequencyId"
                   [(ngModel)]="account['depositPeriodFrequencyId']"
                   required

@@ -34,8 +34,9 @@ export async function selectOption(
   optionName: string,
 ): Promise<void> {
   const combobox = page.getByRole('combobox', { name: comboboxName });
-  const option = page.getByRole('option', { name: optionName, exact: true });
   const overlay = page.locator('ion-alert, ion-popover, ion-action-sheet');
+  // Ionic renders select options as radios inside the overlay, not as role="option".
+  const option = overlay.getByRole('radio', { name: optionName, exact: true });
 
   await combobox.scrollIntoViewIfNeeded();
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -50,5 +51,8 @@ export async function selectOption(
     }
   }
   await option.click();
+  // The alert interface needs an explicit confirmation; the popover selects on click.
+  const confirm = overlay.getByRole('button', { name: /^(ok|done)$/i });
+  if (await confirm.count()) await confirm.first().click();
   await expect(overlay).toHaveCount(0);
 }

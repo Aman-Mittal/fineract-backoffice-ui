@@ -126,7 +126,7 @@ interface SlabRow {
               <ion-label position="stacked">{{
                 'INTEREST_RATE_CHARTS.PERIOD_TYPE' | translate
               }}</ion-label>
-              <ion-select name="periodType" [(ngModel)]="newSlab.periodType">
+              <ion-select interface="popover" name="periodType" [(ngModel)]="newSlab.periodType">
                 @for (opt of periodTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }

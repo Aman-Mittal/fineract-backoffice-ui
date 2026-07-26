@@ -65,7 +65,7 @@ import {
 
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">Office</ion-label>
-          <ion-select formControlName="officeId" required>
+          <ion-select interface="popover" formControlName="officeId" required>
             @for (office of offices; track office['id']) {
               <ion-select-option [value]="office['id']">
                 {{ office['name'] }}
@@ -84,7 +84,7 @@ import {
           @if (ruleForm.get('debitRuleType')?.value === 'fixedAccount') {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">Account to Debit</ion-label>
-              <ion-select formControlName="accountToDebit">
+              <ion-select interface="popover" formControlName="accountToDebit">
                 @for (account of accounts; track account['id']) {
                   <ion-select-option [value]="account['id']">
                     {{ account['name'] }} ({{ account['glCode'] }})
@@ -97,7 +97,7 @@ import {
           @if (ruleForm.get('debitRuleType')?.value === 'tags') {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">Debit Tags</ion-label>
-              <ion-select formControlName="debitTags" multiple>
+              <ion-select interface="popover" formControlName="debitTags" multiple>
                 @for (tag of debitTags; track tag['id']) {
                   <ion-select-option [value]="tag['id']">
                     {{ tag['name'] }}
@@ -122,7 +122,7 @@ import {
           @if (ruleForm.get('creditRuleType')?.value === 'fixedAccount') {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">Account to Credit</ion-label>
-              <ion-select formControlName="accountToCredit">
+              <ion-select interface="popover" formControlName="accountToCredit">
                 @for (account of accounts; track account['id']) {
                   <ion-select-option [value]="account['id']">
                     {{ account['name'] }} ({{ account['glCode'] }})
@@ -135,7 +135,7 @@ import {
           @if (ruleForm.get('creditRuleType')?.value === 'tags') {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">Credit Tags</ion-label>
-              <ion-select formControlName="creditTags" multiple>
+              <ion-select interface="popover" formControlName="creditTags" multiple>
                 @for (tag of creditTags; track tag['id']) {
                   <ion-select-option [value]="tag['id']">
                     {{ tag['name'] }}

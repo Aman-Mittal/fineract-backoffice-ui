@@ -73,7 +73,13 @@ import {
           <form #hookForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'HOOKS.NAME' | translate }}</ion-label>
-              <ion-select name="name" [(ngModel)]="hook.name" required [disabled]="isEditMode">
+              <ion-select
+                interface="popover"
+                name="name"
+                [(ngModel)]="hook.name"
+                required
+                [disabled]="isEditMode"
+              >
                 @for (tpl of templateOptions; track tpl.id) {
                   <ion-select-option [value]="tpl.name">{{ tpl.name }}</ion-select-option>
                 }

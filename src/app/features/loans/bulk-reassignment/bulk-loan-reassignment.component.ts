@@ -74,7 +74,11 @@ interface StaffMember {
         <div class="form-container">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BULK_LOANS.OFFICE' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedOfficeId" (ngModelChange)="onOfficeChange()">
+            <ion-select
+              interface="popover"
+              [(ngModel)]="selectedOfficeId"
+              (ngModelChange)="onOfficeChange()"
+            >
               @for (office of offices; track office.id) {
                 <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
               }
@@ -83,7 +87,11 @@ interface StaffMember {
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BULK_LOANS.FROM_OFFICER' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedFromOfficerId" [disabled]="!selectedOfficeId">
+            <ion-select
+              interface="popover"
+              [(ngModel)]="selectedFromOfficerId"
+              [disabled]="!selectedOfficeId"
+            >
               @for (officer of filteredStaff; track officer.id) {
                 <ion-select-option [value]="officer.id">{{
                   officer.displayName
@@ -94,7 +102,11 @@ interface StaffMember {
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BULK_LOANS.TO_OFFICER' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedToOfficerId" [disabled]="!selectedFromOfficerId">
+            <ion-select
+              interface="popover"
+              [(ngModel)]="selectedToOfficerId"
+              [disabled]="!selectedFromOfficerId"
+            >
               @for (officer of toOfficerList; track officer.id) {
                 <ion-select-option [value]="officer.id">{{
                   officer.displayName

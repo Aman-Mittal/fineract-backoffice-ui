@@ -104,7 +104,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.PRODUCT' | translate }}</ion-label>
-              <ion-select name="productId" [(ngModel)]="loan.productId" required>
+              <ion-select
+                interface="popover"
+                name="productId"
+                [(ngModel)]="loan.productId"
+                required
+              >
                 @for (opt of productOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -170,7 +175,11 @@ import {
               <ion-label position="stacked">{{
                 'WC_LOANS.REPAYMENT_FREQUENCY_TYPE' | translate
               }}</ion-label>
-              <ion-select name="repaymentFrequencyType" [(ngModel)]="loan.repaymentFrequencyType">
+              <ion-select
+                interface="popover"
+                name="repaymentFrequencyType"
+                [(ngModel)]="loan.repaymentFrequencyType"
+              >
                 @for (opt of repaymentFrequencyTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
@@ -179,7 +188,7 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.BREACH' | translate }}</ion-label>
-              <ion-select name="breachId" [(ngModel)]="loan.breachId">
+              <ion-select interface="popover" name="breachId" [(ngModel)]="loan.breachId">
                 @for (opt of breachOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -188,7 +197,7 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.NEAR_BREACH' | translate }}</ion-label>
-              <ion-select name="nearBreachId" [(ngModel)]="loan.nearBreachId">
+              <ion-select interface="popover" name="nearBreachId" [(ngModel)]="loan.nearBreachId">
                 @for (opt of nearBreachOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -199,7 +208,11 @@ import {
               <ion-label position="stacked">{{
                 'WC_LOANS.DELINQUENCY_BUCKET' | translate
               }}</ion-label>
-              <ion-select name="delinquencyBucketId" [(ngModel)]="loan.delinquencyBucketId">
+              <ion-select
+                interface="popover"
+                name="delinquencyBucketId"
+                [(ngModel)]="loan.delinquencyBucketId"
+              >
                 @for (opt of delinquencyBucketOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -208,7 +221,7 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.FUND' | translate }}</ion-label>
-              <ion-select name="fundId" [(ngModel)]="loan.fundId">
+              <ion-select interface="popover" name="fundId" [(ngModel)]="loan.fundId">
                 @for (opt of fundOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }

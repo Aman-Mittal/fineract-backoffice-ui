@@ -103,7 +103,10 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     // Switch to Progressive and verify the reactive strategy lock + processing
     // type field appear immediately (no page reload needed).
     await page.getByTestId('loan-product-schedule-type').click();
-    await page.getByRole('option', { name: 'Progressive' }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: 'Progressive' })
+      .click();
 
     const strategySelect = page.getByRole('combobox', { name: 'Repayment Strategy' });
     await expect(strategySelect).toBeDisabled();
@@ -188,7 +191,10 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     // click hangs until timeout.
     await page.goto('/loans/create', { waitUntil: 'networkidle' });
     await page.getByRole('combobox', { name: 'Product' }).click();
-    await page.getByRole('option', { name: productName!, exact: true }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: productName!, exact: true })
+      .click();
 
     await expect(page.getByText(/Loan Schedule Type:\s*Progressive/)).toBeVisible({
       timeout: 15000,

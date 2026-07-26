@@ -25,7 +25,7 @@ const BTN_CANCEL = 'Cancel';
 const URL_CLIENTS_CREATE = '/clients/create';
 const SELECT_LEGAL_FORM = 'ion-select[name="legalFormId"]';
 const SELECT_OFFICE = 'ion-select[name="officeId"]';
-const OPTION = 'ion-select-option';
+const OPTION = 'ion-alert [role="radio"], ion-popover [role="radio"]';
 const ROUTE_CLIENT_2001 = '**/api/v1/clients/2001**';
 const URL_CLIENT_2001 = '/clients/2001';
 const ARIA_SELECTED = 'aria-selected';
@@ -180,7 +180,10 @@ test.describe('Client CRUD Workflow', () => {
 
     /* fill required fields */
     await page.locator(SELECT_LEGAL_FORM).click();
-    await page.getByRole('option', { name: /Person/i }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: /Person/i })
+      .click();
 
     await page.locator(SELECT_OFFICE).click();
     await page.locator(OPTION).first().click();
@@ -221,7 +224,10 @@ test.describe('Client CRUD Workflow', () => {
 
     /* select Entity legal form */
     await page.locator(SELECT_LEGAL_FORM).click();
-    await page.getByRole('option', { name: /Entity/i }).click();
+    await page
+      .locator('ion-alert, ion-popover')
+      .getByRole('radio', { name: /Entity/i })
+      .click();
 
     /* fill required office */
     await page.locator(SELECT_OFFICE).click();
@@ -512,7 +518,7 @@ test.describe('Search & Filter Interactions', () => {
 
     /* open the dropdown and check options */
     await officeFilter.click();
-    await expect(page.getByRole('option').first()).toBeVisible();
+    await expect(page.locator('ion-alert, ion-popover').getByRole('radio').first()).toBeVisible();
     await page.keyboard.press('Escape');
   });
 
@@ -1034,7 +1040,7 @@ test.describe('Reporting — Run Report Flow', () => {
 
     /* select office and run */
     await page.locator('ion-select').click();
-    await page.getByRole('option', { name: HEAD_OFFICE }).click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
     await page.getByRole('button', { name: 'Run Report' }).click();
 
     /* verify results */

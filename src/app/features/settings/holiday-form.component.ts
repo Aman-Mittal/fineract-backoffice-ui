@@ -98,7 +98,13 @@ import {
                 <ion-label position="stacked">{{
                   'HOLIDAYS.APPLICABLE_OFFICES' | translate
                 }}</ion-label>
-                <ion-select name="offices" [(ngModel)]="selectedOfficeIds" multiple required>
+                <ion-select
+                  interface="popover"
+                  name="offices"
+                  [(ngModel)]="selectedOfficeIds"
+                  multiple
+                  required
+                >
                   @for (office of offices; track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
@@ -155,7 +161,12 @@ import {
                 <ion-label position="stacked">{{
                   'HOLIDAYS.RESCHEDULING_TYPE' | translate
                 }}</ion-label>
-                <ion-select name="reschedulingType" [(ngModel)]="reschedulingType" required>
+                <ion-select
+                  interface="popover"
+                  name="reschedulingType"
+                  [(ngModel)]="reschedulingType"
+                  required
+                >
                   @for (option of reschedulingTypeOptions; track option.id) {
                     <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }

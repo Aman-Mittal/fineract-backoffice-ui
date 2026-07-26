@@ -85,7 +85,7 @@ import {
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.TYPE' | translate }}</ion-label>
-              <ion-select name="campaignType" [(ngModel)]="campaignType">
+              <ion-select interface="popover" name="campaignType" [(ngModel)]="campaignType">
                 @for (option of campaignTypeOptions(); track option.id) {
                   <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                 }

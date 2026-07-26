@@ -122,6 +122,7 @@ import {
                   <ion-item fill="outline" [attr.title]="'HELP.TELLER_OFFICE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.OFFICE' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="officeId"
                       [(ngModel)]="teller.officeId"
                       required
@@ -179,6 +180,7 @@ import {
                   <ion-item fill="outline" [attr.title]="'HELP.TELLER_STATUS_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.STATUS' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="status"
                       [(ngModel)]="teller.status"
                       required
@@ -200,6 +202,7 @@ import {
                   <ion-item fill="outline" [attr.title]="'HELP.TELLER_USAGE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.USAGE' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="usage"
                       [(ngModel)]="usage"
                       required

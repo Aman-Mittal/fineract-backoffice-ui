@@ -88,7 +88,7 @@ export interface ClientActionDialogData {
         @if (showReasonDropdown) {
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ reasonLabel | translate }}</ion-label>
-            <ion-select [(ngModel)]="reasonId" required>
+            <ion-select interface="popover" [(ngModel)]="reasonId" required>
               @for (reason of reasonOptions; track reason.id) {
                 <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
               }

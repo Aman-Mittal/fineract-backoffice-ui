@@ -129,7 +129,7 @@ test.describe('Client Management', () => {
 
     // Fill Client Form
     await page.locator('ion-select[name="legalFormId"]').click();
-    await page.getByRole('option', { name: 'Person' }).click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Person' }).click();
 
     const firstName = `TestUser${Date.now()}`;
     const lastName = 'E2E';
@@ -139,7 +139,7 @@ test.describe('Client Management', () => {
 
     // Select Office (assuming HEAD_OFFICE is available)
     await page.locator('ion-select[name="officeId"]').click();
-    await page.locator('ion-select-option').first().click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
 
     // Submit
     await page.getByRole('button', { name: 'Save' }).click();

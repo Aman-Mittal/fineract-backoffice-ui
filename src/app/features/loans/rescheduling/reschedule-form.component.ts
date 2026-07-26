@@ -91,6 +91,7 @@ import {
               <ion-item fill="outline" [attr.title]="'HELP.RESCHEDULE_FROM_DESC' | translate">
                 <ion-label position="stacked">Reschedule From Date</ion-label>
                 <ion-select
+                  interface="popover"
                   name="rescheduleFromDate"
                   [(ngModel)]="rescheduleFromDateString"
                   required
@@ -121,6 +122,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">Reason</ion-label>
                     <ion-select
+                      interface="popover"
                       name="rescheduleReasonId"
                       [(ngModel)]="request.rescheduleReasonId"
                       required

@@ -132,6 +132,7 @@ const PRODUCT_TYPE = 'share';
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="share-product-currency-code"
                       data-testid="share-product-currency-code"
                       name="currencyCode"

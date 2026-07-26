@@ -92,6 +92,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="officeId"
                   [(ngModel)]="staff.officeId"
                   required

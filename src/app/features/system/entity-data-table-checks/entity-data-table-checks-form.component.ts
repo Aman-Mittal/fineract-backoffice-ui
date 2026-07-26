@@ -71,7 +71,7 @@ import {
               <ion-label position="stacked">{{
                 'ENTITY_DATA_TABLE_CHECKS.ENTITY' | translate
               }}</ion-label>
-              <ion-select name="entity" [(ngModel)]="check.entity" required>
+              <ion-select interface="popover" name="entity" [(ngModel)]="check.entity" required>
                 @for (ent of entityOptions; track ent) {
                   <ion-select-option [value]="ent">{{ ent }}</ion-select-option>
                 }

@@ -93,6 +93,7 @@ import {
                   <ion-item fill="outline" [attr.title]="'HELP.CASHIER_STAFF_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.STAFF' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="staffId"
                       [(ngModel)]="cashier.staffId"
                       required

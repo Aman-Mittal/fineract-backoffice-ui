@@ -93,7 +93,11 @@ import {
               <ion-label position="stacked">{{
                 'LOAN_ORIGINATORS.ORIGINATOR_TYPE' | translate
               }}</ion-label>
-              <ion-select name="originatorTypeId" [(ngModel)]="originator.originatorTypeId">
+              <ion-select
+                interface="popover"
+                name="originatorTypeId"
+                [(ngModel)]="originator.originatorTypeId"
+              >
                 @for (opt of originatorTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -104,7 +108,11 @@ import {
               <ion-label position="stacked">{{
                 'LOAN_ORIGINATORS.CHANNEL_TYPE' | translate
               }}</ion-label>
-              <ion-select name="channelTypeId" [(ngModel)]="originator.channelTypeId">
+              <ion-select
+                interface="popover"
+                name="channelTypeId"
+                [(ngModel)]="originator.channelTypeId"
+              >
                 @for (opt of channelTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -113,7 +121,7 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'LOAN_ORIGINATORS.STATUS' | translate }}</ion-label>
-              <ion-select name="status" [(ngModel)]="originator.status">
+              <ion-select interface="popover" name="status" [(ngModel)]="originator.status">
                 @for (opt of statusOptions; track opt) {
                   <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                 }

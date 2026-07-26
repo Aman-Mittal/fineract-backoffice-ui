@@ -73,7 +73,11 @@ import {
           <div class="config-row">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SYSTEM.ENTITY_TYPE' | translate }}</ion-label>
-              <ion-select [(ngModel)]="selectedEntity" (ionChange)="onEntityChange()">
+              <ion-select
+                interface="popover"
+                [(ngModel)]="selectedEntity"
+                (ionChange)="onEntityChange()"
+              >
                 @for (entity of entityTypes; track entity.value) {
                   <ion-select-option [value]="entity.value">{{
                     entity.label | translate

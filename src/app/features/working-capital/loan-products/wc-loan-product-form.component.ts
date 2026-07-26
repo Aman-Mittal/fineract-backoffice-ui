@@ -155,6 +155,7 @@ import {
                       'WC_LOAN_PRODUCTS.CURRENCY' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-currency-code"
                       data-testid="wc-product-currency-code"
                       name="currencyCode"
@@ -255,6 +256,7 @@ import {
                       'WC_LOAN_PRODUCTS.REPAYMENT_FREQUENCY' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-repayment-frequency"
                       data-testid="wc-product-repayment-frequency"
                       name="repaymentFrequencyType"
@@ -274,6 +276,7 @@ import {
                       'WC_LOAN_PRODUCTS.AMORTIZATION_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-amortization-type"
                       data-testid="wc-product-amortization-type"
                       name="amortizationType"
@@ -369,6 +372,7 @@ import {
                       'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-accounting-rule"
                       data-testid="wc-product-accounting-rule"
                       name="accountingRule"
@@ -387,6 +391,7 @@ import {
                       'WC_LOAN_PRODUCTS.BREACH' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-breach-id"
                       data-testid="wc-product-breach-id"
                       name="breachId"
@@ -405,6 +410,7 @@ import {
                       'WC_LOAN_PRODUCTS.NEAR_BREACH' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-near-breach-id"
                       data-testid="wc-product-near-breach-id"
                       name="nearBreachId"
@@ -423,6 +429,7 @@ import {
                       'WC_LOAN_PRODUCTS.DELINQUENCY_BUCKET' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-delinquency-bucket-id"
                       data-testid="wc-product-delinquency-bucket-id"
                       name="delinquencyBucketId"
@@ -441,6 +448,7 @@ import {
                       'WC_LOAN_PRODUCTS.FUND' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="wc-product-fund-id"
                       data-testid="wc-product-fund-id"
                       name="fundId"

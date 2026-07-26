@@ -88,7 +88,12 @@ import {
           <form #filterForm="ngForm" (ngSubmit)="generate()">
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.OFFICE' | translate }}</ion-label>
-              <ion-select name="officeId" [(ngModel)]="request.officeId" required>
+              <ion-select
+                interface="popover"
+                name="officeId"
+                [(ngModel)]="request.officeId"
+                required
+              >
                 @for (office of offices; track office.id) {
                   <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                 }

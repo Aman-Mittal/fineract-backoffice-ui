@@ -102,6 +102,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="fromOfficeId"
                         [(ngModel)]="request.fromOfficeId"
                         (ionChange)="onOfficeChange('from')"
@@ -120,6 +121,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="fromClientId"
                         [(ngModel)]="request.fromClientId"
                         (ionChange)="onClientChange('from')"
@@ -140,6 +142,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="fromAccountType"
                         [(ngModel)]="request.fromAccountType"
                         (ionChange)="onAccountTypeChange('from')"
@@ -161,6 +164,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_NO' | translate
                       }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="fromAccountId"
                         [(ngModel)]="request.fromAccountId"
                         required
@@ -184,6 +188,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="toOfficeId"
                         [(ngModel)]="request.toOfficeId"
                         (ionChange)="onOfficeChange('to')"
@@ -202,6 +207,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="toClientId"
                         [(ngModel)]="request.toClientId"
                         (ionChange)="onClientChange('to')"
@@ -222,6 +228,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="toAccountType"
                         [(ngModel)]="request.toAccountType"
                         (ionChange)="onAccountTypeChange('to')"
@@ -243,6 +250,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_NO' | translate
                       }}</ion-label>
                       <ion-select
+                        interface="popover"
                         name="toAccountId"
                         [(ngModel)]="request.toAccountId"
                         required

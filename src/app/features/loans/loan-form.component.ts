@@ -129,6 +129,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 >
                   <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="productId"
                     [(ngModel)]="loan.productId"
                     (ngModelChange)="onProductSelected($event)"
@@ -235,6 +236,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [attr.title]="'HELP.TERM_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_TYPE' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="loanTermFrequencyType"
                   [(ngModel)]="loan.loanTermFrequencyType"
                   required
@@ -278,6 +280,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="repaymentFrequencyType"
                   [(ngModel)]="loan.repaymentFrequencyType"
                   required
@@ -306,7 +309,12 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <!-- Interest Type -->
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</ion-label>
-                <ion-select name="interestType" [(ngModel)]="loan.interestType" required>
+                <ion-select
+                  interface="popover"
+                  name="interestType"
+                  [(ngModel)]="loan.interestType"
+                  required
+                >
                   <ion-select-option [value]="0">{{
                     'LOANS.DECLINING_BALANCE' | translate
                   }}</ion-select-option>
@@ -319,7 +327,12 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 <ion-label position="stacked">{{
                   'PRODUCTS.AMORTIZATION_TYPE' | translate
                 }}</ion-label>
-                <ion-select name="amortizationType" [(ngModel)]="loan.amortizationType" required>
+                <ion-select
+                  interface="popover"
+                  name="amortizationType"
+                  [(ngModel)]="loan.amortizationType"
+                  required
+                >
                   <ion-select-option [value]="1">{{
                     'LOANS.EQUAL_INSTALLMENTS' | translate
                   }}</ion-select-option>
@@ -335,6 +348,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="interestCalculationPeriodType"
                   [(ngModel)]="loan.interestCalculationPeriodType"
                   required

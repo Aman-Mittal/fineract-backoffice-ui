@@ -72,6 +72,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CLIENTS.DOCUMENT_TYPE' | translate }}</ion-label>
               <ion-select
+                interface="popover"
                 name="documentTypeId"
                 [(ngModel)]="identifier.documentTypeId"
                 required
@@ -99,6 +100,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
               <ion-select
+                interface="popover"
                 name="status"
                 [(ngModel)]="identifier.status"
                 id="identifier-status-select"

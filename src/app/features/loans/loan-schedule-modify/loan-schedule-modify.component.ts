@@ -75,7 +75,7 @@ import {
             <ion-label position="stacked">{{
               'LOAN_SCHEDULE_MODIFY.COMMAND' | translate
             }}</ion-label>
-            <ion-select [(ngModel)]="command" required>
+            <ion-select interface="popover" [(ngModel)]="command" required>
               @for (cmd of commands; track cmd.value) {
                 <ion-select-option [value]="cmd.value">{{ cmd.label }}</ion-select-option>
               }

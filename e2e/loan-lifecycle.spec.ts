@@ -56,10 +56,10 @@ async function createClient(page: Page): Promise<string> {
   // dropdown has resolved before opening it — otherwise it opens empty.
   await page.goto('/clients/create', { waitUntil: 'networkidle' });
   await page.getByRole('combobox', { name: 'Office' }).click({ force: true });
-  await expect(page.getByRole('listbox').getByRole('option').first()).toBeVisible({
+  await expect(page.locator('ion-alert, ion-popover').getByRole('radio').first()).toBeVisible({
     timeout: 15000,
   });
-  await page.getByRole('listbox').getByRole('option').first().click();
+  await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
   await page.getByRole('textbox', { name: 'First Name' }).fill(firstName);
   await page.getByRole('textbox', { name: 'Last Name' }).fill(lastName);
   await page.getByRole('button', { name: 'Save' }).click();
@@ -111,7 +111,10 @@ async function createLoanApplication(
   // Client search is a debounced autocomplete backed by GET /clients — type
   // enough of the unique first name to filter server-side to just our client.
   await page.getByRole('combobox', { name: 'Client ID' }).fill(clientName.split(' ')[0]);
-  await page.getByRole('option', { name: new RegExp(clientName) }).click();
+  await page
+    .locator('ion-alert, ion-popover')
+    .getByRole('radio', { name: new RegExp(clientName) })
+    .click();
 
   await selectOption(page, 'Loan Product', productName);
 

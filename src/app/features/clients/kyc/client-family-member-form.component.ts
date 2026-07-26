@@ -134,6 +134,7 @@ import {
                       'CLIENTS.RELATIONSHIP' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="relationshipId"
                       [(ngModel)]="member.relationshipId"
                       required
@@ -150,6 +151,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.GENDER' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="genderId"
                       [(ngModel)]="member.genderId"
                       id="family-gender-select"
@@ -167,6 +169,7 @@ import {
                       'CLIENTS.MARITAL_STATUS' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="maritalStatusId"
                       [(ngModel)]="member.maritalStatusId"
                       id="family-marital-status-select"
@@ -182,6 +185,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.PROFESSION' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="professionId"
                       [(ngModel)]="member.professionId"
                       id="family-profession-select"

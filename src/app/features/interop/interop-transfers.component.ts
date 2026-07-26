@@ -117,7 +117,7 @@ const ERROR_OCCURRED = 'Error occurred';
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.ACTION' | translate }}</ion-label>
-              <ion-select [(ngModel)]="transferAction">
+              <ion-select interface="popover" [(ngModel)]="transferAction">
                 <ion-select-option value="prepare">prepare</ion-select-option>
                 <ion-select-option value="create">create</ion-select-option>
               </ion-select>

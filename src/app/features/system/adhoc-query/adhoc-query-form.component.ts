@@ -91,7 +91,11 @@ import {
               <ion-label position="stacked">{{
                 'ADHOC_QUERY.REPORT_RUN_FREQUENCY' | translate
               }}</ion-label>
-              <ion-select name="reportRunFrequency" [(ngModel)]="query.reportRunFrequency">
+              <ion-select
+                interface="popover"
+                name="reportRunFrequency"
+                [(ngModel)]="query.reportRunFrequency"
+              >
                 @for (opt of frequencyOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }

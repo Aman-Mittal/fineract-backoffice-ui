@@ -108,7 +108,12 @@ const REDIRECT_URL = '/products/recurring';
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
-                <ion-select name="currencyCode" [(ngModel)]="product['currencyCode']" required>
+                <ion-select
+                  interface="popover"
+                  name="currencyCode"
+                  [(ngModel)]="product['currencyCode']"
+                  required
+                >
                   <ion-select-option [value]="DEFAULT_CURRENCY">{{
                     DEFAULT_CURRENCY
                   }}</ion-select-option>
@@ -146,6 +151,7 @@ const REDIRECT_URL = '/products/recurring';
                   'PRODUCTS.FREQUENCY_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="recurringFrequencyType"
                   [(ngModel)]="product['recurringFrequencyType']"
                   required

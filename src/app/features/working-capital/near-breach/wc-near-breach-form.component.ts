@@ -104,7 +104,11 @@ import {
               <ion-label position="stacked">{{
                 'WC_NEAR_BREACH.FREQUENCY_TYPE' | translate
               }}</ion-label>
-              <ion-select name="frequencyType" [(ngModel)]="item.nearBreachFrequencyType">
+              <ion-select
+                interface="popover"
+                name="frequencyType"
+                [(ngModel)]="item.nearBreachFrequencyType"
+              >
                 @for (opt of frequencyTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }

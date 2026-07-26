@@ -78,7 +78,11 @@ import {
             <div class="reschedule-rules mt-4">
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">Repayments Rescheduling Rule</ion-label>
-                <ion-select name="rescheduleStrategy" [(ngModel)]="rescheduleId">
+                <ion-select
+                  interface="popover"
+                  name="rescheduleStrategy"
+                  [(ngModel)]="rescheduleId"
+                >
                   @for (option of rescheduleOptions; track option['id']) {
                     <ion-select-option [value]="option['id']">{{
                       option['value']

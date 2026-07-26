@@ -91,6 +91,7 @@ import {
               <ion-item fill="outline" [attr.title]="'HELP.PARENT_OFFICE_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="parentId"
                   [(ngModel)]="office.parentId"
                   required

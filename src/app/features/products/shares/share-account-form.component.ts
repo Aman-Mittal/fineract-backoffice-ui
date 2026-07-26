@@ -146,6 +146,7 @@ interface ShareAccountTemplateResponse {
                     <ion-item fill="outline" class="form-item flex-grow">
                       <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                       <ion-select
+                        interface="popover"
                         id="share-account-product-select"
                         data-testid="share-account-product-select"
                         name="productId"
@@ -217,6 +218,7 @@ interface ShareAccountTemplateResponse {
                       'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="share-account-savings-select"
                       data-testid="share-account-savings-select"
                       name="savingsAccountId"

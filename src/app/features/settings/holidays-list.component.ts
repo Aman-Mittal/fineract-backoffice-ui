@@ -114,7 +114,11 @@ export class ConfirmDialogComponent {
       <div filters class="office-filter-container">
         <ion-item fill="outline" class="office-filter-field">
           <ion-label position="stacked">{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</ion-label>
-          <ion-select [value]="selectedOfficeId" (ionChange)="onOfficeChange($event.detail.value)">
+          <ion-select
+            interface="popover"
+            [value]="selectedOfficeId"
+            (ionChange)="onOfficeChange($event.detail.value)"
+          >
             @for (office of offices; track office.id) {
               <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
             }

@@ -100,7 +100,12 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <!-- Office -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Office</ion-label>
-                <ion-select name="officeId" [(ngModel)]="command.officeId" required>
+                <ion-select
+                  interface="popover"
+                  name="officeId"
+                  [(ngModel)]="command.officeId"
+                  required
+                >
                   @for (office of offices; track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
@@ -110,7 +115,12 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <!-- Currency -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Currency</ion-label>
-                <ion-select name="currencyCode" [(ngModel)]="command.currencyCode" required>
+                <ion-select
+                  interface="popover"
+                  name="currencyCode"
+                  [(ngModel)]="command.currencyCode"
+                  required
+                >
                   @for (currency of currencies; track currency.code) {
                     <ion-select-option [value]="currency.code">{{
                       currency.name
@@ -151,6 +161,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   <ion-item fill="outline" class="account-field">
                     <ion-label position="stacked">Account</ion-label>
                     <ion-select
+                      interface="popover"
                       name="debitAccount{{ $index }}"
                       [(ngModel)]="debit.glAccountId"
                       required
@@ -194,6 +205,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   <ion-item fill="outline" class="account-field">
                     <ion-label position="stacked">Account</ion-label>
                     <ion-select
+                      interface="popover"
                       name="creditAccount{{ $index }}"
                       [(ngModel)]="credit.glAccountId"
                       required

@@ -38,10 +38,10 @@ export async function createActiveLoan(
   // Client
   await page.goto('/clients/create', { waitUntil: 'networkidle' });
   await page.getByRole('combobox', { name: 'Office' }).click({ force: true });
-  await expect(page.getByRole('listbox').getByRole('option').first()).toBeVisible({
+  await expect(page.locator('ion-alert, ion-popover').getByRole('radio').first()).toBeVisible({
     timeout: 15000,
   });
-  await page.getByRole('listbox').getByRole('option').first().click();
+  await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
   const clientSuffix = uniqueSuffix();
   const firstName = `${namePrefix}${clientSuffix}`;
   await page.getByRole('textbox', { name: 'First Name' }).fill(firstName);
@@ -68,7 +68,10 @@ export async function createActiveLoan(
   // Loan application
   await page.goto('/loans/create', { waitUntil: 'networkidle' });
   await page.getByRole('combobox', { name: 'Client ID' }).fill(firstName);
-  await page.getByRole('option', { name: new RegExp(firstName) }).click();
+  await page
+    .locator('ion-alert, ion-popover')
+    .getByRole('radio', { name: new RegExp(firstName) })
+    .click();
   await selectOption(page, 'Loan Product', productName);
   await expect(page.getByText(/Loan Schedule Type:\s*Cumulative/)).toBeVisible({ timeout: 15000 });
   await page.getByRole('spinbutton', { name: 'Principal', exact: true }).fill('1000');

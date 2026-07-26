@@ -90,6 +90,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'SYSTEM.APP_TABLE' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="apptableName"
                   [(ngModel)]="datatable.apptableName"
                   required
@@ -130,6 +131,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       [name]="'colType' + i"
                       [(ngModel)]="column.type"
                       required
@@ -156,6 +158,7 @@ import {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'SYSTEM.CODE' | translate }}</ion-label>
                       <ion-select
+                        interface="popover"
                         [name]="'colCode' + i"
                         [(ngModel)]="column.code"
                         required

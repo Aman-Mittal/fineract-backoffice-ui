@@ -84,6 +84,7 @@ import {
                 'CLIENT_COLLATERAL.PRODUCT' | translate
               }}</ion-label>
               <ion-select
+                interface="popover"
                 name="collateralId"
                 [(ngModel)]="collateral.collateralId"
                 [disabled]="isEditMode"

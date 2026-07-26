@@ -102,6 +102,7 @@ import {
               <ion-item fill="outline" [attr.title]="'HELP.LEGAL_FORM_DESC' | translate">
                 <ion-label position="stacked">{{ 'CLIENTS.LEGAL_FORM' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="legalFormId"
                   [(ngModel)]="client.legalFormId"
                   required
@@ -121,6 +122,7 @@ import {
                 <ion-item fill="outline" [attr.title]="'HELP.OFFICE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="officeId"
                     [(ngModel)]="client.officeId"
                     required

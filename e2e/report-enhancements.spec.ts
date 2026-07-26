@@ -143,7 +143,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
 
     // Select an office and click Run
     await page.locator('ion-select').click();
-    await page.getByRole('option', { name: HEAD_OFFICE }).click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
     await page.getByRole('button', { name: 'Run Report' }).click();
 
     // Verify report results are shown

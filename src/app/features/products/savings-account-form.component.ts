@@ -124,6 +124,7 @@ import {
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="productId"
                     [(ngModel)]="account.productId"
                     required

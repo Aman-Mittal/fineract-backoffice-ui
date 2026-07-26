@@ -69,7 +69,7 @@ import {
         <ion-card-content>
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BUSINESS_STEPS.JOB' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedJob" (ionChange)="loadSteps()">
+            <ion-select interface="popover" [(ngModel)]="selectedJob" (ionChange)="loadSteps()">
               @for (job of jobNames; track job) {
                 <ion-select-option [value]="job">{{ job }}</ion-select-option>
               }

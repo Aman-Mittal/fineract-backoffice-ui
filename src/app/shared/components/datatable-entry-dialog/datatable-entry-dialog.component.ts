@@ -74,6 +74,7 @@ const AUDIT_COLUMN_NAMES = new Set(['created_at', 'updated_at']);
             <ion-item fill="outline">
               <ion-label position="stacked">{{ col.columnName }}</ion-label>
               <ion-select
+                interface="popover"
                 [attr.data-testid]="'datatable-field-' + col.columnName"
                 [name]="col.columnName!"
                 [(ngModel)]="values[col.columnName!]"

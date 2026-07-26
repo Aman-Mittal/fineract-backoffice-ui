@@ -100,6 +100,7 @@ interface ReassignmentTemplate {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'BULK_REASSIGNMENT.OFFICE' | translate }}</ion-label>
               <ion-select
+                interface="popover"
                 name="officeId"
                 [(ngModel)]="officeId"
                 (ionChange)="onOfficeChange()"
@@ -115,7 +116,12 @@ interface ReassignmentTemplate {
               <ion-label position="stacked">{{
                 'BULK_REASSIGNMENT.FROM_OFFICER' | translate
               }}</ion-label>
-              <ion-select name="fromLoanOfficerId" [(ngModel)]="fromLoanOfficerId" required>
+              <ion-select
+                interface="popover"
+                name="fromLoanOfficerId"
+                [(ngModel)]="fromLoanOfficerId"
+                required
+              >
                 @for (opt of loanOfficerOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.displayName }}</ion-select-option>
                 }
@@ -126,7 +132,12 @@ interface ReassignmentTemplate {
               <ion-label position="stacked">{{
                 'BULK_REASSIGNMENT.TO_OFFICER' | translate
               }}</ion-label>
-              <ion-select name="toLoanOfficerId" [(ngModel)]="toLoanOfficerId" required>
+              <ion-select
+                interface="popover"
+                name="toLoanOfficerId"
+                [(ngModel)]="toLoanOfficerId"
+                required
+              >
                 @for (opt of loanOfficerOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.displayName }}</ion-select-option>
                 }

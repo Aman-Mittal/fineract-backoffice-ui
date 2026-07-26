@@ -105,7 +105,12 @@ import {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
-                <ion-select name="officeId" [(ngModel)]="user.officeId" required>
+                <ion-select
+                  interface="popover"
+                  name="officeId"
+                  [(ngModel)]="user.officeId"
+                  required
+                >
                   @for (office of offices; track office['id']) {
                     <ion-select-option [value]="office['id']">{{
                       office['name']
@@ -140,7 +145,13 @@ import {
 
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'USERS.ROLES' | translate }}</ion-label>
-                <ion-select name="roles" [(ngModel)]="user.roles" multiple required>
+                <ion-select
+                  interface="popover"
+                  name="roles"
+                  [(ngModel)]="user.roles"
+                  multiple
+                  required
+                >
                   @for (role of availableRoles; track role.id) {
                     <ion-select-option [value]="role.id">{{ role.name }}</ion-select-option>
                   }

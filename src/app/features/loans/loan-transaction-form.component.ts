@@ -165,7 +165,11 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <!-- Payment Type -->
                 <ion-item fill="outline" [attr.title]="'HELP.PAYMENT_TYPE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
-                  <ion-select name="paymentTypeId" [(ngModel)]="transaction.paymentTypeId">
+                  <ion-select
+                    interface="popover"
+                    name="paymentTypeId"
+                    [(ngModel)]="transaction.paymentTypeId"
+                  >
                     @for (type of paymentTypeOptions; track type.id) {
                       <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                     }

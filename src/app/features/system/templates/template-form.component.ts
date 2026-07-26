@@ -75,7 +75,7 @@ import {
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'TEMPLATES.ENTITY' | translate }}</ion-label>
-            <ion-select formControlName="entity">
+            <ion-select interface="popover" formControlName="entity">
               @for (opt of entityOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.label | translate }}</ion-select-option>
               }
@@ -84,7 +84,7 @@ import {
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'TEMPLATES.TYPE' | translate }}</ion-label>
-            <ion-select formControlName="type">
+            <ion-select interface="popover" formControlName="type">
               @for (opt of typeOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.label | translate }}</ion-select-option>
               }

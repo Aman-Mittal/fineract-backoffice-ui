@@ -75,7 +75,7 @@ import {
             <ion-label position="stacked">{{
               'SMS_CAMPAIGNS.CAMPAIGN_TYPE' | translate
             }}</ion-label>
-            <ion-select name="campaignType" [(ngModel)]="model.campaignType">
+            <ion-select interface="popover" name="campaignType" [(ngModel)]="model.campaignType">
               @for (opt of campaignTypeOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
@@ -84,7 +84,7 @@ import {
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.TRIGGER_TYPE' | translate }}</ion-label>
-            <ion-select name="triggerType" [(ngModel)]="model.triggerType">
+            <ion-select interface="popover" name="triggerType" [(ngModel)]="model.triggerType">
               @for (opt of triggerTypeOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }

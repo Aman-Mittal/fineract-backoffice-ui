@@ -88,7 +88,12 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <!-- Office -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Office</ion-label>
-                <ion-select name="officeId" [(ngModel)]="request.officeId" required>
+                <ion-select
+                  interface="popover"
+                  name="officeId"
+                  [(ngModel)]="request.officeId"
+                  required
+                >
                   @for (office of offices; track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }

@@ -84,7 +84,12 @@ import {
           <form #guarantorForm="ngForm" (ngSubmit)="onSubmit()" class="guarantor-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.TYPE' | translate }}</ion-label>
-              <ion-select name="guarantorTypeId" [(ngModel)]="guarantor.guarantorTypeId" required>
+              <ion-select
+                interface="popover"
+                name="guarantorTypeId"
+                [(ngModel)]="guarantor.guarantorTypeId"
+                required
+              >
                 @for (opt of guarantorTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }

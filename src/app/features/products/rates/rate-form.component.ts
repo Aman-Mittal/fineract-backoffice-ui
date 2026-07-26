@@ -87,7 +87,7 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'RATES.PRODUCT_APPLY' | translate }}</ion-label>
-              <ion-select name="productApply" [(ngModel)]="rate.productApply">
+              <ion-select interface="popover" name="productApply" [(ngModel)]="rate.productApply">
                 <ion-select-option [value]="1">{{
                   'RATES.PRODUCT_APPLY_LOAN' | translate
                 }}</ion-select-option>

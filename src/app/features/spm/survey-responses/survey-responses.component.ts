@@ -74,7 +74,7 @@ interface SurveyResponse {
         <div class="filter-row">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SURVEY_RESPONSES.SURVEY' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedSurveyName">
+            <ion-select interface="popover" [(ngModel)]="selectedSurveyName">
               @for (s of surveys(); track s.name) {
                 <ion-select-option [value]="s.name">{{ s.name }}</ion-select-option>
               }

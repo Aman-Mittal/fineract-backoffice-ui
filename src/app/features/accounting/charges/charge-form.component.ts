@@ -93,6 +93,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Applies To</ion-label>
                 <ion-select
+                  interface="popover"
                   name="chargeAppliesTo"
                   [(ngModel)]="charge.chargeAppliesTo"
                   required
@@ -108,7 +109,12 @@ import {
               <!-- Currency -->
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.CURRENCY' | translate }}</ion-label>
-                <ion-select name="currencyCode" [(ngModel)]="charge.currencyCode" required>
+                <ion-select
+                  interface="popover"
+                  name="currencyCode"
+                  [(ngModel)]="charge.currencyCode"
+                  required
+                >
                   @for (currency of currencies; track currency.code) {
                     <ion-select-option [value]="currency.code">{{
                       currency.name
@@ -120,7 +126,12 @@ import {
               <!-- Charge Time Type -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Charge Time Type</ion-label>
-                <ion-select name="chargeTimeType" [(ngModel)]="charge.chargeTimeType" required>
+                <ion-select
+                  interface="popover"
+                  name="chargeTimeType"
+                  [(ngModel)]="charge.chargeTimeType"
+                  required
+                >
                   @for (option of timeTypeOptions; track option['id']) {
                     <ion-select-option [value]="option['id']">{{
                       option['value']
@@ -133,6 +144,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Calculation Type</ion-label>
                 <ion-select
+                  interface="popover"
                   name="chargeCalculationType"
                   [(ngModel)]="charge.chargeCalculationType"
                   required

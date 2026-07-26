@@ -158,7 +158,7 @@ export interface AuditFilters {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">Processing Result</ion-label>
-                <ion-select [(ngModel)]="activeFilters.processingResult">
+                <ion-select interface="popover" [(ngModel)]="activeFilters.processingResult">
                   <ion-select-option value="">All</ion-select-option>
                   <ion-select-option value="success">Success</ion-select-option>
                   <ion-select-option value="failure">Failure</ion-select-option>

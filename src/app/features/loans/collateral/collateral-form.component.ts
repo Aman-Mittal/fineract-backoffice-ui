@@ -98,6 +98,7 @@ import {
               <ion-item fill="outline" [attr.title]="'HELP.COLLATERAL_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="collateralTypeId"
                   [(ngModel)]="selectedCollateralTypeId"
                   required

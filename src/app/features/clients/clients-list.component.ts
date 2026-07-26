@@ -84,7 +84,11 @@ import {
       <div filters class="filter-row">
         <ion-item fill="outline" class="filter-field">
           <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
-          <ion-select [(ngModel)]="activeFilters.status" (ionChange)="onFilterChange()">
+          <ion-select
+            interface="popover"
+            [(ngModel)]="activeFilters.status"
+            (ionChange)="onFilterChange()"
+          >
             <ion-select-option [value]="undefined">{{
               'COMMON.ALL' | translate
             }}</ion-select-option>

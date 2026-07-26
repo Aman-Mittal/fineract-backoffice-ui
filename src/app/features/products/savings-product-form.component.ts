@@ -132,6 +132,7 @@ import {
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="savings-product-currency-code"
                       data-testid="savings-product-currency-code"
                       name="currencyCode"

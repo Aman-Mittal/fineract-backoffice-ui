@@ -98,7 +98,7 @@ import {
                 <ion-label position="stacked">{{
                   'ACCOUNTING.ACCOUNT_TYPE' | translate
                 }}</ion-label>
-                <ion-select name="type" [(ngModel)]="account.type" required>
+                <ion-select interface="popover" name="type" [(ngModel)]="account.type" required>
                   <ion-select-option [value]="1">{{
                     'ACCOUNTING.ASSET' | translate
                   }}</ion-select-option>
@@ -121,7 +121,7 @@ import {
                 <ion-label position="stacked">{{
                   'ACCOUNTING.ACCOUNT_USAGE' | translate
                 }}</ion-label>
-                <ion-select name="usage" [(ngModel)]="account.usage" required>
+                <ion-select interface="popover" name="usage" [(ngModel)]="account.usage" required>
                   <ion-select-option [value]="1">{{
                     'ACCOUNTING.DETAIL' | translate
                   }}</ion-select-option>

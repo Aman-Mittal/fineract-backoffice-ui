@@ -120,7 +120,7 @@ import {
               <ion-label position="stacked">{{
                 'RECURRING_DEPOSIT_TRANSACTIONS.PAYMENT_TYPE' | translate
               }}</ion-label>
-              <ion-select name="paymentTypeId" [(ngModel)]="paymentTypeId">
+              <ion-select interface="popover" name="paymentTypeId" [(ngModel)]="paymentTypeId">
                 @for (opt of paymentTypeOptions; track opt) {
                   <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                 }

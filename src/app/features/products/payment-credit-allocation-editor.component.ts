@@ -81,6 +81,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate
               }}</ion-label>
               <ion-select
+                interface="popover"
                 [(ngModel)]="rule.futureInstallmentAllocationRule"
                 [name]="'futureInstallmentRule' + ruleIndex"
                 (ngModelChange)="emitPaymentAllocation()"
@@ -130,7 +131,11 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
               <ion-label position="stacked">{{
                 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
               }}</ion-label>
-              <ion-select name="newPaymentTransactionType" [(ngModel)]="newPaymentTransactionType">
+              <ion-select
+                interface="popover"
+                name="newPaymentTransactionType"
+                [(ngModel)]="newPaymentTransactionType"
+              >
                 @for (option of availablePaymentTransactionTypes(); track option.code) {
                   <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
                 }
@@ -211,7 +216,11 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
               <ion-label position="stacked">{{
                 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
               }}</ion-label>
-              <ion-select name="newCreditTransactionType" [(ngModel)]="newCreditTransactionType">
+              <ion-select
+                interface="popover"
+                name="newCreditTransactionType"
+                [(ngModel)]="newCreditTransactionType"
+              >
                 @for (option of availableCreditTransactionTypes(); track option.code) {
                   <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
                 }

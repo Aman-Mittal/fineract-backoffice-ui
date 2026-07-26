@@ -132,6 +132,7 @@ import {
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="productId"
                     [(ngModel)]="account['productId']"
                     required
@@ -212,6 +213,7 @@ import {
               <ion-item fill="outline" [attr.title]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   name="depositPeriodFrequencyId"
                   [(ngModel)]="account['depositPeriodFrequencyId']"
                   required
@@ -264,6 +266,7 @@ import {
                       'RECURRING_DEPOSITS.FREQUENCY_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="recurringFrequencyType"
                       [(ngModel)]="account['recurringFrequencyType']"
                       [required]="!isCalendarInherited"

@@ -156,6 +156,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.FUND' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-fund-id"
                       data-testid="loan-product-fund-id"
                       name="fundId"
@@ -175,6 +176,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DELINQUENCY_BUCKET' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-delinquency-bucket-id"
                       data-testid="loan-product-delinquency-bucket-id"
                       name="delinquencyBucketId"
@@ -192,6 +194,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-currency-code"
                       data-testid="loan-product-currency-code"
                       name="currencyCode"
@@ -289,6 +292,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-repayment-frequency"
                       data-testid="loan-product-repayment-frequency"
                       name="repaymentFrequencyType"
@@ -318,6 +322,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-interest-frequency"
                       data-testid="loan-product-interest-frequency"
                       name="interestRateFrequencyType"
@@ -341,6 +346,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.AMORTIZATION_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-amortization-type"
                       data-testid="loan-product-amortization-type"
                       name="amortizationType"
@@ -364,6 +370,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-interest-type"
                       data-testid="loan-product-interest-type"
                       name="interestType"
@@ -387,6 +394,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-interest-calc-period"
                       data-testid="loan-product-interest-calc-period"
                       name="interestCalculationPeriodType"
@@ -410,6 +418,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-schedule-type"
                       data-testid="loan-product-schedule-type"
                       name="loanScheduleType"
@@ -433,6 +442,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       id="loan-product-transaction-strategy"
                       data-testid="loan-product-transaction-strategy"
                       name="transactionProcessingStrategyCode"
@@ -457,6 +467,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                         'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        interface="popover"
                         id="loan-product-schedule-processing-type"
                         data-testid="loan-product-schedule-processing-type"
                         name="loanScheduleProcessingType"

@@ -72,7 +72,7 @@ interface ServiceProperty {
         <ion-card-content>
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'EXTERNAL_SERVICES.SERVICE' | translate }}</ion-label>
-            <ion-select [(ngModel)]="selectedService" (ionChange)="load()">
+            <ion-select interface="popover" [(ngModel)]="selectedService" (ionChange)="load()">
               @for (name of serviceNames; track name) {
                 <ion-select-option [value]="name">{{ name }}</ion-select-option>
               }

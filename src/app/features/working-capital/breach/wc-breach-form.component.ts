@@ -91,7 +91,11 @@ import {
               <ion-label position="stacked">{{
                 'WC_BREACH.CALCULATION_TYPE' | translate
               }}</ion-label>
-              <ion-select name="calcType" [(ngModel)]="breach.breachAmountCalculationType">
+              <ion-select
+                interface="popover"
+                name="calcType"
+                [(ngModel)]="breach.breachAmountCalculationType"
+              >
                 @for (opt of calculationTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
@@ -109,7 +113,11 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_BREACH.FREQUENCY_TYPE' | translate }}</ion-label>
-              <ion-select name="freqType" [(ngModel)]="breach.breachFrequencyType">
+              <ion-select
+                interface="popover"
+                name="freqType"
+                [(ngModel)]="breach.breachFrequencyType"
+              >
                 @for (opt of frequencyTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }

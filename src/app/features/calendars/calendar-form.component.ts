@@ -106,7 +106,7 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CALENDARS.TYPE' | translate }}</ion-label>
-              <ion-select name="typeId" [(ngModel)]="typeId" required>
+              <ion-select interface="popover" name="typeId" [(ngModel)]="typeId" required>
                 @for (opt of typeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }

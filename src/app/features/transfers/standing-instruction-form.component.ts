@@ -106,6 +106,7 @@ export interface MiniAccount {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="fromOfficeId"
                     [(ngModel)]="request.fromOfficeId"
                     (ionChange)="onOfficeChange('from')"
@@ -120,6 +121,7 @@ export interface MiniAccount {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="fromClientId"
                     [(ngModel)]="request.fromClientId"
                     (ionChange)="onClientChange('from')"
@@ -136,6 +138,7 @@ export interface MiniAccount {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="fromAccountType"
                     [(ngModel)]="request.fromAccountType"
                     (ionChange)="onAccountTypeChange('from')"
@@ -152,7 +155,12 @@ export interface MiniAccount {
 
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_NO' | translate }}</ion-label>
-                  <ion-select name="fromAccountId" [(ngModel)]="request.fromAccountId" required>
+                  <ion-select
+                    interface="popover"
+                    name="fromAccountId"
+                    [(ngModel)]="request.fromAccountId"
+                    required
+                  >
                     @for (account of fromAccounts(); track account.id) {
                       <ion-select-option [value]="account.id"
                         >{{ account.accountNo }} ({{ account.productName }})</ion-select-option
@@ -168,6 +176,7 @@ export interface MiniAccount {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="toOfficeId"
                     [(ngModel)]="request.toOfficeId"
                     (ionChange)="onOfficeChange('to')"
@@ -182,6 +191,7 @@ export interface MiniAccount {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="toClientId"
                     [(ngModel)]="request.toClientId"
                     (ionChange)="onClientChange('to')"
@@ -198,6 +208,7 @@ export interface MiniAccount {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_TYPE' | translate }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="toAccountType"
                     [(ngModel)]="request.toAccountType"
                     (ionChange)="onAccountTypeChange('to')"
@@ -214,7 +225,12 @@ export interface MiniAccount {
 
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'CLIENTS.ACCOUNT_NO' | translate }}</ion-label>
-                  <ion-select name="toAccountId" [(ngModel)]="request.toAccountId" required>
+                  <ion-select
+                    interface="popover"
+                    name="toAccountId"
+                    [(ngModel)]="request.toAccountId"
+                    required
+                  >
                     @for (account of toAccounts(); track account.id) {
                       <ion-select-option [value]="account.id"
                         >{{ account.accountNo }} ({{ account.productName }})</ion-select-option
@@ -230,7 +246,12 @@ export interface MiniAccount {
                   <ion-label position="stacked">{{
                     'CLIENTS.TRANSFER_TYPE' | translate
                   }}</ion-label>
-                  <ion-select name="transferType" [(ngModel)]="request.transferType" required>
+                  <ion-select
+                    interface="popover"
+                    name="transferType"
+                    [(ngModel)]="request.transferType"
+                    required
+                  >
                     <ion-select-option [value]="'1'">Account Transfer</ion-select-option>
                     <ion-select-option [value]="'2'">Loan Repayment</ion-select-option>
                   </ion-select>
@@ -250,7 +271,12 @@ export interface MiniAccount {
                   <ion-label position="stacked">{{
                     'CLIENTS.INSTRUCTION_TYPE' | translate
                   }}</ion-label>
-                  <ion-select name="instructionType" [(ngModel)]="request.instructionType" required>
+                  <ion-select
+                    interface="popover"
+                    name="instructionType"
+                    [(ngModel)]="request.instructionType"
+                    required
+                  >
                     <ion-select-option [value]="'1'">Fixed</ion-select-option>
                     <ion-select-option [value]="'2'">Dues</ion-select-option>
                   </ion-select>
@@ -258,7 +284,12 @@ export interface MiniAccount {
 
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'COMMON.PRIORITY' | translate }}</ion-label>
-                  <ion-select name="priority" [(ngModel)]="request.priority" required>
+                  <ion-select
+                    interface="popover"
+                    name="priority"
+                    [(ngModel)]="request.priority"
+                    required
+                  >
                     <ion-select-option [value]="'1'">High</ion-select-option>
                     <ion-select-option [value]="'2'">Medium</ion-select-option>
                     <ion-select-option [value]="'3'">Low</ion-select-option>
@@ -272,7 +303,12 @@ export interface MiniAccount {
                   <ion-label position="stacked">{{
                     'CLIENTS.RECURRENCE_TYPE' | translate
                   }}</ion-label>
-                  <ion-select name="recurrenceType" [(ngModel)]="request.recurrenceType" required>
+                  <ion-select
+                    interface="popover"
+                    name="recurrenceType"
+                    [(ngModel)]="request.recurrenceType"
+                    required
+                  >
                     <ion-select-option [value]="'1'">Periodic</ion-select-option>
                   </ion-select>
                 </ion-item>
@@ -282,6 +318,7 @@ export interface MiniAccount {
                     'CLIENTS.RECURRENCE_FREQUENCY' | translate
                   }}</ion-label>
                   <ion-select
+                    interface="popover"
                     name="recurrenceFrequency"
                     [(ngModel)]="request.recurrenceFrequency"
                     required

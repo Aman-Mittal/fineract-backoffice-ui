@@ -85,7 +85,12 @@ import {
           <form #chargeForm="ngForm" (ngSubmit)="onSubmit()" class="charge-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SAVINGS_CHARGES.CHARGE' | translate }}</ion-label>
-              <ion-select name="chargeId" [(ngModel)]="charge.chargeId" required>
+              <ion-select
+                interface="popover"
+                name="chargeId"
+                [(ngModel)]="charge.chargeId"
+                required
+              >
                 @for (opt of chargeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }

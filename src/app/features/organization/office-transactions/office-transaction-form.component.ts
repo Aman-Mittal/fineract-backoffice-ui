@@ -80,7 +80,12 @@ import {
                 <ion-label position="stacked">{{
                   'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate
                 }}</ion-label>
-                <ion-select name="fromOfficeId" [(ngModel)]="fromOfficeId" required>
+                <ion-select
+                  interface="popover"
+                  name="fromOfficeId"
+                  [(ngModel)]="fromOfficeId"
+                  required
+                >
                   @for (opt of fromOfficeOptions; track opt.id) {
                     <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }
@@ -91,7 +96,7 @@ import {
                 <ion-label position="stacked">{{
                   'OFFICE_TRANSACTIONS.TO_OFFICE' | translate
                 }}</ion-label>
-                <ion-select name="toOfficeId" [(ngModel)]="toOfficeId" required>
+                <ion-select interface="popover" name="toOfficeId" [(ngModel)]="toOfficeId" required>
                   @for (opt of toOfficeOptions; track opt.id) {
                     <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }

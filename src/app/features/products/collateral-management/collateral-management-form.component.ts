@@ -126,7 +126,12 @@ import {
               <ion-label position="stacked">{{
                 'COLLATERAL_MANAGEMENT.CURRENCY' | translate
               }}</ion-label>
-              <ion-select name="currency" [(ngModel)]="collateral.currency" required>
+              <ion-select
+                interface="popover"
+                name="currency"
+                [(ngModel)]="collateral.currency"
+                required
+              >
                 @for (opt of currencyOptions; track opt.code) {
                   <ion-select-option [value]="opt.code"
                     >{{ opt.name }} ({{ opt.code }})</ion-select-option

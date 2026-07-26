@@ -74,6 +74,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
         <ion-item fill="outline">
           <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
           <ion-select
+            interface="popover"
             id="office-parent"
             data-testid="office-parent"
             name="parentId"

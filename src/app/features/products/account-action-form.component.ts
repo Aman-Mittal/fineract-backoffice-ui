@@ -158,6 +158,7 @@ import {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'LOANS.LOAN_OFFICER' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   id="account-action-officer"
                   data-testid="account-action-officer"
                   name="toLoanOfficerId"
@@ -178,6 +179,7 @@ import {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'LOANS.CHARGE' | translate }}</ion-label>
                 <ion-select
+                  interface="popover"
                   id="account-action-charge"
                   data-testid="account-action-charge"
                   name="chargeId"

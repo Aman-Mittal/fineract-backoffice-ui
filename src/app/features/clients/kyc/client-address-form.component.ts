@@ -88,6 +88,7 @@ import {
                       'CLIENTS.ADDRESS_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="addressTypeId"
                       [(ngModel)]="address.addressTypeId"
                       required
@@ -194,6 +195,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.STATE' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="stateProvinceId"
                       [(ngModel)]="address.stateProvinceId"
                       id="address-state-select"
@@ -210,6 +212,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.COUNTRY' | translate }}</ion-label>
                     <ion-select
+                      interface="popover"
                       name="countryId"
                       [(ngModel)]="address.countryId"
                       id="address-country-select"
