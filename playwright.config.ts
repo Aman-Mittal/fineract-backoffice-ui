@@ -19,7 +19,7 @@ export default defineConfig({
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
   webServer: {
-    command: 'npm run start',
+    command: 'npx -y http-server dist/fineract-backoffice-ui/browser -p 4200 --ssl --key ssl/localhost.key --cert ssl/localhost.crt --spa',
     url: 'https://localhost:4200',
     reuseExistingServer: true,
     ignoreHTTPSErrors: true,
