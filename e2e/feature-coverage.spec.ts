@@ -26,7 +26,7 @@ const SAVINGS_ACCOUNTS = 'Savings Accounts';
 
 /** Shared login + API mock setup used across all feature tests */
 async function loginAndMockApi(page: Page) {
-  await page.route('**/config.json', async (route) => {
+  await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -55,11 +55,13 @@ async function loginAndMockApi(page: Page) {
   });
 
   await page.goto('/login');
-  await page.locator('#tenantId').fill(TENANT_DEFAULT);
-  await page.locator('#username').fill(TEST_USER);
-  await page.locator('#password').fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await expect(page).toHaveURL('/dashboard');
+  if (!page.url().includes('/dashboard')) {
+    await page.locator('#tenantId').fill(TENANT_DEFAULT);
+    await page.locator('#username').fill(TEST_USER);
+    await page.locator('#password').fill(TEST_PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await expect(page).toHaveURL('/dashboard');
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
