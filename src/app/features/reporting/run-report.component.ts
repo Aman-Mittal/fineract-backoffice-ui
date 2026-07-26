@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -26,11 +26,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
 import { HelpIconComponent } from '../../shared';
+import { NotificationService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
+import { PageEvent } from '../../shared/models/table.model';
 import {
   IonButton,
   IonCard,
@@ -54,9 +55,8 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSnackBarModule,
+    CdkTableModule,
+    PaginatorComponent,
     HelpIconComponent,
     IonIcon,
     IonButton,
@@ -128,21 +128,24 @@ import {
                   {{ 'REPORTS.DOWNLOAD_RESULTS_CSV' | translate }}
                 </ion-button>
               </div>
-              <div class="table-container mat-elevation-z1">
-                <table mat-table [dataSource]="dataSource">
+              <div class="table-container">
+                <table cdk-table [dataSource]="pagedRows()">
                   @for (col of displayedColumns; track col; let i = $index) {
-                    <ng-container [matColumnDef]="col">
-                      <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
-                      <td mat-cell *matCellDef="let row">{{ getReportCellValue(row, i) }}</td>
+                    <ng-container [cdkColumnDef]="col">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ col }}</th>
+                      <td cdk-cell *cdkCellDef="let row">{{ getReportCellValue(row, i) }}</td>
                     </ng-container>
                   }
-                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                  <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
                 </table>
-                <mat-paginator
+                <app-paginator
+                  [length]="dataRows.length"
+                  [pageSize]="pageSize()"
+                  [pageIndex]="pageIndex()"
                   [pageSizeOptions]="[10, 20, 50, 100]"
-                  showFirstLastButtons
-                ></mat-paginator>
+                  (page)="onPage($event)"
+                ></app-paginator>
               </div>
             </div>
           }
@@ -187,7 +190,7 @@ export class RunReportComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   reportName = '';
   reportType = '';
@@ -201,13 +204,19 @@ export class RunReportComponent implements OnInit {
   reportData: Record<string, unknown> | null = null;
   displayedColumns: string[] = [];
   dataRows: Record<string, unknown>[] = [];
-  dataSource = new MatTableDataSource<Record<string, unknown>>([]);
+  /** Report results are fetched whole, so paging happens client-side. */
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly rows = signal<Record<string, unknown>[]>([]);
 
-  private paginator!: MatPaginator;
+  readonly pagedRows = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.rows().slice(start, start + this.pageSize());
+  });
 
-  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
-    this.paginator = mp;
-    this.dataSource.paginator = this.paginator;
+  onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   ngOnInit(): void {
@@ -265,7 +274,7 @@ export class RunReportComponent implements OnInit {
           this.isLoading = false;
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
           this.isLoading = false;
         },
       });
@@ -298,11 +307,12 @@ export class RunReportComponent implements OnInit {
           const columnHeaders = (result['columnHeaders'] as Record<string, unknown>[]) || [];
           this.displayedColumns = columnHeaders.map((h) => h['columnName'] as string);
           this.dataRows = (result['data'] as Record<string, unknown>[]) || [];
-          this.dataSource.data = this.dataRows;
+          this.rows.set(this.dataRows);
+          this.pageIndex.set(0);
           this.isLoading = false;
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
           this.isLoading = false;
         },
       });

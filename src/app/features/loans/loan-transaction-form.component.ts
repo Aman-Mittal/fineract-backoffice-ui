@@ -26,7 +26,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   LoanTransactionsService,
   LoansService,
@@ -35,6 +34,7 @@ import {
   GetPaymentTypeOptions,
 } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -90,7 +90,6 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -261,7 +260,7 @@ export class LoanTransactionFormComponent implements OnInit {
   private readonly loansService = inject(LoansService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
@@ -324,7 +323,7 @@ export class LoanTransactionFormComponent implements OnInit {
           this.paymentTypeOptions = template.paymentTypeOptions || [];
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
         },
       });
   }

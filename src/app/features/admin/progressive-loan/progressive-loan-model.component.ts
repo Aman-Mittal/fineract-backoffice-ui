@@ -19,9 +19,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProgressiveLoanService, ProgressiveLoanInterestScheduleModel } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -40,7 +40,6 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -108,7 +107,7 @@ import {
 })
 export class ProgressiveLoanModelComponent {
   private progressiveLoanService = inject(ProgressiveLoanService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   loanId = 0;
@@ -159,14 +158,10 @@ export class ProgressiveLoanModelComponent {
   }
 
   private showSuccess(): void {
-    this.snackBar.open(this.translate.instant('PROGRESSIVE_LOAN.SUCCESS'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.success(this.translate.instant('PROGRESSIVE_LOAN.SUCCESS'));
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('PROGRESSIVE_LOAN.ERROR'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.error(this.translate.instant('PROGRESSIVE_LOAN.ERROR'));
   }
 }

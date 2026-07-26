@@ -20,8 +20,8 @@ import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -41,7 +41,6 @@ import {
   InteropTransferResponseData,
 } from '../../api';
 
-const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
@@ -51,7 +50,6 @@ const ERROR_OCCURRED = 'Error occurred';
     FormsModule,
     JsonPipe,
     MatTabsModule,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -186,7 +184,7 @@ const ERROR_OCCURRED = 'Error occurred';
 })
 export class InteropTransfersComponent {
   private interopService = inject(InterOperationService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   result = signal<InteropTransferResponseData | string | null>(null);
 
@@ -208,7 +206,7 @@ export class InteropTransfersComponent {
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
-          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+          this.notifications.error(err.message || ERROR_OCCURRED),
       });
   }
 
@@ -218,13 +216,12 @@ export class InteropTransfersComponent {
     try {
       body = JSON.parse(this.transferBodyJson) as InteropTransferRequestData;
     } catch {
-      this.snackBar.open('Invalid JSON', CLOSE_LABEL, { duration: 4000 });
+      this.notifications.error('Invalid JSON');
       return;
     }
     this.interopService.postInteroperationTransfers(body, this.transferAction).subscribe({
       next: (data) => this.result.set(data),
-      error: (err: { message?: string }) =>
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+      error: (err: { message?: string }) => this.notifications.error(err.message || ERROR_OCCURRED),
     });
   }
 
@@ -235,7 +232,7 @@ export class InteropTransfersComponent {
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
-          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+          this.notifications.error(err.message || ERROR_OCCURRED),
       });
   }
 
@@ -246,7 +243,7 @@ export class InteropTransfersComponent {
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
-          this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 }),
+          this.notifications.error(err.message || ERROR_OCCURRED),
       });
   }
 }

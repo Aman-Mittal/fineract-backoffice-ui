@@ -25,8 +25,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -55,7 +55,7 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTableModule,
+    CdkTableModule,
     MatProgressSpinnerModule,
     IonButton,
     IonInput,
@@ -104,50 +104,50 @@ import {
         }
 
         @if (!isLoading && results().length > 0) {
-          <table mat-table [dataSource]="results()" class="results-table">
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>Loan ID</th>
-              <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+          <table cdk-table [dataSource]="results()" class="results-table">
+            <ng-container cdkColumnDef="id">
+              <th cdk-header-cell *cdkHeaderCellDef>Loan ID</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="accountNo">
-              <th mat-header-cell *matHeaderCellDef>Account No</th>
-              <td mat-cell *matCellDef="let row">{{ row.accountNo }}</td>
+            <ng-container cdkColumnDef="accountNo">
+              <th cdk-header-cell *cdkHeaderCellDef>Account No</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.accountNo }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let row">{{ row.status?.value }}</td>
+            <ng-container cdkColumnDef="status">
+              <th cdk-header-cell *cdkHeaderCellDef>Status</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.status?.value }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="principalDisbursed">
-              <th mat-header-cell *matHeaderCellDef>Principal Disbursed</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="principalDisbursed">
+              <th cdk-header-cell *cdkHeaderCellDef>Principal Disbursed</th>
+              <td cdk-cell *cdkCellDef="let row">
                 {{ row.principal?.principalDisbursed | number: '1.2-2' }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="principalOutstanding">
-              <th mat-header-cell *matHeaderCellDef>Principal Outstanding</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="principalOutstanding">
+              <th cdk-header-cell *cdkHeaderCellDef>Principal Outstanding</th>
+              <td cdk-cell *cdkCellDef="let row">
                 {{ row.principal?.principalOutstanding | number: '1.2-2' }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="totalOutstanding">
-              <th mat-header-cell *matHeaderCellDef>Total Outstanding</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="totalOutstanding">
+              <th cdk-header-cell *cdkHeaderCellDef>Total Outstanding</th>
+              <td cdk-cell *cdkCellDef="let row">
                 {{ row.total?.totalOutstanding | number: '1.2-2' }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="currency">
-              <th mat-header-cell *matHeaderCellDef>Currency</th>
-              <td mat-cell *matCellDef="let row">{{ row.currency?.code }}</td>
+            <ng-container cdkColumnDef="currency">
+              <th cdk-header-cell *cdkHeaderCellDef>Currency</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.currency?.code }}</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
           </table>
         }
       </ion-card-content>

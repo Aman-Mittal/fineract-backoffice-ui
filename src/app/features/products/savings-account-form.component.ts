@@ -26,8 +26,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -65,7 +65,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     ClientSearchComponent,
     IonIcon,
     IonButton,
@@ -231,7 +230,7 @@ export class SavingsAccountFormComponent implements OnInit {
   private readonly productService = inject(SavingsProductService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/products/savings-accounts';
 
@@ -279,8 +278,7 @@ export class SavingsAccountFormComponent implements OnInit {
       next: (data: GetSavingsProductsResponse[]) => {
         this.products = data || [];
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.notifications.error('Operation failed. Please try again.'),
     });
   }
 
@@ -298,8 +296,7 @@ export class SavingsAccountFormComponent implements OnInit {
         };
         this.interestRate = data.nominalAnnualInterestRate || 0;
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.notifications.error('Operation failed. Please try again.'),
     });
   }
 

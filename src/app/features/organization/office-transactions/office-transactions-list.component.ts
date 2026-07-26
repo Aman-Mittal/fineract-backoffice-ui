@@ -20,9 +20,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -50,8 +50,7 @@ interface OfficeTransaction {
   imports: [
     RouterModule,
     TranslateModule,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     IonIcon,
     IonButton,
     IonCardContent,
@@ -72,58 +71,58 @@ interface OfficeTransaction {
         </ion-card-header>
 
         <ion-card-content>
-          <table mat-table [dataSource]="transactions()" class="full-width">
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+          <table cdk-table [dataSource]="transactions()" class="full-width">
+            <ng-container cdkColumnDef="id">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="fromOffice">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="fromOffice">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.fromOfficeName || row.fromOffice }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.fromOfficeName || row.fromOffice }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="toOffice">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="toOffice">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'OFFICE_TRANSACTIONS.TO_OFFICE' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.toOfficeName || row.toOffice }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.toOfficeName || row.toOffice }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="transactionDate">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="transactionDate">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'OFFICE_TRANSACTIONS.DATE' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ formatDate(row.transactionDate) }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ formatDate(row.transactionDate) }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="amount">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="amount">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'OFFICE_TRANSACTIONS.AMOUNT' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.transactionAmount ?? row.amount }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.transactionAmount ?? row.amount }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="description">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="description">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'OFFICE_TRANSACTIONS.DESC' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="actions">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">
                 <ion-button fill="clear" color="warn" (click)="onDelete(row)">
                   <ion-icon name="trash-outline"></ion-icon>
                 </ion-button>
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </ion-card-content>
       </ion-card>
@@ -151,7 +150,7 @@ interface OfficeTransaction {
 export class OfficeTransactionsListComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   transactions = signal<OfficeTransaction[]>([]);
 
@@ -189,11 +188,11 @@ export class OfficeTransactionsListComponent implements OnInit {
     this.api.deleteOfficetransactionsTransactionId(id).subscribe({
       next: () => {
         this.transactions.update((list) => list.filter((t) => t.id !== id));
-        this.snackBar.open('Transaction deleted', 'Close', { duration: 3000 });
+        this.notifications.success('Transaction deleted');
       },
       error: (err: unknown) => {
         console.error('Failed to delete office transaction', err);
-        this.snackBar.open('Failed to delete transaction', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to delete transaction');
       },
     });
   }

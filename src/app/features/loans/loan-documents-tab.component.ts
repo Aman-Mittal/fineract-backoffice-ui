@@ -21,10 +21,10 @@ import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
 import { DocumentsService, DocumentData, BASE_PATH } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
 import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { CdkTableModule } from '@angular/cdk/table';
 
 // Loan-level documents are the evidentiary record for underwriting/servicing
 // decisions (signed application, ID proof, collateral photos) — staff need
@@ -36,7 +36,7 @@ import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/
   imports: [
     FormsModule,
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     IonIcon,
     IonButton,
     IonInput,
@@ -72,22 +72,22 @@ import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/
     } @else if (documents().length === 0) {
       <p class="empty-state">{{ 'LOANS.NO_DOCUMENTS' | translate }}</p>
     } @else {
-      <table mat-table [dataSource]="documents()" class="full-width-table">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">{{ doc.name }}</td>
+      <table cdk-table [dataSource]="documents()" class="full-width-table">
+        <ng-container cdkColumnDef="name">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">{{ doc.name }}</td>
         </ng-container>
-        <ng-container matColumnDef="fileName">
-          <th mat-header-cell *matHeaderCellDef>{{ 'LOANS.FILE_NAME' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">{{ doc.fileName }}</td>
+        <ng-container cdkColumnDef="fileName">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'LOANS.FILE_NAME' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">{{ doc.fileName }}</td>
         </ng-container>
-        <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">{{ doc.type }}</td>
+        <ng-container cdkColumnDef="type">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">{{ doc.type }}</td>
         </ng-container>
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-          <td mat-cell *matCellDef="let doc">
+        <ng-container cdkColumnDef="actions">
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+          <td cdk-cell *cdkCellDef="let doc">
             <ion-button
               fill="clear"
               color="primary"
@@ -106,8 +106,8 @@ import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/
             </ion-button>
           </td>
         </ng-container>
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+        <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
       </table>
     }
   `,

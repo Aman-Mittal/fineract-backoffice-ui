@@ -17,9 +17,9 @@
  * under the License.
  */
 import { Component, inject } from '@angular/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanInternalCOBApiService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -31,15 +31,7 @@ import {
 @Component({
   selector: 'app-wc-cob-tools',
   standalone: true,
-  imports: [
-    MatSnackBarModule,
-    TranslateModule,
-    IonButton,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonCard,
-  ],
+  imports: [TranslateModule, IonButton, IonCardContent, IonCardHeader, IonCardTitle, IonCard],
   template: `
     <ion-card>
       <ion-card-header>
@@ -70,7 +62,7 @@ import {
 })
 export class WcCobToolsComponent {
   private wcCobService = inject(WorkingCapitalLoanInternalCOBApiService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   setLastCobRun(): void {
@@ -88,12 +80,10 @@ export class WcCobToolsComponent {
   }
 
   private showSuccess(): void {
-    this.snackBar.open(this.translate.instant('WC_COB_TOOLS.SUCCESS'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.success(this.translate.instant('WC_COB_TOOLS.SUCCESS'));
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('WC_COB_TOOLS.ERROR'), undefined, { duration: 3000 });
+    this.notifications.error(this.translate.instant('WC_COB_TOOLS.ERROR'));
   }
 }

@@ -19,9 +19,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -39,7 +39,6 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -127,7 +126,7 @@ import {
 })
 export class LoanCobCatchupComponent {
   private readonly loanCOBCatchUpService = inject(LoanCOBCatchUpService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
   isRunning = signal<boolean | null>(null);
@@ -163,7 +162,7 @@ export class LoanCobCatchupComponent {
     this.loanCOBCatchUpService.postLoansCatchUp().subscribe({
       next: () => {
         this.translate.get('LOAN_COB_CATCHUP.SUCCESS').subscribe((msg) => {
-          this.snackBar.open(msg, undefined, { duration: 3000 });
+          this.notifications.success(msg);
         });
       },
     });

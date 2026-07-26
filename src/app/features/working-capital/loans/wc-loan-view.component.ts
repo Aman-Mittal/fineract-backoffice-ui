@@ -21,10 +21,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe } from '@angular/common';
 import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/angular/standalone';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -51,7 +51,7 @@ import {
   imports: [
     TranslateModule,
     MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     MatMenuModule,
     DecimalPipe,
     IonIcon,
@@ -202,29 +202,29 @@ import {
             <ion-card class="table-card">
               <ion-card-content>
                 @if (charges().length > 0) {
-                  <table mat-table [dataSource]="charges()" class="full-width-table">
-                    <ng-container matColumnDef="name">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-                      <td mat-cell *matCellDef="let c">{{ c.name }}</td>
+                  <table cdk-table [dataSource]="charges()" class="full-width-table">
+                    <ng-container cdkColumnDef="name">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="amount">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                      <td mat-cell *matCellDef="let c">{{ c.amount | number: '1.2-2' }}</td>
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">{{ c.amount | number: '1.2-2' }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="paid">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.PAID' | translate }}</th>
-                      <td mat-cell *matCellDef="let c">{{ c.amountPaid | number: '1.2-2' }}</td>
+                    <ng-container cdkColumnDef="paid">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PAID' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">{{ c.amountPaid | number: '1.2-2' }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="outstanding">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="outstanding">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.OUTSTANDING' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let c">
+                      <td cdk-cell *cdkCellDef="let c">
                         {{ c.amountOutstanding | number: '1.2-2' }}
                       </td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="chargeColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: chargeColumns"></tr>
+                    <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
                   </table>
                 } @else {
                   <div class="empty-state">
@@ -243,27 +243,27 @@ import {
             <ion-card class="table-card">
               <ion-card-content>
                 @if (transactions().length > 0) {
-                  <table mat-table [dataSource]="transactions()" class="full-width-table">
-                    <ng-container matColumnDef="id">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
+                  <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                    <ng-container cdkColumnDef="id">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="date">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">{{ tx.transactionDate }}</td>
+                    <ng-container cdkColumnDef="date">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionDate }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="type">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">{{ tx.type?.value }}</td>
+                    <ng-container cdkColumnDef="type">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">{{ tx.type?.value }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="amount">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                      <td mat-cell *matCellDef="let tx">
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">
                         {{ tx.transactionAmount | number: '1.2-2' }}
                       </td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
+                    <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: transactionColumns"></tr>
                   </table>
                 } @else {
                   <div class="empty-state">
@@ -282,25 +282,25 @@ import {
             <ion-card class="table-card">
               <ion-card-content>
                 @if (delinquencyActions().length > 0) {
-                  <table mat-table [dataSource]="delinquencyActions()" class="full-width-table">
-                    <ng-container matColumnDef="action">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.ACTION' | translate }}</th>
-                      <td mat-cell *matCellDef="let a">{{ a.action }}</td>
+                  <table cdk-table [dataSource]="delinquencyActions()" class="full-width-table">
+                    <ng-container cdkColumnDef="action">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.ACTION' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let a">{{ a.action }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="startDate">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="startDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.START_DATE' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let a">{{ a.startDate }}</td>
+                      <td cdk-cell *cdkCellDef="let a">{{ a.startDate }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="endDate">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="endDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.END_DATE' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let a">{{ a.endDate }}</td>
+                      <td cdk-cell *cdkCellDef="let a">{{ a.endDate }}</td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="delinquencyActionColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: delinquencyActionColumns"></tr>
+                    <tr cdk-header-row *cdkHeaderRowDef="delinquencyActionColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: delinquencyActionColumns"></tr>
                   </table>
                 } @else {
                   <div class="empty-state">
@@ -320,36 +320,36 @@ import {
               <ion-card-content>
                 @if (delinquencyRangeSchedule().length > 0) {
                   <table
-                    mat-table
+                    cdk-table
                     [dataSource]="delinquencyRangeSchedule()"
                     class="full-width-table"
                   >
-                    <ng-container matColumnDef="periodNumber">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
-                      <td mat-cell *matCellDef="let r">{{ r.periodNumber }}</td>
+                    <ng-container cdkColumnDef="periodNumber">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let r">{{ r.periodNumber }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="fromDate">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="fromDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.FROM_DATE' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let r">{{ r.fromDate }}</td>
+                      <td cdk-cell *cdkCellDef="let r">{{ r.fromDate }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="toDate">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="toDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.TO_DATE' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let r">{{ r.toDate }}</td>
+                      <td cdk-cell *cdkCellDef="let r">{{ r.toDate }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="outstanding">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="outstanding">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.OUTSTANDING' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let r">
+                      <td cdk-cell *cdkCellDef="let r">
                         {{ r.outstandingAmount | number: '1.2-2' }}
                       </td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="delinquencyRangeColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: delinquencyRangeColumns"></tr>
+                    <tr cdk-header-row *cdkHeaderRowDef="delinquencyRangeColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: delinquencyRangeColumns"></tr>
                   </table>
                 } @else {
                   <div class="empty-state">
@@ -368,31 +368,31 @@ import {
             <ion-card class="table-card">
               <ion-card-content>
                 @if (breachSchedule().length > 0) {
-                  <table mat-table [dataSource]="breachSchedule()" class="full-width-table">
-                    <ng-container matColumnDef="periodNumber">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
-                      <td mat-cell *matCellDef="let b">{{ b.periodNumber }}</td>
+                  <table cdk-table [dataSource]="breachSchedule()" class="full-width-table">
+                    <ng-container cdkColumnDef="periodNumber">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let b">{{ b.periodNumber }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="fromDate">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="fromDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.FROM_DATE' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let b">{{ b.fromDate }}</td>
+                      <td cdk-cell *cdkCellDef="let b">{{ b.fromDate }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="toDate">
-                      <th mat-header-cell *matHeaderCellDef>
+                    <ng-container cdkColumnDef="toDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
                         {{ 'WC_LOANS.TO_DATE' | translate }}
                       </th>
-                      <td mat-cell *matCellDef="let b">{{ b.toDate }}</td>
+                      <td cdk-cell *cdkCellDef="let b">{{ b.toDate }}</td>
                     </ng-container>
-                    <ng-container matColumnDef="breach">
-                      <th mat-header-cell *matHeaderCellDef>{{ 'WC_LOANS.BREACH' | translate }}</th>
-                      <td mat-cell *matCellDef="let b">
+                    <ng-container cdkColumnDef="breach">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.BREACH' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let b">
                         {{ (b.breach ? 'COMMON.YES' : 'COMMON.NO') | translate }}
                       </td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="breachScheduleColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: breachScheduleColumns"></tr>
+                    <tr cdk-header-row *cdkHeaderRowDef="breachScheduleColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: breachScheduleColumns"></tr>
                   </table>
                 } @else {
                   <div class="empty-state">

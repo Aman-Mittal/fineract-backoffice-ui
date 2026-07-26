@@ -20,7 +20,6 @@
 import { Component, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -28,13 +27,13 @@ import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../../s
 import { MakerCheckerOr4EyeFunctionalityService, AuditData } from '../../../api';
 import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-checker-inbox',
   standalone: true,
   imports: [
     TranslateModule,
-    MatSnackBarModule,
     MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
@@ -88,7 +87,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 })
 export class CheckerInboxComponent {
   private readonly makerCheckerService = inject(MakerCheckerOr4EyeFunctionalityService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   columns: ColumnDef[] = [
@@ -110,7 +109,7 @@ export class CheckerInboxComponent {
         switchMap(() =>
           this.makerCheckerService.getMakercheckers().pipe(
             catchError(() => {
-              this.snackBar.open('Error fetching pending tasks', 'Close', { duration: 3000 });
+              this.notifications.error('Error fetching pending tasks');
               return of([]);
             }),
           ),
@@ -143,11 +142,11 @@ export class CheckerInboxComponent {
   onApprove(task: Record<string, unknown>) {
     this.makerCheckerService.postMakercheckersAuditId(task['id'] as number, 'approve').subscribe({
       next: () => {
-        this.snackBar.open('Task approved successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Task approved successfully');
         this.refreshSubject.next();
       },
       error: () => {
-        this.snackBar.open('Failed to approve task', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to approve task');
       },
     });
   }
@@ -156,11 +155,11 @@ export class CheckerInboxComponent {
     if (confirm('Are you sure you want to reject this task?')) {
       this.makerCheckerService.deleteMakercheckersAuditId(task['id'] as number).subscribe({
         next: () => {
-          this.snackBar.open('Task rejected successfully', 'Close', { duration: 3000 });
+          this.notifications.success('Task rejected successfully');
           this.refreshSubject.next();
         },
         error: () => {
-          this.snackBar.open('Failed to reject task', 'Close', { duration: 3000 });
+          this.notifications.error('Failed to reject task');
         },
       });
     }

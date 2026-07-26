@@ -25,7 +25,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -57,7 +57,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -238,7 +237,7 @@ export class HolidayFormComponent implements OnInit {
   private readonly holidaysService = inject(HolidaysService);
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/settings/holidays';
 
@@ -266,7 +265,7 @@ export class HolidayFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load offices', err);
-        this.snackBar.open('Failed to load offices', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to load offices');
       },
     });
   }
@@ -339,7 +338,7 @@ export class HolidayFormComponent implements OnInit {
 
     this.holidaysService.postHolidays(payload as PostHolidaysRequest).subscribe({
       next: () => {
-        this.snackBar.open('Holiday created successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Holiday created successfully');
         this.router.navigate([this.LIST_PATH]);
       },
       error: (err) => {

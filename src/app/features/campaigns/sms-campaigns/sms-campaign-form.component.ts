@@ -20,9 +20,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService, CommandWrapper, SmsCampaignData } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -43,7 +43,6 @@ import {
   imports: [
     FormsModule,
     RouterModule,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -152,7 +151,7 @@ export class SmsCampaignFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(DefaultService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
   isEditMode = false;
@@ -255,12 +254,12 @@ export class SmsCampaignFormComponent implements OnInit {
   private onSuccess(): void {
     const key = this.isEditMode ? 'SMS_CAMPAIGNS.EDIT' : 'SMS_CAMPAIGNS.CREATE';
     this.translate.get(key).subscribe((msg: string) => {
-      this.snackBar.open(msg, 'OK', { duration: 3000 });
+      this.notifications.success(msg);
     });
     this.router.navigate(['/campaigns/sms']);
   }
 
   private onError(): void {
-    this.snackBar.open('An error occurred. Please try again.', 'Close', { duration: 4000 });
+    this.notifications.error('An error occurred. Please try again.');
   }
 }

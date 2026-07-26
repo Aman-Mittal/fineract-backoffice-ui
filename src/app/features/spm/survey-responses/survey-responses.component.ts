@@ -18,10 +18,10 @@
  */
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { SurveyService, PostSurveySurveyNameApptableIdRequest } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -49,8 +49,7 @@ interface SurveyResponse {
   standalone: true,
   imports: [
     FormsModule,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -99,25 +98,25 @@ interface SurveyResponse {
         <!-- Step 2: Responses table -->
         @if (responses().length > 0) {
           <h3>{{ 'SURVEY_RESPONSES.RESPONSES' | translate }}</h3>
-          <mat-table [dataSource]="responses()" class="full-width">
-            <ng-container matColumnDef="id">
-              <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
-              <mat-cell *matCellDef="let row">{{ row.id ?? row.entryId }}</mat-cell>
+          <cdk-table [dataSource]="responses()" class="full-width">
+            <ng-container cdkColumnDef="id">
+              <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">{{ row.id ?? row.entryId }}</cdk-cell>
             </ng-container>
 
-            <ng-container matColumnDef="score">
-              <mat-header-cell *matHeaderCellDef>Score</mat-header-cell>
-              <mat-cell *matCellDef="let row">{{ row.score }}</mat-cell>
+            <ng-container cdkColumnDef="score">
+              <cdk-header-cell *cdkHeaderCellDef>Score</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">{{ row.score }}</cdk-cell>
             </ng-container>
 
-            <ng-container matColumnDef="date">
-              <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
-              <mat-cell *matCellDef="let row">{{ row.date }}</mat-cell>
+            <ng-container cdkColumnDef="date">
+              <cdk-header-cell *cdkHeaderCellDef>Date</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">{{ row.date }}</cdk-cell>
             </ng-container>
 
-            <ng-container matColumnDef="actions">
-              <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-              <mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="actions">
+              <cdk-header-cell *cdkHeaderCellDef>Actions</cdk-header-cell>
+              <cdk-cell *cdkCellDef="let row">
                 <ion-button
                   fill="clear"
                   color="warn"
@@ -126,12 +125,12 @@ interface SurveyResponse {
                 >
                   &#x1F5D1;
                 </ion-button>
-              </mat-cell>
+              </cdk-cell>
             </ng-container>
 
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-          </mat-table>
+            <cdk-header-row *cdkHeaderRowDef="displayedColumns"></cdk-header-row>
+            <cdk-row *cdkRowDef="let row; columns: displayedColumns"></cdk-row>
+          </cdk-table>
         }
 
         <hr class="divider" />
@@ -173,7 +172,7 @@ interface SurveyResponse {
 })
 export class SurveyResponsesComponent implements OnInit {
   private surveyService = inject(SurveyService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   surveys = signal<{ name: string; enabled?: boolean }[]>([]);
   responses = signal<SurveyResponse[]>([]);
@@ -229,7 +228,7 @@ export class SurveyResponsesComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.snackBar.open('SURVEY_RESPONSES.SUCCESS', undefined, { duration: 3000 });
+          this.notifications.success('SURVEY_RESPONSES.SUCCESS');
           this.loadResponses();
         },
       });
@@ -241,7 +240,7 @@ export class SurveyResponsesComponent implements OnInit {
     try {
       body = JSON.parse(this.responseBody);
     } catch {
-      this.snackBar.open('Invalid JSON', undefined, { duration: 3000 });
+      this.notifications.error('Invalid JSON');
       return;
     }
     this.submitting = true;
@@ -249,7 +248,7 @@ export class SurveyResponsesComponent implements OnInit {
       .postSurveySurveyNameApptableId(this.selectedSurveyName, this.clientId, body)
       .subscribe({
         next: () => {
-          this.snackBar.open('SURVEY_RESPONSES.SUCCESS', undefined, { duration: 3000 });
+          this.notifications.success('SURVEY_RESPONSES.SUCCESS');
           this.responseBody = '';
           this.submitting = false;
           this.loadResponses();

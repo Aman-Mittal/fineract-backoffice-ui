@@ -24,10 +24,10 @@ import { HolidaysListComponent } from './holidays-list.component';
 import { HolidaysService, OfficesService, GetHolidaysResponse } from '../../api';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { NotificationService } from '../../core/services/notification.service';
 
 describe('HolidaysListComponent', () => {
   let component: HolidaysListComponent;
@@ -36,7 +36,7 @@ describe('HolidaysListComponent', () => {
   let officesServiceSpy: jasmine.SpyObj<OfficesService>;
   let routerSpy: jasmine.SpyObj<Router>;
   let dialogSpy: jasmine.SpyObj<MatDialog>;
-  let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+  let notificationsSpy: jasmine.SpyObj<NotificationService>;
 
   beforeEach(async () => {
     holidaysServiceSpy = jasmine.createSpyObj('HolidaysService', [
@@ -46,7 +46,11 @@ describe('HolidaysListComponent', () => {
     officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-    snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
+      'success',
+      'error',
+      'show',
+    ]);
 
     officesServiceSpy.getOffices.and.returnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
@@ -60,7 +64,7 @@ describe('HolidaysListComponent', () => {
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: MatDialog, useValue: dialogSpy },
-        { provide: MatSnackBar, useValue: snackBarSpy },
+        { provide: NotificationService, useValue: notificationsSpy },
         provideNoopAnimations(),
       ],
     })
@@ -68,7 +72,7 @@ describe('HolidaysListComponent', () => {
         add: {
           providers: [
             { provide: MatDialog, useValue: dialogSpy },
-            { provide: MatSnackBar, useValue: snackBarSpy },
+            { provide: NotificationService, useValue: notificationsSpy },
           ],
         },
       })
@@ -135,11 +139,7 @@ describe('HolidaysListComponent', () => {
 
     expect(dialogSpy.open).toHaveBeenCalled();
     expect(holidaysServiceSpy.postHolidaysHolidayId).toHaveBeenCalledWith(10, {}, 'activate');
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      'Holiday activated successfully',
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.success).toHaveBeenCalledWith('Holiday activated successfully');
   });
 
   it('should handle activation error', () => {
@@ -160,10 +160,6 @@ describe('HolidaysListComponent', () => {
     component.onActivateHoliday(holiday);
 
     expect(console.error).toHaveBeenCalled();
-    expect(snackBarSpy.open).toHaveBeenCalledWith(
-      'Failed to activate holiday',
-      'Close',
-      jasmine.any(Object),
-    );
+    expect(notificationsSpy.error).toHaveBeenCalledWith('Failed to activate holiday');
   });
 });

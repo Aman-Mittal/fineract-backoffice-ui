@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -50,7 +50,7 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -113,17 +113,17 @@ import {
             @if (lookupTables().length === 0) {
               <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
             } @else {
-              <table mat-table [dataSource]="lookupTables()" class="full-width-table">
-                <ng-container matColumnDef="key">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'SPM.LOOKUP_KEY' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.key }}</td>
+              <table cdk-table [dataSource]="lookupTables()" class="full-width-table">
+                <ng-container cdkColumnDef="key">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'SPM.LOOKUP_KEY' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.key }}</td>
                 </ng-container>
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DESCRIPTION' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                <ng-container cdkColumnDef="description">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="lookupTableColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: lookupTableColumns"></tr>
+                <tr cdk-header-row *cdkHeaderRowDef="lookupTableColumns"></tr>
+                <tr cdk-row *cdkRowDef="let row; columns: lookupTableColumns"></tr>
               </table>
             }
           }

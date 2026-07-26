@@ -25,7 +25,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -62,7 +62,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonInput,
     IonItem,
@@ -223,7 +222,7 @@ export class StaffFormComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly staffListPath = '/organization/staff';
 
@@ -285,8 +284,7 @@ export class StaffFormComponent implements OnInit {
       };
       this.staffService.putStaffStaffId(this.staffId!, updatePayload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
-        error: () =>
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+        error: () => this.notifications.error('Operation failed. Please try again.'),
       });
     } else {
       const payload = {
@@ -297,8 +295,7 @@ export class StaffFormComponent implements OnInit {
       } as StaffCreateRequest;
       this.staffService.postStaff(payload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
-        error: () =>
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+        error: () => this.notifications.error('Operation failed. Please try again.'),
       });
     }
   }

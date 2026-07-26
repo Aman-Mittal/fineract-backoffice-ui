@@ -19,9 +19,9 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
 import { TranslateModule } from '@ngx-translate/core';
 import { TemplatesService, TemplateData } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -35,7 +35,7 @@ import {
   selector: 'app-templates-list',
   standalone: true,
   imports: [
-    MatTableModule,
+    CdkTableModule,
     TranslateModule,
     IonIcon,
     IonButton,
@@ -55,25 +55,25 @@ import {
         </ion-button>
       </ion-card-header>
       <ion-card-content>
-        <table mat-table [dataSource]="templates" class="full-width">
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.NAME' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+        <table cdk-table [dataSource]="templates" class="full-width">
+          <ng-container cdkColumnDef="name">
+            <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.NAME' | translate }}</th>
+            <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="entity">
-            <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.ENTITY' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ translateEntity(row.entity) }}</td>
+          <ng-container cdkColumnDef="entity">
+            <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.ENTITY' | translate }}</th>
+            <td cdk-cell *cdkCellDef="let row">{{ translateEntity(row.entity) }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.TYPE' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ translateType(row.type) }}</td>
+          <ng-container cdkColumnDef="type">
+            <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.TYPE' | translate }}</th>
+            <td cdk-cell *cdkCellDef="let row">{{ translateType(row.type) }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
+          <ng-container cdkColumnDef="actions">
+            <th cdk-header-cell *cdkHeaderCellDef></th>
+            <td cdk-cell *cdkCellDef="let row">
               <ion-button fill="clear" color="primary" (click)="onEdit(row)">
                 <ion-icon name="create-outline"></ion-icon>
               </ion-button>
@@ -83,8 +83,8 @@ import {
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+          <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
         </table>
       </ion-card-content>
     </ion-card>

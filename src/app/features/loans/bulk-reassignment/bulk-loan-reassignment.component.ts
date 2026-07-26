@@ -20,10 +20,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { forkJoin } from 'rxjs';
 
 import { BulkLoansService, OfficesService, StaffService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -54,7 +54,6 @@ interface StaffMember {
   imports: [
     FormsModule,
     TranslateModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonItem,
@@ -126,7 +125,7 @@ export class BulkLoanReassignmentComponent implements OnInit {
   private bulkLoansService = inject(BulkLoansService);
   private officesService = inject(OfficesService);
   private staffService = inject(StaffService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   offices: Office[] = [];
   allStaff: StaffMember[] = [];
@@ -180,7 +179,7 @@ export class BulkLoanReassignmentComponent implements OnInit {
     this.bulkLoansService.postLoansLoanreassignment(body).subscribe({
       next: () => {
         this.isLoading = false;
-        this.snackBar.open('BULK_LOANS.SUCCESS', 'OK', { duration: 3000 });
+        this.notifications.success('BULK_LOANS.SUCCESS');
         this.selectedOfficeId = null;
         this.selectedFromOfficerId = null;
         this.selectedToOfficerId = null;

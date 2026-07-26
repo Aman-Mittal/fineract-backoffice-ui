@@ -19,9 +19,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoanReschedulingService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -43,7 +43,6 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -155,7 +154,7 @@ import {
 })
 export class LoanScheduleModifyComponent {
   private readonly loanReschedulingService = inject(LoanReschedulingService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   loanId = 0;
   command = '';
@@ -177,7 +176,7 @@ export class LoanScheduleModifyComponent {
       try {
         body = JSON.parse(this.bodyText);
       } catch {
-        this.snackBar.open('Invalid JSON body', 'Close', { duration: 3000 });
+        this.notifications.error('Invalid JSON body');
         return;
       }
     }

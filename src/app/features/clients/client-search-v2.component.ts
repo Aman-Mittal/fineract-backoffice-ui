@@ -19,10 +19,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientSearchV2Service, PageClientSearchData, ClientSearchData } from '../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -41,7 +41,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    MatTableModule,
+    CdkTableModule,
     MatPaginatorModule,
     TranslateModule,
     IonIcon,
@@ -83,32 +83,32 @@ import {
         }
 
         @if (results().length > 0) {
-          <table mat-table [dataSource]="results()" class="full-width">
-            <ng-container matColumnDef="displayName">
-              <th mat-header-cell *matHeaderCellDef>{{ 'CLIENT_SEARCH_V2.NAME' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+          <table cdk-table [dataSource]="results()" class="full-width">
+            <ng-container cdkColumnDef="displayName">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'CLIENT_SEARCH_V2.NAME' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.displayName }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="accountNo">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="accountNo">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'CLIENT_SEARCH_V2.ACCOUNT_NO' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.accountNo }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.accountNo }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>{{ 'CLIENT_SEARCH_V2.STATUS' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.status?.value }}</td>
+            <ng-container cdkColumnDef="status">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'CLIENT_SEARCH_V2.STATUS' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.status?.value }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="officeName">
-              <th mat-header-cell *matHeaderCellDef>{{ 'CLIENT_SEARCH_V2.OFFICE' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.officeName }}</td>
+            <ng-container cdkColumnDef="officeName">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'CLIENT_SEARCH_V2.OFFICE' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.officeName }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="actions">
+              <th cdk-header-cell *cdkHeaderCellDef></th>
+              <td cdk-cell *cdkCellDef="let row">
                 <ion-button
                   fill="clear"
                   (click)="viewClient(row.id)"
@@ -119,10 +119,10 @@ import {
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
             <tr
-              mat-row
-              *matRowDef="let row; columns: displayedColumns"
+              cdk-row
+              *cdkRowDef="let row; columns: displayedColumns"
               class="clickable-row"
               (click)="viewClient(row.id)"
             ></tr>

@@ -20,10 +20,10 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchAPIService, GetSearchResponse } from '../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -44,7 +44,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    MatTableModule,
+    CdkTableModule,
     RouterModule,
     TranslateModule,
     IonButton,
@@ -102,36 +102,36 @@ import {
         }
 
         @if (!isLoading && results().length > 0) {
-          <table mat-table [dataSource]="results()" class="results-table">
-            <ng-container matColumnDef="entityType">
-              <th mat-header-cell *matHeaderCellDef>{{ 'SEARCH.ENTITY_TYPE' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.entityType }}</td>
+          <table cdk-table [dataSource]="results()" class="results-table">
+            <ng-container cdkColumnDef="entityType">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'SEARCH.ENTITY_TYPE' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.entityType }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="entityName">
-              <th mat-header-cell *matHeaderCellDef>{{ 'SEARCH.ENTITY_NAME' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.entityName }}</td>
+            <ng-container cdkColumnDef="entityName">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'SEARCH.ENTITY_NAME' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.entityName }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="entityAccountNo">
-              <th mat-header-cell *matHeaderCellDef>{{ 'SEARCH.ACCOUNT_NO' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.entityAccountNo }}</td>
+            <ng-container cdkColumnDef="entityAccountNo">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'SEARCH.ACCOUNT_NO' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.entityAccountNo }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="entityExternalId">
-              <th mat-header-cell *matHeaderCellDef>{{ 'SEARCH.EXTERNAL_ID' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.entityExternalId }}</td>
+            <ng-container cdkColumnDef="entityExternalId">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'SEARCH.EXTERNAL_ID' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.entityExternalId }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="parentName">
-              <th mat-header-cell *matHeaderCellDef>{{ 'SEARCH.PARENT' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.parentName }}</td>
+            <ng-container cdkColumnDef="parentName">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'SEARCH.PARENT' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.parentName }}</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
             <tr
-              mat-row
-              *matRowDef="let row; columns: displayedColumns"
+              cdk-row
+              *cdkRowDef="let row; columns: displayedColumns"
               class="clickable-row"
               (click)="onRowClick(row)"
             ></tr>

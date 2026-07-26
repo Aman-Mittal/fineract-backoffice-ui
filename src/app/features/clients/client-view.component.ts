@@ -22,7 +22,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import {
@@ -48,6 +47,7 @@ import { ClientFamilyMembersListComponent } from './tabs/client-family-members-l
 import { ClientNotesListComponent } from './tabs/client-notes-list.component';
 import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -65,7 +65,7 @@ import {
     TranslateModule,
     MatMenuModule,
     MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     MatDialogModule,
     StatusBadgeComponent,
     HasPermissionDirective,
@@ -324,12 +324,12 @@ import {
                 <ion-card class="table-card">
                   <ion-card-content>
                     @if (savingsAccounts().length > 0) {
-                      <table mat-table [dataSource]="savingsAccounts()" class="full-width-table">
-                        <ng-container matColumnDef="accountNo">
-                          <th mat-header-cell *matHeaderCellDef>
+                      <table cdk-table [dataSource]="savingsAccounts()" class="full-width-table">
+                        <ng-container cdkColumnDef="accountNo">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.ACCOUNT_NO' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             <a
                               class="clickable-link"
                               [routerLink]="['/products/savings-accounts/view', account.id]"
@@ -339,37 +339,37 @@ import {
                           </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="productName">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="productName">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.PRODUCT' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">{{ account.productName }}</td>
+                          <td cdk-cell *cdkCellDef="let account">{{ account.productName }}</td>
                         </ng-container>
 
-                        <ng-container matColumnDef="balance">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="balance">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.BALANCE' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             {{ account.currency?.displaySymbol }}
                             {{ account.accountBalance || 0 | number: '1.2-2' }}
                           </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="status">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="status">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.STATUS' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             <app-status-badge [status]="account.status"></app-status-badge>
                           </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="actions">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="actions">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.ACTIONS' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             <ion-button
                               fill="clear"
                               color="primary"
@@ -428,8 +428,8 @@ import {
                           </td>
                         </ng-container>
 
-                        <tr mat-header-row *matHeaderRowDef="savingsColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: savingsColumns"></tr>
+                        <tr cdk-header-row *cdkHeaderRowDef="savingsColumns"></tr>
+                        <tr cdk-row *cdkRowDef="let row; columns: savingsColumns"></tr>
                       </table>
                     } @else {
                       <div class="empty-state">
@@ -448,49 +448,49 @@ import {
                 <ion-card class="table-card">
                   <ion-card-content>
                     @if (loanAccounts().length > 0) {
-                      <table mat-table [dataSource]="loanAccounts()" class="full-width-table">
-                        <ng-container matColumnDef="accountNo">
-                          <th mat-header-cell *matHeaderCellDef>
+                      <table cdk-table [dataSource]="loanAccounts()" class="full-width-table">
+                        <ng-container cdkColumnDef="accountNo">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.ACCOUNT_NO' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             <a class="clickable-link" [routerLink]="['/loans/view', account.id]">
                               {{ account.accountNo }}
                             </a>
                           </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="productName">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="productName">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.PRODUCT' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">{{ account.productName }}</td>
+                          <td cdk-cell *cdkCellDef="let account">{{ account.productName }}</td>
                         </ng-container>
 
-                        <ng-container matColumnDef="principal">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="principal">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'LOANS.PRINCIPAL' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             {{ account.currency?.displaySymbol }}
                             {{ account.originalPrincipal || 0 | number: '1.2-2' }}
                           </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="status">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="status">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.STATUS' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             <app-status-badge [status]="account.status"></app-status-badge>
                           </td>
                         </ng-container>
 
-                        <ng-container matColumnDef="actions">
-                          <th mat-header-cell *matHeaderCellDef>
+                        <ng-container cdkColumnDef="actions">
+                          <th cdk-header-cell *cdkHeaderCellDef>
                             {{ 'COMMON.ACTIONS' | translate }}
                           </th>
-                          <td mat-cell *matCellDef="let account">
+                          <td cdk-cell *cdkCellDef="let account">
                             <ion-button
                               fill="clear"
                               color="primary"
@@ -537,8 +537,8 @@ import {
                           </td>
                         </ng-container>
 
-                        <tr mat-header-row *matHeaderRowDef="loanColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: loanColumns"></tr>
+                        <tr cdk-header-row *cdkHeaderRowDef="loanColumns"></tr>
+                        <tr cdk-row *cdkRowDef="let row; columns: loanColumns"></tr>
                       </table>
                     } @else {
                       <div class="empty-state">

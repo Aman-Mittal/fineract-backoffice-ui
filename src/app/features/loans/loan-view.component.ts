@@ -22,9 +22,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
@@ -35,6 +33,8 @@ import { DialogService } from '../../core/services/dialog.service';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
+import { NotificationService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -70,9 +70,8 @@ import {
     RouterModule,
     TranslateModule,
     MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     MatMenuModule,
-    MatSnackBarModule,
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
@@ -329,16 +328,16 @@ import {
               <ion-card class="table-card" style="overflow-x: auto;">
                 <ion-card-content>
                   @if (periods().length > 0) {
-                    <table mat-table [dataSource]="periods()" class="full-width-table">
+                    <table cdk-table [dataSource]="periods()" class="full-width-table">
                       <!-- Category Headers -->
-                      <ng-container matColumnDef="empty-header">
-                        <th mat-header-cell *matHeaderCellDef [attr.colspan]="5"></th>
+                      <ng-container cdkColumnDef="empty-header">
+                        <th cdk-header-cell *cdkHeaderCellDef [attr.colspan]="5"></th>
                       </ng-container>
 
-                      <ng-container matColumnDef="balance-header">
+                      <ng-container cdkColumnDef="balance-header">
                         <th
-                          mat-header-cell
-                          *matHeaderCellDef
+                          cdk-header-cell
+                          *cdkHeaderCellDef
                           [attr.colspan]="2"
                           style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                         >
@@ -346,10 +345,10 @@ import {
                         </th>
                       </ng-container>
 
-                      <ng-container matColumnDef="cost-header">
+                      <ng-container cdkColumnDef="cost-header">
                         <th
-                          mat-header-cell
-                          *matHeaderCellDef
+                          cdk-header-cell
+                          *cdkHeaderCellDef
                           [attr.colspan]="3"
                           style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                         >
@@ -357,10 +356,10 @@ import {
                         </th>
                       </ng-container>
 
-                      <ng-container matColumnDef="totals-header">
+                      <ng-container cdkColumnDef="totals-header">
                         <th
-                          mat-header-cell
-                          *matHeaderCellDef
+                          cdk-header-cell
+                          *cdkHeaderCellDef
                           [attr.colspan]="5"
                           style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                         >
@@ -369,51 +368,51 @@ import {
                       </ng-container>
 
                       <!-- Column Containers -->
-                      <ng-container matColumnDef="period">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.HASH' | translate }}</th>
-                        <td mat-cell *matCellDef="let p">{{ p.period || '' }}</td>
-                        <td mat-footer-cell *matFooterCellDef>
+                      <ng-container cdkColumnDef="period">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.HASH' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let p">{{ p.period || '' }}</td>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong>{{ 'COMMON.TOTAL' | translate }}</strong>
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="days">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DAYS' | translate }}</th>
-                        <td mat-cell *matCellDef="let p">{{ p.daysInPeriod || '' }}</td>
-                        <td mat-footer-cell *matFooterCellDef></td>
+                      <ng-container cdkColumnDef="days">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DAYS' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let p">{{ p.daysInPeriod || '' }}</td>
+                        <td cdk-footer-cell *cdkFooterCellDef></td>
                       </ng-container>
 
-                      <ng-container matColumnDef="dueDate">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                        <td mat-cell *matCellDef="let p">{{ formatPeriodDate(p.dueDate) }}</td>
-                        <td mat-footer-cell *matFooterCellDef></td>
+                      <ng-container cdkColumnDef="dueDate">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let p">{{ formatPeriodDate(p.dueDate) }}</td>
+                        <td cdk-footer-cell *cdkFooterCellDef></td>
                       </ng-container>
 
-                      <ng-container matColumnDef="paidDate">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="paidDate">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID_DATE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{ formatPeriodDate(p.obligationsMetOnDate) }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef></td>
+                        <td cdk-footer-cell *cdkFooterCellDef></td>
                       </ng-container>
 
-                      <ng-container matColumnDef="check">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let p">
+                      <ng-container cdkColumnDef="check">
+                        <th cdk-header-cell *cdkHeaderCellDef></th>
+                        <td cdk-cell *cdkCellDef="let p">
                           @if (p.obligationsMetOnDate) {
                             <ion-icon style="color: #2ecc71" name="checkmark-outline"></ion-icon>
                           }
                         </td>
-                        <td mat-footer-cell *matFooterCellDef></td>
+                        <td cdk-footer-cell *cdkFooterCellDef></td>
                       </ng-container>
 
-                      <ng-container matColumnDef="balance">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="balance">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.principalLoanBalanceOutstanding !== undefined &&
                             p.principalLoanBalanceOutstanding !== null
@@ -421,21 +420,21 @@ import {
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef></td>
+                        <td cdk-footer-cell *cdkFooterCellDef></td>
                       </ng-container>
 
-                      <ng-container matColumnDef="principal">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="principal">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.principalDue !== undefined && p.principalDue !== null && p.period
                               ? (p.principalDue | number: '1.2-2')
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalPrincipalDue | number: '1.2-2' }}</strong
@@ -443,18 +442,18 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="interest">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="interest">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.interestDue !== undefined && p.interestDue !== null
                               ? (p.interestDue | number: '1.2-2')
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalInterestDue | number: '1.2-2' }}</strong
@@ -462,18 +461,18 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="fees">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="fees">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.feeChargesDue !== undefined && p.feeChargesDue !== null
                               ? (p.feeChargesDue | number: '1.2-2')
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalFeesDue | number: '1.2-2' }}</strong
@@ -481,11 +480,11 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="penalties">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="penalties">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.penaltyChargesDue !== undefined &&
                             p.penaltyChargesDue !== null &&
@@ -494,7 +493,7 @@ import {
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalPenaltiesDue | number: '1.2-2' }}</strong
@@ -502,18 +501,18 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="due">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="due">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.totalDueForPeriod !== undefined && p.totalDueForPeriod !== null
                               ? (p.totalDueForPeriod | number: '1.2-2')
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalDue | number: '1.2-2' }}</strong
@@ -521,18 +520,18 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="paid">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="paid">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.totalPaidForPeriod !== undefined && p.totalPaidForPeriod !== null
                               ? (p.totalPaidForPeriod | number: '1.2-2')
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalPaid | number: '1.2-2' }}</strong
@@ -540,11 +539,11 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="inAdvance">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="inAdvance">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.IN_ADVANCE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.totalPaidInAdvanceForPeriod !== undefined &&
                             p.totalPaidInAdvanceForPeriod !== null &&
@@ -553,7 +552,7 @@ import {
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalPaidInAdvance | number: '1.2-2' }}</strong
@@ -561,11 +560,11 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="late">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="late">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.LATE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.totalPaidLateForPeriod !== undefined &&
                             p.totalPaidLateForPeriod !== null &&
@@ -574,7 +573,7 @@ import {
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalPaidLate | number: '1.2-2' }}</strong
@@ -582,11 +581,11 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="outstanding">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let p">
+                        <td cdk-cell *cdkCellDef="let p">
                           {{
                             p.totalOutstandingForPeriod !== undefined &&
                             p.totalOutstandingForPeriod !== null &&
@@ -595,7 +594,7 @@ import {
                               : ''
                           }}
                         </td>
-                        <td mat-footer-cell *matFooterCellDef>
+                        <td cdk-footer-cell *cdkFooterCellDef>
                           <strong
                             >{{ loan()?.currency?.displaySymbol
                             }}{{ totalOutstanding | number: '1.2-2' }}</strong
@@ -603,10 +602,10 @@ import {
                         </td>
                       </ng-container>
 
-                      <tr mat-header-row *matHeaderRowDef="categoryHeaderColumns"></tr>
-                      <tr mat-header-row *matHeaderRowDef="scheduleColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: scheduleColumns"></tr>
-                      <tr mat-footer-row *matFooterRowDef="scheduleColumns"></tr>
+                      <tr cdk-header-row *cdkHeaderRowDef="categoryHeaderColumns"></tr>
+                      <tr cdk-header-row *cdkHeaderRowDef="scheduleColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: scheduleColumns"></tr>
+                      <tr cdk-footer-row *cdkFooterRowDef="scheduleColumns"></tr>
                     </table>
                   } @else {
                     <div class="empty-state">
@@ -625,27 +624,27 @@ import {
               <ion-card class="table-card">
                 <ion-card-content>
                   @if (transactions().length > 0) {
-                    <table mat-table [dataSource]="transactions()" class="full-width-table">
-                      <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
+                    <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                      <ng-container cdkColumnDef="id">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="date">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'COMMON.TRANSACTION_DATE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let tx">{{ formatPeriodDate(tx.date) }}</td>
+                        <td cdk-cell *cdkCellDef="let tx">{{ formatPeriodDate(tx.date) }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.type?.value }}</td>
+                      <ng-container cdkColumnDef="type">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">{{ tx.type?.value }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">
+                      <ng-container cdkColumnDef="amount">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">
                           <span
                             [ngClass]="{
                               'debit-amount': isDebitTransaction(tx) && !tx.manuallyReversed,
@@ -659,9 +658,9 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="txActions">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let tx">
+                      <ng-container cdkColumnDef="txActions">
+                        <th cdk-header-cell *cdkHeaderCellDef></th>
+                        <td cdk-cell *cdkCellDef="let tx">
                           <ion-button
                             fill="clear"
                             (click)="onViewTransaction(tx)"
@@ -672,8 +671,8 @@ import {
                         </td>
                       </ng-container>
 
-                      <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
+                      <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: transactionColumns"></tr>
                     </table>
                   } @else {
                     <div class="empty-state">
@@ -692,40 +691,40 @@ import {
               <ion-card class="table-card">
                 <ion-card-content>
                   @if (charges().length > 0) {
-                    <table mat-table [dataSource]="charges()" class="full-width-table">
-                      <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
+                    <table cdk-table [dataSource]="charges()" class="full-width-table">
+                      <ng-container cdkColumnDef="name">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">
+                      <ng-container cdkColumnDef="amount">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let c">
                           {{ loan()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="due">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="due">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let c">
+                        <td cdk-cell *cdkCellDef="let c">
                           {{ loan()?.currency?.displaySymbol }} {{ c.amountDue | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="outstanding">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let c">
+                        <td cdk-cell *cdkCellDef="let c">
                           {{ loan()?.currency?.displaySymbol }}
                           {{ c.amountOutstanding | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
-                      <tr mat-header-row *matHeaderRowDef="chargeColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: chargeColumns"></tr>
+                      <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
                     </table>
                   } @else {
                     <div class="empty-state">
@@ -768,33 +767,33 @@ import {
               @if (buyDownFees().length === 0) {
                 <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
               } @else {
-                <table mat-table [dataSource]="buyDownFees()" class="full-width-table">
-                  <ng-container matColumnDef="transactionId">
-                    <th mat-header-cell *matHeaderCellDef>
+                <table cdk-table [dataSource]="buyDownFees()" class="full-width-table">
+                  <ng-container cdkColumnDef="transactionId">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'LOANS.TRANSACTION_ID' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.transactionId }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.transactionId }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="buyDownFeeAmount">
-                    <th mat-header-cell *matHeaderCellDef>
+                  <ng-container cdkColumnDef="buyDownFeeAmount">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'LOANS.BUY_DOWN_FEE_AMOUNT' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.buyDownFeeAmount | number }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.buyDownFeeAmount | number }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="amortizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
+                  <ng-container cdkColumnDef="amortizedAmount">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.amortizedAmount | number }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.amortizedAmount | number }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="notYetAmortizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
+                  <ng-container cdkColumnDef="notYetAmortizedAmount">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
                   </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="buyDownFeeColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: buyDownFeeColumns"></tr>
+                  <tr cdk-header-row *cdkHeaderRowDef="buyDownFeeColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: buyDownFeeColumns"></tr>
                 </table>
               }
             </div>
@@ -806,25 +805,25 @@ import {
               @if (capitalizedIncomes().length === 0) {
                 <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
               } @else {
-                <table mat-table [dataSource]="capitalizedIncomes()" class="full-width-table">
-                  <ng-container matColumnDef="amount">
-                    <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                    <td mat-cell *matCellDef="let row">{{ row.amount | number }}</td>
+                <table cdk-table [dataSource]="capitalizedIncomes()" class="full-width-table">
+                  <ng-container cdkColumnDef="amount">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.amount | number }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="amortizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
+                  <ng-container cdkColumnDef="amortizedAmount">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.amortizedAmount | number }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.amortizedAmount | number }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="unrecognizedAmount">
-                    <th mat-header-cell *matHeaderCellDef>
+                  <ng-container cdkColumnDef="unrecognizedAmount">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'LOANS.UNRECOGNIZED_AMOUNT' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
                   </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="capitalizedIncomeColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: capitalizedIncomeColumns"></tr>
+                  <tr cdk-header-row *cdkHeaderRowDef="capitalizedIncomeColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: capitalizedIncomeColumns"></tr>
                 </table>
               }
             </div>
@@ -1121,7 +1120,7 @@ export class LoanViewComponent implements OnInit {
   private readonly capitalizedIncomeService = inject(LoanCapitalizedIncomeService);
   private readonly disbursementDetailsService = inject(LoanDisbursementDetailsService);
   private readonly collateralManagementService = inject(LoanCollateralManagementService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
@@ -1336,7 +1335,7 @@ export class LoanViewComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.snackBar.open('Disbursement saved successfully.', 'Close', { duration: 3000 });
+          this.notifications.success('Disbursement saved successfully.');
           this.loadDisbursementDetail();
         },
         error: (err) => console.error('Failed to save disbursement detail', err),
@@ -1362,7 +1361,7 @@ export class LoanViewComponent implements OnInit {
           .deleteLoanCollateralManagementId(this.loanId, this.deleteCollateralId)
           .subscribe({
             next: () => {
-              this.snackBar.open('Collateral deleted successfully.', 'Close', { duration: 3000 });
+              this.notifications.success('Collateral deleted successfully.');
               this.deleteCollateralId = 0;
             },
             error: (err) => console.error('Failed to delete collateral', err),

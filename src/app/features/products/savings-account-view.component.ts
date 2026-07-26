@@ -19,10 +19,8 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
@@ -31,6 +29,8 @@ import {
   SavingsAccountChargeData,
 } from '../../api';
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
+import { NotificationService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -51,8 +51,7 @@ import {
     RouterModule,
     TranslateModule,
     MatTabsModule,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     StatusBadgeComponent,
     HasPermissionDirective,
     DecimalPipe,
@@ -223,25 +222,25 @@ import {
               <ion-card class="table-card">
                 <ion-card-content>
                   @if (transactions().length > 0) {
-                    <table mat-table [dataSource]="transactions()" class="full-width-table">
-                      <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
+                    <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                      <ng-container cdkColumnDef="id">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ formatDate(tx.date) }}</td>
+                      <ng-container cdkColumnDef="date">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">{{ formatDate(tx.date) }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">{{ tx.transactionType?.value }}</td>
+                      <ng-container cdkColumnDef="type">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let tx">
+                      <ng-container cdkColumnDef="amount">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let tx">
                           <span
                             [ngClass]="{
                               'debit-amount': tx.debit && !tx.reversed,
@@ -256,18 +255,18 @@ import {
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="runningBalance">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="runningBalance">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'COMMON.RUNNING_BALANCE' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let tx">
+                        <td cdk-cell *cdkCellDef="let tx">
                           {{ account()?.currency?.displaySymbol }}
                           {{ tx.runningBalance || 0 | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
-                      <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: transactionColumns"></tr>
+                      <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: transactionColumns"></tr>
                     </table>
                   } @else {
                     <div class="empty-state">
@@ -286,31 +285,31 @@ import {
               <ion-card class="table-card">
                 <ion-card-content>
                   @if (charges().length > 0) {
-                    <table mat-table [dataSource]="charges()" class="full-width-table">
-                      <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
+                    <table cdk-table [dataSource]="charges()" class="full-width-table">
+                      <ng-container cdkColumnDef="name">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
                       </ng-container>
 
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                        <td mat-cell *matCellDef="let c">
+                      <ng-container cdkColumnDef="amount">
+                        <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                        <td cdk-cell *cdkCellDef="let c">
                           {{ account()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
-                      <ng-container matColumnDef="outstanding">
-                        <th mat-header-cell *matHeaderCellDef>
+                      <ng-container cdkColumnDef="outstanding">
+                        <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
                         </th>
-                        <td mat-cell *matCellDef="let c">
+                        <td cdk-cell *cdkCellDef="let c">
                           {{ account()?.currency?.displaySymbol }}
                           {{ c.amountOutstanding | number: '1.2-2' }}
                         </td>
                       </ng-container>
 
-                      <tr mat-header-row *matHeaderRowDef="chargeColumns"></tr>
-                      <tr mat-row *matRowDef="let row; columns: chargeColumns"></tr>
+                      <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
                     </table>
                   } @else {
                     <div class="empty-state">
@@ -481,7 +480,7 @@ export class SavingsAccountViewComponent implements OnInit {
   private readonly savingsService = inject(SavingsAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   accountId = 0;
   account = signal<SavingsAccountData | null>(null);
@@ -533,8 +532,7 @@ export class SavingsAccountViewComponent implements OnInit {
           this.transactions.set(data.transactions || []);
           this.charges.set(data.charges || []);
         },
-        error: () =>
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+        error: () => this.notifications.error('Operation failed. Please try again.'),
       });
   }
 

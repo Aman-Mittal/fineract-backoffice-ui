@@ -20,8 +20,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
 import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -42,7 +42,7 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     IonButton,
     IonCardContent,
     IonCardHeader,
@@ -59,32 +59,32 @@ import {
         <ion-card-content>
           @for (group of groupNames; track group) {
             <h3 class="group-heading">{{ group }}</h3>
-            <table mat-table [dataSource]="grouped[group]" class="permissions-table">
-              <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PERMISSIONS.CODE' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+            <table cdk-table [dataSource]="grouped[group]" class="permissions-table">
+              <ng-container cdkColumnDef="code">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.CODE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.code }}</td>
               </ng-container>
-              <ng-container matColumnDef="entityName">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PERMISSIONS.ENTITY' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.entityName }}</td>
+              <ng-container cdkColumnDef="entityName">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.ENTITY' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.entityName }}</td>
               </ng-container>
-              <ng-container matColumnDef="actionName">
-                <th mat-header-cell *matHeaderCellDef>{{ 'PERMISSIONS.ACTION' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.actionName }}</td>
+              <ng-container cdkColumnDef="actionName">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.ACTION' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.actionName }}</td>
               </ng-container>
-              <ng-container matColumnDef="selected">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="selected">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'PERMISSIONS.MAKER_CHECKER' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-checkbox
                     [(ngModel)]="row.selected"
                     (ngModelChange)="onToggle(row)"
                   ></ion-checkbox>
                 </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
             </table>
           }
           <div class="actions">

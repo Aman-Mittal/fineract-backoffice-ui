@@ -21,12 +21,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { FixedDepositAccountService, RecurringDepositAccountService } from '../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -42,7 +42,7 @@ import {
   imports: [
     TranslateModule,
     MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     MatMenuModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
@@ -143,29 +143,29 @@ import {
 
           <mat-tab [label]="'COMMON.TRANSACTIONS' | translate">
             <div class="tab-content">
-              <table mat-table [dataSource]="transactions()" class="full-width-table">
-                <ng-container matColumnDef="id">
-                  <th mat-header-cell *matHeaderCellDef>ID</th>
-                  <td mat-cell *matCellDef="let tx">{{ tx.id }}</td>
+              <table cdk-table [dataSource]="transactions()" class="full-width-table">
+                <ng-container cdkColumnDef="id">
+                  <th cdk-header-cell *cdkHeaderCellDef>ID</th>
+                  <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
                 </ng-container>
-                <ng-container matColumnDef="date">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                  <td mat-cell *matCellDef="let tx">{{ formatDate(tx.date) }}</td>
+                <ng-container cdkColumnDef="date">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let tx">{{ formatDate(tx.date) }}</td>
                 </ng-container>
-                <ng-container matColumnDef="type">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                  <td mat-cell *matCellDef="let tx">{{ tx.transactionType?.value }}</td>
+                <ng-container cdkColumnDef="type">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
                 </ng-container>
-                <ng-container matColumnDef="amount">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                  <td mat-cell *matCellDef="let tx">
+                <ng-container cdkColumnDef="amount">
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                  <td cdk-cell *cdkCellDef="let tx">
                     <span [ngClass]="tx.entryType === 'DEBIT' ? 'debit' : 'credit'">
                       {{ tx.currency?.displaySymbol }} {{ tx.amount | number: '1.2-2' }}
                     </span>
                   </td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="['id', 'date', 'type', 'amount']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['id', 'date', 'type', 'amount']"></tr>
+                <tr cdk-header-row *cdkHeaderRowDef="['id', 'date', 'type', 'amount']"></tr>
+                <tr cdk-row *cdkRowDef="let row; columns: ['id', 'date', 'type', 'amount']"></tr>
               </table>
             </div>
           </mat-tab>

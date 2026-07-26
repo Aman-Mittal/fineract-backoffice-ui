@@ -20,7 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import {
@@ -30,6 +29,7 @@ import {
 } from '../../api';
 import { EditConfigurationDialogComponent } from './edit-configuration-dialog.component';
 import { IonButton, IonIcon, IonToggle } from '@ionic/angular/standalone';
+import { NotificationService } from '../../core/services/notification.service';
 
 /**
  * Component for managing global system configurations.
@@ -39,7 +39,6 @@ import { IonButton, IonIcon, IonToggle } from '@ionic/angular/standalone';
   standalone: true,
   imports: [
     TranslateModule,
-    MatSnackBarModule,
     MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
@@ -82,7 +81,7 @@ import { IonButton, IonIcon, IonToggle } from '@ionic/angular/standalone';
 })
 export class GlobalConfigurationsListComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   readonly columns: ColumnDef[] = [
@@ -118,10 +117,10 @@ export class GlobalConfigurationsListComponent implements OnInit {
     this.configService.putConfigurationsConfigId(configId, request).subscribe({
       next: () => {
         config['enabled'] = newEnabledState;
-        this.snackBar.open('Configuration updated successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Configuration updated successfully');
       },
       error: () => {
-        this.snackBar.open('Failed to update configuration', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to update configuration');
         this.loadConfigurations();
       },
     });
@@ -135,7 +134,7 @@ export class GlobalConfigurationsListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.snackBar.open('Configuration updated successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Configuration updated successfully');
         this.loadConfigurations();
       }
     });

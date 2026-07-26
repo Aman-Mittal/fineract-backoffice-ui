@@ -25,8 +25,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -52,7 +52,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonInput,
     IonTextarea,
@@ -162,7 +161,7 @@ export class EmailCampaignFormComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/campaigns/email';
 
@@ -230,7 +229,7 @@ export class EmailCampaignFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load email campaign', err);
-        this.snackBar.open('Failed to load campaign data', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to load campaign data');
       },
     });
   }
@@ -274,25 +273,25 @@ export class EmailCampaignFormComponent implements OnInit {
     if (this.isEditMode() && this.campaignId !== null) {
       this.api.putEmailCampaignResourceId(this.campaignId, body).subscribe({
         next: () => {
-          this.snackBar.open('Email campaign updated successfully', 'Close', { duration: 3000 });
+          this.notifications.success('Email campaign updated successfully');
           this.router.navigate([this.LIST_PATH]);
         },
         error: (err) => {
           this.isSaving.set(false);
           console.error('Failed to update email campaign', err);
-          this.snackBar.open('Failed to update campaign', 'Close', { duration: 3000 });
+          this.notifications.error('Failed to update campaign');
         },
       });
     } else {
       this.api.postEmailCampaign(body).subscribe({
         next: () => {
-          this.snackBar.open('Email campaign created successfully', 'Close', { duration: 3000 });
+          this.notifications.success('Email campaign created successfully');
           this.router.navigate([this.LIST_PATH]);
         },
         error: (err) => {
           this.isSaving.set(false);
           console.error('Failed to create email campaign', err);
-          this.snackBar.open('Failed to create campaign', 'Close', { duration: 3000 });
+          this.notifications.error('Failed to create campaign');
         },
       });
     }

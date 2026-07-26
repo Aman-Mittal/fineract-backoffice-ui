@@ -22,10 +22,10 @@ import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   ReportMailingJobsService,
   GetReportMailingJobsResponse,
@@ -43,7 +43,7 @@ import {
     DatePipe,
     TranslateModule,
     MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     DataTableComponent,
     CellTemplateDirective,
     IonIcon,
@@ -98,45 +98,45 @@ import {
               <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
-            <table mat-table [dataSource]="runHistory()" class="history-table mat-elevation-z2">
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+            <table cdk-table [dataSource]="runHistory()" class="history-table">
+              <ng-container cdkColumnDef="id">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="jobName">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="jobName">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'REPORT_MAILING_JOBS.NAME' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.jobName }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.jobName }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="scheduledFireTime">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="scheduledFireTime">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'REPORT_MAILING.SCHEDULED_FIRE_TIME' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.scheduledFireTime | date: 'medium' }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.scheduledFireTime | date: 'medium' }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="triggerType">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="triggerType">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'REPORT_MAILING.TRIGGER_TYPE' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.triggerType }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.triggerType }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>{{ 'REPORT_MAILING.STATUS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+              <ng-container cdkColumnDef="status">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'REPORT_MAILING.STATUS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.status }}</td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: historyColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="historyColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: historyColumns"></tr>
 
               @if (runHistory().length === 0) {
-                <tr class="mat-row no-data-row">
+                <tr class="cdk-row no-data-row">
                   <td
-                    class="mat-cell"
+                    class="cdk-cell"
                     [attr.colspan]="historyColumns.length"
                     style="text-align:center;padding:1rem;"
                   >

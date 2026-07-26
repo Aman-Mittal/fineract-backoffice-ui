@@ -21,7 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
 import {
   CodeValuesService,
   CodesService,
@@ -29,6 +28,7 @@ import {
   GetCodesResponse,
 } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -44,7 +44,7 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     StatusBadgeComponent,
     IonIcon,
     IonButton,
@@ -82,31 +82,31 @@ import {
               <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
-            <table mat-table [dataSource]="codeValues()" class="full-width-table">
+            <table cdk-table [dataSource]="codeValues()" class="full-width-table">
               <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+              <ng-container cdkColumnDef="name">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.NAME' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
               </ng-container>
 
               <!-- Description Column -->
-              <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="description">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CODE_VALUES.DESCRIPTION' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.description }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
               </ng-container>
 
               <!-- Position Column -->
-              <ng-container matColumnDef="position">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.POSITION' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.position }}</td>
+              <ng-container cdkColumnDef="position">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.POSITION' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.position }}</td>
               </ng-container>
 
               <!-- Active Column -->
-              <ng-container matColumnDef="isActive">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.ACTIVE' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="isActive">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.ACTIVE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   @if (row.isActive === true) {
                     <app-status-badge status="Active"></app-status-badge>
                   } @else {
@@ -116,9 +116,9 @@ import {
               </ng-container>
 
               <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODE_VALUES.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.ACTIONS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-button fill="clear" color="primary" (click)="onEdit(row)">
                     <ion-icon name="create-outline"></ion-icon>
                     {{ 'CODE_VALUES.EDIT' | translate }}
@@ -132,8 +132,8 @@ import {
                 </td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
             </table>
           }
         </ion-card-content>

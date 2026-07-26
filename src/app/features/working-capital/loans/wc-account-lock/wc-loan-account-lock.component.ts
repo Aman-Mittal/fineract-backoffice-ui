@@ -18,10 +18,10 @@
  */
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanAccountLockService } from '../../../../api';
+import { NotificationService } from '../../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -38,7 +38,6 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    MatSnackBarModule,
     MatProgressSpinnerModule,
     TranslateModule,
     IonButton,
@@ -104,7 +103,7 @@ import {
 })
 export class WcLoanAccountLockComponent {
   private accountLockService = inject(WorkingCapitalLoanAccountLockService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   loanId = 0;
@@ -118,15 +117,7 @@ export class WcLoanAccountLockComponent {
       .subscribe({
         next: () => {
           this.isLoading = false;
-          this.snackBar.open(this.translate.instant('WC_LOAN_ACCOUNT_LOCK.SUCCESS'), undefined, {
-            duration: 3000,
-          });
-        },
-        error: () => {
-          this.isLoading = false;
-          this.snackBar.open(this.translate.instant('WC_LOAN_ACCOUNT_LOCK.ERROR'), undefined, {
-            duration: 3000,
-          });
+          this.notifications.success(this.translate.instant('WC_LOAN_ACCOUNT_LOCK.SUCCESS'));
         },
       });
   }

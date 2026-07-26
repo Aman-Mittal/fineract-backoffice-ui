@@ -19,10 +19,11 @@
 import { Component, signal, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService, ExternalEventResponse } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   IonButton,
   IonCard,
@@ -41,8 +42,7 @@ import {
   imports: [
     FormsModule,
     DatePipe,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -104,42 +104,42 @@ import {
     @if (events().length > 0) {
       <ion-card class="table-card">
         <ion-card-content>
-          <table mat-table [dataSource]="events()" class="full-width">
-            <ng-container matColumnDef="idempotencyKey">
-              <th mat-header-cell *matHeaderCellDef>
+          <table cdk-table [dataSource]="events()" class="full-width">
+            <ng-container cdkColumnDef="idempotencyKey">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'EXTERNAL_EVENTS.IDEMPOTENCY_KEY' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.idempotencyKey }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.idempotencyKey }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="type">
-              <th mat-header-cell *matHeaderCellDef>{{ 'EXTERNAL_EVENTS.TYPE' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+            <ng-container cdkColumnDef="type">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'EXTERNAL_EVENTS.TYPE' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.type }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="category">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="category">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'EXTERNAL_EVENTS.CATEGORY' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.category }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.category }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="aggregateRootId">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="aggregateRootId">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'EXTERNAL_EVENTS.AGGREGATE_ROOT_ID' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.aggregateRootId }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.aggregateRootId }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="createdAt">
-              <th mat-header-cell *matHeaderCellDef>
+            <ng-container cdkColumnDef="createdAt">
+              <th cdk-header-cell *cdkHeaderCellDef>
                 {{ 'EXTERNAL_EVENTS.CREATED_AT' | translate }}
               </th>
-              <td mat-cell *matCellDef="let row">{{ row.createdAt | date: 'medium' }}</td>
+              <td cdk-cell *cdkCellDef="let row">{{ row.createdAt | date: 'medium' }}</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </ion-card-content>
       </ion-card>
@@ -174,7 +174,8 @@ import {
 })
 export class ExternalEventsComponent {
   private defaultService = inject(DefaultService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
+  private readonly dialogService = inject(DialogService);
   private translate = inject(TranslateService);
 
   filters = {
@@ -211,20 +212,28 @@ export class ExternalEventsComponent {
   }
 
   clearAll(): void {
+    // This was a snackbar with an action button, i.e. a confirmation prompt rather than a
+    // notification. A dialog is the honest representation of that.
     this.translate.get('EXTERNAL_EVENTS.CONFIRM_CLEAR').subscribe((msg: string) => {
-      const ref = this.snackBar.open(msg, 'OK', { duration: 5000 });
-      ref.onAction().subscribe(() => {
-        this.isLoading = true;
-        this.defaultService.deleteInternalExternalevents().subscribe({
-          next: () => {
-            this.events.set([]);
-            this.isLoading = false;
-          },
-          error: () => {
-            this.isLoading = false;
-          },
+      this.dialogService
+        .confirm({
+          title: this.translate.instant('COMMON.CONFIRM'),
+          message: msg,
+          destructive: true,
+        })
+        .then((confirmed) => {
+          if (!confirmed) return;
+          this.isLoading = true;
+          this.defaultService.deleteInternalExternalevents().subscribe({
+            next: () => {
+              this.events.set([]);
+              this.isLoading = false;
+            },
+            error: () => {
+              this.isLoading = false;
+            },
+          });
         });
-      });
     });
   }
 }

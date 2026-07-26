@@ -20,9 +20,9 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../../api';
+import { NotificationService } from '../../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -41,7 +41,6 @@ import {
     FormsModule,
     JsonPipe,
     MatDividerModule,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -133,7 +132,7 @@ import {
 })
 export class WcLoanCobCatchupComponent {
   private cobCatchupService = inject(WorkingCapitalLoanCOBCatchUpService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   isRunning = signal<boolean | null>(null);
@@ -158,17 +157,13 @@ export class WcLoanCobCatchupComponent {
   runCatchup(): void {
     this.cobCatchupService.postWorkingCapitalLoansCatchUp().subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('WC_LOAN_COB_CATCHUP.SUCCESS'), undefined, {
-          duration: 3000,
-        });
+        this.notifications.success(this.translate.instant('WC_LOAN_COB_CATCHUP.SUCCESS'));
       },
       error: () => this.showError(),
     });
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('WC_LOAN_COB_CATCHUP.ERROR'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.error(this.translate.instant('WC_LOAN_COB_CATCHUP.ERROR'));
   }
 }

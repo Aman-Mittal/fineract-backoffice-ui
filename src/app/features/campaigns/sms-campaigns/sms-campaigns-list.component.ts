@@ -20,11 +20,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -48,8 +48,7 @@ interface SmsCampaign {
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     RouterModule,
     TranslateModule,
     IonIcon,
@@ -79,32 +78,32 @@ interface SmsCampaign {
               <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
-            <table mat-table [dataSource]="campaigns()" class="full-width">
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>ID</th>
-                <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+            <table cdk-table [dataSource]="campaigns()" class="full-width">
+              <ng-container cdkColumnDef="id">
+                <th cdk-header-cell *cdkHeaderCellDef>ID</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="campaignName">
-                <th mat-header-cell *matHeaderCellDef>{{ 'SMS_CAMPAIGNS.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.campaignName }}</td>
+              <ng-container cdkColumnDef="campaignName">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'SMS_CAMPAIGNS.NAME' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.campaignName }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="campaignType">
-                <th mat-header-cell *matHeaderCellDef>{{ 'SMS_CAMPAIGNS.TYPE' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="campaignType">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'SMS_CAMPAIGNS.TYPE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   {{ row.campaignType?.value ?? row.campaignType }}
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>{{ 'SMS_CAMPAIGNS.STATUS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.status?.value ?? row.status }}</td>
+              <ng-container cdkColumnDef="status">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'SMS_CAMPAIGNS.STATUS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.status?.value ?? row.status }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'SMS_CAMPAIGNS.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'SMS_CAMPAIGNS.ACTIONS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-button fill="clear" color="primary" (click)="edit(row.id)" title="Edit">
                     <ion-icon name="create-outline"></ion-icon>
                   </ion-button>
@@ -135,12 +134,12 @@ interface SmsCampaign {
                 </td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
 
               @if (campaigns().length === 0) {
-                <tr class="mat-row">
-                  <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+                <tr class="cdk-row">
+                  <td class="cdk-cell no-data-cell" [attr.colspan]="displayedColumns.length">
                     {{ 'SMS_CAMPAIGNS.NO_DATA' | translate }}
                   </td>
                 </tr>
@@ -183,7 +182,7 @@ interface SmsCampaign {
 export class SmsCampaignsListComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
   campaigns = signal<SmsCampaign[]>([]);
@@ -247,12 +246,10 @@ export class SmsCampaignsListComponent implements OnInit {
   }
 
   private showSuccess(): void {
-    this.snackBar.open(this.translate.instant('SMS_CAMPAIGNS.SUCCESS'), undefined, {
-      duration: 3000,
-    });
+    this.notifications.success(this.translate.instant('SMS_CAMPAIGNS.SUCCESS'));
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('COMMON.ERROR'), undefined, { duration: 4000 });
+    this.notifications.error(this.translate.instant('COMMON.ERROR'));
   }
 }

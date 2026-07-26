@@ -19,8 +19,8 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -49,7 +49,6 @@ type IdType =
   | 'ALIAS'
   | 'BBAN';
 
-const CLOSE_LABEL = 'Close';
 const ERROR_OCCURRED = 'Error occurred';
 
 @Component({
@@ -58,7 +57,6 @@ const ERROR_OCCURRED = 'Error occurred';
   imports: [
     FormsModule,
     JsonPipe,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -140,7 +138,7 @@ const ERROR_OCCURRED = 'Error occurred';
 })
 export class InteropPartyLookupComponent {
   private interopService = inject(InterOperationService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   result = signal<InteropIdentifierAccountResponseData | null>(null);
   isLoading = false;
@@ -168,7 +166,7 @@ export class InteropPartyLookupComponent {
         this.isLoading = false;
       },
       error: (err: { message?: string }) => {
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
+        this.notifications.error(err.message || ERROR_OCCURRED);
         this.isLoading = false;
       },
     });
@@ -197,7 +195,7 @@ export class InteropPartyLookupComponent {
         this.isLoading = false;
       },
       error: (err: { message?: string }) => {
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
+        this.notifications.error(err.message || ERROR_OCCURRED);
         this.isLoading = false;
       },
     });
@@ -226,7 +224,7 @@ export class InteropPartyLookupComponent {
         this.isLoading = false;
       },
       error: (err: { message?: string }) => {
-        this.snackBar.open(err.message || ERROR_OCCURRED, CLOSE_LABEL, { duration: 4000 });
+        this.notifications.error(err.message || ERROR_OCCURRED);
         this.isLoading = false;
       },
     });

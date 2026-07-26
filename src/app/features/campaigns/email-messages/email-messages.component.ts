@@ -20,10 +20,10 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -53,8 +53,7 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
     CommonModule,
     FormsModule,
     MatTabsModule,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -107,30 +106,30 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                   </div>
                 }
 
-                <mat-table [dataSource]="messages()" class="full-width">
-                  <ng-container matColumnDef="id">
-                    <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.id }}</mat-cell>
+                <cdk-table [dataSource]="messages()" class="full-width">
+                  <ng-container cdkColumnDef="id">
+                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="to">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="to">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.TO' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.to }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="subject">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="subject">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.subject }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="status">
-                    <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.status }}</mat-cell>
+                  <ng-container cdkColumnDef="status">
+                    <cdk-header-cell *cdkHeaderCellDef>Status</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.status }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="actions">
-                    <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-                    <mat-cell *matCellDef="let row">
+                  <ng-container cdkColumnDef="actions">
+                    <cdk-header-cell *cdkHeaderCellDef>Actions</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">
                       <ion-button
                         fill="clear"
                         color="warn"
@@ -139,107 +138,107 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                       >
                         &#x1F5D1;
                       </ion-button>
-                    </mat-cell>
+                    </cdk-cell>
                   </ng-container>
-                  <mat-header-row *matHeaderRowDef="msgColumns"></mat-header-row>
-                  <mat-row *matRowDef="let row; columns: msgColumns"></mat-row>
-                </mat-table>
+                  <cdk-header-row *cdkHeaderRowDef="msgColumns"></cdk-header-row>
+                  <cdk-row *cdkRowDef="let row; columns: msgColumns"></cdk-row>
+                </cdk-table>
               </div>
             </mat-tab>
 
             <!-- Tab: Pending -->
             <mat-tab [label]="'EMAIL_MESSAGES.PENDING_TAB' | translate">
               <div class="tab-content">
-                <mat-table [dataSource]="pending()" class="full-width">
-                  <ng-container matColumnDef="id">
-                    <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.id }}</mat-cell>
+                <cdk-table [dataSource]="pending()" class="full-width">
+                  <ng-container cdkColumnDef="id">
+                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="to">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="to">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.TO' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.to }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="subject">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="subject">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.subject }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="sentDate">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="sentDate">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SENT_DATE' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.sentDate }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
                   </ng-container>
-                  <mat-header-row *matHeaderRowDef="queueColumns"></mat-header-row>
-                  <mat-row *matRowDef="let row; columns: queueColumns"></mat-row>
-                </mat-table>
+                  <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
+                  <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
+                </cdk-table>
               </div>
             </mat-tab>
 
             <!-- Tab: Sent -->
             <mat-tab [label]="'EMAIL_MESSAGES.SENT_TAB' | translate">
               <div class="tab-content">
-                <mat-table [dataSource]="sent()" class="full-width">
-                  <ng-container matColumnDef="id">
-                    <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.id }}</mat-cell>
+                <cdk-table [dataSource]="sent()" class="full-width">
+                  <ng-container cdkColumnDef="id">
+                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="to">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="to">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.TO' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.to }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="subject">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="subject">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.subject }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="sentDate">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="sentDate">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SENT_DATE' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.sentDate }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
                   </ng-container>
-                  <mat-header-row *matHeaderRowDef="queueColumns"></mat-header-row>
-                  <mat-row *matRowDef="let row; columns: queueColumns"></mat-row>
-                </mat-table>
+                  <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
+                  <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
+                </cdk-table>
               </div>
             </mat-tab>
 
             <!-- Tab: Failed -->
             <mat-tab [label]="'EMAIL_MESSAGES.FAILED_TAB' | translate">
               <div class="tab-content">
-                <mat-table [dataSource]="failed()" class="full-width">
-                  <ng-container matColumnDef="id">
-                    <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.id }}</mat-cell>
+                <cdk-table [dataSource]="failed()" class="full-width">
+                  <ng-container cdkColumnDef="id">
+                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="to">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="to">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.TO' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.to }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="subject">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="subject">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.subject }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
                   </ng-container>
-                  <ng-container matColumnDef="sentDate">
-                    <mat-header-cell *matHeaderCellDef>{{
+                  <ng-container cdkColumnDef="sentDate">
+                    <cdk-header-cell *cdkHeaderCellDef>{{
                       'EMAIL_MESSAGES.SENT_DATE' | translate
-                    }}</mat-header-cell>
-                    <mat-cell *matCellDef="let row">{{ row.sentDate }}</mat-cell>
+                    }}</cdk-header-cell>
+                    <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
                   </ng-container>
-                  <mat-header-row *matHeaderRowDef="queueColumns"></mat-header-row>
-                  <mat-row *matRowDef="let row; columns: queueColumns"></mat-row>
-                </mat-table>
+                  <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
+                  <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
+                </cdk-table>
               </div>
             </mat-tab>
 
@@ -287,7 +286,7 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
 })
 export class EmailMessagesComponent implements OnInit {
   private defaultService = inject(DefaultService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   activeTab = 0;
   messages = signal<EmailMessage[]>([]);
@@ -381,7 +380,7 @@ export class EmailMessagesComponent implements OnInit {
     const body = { to: this.newTo, subject: this.newSubject, body: this.newBody };
     this.defaultService.postEmail(JSON.stringify(body)).subscribe({
       next: () => {
-        this.snackBar.open(SUCCESS_MSG, undefined, { duration: 3000 });
+        this.notifications.success(SUCCESS_MSG);
         this.newTo = '';
         this.newSubject = '';
         this.newBody = '';
@@ -394,7 +393,7 @@ export class EmailMessagesComponent implements OnInit {
   deleteMessage(id: number): void {
     this.defaultService.deleteEmailResourceId(id).subscribe({
       next: () => {
-        this.snackBar.open(SUCCESS_MSG, undefined, { duration: 3000 });
+        this.notifications.success(SUCCESS_MSG);
         this.loadMessages();
       },
     });
@@ -405,12 +404,12 @@ export class EmailMessagesComponent implements OnInit {
     try {
       parsed = JSON.parse(this.configJson);
     } catch {
-      this.snackBar.open('Invalid JSON', undefined, { duration: 3000 });
+      this.notifications.error('Invalid JSON');
       return;
     }
     this.defaultService.putEmailConfiguration(JSON.stringify(parsed)).subscribe({
       next: () => {
-        this.snackBar.open(SUCCESS_MSG, undefined, { duration: 3000 });
+        this.notifications.success(SUCCESS_MSG);
       },
     });
   }

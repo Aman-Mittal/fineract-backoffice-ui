@@ -27,8 +27,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -74,7 +74,6 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    MatSnackBarModule,
     ClientSearchComponent,
     IonIcon,
     IonButton,
@@ -359,7 +358,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   private readonly router = inject(Router);
   /** Activated route for editing */
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   /** Base path for redirection */
   private readonly LIST_PATH = '/products/recurring-deposits';
@@ -431,7 +430,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         }
       },
       error: () => {
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+        this.notifications.error('Operation failed. Please try again.');
         this.products = [];
       },
     });
@@ -465,8 +464,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
         };
       },
-      error: () =>
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 }),
+      error: () => this.notifications.error('Operation failed. Please try again.'),
     });
   }
 

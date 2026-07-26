@@ -20,9 +20,9 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
 import { HelpIconComponent } from '../../../shared';
 import { PovertyLineService } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -52,7 +52,7 @@ interface PovertyLineRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     HelpIconComponent,
     IonButton,
     IonSpinner,
@@ -87,29 +87,29 @@ interface PovertyLineRow {
           @if (isLoading) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
-            <table mat-table [dataSource]="rows" class="pl-table">
-              <ng-container matColumnDef="scoreFrom">
-                <th mat-header-cell *matHeaderCellDef>
+            <table cdk-table [dataSource]="rows" class="pl-table">
+              <ng-container cdkColumnDef="scoreFrom">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'POVERTY_LINE.SCORE_FROM' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.scoreFrom }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.scoreFrom }}</td>
               </ng-container>
-              <ng-container matColumnDef="scoreTo">
-                <th mat-header-cell *matHeaderCellDef>{{ 'POVERTY_LINE.SCORE_TO' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.scoreTo }}</td>
+              <ng-container cdkColumnDef="scoreTo">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'POVERTY_LINE.SCORE_TO' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.scoreTo }}</td>
               </ng-container>
-              <ng-container matColumnDef="povertyLine">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="povertyLine">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'POVERTY_LINE.POVERTY_LINE' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.povertyLine }}</td>
+                <td cdk-cell *cdkCellDef="let row">{{ row.povertyLine }}</td>
               </ng-container>
-              <ng-container matColumnDef="enabled">
-                <th mat-header-cell *matHeaderCellDef>{{ 'POVERTY_LINE.ENABLED' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.enabled }}</td>
+              <ng-container cdkColumnDef="enabled">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'POVERTY_LINE.ENABLED' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.enabled }}</td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="columns"></tr>
-              <tr mat-row *matRowDef="let row; columns: columns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
             </table>
           }
         </ion-card-content>

@@ -25,8 +25,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BulkLoansService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -79,7 +79,6 @@ interface ReassignmentTemplate {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonItem,
@@ -189,7 +188,7 @@ interface ReassignmentTemplate {
 export class BulkReassignmentComponent implements OnInit {
   private readonly bulkLoansService = inject(BulkLoansService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/loans';
 
@@ -234,7 +233,7 @@ export class BulkReassignmentComponent implements OnInit {
 
     this.bulkLoansService.postLoansLoanreassignment(body).subscribe({
       next: () => {
-        this.snackBar.open('Loans reassigned successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Loans reassigned successfully');
         this.router.navigate([this.LIST_PATH]);
       },
       error: () => (this.isSaving = false),

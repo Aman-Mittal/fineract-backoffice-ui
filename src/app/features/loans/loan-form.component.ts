@@ -26,7 +26,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -38,6 +37,7 @@ import {
   GetLoansLoanIdResponse,
 } from '../../api';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -72,7 +72,6 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     ClientSearchComponent,
     IonIcon,
     IonButton,
@@ -476,7 +475,7 @@ export class LoanFormComponent implements OnInit {
   private readonly productService = inject(LoanProductsService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   private readonly LIST_PATH = '/loans';
 
@@ -524,7 +523,7 @@ export class LoanFormComponent implements OnInit {
   private loadProducts() {
     this.productService.getLoanproducts().subscribe({
       next: (data: GetLoanProductsResponse[]) => (this.products = data || []),
-      error: () => this.snackBar.open(OPERATION_FAILED_MESSAGE, 'Close', { duration: 3000 }),
+      error: () => this.notifications.error(OPERATION_FAILED_MESSAGE),
     });
   }
 
@@ -537,7 +536,7 @@ export class LoanFormComponent implements OnInit {
     if (!productId) return;
     this.productService.getLoanproductsProductId(productId).subscribe({
       next: (data: GetLoanProductsProductIdResponse) => (this.selectedProductDetails = data),
-      error: () => this.snackBar.open(OPERATION_FAILED_MESSAGE, 'Close', { duration: 3000 }),
+      error: () => this.notifications.error(OPERATION_FAILED_MESSAGE),
     });
   }
 
@@ -584,7 +583,7 @@ export class LoanFormComponent implements OnInit {
           this.onProductSelected(data.loanProductId, false);
         }
       },
-      error: () => this.snackBar.open(OPERATION_FAILED_MESSAGE, 'Close', { duration: 3000 }),
+      error: () => this.notifications.error(OPERATION_FAILED_MESSAGE),
     });
   }
 

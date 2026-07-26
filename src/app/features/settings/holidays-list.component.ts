@@ -21,7 +21,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonIcon,
@@ -89,7 +89,6 @@ export class ConfirmDialogComponent {
   imports: [
     TranslateModule,
     MatDialogModule,
-    MatSnackBarModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
@@ -169,7 +168,7 @@ export class HolidaysListComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
@@ -244,13 +243,13 @@ export class HolidaysListComponent implements OnInit {
         this.isLoading = true;
         this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
           next: () => {
-            this.snackBar.open('Holiday activated successfully', 'Close', { duration: 3000 });
+            this.notifications.success('Holiday activated successfully');
             this.loadHolidays();
           },
           error: (err) => {
             this.isLoading = false;
             console.error('Failed to activate holiday', err);
-            this.snackBar.open('Failed to activate holiday', 'Close', { duration: 3000 });
+            this.notifications.error('Failed to activate holiday');
           },
         });
       }

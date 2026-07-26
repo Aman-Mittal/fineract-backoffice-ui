@@ -19,9 +19,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../api';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -39,7 +39,6 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -125,7 +124,7 @@ import {
 })
 export class TwoFactorConfigComponent implements OnInit {
   private defaultService = inject(DefaultService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   configJson = '';
@@ -156,7 +155,7 @@ export class TwoFactorConfigComponent implements OnInit {
       parsed = JSON.parse(this.configJson);
     } catch {
       this.translate.get('TWO_FACTOR_CONFIG.PARSE_ERROR').subscribe((msg: string) => {
-        this.snackBar.open(msg, 'X', { duration: 4000 });
+        this.notifications.success(msg);
       });
       return;
     }
@@ -166,7 +165,7 @@ export class TwoFactorConfigComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.translate.get('TWO_FACTOR_CONFIG.SUCCESS').subscribe((msg: string) => {
-          this.snackBar.open(msg, 'X', { duration: 4000 });
+          this.notifications.success(msg);
         });
       },
       error: () => {

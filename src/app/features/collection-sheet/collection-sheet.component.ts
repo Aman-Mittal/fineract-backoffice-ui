@@ -25,7 +25,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   CollectionSheetService,
   OfficesService,
@@ -33,6 +32,7 @@ import {
   PostCollectionSheetResponse,
 } from '../../api';
 import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/date-formatter';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -58,7 +58,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -170,7 +169,7 @@ import {
 export class CollectionSheetComponent implements OnInit {
   private collectionSheetService = inject(CollectionSheetService);
   private officesService = inject(OfficesService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   generated = false;
   isLoading = false;
@@ -187,7 +186,7 @@ export class CollectionSheetComponent implements OnInit {
         this.offices = Array.isArray(res) ? (res as { id?: number; name?: string }[]) : [];
       },
       error: () => {
-        this.snackBar.open('Failed to load offices', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to load offices');
       },
     });
   }
@@ -210,7 +209,7 @@ export class CollectionSheetComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.snackBar.open('Failed to generate collection sheet', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to generate collection sheet');
         this.isLoading = false;
       },
     });
@@ -221,12 +220,12 @@ export class CollectionSheetComponent implements OnInit {
     const body = this.buildBody();
     this.collectionSheetService.postCollectionsheet(body, 'save').subscribe({
       next: () => {
-        this.snackBar.open('Collection sheet saved successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Collection sheet saved successfully');
         this.isLoading = false;
         this.back();
       },
       error: () => {
-        this.snackBar.open('Failed to save collection sheet', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to save collection sheet');
         this.isLoading = false;
       },
     });

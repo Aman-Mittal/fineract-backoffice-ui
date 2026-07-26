@@ -20,10 +20,10 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService, GetNotificationsResponse, GetNotification } from '../../api';
+import { NotificationService as ToastService } from '../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -41,8 +41,7 @@ import {
   imports: [
     FormsModule,
     DatePipe,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -75,15 +74,15 @@ import {
         }
 
         @if (!isLoading) {
-          <table mat-table [dataSource]="notifications()">
-            <ng-container matColumnDef="content">
-              <th mat-header-cell *matHeaderCellDef>{{ 'NOTIFICATIONS.MESSAGE' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.content }}</td>
+          <table cdk-table [dataSource]="notifications()">
+            <ng-container cdkColumnDef="content">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'NOTIFICATIONS.MESSAGE' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.content }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="isRead">
-              <th mat-header-cell *matHeaderCellDef>{{ 'NOTIFICATIONS.READ' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
+            <ng-container cdkColumnDef="isRead">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'NOTIFICATIONS.READ' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">
                 <div>
                   <ion-chip [color]="row.isRead ? 'primary' : 'warn'" highlighted>
                     {{ (row.isRead ? 'NOTIFICATIONS.READ' : 'NOTIFICATIONS.UNREAD') | translate }}
@@ -92,13 +91,13 @@ import {
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="createdAt">
-              <th mat-header-cell *matHeaderCellDef>{{ 'NOTIFICATIONS.DATE' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.createdAt | date: 'medium' }}</td>
+            <ng-container cdkColumnDef="createdAt">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'NOTIFICATIONS.DATE' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.createdAt | date: 'medium' }}</td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
           </table>
         }
       </ion-card-content>
@@ -130,7 +129,7 @@ import {
 })
 export class NotificationsListComponent implements OnInit {
   private notificationService = inject(NotificationService);
-  private snackBar = inject(MatSnackBar);
+  private toast = inject(ToastService);
   private translate = inject(TranslateService);
 
   notifications = signal<GetNotification[]>([]);
@@ -167,7 +166,7 @@ export class NotificationsListComponent implements OnInit {
     this.notificationService.putNotifications().subscribe({
       next: () => {
         this.translate.get('NOTIFICATIONS.ALL_READ_SUCCESS').subscribe((msg: string) => {
-          this.snackBar.open(msg, undefined, { duration: 3000 });
+          this.toast.success(msg);
         });
         this.loadNotifications();
       },

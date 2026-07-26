@@ -21,8 +21,8 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -45,7 +45,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatSnackBarModule,
     IonButton,
     IonItem,
     IonLabel,
@@ -139,7 +138,7 @@ import {
 })
 export class WorkingDaysComponent implements OnInit {
   private readonly workingDaysService = inject(WorkingDaysService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   workingDays: Record<string, unknown> = {};
   recurrence: Record<string, boolean> = {
@@ -218,12 +217,12 @@ export class WorkingDaysComponent implements OnInit {
     this.workingDaysService.putWorkingdays(request).subscribe({
       next: () => {
         this.isSaving = false;
-        this.snackBar.open('Working days updated successfully', 'Close', { duration: 3000 });
+        this.notifications.success('Working days updated successfully');
         this.loadWorkingDays();
       },
       error: () => {
         this.isSaving = false;
-        this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+        this.notifications.error('Operation failed. Please try again.');
       },
     });
   }

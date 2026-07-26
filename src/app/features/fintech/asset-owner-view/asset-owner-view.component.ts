@@ -22,7 +22,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import {
@@ -34,6 +33,7 @@ import {
   ExternalAssetOwnerLoanProductAttributesService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../shared';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -51,7 +51,7 @@ import {
     RouterModule,
     TranslateModule,
     MatTabsModule,
-    MatTableModule,
+    CdkTableModule,
     DataTableComponent,
     StatusBadgeComponent,
     IonIcon,
@@ -130,27 +130,27 @@ import {
               @if (attributes().length === 0) {
                 <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
               } @else {
-                <table mat-table [dataSource]="attributes()" class="full-width-table">
-                  <ng-container matColumnDef="attributeKey">
-                    <th mat-header-cell *matHeaderCellDef>
+                <table cdk-table [dataSource]="attributes()" class="full-width-table">
+                  <ng-container cdkColumnDef="attributeKey">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'ASSET_OWNERS.ATTRIBUTE_KEY' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.attributeKey }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.attributeKey }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="attributeValue">
-                    <th mat-header-cell *matHeaderCellDef>
+                  <ng-container cdkColumnDef="attributeValue">
+                    <th cdk-header-cell *cdkHeaderCellDef>
                       {{ 'ASSET_OWNERS.ATTRIBUTE_VALUE' | translate }}
                     </th>
-                    <td mat-cell *matCellDef="let row">{{ row.attributeValue }}</td>
+                    <td cdk-cell *cdkCellDef="let row">{{ row.attributeValue }}</td>
                   </ng-container>
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let row">
+                  <ng-container cdkColumnDef="actions">
+                    <th cdk-header-cell *cdkHeaderCellDef></th>
+                    <td cdk-cell *cdkCellDef="let row">
                       <!-- placeholder for edit action -->
                     </td>
                   </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="attributeColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: attributeColumns"></tr>
+                  <tr cdk-header-row *cdkHeaderRowDef="attributeColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: attributeColumns"></tr>
                 </table>
               }
             </div>

@@ -21,9 +21,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
 import { CodesService, GetCodesResponse } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -39,7 +39,7 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     StatusBadgeComponent,
     IonIcon,
     IonButton,
@@ -68,17 +68,17 @@ import {
               <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
-            <table mat-table [dataSource]="codes()" class="full-width-table">
+            <table cdk-table [dataSource]="codes()" class="full-width-table">
               <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODES.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+              <ng-container cdkColumnDef="name">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODES.NAME' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
               </ng-container>
 
               <!-- System Defined Column -->
-              <ng-container matColumnDef="systemDefined">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODES.SYSTEM_DEFINED' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="systemDefined">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODES.SYSTEM_DEFINED' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   @if (row.systemDefined === true) {
                     <app-status-badge status="System"></app-status-badge>
                   }
@@ -86,9 +86,9 @@ import {
               </ng-container>
 
               <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'CODES.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODES.ACTIONS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-button fill="clear" color="primary" (click)="onEdit(row)">
                     <ion-icon name="create-outline"></ion-icon>
                     {{ 'CODES.EDIT' | translate }}
@@ -110,8 +110,8 @@ import {
                 </td>
               </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
             </table>
           }
         </ion-card-content>

@@ -20,9 +20,9 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTableModule } from '@angular/material/table';
 import { HelpIconComponent } from '../../../shared';
 import { LikelihoodService } from '../../../api';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -55,7 +55,7 @@ interface LikelihoodRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatTableModule,
+    CdkTableModule,
     HelpIconComponent,
     IonButton,
     IonSpinner,
@@ -91,16 +91,16 @@ interface LikelihoodRow {
           @if (isLoading) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
-            <table mat-table [dataSource]="rows" class="lk-table">
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{ 'LIKELIHOOD.NAME' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+            <table cdk-table [dataSource]="rows" class="lk-table">
+              <ng-container cdkColumnDef="name">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'LIKELIHOOD.NAME' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
               </ng-container>
-              <ng-container matColumnDef="likelihood">
-                <th mat-header-cell *matHeaderCellDef>
+              <ng-container cdkColumnDef="likelihood">
+                <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'LIKELIHOOD.LIKELIHOOD' | translate }}
                 </th>
-                <td mat-cell *matCellDef="let row">
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-item fill="outline" class="lk-inline">
                     <ion-input
                       type="number"
@@ -110,9 +110,9 @@ interface LikelihoodRow {
                   </ion-item>
                 </td>
               </ng-container>
-              <ng-container matColumnDef="enabled">
-                <th mat-header-cell *matHeaderCellDef>{{ 'LIKELIHOOD.ENABLED' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="enabled">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'LIKELIHOOD.ENABLED' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-checkbox
                     [ngModel]="row.enabled === 100"
                     [name]="'enabled-' + row.id"
@@ -120,9 +120,9 @@ interface LikelihoodRow {
                   ></ion-checkbox>
                 </td>
               </ng-container>
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
+              <ng-container cdkColumnDef="actions">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let row">
                   <ion-button
                     fill="clear"
                     color="primary"
@@ -134,8 +134,8 @@ interface LikelihoodRow {
                   </ion-button>
                 </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="columns"></tr>
-              <tr mat-row *matRowDef="let row; columns: columns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
             </table>
           }
         </ion-card-content>

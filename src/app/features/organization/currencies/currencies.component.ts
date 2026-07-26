@@ -19,8 +19,8 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -40,7 +40,6 @@ import {
   standalone: true,
   imports: [
     MatListModule,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -108,7 +107,7 @@ import {
 })
 export class CurrenciesComponent implements OnInit {
   private currencyService = inject(CurrencyService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   isLoading = true;
@@ -152,11 +151,11 @@ export class CurrenciesComponent implements OnInit {
     this.currencyService.putCurrencies(body).subscribe({
       next: () => {
         this.translate.get('CURRENCIES.SAVED_SUCCESS').subscribe((msg: string) => {
-          this.snackBar.open(msg, undefined, { duration: 3000 });
+          this.notifications.success(msg);
         });
       },
       error: () => {
-        this.snackBar.open('Save failed', undefined, { duration: 3000 });
+        this.notifications.error('Save failed');
       },
     });
   }

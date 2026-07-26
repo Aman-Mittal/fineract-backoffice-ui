@@ -19,10 +19,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InternalCOBService, COBPartition } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
   IonCard,
@@ -41,8 +41,7 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatTableModule,
-    MatSnackBarModule,
+    CdkTableModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -78,13 +77,13 @@ import {
           }
 
           @if (partitions().length > 0) {
-            <table mat-table [dataSource]="partitions()" class="full-width">
-              <ng-container matColumnDef="data">
-                <th mat-header-cell *matHeaderCellDef>Data</th>
-                <td mat-cell *matCellDef="let row">{{ row | json }}</td>
+            <table cdk-table [dataSource]="partitions()" class="full-width">
+              <ng-container cdkColumnDef="data">
+                <th cdk-header-cell *cdkHeaderCellDef>Data</th>
+                <td cdk-cell *cdkCellDef="let row">{{ row | json }}</td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="['data']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['data']"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="['data']"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: ['data']"></tr>
             </table>
           }
         </section>
@@ -149,7 +148,7 @@ import {
 })
 export class CobToolsComponent {
   private cobService = inject(InternalCOBService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   partitionSize = 10;
@@ -203,10 +202,10 @@ export class CobToolsComponent {
   }
 
   private showSuccess(): void {
-    this.snackBar.open(this.translate.instant('COB_TOOLS.SUCCESS'), undefined, { duration: 3000 });
+    this.notifications.success(this.translate.instant('COB_TOOLS.SUCCESS'));
   }
 
   private showError(): void {
-    this.snackBar.open(this.translate.instant('COB_TOOLS.ERROR'), undefined, { duration: 3000 });
+    this.notifications.error(this.translate.instant('COB_TOOLS.ERROR'));
   }
 }

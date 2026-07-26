@@ -24,7 +24,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -55,7 +55,6 @@ import {
     MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonCardContent,
@@ -183,7 +182,7 @@ import {
 })
 export class BusinessDatesComponent implements OnInit {
   private businessDateService = inject(BusinessDateManagementService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
 
   isLoading = false;
 
@@ -214,7 +213,7 @@ export class BusinessDatesComponent implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        this.snackBar.open('Failed to load business dates', 'Close', { duration: 4000 });
+        this.notifications.error('Failed to load business dates');
       },
     });
   }
@@ -232,11 +231,11 @@ export class BusinessDatesComponent implements OnInit {
 
     this.businessDateService.postBusinessdate(body).subscribe({
       next: () => {
-        this.snackBar.open('BUSINESS_DATES.UPDATE_SUCCESS', 'Close', { duration: 3000 });
+        this.notifications.success('BUSINESS_DATES.UPDATE_SUCCESS');
         this.loadBusinessDates();
       },
       error: () => {
-        this.snackBar.open('Failed to update business date', 'Close', { duration: 4000 });
+        this.notifications.error('Failed to update business date');
       },
     });
   }

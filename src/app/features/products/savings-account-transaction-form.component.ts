@@ -26,7 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -56,7 +56,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -183,7 +182,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   private readonly transactionService = inject(SavingsAccountTransactionsService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   accountId = 0;
   command = '';
@@ -216,7 +215,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
           }
         },
         error: () => {
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error('Operation failed. Please try again.');
         },
       });
   }

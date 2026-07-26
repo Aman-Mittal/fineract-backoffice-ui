@@ -18,9 +18,9 @@
  */
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PasswordManagementService, ForgotPasswordRequest } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -38,7 +38,6 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -130,7 +129,7 @@ import {
 })
 export class ForgotPasswordComponent {
   private passwordManagementService = inject(PasswordManagementService);
-  private snackBar = inject(MatSnackBar);
+  private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
   email = '';
@@ -152,7 +151,7 @@ export class ForgotPasswordComponent {
         error: () => {
           this.isSending = false;
           this.translate.get('FORGOT_PASSWORD.ERROR').subscribe((msg: string) => {
-            this.snackBar.open(msg, 'X', { duration: 4000 });
+            this.notifications.success(msg);
           });
         },
       });

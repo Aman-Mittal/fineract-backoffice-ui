@@ -19,9 +19,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoanAccountLockService, LoanAccountLockResponseDTO } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -40,7 +40,6 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatSnackBarModule,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -130,7 +129,7 @@ import {
 })
 export class LoanAccountLockComponent {
   private readonly loanAccountLockService = inject(LoanAccountLockService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
   lockInfo = signal<LoanAccountLockResponseDTO | null>(null);
@@ -163,7 +162,7 @@ export class LoanAccountLockComponent {
         next: () => {
           this.isLoading = false;
           this.translate.get('LOAN_ACCOUNT_LOCK.SUCCESS').subscribe((msg) => {
-            this.snackBar.open(msg, undefined, { duration: 3000 });
+            this.notifications.success(msg);
           });
         },
         error: () => {

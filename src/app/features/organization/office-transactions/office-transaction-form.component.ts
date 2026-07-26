@@ -25,8 +25,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
   IonCard,
@@ -56,7 +56,6 @@ import {
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSnackBarModule,
     IonButton,
     IonInput,
     IonItem,
@@ -178,7 +177,7 @@ import {
 export class OfficeTransactionFormComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notifications = inject(NotificationService);
 
   fromOfficeOptions: { id: number; name: string }[] = [];
   toOfficeOptions: { id: number; name: string }[] = [];
@@ -226,12 +225,12 @@ export class OfficeTransactionFormComponent implements OnInit {
 
     this.api.postOfficetransactions(JSON.stringify(body)).subscribe({
       next: () => {
-        this.snackBar.open('Office transaction created', 'Close', { duration: 3000 });
+        this.notifications.success('Office transaction created');
         this.router.navigate(['/organization/office-transactions']);
       },
       error: (err: unknown) => {
         console.error('Failed to create office transaction', err);
-        this.snackBar.open('Failed to create transaction', 'Close', { duration: 3000 });
+        this.notifications.error('Failed to create transaction');
         this.isSaving = false;
       },
     });
