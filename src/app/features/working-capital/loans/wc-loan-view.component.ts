@@ -34,6 +34,7 @@ import {
   IonSegmentButton,
 } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -71,6 +72,7 @@ import {
     IonPopover,
     IonList,
     IonItem,
+    TooltipDirective,
   ],
   template: `
     <div class="view-container">
@@ -99,7 +101,7 @@ import {
               <ion-button
                 color="primary"
                 (click)="onRepayment()"
-                [attr.title]="'WC_LOANS.REPAYMENT' | translate"
+                [appTooltip]="'WC_LOANS.REPAYMENT' | translate"
               >
                 <ion-icon name="cash-outline"></ion-icon>
                 {{ 'WC_LOANS.REPAYMENT' | translate }}
@@ -110,7 +112,7 @@ import {
               <ion-button
                 color="secondary"
                 (click)="onAction('approve')"
-                [attr.title]="'WC_LOANS.APPROVE' | translate"
+                [appTooltip]="'WC_LOANS.APPROVE' | translate"
               >
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
                 {{ 'WC_LOANS.APPROVE' | translate }}
@@ -121,7 +123,7 @@ import {
               <ion-button
                 color="secondary"
                 (click)="onAction('disburse')"
-                [attr.title]="'WC_LOANS.DISBURSE' | translate"
+                [appTooltip]="'WC_LOANS.DISBURSE' | translate"
               >
                 <ion-icon name="open-outline"></ion-icon>
                 {{ 'WC_LOANS.DISBURSE' | translate }}

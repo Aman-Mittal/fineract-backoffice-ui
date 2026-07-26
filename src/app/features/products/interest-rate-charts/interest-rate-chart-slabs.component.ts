@@ -28,6 +28,7 @@ import {
   EnumOptionData,
 } from '../../../api';
 import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -74,6 +75,7 @@ interface SlabRow {
     IonCard,
     IonSelectOption,
     IonSelect,
+    TooltipDirective,
   ],
   template: `
     <div class="slabs-container">
@@ -110,7 +112,7 @@ interface SlabRow {
                       color="danger"
                       type="button"
                       [attr.aria-label]="'COMMON.DELETE' | translate"
-                      [attr.title]="'COMMON.DELETE' | translate"
+                      [appTooltip]="'COMMON.DELETE' | translate"
                       (click)="onDelete(slab)"
                     >
                       <ion-icon name="trash-outline"></ion-icon>

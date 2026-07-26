@@ -25,6 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
+import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
 
 /**
  * Component providing the user login interface.
@@ -35,7 +36,7 @@ import { ConfigService } from '../../core/services/config.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, HelpIconComponent],
   template: `
     <div class="login-page">
       <div class="login-card" role="main">
@@ -64,8 +65,9 @@ import { ConfigService } from '../../core/services/config.service';
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-field">
-            <label for="serverUrl" [attr.title]="'login.tooltips.serverUrl' | translate">
-              {{ 'login.serverUrl' | translate }} ℹ️
+            <label for="serverUrl">
+              {{ 'login.serverUrl' | translate }}
+              <app-help-icon helpTextKey="login.tooltips.serverUrl"></app-help-icon>
             </label>
             <select id="serverUrl" formControlName="serverUrl">
               <option value="https://demo.mifos.io/fineract-provider/api/v1">
@@ -97,8 +99,9 @@ import { ConfigService } from '../../core/services/config.service';
           }
 
           <div class="form-field">
-            <label for="tenantId" [attr.title]="'login.tooltips.tenantId' | translate">
-              {{ 'login.tenantId' | translate }} ℹ️
+            <label for="tenantId">
+              {{ 'login.tenantId' | translate }}
+              <app-help-icon helpTextKey="login.tooltips.tenantId"></app-help-icon>
             </label>
             <input
               id="tenantId"
@@ -173,14 +176,13 @@ import { ConfigService } from '../../core/services/config.service';
         max-width: 440px;
       }
       .lang-selector {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: var(--space-4);
       }
       .lang-selector select {
-        padding: 0.25rem 0.5rem;
+        padding: var(--space-1) var(--space-2);
         font-size: 0.8rem;
-        border-radius: 4px;
       }
       .login-header {
         text-align: center;
@@ -211,10 +213,11 @@ import { ConfigService } from '../../core/services/config.service';
         gap: 0.25rem;
       }
       label {
+        display: flex;
+        align-items: center;
         font-weight: 500;
         font-size: 0.75rem;
         color: var(--text-muted);
-        cursor: help;
       }
       input,
       select {

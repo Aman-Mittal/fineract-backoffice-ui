@@ -33,6 +33,7 @@ import {
 } from '../../shared';
 import { LoansService, GetLoansLoanIdResponse } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonIcon,
@@ -59,6 +60,7 @@ import {
     IonLabel,
     IonSelectOption,
     IonSelect,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -113,7 +115,7 @@ import {
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
+          [appTooltip]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
           (click)="onEditLoan(loan)"
           *appHasPermission="'UPDATE_LOAN'"
         >
@@ -123,7 +125,7 @@ import {
           fill="clear"
           color="secondary"
           [attr.aria-label]="'LOANS.COLLATERAL' | translate"
-          [attr.title]="'LOANS.MANAGE_COLLATERAL' | translate"
+          [appTooltip]="'LOANS.MANAGE_COLLATERAL' | translate"
           (click)="onViewCollateral(loan)"
           *appHasPermission="'READ_LOANCOLLATERAL'"
         >
@@ -133,7 +135,7 @@ import {
           fill="clear"
           color="primary"
           [attr.aria-label]="'LOANS.RESCHEDULE' | translate"
-          [attr.title]="'LOANS.MANAGE_RESCHEDULING' | translate"
+          [appTooltip]="'LOANS.MANAGE_RESCHEDULING' | translate"
           (click)="onViewRescheduling(loan)"
         >
           <ion-icon name="repeat-outline"></ion-icon>
@@ -144,7 +146,7 @@ import {
             fill="clear"
             color="secondary"
             [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
-            [attr.title]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
+            [appTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
             (click)="onLoanAction(loan, 'approve')"
           >
             <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -155,7 +157,7 @@ import {
             fill="clear"
             color="secondary"
             [attr.aria-label]="'LOANS.DISBURSE_LOAN' | translate"
-            [attr.title]="'LOANS.DISBURSE_LOAN' | translate"
+            [appTooltip]="'LOANS.DISBURSE_LOAN' | translate"
             (click)="onLoanAction(loan, 'disburse')"
           >
             <ion-icon name="open-outline"></ion-icon>

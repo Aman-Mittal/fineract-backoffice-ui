@@ -22,11 +22,12 @@ import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angu
 import { IonSearchbar } from '@ionic/angular/standalone';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'app-search-filter',
   standalone: true,
-  imports: [IonSearchbar],
+  imports: [IonSearchbar, TooltipDirective],
   template: `
     <ion-searchbar
       class="search-field"
@@ -34,7 +35,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
       (ionInput)="onInput($event)"
       id="search-filter-input"
       data-testid="search-filter-input"
-      [attr.title]="tooltipText"
+      [appTooltip]="tooltipText"
     ></ion-searchbar>
   `,
   styles: [

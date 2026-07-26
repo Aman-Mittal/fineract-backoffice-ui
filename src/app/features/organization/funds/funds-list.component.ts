@@ -24,6 +24,7 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { FundsService, FundData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists organization funds. Funds are a small master-data resource (name + external id),
@@ -32,7 +33,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-funds-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="nav.funds"
@@ -49,7 +57,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(fund)"
         >
           <ion-icon name="create-outline"></ion-icon>

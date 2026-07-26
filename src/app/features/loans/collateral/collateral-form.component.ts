@@ -23,6 +23,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -70,6 +71,7 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -95,7 +97,7 @@ import {
           <form #collateralForm="ngForm" (ngSubmit)="onSubmit()" class="collateral-form">
             <div class="form-grid">
               <!-- Collateral Type -->
-              <ion-item fill="outline" [attr.title]="'HELP.COLLATERAL_TYPE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.COLLATERAL_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -111,7 +113,7 @@ import {
               </ion-item>
 
               <!-- Value -->
-              <ion-item fill="outline" [attr.title]="'HELP.COLLATERAL_VALUE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.COLLATERAL_VALUE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.VALUE' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -125,7 +127,7 @@ import {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [attr.title]="'HELP.COLLATERAL_DESC' | translate"
+                [appTooltip]="'HELP.COLLATERAL_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
                 <ion-textarea

@@ -28,6 +28,7 @@ import {
 } from '../../../shared';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-datatables-list',
@@ -40,6 +41,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     CellTemplateDirective,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -66,7 +68,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="primary"
             [routerLink]="['edit', row.registeredTableName]"
             *appHasPermission="'UPDATE_DATATABLE'"
-            [attr.title]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
           >
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>
@@ -75,7 +77,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="danger"
             (click)="onDelete(row.registeredTableName)"
             *appHasPermission="'DELETE_DATATABLE'"
-            [attr.title]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
           >
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>

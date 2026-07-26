@@ -30,6 +30,7 @@ import {
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
 import { NotificationService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -66,6 +67,7 @@ import {
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    TooltipDirective,
   ],
   template: `
     @if (account()) {
@@ -96,7 +98,7 @@ import {
                   color="secondary"
                   *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('approve')"
-                  [attr.title]="'SAVINGS.APPROVE' | translate"
+                  [appTooltip]="'SAVINGS.APPROVE' | translate"
                 >
                   <ion-icon name="checkmark-circle-outline"></ion-icon>
                   Approve
@@ -107,7 +109,7 @@ import {
                   color="primary"
                   *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('activate')"
-                  [attr.title]="'SAVINGS.ACTIVATE' | translate"
+                  [appTooltip]="'SAVINGS.ACTIVATE' | translate"
                 >
                   <ion-icon name="play-circle-outline"></ion-icon>
                   Activate
@@ -118,7 +120,7 @@ import {
                   color="danger"
                   *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('close')"
-                  [attr.title]="'SAVINGS.CLOSE' | translate"
+                  [appTooltip]="'SAVINGS.CLOSE' | translate"
                 >
                   <ion-icon name="power-outline"></ion-icon>
                   Close
@@ -128,7 +130,7 @@ import {
                 color="primary"
                 *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
                 (click)="onTransaction('deposit')"
-                [attr.title]="'SAVINGS.DEPOSIT_CASH' | translate"
+                [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
                 <ion-icon name="add-circle-outline"></ion-icon>
                 Deposit
@@ -137,7 +139,7 @@ import {
                 color="danger"
                 *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
                 (click)="onTransaction('withdrawal')"
-                [attr.title]="'SAVINGS.WITHDRAW_CASH' | translate"
+                [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
               >
                 <ion-icon name="remove-circle-outline"></ion-icon>
                 Withdraw

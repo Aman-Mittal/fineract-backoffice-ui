@@ -31,6 +31,7 @@ import {
   ModalController,
 } from '@ionic/angular/standalone';
 import { DialogService } from '../../core/services/dialog.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   DataTableComponent,
   ColumnDef,
@@ -50,7 +51,16 @@ import {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslateModule, IonIcon, IonButton, IonItem, IonLabel, IonSelectOption, IonSelect],
+  imports: [
+    TranslateModule,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+    TooltipDirective,
+  ],
   template: `
     <h2 class="dialog-title">{{ data.title | translate }}</h2>
     <div class="dialog-content">
@@ -97,6 +107,7 @@ export class ConfirmDialogComponent {
     IonLabel,
     IonSelectOption,
     IonSelect,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -143,7 +154,7 @@ export class ConfirmDialogComponent {
           <ion-button
             fill="clear"
             color="primary"
-            [attr.title]="'HOLIDAYS.ACTIVATE' | translate"
+            [appTooltip]="'HOLIDAYS.ACTIVATE' | translate"
             (click)="onActivateHoliday(holiday)"
           >
             <ion-icon name="checkmark-circle-outline"></ion-icon>

@@ -32,6 +32,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   ReportMailingJobsService,
   GetReportMailingJobsResponse,
@@ -57,6 +58,7 @@ import {
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    TooltipDirective,
   ],
   template: `
     <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
@@ -87,7 +89,7 @@ import {
             fill="clear"
             color="primary"
             [attr.aria-label]="'COMMON.EDIT' | translate"
-            [attr.title]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
             (click)="onEdit(row)"
           >
             <ion-icon name="create-outline"></ion-icon>
@@ -96,7 +98,7 @@ import {
             fill="clear"
             color="danger"
             [attr.aria-label]="'COMMON.DELETE' | translate"
-            [attr.title]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
             (click)="onDelete(row)"
           >
             <ion-icon name="trash-outline"></ion-icon>

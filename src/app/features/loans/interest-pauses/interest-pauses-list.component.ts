@@ -24,6 +24,7 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { LoanInterestPauseService, InterestPauseResponseDto } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists interest pause periods (start/end date) for a specific loan and allows
@@ -32,7 +33,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-interest-pauses-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="INTEREST_PAUSES.TITLE"
@@ -50,7 +58,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          [attr.title]="'COMMON.DELETE' | translate"
+          [appTooltip]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"
         >
           <ion-icon name="trash-outline"></ion-icon>

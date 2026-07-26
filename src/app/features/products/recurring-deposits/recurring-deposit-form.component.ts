@@ -24,6 +24,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import { NotificationService } from '../../../core/services/notification.service';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -85,6 +86,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -115,7 +117,7 @@ import {
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [appTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
@@ -127,7 +129,7 @@ import {
               <div class="field-container-row">
                 <ion-item
                   fill="outline"
-                  [attr.title]="'HELP.RECURRING_DEPOSIT_PRODUCT_DESC' | translate"
+                  [appTooltip]="'HELP.RECURRING_DEPOSIT_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
@@ -157,7 +159,7 @@ import {
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT' | translate"
+                  [appTooltip]="'PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
@@ -169,7 +171,7 @@ import {
               <!-- Mandatory Deposit Amount -->
               <ion-item
                 fill="outline"
-                [attr.title]="'HELP.RECURRING_DEPOSIT_AMOUNT_DESC' | translate"
+                [appTooltip]="'HELP.RECURRING_DEPOSIT_AMOUNT_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
                 <ion-input
@@ -181,7 +183,7 @@ import {
               </ion-item>
 
               <!-- Submitted On -->
-              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
                 <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -199,7 +201,7 @@ import {
               </ion-item>
 
               <!-- Deposit Period -->
-              <ion-item fill="outline" [attr.title]="'HELP.DEPOSIT_PERIOD_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.DEPOSIT_PERIOD_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.PERIOD' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -210,7 +212,7 @@ import {
               </ion-item>
 
               <!-- Period Frequency -->
-              <ion-item fill="outline" [attr.title]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -238,7 +240,7 @@ import {
                     {{ 'RECURRING_DEPOSITS.INHERIT_CALENDAR' | translate }}
                   </ion-checkbox>
                   <ion-icon
-                    [attr.title]="'HELP.INHERIT_CALENDAR_DESC' | translate"
+                    [appTooltip]="'HELP.INHERIT_CALENDAR_DESC' | translate"
                     class="help-icon"
                     name="help-circle-outline"
                   ></ion-icon>
@@ -248,7 +250,7 @@ import {
                 @if (!isCalendarInherited) {
                   <ion-item
                     fill="outline"
-                    [attr.title]="'HELP.RECURRING_FREQUENCY_DESC' | translate"
+                    [appTooltip]="'HELP.RECURRING_FREQUENCY_DESC' | translate"
                   >
                     <ion-label position="stacked">{{
                       'RECURRING_DEPOSITS.RECURRING_FREQUENCY' | translate
@@ -261,7 +263,7 @@ import {
                     ></ion-input>
                   </ion-item>
 
-                  <ion-item fill="outline" [attr.title]="'HELP.FREQUENCY_TYPE_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.FREQUENCY_TYPE_DESC' | translate">
                     <ion-label position="stacked">{{
                       'RECURRING_DEPOSITS.FREQUENCY_TYPE' | translate
                     }}</ion-label>

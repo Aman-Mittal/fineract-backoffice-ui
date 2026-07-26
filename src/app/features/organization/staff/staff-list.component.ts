@@ -28,6 +28,7 @@ import {
 } from '../../../shared';
 import { StaffService, StaffData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-staff-list',
@@ -40,6 +41,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     CellTemplateDirective,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -80,7 +82,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="primary"
             [routerLink]="['edit', row.id]"
             *appHasPermission="'UPDATE_STAFF'"
-            [attr.title]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
           >
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>

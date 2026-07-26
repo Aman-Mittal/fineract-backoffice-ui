@@ -39,6 +39,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   OfficesService,
   PostOfficesRequest,
@@ -66,6 +67,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -83,12 +85,12 @@ import {
         <ion-card-content>
           <form #officeForm="ngForm" (ngSubmit)="onSubmit()" class="office-form">
             <div class="form-grid">
-              <ion-item fill="outline" [attr.title]="'HELP.OFFICE_NAME_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_NAME_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
                 <ion-input name="name" [(ngModel)]="office.name" required></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.PARENT_OFFICE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.PARENT_OFFICE_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -103,12 +105,12 @@ import {
                 </ion-select>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.EXTERNAL_ID_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.EXTERNAL_ID' | translate }}</ion-label>
                 <ion-input name="externalId" [(ngModel)]="office.externalId"></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.OPENING_DATE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
                 <ion-datetime-button datetime="openingDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">

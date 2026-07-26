@@ -24,6 +24,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import { NotificationService } from '../../core/services/notification.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -77,6 +78,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -107,7 +109,7 @@ import {
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [appTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
@@ -119,7 +121,7 @@ import {
               <div class="field-container-row">
                 <ion-item
                   fill="outline"
-                  [attr.title]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
+                  [appTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
@@ -138,7 +140,7 @@ import {
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
+                  [appTooltip]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
@@ -148,7 +150,7 @@ import {
               </div>
 
               <!-- Submitted On -->
-              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
                 <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -166,7 +168,7 @@ import {
               </ion-item>
 
               <!-- Nominal Annual Interest Rate -->
-              <ion-item fill="outline" [attr.title]="'HELP.INTEREST_RATE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.INTEREST_RATE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
                 <ion-input
                   type="number"

@@ -28,6 +28,7 @@ import {
 } from '../../../shared';
 import { ClientFamilyMemberService, ClientFamilyMembersData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-client-family-members-list',
@@ -40,6 +41,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     CellTemplateDirective,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <div class="tab-actions">
@@ -70,7 +72,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="primary"
             [routerLink]="['/clients', clientId, 'family-members', 'edit', row.id]"
             *appHasPermission="'UPDATE_CLIENTFAMILYMEMBER'"
-            [attr.title]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
           >
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>
@@ -79,7 +81,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="danger"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_CLIENTFAMILYMEMBER'"
-            [attr.title]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
           >
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>

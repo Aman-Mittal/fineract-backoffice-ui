@@ -23,6 +23,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { toIsoDate } from '../../core/utils/date-formatter';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonCard,
   IonCardHeader,
@@ -84,6 +85,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -104,7 +106,7 @@ import {
               <ion-row>
                 <!-- Name -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_NAME_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_NAME_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.NAME' | translate }}</ion-label>
                     <ion-input
                       type="text"
@@ -119,7 +121,7 @@ import {
 
                 <!-- Office -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_OFFICE_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_OFFICE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.OFFICE' | translate }}</ion-label>
                     <ion-select
                       interface="popover"
@@ -141,7 +143,7 @@ import {
                 <ion-col size="12">
                   <ion-item
                     fill="outline"
-                    [attr.title]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
+                    [appTooltip]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
                     class="full-width"
                   >
                     <ion-label position="stacked">{{
@@ -159,7 +161,7 @@ import {
 
                 <!-- Start Date -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_START_DATE_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_START_DATE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
                     <ion-datetime-button datetime="teller-start-date-picker"></ion-datetime-button>
                     <ion-modal [keepContentsMounted]="true">
@@ -177,7 +179,7 @@ import {
 
                 <!-- Status -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_STATUS_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_STATUS_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.STATUS' | translate }}</ion-label>
                     <ion-select
                       interface="popover"
@@ -199,7 +201,7 @@ import {
 
                 <!-- Usage -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [attr.title]="'HELP.TELLER_USAGE_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_USAGE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.USAGE' | translate }}</ion-label>
                     <ion-select
                       interface="popover"

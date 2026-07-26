@@ -50,6 +50,7 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../core/utils/date-formatter';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -102,6 +103,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -124,7 +126,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
             <div class="form-grid">
               @if (transactionType !== 'undoDisbursal') {
                 <!-- Transaction Date -->
-                <ion-item fill="outline" [attr.title]="'HELP.TRANSACTION_DATE_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate">
                   <ion-label position="stacked">
                     {{
                       transactionType === 'approve'
@@ -150,7 +152,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
 
               @if (amountVisible) {
                 <!-- Transaction Amount -->
-                <ion-item fill="outline" [attr.title]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
                   <ion-label position="stacked">{{
                     'COMMON.TRANSACTION_AMOUNT' | translate
                   }}</ion-label>
@@ -163,7 +165,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 </ion-item>
 
                 <!-- Payment Type -->
-                <ion-item fill="outline" [attr.title]="'HELP.PAYMENT_TYPE_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
                   <ion-select
                     interface="popover"
@@ -209,7 +211,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
               <!-- Note -->
               <ion-item
                 fill="outline"
-                [attr.title]="'HELP.NOTE_DESC' | translate"
+                [appTooltip]="'HELP.NOTE_DESC' | translate"
                 class="full-width"
               >
                 <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>

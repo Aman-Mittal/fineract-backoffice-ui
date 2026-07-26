@@ -28,6 +28,7 @@ import {
 } from '../../../shared';
 import { DocumentsService, DocumentData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-client-documents-list',
@@ -40,6 +41,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     CellTemplateDirective,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <div class="tab-actions">
@@ -66,7 +68,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="primary"
             (click)="onDownload(row.id)"
             *appHasPermission="'READ_DOCUMENT'"
-            [attr.title]="'COMMON.DOWNLOAD' | translate"
+            [appTooltip]="'COMMON.DOWNLOAD' | translate"
           >
             <ion-icon name="download-outline"></ion-icon>
           </ion-button>
@@ -75,7 +77,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="danger"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_DOCUMENT'"
-            [attr.title]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
           >
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>

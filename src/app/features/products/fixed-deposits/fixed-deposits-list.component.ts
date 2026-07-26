@@ -30,6 +30,7 @@ import {
 } from '../../../shared';
 import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-fixed-deposits-list',
@@ -42,6 +43,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     CurrencyPipe,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -72,7 +74,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           <ion-button
             fill="clear"
             color="secondary"
-            [attr.title]="'LOANS.APPROVE' | translate"
+            [appTooltip]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
           >
             <ion-icon name="checkmark-circle-outline"></ion-icon>

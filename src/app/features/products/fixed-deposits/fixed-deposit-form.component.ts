@@ -23,6 +23,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -83,6 +84,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -113,7 +115,7 @@ import {
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [appTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
@@ -125,7 +127,7 @@ import {
               <div class="field-container-row">
                 <ion-item
                   fill="outline"
-                  [attr.title]="'HELP.FIXED_DEPOSIT_PRODUCT_DESC' | translate"
+                  [appTooltip]="'HELP.FIXED_DEPOSIT_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
@@ -147,7 +149,7 @@ import {
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT' | translate"
+                  [appTooltip]="'PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
@@ -157,7 +159,7 @@ import {
               </div>
 
               <!-- Deposit Amount -->
-              <ion-item fill="outline" [attr.title]="'HELP.DEPOSIT_AMOUNT_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.DEPOSIT_AMOUNT_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -168,7 +170,7 @@ import {
               </ion-item>
 
               <!-- Submitted On -->
-              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
                 <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -186,7 +188,7 @@ import {
               </ion-item>
 
               <!-- Deposit Period -->
-              <ion-item fill="outline" [attr.title]="'HELP.DEPOSIT_PERIOD_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.DEPOSIT_PERIOD_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.PERIOD' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -197,7 +199,7 @@ import {
               </ion-item>
 
               <!-- Period Frequency -->
-              <ion-item fill="outline" [attr.title]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -221,7 +223,7 @@ import {
               <!-- Nominal Annual Interest Rate -->
               <ion-item
                 fill="outline"
-                [attr.title]="'HELP.NOMINAL_ANNUAL_INTEREST_RATE_DESC' | translate"
+                [appTooltip]="'HELP.NOMINAL_ANNUAL_INTEREST_RATE_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
                 <ion-input

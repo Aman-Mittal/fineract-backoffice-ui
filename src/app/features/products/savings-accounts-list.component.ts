@@ -34,6 +34,7 @@ import {
 import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   resolveAccountActionType,
   resolveAccountRoutePrefix,
@@ -52,6 +53,7 @@ import {
     CurrencyPipe,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -97,7 +99,7 @@ import {
           <ion-button
             fill="clear"
             color="secondary"
-            [attr.title]="'LOANS.APPROVE' | translate"
+            [appTooltip]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
             *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
           >
@@ -108,7 +110,7 @@ import {
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditAccount(account)"
           *appHasPermission="'UPDATE_SAVINGSACCOUNT'"
         >
@@ -118,7 +120,7 @@ import {
           fill="clear"
           color="secondary"
           [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
-          [attr.title]="'SAVINGS.DEPOSIT_CASH' | translate"
+          [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
           (click)="onTransaction(account, 'deposit')"
           *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
         >
@@ -128,7 +130,7 @@ import {
           fill="clear"
           color="danger"
           [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
-          [attr.title]="'SAVINGS.WITHDRAW_CASH' | translate"
+          [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
           (click)="onTransaction(account, 'withdrawal')"
           *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
         >

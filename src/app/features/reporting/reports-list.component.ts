@@ -24,11 +24,19 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { ReportsService, GetReportsResponse } from '../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-reports-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="nav.reports"
@@ -44,7 +52,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.RUN' | translate"
-          [attr.title]="'REPORTS.RUN' | translate"
+          [appTooltip]="'REPORTS.RUN' | translate"
           (click)="onRunReport(report)"
         >
           <ion-icon name="play-outline"></ion-icon>

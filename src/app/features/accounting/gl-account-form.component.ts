@@ -28,6 +28,7 @@ import {
   PutGLAccountsRequest,
 } from '../../api';
 import { HelpIconComponent } from '../../shared';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -66,6 +67,7 @@ import {
     IonSelect,
     IonCheckbox,
     IonIcon,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -84,17 +86,17 @@ import {
         <ion-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="account-form">
             <div class="form-grid">
-              <ion-item fill="outline" [attr.title]="'HELP.ACCOUNT_NAME_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.ACCOUNT_NAME_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
                 <ion-input name="name" [(ngModel)]="account.name" required></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.GL_CODE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.GL_CODE_DESC' | translate">
                 <ion-label position="stacked">{{ 'ACCOUNTING.GL_CODE' | translate }}</ion-label>
                 <ion-input name="glCode" [(ngModel)]="account.glCode" required></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.ACCOUNT_TYPE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.ACCOUNT_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{
                   'ACCOUNTING.ACCOUNT_TYPE' | translate
                 }}</ion-label>
@@ -117,7 +119,7 @@ import {
                 </ion-select>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.ACCOUNT_USAGE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.ACCOUNT_USAGE_DESC' | translate">
                 <ion-label position="stacked">{{
                   'ACCOUNTING.ACCOUNT_USAGE' | translate
                 }}</ion-label>
@@ -133,7 +135,7 @@ import {
 
               <ion-item
                 fill="outline"
-                [attr.title]="'HELP.DESCRIPTION_DESC' | translate"
+                [appTooltip]="'HELP.DESCRIPTION_DESC' | translate"
                 class="full-width"
               >
                 <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
@@ -152,7 +154,7 @@ import {
                   {{ 'ACCOUNTING.ALLOW_MANUAL_ENTRIES' | translate }}
                 </ion-checkbox>
                 <ion-icon
-                  [attr.title]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate"
+                  [appTooltip]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate"
                   class="help-icon"
                   name="help-circle-outline"
                 ></ion-icon>

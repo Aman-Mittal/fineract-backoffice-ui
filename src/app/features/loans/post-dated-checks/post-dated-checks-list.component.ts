@@ -24,6 +24,7 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { RepaymentWithPostDatedChecksService, GetPostDatedChecks } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists post-dated checks for a specific loan and allows editing or deleting a check.
@@ -32,7 +33,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-post-dated-checks-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="POST_DATED_CHECKS.TITLE"
@@ -48,7 +56,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(row)"
         >
           <ion-icon name="create-outline"></ion-icon>
@@ -57,7 +65,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          [attr.title]="'COMMON.DELETE' | translate"
+          [appTooltip]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"
         >
           <ion-icon name="trash-outline"></ion-icon>

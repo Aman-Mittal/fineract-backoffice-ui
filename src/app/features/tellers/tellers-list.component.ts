@@ -25,6 +25,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { TellerCashManagementService, GetTellersResponse } from '../../api';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 /**
  * Component for displaying a list of branch tellers.
@@ -39,7 +40,14 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
 @Component({
   selector: 'app-tellers-list',
   standalone: true,
-  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
+  imports: [
+    TranslateModule,
+    IonButton,
+    IonIcon,
+    DataTableComponent,
+    CellTemplateDirective,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="nav.tellers"
@@ -61,7 +69,7 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'Edit Teller Details'"
+          [appTooltip]="'Edit Teller Details'"
           (click)="onEditTeller(teller)"
           [id]="'edit-teller-btn-' + teller.id"
           [attr.data-testid]="'edit-teller-btn-' + teller.id"
@@ -72,7 +80,7 @@ import { TellerCashManagementService, GetTellersResponse } from '../../api';
           fill="clear"
           color="secondary"
           [attr.aria-label]="'TELLERS.CASHIERS' | translate"
-          [attr.title]="'Manage Cashiers'"
+          [appTooltip]="'Manage Cashiers'"
           (click)="onManageCashiers(teller)"
           [id]="'manage-cashiers-btn-' + teller.id"
           [attr.data-testid]="'manage-cashiers-btn-' + teller.id"

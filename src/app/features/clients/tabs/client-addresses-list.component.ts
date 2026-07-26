@@ -28,6 +28,7 @@ import {
 } from '../../../shared';
 import { ClientsAddressService, AddressData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-client-addresses-list',
@@ -40,6 +41,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     CellTemplateDirective,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <div class="tab-actions">
@@ -78,7 +80,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             color="primary"
             [routerLink]="['/clients', clientId, 'addresses', 'edit', row.addressId]"
             *appHasPermission="'UPDATE_ADDRESS'"
-            [attr.title]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | translate"
           >
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>

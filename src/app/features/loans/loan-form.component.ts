@@ -34,6 +34,7 @@ import {
 } from '../../api';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
 import { NotificationService } from '../../core/services/notification.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -86,6 +87,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -112,7 +114,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [appTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
@@ -124,7 +126,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <div class="field-container-row">
                 <ion-item
                   fill="outline"
-                  [attr.title]="'HELP.LOAN_PRODUCT_DESC' | translate"
+                  [appTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
                   <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
@@ -144,7 +146,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 <ion-button
                   fill="clear"
                   type="button"
-                  [attr.title]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
+                  [appTooltip]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
@@ -156,7 +158,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               @if (selectedProductDetails?.loanScheduleType?.value) {
                 <div class="field-container-row full-width">
                   <div>
-                    <ion-chip [attr.title]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
+                    <ion-chip [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
                       {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
                       {{ selectedProductDetails?.loanScheduleType?.value }}
                     </ion-chip>
@@ -165,7 +167,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               }
 
               <!-- Principal -->
-              <ion-item fill="outline" [attr.title]="'HELP.PRINCIPAL_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.PRINCIPAL_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.PRINCIPAL' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -176,13 +178,13 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- External ID -->
-              <ion-item fill="outline" [attr.title]="'HELP.EXTERNAL_ID_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
                 <ion-input name="externalId" [(ngModel)]="loan.externalId"></ion-input>
               </ion-item>
 
               <!-- Submitted On -->
-              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
                 <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -200,7 +202,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Expected Disbursement -->
-              <ion-item fill="outline" [attr.title]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate">
                 <ion-label position="stacked">{{
                   'LOANS.EXPECTED_DISBURSEMENT' | translate
                 }}</ion-label>
@@ -222,7 +224,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Term Frequency -->
-              <ion-item fill="outline" [attr.title]="'HELP.TERM_FREQUENCY_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_FREQUENCY' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -233,7 +235,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Term Type -->
-              <ion-item fill="outline" [attr.title]="'HELP.TERM_TYPE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.TERM_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_TYPE' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -255,7 +257,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Number of Repayments -->
-              <ion-item fill="outline" [attr.title]="'HELP.REPAYMENTS_COUNT_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
                 <ion-input
                   type="number"
@@ -266,7 +268,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </ion-item>
 
               <!-- Repayment Every -->
-              <ion-item fill="outline" [attr.title]="'HELP.REPAYMENT_EVERY_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
                 <ion-input
                   type="number"

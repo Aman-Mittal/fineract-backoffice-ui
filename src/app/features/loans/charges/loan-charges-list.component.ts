@@ -24,6 +24,7 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { LoanChargesService, GetLoansLoanIdChargesChargeIdResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists the charges attached to a single loan. The loan id is read from the route snapshot;
@@ -33,7 +34,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-loan-charges-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="LOAN_CHARGES.TITLE"
@@ -59,7 +67,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
             fill="clear"
             color="danger"
             [attr.aria-label]="'COMMON.DELETE' | translate"
-            [attr.title]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | translate"
             (click)="onDelete(row)"
           >
             <ion-icon name="trash-outline"></ion-icon>

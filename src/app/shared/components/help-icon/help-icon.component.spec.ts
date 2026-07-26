@@ -55,12 +55,11 @@ describe('HelpIconComponent', () => {
     expect(icon.getAttribute('name')).toBe('help-circle-outline');
   });
 
-  it('exposes the help text as both title and aria-label', () => {
-    // Ionic has no tooltip, so the native title attribute carries the hover text
-    // and aria-label carries it for assistive technology.
+  it('exposes the help text to assistive technology', () => {
+    // The hover text is rendered by TooltipDirective; aria-label carries the same
+    // string for screen readers, which never see the tooltip element.
     const icon = fixture.nativeElement.querySelector('ion-icon');
 
-    expect(icon.getAttribute('title')).toBe(HELP_KEY);
     expect(icon.getAttribute('aria-label')).toBe(HELP_KEY);
   });
 });

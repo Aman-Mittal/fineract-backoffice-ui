@@ -23,6 +23,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { toIsoDate } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonCard,
   IonCardHeader,
@@ -76,6 +77,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -90,7 +92,7 @@ import {
               <ion-row>
                 <!-- Staff Selection -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [attr.title]="'HELP.CASHIER_STAFF_DESC' | translate">
+                  <ion-item fill="outline" [appTooltip]="'HELP.CASHIER_STAFF_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.STAFF' | translate }}</ion-label>
                     <ion-select
                       interface="popover"

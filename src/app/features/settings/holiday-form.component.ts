@@ -23,6 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../core/services/notification.service';
 import { formatDateToFineract } from '../../core/utils/date-formatter';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -68,6 +69,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -84,7 +86,7 @@ import {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [attr.title]="'HELP.HOLIDAY_NAME_DESC' | translate"
+                [appTooltip]="'HELP.HOLIDAY_NAME_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'HOLIDAYS.NAME' | translate }}</ion-label>
                 <ion-input name="name" [(ngModel)]="holiday.name" required></ion-input>
@@ -93,7 +95,7 @@ import {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [attr.title]="'HELP.APPLICABLE_OFFICES_DESC' | translate"
+                [appTooltip]="'HELP.APPLICABLE_OFFICES_DESC' | translate"
               >
                 <ion-label position="stacked">{{
                   'HOLIDAYS.APPLICABLE_OFFICES' | translate
@@ -114,7 +116,7 @@ import {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [attr.title]="'HELP.FROM_DATE_DESC' | translate"
+                [appTooltip]="'HELP.FROM_DATE_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'HOLIDAYS.FROM_DATE' | translate }}</ion-label>
                 <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
@@ -135,7 +137,7 @@ import {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [attr.title]="'HELP.TO_DATE_DESC' | translate"
+                [appTooltip]="'HELP.TO_DATE_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'HOLIDAYS.TO_DATE' | translate }}</ion-label>
                 <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
@@ -156,7 +158,7 @@ import {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [attr.title]="'HELP.RESCHEDULING_TYPE_DESC' | translate"
+                [appTooltip]="'HELP.RESCHEDULING_TYPE_DESC' | translate"
               >
                 <ion-label position="stacked">{{
                   'HOLIDAYS.RESCHEDULING_TYPE' | translate
@@ -177,7 +179,7 @@ import {
                 <ion-item
                   fill="outline"
                   class="full-width"
-                  [attr.title]="'HELP.REPAYMENTS_RESCHEDULED_TO_DESC' | translate"
+                  [appTooltip]="'HELP.REPAYMENTS_RESCHEDULED_TO_DESC' | translate"
                 >
                   <ion-label position="stacked">{{
                     'HOLIDAYS.REPAYMENTS_RESCHEDULED_TO' | translate
@@ -204,7 +206,7 @@ import {
             <ion-item
               fill="outline"
               class="full-width"
-              [attr.title]="'HELP.HOLIDAY_DESCRIPTION_DESC' | translate"
+              [appTooltip]="'HELP.HOLIDAY_DESCRIPTION_DESC' | translate"
             >
               <ion-label position="stacked">{{ 'HOLIDAYS.DESCRIPTION' | translate }}</ion-label>
               <ion-textarea

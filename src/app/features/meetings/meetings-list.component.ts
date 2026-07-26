@@ -25,6 +25,7 @@ import { DataTableComponent } from '../../shared/components/data-table/data-tabl
 import { MeetingsService, MeetingData } from '../../api';
 import { formatArrayDate } from '../../core/utils/date-formatter';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 /**
  * Lists the meetings recorded against a single group or center. The entity type
@@ -34,7 +35,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-meetings-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="MEETINGS.TITLE"
@@ -57,7 +65,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(row)"
         >
           <ion-icon name="create-outline"></ion-icon>
@@ -66,7 +74,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          [attr.title]="'COMMON.DELETE' | translate"
+          [appTooltip]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"
         >
           <ion-icon name="trash-outline"></ion-icon>

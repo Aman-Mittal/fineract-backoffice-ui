@@ -25,11 +25,19 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { CashiersService, CashierData, TellerCashManagementService } from '../../../api';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-cashiers-list',
   standalone: true,
-  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
+  imports: [
+    TranslateModule,
+    IonButton,
+    IonIcon,
+    DataTableComponent,
+    CellTemplateDirective,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="TELLERS.CASHIERS"
@@ -58,7 +66,7 @@ import { CashiersService, CashierData, TellerCashManagementService } from '../..
           fill="clear"
           color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          [attr.title]="'Remove Cashier Allocation'"
+          [appTooltip]="'Remove Cashier Allocation'"
           (click)="onRemoveCashier(cashier)"
           [id]="'delete-cashier-btn-' + cashier.id"
           [attr.data-testid]="'delete-cashier-btn-' + cashier.id"

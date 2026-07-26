@@ -41,6 +41,7 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../../core/utils/date-formatter';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   RescheduleLoansService,
   PostCreateRescheduleLoansRequest,
@@ -76,6 +77,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -88,7 +90,7 @@ import {
           <form #rescheduleForm="ngForm" (ngSubmit)="onSubmit()" class="reschedule-form">
             <div class="form-grid">
               <!-- Reschedule From Date (Select Unpaid Installment) -->
-              <ion-item fill="outline" [attr.title]="'HELP.RESCHEDULE_FROM_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.RESCHEDULE_FROM_DESC' | translate">
                 <ion-label position="stacked">Reschedule From Date</ion-label>
                 <ion-select
                   interface="popover"

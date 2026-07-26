@@ -29,6 +29,7 @@ import { GuidanceService } from '../core/services/guidance.service';
 import { SidebarService } from '../core/services/sidebar.service';
 import { ThemeService } from '../core/services/theme.service';
 import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } from '../api';
+import { TooltipDirective } from '../shared/directives/tooltip.directive';
 
 /**
  * Top-level application header component.
@@ -48,6 +49,7 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
     IonItem,
     IonLabel,
     FormsModule,
+    TooltipDirective,
   ],
   template: `
     <header class="header" role="banner">
@@ -116,7 +118,7 @@ import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } fr
         <button
           class="theme-toggle-btn"
           (click)="themeService.toggleDarkMode()"
-          [attr.title]="'COMMON.TOGGLE_THEME' | translate"
+          [appTooltip]="'COMMON.TOGGLE_THEME' | translate"
           [attr.aria-label]="'COMMON.TOGGLE_THEME' | translate"
         >
           <ion-icon

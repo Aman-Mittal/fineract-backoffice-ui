@@ -41,6 +41,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../core/utils/date-formatter';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   GroupsService,
   OfficesService,
@@ -78,6 +79,7 @@ import {
     IonDatetimeButton,
     IonModal,
     IonIcon,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -94,13 +96,13 @@ import {
           <form #groupForm="ngForm" (ngSubmit)="onSubmit()" class="group-form">
             <div class="form-grid">
               <!-- Name -->
-              <ion-item fill="outline" [attr.title]="'HELP.GROUP_NAME_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.GROUP_NAME_DESC' | translate">
                 <ion-label position="stacked">{{ 'GROUPS.NAME' | translate }}</ion-label>
                 <ion-input name="name" [(ngModel)]="group.name" required></ion-input>
               </ion-item>
 
               <!-- Office -->
-              <ion-item fill="outline" [attr.title]="'HELP.OFFICE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -117,7 +119,7 @@ import {
 
               <!-- Activation Date -->
               @if (!isEditMode) {
-                <ion-item fill="outline" [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate">
                   <ion-label position="stacked">{{
                     'COMMON.ACTIVATION_DATE' | translate
                   }}</ion-label>
@@ -143,7 +145,7 @@ import {
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
                 <ion-icon
-                  [attr.title]="'HELP.ACTIVE_DESC' | translate"
+                  [appTooltip]="'HELP.ACTIVE_DESC' | translate"
                   class="help-icon"
                   name="help-circle-outline"
                 ></ion-icon>

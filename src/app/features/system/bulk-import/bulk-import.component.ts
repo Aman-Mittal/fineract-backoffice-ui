@@ -30,6 +30,7 @@ import {
   JournalEntriesService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -62,6 +63,7 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    TooltipDirective,
   ],
   template: `
     <div class="bulk-import-container">
@@ -123,7 +125,7 @@ import {
             fill="clear"
             color="primary"
             (click)="onDownloadResult(row['importDocumentId'])"
-            [attr.title]="'SYSTEM.DOWNLOAD_RESULT' | translate"
+            [appTooltip]="'SYSTEM.DOWNLOAD_RESULT' | translate"
           >
             <ion-icon name="download-outline"></ion-icon>
           </ion-button>

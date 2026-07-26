@@ -29,6 +29,7 @@ import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { DialogService } from '../../../core/services/dialog.service';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonAccordion,
   IonAccordionGroup,
@@ -75,6 +76,7 @@ export interface AuditFilters {
     IonModal,
     IonAccordion,
     IonAccordionGroup,
+    TooltipDirective,
   ],
   template: `
     <div class="audit-logs-container">
@@ -203,7 +205,7 @@ export interface AuditFilters {
             fill="clear"
             color="primary"
             (click)="onViewDetails(row)"
-            [attr.title]="'COMMON.VIEW_DETAILS' | translate"
+            [appTooltip]="'COMMON.VIEW_DETAILS' | translate"
           >
             <ion-icon name="eye-outline"></ion-icon>
           </ion-button>

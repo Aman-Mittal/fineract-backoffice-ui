@@ -20,6 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonIcon,
@@ -53,6 +54,7 @@ import {
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    TooltipDirective,
   ],
   template: `
     <div class="management-container">
@@ -90,7 +92,7 @@ import {
                   color="primary"
                   [routerLink]="['ranges', 'edit', row.id]"
                   *appHasPermission="'UPDATE_DELINQUENCYRANGE'"
-                  [attr.title]="'COMMON.EDIT' | translate"
+                  [appTooltip]="'COMMON.EDIT' | translate"
                 >
                   <ion-icon name="create-outline"></ion-icon>
                 </ion-button>
@@ -99,7 +101,7 @@ import {
                   color="danger"
                   (click)="onDeleteRange(row.id)"
                   *appHasPermission="'DELETE_DELINQUENCYRANGE'"
-                  [attr.title]="'COMMON.DELETE' | translate"
+                  [appTooltip]="'COMMON.DELETE' | translate"
                 >
                   <ion-icon name="trash-outline"></ion-icon>
                 </ion-button>
@@ -139,7 +141,7 @@ import {
                   color="primary"
                   [routerLink]="['buckets', 'edit', row.id]"
                   *appHasPermission="'UPDATE_DELINQUENCYBUCKET'"
-                  [attr.title]="'COMMON.EDIT' | translate"
+                  [appTooltip]="'COMMON.EDIT' | translate"
                 >
                   <ion-icon name="create-outline"></ion-icon>
                 </ion-button>
@@ -148,7 +150,7 @@ import {
                   color="danger"
                   (click)="onDeleteBucket(row.id)"
                   *appHasPermission="'DELETE_DELINQUENCYBUCKET'"
-                  [attr.title]="'COMMON.DELETE' | translate"
+                  [appTooltip]="'COMMON.DELETE' | translate"
                 >
                   <ion-icon name="trash-outline"></ion-icon>
                 </ion-button>

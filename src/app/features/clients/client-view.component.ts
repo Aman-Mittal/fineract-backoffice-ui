@@ -46,6 +46,7 @@ import { ClientDocumentsListComponent } from './tabs/client-documents-list.compo
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { DialogService } from '../../core/services/dialog.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -96,6 +97,7 @@ interface ClientActionResult {
     IonPopover,
     IonList,
     IonItem,
+    TooltipDirective,
   ],
   template: `
     <div class="view-container">
@@ -423,7 +425,7 @@ interface ClientActionResult {
                             color="primary"
                             (click)="onSavingsTransaction(account.id, 'deposit')"
                             *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
-                            [attr.title]="'SAVINGS.DEPOSIT' | translate"
+                            [appTooltip]="'SAVINGS.DEPOSIT' | translate"
                           >
                             <ion-icon name="add-circle-outline"></ion-icon>
                           </ion-button>
@@ -434,7 +436,7 @@ interface ClientActionResult {
                               color="secondary"
                               (click)="onSavingsAction(account.id, 'approve', account)"
                               *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
-                              [attr.title]="'LOANS.APPROVE' | translate"
+                              [appTooltip]="'LOANS.APPROVE' | translate"
                             >
                               <ion-icon name="checkmark-circle-outline"></ion-icon>
                             </ion-button>
@@ -446,7 +448,7 @@ interface ClientActionResult {
                               color="primary"
                               (click)="onSavingsAction(account.id, 'activate', account)"
                               *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
-                              [attr.title]="'LOANS.ACTIVATE' | translate"
+                              [appTooltip]="'LOANS.ACTIVATE' | translate"
                             >
                               <ion-icon name="play-circle-outline"></ion-icon>
                             </ion-button>
@@ -458,7 +460,7 @@ interface ClientActionResult {
                               color="danger"
                               (click)="onSavingsAction(account.id, 'close', account)"
                               *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
-                              [attr.title]="'LOANS.CLOSE' | translate"
+                              [appTooltip]="'LOANS.CLOSE' | translate"
                             >
                               <ion-icon name="close-circle-outline"></ion-icon>
                             </ion-button>
@@ -469,7 +471,7 @@ interface ClientActionResult {
                             color="danger"
                             (click)="onSavingsTransaction(account.id, 'withdrawal')"
                             *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
-                            [attr.title]="'SAVINGS.WITHDRAWAL' | translate"
+                            [appTooltip]="'SAVINGS.WITHDRAWAL' | translate"
                           >
                             <ion-icon name="remove-circle-outline"></ion-icon>
                           </ion-button>
@@ -542,7 +544,7 @@ interface ClientActionResult {
                             color="primary"
                             (click)="onLoanTransaction(account.id, 'repayment')"
                             *appHasPermission="'REPAYMENT_LOAN'"
-                            [attr.title]="'LOANS.REPAYMENT' | translate"
+                            [appTooltip]="'LOANS.REPAYMENT' | translate"
                           >
                             <ion-icon name="card-outline"></ion-icon>
                           </ion-button>
@@ -552,7 +554,7 @@ interface ClientActionResult {
                               fill="clear"
                               color="secondary"
                               (click)="onLoanAction(account.id, 'approve')"
-                              [attr.title]="'LOANS.APPROVE' | translate"
+                              [appTooltip]="'LOANS.APPROVE' | translate"
                             >
                               <ion-icon name="checkmark-circle-outline"></ion-icon>
                             </ion-button>
@@ -563,7 +565,7 @@ interface ClientActionResult {
                               fill="clear"
                               color="secondary"
                               (click)="onLoanAction(account.id, 'disburse')"
-                              [attr.title]="'LOANS.DISBURSE' | translate"
+                              [appTooltip]="'LOANS.DISBURSE' | translate"
                             >
                               <ion-icon name="open-outline"></ion-icon>
                             </ion-button>
@@ -575,7 +577,7 @@ interface ClientActionResult {
                               color="danger"
                               (click)="onLoanAction(account.id, 'close')"
                               *appHasPermission="'CLOSE_LOAN'"
-                              [attr.title]="'LOANS.CLOSE' | translate"
+                              [appTooltip]="'LOANS.CLOSE' | translate"
                             >
                               <ion-icon name="close-circle-outline"></ion-icon>
                             </ion-button>

@@ -23,6 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { IonButton, IonCard, IonIcon, IonToggle } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   SCHEDULERJOBService,
   SchedulerService,
@@ -48,6 +49,7 @@ import {
     IonButton,
     IonCard,
     IonToggle,
+    TooltipDirective,
   ],
   template: `
     <ion-card class="scheduler-status">
@@ -81,7 +83,7 @@ import {
           fill="clear"
           color="primary"
           [attr.aria-label]="'SCHEDULER_JOBS.RUN_NOW' | translate"
-          [attr.title]="'SCHEDULER_JOBS.RUN_NOW' | translate"
+          [appTooltip]="'SCHEDULER_JOBS.RUN_NOW' | translate"
           (click)="onRunNow(row)"
         >
           <ion-icon name="play-outline"></ion-icon>
@@ -90,7 +92,7 @@ import {
           fill="clear"
           color="primary"
           [attr.aria-label]="'SCHEDULER_JOBS.HISTORY' | translate"
-          [attr.title]="'SCHEDULER_JOBS.HISTORY' | translate"
+          [appTooltip]="'SCHEDULER_JOBS.HISTORY' | translate"
           (click)="onHistory(row)"
         >
           <ion-icon name="time-outline"></ion-icon>

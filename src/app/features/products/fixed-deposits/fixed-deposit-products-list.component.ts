@@ -26,6 +26,7 @@ import { catchError } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { FixedDepositProductService, GetFixedDepositProductsResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-fixed-deposit-products-list',
@@ -37,6 +38,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     DecimalPipe,
     IonIcon,
     IonButton,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -57,7 +59,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
         <ion-button
           fill="clear"
           color="primary"
-          [attr.title]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(product)"
         >
           <ion-icon name="create-outline"></ion-icon>

@@ -32,6 +32,7 @@ import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -93,6 +94,7 @@ import {
     IonSegmentButton,
     IonPopover,
     IonList,
+    TooltipDirective,
   ],
   template: `
     @if (loan()) {
@@ -119,7 +121,7 @@ import {
                       <ion-chip
                         [color]="isProgressiveLoan() ? 'secondary' : 'primary'"
                         highlighted
-                        [attr.title]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+                        [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
                       >
                         {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
                         {{ loan()?.loanScheduleType?.value }}
@@ -133,7 +135,7 @@ import {
               <ion-button
                 color="primary"
                 (click)="onRepayment()"
-                [attr.title]="'LOANS.REPAYMENT' | translate"
+                [appTooltip]="'LOANS.REPAYMENT' | translate"
               >
                 <ion-icon name="card-outline"></ion-icon>
                 {{ 'LOANS.REPAYMENT' | translate }}
@@ -143,7 +145,7 @@ import {
                 <ion-button
                   color="secondary"
                   (click)="onLoanAction('approve')"
-                  [attr.title]="'LOANS.APPROVE' | translate"
+                  [appTooltip]="'LOANS.APPROVE' | translate"
                 >
                   <ion-icon name="checkmark-circle-outline"></ion-icon>
                   {{ 'LOANS.APPROVE' | translate }}
@@ -154,7 +156,7 @@ import {
                 <ion-button
                   color="secondary"
                   (click)="onDisburse()"
-                  [attr.title]="'LOANS.DISBURSE' | translate"
+                  [appTooltip]="'LOANS.DISBURSE' | translate"
                 >
                   <ion-icon name="open-outline"></ion-icon>
                   {{ 'LOANS.DISBURSE' | translate }}
@@ -701,7 +703,7 @@ import {
                         <ion-button
                           fill="clear"
                           (click)="onViewTransaction(tx)"
-                          [attr.title]="'COMMON.VIEW' | translate"
+                          [appTooltip]="'COMMON.VIEW' | translate"
                         >
                           <ion-icon name="eye-outline"></ion-icon>
                         </ion-button>

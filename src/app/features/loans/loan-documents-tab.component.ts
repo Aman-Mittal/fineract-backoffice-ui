@@ -25,6 +25,7 @@ import { DocumentsService, DocumentData, BASE_PATH } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
 import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 // Loan-level documents are the evidentiary record for underwriting/servicing
 // decisions (signed application, ID proof, collateral photos) — staff need
@@ -42,6 +43,7 @@ import { CdkTableModule } from '@angular/cdk/table';
     IonInput,
     IonItem,
     IonLabel,
+    TooltipDirective,
   ],
   template: `
     <div class="upload-row">
@@ -92,7 +94,7 @@ import { CdkTableModule } from '@angular/cdk/table';
               fill="clear"
               color="primary"
               (click)="onDownload(doc.id)"
-              [attr.title]="'COMMON.DOWNLOAD' | translate"
+              [appTooltip]="'COMMON.DOWNLOAD' | translate"
             >
               <ion-icon name="download-outline"></ion-icon>
             </ion-button>
@@ -100,7 +102,7 @@ import { CdkTableModule } from '@angular/cdk/table';
               fill="clear"
               color="danger"
               (click)="onDelete(doc.id)"
-              [attr.title]="'COMMON.DELETE' | translate"
+              [appTooltip]="'COMMON.DELETE' | translate"
             >
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>

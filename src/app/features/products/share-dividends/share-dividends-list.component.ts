@@ -25,6 +25,7 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { formatArrayDate } from '../../../core/utils/date-formatter';
 import { SelfDividendService } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * A single share dividend row as returned (within a paged envelope) by the share dividend
@@ -46,7 +47,14 @@ interface ShareDividendRow {
 @Component({
   selector: 'app-share-dividends-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="SHARE_DIVIDENDS.TITLE"
@@ -69,7 +77,7 @@ interface ShareDividendRow {
           fill="clear"
           color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
-          [attr.title]="'COMMON.DELETE' | translate"
+          [appTooltip]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"
         >
           <ion-icon name="trash-outline"></ion-icon>

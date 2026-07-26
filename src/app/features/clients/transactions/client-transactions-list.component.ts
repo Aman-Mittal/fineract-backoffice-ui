@@ -25,6 +25,7 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { ClientTransactionService, GetClientsPageItems } from '../../../api';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists the transactions for a single client. The client id is read from the route
@@ -34,7 +35,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-client-transactions-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="CLIENT_TRANSACTIONS.TITLE"
@@ -55,7 +63,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="danger"
           [attr.aria-label]="'CLIENT_TRANSACTIONS.UNDO' | translate"
-          [attr.title]="'CLIENT_TRANSACTIONS.UNDO' | translate"
+          [appTooltip]="'CLIENT_TRANSACTIONS.UNDO' | translate"
           [disabled]="row.reversed"
           (click)="onUndo(row)"
         >

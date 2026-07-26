@@ -25,6 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import { DialogService } from '../../core/services/dialog.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
   IonCard,
@@ -80,6 +81,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -99,7 +101,7 @@ import {
           <form #clientForm="ngForm" (ngSubmit)="onSubmit()" class="client-form">
             <div class="form-grid">
               <!-- Legal Form -->
-              <ion-item fill="outline" [attr.title]="'HELP.LEGAL_FORM_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.LEGAL_FORM_DESC' | translate">
                 <ion-label position="stacked">{{ 'CLIENTS.LEGAL_FORM' | translate }}</ion-label>
                 <ion-select
                   interface="popover"
@@ -119,7 +121,7 @@ import {
 
               <!-- Office -->
               <div class="office-field-container">
-                <ion-item fill="outline" [attr.title]="'HELP.OFFICE_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                   <ion-select
                     interface="popover"
@@ -138,7 +140,7 @@ import {
                     fill="clear"
                     type="button"
                     color="primary"
-                    [attr.title]="'CLIENTS.ADD_NEW_OFFICE' | translate"
+                    [appTooltip]="'CLIENTS.ADD_NEW_OFFICE' | translate"
                     (click)="addOffice()"
                   >
                     <ion-icon name="add-circle-outline"></ion-icon>
@@ -147,7 +149,7 @@ import {
               </div>
 
               <!-- Submitted On Date -->
-              <ion-item fill="outline" [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
                 <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -166,7 +168,7 @@ import {
               </ion-item>
 
               <!-- Activation Date -->
-              <ion-item fill="outline" [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.ACTIVATION_DATE' | translate }}</ion-label>
                 <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -190,7 +192,7 @@ import {
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
                 <ion-icon
-                  [attr.title]="'HELP.ACTIVE_DESC' | translate"
+                  [appTooltip]="'HELP.ACTIVE_DESC' | translate"
                   class="help-icon"
                   name="help-circle-outline"
                 ></ion-icon>
@@ -200,7 +202,7 @@ import {
               @if (client.legalFormId === 2) {
                 <ion-item
                   fill="outline"
-                  [attr.title]="'HELP.FULL_NAME_DESC' | translate"
+                  [appTooltip]="'HELP.FULL_NAME_DESC' | translate"
                   class="full-width"
                 >
                   <ion-label position="stacked">{{ 'CLIENTS.COMPANY_NAME' | translate }}</ion-label>
@@ -210,22 +212,22 @@ import {
 
               <!-- Person fields -->
               @if (client.legalFormId === 1) {
-                <ion-item fill="outline" [attr.title]="'HELP.FIRST_NAME_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.FIRST_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
                   <ion-input name="firstname" [(ngModel)]="client.firstname" required></ion-input>
                 </ion-item>
 
-                <ion-item fill="outline" [attr.title]="'HELP.MIDDLE_NAME_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.MIDDLE_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.MIDDLE_NAME' | translate }}</ion-label>
                   <ion-input name="middlename" [(ngModel)]="client.middlename"></ion-input>
                 </ion-item>
 
-                <ion-item fill="outline" [attr.title]="'HELP.LAST_NAME_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.LAST_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
                   <ion-input name="lastname" [(ngModel)]="client.lastname" required></ion-input>
                 </ion-item>
 
-                <ion-item fill="outline" [attr.title]="'HELP.DATE_OF_BIRTH_DESC' | translate">
+                <ion-item fill="outline" [appTooltip]="'HELP.DATE_OF_BIRTH_DESC' | translate">
                   <ion-label position="stacked">{{
                     'CLIENTS.DATE_OF_BIRTH' | translate
                   }}</ion-label>
@@ -245,17 +247,17 @@ import {
               }
 
               <!-- Common fields -->
-              <ion-item fill="outline" [attr.title]="'HELP.EXTERNAL_ID_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
                 <ion-input name="externalId" [(ngModel)]="client.externalId"></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.MOBILE_NO_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.MOBILE_NO_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.MOBILE_NO' | translate }}</ion-label>
                 <ion-input name="mobileNo" [(ngModel)]="client.mobileNo"></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [attr.title]="'HELP.EMAIL_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.EMAIL_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
                 <ion-input name="emailAddress" [(ngModel)]="client.emailAddress"></ion-input>
               </ion-item>

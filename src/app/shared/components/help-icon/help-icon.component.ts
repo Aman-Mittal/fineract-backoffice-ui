@@ -19,24 +19,25 @@
 
 import { Component, Input } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Inline help affordance rendering the BFSI definition for a field or table.
  *
- * Ionic has no tooltip component, so the help text is exposed as the native `title`
- * attribute and duplicated into `aria-label` for assistive technology.
+ * Ionic has no tooltip component, so the help text is rendered by TooltipDirective and
+ * duplicated into `aria-label` for assistive technology.
  */
 @Component({
   selector: 'app-help-icon',
   standalone: true,
-  imports: [IonIcon, TranslateModule],
+  imports: [IonIcon, TranslateModule, TooltipDirective],
   template: `
     <ion-icon
       class="help-icon"
       name="help-circle-outline"
       data-testid="help-icon"
-      [attr.title]="helpTextKey | translate"
+      [appTooltip]="helpTextKey | translate"
       [attr.aria-label]="helpTextKey | translate"
       role="img"
     ></ion-icon>

@@ -47,6 +47,7 @@ import { SearchFilterComponent } from '../search-filter/search-filter.component'
 import { PaginatorComponent } from '../paginator/paginator.component';
 import { PageEvent, SortDirection, SortEvent } from '../../models/table.model';
 import { CellTemplateDirective } from './cell-template.directive';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 export interface ColumnDef {
   key: string;
@@ -92,6 +93,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
     HelpIconComponent,
     SearchFilterComponent,
     PaginatorComponent,
+    TooltipDirective,
   ],
   template: `
     <ion-card class="data-table-card">
@@ -141,7 +143,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                 <th
                   cdk-header-cell
                   *cdkHeaderCellDef
-                  [attr.title]="col.tooltip || null"
+                  [appTooltip]="col.tooltip || ''"
                   [attr.aria-sort]="ariaSortFor(col)"
                   [class.sortable]="col.sortable"
                   (click)="onSortHeaderClick(col)"
@@ -162,7 +164,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                       *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
                     ></ng-container>
                   } @else {
-                    <span class="truncate-text" [attr.title]="getTooltipText(row, col.key)">
+                    <span class="truncate-text" [appTooltip]="getTooltipText(row, col.key)">
                       {{ getCellValue(row, col.key) }}
                     </span>
                   }

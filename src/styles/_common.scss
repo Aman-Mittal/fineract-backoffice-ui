@@ -113,6 +113,34 @@ table[cdk-table] th {
   background-color: var(--card-bg);
 }
 
+/* Tooltip surface for TooltipDirective. Global because the element is appended to the
+   body, which puts it outside any component's style scope. */
+.app-tooltip {
+  position: absolute;
+  z-index: 10001;
+  max-width: 260px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--border-radius);
+  background: var(--secondary-color);
+  color: var(--card-bg);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
+}
+
+.app-tooltip--visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-tooltip {
+    transition: none;
+  }
+}
+
 /* Common Classes */
 .card {
   background-color: var(--card-bg);

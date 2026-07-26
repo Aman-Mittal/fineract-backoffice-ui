@@ -30,6 +30,7 @@ import { EditConfigurationDialogComponent } from './edit-configuration-dialog.co
 import { IonButton, IonIcon, IonToggle } from '@ionic/angular/standalone';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 /**
  * Component for managing global system configurations.
@@ -44,6 +45,7 @@ import { DialogService } from '../../core/services/dialog.service';
     IonIcon,
     IonButton,
     IonToggle,
+    TooltipDirective,
   ],
   template: `
     <app-data-table
@@ -69,7 +71,7 @@ import { DialogService } from '../../core/services/dialog.service';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [attr.title]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditConfig(config)"
         >
           <ion-icon name="create-outline"></ion-icon>

@@ -24,6 +24,7 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { WorkingCapitalLoansService, GetWorkingCapitalLoansLoanIdResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 /**
  * Lists Working Capital Loans. The list endpoint returns a Spring Data page
@@ -45,7 +46,14 @@ interface WcLoanRow {
 @Component({
   selector: 'app-wc-loans-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [
+    TranslateModule,
+    DataTableComponent,
+    CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    TooltipDirective,
+  ],
   template: `
     <app-data-table
       title="nav.wcLoans"
@@ -62,7 +70,7 @@ interface WcLoanRow {
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.VIEW' | translate"
-          [attr.title]="'COMMON.VIEW' | translate"
+          [appTooltip]="'COMMON.VIEW' | translate"
           (click)="onView(row)"
         >
           <ion-icon name="eye-outline"></ion-icon>
