@@ -17,19 +17,26 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonModal,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { DataTablesService, ResultsetColumnHeaderData } from '../../../api';
+import { NotificationService } from '../../../core/services/notification.service';
+import { toIsoDate } from '../../../core/utils/date-formatter';
 
 export interface DatatableEntryDialogData {
   datatableName: string;
@@ -45,103 +52,135 @@ const AUDIT_COLUMN_NAMES = new Set(['created_at', 'updated_at']);
   imports: [
     FormsModule,
     TranslateModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSnackBarModule,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonTextarea,
+    IonSelect,
+    IonSelectOption,
+    IonCheckbox,
+    IonButton,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
-    <h2 mat-dialog-title>{{ 'SYSTEM.ADD_ENTRY' | translate }}</h2>
-    <mat-dialog-content>
+    <div class="dialog">
+      <h2 class="dialog-title">{{ 'SYSTEM.ADD_ENTRY' | translate }}</h2>
+
       <form #entryForm="ngForm" class="entry-form">
         @for (col of dataColumns; track col.columnName) {
           @if (isDropdownColumn(col)) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ col.columnName }}</mat-label>
-              <mat-select
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ col.columnName }}</ion-label>
+              <ion-select
+                [attr.data-testid]="'datatable-field-' + col.columnName"
                 [name]="col.columnName!"
                 [(ngModel)]="values[col.columnName!]"
                 [required]="!!col.mandatory"
               >
                 @for (option of col.columnValues; track $any(option).id) {
-                  <mat-option [value]="$any(option).id">{{ $any(option).value }}</mat-option>
+                  <ion-select-option [value]="$any(option).id">
+                    {{ $any(option).value }}
+                  </ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
           } @else if (isBooleanColumn(col)) {
-            <mat-checkbox [name]="col.columnName!" [(ngModel)]="values[col.columnName!]">
-              {{ col.columnName }}
-            </mat-checkbox>
+            <ion-item>
+              <ion-checkbox
+                [attr.data-testid]="'datatable-field-' + col.columnName"
+                [name]="col.columnName!"
+                [(ngModel)]="values[col.columnName!]"
+              >
+                {{ col.columnName }}
+              </ion-checkbox>
+            </ion-item>
           } @else if (isDateColumn(col)) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ col.columnName }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                [name]="col.columnName!"
-                [(ngModel)]="values[col.columnName!]"
-                [required]="!!col.mandatory"
-              />
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ col.columnName }}</ion-label>
+              <ion-datetime-button [datetime]="'datatable-date-' + col.columnName">
+              </ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    [id]="'datatable-date-' + col.columnName"
+                    [attr.data-testid]="'datatable-field-' + col.columnName"
+                    presentation="date"
+                    [value]="$any(values[col.columnName!])"
+                    (ionChange)="onDateChange(col, $event)"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
           } @else if (isNumericColumn(col)) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ col.columnName }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ col.columnName }}</ion-label>
+              <ion-input
                 type="number"
+                [attr.data-testid]="'datatable-field-' + col.columnName"
                 [name]="col.columnName!"
                 [(ngModel)]="values[col.columnName!]"
                 [required]="!!col.mandatory"
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
           } @else {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ col.columnName }}</mat-label>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ col.columnName }}</ion-label>
               @if (col.columnDisplayType === 'TEXT') {
-                <textarea
-                  matInput
+                <ion-textarea
+                  [attr.data-testid]="'datatable-field-' + col.columnName"
                   [name]="col.columnName!"
                   [(ngModel)]="values[col.columnName!]"
                   [required]="!!col.mandatory"
                   rows="3"
-                ></textarea>
+                ></ion-textarea>
               } @else {
-                <input
-                  matInput
+                <ion-input
                   [maxlength]="col.columnLength ?? null"
+                  [attr.data-testid]="'datatable-field-' + col.columnName"
                   [name]="col.columnName!"
                   [(ngModel)]="values[col.columnName!]"
                   [required]="!!col.mandatory"
-                />
+                ></ion-input>
               }
-            </mat-form-field>
+            </ion-item>
           }
         }
       </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()" [disabled]="isSaving">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="entryForm.invalid || isSaving"
-        (click)="onSubmit()"
-      >
-        {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-      </button>
-    </mat-dialog-actions>
+
+      <div class="dialog-actions">
+        <ion-button
+          data-testid="datatable-entry-cancel"
+          fill="clear"
+          color="medium"
+          [disabled]="isSaving"
+          (click)="onCancel()"
+        >
+          {{ 'COMMON.CANCEL' | translate }}
+        </ion-button>
+        <ion-button
+          data-testid="datatable-entry-submit"
+          color="primary"
+          [disabled]="entryForm.invalid || isSaving"
+          (click)="onSubmit()"
+        >
+          {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+        </ion-button>
+      </div>
+    </div>
   `,
   styles: [
     `
+      .dialog {
+        padding: 20px 24px 12px;
+        background: var(--card-bg);
+        color: var(--text-color);
+      }
+      .dialog-title {
+        margin: 0 0 12px;
+        font-size: 1.25rem;
+      }
       .entry-form {
         display: flex;
         flex-direction: column;
@@ -149,24 +188,31 @@ const AUDIT_COLUMN_NAMES = new Set(['created_at', 'updated_at']);
         padding-top: 8px;
         min-width: 400px;
       }
-      .full-width {
-        width: 100%;
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
       }
     `,
   ],
 })
 export class DatatableEntryDialogComponent {
   private readonly datatablesService = inject(DataTablesService);
-  private readonly dialogRef = inject(MatDialogRef<DatatableEntryDialogComponent>);
-  private readonly snackBar = inject(MatSnackBar);
-  readonly data = inject<DatatableEntryDialogData>(MAT_DIALOG_DATA);
+  private readonly modalController = inject(ModalController);
+  private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
+
+  @Input({ required: true }) data!: DatatableEntryDialogData;
 
   values: Record<string, unknown> = {};
   isSaving = false;
 
-  readonly dataColumns: ResultsetColumnHeaderData[] = this.data.columns.filter(
-    (col) => !col.isColumnPrimaryKey && !AUDIT_COLUMN_NAMES.has(col.columnName ?? ''),
-  );
+  get dataColumns(): ResultsetColumnHeaderData[] {
+    return this.data.columns.filter(
+      (col) => !col.isColumnPrimaryKey && !AUDIT_COLUMN_NAMES.has(col.columnName ?? ''),
+    );
+  }
 
   isDropdownColumn(col: ResultsetColumnHeaderData): boolean {
     return !!col.columnValues && col.columnValues.length > 0;
@@ -184,16 +230,22 @@ export class DatatableEntryDialogComponent {
     return col.columnDisplayType === 'INTEGER' || col.columnDisplayType === 'DECIMAL';
   }
 
+  onDateChange(col: ResultsetColumnHeaderData, event: Event): void {
+    const detail = (event as CustomEvent<{ value?: string }>).detail;
+    const value = detail?.value ?? (event.target as HTMLInputElement)?.value;
+    if (value) this.values[col.columnName!] = toIsoDate(value);
+  }
+
   onSubmit(): void {
     this.isSaving = true;
 
     const body: Record<string, unknown> = { ...this.values };
-    const hasDateColumn = this.dataColumns.some((col) => this.isDateColumn(col));
-    for (const col of this.dataColumns) {
-      if (this.isDateColumn(col) && body[col.columnName!] instanceof Date) {
-        const date = body[col.columnName!] as Date;
-        body[col.columnName!] =
-          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const columns = this.dataColumns;
+    const hasDateColumn = columns.some((col) => this.isDateColumn(col));
+    for (const col of columns) {
+      const value = body[col.columnName!];
+      if (this.isDateColumn(col) && value) {
+        body[col.columnName!] = toIsoDate(value as Date | string);
       }
     }
     if (hasDateColumn) {
@@ -208,15 +260,15 @@ export class DatatableEntryDialogComponent {
         JSON.stringify(body),
       )
       .subscribe({
-        next: () => this.dialogRef.close(true),
+        next: () => this.modalController.dismiss(true),
         error: () => {
           this.isSaving = false;
-          this.snackBar.open('Operation failed. Please try again.', 'Close', { duration: 3000 });
+          this.notifications.error(this.translate.instant('COMMON.ERROR'));
         },
       });
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.modalController.dismiss();
   }
 }

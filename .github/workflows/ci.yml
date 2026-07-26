@@ -117,6 +117,10 @@ jobs:
       - run: npm ci
       - name: Verify translations
         run: npm run i18n:check
+      - name: Verify every ion-icon name is registered
+        run: npm run check:icons
+      - name: Verify Angular Material usage has not increased
+        run: npm run check:material
 
   test:
     name: Unit Tests

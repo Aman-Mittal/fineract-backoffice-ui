@@ -55,6 +55,15 @@ module.exports = tseslint.config(
         },
       ],
       'sonarjs/no-duplicate-string': 'error',
+      // NOTE: Angular Material imports are guarded by `npm run check:material`, a ratchet
+      // that fails when the number of files importing it goes up. A `no-restricted-imports`
+      // rule here would emit ~1200 warnings while the migration is in flight and drown the
+      // rest of the lint output. Once the ratchet reaches zero, replace it with:
+      //
+      //   'no-restricted-imports': ['error', { patterns: [{ group: ['@angular/material', '@angular/material/*'], ... }] }]
+      //
+      // @angular/cdk is deliberately not restricted — it is the unstyled primitives package
+      // (cdk-table, virtual scroll, a11y) and is here to stay.
     },
   },
   {

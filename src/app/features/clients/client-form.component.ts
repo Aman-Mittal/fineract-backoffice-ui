@@ -32,10 +32,10 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
+import { DialogService } from '../../core/services/dialog.service';
 import {
   ClientService,
   PostClientsRequest,
@@ -67,7 +67,6 @@ import {
     MatIconModule,
     MatProgressSpinnerModule,
     HelpIconComponent,
-    MatDialogModule,
   ],
   template: `
     <div class="form-container">
@@ -337,7 +336,7 @@ import {
 export class ClientFormComponent implements OnInit {
   private readonly clientService = inject(ClientService);
   private readonly officesService = inject(OfficesService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -379,19 +378,14 @@ export class ClientFormComponent implements OnInit {
     });
   }
 
-  addOffice() {
-    const dialogRef = this.dialog.open(CreateOfficeDialogComponent, {
-      width: '500px',
-    });
-
-    dialogRef.afterClosed().subscribe((newOfficeId) => {
-      if (newOfficeId) {
-        // Reload offices and select the new one
-        this.officesService.getOffices(true).subscribe((offices) => {
-          this.offices = offices;
-          this.client.officeId = newOfficeId;
-        });
-      }
+  addOffice(): Promise<void> {
+    return this.dialogService.open<number>(CreateOfficeDialogComponent).then((newOfficeId) => {
+      if (!newOfficeId) return;
+      // Reload offices and select the new one
+      this.officesService.getOffices(true).subscribe((offices) => {
+        this.offices = offices;
+        this.client.officeId = newOfficeId;
+      });
     });
   }
 

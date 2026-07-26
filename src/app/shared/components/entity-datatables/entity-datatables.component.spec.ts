@@ -18,8 +18,8 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialog } from '@angular/material/dialog';
+import { DialogService } from '../../../core/services/dialog.service';
+import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError, Observable } from 'rxjs';
 import { EntityDatatablesComponent } from './entity-datatables.component';
@@ -30,6 +30,7 @@ describe('EntityDatatablesComponent', () => {
   let component: EntityDatatablesComponent;
   let fixture: ComponentFixture<EntityDatatablesComponent>;
   let datatablesServiceSpy: jasmine.SpyObj<DataTablesService>;
+  let dialogServiceSpy: jasmine.SpyObj<DialogService>;
   let dialogSpy: jasmine.Spy;
 
   const mockDatatables: GetDataTablesResponse[] = [
@@ -66,10 +67,16 @@ describe('EntityDatatablesComponent', () => {
       'getDatatables',
       'getDatatablesDatatableApptableId',
     ]);
+    dialogServiceSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
+    dialogServiceSpy.open.and.resolveTo(undefined);
 
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule, EntityDatatablesComponent],
-      providers: [{ provide: DataTablesService, useValue: datatablesServiceSpy }],
+      imports: [TranslateModule.forRoot(), EntityDatatablesComponent],
+      providers: [
+        provideIonicTesting(),
+        { provide: DataTablesService, useValue: datatablesServiceSpy },
+        { provide: DialogService, useValue: dialogServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EntityDatatablesComponent);
@@ -77,12 +84,7 @@ describe('EntityDatatablesComponent', () => {
     component.apptableName = 'client';
     component.entityId = 123;
 
-    // The component imports MatDialogModule itself, so as a standalone
-    // component its `inject(MatDialog)` resolves from its own environment
-    // injector rather than the root TestBed injector — a DI-level provider
-    // override here doesn't reliably reach it. Spy directly on the instance
-    // the component actually holds instead.
-    dialogSpy = spyOn((component as unknown as { dialog: MatDialog }).dialog, 'open');
+    dialogSpy = dialogServiceSpy.open;
   });
 
   it('should create and load datatables on init', () => {
@@ -170,7 +172,9 @@ describe('EntityDatatablesComponent', () => {
     fixture.detectChanges();
 
     // Trigger tab change to second tab
-    component.onTabChange({ tab: { textLabel: 'm_client_more_details' } });
+    component.onTabChange(
+      new CustomEvent('ionChange', { detail: { value: 'm_client_more_details' } }),
+    );
 
     expect(component.activeTable).toEqual(mockDatatables[1]);
     expect(datatablesServiceSpy.getDatatablesDatatableApptableId).toHaveBeenCalledWith(
@@ -186,12 +190,10 @@ describe('EntityDatatablesComponent', () => {
     expect(colDefs[1].key).toBe('revenue');
   });
 
-  it('should open the add-entry dialog with the table columns and entity id', () => {
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(false));
-    dialogSpy.and.returnValue(dialogRefSpy);
+  it('should open the add-entry dialog with the table columns and entity id', async () => {
+    dialogSpy.and.resolveTo(false);
 
-    component.onAddEntry(mockDatatables[0]);
+    await component.onAddEntry(mockDatatables[0]);
 
     expect(dialogSpy).toHaveBeenCalledWith(
       DatatableEntryDialogComponent,
@@ -205,19 +207,26 @@ describe('EntityDatatablesComponent', () => {
     );
   });
 
-  it('should reload table data after a saved add-entry dialog closes', () => {
+  it('should reload table data after a saved add-entry dialog closes', async () => {
     datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
       of(mockTableDataResultSet) as unknown as Observable<never>,
     );
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(true));
-    dialogSpy.and.returnValue(dialogRefSpy);
+    dialogSpy.and.resolveTo(true);
 
-    component.onAddEntry(mockDatatables[0]);
+    await component.onAddEntry(mockDatatables[0]);
 
     expect(datatablesServiceSpy.getDatatablesDatatableApptableId).toHaveBeenCalledWith(
       'm_client_details',
       123,
     );
+  });
+
+  it('should not reload table data when the dialog is dismissed without saving', async () => {
+    dialogSpy.and.resolveTo(false);
+    datatablesServiceSpy.getDatatablesDatatableApptableId.calls.reset();
+
+    await component.onAddEntry(mockDatatables[0]);
+
+    expect(datatablesServiceSpy.getDatatablesDatatableApptableId).not.toHaveBeenCalled();
   });
 });
