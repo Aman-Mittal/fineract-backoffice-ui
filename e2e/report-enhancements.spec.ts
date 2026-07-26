@@ -22,7 +22,7 @@ import { test, expect } from '@playwright/test';
 const HEAD_OFFICE = 'Head Office';
 const ALICE_SMITH = 'Alice Smith';
 const KEVIN_BACON = 'Kevin Bacon';
-const MAT_CARD_TITLE = 'mat-card-title';
+const CARD_TITLE = 'ion-card-title';
 
 test.describe('Report Enhancements, Pagination, and Help Tour', () => {
   test.beforeEach(async ({ page }) => {
@@ -135,14 +135,14 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Navigate to Reporting
     await page.getByRole('link', { name: 'Reports' }).click();
     await expect(page).toHaveURL('/reporting');
-    await expect(page.locator(MAT_CARD_TITLE).first()).toContainText('Reports');
+    await expect(page.locator(CARD_TITLE).first()).toContainText('Reports');
 
     // Run the report
     await page.locator('button[matTooltip="Run Report"]').first().click();
     await expect(page).toHaveURL(/\/reporting\/run\/Active%20Clients%20Summary/);
 
     // Select an office and click Run
-    await page.locator('mat-select').click();
+    await page.locator('ion-select').click();
     await page.getByRole('option', { name: HEAD_OFFICE }).click();
     await page.getByRole('button', { name: 'Run Report' }).click();
 
@@ -158,7 +158,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await expect(page.locator('table')).not.toContainText(KEVIN_BACON); // Should be on page 2
 
     // Check pagination range label
-    const paginatorRange = page.locator('.mat-mdc-paginator-range-label');
+    const paginatorRange = page.locator('[data-testid="paginator-range-label"]');
     await expect(paginatorRange).toContainText('1 – 10 of 12');
 
     // Navigate to the next page
@@ -187,7 +187,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     // Verify tour card is visible
     const tourCard = page.locator('app-guidance-tour');
     await expect(tourCard).toBeVisible();
-    await expect(tourCard.locator(MAT_CARD_TITLE)).toContainText('Welcome to Fineract Backoffice');
+    await expect(tourCard.locator(CARD_TITLE)).toContainText('Welcome to Fineract Backoffice');
 
     // Click Next to proceed
     const nextBtn = page.getByRole('button', { name: 'Next' });
@@ -195,7 +195,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await nextBtn.click();
 
     // Card should update its header
-    await expect(tourCard.locator(MAT_CARD_TITLE)).toContainText('System Overview & Status');
+    await expect(tourCard.locator(CARD_TITLE)).toContainText('System Overview & Status');
 
     // Click Exit to close the tour
     const exitBtn = page.getByRole('button', { name: 'Exit' });

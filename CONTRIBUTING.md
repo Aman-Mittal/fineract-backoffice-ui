@@ -33,7 +33,6 @@ Thank you for your interest in contributing! This project is a GSOC 2026 initiat
     - `npm test -- --watch=false`
     - `npm run build`
     - `npm run check:icons` — every `<ion-icon name="...">` is registered
-    - `npm run check:material` — Angular Material usage has not increased
     - `npm run i18n:check` — translations are complete
 6.  **Ensure License Headers**: All new files must include the Apache License 2.0 header. You can verify this with `./scripts/check-license.sh`.
 7.  **Submit a Pull Request** against the `develop` branch.
@@ -57,19 +56,10 @@ Two conventions are easy to miss and fail silently:
 `@angular/cdk` is retained deliberately — use it for unstyled primitives (`cdk-table`, virtual
 scroll, a11y) rather than reaching back to Material.
 
-### The Material ratchet
+### No Angular Material
 
-`npm run check:material` counts the files still importing `@angular/material` and fails if that
-number **goes up**, so the migration cannot regress. When your change migrates files, lower the
-committed baseline:
-
-```bash
-node scripts/check-material.mjs --update
-```
-
-Commit the updated `scripts/material-baseline.json` with your change. When the count reaches zero,
-delete the script and baseline and enable the `no-restricted-imports` rule described in
-`eslint.config.js`.
+Angular Material has been fully removed. `npm run lint` fails on any import of
+`@angular/material`, so it cannot come back by accident.
 
 ## Dependencies
 

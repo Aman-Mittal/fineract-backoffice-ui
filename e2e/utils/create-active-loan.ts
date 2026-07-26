@@ -19,7 +19,7 @@
 
 import { Page, expect } from '@playwright/test';
 import { uniqueSuffix } from './fineract-login';
-import { selectMatOption } from './select-mat-option';
+import { selectOption } from './select-option';
 
 const NUMBER_OF_REPAYMENTS_LABEL = 'Number of Repayments';
 const REPAYMENT_EVERY_LABEL = 'Repayment Every';
@@ -69,18 +69,18 @@ export async function createActiveLoan(
   await page.goto('/loans/create', { waitUntil: 'networkidle' });
   await page.getByRole('combobox', { name: 'Client ID' }).fill(firstName);
   await page.getByRole('option', { name: new RegExp(firstName) }).click();
-  await selectMatOption(page, 'Loan Product', productName);
+  await selectOption(page, 'Loan Product', productName);
   await expect(page.getByText(/Loan Schedule Type:\s*Cumulative/)).toBeVisible({ timeout: 15000 });
   await page.getByRole('spinbutton', { name: 'Principal', exact: true }).fill('1000');
   await page.getByRole('spinbutton', { name: 'Term Frequency' }).fill('3');
-  await selectMatOption(page, 'Term Type', 'Months');
+  await selectOption(page, 'Term Type', 'Months');
   await page.getByRole('spinbutton', { name: NUMBER_OF_REPAYMENTS_LABEL }).fill('3');
   await page.getByRole('spinbutton', { name: REPAYMENT_EVERY_LABEL }).fill('1');
-  await selectMatOption(page, 'Frequency', 'Months');
+  await selectOption(page, 'Frequency', 'Months');
   await page.getByRole('spinbutton', { name: INTEREST_RATE_LABEL }).fill('10');
-  await selectMatOption(page, 'Interest Type', 'Declining Balance');
-  await selectMatOption(page, 'Amortization Type', 'Equal Installments');
-  await selectMatOption(page, 'Interest Calculation Period Type', 'Same as repayment period');
+  await selectOption(page, 'Interest Type', 'Declining Balance');
+  await selectOption(page, 'Amortization Type', 'Equal Installments');
+  await selectOption(page, 'Interest Calculation Period Type', 'Same as repayment period');
 
   const [response] = await Promise.all([
     page.waitForResponse(

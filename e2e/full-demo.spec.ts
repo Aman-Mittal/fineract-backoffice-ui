@@ -36,7 +36,7 @@
 
 import { test, expect } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
-import { selectMatOption } from './utils/select-mat-option';
+import { selectOption } from './utils/select-option';
 
 test.use({ video: 'on', trace: 'on', launchOptions: { slowMo: 350 } });
 
@@ -75,7 +75,7 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('spinbutton', { name: NUMBER_OF_REPAYMENTS_LABEL }).fill('6');
     await page.getByRole('spinbutton', { name: REPAYMENT_EVERY_LABEL }).fill('1');
 
-    await selectMatOption(page, LOAN_SCHEDULE_TYPE_LABEL, 'Progressive');
+    await selectOption(page, LOAN_SCHEDULE_TYPE_LABEL, 'Progressive');
     await expect(page.getByRole('combobox', { name: 'Repayment Strategy' })).toBeDisabled();
     await expect(
       page.getByRole('combobox', { name: 'Loan Schedule Processing Type' }),
@@ -92,7 +92,7 @@ test.describe('Full feature demo recording', () => {
     await page.getByPlaceholder('Type to search...').fill(progressiveProductName);
     const progressiveRow = page.getByRole('row', { name: new RegExp(progressiveProductName) });
     await expect(progressiveRow).toBeVisible({ timeout: 15000 });
-    await expect(progressiveRow.locator('mat-chip')).toHaveText('Progressive');
+    await expect(progressiveRow.locator('ion-chip')).toHaveText('Progressive');
 
     await progressiveRow.getByRole('button', { name: 'View' }).click();
     await expect(page).toHaveURL(/\/products\/loan\/view\/\d+$/);
@@ -141,21 +141,21 @@ test.describe('Full feature demo recording', () => {
     await page.goto('/loans/create', { waitUntil: 'networkidle' });
     await page.getByRole('combobox', { name: 'Client ID' }).fill(firstName);
     await page.getByRole('option', { name: new RegExp(firstName) }).click();
-    await selectMatOption(page, 'Loan Product', cumulativeProductName);
+    await selectOption(page, 'Loan Product', cumulativeProductName);
     await expect(page.getByText(/Loan Schedule Type:\s*Cumulative/)).toBeVisible({
       timeout: 15000,
     });
     await page.waitForTimeout(1500);
     await page.getByRole('spinbutton', { name: 'Principal', exact: true }).fill('1000');
     await page.getByRole('spinbutton', { name: 'Term Frequency' }).fill('3');
-    await selectMatOption(page, 'Term Type', 'Months');
+    await selectOption(page, 'Term Type', 'Months');
     await page.getByRole('spinbutton', { name: NUMBER_OF_REPAYMENTS_LABEL }).fill('3');
     await page.getByRole('spinbutton', { name: REPAYMENT_EVERY_LABEL }).fill('1');
-    await selectMatOption(page, 'Frequency', 'Months');
+    await selectOption(page, 'Frequency', 'Months');
     await page.getByRole('spinbutton', { name: INTEREST_RATE_LABEL }).fill('10');
-    await selectMatOption(page, 'Interest Type', 'Declining Balance');
-    await selectMatOption(page, 'Amortization Type', 'Equal Installments');
-    await selectMatOption(page, 'Interest Calculation Period Type', 'Same as repayment period');
+    await selectOption(page, 'Interest Type', 'Declining Balance');
+    await selectOption(page, 'Amortization Type', 'Equal Installments');
+    await selectOption(page, 'Interest Calculation Period Type', 'Same as repayment period');
 
     const [response] = await Promise.all([
       page.waitForResponse(
@@ -242,7 +242,7 @@ test.describe('Full feature demo recording', () => {
     await page.waitForTimeout(1500);
     const repaymentRow = page.getByRole('row', { name: /Repayment/ }).first();
     await expect(repaymentRow).toBeVisible({ timeout: 10000 });
-    await repaymentRow.locator('mat-icon:text("visibility")').click();
+    await repaymentRow.locator('ion-icon[name="eye-outline"]').click();
     const txDialog = page.getByRole('dialog');
     await expect(txDialog).toBeVisible();
     await page.waitForTimeout(2000);

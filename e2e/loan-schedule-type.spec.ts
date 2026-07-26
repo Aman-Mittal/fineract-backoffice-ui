@@ -72,7 +72,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     await page.goto('/products/loan');
     await expect(page.getByRole('columnheader', { name: LOAN_SCHEDULE_TYPE_LABEL })).toBeVisible();
     // At least one chip (Cumulative or Progressive) should render in the table.
-    await expect(page.locator('mat-chip').first()).toBeVisible();
+    await expect(page.locator('ion-chip').first()).toBeVisible();
   });
 
   test('create a Progressive loan product end-to-end and verify it round-trips', async ({
@@ -142,7 +142,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       await page.getByPlaceholder('Type to search...').fill(productName);
       await expect(productRow).toBeVisible({ timeout: 3000 });
     }).toPass({ timeout: 20000, intervals: [1000, 2000, 3000] });
-    await expect(productRow.locator('mat-chip')).toHaveText('Progressive');
+    await expect(productRow.locator('ion-chip')).toHaveText('Progressive');
 
     // View page: confirm the Loan Schedule section and payment allocation
     // survive the round trip through the real backend.

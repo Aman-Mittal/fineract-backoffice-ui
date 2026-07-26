@@ -48,10 +48,10 @@ This project follows strict engineering standards to ensure high-quality, mainta
 The UI layer is **Ionic** (`@ionic/angular` v8). Ionic is configured in `mode: 'md'`
 (`src/app/app.config.ts`), so components render in Material Design styling.
 
-> **Migration in progress.** Angular Material is being removed. Some components still import
-> `@angular/material` — see the notes below for the equivalent when you touch one. **Do not add
-> new `@angular/material` imports.** `@angular/cdk` is retained and is fine to use for
-> unstyled primitives (`cdk-table`, virtual scroll, a11y).
+> Angular Material has been removed entirely, and `npm run lint` fails on any import of it.
+> The table below records the equivalents, which are also the conventions for new code.
+> `@angular/cdk` is retained and is fine to use for unstyled primitives (`cdk-table`, virtual
+> scroll, a11y) — the shared data table is built on it.
 
 ### Importing Ionic components
 
@@ -70,7 +70,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 ### Component equivalents
 
-| Instead of                            | Use                                                                      |
+| Material (removed)                    | Ionic equivalent                                                         |
 | ------------------------------------- | ------------------------------------------------------------------------ |
 | `mat-card`                            | `ion-card` / `ion-card-header` / `ion-card-title` / `ion-card-content`   |
 | `mat-form-field` + `matInput`         | `ion-item fill="outline"` + `ion-label position="stacked"` + `ion-input` |

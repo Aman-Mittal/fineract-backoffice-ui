@@ -49,8 +49,8 @@ enforced server-side (see `security.md`).
 
 ## UI components — Ionic
 
-The UI layer is **Ionic** (`@ionic/angular` v8) in `mode: 'md'`. Angular Material is being
-removed; **do not add new `@angular/material` imports**. `@angular/cdk` is retained for unstyled
+The UI layer is **Ionic** (`@ionic/angular` v8) in `mode: 'md'`. Angular Material has been
+removed and `npm run lint` blocks any import of it. `@angular/cdk` is retained for unstyled
 primitives. `STYLE.md` holds the full component mapping — the essentials:
 
 - Import individual components from `@ionic/angular/standalone` into the component's `imports`
