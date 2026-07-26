@@ -21,22 +21,21 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CdkTableModule } from '@angular/cdk/table';
-import { formatDateToFineract } from '../../../core/utils/date-formatter';
+import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
 } from '@ionic/angular/standalone';
 
 import {
@@ -52,10 +51,6 @@ import {
     FormsModule,
     DecimalPipe,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     CdkTableModule,
     MatProgressSpinnerModule,
     IonButton,
@@ -66,6 +61,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <ion-card>
@@ -75,12 +73,22 @@ import {
 
       <ion-card-content>
         <div class="search-form">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOANS_POINT_IN_TIME.DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="picker" [(ngModel)]="searchDate" required />
-            <mat-datepicker-toggle matIconSuffix [for]="picker" />
-            <mat-datepicker #picker />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'LOANS_POINT_IN_TIME.DATE' | translate }}</ion-label>
+            <ion-datetime-button datetime="searchDate-picker"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  id="searchDate-picker"
+                  data-testid="searchDate-picker"
+                  presentation="date"
+                  name="searchDate"
+                  [(ngModel)]="searchDate"
+                  required
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{
@@ -187,7 +195,7 @@ import {
   ],
 })
 export class LoansPointInTimeComponent {
-  searchDate: Date = new Date();
+  searchDate = toIsoDate(new Date());
   loanIdsInput = '';
   results = signal<LoanPointInTimeData[]>([]);
   isLoading = false;

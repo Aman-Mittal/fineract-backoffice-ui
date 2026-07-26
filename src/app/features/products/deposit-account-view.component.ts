@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
@@ -33,7 +32,10 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonList,
+  IonPopover,
   IonSegment,
   IonSegmentButton,
 } from '@ionic/angular/standalone';
@@ -44,7 +46,6 @@ import {
   imports: [
     TranslateModule,
     CdkTableModule,
-    MatMenuModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
     DecimalPipe,
@@ -58,6 +59,9 @@ import {
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    IonPopover,
+    IonList,
+    IonItem,
   ],
   template: `
     @if (account()) {
@@ -79,22 +83,26 @@ import {
               </div>
             </div>
             <div class="actions-area">
-              <ion-button color="primary" [matMenuTriggerFor]="actionsMenu">
+              <ion-button color="primary" id="actionsMenu-trigger">
                 <ion-icon name="settings-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
               </ion-button>
-              <mat-menu #actionsMenu="matMenu">
-                @if (isRD) {
-                  <button mat-menu-item (click)="onDeposit()">
-                    <ion-icon name="add-outline"></ion-icon>
-                    <span>{{ 'SAVINGS.DEPOSIT' | translate }}</span>
-                  </button>
-                }
-                <button mat-menu-item (click)="onWithdraw()">
-                  <ion-icon name="remove-outline"></ion-icon>
-                  <span>{{ 'SAVINGS.WITHDRAW' | translate }}</span>
-                </button>
-              </mat-menu>
+              <ion-popover trigger="actionsMenu-trigger" [dismissOnSelect]="true">
+                <ng-template>
+                  <ion-list>
+                    @if (isRD) {
+                      <ion-item button (click)="onDeposit()">
+                        <ion-icon slot="start" name="add-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.DEPOSIT' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    <ion-item button (click)="onWithdraw()">
+                      <ion-icon slot="start" name="remove-outline"></ion-icon>
+                      <ion-label>{{ 'SAVINGS.WITHDRAW' | translate }}</ion-label>
+                    </ion-item>
+                  </ion-list>
+                </ng-template>
+              </ion-popover>
 
               <ion-button fill="clear" (click)="onBack()">
                 <ion-icon name="arrow-back-outline"></ion-icon>

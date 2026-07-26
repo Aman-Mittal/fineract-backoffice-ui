@@ -20,10 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
@@ -36,10 +32,13 @@ import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
   IonButton,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
@@ -59,10 +58,6 @@ export interface AuditFilters {
   standalone: true,
   imports: [
     TranslateModule,
-    MatFormFieldModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatInputModule,
     MatExpansionModule,
     FormsModule,
     DataTableComponent,
@@ -75,6 +70,9 @@ export interface AuditFilters {
     IonLabel,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="audit-logs-container">
@@ -121,23 +119,41 @@ export interface AuditFilters {
             ></ion-input>
           </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Maker Date From</mat-label>
-            <input
-              matInput
-              [matDatepicker]="makerFrom"
-              [(ngModel)]="activeFilters.makerDateTimeFrom"
-            />
-            <mat-datepicker-toggle matSuffix [for]="makerFrom"></mat-datepicker-toggle>
-            <mat-datepicker #makerFrom></mat-datepicker>
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">Maker Date From</ion-label>
+            <ion-datetime-button
+              datetime="activeFiltersmakerDateTimeFrom-picker"
+            ></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  id="activeFiltersmakerDateTimeFrom-picker"
+                  data-testid="activeFiltersmakerDateTimeFrom-picker"
+                  presentation="date"
+                  name="activeFiltersmakerDateTimeFrom"
+                  [(ngModel)]="activeFilters.makerDateTimeFrom"
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Maker Date To</mat-label>
-            <input matInput [matDatepicker]="makerTo" [(ngModel)]="activeFilters.makerDateTimeTo" />
-            <mat-datepicker-toggle matSuffix [for]="makerTo"></mat-datepicker-toggle>
-            <mat-datepicker #makerTo></mat-datepicker>
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">Maker Date To</ion-label>
+            <ion-datetime-button
+              datetime="activeFiltersmakerDateTimeTo-picker"
+            ></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  id="activeFiltersmakerDateTimeTo-picker"
+                  data-testid="activeFiltersmakerDateTimeTo-picker"
+                  presentation="date"
+                  name="activeFiltersmakerDateTimeTo"
+                  [(ngModel)]="activeFilters.makerDateTimeTo"
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">Processing Result</ion-label>

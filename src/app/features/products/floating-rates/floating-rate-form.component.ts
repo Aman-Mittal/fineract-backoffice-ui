@@ -21,10 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { FloatingRatesService, FloatingRateRequest } from '../../../api';
 import {
   IonButton,
@@ -33,10 +29,13 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -61,10 +60,6 @@ interface RatePeriodRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     IonIcon,
     IonButton,
     IonSpinner,
@@ -76,6 +71,9 @@ interface RatePeriodRow {
     IonCardTitle,
     IonCard,
     IonCheckbox,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -117,18 +115,24 @@ interface RatePeriodRow {
 
               @for (period of periods; track $index) {
                 <div class="period-row">
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'FLOATING_RATES.FROM_DATE' | translate }}</mat-label>
-                    <input
-                      matInput
-                      [matDatepicker]="picker"
-                      [name]="'fromDate' + $index"
-                      [(ngModel)]="period.fromDate"
-                      required
-                    />
-                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
-                  </mat-form-field>
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">{{
+                      'FLOATING_RATES.FROM_DATE' | translate
+                    }}</ion-label>
+                    <ion-datetime-button datetime="periodfromDate-picker"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="periodfromDate-picker"
+                          data-testid="periodfromDate-picker"
+                          presentation="date"
+                          name="periodfromDate"
+                          [(ngModel)]="period.fromDate"
+                          required
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
+                  </ion-item>
 
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{

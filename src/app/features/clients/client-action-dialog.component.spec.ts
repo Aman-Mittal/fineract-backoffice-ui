@@ -85,7 +85,7 @@ describe('ClientActionDialogComponent', () => {
     it('should close dialog with data on confirmation', () => {
       component.onConfirm();
       expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
-        actionDate: jasmine.any(Date),
+        actionDate: jasmine.any(String),
         reasonId: undefined,
         note: '',
       });
@@ -97,7 +97,7 @@ describe('ClientActionDialogComponent', () => {
     });
 
     it('should be invalid if actionDate is null/falsy', () => {
-      component.actionDate = null as unknown as Date;
+      component.actionDate = null as unknown as string;
       expect(component.isValid).toBeFalse();
     });
   });
@@ -145,7 +145,7 @@ describe('ClientActionDialogComponent', () => {
       component.note = 'Rejecting due to duplicates';
       component.onConfirm();
       expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
-        actionDate: jasmine.any(Date),
+        actionDate: jasmine.any(String),
         reasonId: 101,
         note: 'Rejecting due to duplicates',
       });

@@ -65,12 +65,15 @@ function transform(source, file, report) {
       if (!input) return whole;
 
       const attrs = input[1];
-      const name = (attrs.match(/\bname="([^"]+)"/) || [])[1];
       const model = (attrs.match(/\[\(ngModel\)\]="([^"]+)"/) || [])[1];
-      if (!name || !model) return whole;
+      if (!model) return whole;
+      // ngModel inside a form needs a name; fall back to the bound property when absent.
+      const name = (attrs.match(/\bname="([^"]+)"/) || [])[1] ?? model.replace(/[^\w]/g, '');
 
       const required = /\brequired\b/.test(attrs);
       const disabled = attrs.match(/\[disabled\]="([^"]+)"/);
+      const max = attrs.match(/\[max\]="([^"]+)"/);
+      const min = attrs.match(/\[min\]="([^"]+)"/);
       const id = `${name}-picker`;
       fields.add(model);
 
@@ -98,7 +101,7 @@ function transform(source, file, report) {
         `        name="${name}"\n` +
         `        [(ngModel)]="${model}"${required ? '\n        required' : ''}${
           disabled ? `\n        [disabled]="${disabled[1]}"` : ''
-        }\n` +
+        }${max ? `\n        [max]="${max[1]}"` : ''}${min ? `\n        [min]="${min[1]}"` : ''}\n` +
         `      ></ion-datetime>\n` +
         `    </ng-template>\n` +
         `  </ion-modal>\n` +

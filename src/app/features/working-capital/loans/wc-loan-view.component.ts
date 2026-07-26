@@ -20,14 +20,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe } from '@angular/common';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonList,
+  IonPopover,
   IonSegment,
   IonSegmentButton,
 } from '@ionic/angular/standalone';
@@ -58,7 +60,6 @@ import {
   imports: [
     TranslateModule,
     CdkTableModule,
-    MatMenuModule,
     DecimalPipe,
     IonIcon,
     IonButton,
@@ -67,6 +68,9 @@ import {
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    IonPopover,
+    IonList,
+    IonItem,
   ],
   template: `
     <div class="view-container">
@@ -124,38 +128,42 @@ import {
               </ion-button>
             }
 
-            <ion-button [matMenuTriggerFor]="loanMenu">
+            <ion-button id="loanMenu-trigger">
               <ion-icon name="caret-down-outline"></ion-icon>
               {{ 'COMMON.ACTIONS' | translate }}
             </ion-button>
-            <mat-menu #loanMenu="matMenu">
-              @if (isLoanPendingApproval) {
-                <button mat-menu-item (click)="onEdit()">
-                  <ion-icon name="create-outline"></ion-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.MODIFY' | translate }}</span>
-                </button>
-                <button mat-menu-item (click)="onAction('reject')">
-                  <ion-icon name="close-circle-outline"></ion-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.REJECT' | translate }}</span>
-                </button>
-              }
-              @if (isLoanApproved) {
-                <button mat-menu-item (click)="onAction('undoapproval')">
-                  <ion-icon name="arrow-undo-outline"></ion-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</span>
-                </button>
-              }
-              @if (isLoanActive) {
-                <button mat-menu-item (click)="onAction('undodisbursal')">
-                  <ion-icon name="arrow-undo-outline"></ion-icon>
-                  <span>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
-                </button>
-              }
-              <button mat-menu-item (click)="onDelete()">
-                <ion-icon name="trash-outline"></ion-icon>
-                <span>{{ 'WC_LOANS.ACTIONS.DELETE' | translate }}</span>
-              </button>
-            </mat-menu>
+            <ion-popover trigger="loanMenu-trigger" [dismissOnSelect]="true">
+              <ng-template>
+                <ion-list>
+                  @if (isLoanPendingApproval) {
+                    <ion-item button (click)="onEdit()">
+                      <ion-icon slot="start" name="create-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.MODIFY' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item button (click)="onAction('reject')">
+                      <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.REJECT' | translate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanApproved) {
+                    <ion-item button (click)="onAction('undoapproval')">
+                      <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanActive) {
+                    <ion-item button (click)="onAction('undodisbursal')">
+                      <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
+                    </ion-item>
+                  }
+                  <ion-item button (click)="onDelete()">
+                    <ion-icon slot="start" name="trash-outline"></ion-icon>
+                    <ion-label>{{ 'WC_LOANS.ACTIONS.DELETE' | translate }}</ion-label>
+                  </ion-item>
+                </ion-list>
+              </ng-template>
+            </ion-popover>
           </div>
         </ion-card-content>
       </ion-card>

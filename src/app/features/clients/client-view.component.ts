@@ -20,7 +20,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe } from '@angular/common';
 import {
   ClientService,
@@ -54,7 +53,10 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonList,
+  IonPopover,
   IonSegment,
   IonSegmentButton,
 } from '@ionic/angular/standalone';
@@ -72,7 +74,6 @@ interface ClientActionResult {
   imports: [
     RouterModule,
     TranslateModule,
-    MatMenuModule,
     CdkTableModule,
     StatusBadgeComponent,
     HasPermissionDirective,
@@ -92,6 +93,9 @@ interface ClientActionResult {
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    IonPopover,
+    IonList,
+    IonItem,
   ],
   template: `
     <div class="view-container">
@@ -132,7 +136,7 @@ interface ClientActionResult {
               <ion-button
                 fill="outline"
                 color="accent"
-                [matMenuTriggerFor]="clientActionsMenu"
+                id="clientActionsMenu-trigger"
                 *appHasPermission="[
                   'ACTIVATE_CLIENT',
                   'CLOSE_CLIENT',
@@ -148,118 +152,126 @@ interface ClientActionResult {
                 {{ 'COMMON.ACTIONS' | translate }}
               </ion-button>
 
-              <mat-menu #clientActionsMenu="matMenu">
-                @if (client()?.status?.id === 100) {
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('activate')"
-                    *appHasPermission="'ACTIVATE_CLIENT'"
-                  >
-                    <ion-icon name="play-circle-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.ACTIVATE_CLIENT' | translate }}</span>
-                  </button>
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('reject')"
-                    *appHasPermission="'REJECT_CLIENT'"
-                  >
-                    <ion-icon name="alert-circle-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.REJECT_CLIENT' | translate }}</span>
-                  </button>
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('withdraw')"
-                    *appHasPermission="'WITHDRAW_CLIENT'"
-                  >
-                    <ion-icon name="close-circle-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.WITHDRAW_CLIENT' | translate }}</span>
-                  </button>
-                  <button
-                    mat-menu-item
-                    (click)="onDeleteClient()"
-                    *appHasPermission="'DELETE_CLIENT'"
-                  >
-                    <ion-icon name="trash-outline"></ion-icon>
-                    <span>{{ 'COMMON.DELETE' | translate }}</span>
-                  </button>
-                }
-                @if (client()?.status?.id === 300) {
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('close')"
-                    *appHasPermission="'CLOSE_CLIENT'"
-                  >
-                    <ion-icon name="close-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.CLOSE_CLIENT' | translate }}</span>
-                  </button>
-                }
-                @if (client()?.status?.id === 600) {
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('reactivate')"
-                    *appHasPermission="'REACTIVATE_CLIENT'"
-                  >
-                    <ion-icon name="refresh-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.REACTIVATE_CLIENT' | translate }}</span>
-                  </button>
-                }
-                @if (client()?.status?.id === 500) {
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('undoReject')"
-                    *appHasPermission="'UNDOREJECT_CLIENT'"
-                  >
-                    <ion-icon name="arrow-undo-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.UNDO_REJECT_CLIENT' | translate }}</span>
-                  </button>
-                }
-                @if (client()?.status?.id === 400) {
-                  <button
-                    mat-menu-item
-                    (click)="onClientAction('undoWithdraw')"
-                    *appHasPermission="'UNDOWITHDRAW_CLIENT'"
-                  >
-                    <ion-icon name="arrow-undo-outline"></ion-icon>
-                    <span>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | translate }}</span>
-                  </button>
-                }
-              </mat-menu>
+              <ion-popover trigger="clientActionsMenu-trigger" [dismissOnSelect]="true">
+                <ng-template>
+                  <ion-list>
+                    @if (client()?.status?.id === 100) {
+                      <ion-item
+                        button
+                        (click)="onClientAction('activate')"
+                        *appHasPermission="'ACTIVATE_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="play-circle-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.ACTIVATE_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        (click)="onClientAction('reject')"
+                        *appHasPermission="'REJECT_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.REJECT_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        (click)="onClientAction('withdraw')"
+                        *appHasPermission="'WITHDRAW_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.WITHDRAW_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        (click)="onDeleteClient()"
+                        *appHasPermission="'DELETE_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="trash-outline"></ion-icon>
+                        <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    @if (client()?.status?.id === 300) {
+                      <ion-item
+                        button
+                        (click)="onClientAction('close')"
+                        *appHasPermission="'CLOSE_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="close-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.CLOSE_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    @if (client()?.status?.id === 600) {
+                      <ion-item
+                        button
+                        (click)="onClientAction('reactivate')"
+                        *appHasPermission="'REACTIVATE_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.REACTIVATE_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    @if (client()?.status?.id === 500) {
+                      <ion-item
+                        button
+                        (click)="onClientAction('undoReject')"
+                        *appHasPermission="'UNDOREJECT_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.UNDO_REJECT_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    @if (client()?.status?.id === 400) {
+                      <ion-item
+                        button
+                        (click)="onClientAction('undoWithdraw')"
+                        *appHasPermission="'UNDOWITHDRAW_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                  </ion-list>
+                </ng-template>
+              </ion-popover>
 
-              <ion-button color="primary" [matMenuTriggerFor]="createMenu">
+              <ion-button color="primary" id="createMenu-trigger">
                 <ion-icon name="add-outline"></ion-icon>
                 {{ 'ACTIONS.NEW_ACCOUNT' | translate }}
               </ion-button>
 
-              <mat-menu #createMenu="matMenu">
-                <button mat-menu-item (click)="onCreateLoan()" *appHasPermission="'CREATE_LOAN'">
-                  <ion-icon name="business-outline"></ion-icon>
-                  <span>{{ 'ACTIONS.LOAN_ACCOUNT' | translate }}</span>
-                </button>
-                <button
-                  mat-menu-item
-                  (click)="onCreateSavings()"
-                  *appHasPermission="'CREATE_SAVINGSACCOUNT'"
-                >
-                  <ion-icon name="wallet-outline"></ion-icon>
-                  <span>{{ 'ACTIONS.SAVINGS_ACCOUNT' | translate }}</span>
-                </button>
-                <button
-                  mat-menu-item
-                  (click)="onCreateFixed()"
-                  *appHasPermission="'CREATE_FIXEDDEPOSITACCOUNT'"
-                >
-                  <ion-icon name="lock-closed-outline"></ion-icon>
-                  <span>{{ 'ACTIONS.FIXED_DEPOSIT' | translate }}</span>
-                </button>
-                <button
-                  mat-menu-item
-                  (click)="onCreateRecurring()"
-                  *appHasPermission="'CREATE_RECURRINGDEPOSITACCOUNT'"
-                >
-                  <ion-icon name="refresh-circle-outline"></ion-icon>
-                  <span>{{ 'ACTIONS.RECURRING_DEPOSIT' | translate }}</span>
-                </button>
-              </mat-menu>
+              <ion-popover trigger="createMenu-trigger" [dismissOnSelect]="true">
+                <ng-template>
+                  <ion-list>
+                    <ion-item button (click)="onCreateLoan()" *appHasPermission="'CREATE_LOAN'">
+                      <ion-icon slot="start" name="business-outline"></ion-icon>
+                      <ion-label>{{ 'ACTIONS.LOAN_ACCOUNT' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item
+                      button
+                      (click)="onCreateSavings()"
+                      *appHasPermission="'CREATE_SAVINGSACCOUNT'"
+                    >
+                      <ion-icon slot="start" name="wallet-outline"></ion-icon>
+                      <ion-label>{{ 'ACTIONS.SAVINGS_ACCOUNT' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item
+                      button
+                      (click)="onCreateFixed()"
+                      *appHasPermission="'CREATE_FIXEDDEPOSITACCOUNT'"
+                    >
+                      <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                      <ion-label>{{ 'ACTIONS.FIXED_DEPOSIT' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item
+                      button
+                      (click)="onCreateRecurring()"
+                      *appHasPermission="'CREATE_RECURRINGDEPOSITACCOUNT'"
+                    >
+                      <ion-icon slot="start" name="refresh-circle-outline"></ion-icon>
+                      <ion-label>{{ 'ACTIONS.RECURRING_DEPOSIT' | translate }}</ion-label>
+                    </ion-item>
+                  </ion-list>
+                </ng-template>
+              </ion-popover>
 
               <ion-button fill="clear" (click)="onBack()">
                 <ion-icon name="arrow-back-outline"></ion-icon>

@@ -22,10 +22,6 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
 import { HelpIconComponent } from '../../shared';
 import { NotificationService } from '../../core/services/notification.service';
@@ -39,9 +35,12 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonDatetime,
+  IonDatetimeButton,
   IonIcon,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
@@ -52,10 +51,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     CdkTableModule,
     PaginatorComponent,
     HelpIconComponent,
@@ -69,6 +64,9 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -91,19 +89,37 @@ import {
               </ion-select>
             </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.FROM_DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" />
-              <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
-              <mat-datepicker #fromPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.FROM_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="fromDate-picker"
+                    data-testid="fromDate-picker"
+                    presentation="date"
+                    name="fromDate"
+                    [(ngModel)]="fromDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.TO_DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" />
-              <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
-              <mat-datepicker #toPicker></mat-datepicker>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.TO_DATE' | translate }}</ion-label>
+              <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="toDate-picker"
+                    data-testid="toDate-picker"
+                    presentation="date"
+                    name="toDate"
+                    [(ngModel)]="toDate"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
           </div>
 
           <div class="form-actions">
@@ -198,8 +214,8 @@ export class RunReportComponent implements OnInit {
   isLoading = false;
 
   officeId: number | undefined = undefined;
-  fromDate: Date | null = null;
-  toDate: Date | null = null;
+  fromDate: string | null = null;
+  toDate: string | null = null;
 
   offices: GetOfficesResponse[] = [];
   reportData: Record<string, unknown> | null = null;

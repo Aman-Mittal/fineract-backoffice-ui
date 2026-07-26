@@ -18,21 +18,21 @@
  */
 
 import { Component, OnInit, inject, Input } from '@angular/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
+  IonDatetime,
+  IonDatetimeButton,
   IonItem,
   IonLabel,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonTextarea,
   ModalController,
 } from '@ionic/angular/standalone';
+import { toIsoDate } from '../../core/utils/date-formatter';
 import {
   CodesService,
   CodeValuesService,
@@ -50,10 +50,6 @@ export interface ClientActionDialogData {
   selector: 'app-client-action-dialog',
   standalone: true,
   imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,
@@ -63,23 +59,31 @@ export interface ClientActionDialogData {
     IonLabel,
     IonSelectOption,
     IonSelect,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <h2 class="dialog-title">{{ data.title | translate }}</h2>
     <div class="dialog-content">
       <div class="dialog-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ dateLabel | translate }}</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            [(ngModel)]="actionDate"
-            [max]="maxDate"
-            required
-          />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ dateLabel | translate }}</ion-label>
+          <ion-datetime-button datetime="actionDate-picker"></ion-datetime-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime
+                id="actionDate-picker"
+                data-testid="actionDate-picker"
+                presentation="date"
+                name="actionDate"
+                [(ngModel)]="actionDate"
+                required
+                [max]="maxDate"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </ion-item>
 
         @if (showReasonDropdown) {
           <ion-item fill="outline" class="full-width">
@@ -127,8 +131,8 @@ export class ClientActionDialogComponent implements OnInit {
   public readonly modalController = inject(ModalController);
   @Input({ required: true }) data!: ClientActionDialogData;
 
-  actionDate: Date = new Date();
-  maxDate?: Date;
+  actionDate = toIsoDate(new Date());
+  maxDate?: string;
   reasonId?: number;
   note = '';
 
@@ -149,7 +153,8 @@ export class ClientActionDialogComponent implements OnInit {
         const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
         if (bd && bd.date) {
           const d = bd.date as unknown as number[];
-          const bDate = new Date(d[0], d[1] - 1, d[2]);
+          // ion-datetime works in ISO strings, including its max bound.
+          const bDate = toIsoDate(new Date(d[0], d[1] - 1, d[2]));
           this.actionDate = bDate;
           this.maxDate = bDate;
         }

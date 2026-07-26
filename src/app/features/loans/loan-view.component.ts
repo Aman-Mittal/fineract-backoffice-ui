@@ -21,7 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
-import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -44,6 +43,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonList,
+  IonPopover,
   IonSegment,
   IonSegmentButton,
 } from '@ionic/angular/standalone';
@@ -70,7 +71,6 @@ import {
     RouterModule,
     TranslateModule,
     CdkTableModule,
-    MatMenuModule,
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
@@ -91,6 +91,8 @@ import {
     IonChip,
     IonSegment,
     IonSegmentButton,
+    IonPopover,
+    IonList,
   ],
   template: `
     @if (loan()) {
@@ -160,84 +162,88 @@ import {
               }
 
               <!-- Actions Dropdown Menu -->
-              <ion-button color="primary" [matMenuTriggerFor]="loanMenu">
+              <ion-button color="primary" id="loanMenu-trigger">
                 <ion-icon name="caret-down-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
               </ion-button>
-              <mat-menu #loanMenu="matMenu">
-                <button mat-menu-item (click)="onAddCharge()">
-                  <ion-icon name="add-outline"></ion-icon>
-                  <span>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</span>
-                </button>
+              <ion-popover trigger="loanMenu-trigger" [dismissOnSelect]="true">
+                <ng-template>
+                  <ion-list>
+                    <ion-item button (click)="onAddCharge()">
+                      <ion-icon slot="start" name="add-outline"></ion-icon>
+                      <ion-label>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</ion-label>
+                    </ion-item>
 
-                @if (isLoanPendingApproval) {
-                  <button mat-menu-item (click)="onModifyLoan()">
-                    <ion-icon name="create-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</span>
-                  </button>
+                    @if (isLoanPendingApproval) {
+                      <ion-item button (click)="onModifyLoan()">
+                        <ion-icon slot="start" name="create-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanAction('reject')">
-                    <ion-icon name="close-circle-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.REJECT' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanAction('reject')">
+                        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.REJECT' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanAction('withdrawnByClient')">
-                    <ion-icon name="arrow-undo-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanAction('withdrawnByClient')">
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onDeleteLoan()">
-                    <ion-icon name="trash-outline"></ion-icon>
-                    <span>{{ 'COMMON.DELETE' | translate }}</span>
-                  </button>
-                }
+                      <ion-item button (click)="onDeleteLoan()">
+                        <ion-icon slot="start" name="trash-outline"></ion-icon>
+                        <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
+                      </ion-item>
+                    }
 
-                <button mat-menu-item (click)="onAddCollateral()">
-                  <ion-icon name="shield-outline"></ion-icon>
-                  <span>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</span>
-                </button>
+                    <ion-item button (click)="onAddCollateral()">
+                      <ion-icon slot="start" name="shield-outline"></ion-icon>
+                      <ion-label>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</ion-label>
+                    </ion-item>
 
-                <button mat-menu-item (click)="onAssignLoanOfficer()">
-                  <ion-icon name="person-add-outline"></ion-icon>
-                  <span>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</span>
-                </button>
+                    <ion-item button (click)="onAssignLoanOfficer()">
+                      <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                      <ion-label>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</ion-label>
+                    </ion-item>
 
-                @if (isLoanActive) {
-                  <button mat-menu-item (click)="onUndoDisbursal()">
-                    <ion-icon name="arrow-undo-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
-                  </button>
+                    @if (isLoanActive) {
+                      <ion-item button (click)="onUndoDisbursal()">
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('waiveinterest')">
-                    <ion-icon name="cash-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('waiveinterest')">
+                        <ion-icon slot="start" name="cash-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('prepayLoan')">
-                    <ion-icon name="play-forward-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('prepayLoan')">
+                        <ion-icon slot="start" name="play-forward-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('foreclosure')">
-                    <ion-icon name="flag-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('foreclosure')">
+                        <ion-icon slot="start" name="flag-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button mat-menu-item (click)="onLoanTransactionAction('close')">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</span>
-                  </button>
+                      <ion-item button (click)="onLoanTransactionAction('close')">
+                        <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</ion-label>
+                      </ion-item>
 
-                  <button
-                    mat-menu-item
-                    class="warn-item"
-                    (click)="onLoanTransactionAction('writeoff')"
-                  >
-                    <ion-icon color="warn" name="trash-bin-outline"></ion-icon>
-                    <span>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</span>
-                  </button>
-                }
-              </mat-menu>
+                      <ion-item
+                        button
+                        class="warn-item"
+                        (click)="onLoanTransactionAction('writeoff')"
+                      >
+                        <ion-icon slot="start" color="warn" name="trash-bin-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                  </ion-list>
+                </ng-template>
+              </ion-popover>
 
               <ion-button fill="clear" (click)="onBack()">
                 <ion-icon name="arrow-back-outline"></ion-icon>
