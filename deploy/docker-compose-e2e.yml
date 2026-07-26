@@ -19,17 +19,17 @@ version: '3.8'
 
 services:
   fineract-db:
-    image: mariadb:10.6
+    image: postgres:15
     container_name: fineract-db
     ports:
-      - '3306:3306'
+      - '5433:5432'
     environment:
-      - MYSQL_ROOT_PASSWORD=mysql
-      - MYSQL_DATABASE=fineract_tenants
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
-      - fineract-db-data:/var/lib/mysql
+      - fineract-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmysql"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 15
@@ -43,16 +43,16 @@ services:
     ports:
       - '8443:8443'
     environment:
-      - FINERACT_HIKARI_JDBC_URL=jdbc:mysql://fineract-db:3306/fineract_tenants?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-      - FINERACT_HIKARI_USERNAME=root
-      - FINERACT_HIKARI_PASSWORD=mysql
+      - FINERACT_HIKARI_JDBC_URL=jdbc:postgresql://fineract-db:5432/fineract_tenants
+      - FINERACT_HIKARI_USERNAME=postgres
+      - FINERACT_HIKARI_PASSWORD=postgres
       - FINERACT_DEFAULT_TENANTDB_HOSTNAME=fineract-db
-      - FINERACT_DEFAULT_TENANTDB_PORT=3306
-      - FINERACT_DEFAULT_TENANTDB_UID=root
-      - FINERACT_DEFAULT_TENANTDB_PWD=mysql
-      - FINERACT_DEFAULT_TENANTDB_NAME=fineract_tenants
+      - FINERACT_DEFAULT_TENANTDB_PORT=5432
+      - FINERACT_DEFAULT_TENANTDB_UID=postgres
+      - FINERACT_DEFAULT_TENANTDB_PWD=postgres
+      - FINERACT_DEFAULT_TENANTDB_NAME=fineract_default
       - FINERACT_NODE_ID=1
       - FINERACT_REMOTE_JOB_MESSAGE_HANDLER_SPRING_EVENTS_ENABLED=true
 
 volumes:
-  fineract-db-data:
+  fineract-postgres-data:

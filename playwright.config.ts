@@ -22,5 +22,6 @@ export default defineConfig({
     url: 'https://localhost:4200',
     reuseExistingServer: true,
     ignoreHTTPSErrors: true,
+    timeout: 300000,
   },
 });
