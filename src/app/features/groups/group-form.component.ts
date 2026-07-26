@@ -22,7 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
 import {
   IonButton,
   IonCard,
@@ -32,6 +31,7 @@ import {
   IonCheckbox,
   IonDatetime,
   IonDatetimeButton,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -62,7 +62,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatIconModule,
     IonButton,
     IonSpinner,
     IonInput,
@@ -78,6 +77,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    IonIcon,
   ],
   template: `
     <div class="form-container">
@@ -141,9 +141,11 @@ import {
                 <ion-checkbox name="active" [(ngModel)]="group.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
-                <mat-icon [attr.title]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
-                  >help_outline</mat-icon
-                >
+                <ion-icon
+                  [attr.title]="'HELP.ACTIVE_DESC' | translate"
+                  class="help-icon"
+                  name="help-circle-outline"
+                ></ion-icon>
               </div>
             </div>
 

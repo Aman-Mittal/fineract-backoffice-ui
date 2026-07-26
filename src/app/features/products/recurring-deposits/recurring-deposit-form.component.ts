@@ -22,7 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -69,7 +68,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatIconModule,
     ClientSearchComponent,
     IonIcon,
     IonButton,
@@ -237,11 +235,11 @@ import {
                   <ion-checkbox name="isCalendarInherited" [(ngModel)]="isCalendarInherited">
                     {{ 'RECURRING_DEPOSITS.INHERIT_CALENDAR' | translate }}
                   </ion-checkbox>
-                  <mat-icon
+                  <ion-icon
                     [attr.title]="'HELP.INHERIT_CALENDAR_DESC' | translate"
                     class="help-icon"
-                    >help_outline</mat-icon
-                  >
+                    name="help-circle-outline"
+                  ></ion-icon>
                 </div>
 
                 <!-- Recurring Frequency (only if NOT inherited) -->

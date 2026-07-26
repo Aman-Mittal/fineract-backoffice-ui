@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { MatListModule } from '@angular/material/list';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -26,6 +25,10 @@ import {
   IonCard,
   IonCardContent,
   IonCardTitle,
+  IonCheckbox,
+  IonItem,
+  IonLabel,
+  IonList,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -39,13 +42,16 @@ import {
   selector: 'app-currencies',
   standalone: true,
   imports: [
-    MatListModule,
     TranslateModule,
     IonButton,
     IonSpinner,
     IonCardContent,
     IonCardTitle,
     IonCard,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonCheckbox,
   ],
   template: `
     <ion-card>
@@ -59,38 +65,49 @@ import {
           <div class="form-container" style="display:flex;gap:1rem;align-items:flex-start;">
             <div style="flex:1;">
               <h3>{{ 'CURRENCIES.AVAILABLE' | translate }}</h3>
-              <mat-selection-list #availableList>
+              <ion-list>
                 @for (currency of availableCurrencies; track currency.code) {
-                  <mat-list-option [value]="currency">
-                    {{ currency.displayLabel ?? currency.name }}
-                  </mat-list-option>
+                  <ion-item>
+                    <ion-checkbox
+                      justify="start"
+                      labelPlacement="end"
+                      [checked]="availableSelection.has(currency.code!)"
+                      (ionChange)="toggle(availableSelection, currency.code!, $event)"
+                    >
+                      {{ currency.displayLabel ?? currency.name }}
+                    </ion-checkbox>
+                  </ion-item>
                 }
-              </mat-selection-list>
+              </ion-list>
             </div>
 
             <div
               style="display:flex;flex-direction:column;gap:0.5rem;justify-content:center;padding-top:3rem;"
             >
-              <ion-button
-                color="primary"
-                (click)="addSelected(availableList.selectedOptions.selected)"
-              >
+              <ion-button color="primary" (click)="addSelected()">
                 {{ 'CURRENCIES.ADD' | translate }} →
               </ion-button>
-              <ion-button (click)="removeSelected(selectedList.selectedOptions.selected)">
+              <ion-button (click)="removeSelected()">
                 ← {{ 'CURRENCIES.REMOVE' | translate }}
               </ion-button>
             </div>
 
             <div style="flex:1;">
               <h3>{{ 'CURRENCIES.SELECTED' | translate }}</h3>
-              <mat-selection-list #selectedList>
+              <ion-list>
                 @for (currency of selectedCurrencies; track currency.code) {
-                  <mat-list-option [value]="currency">
-                    {{ currency.displayLabel ?? currency.name }}
-                  </mat-list-option>
+                  <ion-item>
+                    <ion-checkbox
+                      justify="start"
+                      labelPlacement="end"
+                      [checked]="selectedSelection.has(currency.code!)"
+                      (ionChange)="toggle(selectedSelection, currency.code!, $event)"
+                    >
+                      {{ currency.displayLabel ?? currency.name }}
+                    </ion-checkbox>
+                  </ion-item>
                 }
-              </mat-selection-list>
+              </ion-list>
             </div>
           </div>
 
@@ -130,18 +147,33 @@ export class CurrenciesComponent implements OnInit {
     });
   }
 
-  addSelected(selected: { value: CurrencyData }[]): void {
-    const toAdd = selected.map((s) => s.value);
+  /**
+   * Checked codes on each side. mat-selection-list tracked this itself; ion-list does not,
+   * so the two panes hold their own selection.
+   */
+  readonly availableSelection = new Set<string>();
+  readonly selectedSelection = new Set<string>();
+
+  toggle(selection: Set<string>, code: string, event: Event): void {
+    const checked = (event as CustomEvent<{ checked?: boolean }>).detail?.checked;
+    if (checked) selection.add(code);
+    else selection.delete(code);
+  }
+
+  addSelected(): void {
+    const toAdd = this.availableCurrencies.filter((c) => this.availableSelection.has(c.code!));
     const addCodes = new Set(toAdd.map((c) => c.code));
     this.selectedCurrencies = [...this.selectedCurrencies, ...toAdd];
     this.availableCurrencies = this.availableCurrencies.filter((c) => !addCodes.has(c.code));
+    this.availableSelection.clear();
   }
 
-  removeSelected(selected: { value: CurrencyData }[]): void {
-    const toRemove = selected.map((s) => s.value);
+  removeSelected(): void {
+    const toRemove = this.selectedCurrencies.filter((c) => this.selectedSelection.has(c.code!));
     const removeCodes = new Set(toRemove.map((c) => c.code));
     this.availableCurrencies = [...this.availableCurrencies, ...toRemove];
     this.selectedCurrencies = this.selectedCurrencies.filter((c) => !removeCodes.has(c.code));
+    this.selectedSelection.clear();
   }
 
   save(): void {

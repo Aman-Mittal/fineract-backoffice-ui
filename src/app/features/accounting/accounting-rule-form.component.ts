@@ -22,7 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { MatRadioModule } from '@angular/material/radio';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
 import {
   IonButton,
@@ -30,6 +29,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonRadio,
+  IonRadioGroup,
   IonSelect,
   IonSelectOption,
   IonTextarea,
@@ -41,7 +42,6 @@ import {
   imports: [
     RouterModule,
     ReactiveFormsModule,
-    MatRadioModule,
     IonButton,
     IonInput,
     IonTextarea,
@@ -50,6 +50,8 @@ import {
     IonSelectOption,
     IonSelect,
     IonCheckbox,
+    IonRadio,
+    IonRadioGroup,
   ],
   template: `
     <div class="container">
@@ -74,10 +76,10 @@ import {
 
         <div class="section">
           <h3>Debit Details</h3>
-          <mat-radio-group formControlName="debitRuleType" class="radio-group">
-            <mat-radio-button value="fixedAccount">Fixed Account</mat-radio-button>
-            <mat-radio-button value="tags">Account Tags</mat-radio-button>
-          </mat-radio-group>
+          <ion-radio-group formControlName="debitRuleType" class="radio-group">
+            <ion-radio value="fixedAccount">Fixed Account</ion-radio>
+            <ion-radio value="tags">Account Tags</ion-radio>
+          </ion-radio-group>
 
           @if (ruleForm.get('debitRuleType')?.value === 'fixedAccount') {
             <ion-item fill="outline" class="full-width">
@@ -112,10 +114,10 @@ import {
 
         <div class="section">
           <h3>Credit Details</h3>
-          <mat-radio-group formControlName="creditRuleType" class="radio-group">
-            <mat-radio-button value="fixedAccount">Fixed Account</mat-radio-button>
-            <mat-radio-button value="tags">Account Tags</mat-radio-button>
-          </mat-radio-group>
+          <ion-radio-group formControlName="creditRuleType" class="radio-group">
+            <ion-radio value="fixedAccount">Fixed Account</ion-radio>
+            <ion-radio value="tags">Account Tags</ion-radio>
+          </ion-radio-group>
 
           @if (ruleForm.get('creditRuleType')?.value === 'fixedAccount') {
             <ion-item fill="outline" class="full-width">

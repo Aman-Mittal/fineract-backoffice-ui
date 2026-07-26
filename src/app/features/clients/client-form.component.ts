@@ -22,7 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import { DialogService } from '../../core/services/dialog.service';
@@ -64,7 +63,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatIconModule,
     HelpIconComponent,
     IonIcon,
     IonButton,
@@ -189,9 +187,11 @@ import {
                 <ion-checkbox name="active" [(ngModel)]="client.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
-                <mat-icon [attr.title]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
-                  >help_outline</mat-icon
-                >
+                <ion-icon
+                  [attr.title]="'HELP.ACTIVE_DESC' | translate"
+                  class="help-icon"
+                  name="help-circle-outline"
+                ></ion-icon>
               </div>
 
               <!-- Entity fields -->

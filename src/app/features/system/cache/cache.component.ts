@@ -20,7 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatRadioModule } from '@angular/material/radio';
 import { CacheService, CacheData } from '../../../api';
 import {
   IonButton,
@@ -28,6 +27,8 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonRadio,
+  IonRadioGroup,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -41,13 +42,14 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatRadioModule,
     IonButton,
     IonSpinner,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonRadio,
+    IonRadioGroup,
   ],
   template: `
     <div class="form-container">
@@ -57,13 +59,13 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          <mat-radio-group class="cache-group" [(ngModel)]="selectedCacheType">
+          <ion-radio-group class="cache-group" [(ngModel)]="selectedCacheType">
             @for (cache of caches; track cache.cacheType?.id) {
-              <mat-radio-button [value]="cache.cacheType?.id">
+              <ion-radio [value]="cache.cacheType?.id">
                 {{ cache.cacheType?.value }}
-              </mat-radio-button>
+              </ion-radio>
             }
-          </mat-radio-group>
+          </ion-radio-group>
 
           <div class="form-actions">
             <ion-button

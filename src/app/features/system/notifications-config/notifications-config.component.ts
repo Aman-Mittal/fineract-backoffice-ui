@@ -19,7 +19,6 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationService, GetNotification } from '../../../api';
 import {
@@ -28,6 +27,9 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonItem,
+  IonLabel,
+  IonList,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -40,7 +42,6 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatListModule,
     MatIconModule,
     IonButton,
     IonSpinner,
@@ -48,6 +49,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonItem,
+    IonLabel,
+    IonList,
   ],
   template: `
     <div class="form-container">
@@ -58,17 +62,17 @@ import {
 
         <ion-card-content>
           @if (notifications.length) {
-            <mat-list>
+            <ion-list>
               @for (note of notifications; track note.id) {
-                <mat-list-item>
-                  <mat-icon matListItemIcon>
+                <ion-item>
+                  <mat-icon slot="start">
                     {{ note.isRead ? 'drafts' : 'markunread' }}
                   </mat-icon>
-                  <span matListItemTitle>{{ note.content }}</span>
-                  <span matListItemLine>{{ note.createdAt }}</span>
-                </mat-list-item>
+                  <span>{{ note.content }}</span>
+                  <span>{{ note.createdAt }}</span>
+                </ion-item>
               }
-            </mat-list>
+            </ion-list>
           } @else {
             <p>{{ 'NOTIFICATIONS_CONFIG.EMPTY' | translate }}</p>
           }

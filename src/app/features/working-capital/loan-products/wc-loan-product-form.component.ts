@@ -463,7 +463,7 @@ import {
                       name="startDate"
                       [(ngModel)]="startDate"
                     />
-                    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker-toggle slot="end" [for]="startPicker"></mat-datepicker-toggle>
                     <mat-datepicker #startPicker></mat-datepicker>
                   </ion-item>
                 </ion-col>
@@ -481,7 +481,7 @@ import {
                       name="closeDate"
                       [(ngModel)]="closeDate"
                     />
-                    <mat-datepicker-toggle matSuffix [for]="closePicker"></mat-datepicker-toggle>
+                    <mat-datepicker-toggle slot="end" [for]="closePicker"></mat-datepicker-toggle>
                     <mat-datepicker #closePicker></mat-datepicker>
                   </ion-item>
                 </ion-col>

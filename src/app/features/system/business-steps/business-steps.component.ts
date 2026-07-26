@@ -31,6 +31,7 @@ import {
   IonIcon,
   IonItem,
   IonLabel,
+  IonList,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -58,6 +59,7 @@ import {
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonList,
   ],
   template: `
     <div class="form-container">
@@ -77,10 +79,10 @@ import {
           </ion-item>
 
           @if (steps.length) {
-            <mat-list>
+            <ion-list>
               @for (step of steps; track step.stepName; let i = $index) {
-                <mat-list-item>
-                  <span matListItemTitle>{{ step.stepName }}</span>
+                <ion-item>
+                  <span>{{ step.stepName }}</span>
                   <span matListItemMeta>
                     <ion-button fill="clear" type="button" [disabled]="i === 0" (click)="moveUp(i)">
                       <ion-icon name="arrow-up-outline"></ion-icon>
@@ -94,9 +96,9 @@ import {
                       <ion-icon name="arrow-down-outline"></ion-icon>
                     </ion-button>
                   </span>
-                </mat-list-item>
+                </ion-item>
               }
-            </mat-list>
+            </ion-list>
           } @else if (selectedJob) {
             <p>{{ 'BUSINESS_STEPS.NO_STEPS' | translate }}</p>
           }

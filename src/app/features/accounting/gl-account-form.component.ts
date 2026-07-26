@@ -22,7 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
 import {
   GeneralLedgerAccountService,
   PostGLAccountsRequest,
@@ -36,6 +35,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCheckbox,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -51,7 +51,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatIconModule,
     HelpIconComponent,
     IonButton,
     IonSpinner,
@@ -66,6 +65,7 @@ import {
     IonSelectOption,
     IonSelect,
     IonCheckbox,
+    IonIcon,
   ],
   template: `
     <div class="form-container">
@@ -151,11 +151,11 @@ import {
                 >
                   {{ 'ACCOUNTING.ALLOW_MANUAL_ENTRIES' | translate }}
                 </ion-checkbox>
-                <mat-icon
+                <ion-icon
                   [attr.title]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate"
                   class="help-icon"
-                  >help_outline</mat-icon
-                >
+                  name="help-circle-outline"
+                ></ion-icon>
               </div>
             </div>
 
