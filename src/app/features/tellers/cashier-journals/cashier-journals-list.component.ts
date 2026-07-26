@@ -21,13 +21,17 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { ColumnDef } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { CashierJournalsService, TellerJournalData } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 
 /**
  * Read-only listing of cashier journal entries for a given teller and cashier.
@@ -40,31 +44,35 @@ import { CashierJournalsService, TellerJournalData } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     DataTableComponent,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCard,
   ],
   template: `
     <div class="filter-bar">
-      <mat-card>
-        <mat-card-content class="filter-form">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'CASHIER_JOURNALS.TELLER_ID' | translate }}</mat-label>
-            <input matInput type="number" name="tellerId" [(ngModel)]="tellerId" />
-          </mat-form-field>
+      <ion-card>
+        <ion-card-content class="filter-form">
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'CASHIER_JOURNALS.TELLER_ID' | translate }}</ion-label>
+            <ion-input type="number" name="tellerId" [(ngModel)]="tellerId"></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'CASHIER_JOURNALS.CASHIER_ID' | translate }}</mat-label>
-            <input matInput type="number" name="cashierId" [(ngModel)]="cashierId" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'CASHIER_JOURNALS.CASHIER_ID' | translate
+            }}</ion-label>
+            <ion-input type="number" name="cashierId" [(ngModel)]="cashierId"></ion-input>
+          </ion-item>
 
-          <button mat-raised-button color="primary" (click)="load()">
+          <ion-button color="primary" (click)="load()">
             {{ 'CASHIER_JOURNALS.LOAD' | translate }}
-          </button>
-        </mat-card-content>
-      </mat-card>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <app-data-table

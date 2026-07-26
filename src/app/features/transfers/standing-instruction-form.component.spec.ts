@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('StandingInstructionFormComponent', () => {
   let component: StandingInstructionFormComponent;
@@ -61,7 +60,7 @@ describe('StandingInstructionFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [StandingInstructionFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [StandingInstructionFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: StandingInstructionsService, useValue: instructionsServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
@@ -171,7 +170,7 @@ describe('StandingInstructionFormComponent', () => {
       );
 
       await TestBed.configureTestingModule({
-        imports: [StandingInstructionFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+        imports: [StandingInstructionFormComponent, TranslateModule.forRoot()],
         providers: [
           { provide: StandingInstructionsService, useValue: instructionsServiceSpy },
           { provide: OfficesService, useValue: officesServiceSpy },

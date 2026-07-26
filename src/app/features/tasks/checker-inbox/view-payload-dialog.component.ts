@@ -20,8 +20,8 @@
 import { Component, inject } from '@angular/core';
 
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
+import { IonButton } from '@ionic/angular/standalone';
 
 /**
  * Dialog to display the raw JSON command payload of a pending Maker-Checker task.
@@ -29,14 +29,14 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-view-payload-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslateModule],
+  imports: [MatDialogModule, TranslateModule, IonButton],
   template: `
     <h2 mat-dialog-title>Command Payload</h2>
     <mat-dialog-content>
       <pre class="payload-code">{{ formattedJson }}</pre>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close color="primary">CLOSE</button>
+      <ion-button fill="clear" mat-dialog-close color="primary">CLOSE</ion-button>
     </mat-dialog-actions>
   `,
   styles: [

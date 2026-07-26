@@ -20,43 +20,49 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { FixedDepositAccountService, RecurringDepositAccountService } from '../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-deposit-account-view',
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
     MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
     MatTableModule,
-    MatTooltipModule,
     MatMenuModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
     DecimalPipe,
     NgClass,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     @if (account()) {
       <div class="view-container">
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div class="title-area">
               <div class="avatar-circle">
-                <mat-icon>account_balance_wallet</mat-icon>
+                <ion-icon name="wallet-outline"></ion-icon>
               </div>
               <div class="title-details">
                 <h2>{{ account()?.['productName'] }}</h2>
@@ -69,40 +75,40 @@ import { FixedDepositAccountService, RecurringDepositAccountService } from '../.
               </div>
             </div>
             <div class="actions-area">
-              <button mat-raised-button color="primary" [matMenuTriggerFor]="actionsMenu">
-                <mat-icon>settings</mat-icon>
+              <ion-button color="primary" [matMenuTriggerFor]="actionsMenu">
+                <ion-icon name="settings-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
-              </button>
+              </ion-button>
               <mat-menu #actionsMenu="matMenu">
                 @if (isRD) {
                   <button mat-menu-item (click)="onDeposit()">
-                    <mat-icon>add</mat-icon>
+                    <ion-icon name="add-outline"></ion-icon>
                     <span>{{ 'SAVINGS.DEPOSIT' | translate }}</span>
                   </button>
                 }
                 <button mat-menu-item (click)="onWithdraw()">
-                  <mat-icon>remove</mat-icon>
+                  <ion-icon name="remove-outline"></ion-icon>
                   <span>{{ 'SAVINGS.WITHDRAW' | translate }}</span>
                 </button>
               </mat-menu>
 
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              <ion-button fill="clear" (click)="onBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         <mat-tab-group class="tab-group" animationDuration="0ms">
           <mat-tab [label]="'COMMON.OVERVIEW' | translate">
             <div class="tab-content">
               <div class="info-grid">
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>{{ 'COMMON.DETAILS' | translate }}</mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>{{ 'COMMON.DETAILS' | translate }}</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
                     <div class="detail-item">
                       <span class="label">{{ 'COMMON.BALANCE' | translate }}</span>
                       <span class="value"
@@ -117,20 +123,20 @@ import { FixedDepositAccountService, RecurringDepositAccountService } from '../.
                       <span class="label">{{ 'SAVINGS.MIN_BALANCE_REQUIRED' | translate }}</span>
                       <span class="value">{{ account()?.['minRequiredOpeningBalance'] }}</span>
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
 
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>{{ 'LOANS.TIMELINE_STATUS' | translate }}</mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>{{ 'LOANS.TIMELINE_STATUS' | translate }}</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
                     <div class="detail-item">
                       <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
                       <span class="value">{{ getActivationDate() }}</span>
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
               </div>
             </div>
           </mat-tab>

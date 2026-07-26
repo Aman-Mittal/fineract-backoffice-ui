@@ -20,13 +20,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 import {
   DataTableComponent,
   ColumnDef,
@@ -46,17 +49,28 @@ import {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslateModule, MatDialogModule, MatButtonModule],
+  imports: [
+    TranslateModule,
+    MatDialogModule,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
+  ],
   template: `
     <h2 mat-dialog-title>{{ data.title | translate }}</h2>
     <mat-dialog-content>
       <p>{{ data.message | translate: data.params }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="false">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" [mat-dialog-close]="true">
+      <ion-button fill="clear" [mat-dialog-close]="false">{{
+        'COMMON.CANCEL' | translate
+      }}</ion-button>
+      <ion-button color="primary" [mat-dialog-close]="true">
         {{ 'COMMON.CONFIRM' | translate }}
-      </button>
+      </ion-button>
     </mat-dialog-actions>
   `,
 })
@@ -74,16 +88,17 @@ export class ConfirmDialogComponent {
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatDialogModule,
     MatSnackBarModule,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <app-data-table
@@ -99,14 +114,14 @@ export class ConfirmDialogComponent {
       (create)="onCreateHoliday()"
     >
       <div filters class="office-filter-container">
-        <mat-form-field appearance="outline" class="office-filter-field">
-          <mat-label>{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</mat-label>
-          <mat-select [value]="selectedOfficeId" (selectionChange)="onOfficeChange($event.value)">
+        <ion-item fill="outline" class="office-filter-field">
+          <ion-label position="stacked">{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</ion-label>
+          <ion-select [value]="selectedOfficeId" (ionChange)="onOfficeChange($event.detail.value)">
             @for (office of offices; track office.id) {
-              <mat-option [value]="office.id">{{ office.name }}</mat-option>
+              <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
             }
-          </mat-select>
-        </mat-form-field>
+          </ion-select>
+        </ion-item>
       </div>
 
       <ng-template appCellTemplate="fromDate" let-holiday>
@@ -123,14 +138,14 @@ export class ConfirmDialogComponent {
 
       <ng-template appCellTemplate="actions" let-holiday>
         @if (holiday.status?.code === 'holidayStatusType.pending.for.activation') {
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
-            [matTooltip]="'HOLIDAYS.ACTIVATE' | translate"
+            [attr.title]="'HOLIDAYS.ACTIVATE' | translate"
             (click)="onActivateHoliday(holiday)"
           >
-            <mat-icon>check_circle</mat-icon>
-          </button>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
         }
       </ng-template>
     </app-data-table>

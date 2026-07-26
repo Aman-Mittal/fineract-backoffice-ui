@@ -25,7 +25,6 @@ import { DialogService } from '../../core/services/dialog.service';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 
 describe('ClientFormComponent', () => {
@@ -66,7 +65,7 @@ describe('ClientFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ClientFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [ClientFormComponent, TranslateModule.forRoot()],
       providers: [
         provideIonicTesting(),
         { provide: ClientService, useValue: clientServiceSpy },
@@ -155,7 +154,7 @@ describe('ClientFormComponent', () => {
       TestBed.resetTestingModule();
 
       await TestBed.configureTestingModule({
-        imports: [ClientFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+        imports: [ClientFormComponent, TranslateModule.forRoot()],
         providers: [
           { provide: ClientService, useValue: clientServiceSpy },
           { provide: OfficesService, useValue: officesServiceSpy },

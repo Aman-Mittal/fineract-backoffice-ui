@@ -22,19 +22,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -46,6 +38,22 @@ import {
   GetLoansLoanIdResponse,
 } from '../../api';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonChip,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -60,31 +68,37 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatChipsModule,
     ClientSearchComponent,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
+    IonChip,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('LOANS.EDIT_LOAN' | translate) : ('LOANS.CREATE_LOAN' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #loanForm="ngForm" (ngSubmit)="onSubmit()" class="loan-form">
             <div class="form-grid">
               <!-- Client Search with Create Option -->
@@ -97,26 +111,26 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   class="flex-grow"
                 >
                 </app-client-search>
-                <button
-                  mat-icon-button
+                <ion-button
+                  fill="clear"
                   type="button"
-                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [attr.title]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
+                  <ion-icon color="primary" name="add-circle-outline"></ion-icon>
+                </ion-button>
               </div>
 
               <!-- Product Selection with Create Option -->
               <div class="field-container-row">
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.LOAN_PRODUCT_DESC' | translate"
+                <ion-item
+                  fill="outline"
+                  [attr.title]="'HELP.LOAN_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
-                  <mat-label>{{ 'LOANS.PRODUCT' | translate }}</mat-label>
-                  <mat-select
+                  <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
+                  <ion-select
                     name="productId"
                     [(ngModel)]="loan.productId"
                     (ngModelChange)="onProductSelected($event)"
@@ -124,58 +138,54 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                     [disabled]="isEditMode"
                   >
                     @for (product of products; track product.id) {
-                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                      <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
-                <button
-                  mat-icon-button
+                  </ion-select>
+                </ion-item>
+                <ion-button
+                  fill="clear"
                   type="button"
-                  [matTooltip]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
+                  [attr.title]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
+                  <ion-icon color="primary" name="add-circle-outline"></ion-icon>
+                </ion-button>
               </div>
 
               @if (selectedProductDetails?.loanScheduleType?.value) {
                 <div class="field-container-row full-width">
-                  <mat-chip-set>
-                    <mat-chip [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
+                  <div>
+                    <ion-chip [attr.title]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
                       {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
                       {{ selectedProductDetails?.loanScheduleType?.value }}
-                    </mat-chip>
-                  </mat-chip-set>
+                    </ion-chip>
+                  </div>
                 </div>
               }
 
               <!-- Principal -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.PRINCIPAL_DESC' | translate">
-                <mat-label>{{ 'LOANS.PRINCIPAL' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [attr.title]="'HELP.PRINCIPAL_DESC' | translate">
+                <ion-label position="stacked">{{ 'LOANS.PRINCIPAL' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="principal"
                   [(ngModel)]="loan.principal"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- External ID -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="loan.externalId" />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.EXTERNAL_ID_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
+                <ion-input name="externalId" [(ngModel)]="loan.externalId"></ion-input>
+              </ion-item>
 
               <!-- Submitted On -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+                [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate"
               >
                 <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
                 <input
@@ -192,7 +202,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <!-- Expected Disbursement -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate"
+                [attr.title]="'HELP.EXPECTED_DISBURSEMENT_DESC' | translate"
               >
                 <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
                 <input
@@ -207,165 +217,178 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </mat-form-field>
 
               <!-- Term Frequency -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.TERM_FREQUENCY' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [attr.title]="'HELP.TERM_FREQUENCY_DESC' | translate">
+                <ion-label position="stacked">{{ 'LOANS.TERM_FREQUENCY' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="loanTermFrequency"
                   [(ngModel)]="loan.loanTermFrequency"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Term Type -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.TERM_TYPE_DESC' | translate">
-                <mat-label>{{ 'LOANS.TERM_TYPE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline" [attr.title]="'HELP.TERM_TYPE_DESC' | translate">
+                <ion-label position="stacked">{{ 'LOANS.TERM_TYPE' | translate }}</ion-label>
+                <ion-select
                   name="loanTermFrequencyType"
                   [(ngModel)]="loan.loanTermFrequencyType"
                   required
                 >
-                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
-                  <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
+                  <ion-select-option [value]="1">{{
+                    'COMMON.WEEKS' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="2">{{
+                    'COMMON.MONTHS' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="3">{{
+                    'COMMON.YEARS' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Number of Repayments -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [attr.title]="'HELP.REPAYMENTS_COUNT_DESC' | translate">
+                <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="numberOfRepayments"
                   [(ngModel)]="loan.numberOfRepayments"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Repayment Every -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate"
-              >
-                <mat-label>{{ 'LOANS.REPAYMENT_EVERY' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [attr.title]="'HELP.REPAYMENT_EVERY_DESC' | translate">
+                <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="repaymentEvery"
                   [(ngModel)]="loan.repaymentEvery"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Repayment Frequency Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.FREQUENCY' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
+                <ion-select
                   name="repaymentFrequencyType"
                   [(ngModel)]="loan.repaymentFrequencyType"
                   required
                 >
-                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
+                  <ion-select-option [value]="1">{{
+                    'COMMON.WEEKS' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="2">{{
+                    'COMMON.MONTHS' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Interest Rate Per Period -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.INTEREST_RATE' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="interestRatePerPeriod"
                   [(ngModel)]="loan.interestRatePerPeriod"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Interest Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</mat-label>
-                <mat-select name="interestType" [(ngModel)]="loan.interestType" required>
-                  <mat-option [value]="0">{{ 'LOANS.DECLINING_BALANCE' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'LOANS.FLAT' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</ion-label>
+                <ion-select name="interestType" [(ngModel)]="loan.interestType" required>
+                  <ion-select-option [value]="0">{{
+                    'LOANS.DECLINING_BALANCE' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="1">{{ 'LOANS.FLAT' | translate }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Amortization Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.AMORTIZATION_TYPE' | translate }}</mat-label>
-                <mat-select name="amortizationType" [(ngModel)]="loan.amortizationType" required>
-                  <mat-option [value]="1">{{ 'LOANS.EQUAL_INSTALLMENTS' | translate }}</mat-option>
-                  <mat-option [value]="0">{{ 'LOANS.EQUAL_PRINCIPAL' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.AMORTIZATION_TYPE' | translate
+                }}</ion-label>
+                <ion-select name="amortizationType" [(ngModel)]="loan.amortizationType" required>
+                  <ion-select-option [value]="1">{{
+                    'LOANS.EQUAL_INSTALLMENTS' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="0">{{
+                    'LOANS.EQUAL_PRINCIPAL' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Interest Calculation Period Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
+                }}</ion-label>
+                <ion-select
                   name="interestCalculationPeriodType"
                   [(ngModel)]="loan.interestCalculationPeriodType"
                   required
                 >
-                  <mat-option [value]="0">{{ 'LOANS.DAILY' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'LOANS.SAME_AS_REPAYMENT' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <ion-select-option [value]="0">{{ 'LOANS.DAILY' | translate }}</ion-select-option>
+                  <ion-select-option [value]="1">{{
+                    'LOANS.SAME_AS_REPAYMENT' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Grace on Principal Payment -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="graceOnPrincipalPayment"
                   [(ngModel)]="loan.graceOnPrincipalPayment"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Grace on Interest Payment -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="graceOnInterestPayment"
                   [(ngModel)]="loan.graceOnInterestPayment"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Grace on Interest Charged -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.GRACE_ON_INTEREST_CHARGED' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'LOANS.GRACE_ON_INTEREST_CHARGED' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="graceOnInterestCharged"
                   [(ngModel)]="loan.graceOnInterestCharged"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- In Arrears Tolerance -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'LOANS.IN_ARREARS_TOLERANCE' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'LOANS.IN_ARREARS_TOLERANCE' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="inArrearsTolerance"
                   [(ngModel)]="loan.inArrearsTolerance"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Repayments Starting From Date -->
               <mat-form-field appearance="outline">
@@ -384,48 +407,40 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               </mat-form-field>
 
               @if (isProgressive()) {
-                <mat-checkbox
+                <ion-checkbox
                   name="interestRecognitionOnDisbursementDate"
                   [(ngModel)]="loan.interestRecognitionOnDisbursementDate"
                 >
                   {{ 'LOANS.INTEREST_RECOGNITION_ON_DISBURSEMENT_DATE' | translate }}
-                </mat-checkbox>
+                </ion-checkbox>
               }
 
               @if (isProgressive() && selectedProductDetails?.multiDisburseLoan) {
-                <mat-checkbox
+                <ion-checkbox
                   name="allowFullTermForTranche"
                   [(ngModel)]="loan.allowFullTermForTranche"
                 >
                   {{ 'LOANS.ALLOW_FULL_TERM_FOR_TRANCHE' | translate }}
-                </mat-checkbox>
+                </ion-checkbox>
               }
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="loanForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

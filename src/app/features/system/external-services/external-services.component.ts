@@ -20,13 +20,20 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ExternalServicesService, PutExternalServiceRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface ServiceProperty {
   name: string;
@@ -43,58 +50,59 @@ interface ServiceProperty {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'EXTERNAL_SERVICES.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'EXTERNAL_SERVICES.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EXTERNAL_SERVICES.SERVICE' | translate }}</mat-label>
-            <mat-select [(ngModel)]="selectedService" (selectionChange)="load()">
+        <ion-card-content>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'EXTERNAL_SERVICES.SERVICE' | translate }}</ion-label>
+            <ion-select [(ngModel)]="selectedService" (ionChange)="load()">
               @for (name of serviceNames; track name) {
-                <mat-option [value]="name">{{ name }}</mat-option>
+                <ion-select-option [value]="name">{{ name }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
           @for (prop of properties; track prop.name) {
-            <mat-form-field appearance="outline">
-              <mat-label>{{ prop.name }}</mat-label>
-              <input matInput [name]="prop.name" [(ngModel)]="prop.value" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ prop.name }}</ion-label>
+              <ion-input [name]="prop.name" [(ngModel)]="prop.value"></ion-input>
+            </ion-item>
           }
 
           <div class="form-actions">
-            <button
-              mat-raised-button
+            <ion-button
               color="primary"
               type="button"
               [disabled]="!properties.length || isSaving"
               (click)="onSave()"
             >
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'COMMON.SAVE' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

@@ -22,15 +22,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   LoanTransactionsService,
@@ -40,6 +35,21 @@ import {
   GetPaymentTypeOptions,
 } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -76,41 +86,49 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardSubtitle,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ transactionTitleKey | translate }}
-          </mat-card-title>
+          </ion-card-title>
           @if (loanSummary) {
-            <mat-card-subtitle>
+            <ion-card-subtitle>
               {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
               {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
               {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
-            </mat-card-subtitle>
+            </ion-card-subtitle>
           }
-        </mat-card-header>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="transaction-form">
             <div class="form-grid">
               @if (transactionType !== 'undoDisbursal') {
                 <!-- Transaction Date -->
                 <mat-form-field
                   appearance="outline"
-                  [matTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate"
+                  [attr.title]="'HELP.TRANSACTION_DATE_DESC' | translate"
                 >
                   <mat-label>
                     {{
@@ -133,95 +151,89 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
 
               @if (amountVisible) {
                 <!-- Transaction Amount -->
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate"
-                >
-                  <mat-label>{{ 'COMMON.TRANSACTION_AMOUNT' | translate }}</mat-label>
-                  <input
-                    matInput
+                <ion-item fill="outline" [attr.title]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
+                  <ion-label position="stacked">{{
+                    'COMMON.TRANSACTION_AMOUNT' | translate
+                  }}</ion-label>
+                  <ion-input
                     type="number"
                     name="transactionAmount"
                     [(ngModel)]="transaction.transactionAmount"
                     required
-                  />
-                </mat-form-field>
+                  ></ion-input>
+                </ion-item>
 
                 <!-- Payment Type -->
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate"
-                >
-                  <mat-label>{{ 'COMMON.PAYMENT_TYPE' | translate }}</mat-label>
-                  <mat-select name="paymentTypeId" [(ngModel)]="transaction.paymentTypeId">
+                <ion-item fill="outline" [attr.title]="'HELP.PAYMENT_TYPE_DESC' | translate">
+                  <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
+                  <ion-select name="paymentTypeId" [(ngModel)]="transaction.paymentTypeId">
                     @for (type of paymentTypeOptions; track type.id) {
-                      <mat-option [value]="type.id">{{ type.name }}</mat-option>
+                      <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
               }
 
               @if (transactionType === 'repayment') {
                 <!-- Receipt Number -->
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'LOANS.RECEIPT_NUMBER' | translate }}</mat-label>
-                  <input matInput name="receiptNumber" [(ngModel)]="transaction.receiptNumber" />
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'LOANS.RECEIPT_NUMBER' | translate }}</ion-label>
+                  <ion-input
+                    name="receiptNumber"
+                    [(ngModel)]="transaction.receiptNumber"
+                  ></ion-input>
+                </ion-item>
 
                 <!-- Bank Number -->
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'LOANS.BANK_NUMBER' | translate }}</mat-label>
-                  <input matInput name="bankNumber" [(ngModel)]="transaction.bankNumber" />
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'LOANS.BANK_NUMBER' | translate }}</ion-label>
+                  <ion-input name="bankNumber" [(ngModel)]="transaction.bankNumber"></ion-input>
+                </ion-item>
 
                 <!-- Check Number -->
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'LOANS.CHECK_NUMBER' | translate }}</mat-label>
-                  <input matInput name="checkNumber" [(ngModel)]="transaction.checkNumber" />
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'LOANS.CHECK_NUMBER' | translate }}</ion-label>
+                  <ion-input name="checkNumber" [(ngModel)]="transaction.checkNumber"></ion-input>
+                </ion-item>
 
                 <!-- Routing Code -->
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'LOANS.ROUTING_CODE' | translate }}</mat-label>
-                  <input matInput name="routingCode" [(ngModel)]="transaction.routingCode" />
-                </mat-form-field>
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'LOANS.ROUTING_CODE' | translate }}</ion-label>
+                  <ion-input name="routingCode" [(ngModel)]="transaction.routingCode"></ion-input>
+                </ion-item>
               }
 
               <!-- Note -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.NOTE_DESC' | translate"
+              <ion-item
+                fill="outline"
+                [attr.title]="'HELP.NOTE_DESC' | translate"
                 class="full-width"
               >
-                <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                <textarea matInput name="note" [(ngModel)]="transaction.note" rows="3"></textarea>
-              </mat-form-field>
+                <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                <ion-textarea name="note" [(ngModel)]="transaction.note" rows="3"></ion-textarea>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="transactionForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

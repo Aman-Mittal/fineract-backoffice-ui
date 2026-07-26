@@ -22,21 +22,27 @@ import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
 import { HelpIconComponent } from '../../shared';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-run-report',
@@ -44,41 +50,45 @@ import { HelpIconComponent } from '../../shared';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule,
     MatTableModule,
-    MatDividerModule,
     MatPaginatorModule,
-    MatIconModule,
     MatSnackBarModule,
     HelpIconComponent,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'REPORTS.RUN_TITLE' | translate }}: {{ reportName }}
             <app-help-icon [helpTextKey]="'HELP.REPORTS_DESC'"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <div class="report-parameters form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-              <mat-select [(ngModel)]="officeId">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+              <ion-select [(ngModel)]="officeId">
                 @for (office of offices; track office.id) {
-                  <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                  <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'COMMON.FROM_DATE' | translate }}</mat-label>
@@ -96,30 +106,27 @@ import { HelpIconComponent } from '../../shared';
           </div>
 
           <div class="form-actions">
-            <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="onDownloadCSV()"
-              [disabled]="isLoading"
-            >
-              <mat-icon>download</mat-icon>
+            <ion-button fill="clear" (click)="onCancel()">{{
+              'COMMON.CANCEL' | translate
+            }}</ion-button>
+            <ion-button color="accent" (click)="onDownloadCSV()" [disabled]="isLoading">
+              <ion-icon name="download-outline"></ion-icon>
               {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
-            </button>
-            <button mat-raised-button color="primary" (click)="onRun()" [disabled]="isLoading">
+            </ion-button>
+            <ion-button color="primary" (click)="onRun()" [disabled]="isLoading">
               {{ isLoading ? ('COMMON.LOADING' | translate) : ('REPORTS.RUN' | translate) }}
-            </button>
+            </ion-button>
           </div>
 
           @if (reportData) {
             <div class="report-results mt-4">
-              <mat-divider></mat-divider>
+              <hr class="divider" />
               <div class="results-header">
                 <h3 class="mt-2">{{ 'REPORTS.RESULTS' | translate }}</h3>
-                <button mat-raised-button color="primary" (click)="downloadCSV()">
-                  <mat-icon>download</mat-icon>
+                <ion-button color="primary" (click)="downloadCSV()">
+                  <ion-icon name="download-outline"></ion-icon>
                   {{ 'REPORTS.DOWNLOAD_RESULTS_CSV' | translate }}
-                </button>
+                </ion-button>
               </div>
               <div class="table-container mat-elevation-z1">
                 <table mat-table [dataSource]="dataSource">
@@ -139,8 +146,8 @@ import { HelpIconComponent } from '../../shared';
               </div>
             </div>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

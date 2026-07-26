@@ -21,14 +21,20 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { HelpIconComponent } from '../../../shared';
 import { CreditBureauConfigurationService, CreditBureauIntegrationService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface CreditBureauRow {
   id?: number;
@@ -58,26 +64,30 @@ interface LoanProductMappingRow {
     JsonPipe,
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatTableModule,
-    MatProgressSpinnerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="cbc-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'CREDIT_BUREAU_CONFIG.TITLE' | translate }}
             <app-help-icon helpTextKey="HELP.CREDIT_BUREAU_CONFIG_DESC"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           @if (isLoading) {
-            <mat-spinner diameter="32"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else {
             <h3>{{ 'CREDIT_BUREAU_CONFIG.BUREAUS' | translate }}</h3>
             <table mat-table [dataSource]="bureaus" class="cbc-table">
@@ -142,34 +152,36 @@ interface LoanProductMappingRow {
             <h3 class="cbc-section">{{ 'CREDIT_BUREAU_CONFIG.INTEGRATION' | translate }}</h3>
 
             <div class="integration-form">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate }}</mat-label>
-                <input matInput [(ngModel)]="nationalId" name="nationalId" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate
+                }}</ion-label>
+                <ion-input [(ngModel)]="nationalId" name="nationalId"></ion-input>
+              </ion-item>
 
               @for (bureau of bureaus; track bureau.id) {
                 <div class="bureau-actions">
                   <span class="bureau-label">{{ bureau.name }}</span>
-                  <button
-                    mat-stroked-button
+                  <ion-button
+                    fill="outline"
                     (click)="fetchReport(bureau.id)"
                     [disabled]="integrationLoading()"
                   >
                     {{ 'CREDIT_BUREAU_CONFIG.FETCH_REPORT' | translate }}
-                  </button>
-                  <button
-                    mat-stroked-button
+                  </ion-button>
+                  <ion-button
+                    fill="outline"
                     (click)="searchByNationalId(bureau.id)"
                     [disabled]="!nationalId || integrationLoading()"
                   >
                     {{ 'CREDIT_BUREAU_CONFIG.SEARCH_NATIONAL_ID' | translate }}
-                  </button>
+                  </ion-button>
                 </div>
               }
             </div>
 
             @if (integrationLoading()) {
-              <mat-spinner diameter="24"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             }
 
             @if (creditReport().length > 0) {
@@ -178,8 +190,8 @@ interface LoanProductMappingRow {
               <p class="no-report">{{ 'CREDIT_BUREAU_CONFIG.NO_REPORT' | translate }}</p>
             }
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

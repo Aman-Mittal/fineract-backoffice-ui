@@ -21,10 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { Observable, of } from 'rxjs';
@@ -38,6 +34,14 @@ import {
   ExternalAssetOwnerLoanProductAttributesService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../shared';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-asset-owner-view',
@@ -46,14 +50,16 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
     CommonModule,
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatDividerModule,
-    MatButtonModule,
-    MatIconModule,
     MatTabsModule,
     MatTableModule,
     DataTableComponent,
     StatusBadgeComponent,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     @if (transfer$ | async; as transfer) {
@@ -62,24 +68,24 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
           <a routerLink="/fintech/asset-owners">External Asset Owners</a> /
           <span>{{ transfer.owner?.externalId }}</span>
         </div>
-        <mat-card class="header-card">
-          <mat-card-header>
-            <mat-card-title>
+        <ion-card class="header-card">
+          <ion-card-header>
+            <ion-card-title>
               Asset Owner: {{ transfer.owner?.externalId }}
               <app-status-badge [status]="transfer.status"></app-status-badge>
-            </mat-card-title>
+            </ion-card-title>
             <div class="header-actions">
-              <button
-                mat-stroked-button
+              <ion-button
+                fill="outline"
                 color="primary"
                 [routerLink]="['/loans/view', transfer.loan?.loanId]"
               >
-                <mat-icon>account_balance</mat-icon>
+                <ion-icon name="business-outline"></ion-icon>
                 View Loan Account
-              </button>
+              </ion-button>
             </div>
-          </mat-card-header>
-          <mat-card-content>
+          </ion-card-header>
+          <ion-card-content>
             <div class="details-grid">
               <div class="detail-item">
                 <span class="label">Transfer ID:</span>
@@ -106,8 +112,8 @@ import { DataTableComponent, ColumnDef, StatusBadgeComponent } from '../../../sh
                 <span class="value">{{ transfer.effectiveTo || 'N/A' }}</span>
               </div>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
         <mat-tab-group class="content-tabs">
           <mat-tab label="Journal Entries">
             <app-data-table

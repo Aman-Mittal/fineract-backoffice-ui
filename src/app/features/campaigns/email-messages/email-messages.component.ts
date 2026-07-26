@@ -19,15 +19,22 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 interface EmailMessage {
   id: number;
@@ -45,51 +52,58 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
     MatTabsModule,
     MatTableModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'EMAIL_MESSAGES.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'EMAIL_MESSAGES.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="onTabChange($event)">
             <!-- Tab: Messages -->
             <mat-tab [label]="'EMAIL_MESSAGES.MESSAGES_TAB' | translate">
               <div class="tab-content">
-                <button
-                  mat-raised-button
-                  color="primary"
-                  (click)="showCreateForm = !showCreateForm"
-                >
+                <ion-button color="primary" (click)="showCreateForm = !showCreateForm">
                   {{ 'EMAIL_MESSAGES.CREATE' | translate }}
-                </button>
+                </ion-button>
 
                 @if (showCreateForm) {
                   <div class="create-form">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'EMAIL_MESSAGES.TO' | translate }}</mat-label>
-                      <input matInput type="email" [(ngModel)]="newTo" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'EMAIL_MESSAGES.SUBJECT' | translate }}</mat-label>
-                      <input matInput [(ngModel)]="newSubject" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'EMAIL_MESSAGES.BODY' | translate }}</mat-label>
-                      <textarea matInput rows="4" [(ngModel)]="newBody"></textarea>
-                    </mat-form-field>
-                    <button mat-raised-button color="accent" (click)="createMessage()">
+                    <ion-item fill="outline" class="full-width">
+                      <ion-label position="stacked">{{
+                        'EMAIL_MESSAGES.TO' | translate
+                      }}</ion-label>
+                      <ion-input type="email" [(ngModel)]="newTo"></ion-input>
+                    </ion-item>
+                    <ion-item fill="outline" class="full-width">
+                      <ion-label position="stacked">{{
+                        'EMAIL_MESSAGES.SUBJECT' | translate
+                      }}</ion-label>
+                      <ion-input [(ngModel)]="newSubject"></ion-input>
+                    </ion-item>
+                    <ion-item fill="outline" class="full-width">
+                      <ion-label position="stacked">{{
+                        'EMAIL_MESSAGES.BODY' | translate
+                      }}</ion-label>
+                      <ion-textarea rows="4" [(ngModel)]="newBody"></ion-textarea>
+                    </ion-item>
+                    <ion-button color="accent" (click)="createMessage()">
                       {{ 'EMAIL_MESSAGES.CREATE' | translate }}
-                    </button>
+                    </ion-button>
                   </div>
                 }
 
@@ -117,14 +131,14 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                   <ng-container matColumnDef="actions">
                     <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
                     <mat-cell *matCellDef="let row">
-                      <button
-                        mat-icon-button
+                      <ion-button
+                        fill="clear"
                         color="warn"
                         (click)="deleteMessage(row.id)"
                         [title]="'EMAIL_MESSAGES.DELETE' | translate"
                       >
                         &#x1F5D1;
-                      </button>
+                      </ion-button>
                     </mat-cell>
                   </ng-container>
                   <mat-header-row *matHeaderRowDef="msgColumns"></mat-header-row>
@@ -232,18 +246,18 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
             <!-- Tab: Config -->
             <mat-tab [label]="'EMAIL_MESSAGES.CONFIG_TAB' | translate">
               <div class="tab-content">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Configuration JSON</mat-label>
-                  <textarea matInput rows="10" [(ngModel)]="configJson"></textarea>
-                </mat-form-field>
-                <button mat-raised-button color="primary" (click)="saveConfig()">
+                <ion-item fill="outline" class="full-width">
+                  <ion-label position="stacked">Configuration JSON</ion-label>
+                  <ion-textarea rows="10" [(ngModel)]="configJson"></ion-textarea>
+                </ion-item>
+                <ion-button color="primary" (click)="saveConfig()">
                   {{ 'EMAIL_MESSAGES.SAVE_CONFIG' | translate }}
-                </button>
+                </ion-button>
               </div>
             </mat-tab>
           </mat-tab-group>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

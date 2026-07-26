@@ -20,27 +20,41 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { TranslateModule } from '@ngx-translate/core';
 import { TemplatesService, TemplateData } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-templates-list',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCardModule, TranslateModule],
+  imports: [
+    MatTableModule,
+    TranslateModule,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+  ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'TEMPLATES.TITLE' | translate }}</mat-card-title>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'TEMPLATES.TITLE' | translate }}</ion-card-title>
         <span class="spacer"></span>
-        <button mat-raised-button color="primary" (click)="onCreate()">
-          <mat-icon>add</mat-icon>
+        <ion-button color="primary" (click)="onCreate()">
+          <ion-icon name="add-outline"></ion-icon>
           {{ 'TEMPLATES.CREATE_TITLE' | translate }}
-        </button>
-      </mat-card-header>
-      <mat-card-content>
+        </ion-button>
+      </ion-card-header>
+      <ion-card-content>
         <table mat-table [dataSource]="templates" class="full-width">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>{{ 'TEMPLATES.NAME' | translate }}</th>
@@ -60,20 +74,20 @@ import { TemplatesService, TemplateData } from '../../../api';
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button color="primary" (click)="onEdit(row)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="onDelete(row)">
-                <mat-icon>delete</mat-icon>
-              </button>
+              <ion-button fill="clear" color="primary" (click)="onEdit(row)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" color="warn" (click)="onDelete(row)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
             </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

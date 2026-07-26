@@ -19,12 +19,17 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService, GetNotification } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Notifications: list user notifications (read / unread) and mark them all read
@@ -35,20 +40,23 @@ import { NotificationService, GetNotification } from '../../../api';
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'NOTIFICATIONS_CONFIG.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'NOTIFICATIONS_CONFIG.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (notifications.length) {
             <mat-list>
               @for (note of notifications; track note.id) {
@@ -66,26 +74,22 @@ import { NotificationService, GetNotification } from '../../../api';
           }
 
           <div class="form-actions">
-            <button
-              mat-raised-button
+            <ion-button
               color="primary"
               type="button"
               [disabled]="isSaving"
               (click)="onMarkAllRead()"
             >
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'NOTIFICATIONS_CONFIG.MARK_ALL_READ' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

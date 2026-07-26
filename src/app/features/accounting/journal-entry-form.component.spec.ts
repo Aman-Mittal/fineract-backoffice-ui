@@ -33,7 +33,6 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 import { HttpEvent } from '@angular/common/http';
 
 describe('JournalEntryFormComponent', () => {
@@ -53,7 +52,7 @@ describe('JournalEntryFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [JournalEntryFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [JournalEntryFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: JournalEntriesService, useValue: journalServiceSpy },

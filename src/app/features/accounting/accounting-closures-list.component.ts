@@ -19,13 +19,11 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { AccountingClosureService, GetGlClosureResponse } from '../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Component for listing accounting period closures.
@@ -37,13 +35,12 @@ import { AccountingClosureService, GetGlClosureResponse } from '../../api';
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,
     NgClass,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -67,14 +64,14 @@ import { AccountingClosureService, GetGlClosureResponse } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-closure>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="warn"
-          matTooltip="Re-open Period"
+          title="Re-open Period"
           (click)="onDeleteClosure(closure)"
         >
-          <mat-icon>lock_open</mat-icon>
-        </button>
+          <ion-icon name="lock-open-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

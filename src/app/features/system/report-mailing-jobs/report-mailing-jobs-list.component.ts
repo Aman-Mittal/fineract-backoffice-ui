@@ -21,14 +21,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import {
   ReportMailingJobsService,
   GetReportMailingJobsResponse,
@@ -45,14 +42,13 @@ import {
   imports: [
     DatePipe,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     MatTabsModule,
     MatTableModule,
-    MatProgressSpinnerModule,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    IonSpinner,
   ],
   template: `
     <mat-tab-group (selectedTabChange)="onTabChange($event.index)">
@@ -72,24 +68,24 @@ import {
             {{ (row.isActive ? 'COMMON.YES' : 'COMMON.NO') | translate }}
           </ng-template>
           <ng-template appCellTemplate="actions" let-row>
-            <button
-              mat-icon-button
+            <ion-button
+              fill="clear"
               color="primary"
               [attr.aria-label]="'COMMON.EDIT' | translate"
-              [matTooltip]="'COMMON.EDIT' | translate"
+              [attr.title]="'COMMON.EDIT' | translate"
               (click)="onEdit(row)"
             >
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              mat-icon-button
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button
+              fill="clear"
               color="warn"
               [attr.aria-label]="'COMMON.DELETE' | translate"
-              [matTooltip]="'COMMON.DELETE' | translate"
+              [attr.title]="'COMMON.DELETE' | translate"
               (click)="onDelete(row)"
             >
-              <mat-icon>delete</mat-icon>
-            </button>
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </ng-template>
         </app-data-table>
       </mat-tab>
@@ -99,7 +95,7 @@ import {
         <div class="history-container">
           @if (historyLoading) {
             <div class="spinner-wrap">
-              <mat-spinner diameter="48"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
             <table mat-table [dataSource]="runHistory()" class="history-table mat-elevation-z2">

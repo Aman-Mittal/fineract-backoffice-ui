@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('CenterFormComponent', () => {
   let component: CenterFormComponent;
@@ -43,7 +42,7 @@ describe('CenterFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [CenterFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
@@ -112,7 +111,7 @@ describe('CenterFormComponent', () => {
     // Re-configure for edit mode test
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [CenterFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },

@@ -18,62 +18,71 @@
  */
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanAccountLockService } from '../../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-wc-loan-account-lock',
   standalone: true,
   imports: [
     FormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'WC_LOAN_ACCOUNT_LOCK.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'WC_LOAN_ACCOUNT_LOCK.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="form-fields">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'WC_LOAN_ACCOUNT_LOCK.LOAN_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="loanId" required />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'WC_LOAN_ACCOUNT_LOCK.LOAN_ID' | translate
+            }}</ion-label>
+            <ion-input type="number" [(ngModel)]="loanId" required></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'WC_LOAN_ACCOUNT_LOCK.LOCK_OWNER' | translate }}</mat-label>
-            <input matInput type="text" [(ngModel)]="lockOwner" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'WC_LOAN_ACCOUNT_LOCK.LOCK_OWNER' | translate
+            }}</ion-label>
+            <ion-input type="text" [(ngModel)]="lockOwner"></ion-input>
+          </ion-item>
         </div>
 
         <div class="actions">
-          <button
-            mat-raised-button
-            color="primary"
-            [disabled]="!loanId || isLoading"
-            (click)="placeLock()"
-          >
+          <ion-button color="primary" [disabled]="!loanId || isLoading" (click)="placeLock()">
             @if (isLoading) {
               <mat-spinner diameter="20" />
             } @else {
               {{ 'WC_LOAN_ACCOUNT_LOCK.PLACE_LOCK' | translate }}
             }
-          </button>
+          </ion-button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

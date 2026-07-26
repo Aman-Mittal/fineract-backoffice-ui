@@ -20,8 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MappingFinancialActivitiesToAccountsService } from '../../api/api/mappingFinancialActivitiesToAccounts.service';
 import { GetFinancialActivityAccountsResponse } from '../../api/model/models';
 import {
@@ -29,11 +27,12 @@ import {
   ColumnDef,
 } from '../../shared/components/data-table/data-table.component';
 import { CellTemplateDirective } from '../../shared/components/data-table/cell-template.directive';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-financial-activity-mappings-list',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, DataTableComponent, CellTemplateDirective],
+  imports: [DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <div class="container">
       <app-data-table
@@ -54,12 +53,12 @@ import { CellTemplateDirective } from '../../shared/components/data-table/cell-t
           {{ row.glAccountData?.glCode || '' }}
         </ng-template>
         <ng-template appCellTemplate="actions" let-row>
-          <button mat-icon-button color="primary" (click)="onEdit(row)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="onDelete(row)">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <ion-button fill="clear" color="primary" (click)="onEdit(row)">
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="warn" (click)="onDelete(row)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
         </ng-template>
       </app-data-table>
     </div>

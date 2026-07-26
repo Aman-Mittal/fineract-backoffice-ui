@@ -21,14 +21,10 @@ import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DocumentsService, DocumentData, BASE_PATH } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
+import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
 
 // Loan-level documents are the evidentiary record for underwriting/servicing
 // decisions (signed application, ID proof, collateral photos) — staff need
@@ -40,40 +36,35 @@ import { DialogService } from '../../core/services/dialog.service';
   imports: [
     FormsModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatTableModule,
-    MatTooltipModule,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
   ],
   template: `
     <div class="upload-row">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-        <input matInput [(ngModel)]="newDocName" name="docName" />
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="description-input">
-        <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
-        <input matInput [(ngModel)]="newDocDescription" name="docDescription" />
-      </mat-form-field>
-      <button mat-stroked-button type="button" (click)="fileInput.click()">
-        <mat-icon>attach_file</mat-icon>
+      <ion-item fill="outline">
+        <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+        <ion-input [(ngModel)]="newDocName" name="docName"></ion-input>
+      </ion-item>
+      <ion-item fill="outline" class="description-input">
+        <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+        <ion-input [(ngModel)]="newDocDescription" name="docDescription"></ion-input>
+      </ion-item>
+      <ion-button fill="outline" type="button" (click)="fileInput.click()">
+        <ion-icon name="attach-outline"></ion-icon>
         {{ 'LOANS.SELECT_FILE' | translate }}
-      </button>
+      </ion-button>
       <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" />
       <span class="file-name">{{
         selectedFile?.name || ('LOANS.NO_FILE_SELECTED' | translate)
       }}</span>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="!selectedFile || isSaving()"
-        (click)="onUpload()"
-      >
-        <mat-icon>upload</mat-icon>
+      <ion-button color="primary" [disabled]="!selectedFile || isSaving()" (click)="onUpload()">
+        <ion-icon name="cloud-upload-outline"></ion-icon>
         {{ 'LOANS.UPLOAD' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     @if (isLoading()) {
@@ -97,22 +88,22 @@ import { DialogService } from '../../core/services/dialog.service';
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
           <td mat-cell *matCellDef="let doc">
-            <button
-              mat-icon-button
+            <ion-button
+              fill="clear"
               color="primary"
               (click)="onDownload(doc.id)"
-              [matTooltip]="'COMMON.DOWNLOAD' | translate"
+              [attr.title]="'COMMON.DOWNLOAD' | translate"
             >
-              <mat-icon>download</mat-icon>
-            </button>
-            <button
-              mat-icon-button
+              <ion-icon name="download-outline"></ion-icon>
+            </ion-button>
+            <ion-button
+              fill="clear"
               color="warn"
               (click)="onDelete(doc.id)"
-              [matTooltip]="'COMMON.DELETE' | translate"
+              [attr.title]="'COMMON.DELETE' | translate"
             >
-              <mat-icon>delete</mat-icon>
-            </button>
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="columns"></tr>

@@ -19,14 +19,20 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { BatchAPIService, BatchRequest, BatchResponse } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-batch-operations',
@@ -34,53 +40,57 @@ import { BatchAPIService, BatchRequest, BatchResponse } from '../../../api';
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'BATCH_OPERATIONS.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'BATCH_OPERATIONS.INPUT' | translate }}</mat-label>
-          <textarea matInput [(ngModel)]="batchInput" rows="10" placeholder="[]"></textarea>
-        </mat-form-field>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'BATCH_OPERATIONS.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'BATCH_OPERATIONS.INPUT' | translate }}</ion-label>
+          <ion-textarea [(ngModel)]="batchInput" rows="10" placeholder="[]"></ion-textarea>
+        </ion-item>
 
-        <mat-checkbox [(ngModel)]="enclosingTransaction">
+        <ion-checkbox [(ngModel)]="enclosingTransaction">
           {{ 'BATCH_OPERATIONS.ENCLOSE' | translate }}
-        </mat-checkbox>
+        </ion-checkbox>
 
         @if (error()) {
           <p class="error-text">{{ 'BATCH_OPERATIONS.PARSE_ERROR' | translate }}: {{ error() }}</p>
         }
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting">
+      </ion-card-content>
+      <div class="card-actions">
+        <ion-button color="primary" (click)="submit()" [disabled]="isSubmitting">
           @if (isSubmitting) {
-            <mat-spinner diameter="20"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else {
             {{ 'BATCH_OPERATIONS.SUBMIT' | translate }}
           }
-        </button>
-      </mat-card-actions>
-    </mat-card>
+        </ion-button>
+      </div>
+    </ion-card>
 
     @if (results().length > 0) {
-      <mat-card class="results-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'BATCH_OPERATIONS.RESULTS' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card class="results-card">
+        <ion-card-header>
+          <ion-card-title>{{ 'BATCH_OPERATIONS.RESULTS' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <pre><code>{{ results() | json }}</code></pre>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     }
   `,
   styles: [

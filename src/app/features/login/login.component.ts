@@ -23,7 +23,6 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 
@@ -36,7 +35,7 @@ import { ConfigService } from '../../core/services/config.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, MatTooltipModule],
+  imports: [ReactiveFormsModule, TranslateModule],
   template: `
     <div class="login-page">
       <div class="login-card" role="main">
@@ -65,7 +64,7 @@ import { ConfigService } from '../../core/services/config.service';
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-field">
-            <label for="serverUrl" [matTooltip]="'login.tooltips.serverUrl' | translate">
+            <label for="serverUrl" [attr.title]="'login.tooltips.serverUrl' | translate">
               {{ 'login.serverUrl' | translate }} ℹ️
             </label>
             <select id="serverUrl" formControlName="serverUrl">
@@ -98,7 +97,7 @@ import { ConfigService } from '../../core/services/config.service';
           }
 
           <div class="form-field">
-            <label for="tenantId" [matTooltip]="'login.tooltips.tenantId' | translate">
+            <label for="tenantId" [attr.title]="'login.tooltips.tenantId' | translate">
               {{ 'login.tenantId' | translate }} ℹ️
             </label>
             <input

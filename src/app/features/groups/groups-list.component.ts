@@ -20,9 +20,6 @@
 import { Component, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -34,18 +31,18 @@ import {
 } from '../../shared';
 import { GroupsService, GetGroupsPageItems } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-groups-list',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -65,15 +62,15 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-group>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Group"
+          title="Edit Group"
           (click)="onEditGroup(group)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

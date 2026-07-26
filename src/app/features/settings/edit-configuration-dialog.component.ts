@@ -21,22 +21,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../../api';
+import { IonButton, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-edit-configuration-dialog',
   standalone: true,
-  imports: [
-    FormsModule,
-    TranslateModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-  ],
+  imports: [FormsModule, TranslateModule, MatDialogModule, IonButton, IonInput, IonItem, IonLabel],
   template: `
     <h2 mat-dialog-title>
       {{ 'SETTINGS.EDIT_CONFIG_TITLE' | translate: { name: config['name'] } }}
@@ -49,22 +40,17 @@ import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../.
       </div>
 
       <form #configForm="ngForm" class="config-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'COMMON.VALUE' | translate }}</mat-label>
-          <input matInput type="number" name="value" [(ngModel)]="value" required />
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'COMMON.VALUE' | translate }}</ion-label>
+          <ion-input type="number" name="value" [(ngModel)]="value" required></ion-input>
+        </ion-item>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button
-        mat-raised-button
-        color="primary"
-        [disabled]="configForm.invalid || isSaving"
-        (click)="onSubmit()"
-      >
+      <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+      <ion-button color="primary" [disabled]="configForm.invalid || isSaving" (click)="onSubmit()">
         {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-      </button>
+      </ion-button>
     </mat-dialog-actions>
   `,
   styles: [

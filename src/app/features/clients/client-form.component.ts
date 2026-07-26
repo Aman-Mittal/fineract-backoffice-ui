@@ -22,20 +22,29 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../shared';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import { DialogService } from '../../core/services/dialog.service';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   ClientService,
   PostClientsRequest,
@@ -55,85 +64,93 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatCheckboxModule,
-    MatTooltipModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     HelpIconComponent,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CLIENTS.EDIT_CLIENT' | translate)
                 : ('CLIENTS.CREATE_CLIENT' | translate)
             }}
             <app-help-icon helpTextKey="HELP.CLIENTS_CONTRACTS_DESC"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #clientForm="ngForm" (ngSubmit)="onSubmit()" class="client-form">
             <div class="form-grid">
               <!-- Legal Form -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.LEGAL_FORM_DESC' | translate"
-              >
-                <mat-label>{{ 'CLIENTS.LEGAL_FORM' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline" [attr.title]="'HELP.LEGAL_FORM_DESC' | translate">
+                <ion-label position="stacked">{{ 'CLIENTS.LEGAL_FORM' | translate }}</ion-label>
+                <ion-select
                   name="legalFormId"
                   [(ngModel)]="client.legalFormId"
                   required
                   [disabled]="isEditMode"
                 >
-                  <mat-option [value]="1">{{ 'CLIENTS.PERSON' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'CLIENTS.ENTITY' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <ion-select-option [value]="1">{{
+                    'CLIENTS.PERSON' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="2">{{
+                    'CLIENTS.ENTITY' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Office -->
               <div class="office-field-container">
-                <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
-                  <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                  <mat-select
+                <ion-item fill="outline" [attr.title]="'HELP.OFFICE_DESC' | translate">
+                  <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                  <ion-select
                     name="officeId"
                     [(ngModel)]="client.officeId"
                     required
                     [disabled]="isEditMode"
                   >
                     @for (office of offices; track office.id) {
-                      <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                      <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
+                  </ion-select>
+                </ion-item>
                 @if (!isEditMode) {
-                  <button
-                    mat-icon-button
+                  <ion-button
+                    fill="clear"
                     type="button"
                     color="primary"
-                    [matTooltip]="'CLIENTS.ADD_NEW_OFFICE' | translate"
+                    [attr.title]="'CLIENTS.ADD_NEW_OFFICE' | translate"
                     (click)="addOffice()"
                   >
-                    <mat-icon>add_circle</mat-icon>
-                  </button>
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                  </ion-button>
                 }
               </div>
 
               <!-- Submitted On Date -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+                [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate"
               >
                 <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
                 <input
@@ -151,7 +168,7 @@ import {
               <!-- Activation Date -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate"
+                [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate"
               >
                 <mat-label>{{ 'COMMON.ACTIVATION_DATE' | translate }}</mat-label>
                 <input
@@ -168,55 +185,46 @@ import {
 
               <!-- Active -->
               <div class="checkbox-container">
-                <mat-checkbox name="active" [(ngModel)]="client.active" [disabled]="isEditMode">
+                <ion-checkbox name="active" [(ngModel)]="client.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
-                </mat-checkbox>
-                <mat-icon [matTooltip]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
+                </ion-checkbox>
+                <mat-icon [attr.title]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
                   >help_outline</mat-icon
                 >
               </div>
 
               <!-- Entity fields -->
               @if (client.legalFormId === 2) {
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.FULL_NAME_DESC' | translate"
+                <ion-item
+                  fill="outline"
+                  [attr.title]="'HELP.FULL_NAME_DESC' | translate"
                   class="full-width"
                 >
-                  <mat-label>{{ 'CLIENTS.COMPANY_NAME' | translate }}</mat-label>
-                  <input matInput name="fullname" [(ngModel)]="client.fullname" required />
-                </mat-form-field>
+                  <ion-label position="stacked">{{ 'CLIENTS.COMPANY_NAME' | translate }}</ion-label>
+                  <ion-input name="fullname" [(ngModel)]="client.fullname" required></ion-input>
+                </ion-item>
               }
 
               <!-- Person fields -->
               @if (client.legalFormId === 1) {
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.FIRST_NAME_DESC' | translate"
-                >
-                  <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
-                  <input matInput name="firstname" [(ngModel)]="client.firstname" required />
-                </mat-form-field>
+                <ion-item fill="outline" [attr.title]="'HELP.FIRST_NAME_DESC' | translate">
+                  <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
+                  <ion-input name="firstname" [(ngModel)]="client.firstname" required></ion-input>
+                </ion-item>
+
+                <ion-item fill="outline" [attr.title]="'HELP.MIDDLE_NAME_DESC' | translate">
+                  <ion-label position="stacked">{{ 'CLIENTS.MIDDLE_NAME' | translate }}</ion-label>
+                  <ion-input name="middlename" [(ngModel)]="client.middlename"></ion-input>
+                </ion-item>
+
+                <ion-item fill="outline" [attr.title]="'HELP.LAST_NAME_DESC' | translate">
+                  <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
+                  <ion-input name="lastname" [(ngModel)]="client.lastname" required></ion-input>
+                </ion-item>
 
                 <mat-form-field
                   appearance="outline"
-                  [matTooltip]="'HELP.MIDDLE_NAME_DESC' | translate"
-                >
-                  <mat-label>{{ 'CLIENTS.MIDDLE_NAME' | translate }}</mat-label>
-                  <input matInput name="middlename" [(ngModel)]="client.middlename" />
-                </mat-form-field>
-
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.LAST_NAME_DESC' | translate"
-                >
-                  <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
-                  <input matInput name="lastname" [(ngModel)]="client.lastname" required />
-                </mat-form-field>
-
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.DATE_OF_BIRTH_DESC' | translate"
+                  [attr.title]="'HELP.DATE_OF_BIRTH_DESC' | translate"
                 >
                   <mat-label>{{ 'CLIENTS.DATE_OF_BIRTH' | translate }}</mat-label>
                   <input
@@ -231,68 +239,53 @@ import {
               }
 
               <!-- Common fields -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.EXTERNAL_ID_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.EXTERNAL_ID' | translate }}</mat-label>
-                <input matInput name="externalId" [(ngModel)]="client.externalId" />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.EXTERNAL_ID_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
+                <ion-input name="externalId" [(ngModel)]="client.externalId"></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.MOBILE_NO_DESC' | translate">
-                <mat-label>{{ 'COMMON.MOBILE_NO' | translate }}</mat-label>
-                <input matInput name="mobileNo" [(ngModel)]="client.mobileNo" />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.MOBILE_NO_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.MOBILE_NO' | translate }}</ion-label>
+                <ion-input name="mobileNo" [(ngModel)]="client.mobileNo"></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.EMAIL_DESC' | translate">
-                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
-                <input matInput name="emailAddress" [(ngModel)]="client.emailAddress" />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.EMAIL_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
+                <ion-input name="emailAddress" [(ngModel)]="client.emailAddress"></ion-input>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
+              </ion-button>
               @if (isEditMode && !originalActive) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="accent"
                   type="button"
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"
                 >
                   @if (isSaving) {
-                    <mat-spinner
-                      diameter="20"
-                      style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                    ></mat-spinner>
+                    <ion-spinner name="crescent"></ion-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
                     {{ 'CLIENTS.ACTIVATE_CLIENT' | translate }}
                   }
-                </button>
+                </ion-button>
               }
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="clientForm.invalid || isSaving"
-              >
+              <ion-button color="primary" type="submit" [disabled]="clientForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

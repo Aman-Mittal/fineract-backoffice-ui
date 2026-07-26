@@ -22,18 +22,26 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   SavingsAccountService,
   SavingsProductService,
@@ -53,33 +61,39 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     ClientSearchComponent,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('SAVINGS.EDIT_ACCOUNT' | translate)
                 : ('SAVINGS.CREATE_ACCOUNT' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="savings-form">
             <div class="form-grid">
               <!-- Client Search with Create Option -->
@@ -92,52 +106,52 @@ import {
                   class="flex-grow"
                 >
                 </app-client-search>
-                <button
-                  mat-icon-button
+                <ion-button
+                  fill="clear"
                   type="button"
-                  [matTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
+                  [attr.title]="'CLIENTS.CREATE_CLIENT' | translate"
                   (click)="onCreateClient()"
                   style="margin-top: 4px;"
                 >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
+                  <ion-icon color="primary" name="add-circle-outline"></ion-icon>
+                </ion-button>
               </div>
 
               <!-- Product Selection with Create Option -->
               <div class="field-container-row">
-                <mat-form-field
-                  appearance="outline"
-                  [matTooltip]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
+                <ion-item
+                  fill="outline"
+                  [attr.title]="'HELP.SAVINGS_PRODUCT_DESC' | translate"
                   class="flex-grow"
                 >
-                  <mat-label>{{ 'COMMON.PRODUCT' | translate }}</mat-label>
-                  <mat-select
+                  <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
+                  <ion-select
                     name="productId"
                     [(ngModel)]="account.productId"
                     required
                     [disabled]="isEditMode"
                   >
                     @for (product of products; track product.id) {
-                      <mat-option [value]="product.id">{{ product.name }}</mat-option>
+                      <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
                     }
-                  </mat-select>
-                </mat-form-field>
-                <button
-                  mat-icon-button
+                  </ion-select>
+                </ion-item>
+                <ion-button
+                  fill="clear"
                   type="button"
-                  [matTooltip]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
+                  [attr.title]="'PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
                   [disabled]="isEditMode"
                 >
-                  <mat-icon color="primary">add_circle_outline</mat-icon>
-                </button>
+                  <ion-icon color="primary" name="add-circle-outline"></ion-icon>
+                </ion-button>
               </div>
 
               <!-- Submitted On -->
               <mat-form-field
                 appearance="outline"
-                [matTooltip]="'HELP.SUBMITTED_ON_DESC' | translate"
+                [attr.title]="'HELP.SUBMITTED_ON_DESC' | translate"
               >
                 <mat-label>{{ 'COMMON.SUBMITTED_ON' | translate }}</mat-label>
                 <input
@@ -152,44 +166,36 @@ import {
               </mat-form-field>
 
               <!-- Nominal Annual Interest Rate -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.INTEREST_RATE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.INTEREST_RATE' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" [attr.title]="'HELP.INTEREST_RATE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
+                <ion-input
                   type="number"
                   name="nominalAnnualInterestRate"
                   [(ngModel)]="interestRate"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="accountForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

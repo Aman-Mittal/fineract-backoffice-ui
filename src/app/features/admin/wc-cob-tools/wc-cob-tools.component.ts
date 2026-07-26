@@ -17,32 +17,45 @@
  * under the License.
  */
 import { Component, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanInternalCOBApiService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-wc-cob-tools',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatSnackBarModule, TranslateModule],
+  imports: [
+    MatSnackBarModule,
+    TranslateModule,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+  ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'WC_COB_TOOLS.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'WC_COB_TOOLS.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="actions">
-          <button mat-raised-button color="primary" (click)="setLastCobRun()">
+          <ion-button color="primary" (click)="setLastCobRun()">
             {{ 'WC_COB_TOOLS.SET_LAST_RUN' | translate }}
-          </button>
-          <button mat-raised-button color="warn" (click)="deleteLastCobRun()">
+          </ion-button>
+          <ion-button color="warn" (click)="deleteLastCobRun()">
             {{ 'WC_COB_TOOLS.DELETE_LAST_RUN' | translate }}
-          </button>
+          </ion-button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

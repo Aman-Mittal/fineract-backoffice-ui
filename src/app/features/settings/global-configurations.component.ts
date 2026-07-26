@@ -20,10 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
@@ -33,6 +29,7 @@ import {
   PutGlobalConfigurationsRequest,
 } from '../../api';
 import { EditConfigurationDialogComponent } from './edit-configuration-dialog.component';
+import { IonButton, IonIcon, IonToggle } from '@ionic/angular/standalone';
 
 /**
  * Component for managing global system configurations.
@@ -42,14 +39,13 @@ import { EditConfigurationDialogComponent } from './edit-configuration-dialog.co
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
     MatSnackBarModule,
     MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
+    IonToggle,
   ],
   template: `
     <app-data-table
@@ -62,24 +58,24 @@ import { EditConfigurationDialogComponent } from './edit-configuration-dialog.co
       [localLogic]="true"
     >
       <ng-template appCellTemplate="enabled" let-config>
-        <mat-slide-toggle
+        <ion-toggle
           [checked]="!!config['enabled']"
-          (change)="onToggleConfig(config)"
+          (ionChange)="onToggleConfig(config)"
           [attr.aria-label]="'Toggle ' + config['name']"
         >
-        </mat-slide-toggle>
+        </ion-toggle>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-config>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [matTooltip]="'COMMON.EDIT' | translate"
+          [attr.title]="'COMMON.EDIT' | translate"
           (click)="onEditConfig(config)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

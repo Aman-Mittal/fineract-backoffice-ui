@@ -20,14 +20,20 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HelpIconComponent } from '../../../shared';
 import { PovertyLineService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface PovertyLineRow {
   scoreFrom?: number;
@@ -46,41 +52,40 @@ interface PovertyLineRow {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatTableModule,
-    MatProgressSpinnerModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="pl-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ 'POVERTY_LINE.TITLE' | translate }}
             <app-help-icon helpTextKey="HELP.POVERTY_LINE_DESC"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <form #plForm="ngForm" (ngSubmit)="load()" class="pl-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'POVERTY_LINE.PPI_NAME' | translate }}</mat-label>
-              <input matInput name="ppiName" [(ngModel)]="ppiName" required />
-            </mat-form-field>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="plForm.invalid || isLoading"
-            >
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'POVERTY_LINE.PPI_NAME' | translate }}</ion-label>
+              <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
+            </ion-item>
+            <ion-button color="primary" type="submit" [disabled]="plForm.invalid || isLoading">
               {{ 'POVERTY_LINE.LOAD' | translate }}
-            </button>
+            </ion-button>
           </form>
 
           @if (isLoading) {
-            <mat-spinner diameter="32"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
             <table mat-table [dataSource]="rows" class="pl-table">
               <ng-container matColumnDef="scoreFrom">
@@ -107,8 +112,8 @@ interface PovertyLineRow {
               <tr mat-row *matRowDef="let row; columns: columns"></tr>
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

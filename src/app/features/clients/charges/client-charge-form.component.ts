@@ -21,13 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClientChargesService, PostClientsClientIdChargesRequest, ChargeData } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -45,65 +52,67 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'CLIENT_CHARGES.CREATE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'CLIENT_CHARGES.CREATE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #chargeForm="ngForm" (ngSubmit)="onSubmit()" class="charge-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CLIENT_CHARGES.CHARGE' | translate }}</mat-label>
-              <mat-select name="chargeId" [(ngModel)]="charge.chargeId" required>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CLIENT_CHARGES.CHARGE' | translate }}</ion-label>
+              <ion-select name="chargeId" [(ngModel)]="charge.chargeId" required>
                 @for (opt of chargeOptions; track opt.id) {
-                  <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CLIENT_CHARGES.AMOUNT' | translate }}</mat-label>
-              <input matInput type="number" name="amount" [(ngModel)]="charge.amount" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CLIENT_CHARGES.AMOUNT' | translate }}</ion-label>
+              <ion-input
+                type="number"
+                name="amount"
+                [(ngModel)]="charge.amount"
+                required
+              ></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CLIENT_CHARGES.DUE_DATE' | translate }}</mat-label>
-              <input matInput type="date" name="dueDate" [(ngModel)]="dueDate" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'CLIENT_CHARGES.DUE_DATE' | translate }}</ion-label>
+              <ion-input type="date" name="dueDate" [(ngModel)]="dueDate" required></ion-input>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="chargeForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="chargeForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

@@ -18,12 +18,16 @@
  */
 
 import { Component, OnInit, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardTitle,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   CurrencyService,
   CurrencyConfigurationData,
@@ -35,20 +39,22 @@ import {
   selector: 'app-currencies',
   standalone: true,
   imports: [
-    MatCardModule,
     MatListModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-title>{{ 'CURRENCIES.TITLE' | translate }}</mat-card-title>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-title>{{ 'CURRENCIES.TITLE' | translate }}</ion-card-title>
+      <ion-card-content>
         @if (isLoading) {
           <div class="form-container" style="display:flex;justify-content:center;padding:2rem;">
-            <mat-spinner></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         } @else {
           <div class="form-container" style="display:flex;gap:1rem;align-items:flex-start;">
@@ -66,19 +72,15 @@ import {
             <div
               style="display:flex;flex-direction:column;gap:0.5rem;justify-content:center;padding-top:3rem;"
             >
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 (click)="addSelected(availableList.selectedOptions.selected)"
               >
                 {{ 'CURRENCIES.ADD' | translate }} →
-              </button>
-              <button
-                mat-raised-button
-                (click)="removeSelected(selectedList.selectedOptions.selected)"
-              >
+              </ion-button>
+              <ion-button (click)="removeSelected(selectedList.selectedOptions.selected)">
                 ← {{ 'CURRENCIES.REMOVE' | translate }}
-              </button>
+              </ion-button>
             </div>
 
             <div style="flex:1;">
@@ -94,13 +96,13 @@ import {
           </div>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" (click)="save()">
+            <ion-button color="primary" (click)="save()">
               {{ 'CURRENCIES.SAVE' | translate }}
-            </button>
+            </ion-button>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [],
 })

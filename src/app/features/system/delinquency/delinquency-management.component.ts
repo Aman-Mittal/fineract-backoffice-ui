@@ -20,10 +20,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import {
   DataTableComponent,
   ColumnDef,
@@ -42,13 +40,12 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     MatTabsModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <div class="management-container">
@@ -61,37 +58,36 @@ import {
               [isLoading]="isLoadingRanges()"
               [localLogic]="true"
             >
-              <button
+              <ion-button
                 headerActions
-                mat-raised-button
                 color="primary"
                 [routerLink]="['ranges', 'create']"
                 *appHasPermission="'CREATE_DELINQUENCYRANGE'"
               >
-                <mat-icon>add</mat-icon>
+                <ion-icon name="add-outline"></ion-icon>
                 {{ 'SYSTEM.CREATE_RANGE' | translate }}
-              </button>
+              </ion-button>
 
               <ng-template appCellTemplate="actions" let-row>
                 <div class="action-buttons">
-                  <button
-                    mat-icon-button
+                  <ion-button
+                    fill="clear"
                     color="primary"
                     [routerLink]="['ranges', 'edit', row.id]"
                     *appHasPermission="'UPDATE_DELINQUENCYRANGE'"
-                    [matTooltip]="'COMMON.EDIT' | translate"
+                    [attr.title]="'COMMON.EDIT' | translate"
                   >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="create-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="warn"
                     (click)="onDeleteRange(row.id)"
                     *appHasPermission="'DELETE_DELINQUENCYRANGE'"
-                    [matTooltip]="'COMMON.DELETE' | translate"
+                    [attr.title]="'COMMON.DELETE' | translate"
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
                 </div>
               </ng-template>
             </app-data-table>
@@ -106,16 +102,15 @@ import {
               [isLoading]="isLoadingBuckets()"
               [localLogic]="true"
             >
-              <button
+              <ion-button
                 headerActions
-                mat-raised-button
                 color="primary"
                 [routerLink]="['buckets', 'create']"
                 *appHasPermission="'CREATE_DELINQUENCYBUCKET'"
               >
-                <mat-icon>add</mat-icon>
+                <ion-icon name="add-outline"></ion-icon>
                 {{ 'SYSTEM.CREATE_BUCKET' | translate }}
-              </button>
+              </ion-button>
 
               <ng-template appCellTemplate="ranges" let-row>
                 @for (range of row.ranges; track range.id; let last = $last) {
@@ -125,24 +120,24 @@ import {
 
               <ng-template appCellTemplate="actions" let-row>
                 <div class="action-buttons">
-                  <button
-                    mat-icon-button
+                  <ion-button
+                    fill="clear"
                     color="primary"
                     [routerLink]="['buckets', 'edit', row.id]"
                     *appHasPermission="'UPDATE_DELINQUENCYBUCKET'"
-                    [matTooltip]="'COMMON.EDIT' | translate"
+                    [attr.title]="'COMMON.EDIT' | translate"
                   >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="create-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="warn"
                     (click)="onDeleteBucket(row.id)"
                     *appHasPermission="'DELETE_DELINQUENCYBUCKET'"
-                    [matTooltip]="'COMMON.DELETE' | translate"
+                    [attr.title]="'COMMON.DELETE' | translate"
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
                 </div>
               </ng-template>
             </app-data-table>

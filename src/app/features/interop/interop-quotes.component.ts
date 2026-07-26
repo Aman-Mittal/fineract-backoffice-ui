@@ -19,14 +19,19 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   InterOperationService,
   InteropQuoteRequestData,
@@ -42,67 +47,69 @@ const ERROR_OCCURRED = 'Error occurred';
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatDividerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'INTEROP.QUOTES_TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'INTEROP.QUOTES_TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <!-- Section 1: Get Quote -->
         <section>
           <h3>{{ 'INTEROP.GET_QUOTE' | translate }}</h3>
           <div class="form-row">
-            <mat-form-field>
-              <mat-label>{{ 'INTEROP.TX_CODE' | translate }}</mat-label>
-              <input matInput [(ngModel)]="transactionCode" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.TX_CODE' | translate }}</ion-label>
+              <ion-input [(ngModel)]="transactionCode"></ion-input>
+            </ion-item>
 
-            <mat-form-field>
-              <mat-label>{{ 'INTEROP.QUOTE_CODE' | translate }}</mat-label>
-              <input matInput [(ngModel)]="quoteCode" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.QUOTE_CODE' | translate }}</ion-label>
+              <ion-input [(ngModel)]="quoteCode"></ion-input>
+            </ion-item>
           </div>
 
-          <button
-            mat-raised-button
+          <ion-button
             color="primary"
             (click)="loadQuote()"
             [disabled]="!transactionCode || !quoteCode"
           >
             {{ 'INTEROP.GET_QUOTE' | translate }}
-          </button>
+          </ion-button>
         </section>
 
-        <mat-divider style="margin: 24px 0;"></mat-divider>
+        <hr class="divider" />
 
         <!-- Section 2: Create Quote -->
         <section>
           <h3>{{ 'INTEROP.CREATE_QUOTE' | translate }}</h3>
-          <mat-form-field class="full-width">
-            <mat-label>{{ 'INTEROP.QUOTE_BODY' | translate }}</mat-label>
-            <textarea matInput rows="10" [(ngModel)]="quoteBodyJson"></textarea>
-          </mat-form-field>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'INTEROP.QUOTE_BODY' | translate }}</ion-label>
+            <ion-textarea rows="10" [(ngModel)]="quoteBodyJson"></ion-textarea>
+          </ion-item>
 
-          <button mat-raised-button color="accent" (click)="createQuote()">
+          <ion-button color="accent" (click)="createQuote()">
             {{ 'INTEROP.CREATE_QUOTE' | translate }}
-          </button>
+          </ion-button>
         </section>
 
         @if (result()) {
           <h3 style="margin-top: 16px;">Result</h3>
           <pre>{{ result() | json }}</pre>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

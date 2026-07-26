@@ -20,13 +20,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { ClientTransactionService, GetClientsPageItems } from '../../../api';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Lists the transactions for a single client. The client id is read from the route
@@ -36,14 +34,7 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
 @Component({
   selector: 'app-client-transactions-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
       title="CLIENT_TRANSACTIONS.TITLE"
@@ -60,16 +51,16 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
         {{ row.type?.value }}
       </ng-template>
       <ng-template appCellTemplate="actions" let-row>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="warn"
           [attr.aria-label]="'CLIENT_TRANSACTIONS.UNDO' | translate"
-          [matTooltip]="'CLIENT_TRANSACTIONS.UNDO' | translate"
+          [attr.title]="'CLIENT_TRANSACTIONS.UNDO' | translate"
           [disabled]="row.reversed"
           (click)="onUndo(row)"
         >
-          <mat-icon>undo</mat-icon>
-        </button>
+          <ion-icon name="arrow-undo-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

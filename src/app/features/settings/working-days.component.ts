@@ -21,12 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 /**
  * Component for configuring system-wide working days and repayment reschedule rules.
@@ -37,61 +45,69 @@ import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '.
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatSelectModule,
     MatSnackBarModule,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Working Days & Reschedule Rules</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Working Days & Reschedule Rules</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #workingDaysForm="ngForm" (ngSubmit)="onSubmit()" class="working-days-form">
             <div class="days-grid">
-              <mat-checkbox name="monday" [(ngModel)]="recurrence['MO']">Monday</mat-checkbox>
-              <mat-checkbox name="tuesday" [(ngModel)]="recurrence['TU']">Tuesday</mat-checkbox>
-              <mat-checkbox name="wednesday" [(ngModel)]="recurrence['WE']">Wednesday</mat-checkbox>
-              <mat-checkbox name="thursday" [(ngModel)]="recurrence['TH']">Thursday</mat-checkbox>
-              <mat-checkbox name="friday" [(ngModel)]="recurrence['FR']">Friday</mat-checkbox>
-              <mat-checkbox name="saturday" [(ngModel)]="recurrence['SA']">Saturday</mat-checkbox>
-              <mat-checkbox name="sunday" [(ngModel)]="recurrence['SU']">Sunday</mat-checkbox>
+              <ion-checkbox name="monday" [(ngModel)]="recurrence['MO']">Monday</ion-checkbox>
+              <ion-checkbox name="tuesday" [(ngModel)]="recurrence['TU']">Tuesday</ion-checkbox>
+              <ion-checkbox name="wednesday" [(ngModel)]="recurrence['WE']">Wednesday</ion-checkbox>
+              <ion-checkbox name="thursday" [(ngModel)]="recurrence['TH']">Thursday</ion-checkbox>
+              <ion-checkbox name="friday" [(ngModel)]="recurrence['FR']">Friday</ion-checkbox>
+              <ion-checkbox name="saturday" [(ngModel)]="recurrence['SA']">Saturday</ion-checkbox>
+              <ion-checkbox name="sunday" [(ngModel)]="recurrence['SU']">Sunday</ion-checkbox>
             </div>
 
             <div class="reschedule-rules mt-4">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Repayments Rescheduling Rule</mat-label>
-                <mat-select name="rescheduleStrategy" [(ngModel)]="rescheduleId">
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">Repayments Rescheduling Rule</ion-label>
+                <ion-select name="rescheduleStrategy" [(ngModel)]="rescheduleId">
                   @for (option of rescheduleOptions; track option['id']) {
-                    <mat-option [value]="option['id']">{{ option['value'] }}</mat-option>
+                    <ion-select-option [value]="option['id']">{{
+                      option['value']
+                    }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-checkbox name="extendTerm" [(ngModel)]="extendTerm">
+              <ion-checkbox name="extendTerm" [(ngModel)]="extendTerm">
                 Extend Term for Daily Repayments
-              </mat-checkbox>
+              </ion-checkbox>
 
-              <mat-checkbox
+              <ion-checkbox
                 name="extendTermForRepaymentsOnHolidays"
                 [(ngModel)]="extendTermForRepaymentsOnHolidays"
               >
                 Extend Term for Repayments on Holidays
-              </mat-checkbox>
+              </ion-checkbox>
             </div>
 
             <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+              <ion-button color="primary" type="submit" [disabled]="isSaving">
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

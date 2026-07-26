@@ -20,9 +20,6 @@
 import { Component, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject, of } from 'rxjs';
@@ -30,19 +27,19 @@ import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../../shared';
 import { MakerCheckerOr4EyeFunctionalityService, AuditData } from '../../../api';
 import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-checker-inbox',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     MatSnackBarModule,
     MatDialogModule,
     DataTableComponent,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -59,25 +56,20 @@ import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
 
       <ng-template appCellTemplate="actions" let-task>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
-            matTooltip="View Payload"
+            title="View Payload"
             (click)="onViewPayload(task)"
           >
-            <mat-icon>visibility</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            class="approve-btn"
-            matTooltip="Approve"
-            (click)="onApprove(task)"
-          >
-            <mat-icon>check_circle</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" matTooltip="Reject" (click)="onReject(task)">
-            <mat-icon>cancel</mat-icon>
-          </button>
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" class="approve-btn" title="Approve" (click)="onApprove(task)">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" color="warn" title="Reject" (click)="onReject(task)">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

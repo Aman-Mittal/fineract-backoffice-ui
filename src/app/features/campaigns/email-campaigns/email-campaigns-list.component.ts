@@ -21,14 +21,19 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface EmailCampaign {
   id: number;
@@ -44,31 +49,34 @@ interface EmailCampaign {
     CommonModule,
     FormsModule,
     RouterModule,
-    MatCardModule,
     MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'EMAIL_CAMPAIGNS.TITLE' | translate }}</mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'EMAIL_CAMPAIGNS.TITLE' | translate }}</ion-card-title>
           <div class="actions-header">
-            <button mat-raised-button color="primary" (click)="navigateToCreate()">
-              <mat-icon>add</mat-icon>
+            <ion-button color="primary" (click)="navigateToCreate()">
+              <ion-icon name="add-outline"></ion-icon>
               {{ 'EMAIL_CAMPAIGNS.CREATE' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-header>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (isLoading()) {
             <div class="spinner-container">
-              <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
             <table mat-table [dataSource]="campaigns()" class="mat-elevation-z1">
@@ -105,38 +113,38 @@ interface EmailCampaign {
                   {{ 'EMAIL_CAMPAIGNS.ACTIONS' | translate }}
                 </th>
                 <td mat-cell *matCellDef="let campaign">
-                  <button
-                    mat-icon-button
+                  <ion-button
+                    fill="clear"
                     color="primary"
                     [title]="'EMAIL_CAMPAIGNS.EDIT' | translate"
                     (click)="navigateToEdit(campaign.id)"
                   >
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="create-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="accent"
                     [title]="'EMAIL_CAMPAIGNS.ACTIVATE' | translate"
                     (click)="activate(campaign.id)"
                   >
-                    <mat-icon>play_arrow</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="play-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="warn"
                     [title]="'EMAIL_CAMPAIGNS.DEACTIVATE' | translate"
                     (click)="deactivate(campaign.id)"
                   >
-                    <mat-icon>pause</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="pause-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="warn"
                     [title]="'EMAIL_CAMPAIGNS.DELETE' | translate"
                     (click)="delete(campaign.id)"
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
                 </td>
               </ng-container>
 
@@ -150,8 +158,8 @@ interface EmailCampaign {
               </tr>
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

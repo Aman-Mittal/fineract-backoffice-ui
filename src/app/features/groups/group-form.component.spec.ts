@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('GroupFormComponent', () => {
   let component: GroupFormComponent;
@@ -43,7 +42,7 @@ describe('GroupFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [GroupFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [GroupFormComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: GroupsService, useValue: groupsServiceSpy },

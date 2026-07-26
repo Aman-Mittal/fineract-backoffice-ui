@@ -22,14 +22,22 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   LoanCollateralService,
   LoansLoanIdCollateralsRequest,
@@ -49,104 +57,104 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardSubtitle,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('LOANS.EDIT_COLLATERAL' | translate)
                 : ('LOANS.ADD_COLLATERAL' | translate)
             }}
-          </mat-card-title>
+          </ion-card-title>
           @if (loanSummary) {
-            <mat-card-subtitle>
+            <ion-card-subtitle>
               {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
               {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
               {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
-            </mat-card-subtitle>
+            </ion-card-subtitle>
           }
-        </mat-card-header>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #collateralForm="ngForm" (ngSubmit)="onSubmit()" class="collateral-form">
             <div class="form-grid">
               <!-- Collateral Type -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.COLLATERAL_TYPE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.TYPE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline" [attr.title]="'HELP.COLLATERAL_TYPE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
+                <ion-select
                   name="collateralTypeId"
                   [(ngModel)]="selectedCollateralTypeId"
                   required
                   [disabled]="isEditMode"
                 >
                   @for (type of collateralTypes; track type.id) {
-                    <mat-option [value]="type.id">{{ type.name }}</mat-option>
+                    <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Value -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.COLLATERAL_VALUE_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.VALUE' | translate }}</mat-label>
-                <input matInput type="number" name="value" [(ngModel)]="collateralValue" required />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.COLLATERAL_VALUE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.VALUE' | translate }}</ion-label>
+                <ion-input
+                  type="number"
+                  name="value"
+                  [(ngModel)]="collateralValue"
+                  required
+                ></ion-input>
+              </ion-item>
 
               <!-- Description -->
-              <mat-form-field
-                appearance="outline"
+              <ion-item
+                fill="outline"
                 class="full-width"
-                [matTooltip]="'HELP.COLLATERAL_DESC' | translate"
+                [attr.title]="'HELP.COLLATERAL_DESC' | translate"
               >
-                <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
+                <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+                <ion-textarea
                   name="description"
                   [(ngModel)]="collateralDescription"
                   rows="3"
-                ></textarea>
-              </mat-form-field>
+                ></ion-textarea>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="collateralForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

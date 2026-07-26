@@ -19,16 +19,21 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InternalCOBService, COBPartition } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-cob-tools',
@@ -36,42 +41,40 @@ import { InternalCOBService, COBPartition } from '../../../api';
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatTableModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'COB_TOOLS.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'COB_TOOLS.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <!-- View COB Partitions -->
         <section>
           <h3>{{ 'COB_TOOLS.PARTITIONS' | translate }}</h3>
           <div class="row-actions">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COB_TOOLS.PARTITION_SIZE' | translate }}</mat-label>
-              <input matInput type="number" [(ngModel)]="partitionSize" />
-            </mat-form-field>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="loadPartitions()"
-              [disabled]="isLoading"
-            >
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COB_TOOLS.PARTITION_SIZE' | translate }}</ion-label>
+              <ion-input type="number" [(ngModel)]="partitionSize"></ion-input>
+            </ion-item>
+            <ion-button color="primary" (click)="loadPartitions()" [disabled]="isLoading">
               {{ 'COB_TOOLS.LOAD_PARTITIONS' | translate }}
-            </button>
+            </ion-button>
           </div>
 
           @if (isLoading) {
-            <mat-spinner diameter="32"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           }
 
           @if (partitions().length > 0) {
@@ -86,39 +89,43 @@ import { InternalCOBService, COBPartition } from '../../../api';
           }
         </section>
 
-        <mat-divider></mat-divider>
+        <hr class="divider" />
 
         <!-- Fast-Forward COB Date -->
         <section>
           <h3>{{ 'COB_TOOLS.FAST_FORWARD' | translate }}</h3>
           <div class="row-actions">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COB_TOOLS.FAST_FORWARD_LOAN_ID' | translate }}</mat-label>
-              <input matInput type="number" [(ngModel)]="fastForwardLoanId" />
-            </mat-form-field>
-            <button mat-raised-button color="accent" (click)="fastForward()" [disabled]="isLoading">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'COB_TOOLS.FAST_FORWARD_LOAN_ID' | translate
+              }}</ion-label>
+              <ion-input type="number" [(ngModel)]="fastForwardLoanId"></ion-input>
+            </ion-item>
+            <ion-button color="accent" (click)="fastForward()" [disabled]="isLoading">
               {{ 'COB_TOOLS.FAST_FORWARD' | translate }}
-            </button>
+            </ion-button>
           </div>
         </section>
 
-        <mat-divider></mat-divider>
+        <hr class="divider" />
 
         <!-- Reprocess Loan COB -->
         <section>
           <h3>{{ 'COB_TOOLS.REPROCESS' | translate }}</h3>
           <div class="row-actions">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COB_TOOLS.REPROCESS_LOAN_ID' | translate }}</mat-label>
-              <input matInput type="number" [(ngModel)]="reprocessLoanId" />
-            </mat-form-field>
-            <button mat-raised-button color="warn" (click)="reprocess()" [disabled]="isLoading">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'COB_TOOLS.REPROCESS_LOAN_ID' | translate
+              }}</ion-label>
+              <ion-input type="number" [(ngModel)]="reprocessLoanId"></ion-input>
+            </ion-item>
+            <ion-button color="warn" (click)="reprocess()" [disabled]="isLoading">
               {{ 'COB_TOOLS.REPROCESS' | translate }}
-            </button>
+            </ion-button>
           </div>
         </section>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

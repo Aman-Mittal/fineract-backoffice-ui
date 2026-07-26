@@ -21,12 +21,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   CodesService,
   CodeValuesService,
@@ -47,13 +53,17 @@ export interface ClientActionDialogData {
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
     TranslateModule,
+    IonButton,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <h2 mat-dialog-title>{{ data.title | translate }}</h2>
@@ -73,27 +83,27 @@ export interface ClientActionDialogData {
         </mat-form-field>
 
         @if (showReasonDropdown) {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ reasonLabel | translate }}</mat-label>
-            <mat-select [(ngModel)]="reasonId" required>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ reasonLabel | translate }}</ion-label>
+            <ion-select [(ngModel)]="reasonId" required>
               @for (reason of reasonOptions; track reason.id) {
-                <mat-option [value]="reason.id">{{ reason.name }}</mat-option>
+                <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
         }
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-          <textarea matInput [(ngModel)]="note" rows="3"></textarea>
-        </mat-form-field>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+          <ion-textarea [(ngModel)]="note" rows="3"></ion-textarea>
+        </ion-item>
       </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="!isValid">
+      <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
+      <ion-button color="primary" (click)="onConfirm()" [disabled]="!isValid">
         {{ 'COMMON.CONFIRM' | translate }}
-      </button>
+      </ion-button>
     </mat-dialog-actions>
   `,
   styles: [

@@ -21,12 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
@@ -35,6 +31,14 @@ import {
   SavingsAccountChargeData,
 } from '../../api';
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 import {
   resolveAccountActionType,
   resolveAccountRoutePrefix,
@@ -46,27 +50,29 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatCardModule,
     MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
     MatTableModule,
-    MatTooltipModule,
     MatSnackBarModule,
     StatusBadgeComponent,
     HasPermissionDirective,
     DecimalPipe,
     NgClass,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     @if (account()) {
       <div class="view-container">
         <!-- Header Actions Card -->
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div class="savings-title-area">
               <div class="avatar-circle">
-                <mat-icon>account_balance_wallet</mat-icon>
+                <ion-icon name="wallet-outline"></ion-icon>
               </div>
               <div class="title-details">
                 <h2>{{ account()?.savingsProductName }}</h2>
@@ -83,68 +89,63 @@ import {
             </div>
             <div class="actions-area">
               @if (account()?.status?.submittedAndPendingApproval) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="accent"
                   *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('approve')"
-                  [matTooltip]="'SAVINGS.APPROVE' | translate"
+                  [attr.title]="'SAVINGS.APPROVE' | translate"
                 >
-                  <mat-icon>check_circle</mat-icon>
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
                   Approve
-                </button>
+                </ion-button>
               }
               @if (account()?.status?.approved) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="primary"
                   *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('activate')"
-                  [matTooltip]="'SAVINGS.ACTIVATE' | translate"
+                  [attr.title]="'SAVINGS.ACTIVATE' | translate"
                 >
-                  <mat-icon>play_circle_outline</mat-icon>
+                  <ion-icon name="play-circle-outline"></ion-icon>
                   Activate
-                </button>
+                </ion-button>
               }
               @if (account()?.status?.active) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="warn"
                   *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('close')"
-                  [matTooltip]="'SAVINGS.CLOSE' | translate"
+                  [attr.title]="'SAVINGS.CLOSE' | translate"
                 >
-                  <mat-icon>power_settings_new</mat-icon>
+                  <ion-icon name="power-outline"></ion-icon>
                   Close
-                </button>
+                </ion-button>
               }
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
                 (click)="onTransaction('deposit')"
-                [matTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
+                [attr.title]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
-                <mat-icon>add_circle_outline</mat-icon>
+                <ion-icon name="add-circle-outline"></ion-icon>
                 Deposit
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="warn"
                 *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
                 (click)="onTransaction('withdrawal')"
-                [matTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
+                [attr.title]="'SAVINGS.WITHDRAW_CASH' | translate"
               >
-                <mat-icon>remove_circle_outline</mat-icon>
+                <ion-icon name="remove-circle-outline"></ion-icon>
                 Withdraw
-              </button>
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              </ion-button>
+              <ion-button fill="clear" (click)="onBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         <!-- Tabs Section -->
         <mat-tab-group class="tab-group" animationDuration="0ms">
@@ -152,14 +153,14 @@ import {
           <mat-tab label="Overview">
             <div class="tab-content">
               <div class="info-grid">
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>info</mat-icon>
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>
+                      <ion-icon name="information-circle-outline"></ion-icon>
                       Interest Settings
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
+                    </ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
                     <div class="detail-item">
                       <span class="label">Nominal Annual Interest Rate</span>
                       <span class="value">{{ account()?.nominalAnnualInterestRate }}%</span>
@@ -180,17 +181,17 @@ import {
                         account()?.interestCalculationDaysInYearType?.value
                       }}</span>
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
 
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>timeline</mat-icon>
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>
+                      <ion-icon name="pulse-outline"></ion-icon>
                       Timeline & Balance
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
+                    </ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
                     <div class="detail-item">
                       <span class="label">Submitted On Date</span>
                       <span class="value">{{ formattedSubmittedDate }}</span>
@@ -210,8 +211,8 @@ import {
                         {{ account()?.summary?.accountBalance || 0 | number: '1.2-2' }}
                       </span>
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
               </div>
             </div>
           </mat-tab>
@@ -219,8 +220,8 @@ import {
           <!-- Transactions -->
           <mat-tab [label]="'COMMON.TRANSACTIONS' | translate">
             <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
+              <ion-card class="table-card">
+                <ion-card-content>
                   @if (transactions().length > 0) {
                     <table mat-table [dataSource]="transactions()" class="full-width-table">
                       <ng-container matColumnDef="id">
@@ -270,20 +271,20 @@ import {
                     </table>
                   } @else {
                     <div class="empty-state">
-                      <mat-icon>receipt</mat-icon>
+                      <ion-icon name="receipt-outline"></ion-icon>
                       <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
                     </div>
                   }
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
 
           <!-- Charges -->
           <mat-tab [label]="'LOANS.CHARGES' | translate">
             <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
+              <ion-card class="table-card">
+                <ion-card-content>
                   @if (charges().length > 0) {
                     <table mat-table [dataSource]="charges()" class="full-width-table">
                       <ng-container matColumnDef="name">
@@ -313,12 +314,12 @@ import {
                     </table>
                   } @else {
                     <div class="empty-state">
-                      <mat-icon>monetization_on</mat-icon>
+                      <ion-icon name="cash-outline"></ion-icon>
                       <p>{{ 'SAVINGS.NO_CHARGES' | translate }}</p>
                     </div>
                   }
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
         </mat-tab-group>

@@ -19,57 +19,66 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientSearchV2Service, PageClientSearchData, ClientSearchData } from '../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-client-search-v2',
   standalone: true,
   imports: [
     FormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatTableModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
     MatPaginatorModule,
     TranslateModule,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'CLIENT_SEARCH_V2.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'CLIENT_SEARCH_V2.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="search-row">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ 'CLIENT_SEARCH_V2.QUERY' | translate }}</mat-label>
-            <input matInput [(ngModel)]="query" (keyup.enter)="search()" [disabled]="isLoading" />
-          </mat-form-field>
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="search()"
-            [disabled]="!query || isLoading"
-          >
-            <mat-icon>search</mat-icon>
+          <ion-item fill="outline" class="search-field">
+            <ion-label position="stacked">{{ 'CLIENT_SEARCH_V2.QUERY' | translate }}</ion-label>
+            <ion-input
+              [(ngModel)]="query"
+              (keyup.enter)="search()"
+              [disabled]="isLoading"
+            ></ion-input>
+          </ion-item>
+          <ion-button color="primary" (click)="search()" [disabled]="!query || isLoading">
+            <ion-icon name="search-outline"></ion-icon>
             {{ 'CLIENT_SEARCH_V2.SEARCH' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         @if (isLoading) {
           <div class="spinner-row">
-            <mat-spinner diameter="40"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
@@ -100,13 +109,13 @@ import { ClientSearchV2Service, PageClientSearchData, ClientSearchData } from '.
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
-                <button
-                  mat-icon-button
+                <ion-button
+                  fill="clear"
                   (click)="viewClient(row.id)"
                   [title]="'CLIENT_SEARCH_V2.VIEW' | translate"
                 >
-                  <mat-icon>visibility</mat-icon>
-                </button>
+                  <ion-icon name="eye-outline"></ion-icon>
+                </ion-button>
               </td>
             </ng-container>
 
@@ -130,8 +139,8 @@ import { ClientSearchV2Service, PageClientSearchData, ClientSearchData } from '.
         @if (searched && results().length === 0 && !isLoading) {
           <p class="no-results">{{ 'CLIENT_SEARCH_V2.NO_RESULTS' | translate }}</p>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

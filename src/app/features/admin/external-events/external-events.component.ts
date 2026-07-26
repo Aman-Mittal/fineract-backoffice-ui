@@ -19,15 +19,21 @@
 import { Component, signal, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService, ExternalEventResponse } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-external-events',
@@ -35,61 +41,69 @@ import { DefaultService, ExternalEventResponse } from '../../../api';
   imports: [
     FormsModule,
     DatePipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatTableModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'EXTERNAL_EVENTS.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'EXTERNAL_EVENTS.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="filter-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EXTERNAL_EVENTS.IDEMPOTENCY_KEY' | translate }}</mat-label>
-            <input matInput [(ngModel)]="filters.idempotencyKey" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'EXTERNAL_EVENTS.IDEMPOTENCY_KEY' | translate
+            }}</ion-label>
+            <ion-input [(ngModel)]="filters.idempotencyKey"></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EXTERNAL_EVENTS.TYPE' | translate }}</mat-label>
-            <input matInput [(ngModel)]="filters.type" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'EXTERNAL_EVENTS.TYPE' | translate }}</ion-label>
+            <ion-input [(ngModel)]="filters.type"></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EXTERNAL_EVENTS.CATEGORY' | translate }}</mat-label>
-            <input matInput [(ngModel)]="filters.category" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'EXTERNAL_EVENTS.CATEGORY' | translate }}</ion-label>
+            <ion-input [(ngModel)]="filters.category"></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'EXTERNAL_EVENTS.AGGREGATE_ROOT_ID' | translate }}</mat-label>
-            <input matInput [(ngModel)]="filters.aggregateRootId" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'EXTERNAL_EVENTS.AGGREGATE_ROOT_ID' | translate
+            }}</ion-label>
+            <ion-input [(ngModel)]="filters.aggregateRootId"></ion-input>
+          </ion-item>
         </div>
 
         <div class="action-row">
-          <button mat-raised-button color="primary" (click)="load()" [disabled]="isLoading">
+          <ion-button color="primary" (click)="load()" [disabled]="isLoading">
             @if (isLoading) {
-              <mat-spinner diameter="20"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'EXTERNAL_EVENTS.LOAD' | translate }}
             }
-          </button>
-          <button mat-raised-button color="warn" (click)="clearAll()" [disabled]="isLoading">
+          </ion-button>
+          <ion-button color="warn" (click)="clearAll()" [disabled]="isLoading">
             {{ 'EXTERNAL_EVENTS.CLEAR_ALL' | translate }}
-          </button>
+          </ion-button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
 
     @if (events().length > 0) {
-      <mat-card class="table-card">
-        <mat-card-content>
+      <ion-card class="table-card">
+        <ion-card-content>
           <table mat-table [dataSource]="events()" class="full-width">
             <ng-container matColumnDef="idempotencyKey">
               <th mat-header-cell *matHeaderCellDef>
@@ -127,8 +141,8 @@ import { DefaultService, ExternalEventResponse } from '../../../api';
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     }
   `,
   styles: [

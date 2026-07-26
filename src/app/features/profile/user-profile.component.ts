@@ -18,27 +18,40 @@
  */
 import { Component, OnInit, signal, inject } from '@angular/core';
 
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { FetchAuthenticatedUserDetailsService, GetUserDetailsResponse, RoleData } from '../../api';
+import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonChip,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [MatCardModule, MatChipsModule, MatProgressSpinnerModule, TranslateModule],
+  imports: [
+    TranslateModule,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonChip,
+  ],
   template: `
     <div class="profile-container">
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'PROFILE.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card class="profile-card">
+        <ion-card-header>
+          <ion-card-title>{{ 'PROFILE.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (isLoading) {
             <div class="spinner-wrapper">
-              <mat-spinner diameter="48"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           }
 
@@ -67,18 +80,18 @@ import { FetchAuthenticatedUserDetailsService, GetUserDetailsResponse, RoleData 
               </div>
               <div class="detail-row roles-row">
                 <span class="label">{{ 'PROFILE.ROLES' | translate }}</span>
-                <mat-chip-set class="roles-chips">
+                <div class="roles-chips">
                   @for (role of roles; track role) {
-                    <mat-chip>
+                    <ion-chip>
                       {{ role.name || role }}
-                    </mat-chip>
+                    </ion-chip>
                   }
-                </mat-chip-set>
+                </div>
               </div>
             </div>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

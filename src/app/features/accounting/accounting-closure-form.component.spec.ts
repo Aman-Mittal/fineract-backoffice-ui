@@ -30,7 +30,6 @@ import { of, Observable } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('AccountingClosureFormComponent', () => {
   let component: AccountingClosureFormComponent;
@@ -45,7 +44,7 @@ describe('AccountingClosureFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [AccountingClosureFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [AccountingClosureFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: OfficesService, useValue: officeServiceSpy },

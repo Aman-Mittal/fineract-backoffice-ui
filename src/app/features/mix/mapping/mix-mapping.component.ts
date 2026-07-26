@@ -20,11 +20,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   MixMappingService,
   MixTaxonomyMappingData,
@@ -41,57 +48,58 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'MIX_MAPPING.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'MIX_MAPPING.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #mappingForm="ngForm" (ngSubmit)="onSubmit()" class="mix-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MIX_MAPPING.IDENTIFIER' | translate }}</mat-label>
-              <input matInput name="identifier" [(ngModel)]="mapping.identifier" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MIX_MAPPING.IDENTIFIER' | translate }}</ion-label>
+              <ion-input name="identifier" [(ngModel)]="mapping.identifier"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MIX_MAPPING.CURRENCY' | translate }}</mat-label>
-              <input matInput name="currency" [(ngModel)]="mapping.currency" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MIX_MAPPING.CURRENCY' | translate }}</ion-label>
+              <ion-input name="currency" [(ngModel)]="mapping.currency"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'MIX_MAPPING.CONFIG' | translate }}</mat-label>
-              <textarea matInput rows="10" name="config" [(ngModel)]="mapping.config"></textarea>
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'MIX_MAPPING.CONFIG' | translate }}</ion-label>
+              <ion-textarea rows="10" name="config" [(ngModel)]="mapping.config"></ion-textarea>
+            </ion-item>
 
             <div class="form-actions">
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="mappingForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

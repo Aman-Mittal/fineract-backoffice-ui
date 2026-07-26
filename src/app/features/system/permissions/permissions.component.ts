@@ -20,11 +20,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+} from '@ionic/angular/standalone';
 
 /**
  * Maker-checker permission configuration: lists permissions grouped by their
@@ -37,18 +42,21 @@ import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } fro
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatTableModule,
-    MatCheckboxModule,
-    MatButtonModule,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
   ],
   template: `
     <div class="permissions-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'PERMISSIONS.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'PERMISSIONS.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           @for (group of groupNames; track group) {
             <h3 class="group-heading">{{ group }}</h3>
             <table mat-table [dataSource]="grouped[group]" class="permissions-table">
@@ -69,10 +77,10 @@ import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } fro
                   {{ 'PERMISSIONS.MAKER_CHECKER' | translate }}
                 </th>
                 <td mat-cell *matCellDef="let row">
-                  <mat-checkbox
+                  <ion-checkbox
                     [(ngModel)]="row.selected"
                     (ngModelChange)="onToggle(row)"
-                  ></mat-checkbox>
+                  ></ion-checkbox>
                 </td>
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -80,12 +88,12 @@ import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } fro
             </table>
           }
           <div class="actions">
-            <button mat-raised-button color="primary" [disabled]="isSaving" (click)="onSave()">
+            <ion-button color="primary" [disabled]="isSaving" (click)="onSave()">
               {{ 'COMMON.SAVE' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

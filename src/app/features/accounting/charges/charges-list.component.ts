@@ -21,12 +21,10 @@ import { Component, OnInit, inject } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { ChargesService, ChargeData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Component for listing globally configured charges and penalties.
@@ -38,13 +36,12 @@ import { ChargesService, ChargeData } from '../../../api';
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     DecimalPipe,
     CurrencyPipe,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -78,15 +75,15 @@ import { ChargesService, ChargeData } from '../../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-charge>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Charge"
+          title="Edit Charge"
           (click)="onEditCharge(charge)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

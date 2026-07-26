@@ -21,18 +21,25 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   ClientCollateralManagementService,
   ClientCollateralCreateRequest,
   LoanCollateralTemplateData,
 } from '../../../api';
 import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Create / edit form for a client collateral. The selectable collateral product
@@ -45,77 +52,81 @@ import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CLIENT_COLLATERAL.EDIT' | translate)
                 : ('CLIENT_COLLATERAL.CREATE' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #collateralForm="ngForm" (ngSubmit)="onSubmit()" class="collateral-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CLIENT_COLLATERAL.PRODUCT' | translate }}</mat-label>
-              <mat-select
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'CLIENT_COLLATERAL.PRODUCT' | translate
+              }}</ion-label>
+              <ion-select
                 name="collateralId"
                 [(ngModel)]="collateral.collateralId"
                 [disabled]="isEditMode"
                 required
               >
                 @for (opt of collateralProductOptions; track opt.collateralId) {
-                  <mat-option [value]="opt.collateralId">{{ opt.name }}</mat-option>
+                  <ion-select-option [value]="opt.collateralId">{{ opt.name }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CLIENT_COLLATERAL.QUANTITY' | translate }}</mat-label>
-              <input
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'CLIENT_COLLATERAL.QUANTITY' | translate
+              }}</ion-label>
+              <ion-input
                 type="number"
                 name="quantity"
                 [(ngModel)]="collateral.quantity"
                 required
-              />
-            </mat-form-field>
+              ></ion-input>
+            </ion-item>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="collateralForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

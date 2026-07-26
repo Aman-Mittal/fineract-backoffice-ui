@@ -21,8 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -33,6 +31,14 @@ import {
   GetLoansLoanIdTransactionsTransactionIdResponse,
 } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
+import {
+  IonButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 export interface TransactionDetailDialogData {
   loanId: number;
@@ -53,13 +59,17 @@ const DATE_FORMAT = 'yyyy-MM-dd';
     FormsModule,
     TranslateModule,
     MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
     DecimalPipe,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
   ],
   template: `
     <h2 mat-dialog-title>{{ 'LOANS.TRANSACTION_DETAILS' | translate }}</h2>
@@ -120,15 +130,15 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 
         @if (data.adjustable && !tx.manuallyReversed) {
           @if (!showAdjustForm()) {
-            <button
-              mat-stroked-button
+            <ion-button
+              fill="outline"
               color="warn"
               class="adjust-toggle"
               (click)="showAdjustForm.set(true)"
             >
-              <mat-icon>edit</mat-icon>
+              <ion-icon name="create-outline"></ion-icon>
               {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | translate }}
-            </button>
+            </ion-button>
           } @else {
             <div class="adjust-form">
               <p class="adjust-warning">{{ 'LOANS.CONFIRM_ADJUST_TRANSACTION' | translate }}</p>
@@ -143,14 +153,16 @@ const DATE_FORMAT = 'yyyy-MM-dd';
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.TRANSACTION_AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" [(ngModel)]="adjustAmount" name="adjustAmount" />
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                <textarea matInput rows="2" [(ngModel)]="adjustNote" name="adjustNote"></textarea>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'COMMON.TRANSACTION_AMOUNT' | translate
+                }}</ion-label>
+                <ion-input type="number" [(ngModel)]="adjustAmount" name="adjustAmount"></ion-input>
+              </ion-item>
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                <ion-textarea rows="2" [(ngModel)]="adjustNote" name="adjustNote"></ion-textarea>
+              </ion-item>
             </div>
           }
         }
@@ -159,11 +171,13 @@ const DATE_FORMAT = 'yyyy-MM-dd';
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close(false)">{{ 'COMMON.CLOSE' | translate }}</button>
+      <ion-button fill="clear" (click)="dialogRef.close(false)">{{
+        'COMMON.CLOSE' | translate
+      }}</ion-button>
       @if (showAdjustForm()) {
-        <button mat-raised-button color="warn" [disabled]="isSaving()" (click)="onConfirmAdjust()">
+        <ion-button color="warn" [disabled]="isSaving()" (click)="onConfirmAdjust()">
           {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | translate }}
-        </button>
+        </ion-button>
       }
     </mat-dialog-actions>
   `,

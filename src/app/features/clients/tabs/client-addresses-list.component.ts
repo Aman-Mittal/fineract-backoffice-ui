@@ -20,9 +20,7 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataTableComponent,
   ColumnDef,
@@ -30,6 +28,7 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { ClientsAddressService, AddressData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-client-addresses-list',
@@ -37,24 +36,23 @@ import { ClientsAddressService, AddressData } from '../../../api';
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
     MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <div class="tab-actions">
-      <button
-        mat-raised-button
+      <ion-button
         color="primary"
         [routerLink]="['/clients', clientId, 'addresses', 'create']"
         *appHasPermission="'CREATE_ADDRESS'"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'CLIENTS.ADD_ADDRESS' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     <app-data-table
@@ -76,15 +74,15 @@ import { ClientsAddressService, AddressData } from '../../../api';
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             [routerLink]="['/clients', clientId, 'addresses', 'edit', row.addressId]"
             *appHasPermission="'UPDATE_ADDRESS'"
-            [matTooltip]="'COMMON.EDIT' | translate"
+            [attr.title]="'COMMON.EDIT' | translate"
           >
-            <mat-icon>edit</mat-icon>
-          </button>
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

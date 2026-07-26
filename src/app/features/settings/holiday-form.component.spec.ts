@@ -25,7 +25,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('HolidayFormComponent', () => {
   let component: HolidayFormComponent;
@@ -55,7 +54,7 @@ describe('HolidayFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [HolidayFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [HolidayFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: HolidaysService, useValue: holidaysServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },

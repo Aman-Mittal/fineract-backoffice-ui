@@ -19,66 +19,77 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-two-factor-config',
   standalone: true,
   imports: [
     FormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="two-factor-container">
-      <mat-card class="two-factor-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'TWO_FACTOR_CONFIG.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card class="two-factor-card">
+        <ion-card-header>
+          <ion-card-title>{{ 'TWO_FACTOR_CONFIG.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (isLoading) {
             <div class="spinner-wrapper">
-              <mat-spinner diameter="48"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           }
 
           @if (!isLoading) {
             <form (ngSubmit)="onSave()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'TWO_FACTOR_CONFIG.CONFIG_JSON' | translate }}</mat-label>
-                <textarea
-                  matInput
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{
+                  'TWO_FACTOR_CONFIG.CONFIG_JSON' | translate
+                }}</ion-label>
+                <ion-textarea
                   name="configJson"
                   [(ngModel)]="configJson"
                   rows="14"
                   [disabled]="isSaving"
-                ></textarea>
-              </mat-form-field>
+                ></ion-textarea>
+              </ion-item>
               <div class="actions">
-                <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+                <ion-button color="primary" type="submit" [disabled]="isSaving">
                   @if (isSaving) {
-                    <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+                    <ion-spinner name="crescent"></ion-spinner>
                   }
                   {{ 'TWO_FACTOR_CONFIG.SAVE' | translate }}
-                </button>
+                </ion-button>
               </div>
             </form>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

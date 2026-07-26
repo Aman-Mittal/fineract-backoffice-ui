@@ -20,15 +20,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface SmsCampaign {
   id: number;
@@ -43,32 +48,35 @@ interface SmsCampaign {
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
     MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     RouterModule,
     TranslateModule,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'SMS_CAMPAIGNS.TITLE' | translate }}</mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'SMS_CAMPAIGNS.TITLE' | translate }}</ion-card-title>
           <div class="header-actions">
-            <button mat-raised-button color="primary" [routerLink]="['/campaigns/sms/create']">
-              <mat-icon>add</mat-icon>
+            <ion-button color="primary" [routerLink]="['/campaigns/sms/create']">
+              <ion-icon name="add-outline"></ion-icon>
               {{ 'SMS_CAMPAIGNS.CREATE' | translate }}
-            </button>
+            </ion-button>
           </div>
-        </mat-card-header>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (loading()) {
             <div class="spinner-container">
-              <mat-spinner diameter="40"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             </div>
           } @else {
             <table mat-table [dataSource]="campaigns()" class="full-width">
@@ -97,33 +105,33 @@ interface SmsCampaign {
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>{{ 'SMS_CAMPAIGNS.ACTIONS' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
-                  <button mat-icon-button color="primary" (click)="edit(row.id)" title="Edit">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                  <ion-button fill="clear" color="primary" (click)="edit(row.id)" title="Edit">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="accent"
                     (click)="activate(row.id)"
                     title="{{ 'SMS_CAMPAIGNS.ACTIVATE' | translate }}"
                   >
-                    <mat-icon>play_arrow</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="play-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="warn"
                     (click)="deactivate(row.id)"
                     title="{{ 'SMS_CAMPAIGNS.DEACTIVATE' | translate }}"
                   >
-                    <mat-icon>pause</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
+                    <ion-icon name="pause-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
                     color="warn"
                     (click)="delete(row.id)"
                     title="{{ 'SMS_CAMPAIGNS.DELETE' | translate }}"
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
                 </td>
               </ng-container>
 
@@ -139,8 +147,8 @@ interface SmsCampaign {
               }
             </table>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

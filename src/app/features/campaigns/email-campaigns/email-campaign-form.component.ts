@@ -21,15 +21,25 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-email-campaign-form',
@@ -38,53 +48,61 @@ import { DefaultService } from '../../../api';
     FormsModule,
     RouterModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatSnackBarModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             @if (isEditMode()) {
               {{ 'EMAIL_CAMPAIGNS.EDIT' | translate }}
             } @else {
               {{ 'EMAIL_CAMPAIGNS.CREATE' | translate }}
             }
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #campaignForm="ngForm" (ngSubmit)="onSubmit()" class="campaign-form">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.NAME' | translate }}</mat-label>
-              <input matInput name="campaignName" [(ngModel)]="campaignName" required />
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.NAME' | translate }}</ion-label>
+              <ion-input name="campaignName" [(ngModel)]="campaignName" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.TYPE' | translate }}</mat-label>
-              <mat-select name="campaignType" [(ngModel)]="campaignType">
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.TYPE' | translate }}</ion-label>
+              <ion-select name="campaignType" [(ngModel)]="campaignType">
                 @for (option of campaignTypeOptions(); track option.id) {
-                  <mat-option [value]="option.id">{{ option.value }}</mat-option>
+                  <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                 }
-              </mat-select>
-            </mat-form-field>
+              </ion-select>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.SUBJECT' | translate }}</mat-label>
-              <input matInput name="emailSubject" [(ngModel)]="emailSubject" />
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.SUBJECT' | translate }}</ion-label>
+              <ion-input name="emailSubject" [(ngModel)]="emailSubject"></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'EMAIL_CAMPAIGNS.MESSAGE' | translate }}</mat-label>
-              <textarea matInput name="emailMessage" [(ngModel)]="emailMessage" rows="5"></textarea>
-            </mat-form-field>
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.MESSAGE' | translate }}</ion-label>
+              <ion-textarea name="emailMessage" [(ngModel)]="emailMessage" rows="5"></ion-textarea>
+            </ion-item>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'EMAIL_CAMPAIGNS.SCHEDULE' | translate }}</mat-label>
@@ -99,21 +117,20 @@ import { DefaultService } from '../../../api';
             </mat-form-field>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving()">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="campaignForm.invalid || isSaving()"
               >
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

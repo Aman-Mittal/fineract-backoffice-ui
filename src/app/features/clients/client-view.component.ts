@@ -20,13 +20,9 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import {
@@ -52,6 +48,14 @@ import { ClientFamilyMembersListComponent } from './tabs/client-family-members-l
 import { ClientNotesListComponent } from './tabs/client-notes-list.component';
 import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-client-view',
@@ -59,13 +63,9 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
   imports: [
     RouterModule,
     TranslateModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
     MatMenuModule,
     MatTabsModule,
     MatTableModule,
-    MatTooltipModule,
     MatDialogModule,
     StatusBadgeComponent,
     HasPermissionDirective,
@@ -76,6 +76,12 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
     ClientDocumentsListComponent,
     EntityDatatablesComponent,
     DecimalPipe,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="view-container">
@@ -85,11 +91,11 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
           <span>{{ client()?.displayName }}</span>
         </div>
 
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div class="client-title-area">
               <div class="avatar-circle">
-                <mat-icon>person</mat-icon>
+                <ion-icon name="person-outline"></ion-icon>
               </div>
               <div class="title-details">
                 <h2>{{ client()?.displayName }}</h2>
@@ -103,18 +109,18 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
             </div>
 
             <div class="actions-area">
-              <button
-                mat-stroked-button
+              <ion-button
+                fill="outline"
                 color="primary"
                 (click)="onEditClient()"
                 *appHasPermission="'UPDATE_CLIENT'"
               >
-                <mat-icon>edit</mat-icon>
+                <ion-icon name="create-outline"></ion-icon>
                 {{ 'COMMON.EDIT' | translate }}
-              </button>
+              </ion-button>
 
-              <button
-                mat-stroked-button
+              <ion-button
+                fill="outline"
                 color="accent"
                 [matMenuTriggerFor]="clientActionsMenu"
                 *appHasPermission="[
@@ -128,9 +134,9 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                   'UNDOWITHDRAW_CLIENT',
                 ]"
               >
-                <mat-icon>settings</mat-icon>
+                <ion-icon name="settings-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
-              </button>
+              </ion-button>
 
               <mat-menu #clientActionsMenu="matMenu">
                 @if (client()?.status?.id === 100) {
@@ -139,7 +145,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('activate')"
                     *appHasPermission="'ACTIVATE_CLIENT'"
                   >
-                    <mat-icon>play_circle</mat-icon>
+                    <ion-icon name="play-circle-outline"></ion-icon>
                     <span>{{ 'ACTIONS.ACTIVATE_CLIENT' | translate }}</span>
                   </button>
                   <button
@@ -147,7 +153,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('reject')"
                     *appHasPermission="'REJECT_CLIENT'"
                   >
-                    <mat-icon>report_off</mat-icon>
+                    <ion-icon name="alert-circle-outline"></ion-icon>
                     <span>{{ 'ACTIONS.REJECT_CLIENT' | translate }}</span>
                   </button>
                   <button
@@ -155,7 +161,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('withdraw')"
                     *appHasPermission="'WITHDRAW_CLIENT'"
                   >
-                    <mat-icon>cancel</mat-icon>
+                    <ion-icon name="close-circle-outline"></ion-icon>
                     <span>{{ 'ACTIONS.WITHDRAW_CLIENT' | translate }}</span>
                   </button>
                   <button
@@ -163,7 +169,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onDeleteClient()"
                     *appHasPermission="'DELETE_CLIENT'"
                   >
-                    <mat-icon>delete</mat-icon>
+                    <ion-icon name="trash-outline"></ion-icon>
                     <span>{{ 'COMMON.DELETE' | translate }}</span>
                   </button>
                 }
@@ -173,7 +179,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('close')"
                     *appHasPermission="'CLOSE_CLIENT'"
                   >
-                    <mat-icon>close</mat-icon>
+                    <ion-icon name="close-outline"></ion-icon>
                     <span>{{ 'ACTIONS.CLOSE_CLIENT' | translate }}</span>
                   </button>
                 }
@@ -183,7 +189,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('reactivate')"
                     *appHasPermission="'REACTIVATE_CLIENT'"
                   >
-                    <mat-icon>replay</mat-icon>
+                    <ion-icon name="refresh-outline"></ion-icon>
                     <span>{{ 'ACTIONS.REACTIVATE_CLIENT' | translate }}</span>
                   </button>
                 }
@@ -193,7 +199,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('undoReject')"
                     *appHasPermission="'UNDOREJECT_CLIENT'"
                   >
-                    <mat-icon>undo</mat-icon>
+                    <ion-icon name="arrow-undo-outline"></ion-icon>
                     <span>{{ 'ACTIONS.UNDO_REJECT_CLIENT' | translate }}</span>
                   </button>
                 }
@@ -203,20 +209,20 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                     (click)="onClientAction('undoWithdraw')"
                     *appHasPermission="'UNDOWITHDRAW_CLIENT'"
                   >
-                    <mat-icon>undo</mat-icon>
+                    <ion-icon name="arrow-undo-outline"></ion-icon>
                     <span>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | translate }}</span>
                   </button>
                 }
               </mat-menu>
 
-              <button mat-raised-button color="primary" [matMenuTriggerFor]="createMenu">
-                <mat-icon>add</mat-icon>
+              <ion-button color="primary" [matMenuTriggerFor]="createMenu">
+                <ion-icon name="add-outline"></ion-icon>
                 {{ 'ACTIONS.NEW_ACCOUNT' | translate }}
-              </button>
+              </ion-button>
 
               <mat-menu #createMenu="matMenu">
                 <button mat-menu-item (click)="onCreateLoan()" *appHasPermission="'CREATE_LOAN'">
-                  <mat-icon>account_balance</mat-icon>
+                  <ion-icon name="business-outline"></ion-icon>
                   <span>{{ 'ACTIONS.LOAN_ACCOUNT' | translate }}</span>
                 </button>
                 <button
@@ -224,7 +230,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                   (click)="onCreateSavings()"
                   *appHasPermission="'CREATE_SAVINGSACCOUNT'"
                 >
-                  <mat-icon>account_balance_wallet</mat-icon>
+                  <ion-icon name="wallet-outline"></ion-icon>
                   <span>{{ 'ACTIONS.SAVINGS_ACCOUNT' | translate }}</span>
                 </button>
                 <button
@@ -232,7 +238,7 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                   (click)="onCreateFixed()"
                   *appHasPermission="'CREATE_FIXEDDEPOSITACCOUNT'"
                 >
-                  <mat-icon>lock_clock</mat-icon>
+                  <ion-icon name="lock-closed-outline"></ion-icon>
                   <span>{{ 'ACTIONS.FIXED_DEPOSIT' | translate }}</span>
                 </button>
                 <button
@@ -240,18 +246,18 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                   (click)="onCreateRecurring()"
                   *appHasPermission="'CREATE_RECURRINGDEPOSITACCOUNT'"
                 >
-                  <mat-icon>replay_circle_filled</mat-icon>
+                  <ion-icon name="refresh-circle-outline"></ion-icon>
                   <span>{{ 'ACTIONS.RECURRING_DEPOSIT' | translate }}</span>
                 </button>
               </mat-menu>
 
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              <ion-button fill="clear" (click)="onBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         <div class="content-body">
           <mat-tab-group class="tab-group" animationDuration="0ms">
@@ -259,14 +265,14 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
             <mat-tab [label]="'CLIENTS.DETAILS' | translate">
               <div class="tab-content">
                 <div class="info-grid">
-                  <mat-card class="info-card">
-                    <mat-card-header>
-                      <mat-card-title>
-                        <mat-icon>badge</mat-icon>
+                  <ion-card class="info-card">
+                    <ion-card-header>
+                      <ion-card-title>
+                        <ion-icon name="id-card-outline"></ion-icon>
                         {{ 'CLIENTS.GENERAL_PROFILE' | translate }}
-                      </mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content class="details-list">
+                      </ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content class="details-list">
                       <div class="detail-item">
                         <span class="label">{{ 'CLIENTS.FIRST_NAME' | translate }}</span>
                         <span class="value">{{ client()?.firstname || '-' }}</span>
@@ -283,17 +289,17 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                         <span class="label">{{ 'CLIENTS.LEGAL_FORM' | translate }}</span>
                         <span class="value">{{ 'CLIENTS.PERSON' | translate }}</span>
                       </div>
-                    </mat-card-content>
-                  </mat-card>
+                    </ion-card-content>
+                  </ion-card>
 
-                  <mat-card class="info-card">
-                    <mat-card-header>
-                      <mat-card-title>
-                        <mat-icon>contact_mail</mat-icon>
+                  <ion-card class="info-card">
+                    <ion-card-header>
+                      <ion-card-title>
+                        <ion-icon name="mail-open-outline"></ion-icon>
                         {{ 'CLIENTS.CONTACT_STATUS' | translate }}
-                      </mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content class="details-list">
+                      </ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content class="details-list">
                       <div class="detail-item">
                         <span class="label">{{ 'COMMON.EMAIL' | translate }}</span>
                         <span class="value">{{ client()?.emailAddress || '-' }}</span>
@@ -306,8 +312,8 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                         <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
                         <span class="value">{{ formattedSubmissionDate }}</span>
                       </div>
-                    </mat-card-content>
-                  </mat-card>
+                    </ion-card-content>
+                  </ion-card>
                 </div>
               </div>
             </mat-tab>
@@ -315,8 +321,8 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
             <!-- Savings Accounts Tab -->
             <mat-tab label="{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}">
               <div class="tab-content">
-                <mat-card class="table-card">
-                  <mat-card-content>
+                <ion-card class="table-card">
+                  <ion-card-content>
                     @if (savingsAccounts().length > 0) {
                       <table mat-table [dataSource]="savingsAccounts()" class="full-width-table">
                         <ng-container matColumnDef="accountNo">
@@ -364,61 +370,61 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                             {{ 'COMMON.ACTIONS' | translate }}
                           </th>
                           <td mat-cell *matCellDef="let account">
-                            <button
-                              mat-icon-button
+                            <ion-button
+                              fill="clear"
                               color="primary"
                               (click)="onSavingsTransaction(account.id, 'deposit')"
                               *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
-                              [matTooltip]="'SAVINGS.DEPOSIT' | translate"
+                              [attr.title]="'SAVINGS.DEPOSIT' | translate"
                             >
-                              <mat-icon>add_circle_outline</mat-icon>
-                            </button>
+                              <ion-icon name="add-circle-outline"></ion-icon>
+                            </ion-button>
 
                             @if (account.status?.value === 'Submitted and pending approval') {
-                              <button
-                                mat-icon-button
+                              <ion-button
+                                fill="clear"
                                 color="accent"
                                 (click)="onSavingsAction(account.id, 'approve', account)"
                                 *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
-                                [matTooltip]="'LOANS.APPROVE' | translate"
+                                [attr.title]="'LOANS.APPROVE' | translate"
                               >
-                                <mat-icon>check_circle</mat-icon>
-                              </button>
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                              </ion-button>
                             }
 
                             @if (account.status?.value === 'Approved') {
-                              <button
-                                mat-icon-button
+                              <ion-button
+                                fill="clear"
                                 color="primary"
                                 (click)="onSavingsAction(account.id, 'activate', account)"
                                 *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
-                                [matTooltip]="'LOANS.ACTIVATE' | translate"
+                                [attr.title]="'LOANS.ACTIVATE' | translate"
                               >
-                                <mat-icon>play_circle</mat-icon>
-                              </button>
+                                <ion-icon name="play-circle-outline"></ion-icon>
+                              </ion-button>
                             }
 
                             @if (account.status?.value === 'Active') {
-                              <button
-                                mat-icon-button
+                              <ion-button
+                                fill="clear"
                                 color="warn"
                                 (click)="onSavingsAction(account.id, 'close', account)"
                                 *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
-                                [matTooltip]="'LOANS.CLOSE' | translate"
+                                [attr.title]="'LOANS.CLOSE' | translate"
                               >
-                                <mat-icon>cancel</mat-icon>
-                              </button>
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                              </ion-button>
                             }
 
-                            <button
-                              mat-icon-button
+                            <ion-button
+                              fill="clear"
                               color="warn"
                               (click)="onSavingsTransaction(account.id, 'withdrawal')"
                               *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
-                              [matTooltip]="'SAVINGS.WITHDRAWAL' | translate"
+                              [attr.title]="'SAVINGS.WITHDRAWAL' | translate"
                             >
-                              <mat-icon>remove_circle_outline</mat-icon>
-                            </button>
+                              <ion-icon name="remove-circle-outline"></ion-icon>
+                            </ion-button>
                           </td>
                         </ng-container>
 
@@ -427,20 +433,20 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                       </table>
                     } @else {
                       <div class="empty-state">
-                        <mat-icon>account_balance_wallet</mat-icon>
+                        <ion-icon name="wallet-outline"></ion-icon>
                         <p>{{ 'CLIENTS.NO_SAVINGS_ACCOUNTS' | translate }}</p>
                       </div>
                     }
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
               </div>
             </mat-tab>
 
             <!-- Loan Accounts Tab -->
             <mat-tab label="{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}">
               <div class="tab-content">
-                <mat-card class="table-card">
-                  <mat-card-content>
+                <ion-card class="table-card">
+                  <ion-card-content>
                     @if (loanAccounts().length > 0) {
                       <table mat-table [dataSource]="loanAccounts()" class="full-width-table">
                         <ng-container matColumnDef="accountNo">
@@ -485,48 +491,48 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                             {{ 'COMMON.ACTIONS' | translate }}
                           </th>
                           <td mat-cell *matCellDef="let account">
-                            <button
-                              mat-icon-button
+                            <ion-button
+                              fill="clear"
                               color="primary"
                               (click)="onLoanTransaction(account.id, 'repayment')"
                               *appHasPermission="'REPAYMENT_LOAN'"
-                              [matTooltip]="'LOANS.REPAYMENT' | translate"
+                              [attr.title]="'LOANS.REPAYMENT' | translate"
                             >
-                              <mat-icon>payment</mat-icon>
-                            </button>
+                              <ion-icon name="card-outline"></ion-icon>
+                            </ion-button>
 
                             @if (account.status?.value === 'Submitted and pending approval') {
-                              <button
-                                mat-icon-button
+                              <ion-button
+                                fill="clear"
                                 color="accent"
                                 (click)="onLoanAction(account.id, 'approve')"
-                                [matTooltip]="'LOANS.APPROVE' | translate"
+                                [attr.title]="'LOANS.APPROVE' | translate"
                               >
-                                <mat-icon>check_circle</mat-icon>
-                              </button>
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                              </ion-button>
                             }
 
                             @if (account.status?.value === 'Approved') {
-                              <button
-                                mat-icon-button
+                              <ion-button
+                                fill="clear"
                                 color="accent"
                                 (click)="onLoanAction(account.id, 'disburse')"
-                                [matTooltip]="'LOANS.DISBURSE' | translate"
+                                [attr.title]="'LOANS.DISBURSE' | translate"
                               >
-                                <mat-icon>launch</mat-icon>
-                              </button>
+                                <ion-icon name="open-outline"></ion-icon>
+                              </ion-button>
                             }
 
                             @if (account.status?.active) {
-                              <button
-                                mat-icon-button
+                              <ion-button
+                                fill="clear"
                                 color="warn"
                                 (click)="onLoanAction(account.id, 'close')"
                                 *appHasPermission="'CLOSE_LOAN'"
-                                [matTooltip]="'LOANS.CLOSE' | translate"
+                                [attr.title]="'LOANS.CLOSE' | translate"
                               >
-                                <mat-icon>cancel</mat-icon>
-                              </button>
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                              </ion-button>
                             }
                           </td>
                         </ng-container>
@@ -536,12 +542,12 @@ import { EntityDatatablesComponent } from '../../shared/components/entity-datata
                       </table>
                     } @else {
                       <div class="empty-state">
-                        <mat-icon>credit_score</mat-icon>
+                        <ion-icon name="card-outline"></ion-icon>
                         <p>{{ 'CLIENTS.NO_LOAN_ACCOUNTS' | translate }}</p>
                       </div>
                     }
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
               </div>
             </mat-tab>
 

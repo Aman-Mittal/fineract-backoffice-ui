@@ -19,9 +19,6 @@
 
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
@@ -40,9 +37,6 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,

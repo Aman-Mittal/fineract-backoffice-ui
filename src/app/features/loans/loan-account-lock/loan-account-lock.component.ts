@@ -19,15 +19,20 @@
 import { Component, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LoanAccountLockService, LoanAccountLockResponseDTO } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-loan-account-lock',
@@ -35,39 +40,37 @@ import { LoanAccountLockService, LoanAccountLockResponseDTO } from '../../../api
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'LOAN_ACCOUNT_LOCK.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'LOAN_ACCOUNT_LOCK.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="section">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOAN_ACCOUNT_LOCK.LOAN_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="loanId" required />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'LOAN_ACCOUNT_LOCK.LOAN_ID' | translate }}</ion-label>
+            <ion-input type="number" [(ngModel)]="loanId" required></ion-input>
+          </ion-item>
 
-          <button
-            mat-raised-button
-            color="primary"
-            [disabled]="isLoading || !loanId"
-            (click)="checkLock()"
-          >
+          <ion-button color="primary" [disabled]="isLoading || !loanId" (click)="checkLock()">
             @if (isLoading) {
-              <mat-spinner diameter="20"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'LOAN_ACCOUNT_LOCK.CHECK_LOCK' | translate }}
             }
-          </button>
+          </ion-button>
 
           @if (lockChecked()) {
             <div class="lock-info">
@@ -81,27 +84,28 @@ import { LoanAccountLockService, LoanAccountLockResponseDTO } from '../../../api
           }
         </div>
 
-        <mat-divider></mat-divider>
+        <hr class="divider" />
 
         <div class="section">
           <h3>{{ 'LOAN_ACCOUNT_LOCK.PLACE_LOCK' | translate }}</h3>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOAN_ACCOUNT_LOCK.LOCK_OWNER' | translate }}</mat-label>
-            <input matInput type="text" [(ngModel)]="lockOwner" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'LOAN_ACCOUNT_LOCK.LOCK_OWNER' | translate
+            }}</ion-label>
+            <ion-input type="text" [(ngModel)]="lockOwner"></ion-input>
+          </ion-item>
 
-          <button
-            mat-raised-button
+          <ion-button
             color="accent"
             [disabled]="isLoading || !loanId || !lockOwner"
             (click)="placeLock()"
           >
             {{ 'LOAN_ACCOUNT_LOCK.PLACE_LOCK' | translate }}
-          </button>
+          </ion-button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

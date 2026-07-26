@@ -20,13 +20,10 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { DatePipe } from '@angular/common';
 import { NotesService, NoteData } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
+import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angular/standalone';
 
 // Notes are treated as an append-only audit trail (who said what, when) —
 // staff can add and remove entries, but existing note text is not editable
@@ -37,27 +34,27 @@ import { DialogService } from '../../core/services/dialog.service';
   imports: [
     FormsModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     DatePipe,
+    IonIcon,
+    IonButton,
+    IonTextarea,
+    IonItem,
+    IonLabel,
   ],
   template: `
     <div class="add-note-row">
-      <mat-form-field appearance="outline" class="note-input">
-        <mat-label>{{ 'LOANS.ADD_NOTE' | translate }}</mat-label>
-        <textarea matInput rows="2" [(ngModel)]="newNoteText" name="newNote"></textarea>
-      </mat-form-field>
-      <button
-        mat-raised-button
+      <ion-item fill="outline" class="note-input">
+        <ion-label position="stacked">{{ 'LOANS.ADD_NOTE' | translate }}</ion-label>
+        <ion-textarea rows="2" [(ngModel)]="newNoteText" name="newNote"></ion-textarea>
+      </ion-item>
+      <ion-button
         color="primary"
         [disabled]="!newNoteText.trim() || isSaving()"
         (click)="onAddNote()"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'COMMON.SAVE' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     @if (isLoading()) {
@@ -74,14 +71,14 @@ import { DialogService } from '../../core/services/dialog.service';
               <span>&middot;</span>
               <span>{{ note.createdOn | date: 'medium' }}</span>
             </div>
-            <button
-              mat-icon-button
+            <ion-button
+              fill="clear"
               color="warn"
               class="delete-btn"
               (click)="onDeleteNote(note.id!)"
             >
-              <mat-icon>delete</mat-icon>
-            </button>
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </div>
         }
       </div>

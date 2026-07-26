@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('OfficeFormComponent', () => {
   let component: OfficeFormComponent;
@@ -61,7 +60,7 @@ describe('OfficeFormComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [OfficeFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [OfficeFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -141,7 +140,7 @@ describe('OfficeFormComponent', () => {
       });
 
       await TestBed.configureTestingModule({
-        imports: [OfficeFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+        imports: [OfficeFormComponent, TranslateModule.forRoot()],
         providers: [
           { provide: OfficesService, useValue: officesServiceSpy },
           { provide: Router, useValue: routerSpy },

@@ -20,14 +20,19 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 import {
   BusinessDateManagementService,
@@ -46,14 +51,17 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="page-header">
@@ -62,18 +70,18 @@ import {
 
     @if (isLoading) {
       <div class="loading-spinner">
-        <mat-spinner diameter="48"></mat-spinner>
+        <ion-spinner name="crescent"></ion-spinner>
       </div>
     }
 
     @if (!isLoading) {
       <div class="form-grid">
         <!-- Business Date Card -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>{{ 'BUSINESS_DATES.BUSINESS_DATE_LABEL' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'BUSINESS_DATES.BUSINESS_DATE_LABEL' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
             @if (businessDateEntry?.description) {
               <p>{{ businessDateEntry?.description }}</p>
             }
@@ -95,25 +103,24 @@ import {
               ></mat-datepicker-toggle>
               <mat-datepicker #businessDatePicker></mat-datepicker>
             </mat-form-field>
-          </mat-card-content>
-          <mat-card-actions>
-            <button
-              mat-raised-button
+          </ion-card-content>
+          <div class="card-actions">
+            <ion-button
               color="primary"
               (click)="updateDate('BUSINESS_DATE')"
               [disabled]="!businessDate"
             >
               {{ 'BUSINESS_DATES.UPDATE' | translate }}
-            </button>
-          </mat-card-actions>
-        </mat-card>
+            </ion-button>
+          </div>
+        </ion-card>
 
         <!-- COB Date Card -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>{{ 'BUSINESS_DATES.COB_DATE_LABEL' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ 'BUSINESS_DATES.COB_DATE_LABEL' | translate }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
             @if (cobDateEntry?.description) {
               <p>{{ cobDateEntry?.description }}</p>
             }
@@ -132,18 +139,13 @@ import {
               <mat-datepicker-toggle matIconSuffix [for]="cobDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #cobDatePicker></mat-datepicker>
             </mat-form-field>
-          </mat-card-content>
-          <mat-card-actions>
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="updateDate('COB_DATE')"
-              [disabled]="!cobDate"
-            >
+          </ion-card-content>
+          <div class="card-actions">
+            <ion-button color="primary" (click)="updateDate('COB_DATE')" [disabled]="!cobDate">
               {{ 'BUSINESS_DATES.UPDATE' | translate }}
-            </button>
-          </mat-card-actions>
-        </mat-card>
+            </ion-button>
+          </div>
+        </ion-card>
       </div>
     }
   `,

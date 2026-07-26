@@ -19,15 +19,23 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoanReschedulingService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-loan-schedule-modify',
@@ -35,74 +43,82 @@ import { LoanReschedulingService } from '../../../api';
   imports: [
     FormsModule,
     JsonPipe,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'LOAN_SCHEDULE_MODIFY.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'LOAN_SCHEDULE_MODIFY.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOAN_SCHEDULE_MODIFY.LOAN_ID' | translate }}</mat-label>
-            <input matInput type="number" [(ngModel)]="loanId" required />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'LOAN_SCHEDULE_MODIFY.LOAN_ID' | translate
+            }}</ion-label>
+            <ion-input type="number" [(ngModel)]="loanId" required></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOAN_SCHEDULE_MODIFY.COMMAND' | translate }}</mat-label>
-            <mat-select [(ngModel)]="command" required>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'LOAN_SCHEDULE_MODIFY.COMMAND' | translate
+            }}</ion-label>
+            <ion-select [(ngModel)]="command" required>
               @for (cmd of commands; track cmd.value) {
-                <mat-option [value]="cmd.value">{{ cmd.label }}</mat-option>
+                <ion-select-option [value]="cmd.value">{{ cmd.label }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
         </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'LOAN_SCHEDULE_MODIFY.BODY' | translate }}</mat-label>
-          <textarea
-            matInput
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">{{ 'LOAN_SCHEDULE_MODIFY.BODY' | translate }}</ion-label>
+          <ion-textarea
             [(ngModel)]="bodyText"
             rows="6"
             [placeholder]="'LOAN_SCHEDULE_MODIFY.BODY_PLACEHOLDER' | translate"
-          ></textarea>
-        </mat-form-field>
+          ></ion-textarea>
+        </ion-item>
 
         <div class="form-actions">
-          <button
-            mat-raised-button
+          <ion-button
             color="primary"
             [disabled]="!loanId || !command || isLoading"
             (click)="submit()"
           >
             @if (isLoading) {
-              <mat-spinner diameter="20"></mat-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'LOAN_SCHEDULE_MODIFY.SUBMIT' | translate }}
             }
-          </button>
+          </ion-button>
         </div>
 
         @if (response() !== null) {
-          <mat-card class="response-card">
-            <mat-card-header>
-              <mat-card-title>{{ 'LOAN_SCHEDULE_MODIFY.RESPONSE' | translate }}</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
+          <ion-card class="response-card">
+            <ion-card-header>
+              <ion-card-title>{{ 'LOAN_SCHEDULE_MODIFY.RESPONSE' | translate }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
               <pre>{{ response() | json }}</pre>
-            </mat-card-content>
-          </mat-card>
+            </ion-card-content>
+          </ion-card>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

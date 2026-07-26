@@ -24,7 +24,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 
 describe('AccountTransferFormComponent', () => {
   let component: AccountTransferFormComponent;
@@ -65,7 +64,7 @@ describe('AccountTransferFormComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [AccountTransferFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [AccountTransferFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: AccountTransfersService, useValue: transfersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },

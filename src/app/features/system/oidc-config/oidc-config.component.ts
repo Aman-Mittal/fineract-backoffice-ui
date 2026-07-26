@@ -20,11 +20,17 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { TenantOIDCConfigurationService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 
 interface OidcConfig {
   issuer?: string;
@@ -47,71 +53,75 @@ interface OidcConfig {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="oidc-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'OIDC_CONFIG.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'OIDC_CONFIG.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
           <form class="oidc-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.TENANT_ID' | translate }}</mat-label>
-              <input matInput name="tenantId" [(ngModel)]="tenantId" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'OIDC_CONFIG.TENANT_ID' | translate }}</ion-label>
+              <ion-input name="tenantId" [(ngModel)]="tenantId"></ion-input>
+            </ion-item>
             <div class="load-action">
-              <button mat-button type="button" (click)="load()">
+              <ion-button fill="clear" type="button" (click)="load()">
                 {{ 'OIDC_CONFIG.LOAD' | translate }}
-              </button>
+              </ion-button>
             </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.ISSUER' | translate }}</mat-label>
-              <input matInput name="issuer" [(ngModel)]="config.issuer" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.CLIENT_ID' | translate }}</mat-label>
-              <input matInput name="clientId" [(ngModel)]="config.clientId" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.CLIENT_SECRET' | translate }}</mat-label>
-              <input matInput name="clientSecret" [(ngModel)]="config.clientSecret" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.AUTH_ENDPOINT' | translate }}</mat-label>
-              <input matInput name="authEndpoint" [(ngModel)]="config.authorizationEndpoint" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.TOKEN_ENDPOINT' | translate }}</mat-label>
-              <input matInput name="tokenEndpoint" [(ngModel)]="config.tokenEndpoint" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'OIDC_CONFIG.JWKS_URL' | translate }}</mat-label>
-              <input matInput name="jwksUrl" [(ngModel)]="config.jwksUrl" />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'OIDC_CONFIG.ISSUER' | translate }}</ion-label>
+              <ion-input name="issuer" [(ngModel)]="config.issuer"></ion-input>
+            </ion-item>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'OIDC_CONFIG.CLIENT_ID' | translate }}</ion-label>
+              <ion-input name="clientId" [(ngModel)]="config.clientId"></ion-input>
+            </ion-item>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'OIDC_CONFIG.CLIENT_SECRET' | translate
+              }}</ion-label>
+              <ion-input name="clientSecret" [(ngModel)]="config.clientSecret"></ion-input>
+            </ion-item>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'OIDC_CONFIG.AUTH_ENDPOINT' | translate
+              }}</ion-label>
+              <ion-input name="authEndpoint" [(ngModel)]="config.authorizationEndpoint"></ion-input>
+            </ion-item>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{
+                'OIDC_CONFIG.TOKEN_ENDPOINT' | translate
+              }}</ion-label>
+              <ion-input name="tokenEndpoint" [(ngModel)]="config.tokenEndpoint"></ion-input>
+            </ion-item>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'OIDC_CONFIG.JWKS_URL' | translate }}</ion-label>
+              <ion-input name="jwksUrl" [(ngModel)]="config.jwksUrl"></ion-input>
+            </ion-item>
 
             <div class="actions">
-              <button mat-button type="button" color="warn" (click)="onDelete()">
+              <ion-button fill="clear" type="button" color="warn" (click)="onDelete()">
                 {{ 'COMMON.DELETE' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="button"
-                [disabled]="isSaving"
-                (click)="onSave()"
-              >
+              </ion-button>
+              <ion-button color="primary" type="button" [disabled]="isSaving" (click)="onSave()">
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

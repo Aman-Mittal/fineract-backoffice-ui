@@ -21,11 +21,6 @@ import { Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -38,6 +33,14 @@ import {
 } from '../../shared';
 import { LoansService, GetLoansLoanIdResponse } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
+import {
+  IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-loans-list',
@@ -46,15 +49,16 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
     RouterModule,
     FormsModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
     HasPermissionDirective,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <app-data-table
@@ -67,28 +71,29 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
     >
-      <button
+      <ion-button
         headerActions
-        mat-raised-button
         color="primary"
         *appHasPermission="'CREATE_LOAN'"
         (click)="onCreateLoan()"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'LOANS.CREATE_LOAN_ACCOUNT' | translate }}
-      </button>
+      </ion-button>
 
       <div filters class="filter-row">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
-          <mat-select [(ngModel)]="activeFilters.status" (selectionChange)="onFilterChange()">
-            <mat-option [value]="undefined">{{ 'COMMON.ALL' | translate }}</mat-option>
-            <mat-option value="300">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
-            <mat-option value="100">{{ 'COMMON.PENDING' | translate }}</mat-option>
-            <mat-option value="600">{{ 'COMMON.CLOSED' | translate }}</mat-option>
-            <mat-option value="700">{{ 'COMMON.OVERPAID' | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <ion-item fill="outline" class="filter-field">
+          <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
+          <ion-select [(ngModel)]="activeFilters.status" (ionChange)="onFilterChange()">
+            <ion-select-option [value]="undefined">{{
+              'COMMON.ALL' | translate
+            }}</ion-select-option>
+            <ion-select-option value="300">{{ 'COMMON.ACTIVE' | translate }}</ion-select-option>
+            <ion-select-option value="100">{{ 'COMMON.PENDING' | translate }}</ion-select-option>
+            <ion-select-option value="600">{{ 'COMMON.CLOSED' | translate }}</ion-select-option>
+            <ion-select-option value="700">{{ 'COMMON.OVERPAID' | translate }}</ion-select-option>
+          </ion-select>
+        </ion-item>
       </div>
 
       <ng-template appCellTemplate="status" let-loan>
@@ -100,57 +105,57 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-loan>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [matTooltip]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
+          [attr.title]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
           (click)="onEditLoan(loan)"
           *appHasPermission="'UPDATE_LOAN'"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          mat-icon-button
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
           color="accent"
           [attr.aria-label]="'LOANS.COLLATERAL' | translate"
-          [matTooltip]="'LOANS.MANAGE_COLLATERAL' | translate"
+          [attr.title]="'LOANS.MANAGE_COLLATERAL' | translate"
           (click)="onViewCollateral(loan)"
           *appHasPermission="'READ_LOANCOLLATERAL'"
         >
-          <mat-icon>security</mat-icon>
-        </button>
-        <button
-          mat-icon-button
+          <ion-icon name="shield-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'LOANS.RESCHEDULE' | translate"
-          [matTooltip]="'LOANS.MANAGE_RESCHEDULING' | translate"
+          [attr.title]="'LOANS.MANAGE_RESCHEDULING' | translate"
           (click)="onViewRescheduling(loan)"
         >
-          <mat-icon>event_repeat</mat-icon>
-        </button>
+          <ion-icon name="repeat-outline"></ion-icon>
+        </ion-button>
 
         @if (loan.status?.value === 'Submitted and pending approval') {
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="accent"
             [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
-            [matTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
+            [attr.title]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
             (click)="onLoanAction(loan, 'approve')"
           >
-            <mat-icon>check_circle</mat-icon>
-          </button>
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
         }
         @if (loan.status?.value === 'Approved') {
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="accent"
             [attr.aria-label]="'LOANS.DISBURSE_LOAN' | translate"
-            [matTooltip]="'LOANS.DISBURSE_LOAN' | translate"
+            [attr.title]="'LOANS.DISBURSE_LOAN' | translate"
             (click)="onLoanAction(loan, 'disburse')"
           >
-            <mat-icon>launch</mat-icon>
-          </button>
+            <ion-icon name="open-outline"></ion-icon>
+          </ion-button>
         }
       </ng-template>
     </app-data-table>

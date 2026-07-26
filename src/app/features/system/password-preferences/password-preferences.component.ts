@@ -20,11 +20,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PasswordPreferencesService, GetPasswordPreferencesTemplateResponse } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Password preferences: select the active password-validation policy from the
@@ -36,19 +41,22 @@ import { PasswordPreferencesService, GetPasswordPreferencesTemplateResponse } fr
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatRadioModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'PASSWORD_PREFERENCES.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'PASSWORD_PREFERENCES.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <mat-radio-group class="policy-group" [(ngModel)]="selectedPolicyId">
             @for (policy of policies; track policy.id) {
               <mat-radio-button [value]="policy.id">
@@ -58,26 +66,22 @@ import { PasswordPreferencesService, GetPasswordPreferencesTemplateResponse } fr
           </mat-radio-group>
 
           <div class="form-actions">
-            <button
-              mat-raised-button
+            <ion-button
               color="primary"
               type="button"
               [disabled]="selectedPolicyId === null || isSaving"
               (click)="onSave()"
             >
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'COMMON.SAVE' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

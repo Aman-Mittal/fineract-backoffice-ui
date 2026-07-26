@@ -24,7 +24,6 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -52,7 +51,7 @@ describe('StaffFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [StaffFormComponent, TranslateModule.forRoot(), MatNativeDateModule],
+      imports: [StaffFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: StaffService, useValue: staffServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },

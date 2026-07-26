@@ -22,10 +22,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MappingFinancialActivitiesToAccountsService } from '../../api/api/mappingFinancialActivitiesToAccounts.service';
+import {
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-financial-activity-mapping-form',
@@ -33,44 +37,50 @@ import { MappingFinancialActivitiesToAccountsService } from '../../api/api/mappi
   imports: [
     RouterModule,
     ReactiveFormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatSelectModule,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="container">
       <h1>{{ isEdit ? 'Edit' : 'Define' }} Financial Activity Mapping</h1>
 
       <form [formGroup]="mappingForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Financial Activity</mat-label>
-          <mat-select formControlName="financialActivityId" required>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">Financial Activity</ion-label>
+          <ion-select formControlName="financialActivityId" required>
             @for (activity of activities; track activity['id']) {
-              <mat-option [value]="activity['id']">
+              <ion-select-option [value]="activity['id']">
                 {{ activity['name'] }}
-              </mat-option>
+              </ion-select-option>
             }
-          </mat-select>
-        </mat-form-field>
+          </ion-select>
+        </ion-item>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>GL Account</mat-label>
-          <mat-select formControlName="glAccountId" required>
+        <ion-item fill="outline" class="full-width">
+          <ion-label position="stacked">GL Account</ion-label>
+          <ion-select formControlName="glAccountId" required>
             @for (account of filteredAccounts; track account['id']) {
-              <mat-option [value]="account['id']">
+              <ion-select-option [value]="account['id']">
                 {{ account['name'] }} ({{ account['glCode'] }})
-              </mat-option>
+              </ion-select-option>
             }
-          </mat-select>
-        </mat-form-field>
+          </ion-select>
+        </ion-item>
 
         <div class="actions">
-          <button mat-button type="button" routerLink="/accounting/financial-activity-mappings">
+          <ion-button
+            fill="clear"
+            type="button"
+            routerLink="/accounting/financial-activity-mappings"
+          >
             Cancel
-          </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="mappingForm.invalid">
+          </ion-button>
+          <ion-button color="primary" type="submit" [disabled]="mappingForm.invalid">
             {{ isEdit ? 'Update' : 'Define' }}
-          </button>
+          </ion-button>
         </div>
       </form>
     </div>

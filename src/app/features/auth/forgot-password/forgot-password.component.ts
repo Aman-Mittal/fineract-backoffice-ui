@@ -18,72 +18,80 @@
  */
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PasswordManagementService, ForgotPasswordRequest } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
   imports: [
     FormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="forgot-password-container">
-      <mat-card class="forgot-password-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'FORGOT_PASSWORD.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card class="forgot-password-card">
+        <ion-card-header>
+          <ion-card-title>{{ 'FORGOT_PASSWORD.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           @if (sent) {
             <div class="success-message">
               {{ 'FORGOT_PASSWORD.SUCCESS_MSG' | translate }}
             </div>
           } @else {
             <form #forgotForm="ngForm" (ngSubmit)="onSubmit()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'FORGOT_PASSWORD.EMAIL' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{ 'FORGOT_PASSWORD.EMAIL' | translate }}</ion-label>
+                <ion-input
                   type="email"
                   name="email"
                   [(ngModel)]="email"
                   required
                   email
                   [disabled]="isSending"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <div class="actions">
-                <button
-                  mat-raised-button
+                <ion-button
                   color="primary"
                   type="submit"
                   [disabled]="forgotForm.invalid || isSending"
                 >
                   @if (isSending) {
-                    <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+                    <ion-spinner name="crescent"></ion-spinner>
                   }
                   {{ 'FORGOT_PASSWORD.SEND' | translate }}
-                </button>
+                </ion-button>
               </div>
             </form>
           }
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

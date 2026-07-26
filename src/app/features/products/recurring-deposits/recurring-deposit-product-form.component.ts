@@ -21,13 +21,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   RecurringDepositProductService,
   GetRecurringDepositProductsProductIdResponse,
@@ -46,126 +53,137 @@ const REDIRECT_URL = '/products/recurring';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('PRODUCTS.EDIT_RECURRING_DEPOSIT_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="product-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="product['name']" required />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="product['name']" required></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.SHORT_NAME' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
+                <ion-input
                   name="shortName"
                   [(ngModel)]="product['shortName']"
                   required
                   maxlength="4"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
+                <ion-textarea
                   name="description"
                   [(ngModel)]="product['description']"
                   rows="2"
-                ></textarea>
-              </mat-form-field>
+                ></ion-textarea>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.CURRENCY' | translate }}</mat-label>
-                <mat-select name="currencyCode" [(ngModel)]="product['currencyCode']" required>
-                  <mat-option [value]="DEFAULT_CURRENCY">{{ DEFAULT_CURRENCY }}</mat-option>
-                  <mat-option value="EUR">EUR</mat-option>
-                  <mat-option value="INR">INR</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
+                <ion-select name="currencyCode" [(ngModel)]="product['currencyCode']" required>
+                  <ion-select-option [value]="DEFAULT_CURRENCY">{{
+                    DEFAULT_CURRENCY
+                  }}</ion-select-option>
+                  <ion-select-option value="EUR">EUR</ion-select-option>
+                  <ion-select-option value="INR">INR</ion-select-option>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.DECIMAL_PLACES' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.DECIMAL_PLACES' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="digitsAfterDecimal"
                   [(ngModel)]="product['digitsAfterDecimal']"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.RECURRING_FREQUENCY' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.RECURRING_FREQUENCY' | translate
+                }}</ion-label>
+                <ion-input
                   type="number"
                   name="recurringEvery"
                   [(ngModel)]="product['recurringEvery']"
                   required
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'PRODUCTS.FREQUENCY_TYPE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.FREQUENCY_TYPE' | translate
+                }}</ion-label>
+                <ion-select
                   name="recurringFrequencyType"
                   [(ngModel)]="product['recurringFrequencyType']"
                   required
                 >
-                  <mat-option [value]="0">{{ 'COMMON.DAYS' | translate }}</mat-option>
-                  <mat-option [value]="1">{{ 'COMMON.WEEKS' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'COMMON.MONTHS' | translate }}</mat-option>
-                  <mat-option [value]="3">{{ 'COMMON.YEARS' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
+                  <ion-select-option [value]="1">{{
+                    'COMMON.WEEKS' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="2">{{
+                    'COMMON.MONTHS' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="3">{{
+                    'COMMON.YEARS' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="productForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

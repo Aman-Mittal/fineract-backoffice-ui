@@ -20,12 +20,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { WorkingCapitalLoansService, GetWorkingCapitalLoansLoanIdResponse } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Lists Working Capital Loans. The list endpoint returns a Spring Data page
@@ -47,14 +45,7 @@ interface WcLoanRow {
 @Component({
   selector: 'app-wc-loans-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
       title="nav.wcLoans"
@@ -67,15 +58,15 @@ interface WcLoanRow {
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="actions" let-row>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.VIEW' | translate"
-          [matTooltip]="'COMMON.VIEW' | translate"
+          [attr.title]="'COMMON.VIEW' | translate"
           (click)="onView(row)"
         >
-          <mat-icon>visibility</mat-icon>
-        </button>
+          <ion-icon name="eye-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

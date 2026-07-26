@@ -22,14 +22,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   ChargesService,
   ChargeRequest,
@@ -40,6 +32,20 @@ import {
   GetChargesResponse,
 } from '../../../api';
 import { HelpIconComponent } from '../../../shared';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Component for creating and editing global charges and penalties.
@@ -50,130 +56,137 @@ import { HelpIconComponent } from '../../../shared';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('CHARGES.EDIT' | translate) : ('CHARGES.CREATE' | translate) }}
             <app-help-icon [helpTextKey]="'HELP.CHARGES_DESC'"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #chargeForm="ngForm" (ngSubmit)="onSubmit()" class="charge-form">
             <div class="form-grid">
               <!-- Name -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="charge.name" required />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="charge.name" required></ion-input>
+              </ion-item>
 
               <!-- Charge Applies To -->
-              <mat-form-field appearance="outline">
-                <mat-label>Applies To</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">Applies To</ion-label>
+                <ion-select
                   name="chargeAppliesTo"
                   [(ngModel)]="charge.chargeAppliesTo"
                   required
                   [disabled]="isEditMode"
                 >
-                  <mat-option [value]="1">Client</mat-option>
-                  <mat-option [value]="2">Loan</mat-option>
-                  <mat-option [value]="3">Savings</mat-option>
-                  <mat-option [value]="4">Shares</mat-option>
-                </mat-select>
-              </mat-form-field>
+                  <ion-select-option [value]="1">Client</ion-select-option>
+                  <ion-select-option [value]="2">Loan</ion-select-option>
+                  <ion-select-option [value]="3">Savings</ion-select-option>
+                  <ion-select-option [value]="4">Shares</ion-select-option>
+                </ion-select>
+              </ion-item>
 
               <!-- Currency -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.CURRENCY' | translate }}</mat-label>
-                <mat-select name="currencyCode" [(ngModel)]="charge.currencyCode" required>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.CURRENCY' | translate }}</ion-label>
+                <ion-select name="currencyCode" [(ngModel)]="charge.currencyCode" required>
                   @for (currency of currencies; track currency.code) {
-                    <mat-option [value]="currency.code">{{ currency.name }}</mat-option>
+                    <ion-select-option [value]="currency.code">{{
+                      currency.name
+                    }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Charge Time Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>Charge Time Type</mat-label>
-                <mat-select name="chargeTimeType" [(ngModel)]="charge.chargeTimeType" required>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Charge Time Type</ion-label>
+                <ion-select name="chargeTimeType" [(ngModel)]="charge.chargeTimeType" required>
                   @for (option of timeTypeOptions; track option['id']) {
-                    <mat-option [value]="option['id']">{{ option['value'] }}</mat-option>
+                    <ion-select-option [value]="option['id']">{{
+                      option['value']
+                    }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Charge Calculation Type -->
-              <mat-form-field appearance="outline">
-                <mat-label>Calculation Type</mat-label>
-                <mat-select
+              <ion-item fill="outline">
+                <ion-label position="stacked">Calculation Type</ion-label>
+                <ion-select
                   name="chargeCalculationType"
                   [(ngModel)]="charge.chargeCalculationType"
                   required
                 >
                   @for (option of calculationTypeOptions; track option['id']) {
-                    <mat-option [value]="option['id']">{{ option['value'] }}</mat-option>
+                    <ion-select-option [value]="option['id']">{{
+                      option['value']
+                    }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Amount -->
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" name="amount" [(ngModel)]="charge.amount" required />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
+                <ion-input
+                  type="number"
+                  name="amount"
+                  [(ngModel)]="charge.amount"
+                  required
+                ></ion-input>
+              </ion-item>
 
               <!-- Active -->
               <div class="checkbox-container">
-                <mat-checkbox name="active" [(ngModel)]="charge.active">
+                <ion-checkbox name="active" [(ngModel)]="charge.active">
                   {{ 'COMMON.ACTIVE' | translate }}
-                </mat-checkbox>
+                </ion-checkbox>
               </div>
 
               <!-- Penalty -->
               <div class="checkbox-container">
-                <mat-checkbox name="penalty" [(ngModel)]="charge.penalty">
+                <ion-checkbox name="penalty" [(ngModel)]="charge.penalty">
                   {{ 'COMMON.PENALTY' | translate }}
-                </mat-checkbox>
+                </ion-checkbox>
               </div>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="chargeForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="chargeForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

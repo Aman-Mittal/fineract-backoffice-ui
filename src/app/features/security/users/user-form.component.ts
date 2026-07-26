@@ -22,14 +22,20 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   UsersService,
   PostUsersRequest,
@@ -47,130 +53,127 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{ isEditMode ? ('USERS.EDIT_USER' | translate) : ('USERS.CREATE_USER' | translate) }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #userForm="ngForm" (ngSubmit)="onSubmit()" class="user-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'USERS.USERNAME' | translate }}</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'USERS.USERNAME' | translate }}</ion-label>
+                <ion-input
                   name="username"
                   [(ngModel)]="user.username"
                   required
                   [disabled]="isEditMode"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.FIRST_NAME' | translate }}</mat-label>
-                <input matInput name="firstname" [(ngModel)]="user.firstname" required />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
+                <ion-input name="firstname" [(ngModel)]="user.firstname" required></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CLIENTS.LAST_NAME' | translate }}</mat-label>
-                <input matInput name="lastname" [(ngModel)]="user.lastname" required />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
+                <ion-input name="lastname" [(ngModel)]="user.lastname" required></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.EMAIL' | translate }}</mat-label>
-                <input matInput type="email" name="email" [(ngModel)]="user.email" required />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
+                <ion-input type="email" name="email" [(ngModel)]="user.email" required></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                <mat-select name="officeId" [(ngModel)]="user.officeId" required>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                <ion-select name="officeId" [(ngModel)]="user.officeId" required>
                   @for (office of offices; track office['id']) {
-                    <mat-option [value]="office['id']">{{ office['name'] }}</mat-option>
+                    <ion-select-option [value]="office['id']">{{
+                      office['name']
+                    }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               @if (!isEditMode) {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'USERS.PASSWORD' | translate }}</mat-label>
-                  <input
-                    matInput
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{ 'USERS.PASSWORD' | translate }}</ion-label>
+                  <ion-input
                     type="password"
                     name="password"
                     [(ngModel)]="user.password"
                     required
-                  />
-                </mat-form-field>
+                  ></ion-input>
+                </ion-item>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'USERS.REPEAT_PASSWORD' | translate }}</mat-label>
-                  <input
-                    matInput
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'USERS.REPEAT_PASSWORD' | translate
+                  }}</ion-label>
+                  <ion-input
                     type="password"
                     name="repeatPassword"
                     [(ngModel)]="user.repeatPassword"
                     required
-                  />
-                </mat-form-field>
+                  ></ion-input>
+                </ion-item>
               }
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'USERS.ROLES' | translate }}</mat-label>
-                <mat-select name="roles" [(ngModel)]="user.roles" multiple required>
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">{{ 'USERS.ROLES' | translate }}</ion-label>
+                <ion-select name="roles" [(ngModel)]="user.roles" multiple required>
                   @for (role of availableRoles; track role.id) {
-                    <mat-option [value]="role.id">{{ role.name }}</mat-option>
+                    <ion-select-option [value]="role.id">{{ role.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
             </div>
 
             <div class="checkbox-container" style="display: flex; gap: 16px; flex-wrap: wrap;">
-              <mat-checkbox name="passwordNeverExpires" [(ngModel)]="user.passwordNeverExpires">
+              <ion-checkbox name="passwordNeverExpires" [(ngModel)]="user.passwordNeverExpires">
                 {{ 'USERS.PASSWORD_NEVER_EXPIRES' | translate }}
-              </mat-checkbox>
+              </ion-checkbox>
 
-              <mat-checkbox name="sendPasswordToEmail" [(ngModel)]="user.sendPasswordToEmail">
+              <ion-checkbox name="sendPasswordToEmail" [(ngModel)]="user.sendPasswordToEmail">
                 {{ 'USERS.SEND_PASSWORD_TO_EMAIL' | translate }}
-              </mat-checkbox>
+              </ion-checkbox>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="userForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="userForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

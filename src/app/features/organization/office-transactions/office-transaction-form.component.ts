@@ -21,15 +21,24 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DefaultService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -43,47 +52,66 @@ import {
     FormsModule,
     RouterModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatSnackBarModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'OFFICE_TRANSACTIONS.CREATE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'OFFICE_TRANSACTIONS.CREATE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #txForm="ngForm" (ngSubmit)="onSubmit()" class="tx-form">
             <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate }}</mat-label>
-                <mat-select name="fromOfficeId" [(ngModel)]="fromOfficeId" required>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate
+                }}</ion-label>
+                <ion-select name="fromOfficeId" [(ngModel)]="fromOfficeId" required>
                   @for (opt of fromOfficeOptions; track opt.id) {
-                    <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                    <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.TO_OFFICE' | translate }}</mat-label>
-                <mat-select name="toOfficeId" [(ngModel)]="toOfficeId" required>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.TO_OFFICE' | translate
+                }}</ion-label>
+                <ion-select name="toOfficeId" [(ngModel)]="toOfficeId" required>
                   @for (opt of toOfficeOptions; track opt.id) {
-                    <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+                    <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" name="amount" [(ngModel)]="amount" required min="0" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.AMOUNT' | translate
+                }}</ion-label>
+                <ion-input
+                  type="number"
+                  name="amount"
+                  [(ngModel)]="amount"
+                  required
+                  min="0"
+                ></ion-input>
+              </ion-item>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'OFFICE_TRANSACTIONS.DATE' | translate }}</mat-label>
@@ -98,28 +126,25 @@ import {
                 <mat-datepicker #picker></mat-datepicker>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="full-span">
-                <mat-label>{{ 'OFFICE_TRANSACTIONS.DESC' | translate }}</mat-label>
-                <input matInput name="description" [(ngModel)]="description" />
-              </mat-form-field>
+              <ion-item fill="outline" class="full-span">
+                <ion-label position="stacked">{{
+                  'OFFICE_TRANSACTIONS.DESC' | translate
+                }}</ion-label>
+                <ion-input name="description" [(ngModel)]="description"></ion-input>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" routerLink="/organization/office-transactions">
+              <ion-button fill="clear" type="button" routerLink="/organization/office-transactions">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="txForm.invalid || isSaving"
-              >
+              </ion-button>
+              <ion-button color="primary" type="submit" [disabled]="txForm.invalid || isSaving">
                 {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

@@ -20,14 +20,21 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BusinessStepConfigurationService, BusinessStep } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 /**
  * Business step configuration: pick a job, load its configured steps, reorder them
@@ -39,30 +46,35 @@ import { BusinessStepConfigurationService, BusinessStep } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
     MatListModule,
-    MatProgressSpinnerModule,
+    IonIcon,
+    IonButton,
+    IonSpinner,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'BUSINESS_STEPS.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ 'BUSINESS_STEPS.TITLE' | translate }}</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'BUSINESS_STEPS.JOB' | translate }}</mat-label>
-            <mat-select [(ngModel)]="selectedJob" (selectionChange)="loadSteps()">
+        <ion-card-content>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'BUSINESS_STEPS.JOB' | translate }}</ion-label>
+            <ion-select [(ngModel)]="selectedJob" (ionChange)="loadSteps()">
               @for (job of jobNames; track job) {
-                <mat-option [value]="job">{{ job }}</mat-option>
+                <ion-select-option [value]="job">{{ job }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
           @if (steps.length) {
             <mat-list>
@@ -70,17 +82,17 @@ import { BusinessStepConfigurationService, BusinessStep } from '../../../api';
                 <mat-list-item>
                   <span matListItemTitle>{{ step.stepName }}</span>
                   <span matListItemMeta>
-                    <button mat-icon-button type="button" [disabled]="i === 0" (click)="moveUp(i)">
-                      <mat-icon>arrow_upward</mat-icon>
-                    </button>
-                    <button
-                      mat-icon-button
+                    <ion-button fill="clear" type="button" [disabled]="i === 0" (click)="moveUp(i)">
+                      <ion-icon name="arrow-up-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button
+                      fill="clear"
                       type="button"
                       [disabled]="i === steps.length - 1"
                       (click)="moveDown(i)"
                     >
-                      <mat-icon>arrow_downward</mat-icon>
-                    </button>
+                      <ion-icon name="arrow-down-outline"></ion-icon>
+                    </ion-button>
                   </span>
                 </mat-list-item>
               }
@@ -90,26 +102,22 @@ import { BusinessStepConfigurationService, BusinessStep } from '../../../api';
           }
 
           <div class="form-actions">
-            <button
-              mat-raised-button
+            <ion-button
               color="primary"
               type="button"
               [disabled]="!steps.length || isSaving"
               (click)="onSave()"
             >
               @if (isSaving) {
-                <mat-spinner
-                  diameter="20"
-                  style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                ></mat-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
                 {{ 'COMMON.SAVE' | translate }}
               }
-            </button>
+            </ion-button>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

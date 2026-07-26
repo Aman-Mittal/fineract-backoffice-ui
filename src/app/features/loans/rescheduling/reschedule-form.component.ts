@@ -22,15 +22,25 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonNote,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   RescheduleLoansService,
   PostCreateRescheduleLoansRequest,
@@ -50,80 +60,91 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonNote,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Request Loan Reschedule</mat-card-title>
-        </mat-card-header>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Request Loan Reschedule</ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #rescheduleForm="ngForm" (ngSubmit)="onSubmit()" class="reschedule-form">
             <div class="form-grid">
               <!-- Reschedule From Date (Select Unpaid Installment) -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.RESCHEDULE_FROM_DESC' | translate"
-              >
-                <mat-label>Reschedule From Date</mat-label>
-                <mat-select
+              <ion-item fill="outline" [attr.title]="'HELP.RESCHEDULE_FROM_DESC' | translate">
+                <ion-label position="stacked">Reschedule From Date</ion-label>
+                <ion-select
                   name="rescheduleFromDate"
                   [(ngModel)]="rescheduleFromDateString"
                   required
                 >
                   @for (installment of unpaidInstallments; track installment.period) {
-                    <mat-option [value]="formatInstallmentDate(installment)">
+                    <ion-select-option [value]="formatInstallmentDate(installment)">
                       Period {{ installment.period }}: Due on
                       {{ formatPeriodDate(installment.dueDate) }} (Principal Due:
                       {{ installment.principalDue }}, Interest Due: {{ installment.interestDue }})
-                    </mat-option>
+                    </ion-select-option>
                   }
-                </mat-select>
-                <mat-hint>Must be an existing installment date</mat-hint>
-              </mat-form-field>
+                </ion-select>
+                <ion-note>Must be an existing installment date</ion-note>
+              </ion-item>
 
               <!-- Reason Container (Dropdown or Custom entry) -->
               <div class="reason-container">
                 @if (isAddingCustomReason) {
-                  <mat-form-field appearance="outline">
-                    <mat-label>Reason Name (Manual)</mat-label>
-                    <input
-                      matInput
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">Reason Name (Manual)</ion-label>
+                    <ion-input
                       name="customReasonName"
                       [(ngModel)]="customReasonName"
                       required
-                    />
-                  </mat-form-field>
+                    ></ion-input>
+                  </ion-item>
                 } @else {
-                  <mat-form-field appearance="outline">
-                    <mat-label>Reason</mat-label>
-                    <mat-select
+                  <ion-item fill="outline">
+                    <ion-label position="stacked">Reason</ion-label>
+                    <ion-select
                       name="rescheduleReasonId"
                       [(ngModel)]="request.rescheduleReasonId"
                       required
                     >
                       @for (reason of reasons; track reason['id']) {
-                        <mat-option [value]="reason['id']">{{ reason['name'] }}</mat-option>
+                        <ion-select-option [value]="reason['id']">{{
+                          reason['name']
+                        }}</ion-select-option>
                       }
-                    </mat-select>
-                  </mat-form-field>
+                    </ion-select>
+                  </ion-item>
                 }
 
                 @if (reasons.length > 0) {
                   <div class="reason-toggle">
-                    <button mat-button color="primary" type="button" (click)="toggleCustomReason()">
+                    <ion-button
+                      fill="clear"
+                      color="primary"
+                      type="button"
+                      (click)="toggleCustomReason()"
+                    >
                       {{ isAddingCustomReason ? 'Select existing reason' : 'Add custom reason' }}
-                    </button>
+                    </ion-button>
                   </div>
                 }
               </div>
@@ -157,80 +178,76 @@ import {
               </mat-form-field>
 
               <!-- Comment -->
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Comment</mat-label>
-                <textarea
-                  matInput
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">Comment</ion-label>
+                <ion-textarea
                   name="rescheduleReasonComment"
                   [(ngModel)]="request.rescheduleReasonComment"
                   rows="2"
-                ></textarea>
-              </mat-form-field>
+                ></ion-textarea>
+              </ion-item>
 
               <!-- Grace on Principal -->
-              <mat-form-field appearance="outline">
-                <mat-label>Grace on Principal</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">Grace on Principal</ion-label>
+                <ion-input
                   type="number"
                   name="graceOnPrincipal"
                   [(ngModel)]="request.graceOnPrincipal"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Grace on Interest -->
-              <mat-form-field appearance="outline">
-                <mat-label>Grace on Interest</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">Grace on Interest</ion-label>
+                <ion-input
                   type="number"
                   name="graceOnInterest"
                   [(ngModel)]="request.graceOnInterest"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
 
               <!-- Extra Terms -->
-              <mat-form-field appearance="outline">
-                <mat-label>Extra Terms</mat-label>
-                <input matInput type="number" name="extraTerms" [(ngModel)]="request.extraTerms" />
-              </mat-form-field>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Extra Terms</ion-label>
+                <ion-input
+                  type="number"
+                  name="extraTerms"
+                  [(ngModel)]="request.extraTerms"
+                ></ion-input>
+              </ion-item>
 
               <!-- New Interest Rate -->
-              <mat-form-field appearance="outline">
-                <mat-label>New Interest Rate</mat-label>
-                <input
-                  matInput
+              <ion-item fill="outline">
+                <ion-label position="stacked">New Interest Rate</ion-label>
+                <ion-input
                   type="number"
                   name="newInterestRate"
                   [(ngModel)]="request.newInterestRate"
-                />
-              </mat-form-field>
+                ></ion-input>
+              </ion-item>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="rescheduleForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

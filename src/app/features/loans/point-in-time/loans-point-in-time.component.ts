@@ -21,14 +21,22 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 
 import {
   LoansPointInTimeService,
@@ -43,22 +51,28 @@ import {
     FormsModule,
     DecimalPipe,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
     MatProgressSpinnerModule,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'LOANS_POINT_IN_TIME.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'LOANS_POINT_IN_TIME.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
 
-      <mat-card-content>
+      <ion-card-content>
         <div class="search-form">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'LOANS_POINT_IN_TIME.DATE' | translate }}</mat-label>
@@ -67,19 +81,16 @@ import {
             <mat-datepicker #picker />
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'LOANS_POINT_IN_TIME.LOAN_IDS' | translate }}</mat-label>
-            <input matInput [(ngModel)]="loanIdsInput" placeholder="1, 2, 3" />
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'LOANS_POINT_IN_TIME.LOAN_IDS' | translate
+            }}</ion-label>
+            <ion-input [(ngModel)]="loanIdsInput" placeholder="1, 2, 3"></ion-input>
+          </ion-item>
 
-          <button
-            mat-raised-button
-            color="primary"
-            [disabled]="!searchDate || isLoading"
-            (click)="onSearch()"
-          >
+          <ion-button color="primary" [disabled]="!searchDate || isLoading" (click)="onSearch()">
             {{ 'LOANS_POINT_IN_TIME.SEARCH' | translate }}
-          </button>
+          </ion-button>
         </div>
 
         @if (isLoading) {
@@ -139,8 +150,8 @@ import {
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

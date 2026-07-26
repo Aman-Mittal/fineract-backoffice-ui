@@ -21,11 +21,6 @@ import { Component, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -38,6 +33,14 @@ import {
 } from '../../shared';
 import { ClientService, GetClientsPageItemsResponse } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
+import {
+  IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-clients-list',
@@ -46,15 +49,16 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
     RouterModule,
     FormsModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
     HasPermissionDirective,
+    IonIcon,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <app-data-table
@@ -67,27 +71,30 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
     >
-      <button
+      <ion-button
         headerActions
-        mat-raised-button
         color="primary"
         *appHasPermission="'CREATE_CLIENT'"
         (click)="onCreateClient()"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         Create Client
-      </button>
+      </ion-button>
 
       <div filters class="filter-row">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
-          <mat-select [(ngModel)]="activeFilters.status" (selectionChange)="onFilterChange()">
-            <mat-option [value]="undefined">{{ 'COMMON.ALL' | translate }}</mat-option>
-            <mat-option value="active">{{ 'COMMON.ACTIVE' | translate }}</mat-option>
-            <mat-option value="pending">{{ 'COMMON.PENDING' | translate }}</mat-option>
-            <mat-option value="closed">{{ 'COMMON.CLOSED' | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <ion-item fill="outline" class="filter-field">
+          <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
+          <ion-select [(ngModel)]="activeFilters.status" (ionChange)="onFilterChange()">
+            <ion-select-option [value]="undefined">{{
+              'COMMON.ALL' | translate
+            }}</ion-select-option>
+            <ion-select-option value="active">{{ 'COMMON.ACTIVE' | translate }}</ion-select-option>
+            <ion-select-option value="pending">{{
+              'COMMON.PENDING' | translate
+            }}</ion-select-option>
+            <ion-select-option value="closed">{{ 'COMMON.CLOSED' | translate }}</ion-select-option>
+          </ion-select>
+        </ion-item>
       </div>
 
       <ng-template appCellTemplate="status" let-client>
@@ -107,16 +114,16 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-client>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          matTooltip="Edit Client Details"
+          title="Edit Client Details"
           (click)="onEditClient(client)"
           *appHasPermission="'UPDATE_CLIENT'"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

@@ -20,15 +20,20 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService, GetNotificationsResponse, GetNotification } from '../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonChip,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-notifications-list',
@@ -36,33 +41,36 @@ import { NotificationService, GetNotificationsResponse, GetNotification } from '
   imports: [
     FormsModule,
     DatePipe,
-    MatCardModule,
     MatTableModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
     MatSnackBarModule,
     TranslateModule,
+    IonButton,
+    IonSpinner,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonCheckbox,
+    IonChip,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'NOTIFICATIONS.TITLE' | translate }}</mat-card-title>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'NOTIFICATIONS.TITLE' | translate }}</ion-card-title>
         <div class="header-actions">
-          <mat-checkbox [(ngModel)]="showUnreadOnly" (change)="onFilterChange()">
+          <ion-checkbox [(ngModel)]="showUnreadOnly" (ionChange)="onFilterChange()">
             {{ 'NOTIFICATIONS.SHOW_UNREAD' | translate }}
-          </mat-checkbox>
-          <button mat-raised-button color="primary" (click)="markAllRead()">
+          </ion-checkbox>
+          <ion-button color="primary" (click)="markAllRead()">
             {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
-          </button>
+          </ion-button>
         </div>
-      </mat-card-header>
+      </ion-card-header>
 
-      <mat-card-content>
+      <ion-card-content>
         @if (isLoading) {
           <div class="spinner-container">
-            <mat-spinner diameter="40"></mat-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
@@ -76,11 +84,11 @@ import { NotificationService, GetNotificationsResponse, GetNotification } from '
             <ng-container matColumnDef="isRead">
               <th mat-header-cell *matHeaderCellDef>{{ 'NOTIFICATIONS.READ' | translate }}</th>
               <td mat-cell *matCellDef="let row">
-                <mat-chip-set>
-                  <mat-chip [color]="row.isRead ? 'primary' : 'warn'" highlighted>
+                <div>
+                  <ion-chip [color]="row.isRead ? 'primary' : 'warn'" highlighted>
                     {{ (row.isRead ? 'NOTIFICATIONS.READ' : 'NOTIFICATIONS.UNREAD') | translate }}
-                  </mat-chip>
-                </mat-chip-set>
+                  </ion-chip>
+                </div>
               </td>
             </ng-container>
 
@@ -93,8 +101,8 @@ import { NotificationService, GetNotificationsResponse, GetNotification } from '
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         }
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

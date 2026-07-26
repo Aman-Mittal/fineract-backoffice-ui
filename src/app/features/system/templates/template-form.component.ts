@@ -20,12 +20,20 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 import {
   TemplatesService,
   TemplateData,
@@ -38,61 +46,67 @@ import {
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
     TranslateModule,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
           {{ (isEditMode ? 'TEMPLATES.EDIT_TITLE' : 'TEMPLATES.CREATE_TITLE') | translate }}
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'TEMPLATES.NAME' | translate }}</mat-label>
-            <input matInput formControlName="name" />
-          </mat-form-field>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'TEMPLATES.NAME' | translate }}</ion-label>
+            <ion-input formControlName="name"></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'TEMPLATES.ENTITY' | translate }}</mat-label>
-            <mat-select formControlName="entity">
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'TEMPLATES.ENTITY' | translate }}</ion-label>
+            <ion-select formControlName="entity">
               @for (opt of entityOptions; track opt.id) {
-                <mat-option [value]="opt.id">{{ opt.label | translate }}</mat-option>
+                <ion-select-option [value]="opt.id">{{ opt.label | translate }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'TEMPLATES.TYPE' | translate }}</mat-label>
-            <mat-select formControlName="type">
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'TEMPLATES.TYPE' | translate }}</ion-label>
+            <ion-select formControlName="type">
               @for (opt of typeOptions; track opt.id) {
-                <mat-option [value]="opt.id">{{ opt.label | translate }}</mat-option>
+                <ion-select-option [value]="opt.id">{{ opt.label | translate }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'TEMPLATES.TEXT' | translate }}</mat-label>
-            <textarea matInput formControlName="text" rows="10"></textarea>
-          </mat-form-field>
+          <ion-item fill="outline" class="full-width">
+            <ion-label position="stacked">{{ 'TEMPLATES.TEXT' | translate }}</ion-label>
+            <ion-textarea formControlName="text" rows="10"></ion-textarea>
+          </ion-item>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+            <ion-button color="primary" type="submit" [disabled]="form.invalid">
               {{ 'TEMPLATES.SAVE' | translate }}
-            </button>
-            <button mat-button type="button" (click)="onCancel()">
+            </ion-button>
+            <ion-button fill="clear" type="button" (click)="onCancel()">
               {{ 'TEMPLATES.CANCEL' | translate }}
-            </button>
+            </ion-button>
           </div>
         </form>
-      </mat-card-content>
-    </mat-card>
+      </ion-card-content>
+    </ion-card>
   `,
   styles: [
     `

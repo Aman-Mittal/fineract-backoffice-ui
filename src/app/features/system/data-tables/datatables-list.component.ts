@@ -20,9 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataTableComponent,
   ColumnDef,
@@ -30,6 +27,7 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-datatables-list',
@@ -37,12 +35,11 @@ import { DataTablesService, GetDataTablesResponse } from '../../../api';
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -52,37 +49,36 @@ import { DataTablesService, GetDataTablesResponse } from '../../../api';
       [isLoading]="isLoading()"
       [localLogic]="true"
     >
-      <button
+      <ion-button
         headerActions
-        mat-raised-button
         color="primary"
         [routerLink]="['create']"
         *appHasPermission="'CREATE_DATATABLE'"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'SYSTEM.CREATE_DATA_TABLE' | translate }}
-      </button>
+      </ion-button>
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             [routerLink]="['edit', row.registeredTableName]"
             *appHasPermission="'UPDATE_DATATABLE'"
-            [matTooltip]="'COMMON.EDIT' | translate"
+            [attr.title]="'COMMON.EDIT' | translate"
           >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-icon-button
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="clear"
             color="warn"
             (click)="onDelete(row.registeredTableName)"
             *appHasPermission="'DELETE_DATATABLE'"
-            [matTooltip]="'COMMON.DELETE' | translate"
+            [attr.title]="'COMMON.DELETE' | translate"
           >
-            <mat-icon>delete</mat-icon>
-          </button>
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

@@ -22,21 +22,28 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   GeneralLedgerAccountService,
   PostGLAccountsRequest,
   PutGLAccountsRequest,
 } from '../../api';
 import { HelpIconComponent } from '../../shared';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-gl-account-form',
@@ -44,95 +51,108 @@ import { HelpIconComponent } from '../../shared';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatTooltipModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     HelpIconComponent,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('ACCOUNTING.EDIT_GL_ACCOUNT' | translate)
                 : ('ACCOUNTING.CREATE_GL_ACCOUNT' | translate)
             }}
             <app-help-icon [helpTextKey]="'HELP.CHART_OF_ACCOUNTS_DESC'"></app-help-icon>
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #accountForm="ngForm" (ngSubmit)="onSubmit()" class="account-form">
             <div class="form-grid">
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.ACCOUNT_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="account.name" required />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.ACCOUNT_NAME_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="account.name" required></ion-input>
+              </ion-item>
 
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.GL_CODE_DESC' | translate">
-                <mat-label>{{ 'ACCOUNTING.GL_CODE' | translate }}</mat-label>
-                <input matInput name="glCode" [(ngModel)]="account.glCode" required />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.GL_CODE_DESC' | translate">
+                <ion-label position="stacked">{{ 'ACCOUNTING.GL_CODE' | translate }}</ion-label>
+                <ion-input name="glCode" [(ngModel)]="account.glCode" required></ion-input>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.ACCOUNT_TYPE_DESC' | translate"
-              >
-                <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
-                <mat-select name="type" [(ngModel)]="account.type" required>
-                  <mat-option [value]="1">{{ 'ACCOUNTING.ASSET' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'ACCOUNTING.LIABILITY' | translate }}</mat-option>
-                  <mat-option [value]="3">{{ 'ACCOUNTING.EQUITY' | translate }}</mat-option>
-                  <mat-option [value]="4">{{ 'ACCOUNTING.INCOME' | translate }}</mat-option>
-                  <mat-option [value]="5">{{ 'ACCOUNTING.EXPENSE' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.ACCOUNT_TYPE_DESC' | translate">
+                <ion-label position="stacked">{{
+                  'ACCOUNTING.ACCOUNT_TYPE' | translate
+                }}</ion-label>
+                <ion-select name="type" [(ngModel)]="account.type" required>
+                  <ion-select-option [value]="1">{{
+                    'ACCOUNTING.ASSET' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="2">{{
+                    'ACCOUNTING.LIABILITY' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="3">{{
+                    'ACCOUNTING.EQUITY' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="4">{{
+                    'ACCOUNTING.INCOME' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="5">{{
+                    'ACCOUNTING.EXPENSE' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.ACCOUNT_USAGE_DESC' | translate"
-              >
-                <mat-label>{{ 'ACCOUNTING.ACCOUNT_USAGE' | translate }}</mat-label>
-                <mat-select name="usage" [(ngModel)]="account.usage" required>
-                  <mat-option [value]="1">{{ 'ACCOUNTING.DETAIL' | translate }}</mat-option>
-                  <mat-option [value]="2">{{ 'ACCOUNTING.HEADER' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.ACCOUNT_USAGE_DESC' | translate">
+                <ion-label position="stacked">{{
+                  'ACCOUNTING.ACCOUNT_USAGE' | translate
+                }}</ion-label>
+                <ion-select name="usage" [(ngModel)]="account.usage" required>
+                  <ion-select-option [value]="1">{{
+                    'ACCOUNTING.DETAIL' | translate
+                  }}</ion-select-option>
+                  <ion-select-option [value]="2">{{
+                    'ACCOUNTING.HEADER' | translate
+                  }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.DESCRIPTION_DESC' | translate"
+              <ion-item
+                fill="outline"
+                [attr.title]="'HELP.DESCRIPTION_DESC' | translate"
                 class="full-width"
               >
-                <mat-label>{{ 'PRODUCTS.DESCRIPTION' | translate }}</mat-label>
-                <textarea
-                  matInput
+                <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
+                <ion-textarea
                   name="description"
                   [(ngModel)]="account.description"
                   rows="3"
-                ></textarea>
-              </mat-form-field>
+                ></ion-textarea>
+              </ion-item>
 
               <div class="checkbox-container">
-                <mat-checkbox
+                <ion-checkbox
                   name="manualEntriesAllowed"
                   [(ngModel)]="account.manualEntriesAllowed"
                 >
                   {{ 'ACCOUNTING.ALLOW_MANUAL_ENTRIES' | translate }}
-                </mat-checkbox>
+                </ion-checkbox>
                 <mat-icon
-                  [matTooltip]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate"
+                  [attr.title]="'HELP.ALLOW_MANUAL_ENTRIES_DESC' | translate"
                   class="help-icon"
                   >help_outline</mat-icon
                 >
@@ -140,29 +160,25 @@ import { HelpIconComponent } from '../../shared';
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="accountForm.invalid || isSaving"
               >
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

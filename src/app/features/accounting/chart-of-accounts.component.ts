@@ -19,27 +19,24 @@
 
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { of } from 'rxjs';
 import { catchError, startWith } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
 import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-chart-of-accounts',
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     CellTemplateDirective,
     NgClass,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <app-data-table
@@ -58,14 +55,14 @@ import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
-          matTooltip="Edit Account"
+          title="Edit Account"
           (click)="onEditAccount(account)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,

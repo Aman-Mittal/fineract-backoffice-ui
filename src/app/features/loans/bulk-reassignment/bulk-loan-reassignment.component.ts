@@ -20,15 +20,22 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { forkJoin } from 'rxjs';
 
 import { BulkLoansService, OfficesService, StaffService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 
 interface Office {
   id?: number;
@@ -47,54 +54,62 @@ interface StaffMember {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
+    IonButton,
+    IonSpinner,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>{{ 'BULK_LOANS.TITLE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'BULK_LOANS.TITLE' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
         <div class="form-container">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'BULK_LOANS.OFFICE' | translate }}</mat-label>
-            <mat-select [(ngModel)]="selectedOfficeId" (ngModelChange)="onOfficeChange()">
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'BULK_LOANS.OFFICE' | translate }}</ion-label>
+            <ion-select [(ngModel)]="selectedOfficeId" (ngModelChange)="onOfficeChange()">
               @for (office of offices; track office.id) {
-                <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'BULK_LOANS.FROM_OFFICER' | translate }}</mat-label>
-            <mat-select [(ngModel)]="selectedFromOfficerId" [disabled]="!selectedOfficeId">
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'BULK_LOANS.FROM_OFFICER' | translate }}</ion-label>
+            <ion-select [(ngModel)]="selectedFromOfficerId" [disabled]="!selectedOfficeId">
               @for (officer of filteredStaff; track officer.id) {
-                <mat-option [value]="officer.id">{{ officer.displayName }}</mat-option>
+                <ion-select-option [value]="officer.id">{{
+                  officer.displayName
+                }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'BULK_LOANS.TO_OFFICER' | translate }}</mat-label>
-            <mat-select [(ngModel)]="selectedToOfficerId" [disabled]="!selectedFromOfficerId">
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{ 'BULK_LOANS.TO_OFFICER' | translate }}</ion-label>
+            <ion-select [(ngModel)]="selectedToOfficerId" [disabled]="!selectedFromOfficerId">
               @for (officer of toOfficerList; track officer.id) {
-                <mat-option [value]="officer.id">{{ officer.displayName }}</mat-option>
+                <ion-select-option [value]="officer.id">{{
+                  officer.displayName
+                }}</ion-select-option>
               }
-            </mat-select>
-          </mat-form-field>
+            </ion-select>
+          </ion-item>
         </div>
-      </mat-card-content>
-      <mat-card-actions class="form-actions">
+      </ion-card-content>
+      <div class="card-actions form-actions">
         @if (isLoading) {
-          <mat-spinner diameter="24"></mat-spinner>
+          <ion-spinner name="crescent"></ion-spinner>
         }
-        <button
-          mat-raised-button
+        <ion-button
           color="primary"
           [disabled]="
             !selectedOfficeId || !selectedFromOfficerId || !selectedToOfficerId || isLoading
@@ -102,9 +117,9 @@ interface StaffMember {
           (click)="onReassign()"
         >
           {{ 'BULK_LOANS.REASSIGN' | translate }}
-        </button>
-      </mat-card-actions>
-    </mat-card>
+        </ion-button>
+      </div>
+    </ion-card>
   `,
 })
 export class BulkLoanReassignmentComponent implements OnInit {

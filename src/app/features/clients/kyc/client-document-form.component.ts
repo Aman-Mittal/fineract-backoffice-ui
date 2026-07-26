@@ -21,12 +21,19 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { DocumentsService } from '../../../api';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-client-document-form',
@@ -34,48 +41,52 @@ import { DocumentsService } from '../../../api';
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonTextarea,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode
                 ? ('CLIENTS.EDIT_DOCUMENT' | translate)
                 : ('CLIENTS.ADD_DOCUMENT' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #docForm="ngForm" (ngSubmit)="onSubmit()" class="doc-form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.NAME' | translate }}</mat-label>
-              <input matInput name="name" [(ngModel)]="document.name" required />
-            </mat-form-field>
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+              <ion-input name="name" [(ngModel)]="document.name" required></ion-input>
+            </ion-item>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
-              <textarea
-                matInput
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+              <ion-textarea
                 name="description"
                 [(ngModel)]="document.description"
                 rows="3"
-              ></textarea>
-            </mat-form-field>
+              ></ion-textarea>
+            </ion-item>
 
             @if (!isEditMode) {
               <div class="file-input-container">
-                <button mat-stroked-button type="button" (click)="fileInput.click()">
-                  <mat-icon>attach_file</mat-icon>
+                <ion-button fill="outline" type="button" (click)="fileInput.click()">
+                  <ion-icon name="attach-outline"></ion-icon>
                   {{ 'CLIENTS.SELECT_FILE' | translate }}
-                </button>
+                </ion-button>
                 <input
                   #fileInput
                   type="file"
@@ -90,21 +101,20 @@ import { DocumentsService } from '../../../api';
             }
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()">
+              <ion-button fill="clear" type="button" (click)="onCancel()">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                mat-raised-button
+              </ion-button>
+              <ion-button
                 color="primary"
                 type="submit"
                 [disabled]="!docForm.form.valid || (!isEditMode && !selectedFile)"
               >
                 {{ 'COMMON.SAVE' | translate }}
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

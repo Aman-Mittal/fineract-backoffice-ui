@@ -21,17 +21,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
-import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
@@ -42,6 +35,18 @@ import { DialogService } from '../../core/services/dialog.service';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonChip,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+} from '@ionic/angular/standalone';
 import {
   LoansService,
   GetLoansLoanIdResponse,
@@ -64,17 +69,10 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatCardModule,
     MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
     MatTableModule,
-    MatTooltipModule,
     MatMenuModule,
-    MatInputModule,
-    MatFormFieldModule,
     MatSnackBarModule,
-    MatChipsModule,
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
@@ -83,16 +81,26 @@ import {
     DecimalPipe,
     NgClass,
     JsonPipe,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonChip,
   ],
   template: `
     @if (loan()) {
       <div class="view-container">
         <!-- Header Actions Card -->
-        <mat-card class="header-card">
-          <mat-card-content class="header-content">
+        <ion-card class="header-card">
+          <ion-card-content class="header-content">
             <div class="loan-title-area">
               <div class="avatar-circle">
-                <mat-icon>monetization_on</mat-icon>
+                <ion-icon name="cash-outline"></ion-icon>
               </div>
               <div class="title-details">
                 <h2>{{ loan()?.loanProductName }}</h2>
@@ -105,121 +113,118 @@ import {
                     class="status-badge"
                   ></app-status-badge>
                   @if (loan()?.loanScheduleType?.value) {
-                    <mat-chip-set>
-                      <mat-chip
+                    <div>
+                      <ion-chip
                         [color]="isProgressiveLoan() ? 'accent' : 'primary'"
                         highlighted
-                        [matTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+                        [attr.title]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
                       >
                         {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
                         {{ loan()?.loanScheduleType?.value }}
-                      </mat-chip>
-                    </mat-chip-set>
+                      </ion-chip>
+                    </div>
                   }
                 </div>
               </div>
             </div>
             <div class="actions-area">
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 (click)="onRepayment()"
-                [matTooltip]="'LOANS.REPAYMENT' | translate"
+                [attr.title]="'LOANS.REPAYMENT' | translate"
               >
-                <mat-icon>payment</mat-icon>
+                <ion-icon name="card-outline"></ion-icon>
                 {{ 'LOANS.REPAYMENT' | translate }}
-              </button>
+              </ion-button>
 
               @if (isLoanPendingApproval) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="accent"
                   (click)="onLoanAction('approve')"
-                  [matTooltip]="'LOANS.APPROVE' | translate"
+                  [attr.title]="'LOANS.APPROVE' | translate"
                 >
-                  <mat-icon>check_circle</mat-icon>
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
                   {{ 'LOANS.APPROVE' | translate }}
-                </button>
+                </ion-button>
               }
 
               @if (isLoanApproved) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="accent"
                   (click)="onDisburse()"
-                  [matTooltip]="'LOANS.DISBURSE' | translate"
+                  [attr.title]="'LOANS.DISBURSE' | translate"
                 >
-                  <mat-icon>launch</mat-icon>
+                  <ion-icon name="open-outline"></ion-icon>
                   {{ 'LOANS.DISBURSE' | translate }}
-                </button>
+                </ion-button>
               }
 
               <!-- Actions Dropdown Menu -->
-              <button mat-raised-button color="primary" [matMenuTriggerFor]="loanMenu">
-                <mat-icon>arrow_drop_down</mat-icon>
+              <ion-button color="primary" [matMenuTriggerFor]="loanMenu">
+                <ion-icon name="caret-down-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
-              </button>
+              </ion-button>
               <mat-menu #loanMenu="matMenu">
                 <button mat-menu-item (click)="onAddCharge()">
-                  <mat-icon>add</mat-icon>
+                  <ion-icon name="add-outline"></ion-icon>
                   <span>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</span>
                 </button>
 
                 @if (isLoanPendingApproval) {
                   <button mat-menu-item (click)="onModifyLoan()">
-                    <mat-icon>edit</mat-icon>
+                    <ion-icon name="create-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onLoanAction('reject')">
-                    <mat-icon>cancel</mat-icon>
+                    <ion-icon name="close-circle-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.REJECT' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onLoanAction('withdrawnByClient')">
-                    <mat-icon>reply</mat-icon>
+                    <ion-icon name="arrow-undo-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onDeleteLoan()">
-                    <mat-icon>delete</mat-icon>
+                    <ion-icon name="trash-outline"></ion-icon>
                     <span>{{ 'COMMON.DELETE' | translate }}</span>
                   </button>
                 }
 
                 <button mat-menu-item (click)="onAddCollateral()">
-                  <mat-icon>security</mat-icon>
+                  <ion-icon name="shield-outline"></ion-icon>
                   <span>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</span>
                 </button>
 
                 <button mat-menu-item (click)="onAssignLoanOfficer()">
-                  <mat-icon>person_add</mat-icon>
+                  <ion-icon name="person-add-outline"></ion-icon>
                   <span>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</span>
                 </button>
 
                 @if (isLoanActive) {
                   <button mat-menu-item (click)="onUndoDisbursal()">
-                    <mat-icon>undo</mat-icon>
+                    <ion-icon name="arrow-undo-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onLoanTransactionAction('waiveinterest')">
-                    <mat-icon>money_off</mat-icon>
+                    <ion-icon name="cash-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onLoanTransactionAction('prepayLoan')">
-                    <mat-icon>fast_forward</mat-icon>
+                    <ion-icon name="play-forward-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onLoanTransactionAction('foreclosure')">
-                    <mat-icon>flag</mat-icon>
+                    <ion-icon name="flag-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</span>
                   </button>
 
                   <button mat-menu-item (click)="onLoanTransactionAction('close')">
-                    <mat-icon>lock</mat-icon>
+                    <ion-icon name="lock-closed-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</span>
                   </button>
 
@@ -228,19 +233,19 @@ import {
                     class="warn-item"
                     (click)="onLoanTransactionAction('writeoff')"
                   >
-                    <mat-icon color="warn">delete_forever</mat-icon>
+                    <ion-icon color="warn" name="trash-bin-outline"></ion-icon>
                     <span>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</span>
                   </button>
                 }
               </mat-menu>
 
-              <button mat-button (click)="onBack()">
-                <mat-icon>arrow_back</mat-icon>
+              <ion-button fill="clear" (click)="onBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
-              </button>
+              </ion-button>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </ion-card-content>
+        </ion-card>
 
         <!-- Tabs Section -->
         <mat-tab-group class="tab-group" animationDuration="0ms">
@@ -248,14 +253,14 @@ import {
           <mat-tab [label]="'LOANS.OVERVIEW' | translate">
             <div class="tab-content">
               <div class="info-grid">
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>info</mat-icon>
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>
+                      <ion-icon name="information-circle-outline"></ion-icon>
                       {{ 'LOANS.LOAN_TERMS' | translate }}
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
+                    </ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
                     <div class="detail-item">
                       <span class="label">{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</span>
                       <span class="value">
@@ -279,17 +284,17 @@ import {
                       <span class="label">{{ 'LOANS.LOAN_OFFICER' | translate }}</span>
                       <span class="value">{{ loan()?.loanOfficerName || '-' }}</span>
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
 
-                <mat-card class="info-card">
-                  <mat-card-header>
-                    <mat-card-title>
-                      <mat-icon>timeline</mat-icon>
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>
+                      <ion-icon name="pulse-outline"></ion-icon>
                       {{ 'LOANS.TIMELINE_STATUS' | translate }}
-                    </mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content class="details-list">
+                    </ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
                     <div class="detail-item">
                       <span class="label">{{ 'LOANS.SUBMITTED_DATE' | translate }}</span>
                       <span class="value">{{ formattedSubmittedDate }}</span>
@@ -312,8 +317,8 @@ import {
                         {{ loan()?.summary?.totalOutstanding || 0 | number: '1.2-2' }}
                       </span>
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ion-card-content>
+                </ion-card>
               </div>
             </div>
           </mat-tab>
@@ -321,8 +326,8 @@ import {
           <!-- Repayment Schedule -->
           <mat-tab [label]="'LOANS.REPAYMENT_SCHEDULE' | translate">
             <div class="tab-content">
-              <mat-card class="table-card" style="overflow-x: auto;">
-                <mat-card-content>
+              <ion-card class="table-card" style="overflow-x: auto;">
+                <ion-card-content>
                   @if (periods().length > 0) {
                     <table mat-table [dataSource]="periods()" class="full-width-table">
                       <!-- Category Headers -->
@@ -398,7 +403,7 @@ import {
                         <th mat-header-cell *matHeaderCellDef></th>
                         <td mat-cell *matCellDef="let p">
                           @if (p.obligationsMetOnDate) {
-                            <mat-icon style="color: #2ecc71">check</mat-icon>
+                            <ion-icon style="color: #2ecc71" name="checkmark-outline"></ion-icon>
                           }
                         </td>
                         <td mat-footer-cell *matFooterCellDef></td>
@@ -605,20 +610,20 @@ import {
                     </table>
                   } @else {
                     <div class="empty-state">
-                      <mat-icon>calendar_today</mat-icon>
+                      <ion-icon name="calendar-outline"></ion-icon>
                       <p>{{ 'LOANS.NO_REPAYMENT_SCHEDULE' | translate }}</p>
                     </div>
                   }
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
 
           <!-- Transactions -->
           <mat-tab [label]="'LOANS.TRANSACTIONS' | translate">
             <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
+              <ion-card class="table-card">
+                <ion-card-content>
                   @if (transactions().length > 0) {
                     <table mat-table [dataSource]="transactions()" class="full-width-table">
                       <ng-container matColumnDef="id">
@@ -657,13 +662,13 @@ import {
                       <ng-container matColumnDef="txActions">
                         <th mat-header-cell *matHeaderCellDef></th>
                         <td mat-cell *matCellDef="let tx">
-                          <button
-                            mat-icon-button
+                          <ion-button
+                            fill="clear"
                             (click)="onViewTransaction(tx)"
-                            [matTooltip]="'COMMON.VIEW' | translate"
+                            [attr.title]="'COMMON.VIEW' | translate"
                           >
-                            <mat-icon>visibility</mat-icon>
-                          </button>
+                            <ion-icon name="eye-outline"></ion-icon>
+                          </ion-button>
                         </td>
                       </ng-container>
 
@@ -672,20 +677,20 @@ import {
                     </table>
                   } @else {
                     <div class="empty-state">
-                      <mat-icon>receipt</mat-icon>
+                      <ion-icon name="receipt-outline"></ion-icon>
                       <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
                     </div>
                   }
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
 
           <!-- Charges -->
           <mat-tab [label]="'LOANS.CHARGES' | translate">
             <div class="tab-content">
-              <mat-card class="table-card">
-                <mat-card-content>
+              <ion-card class="table-card">
+                <ion-card-content>
                   @if (charges().length > 0) {
                     <table mat-table [dataSource]="charges()" class="full-width-table">
                       <ng-container matColumnDef="name">
@@ -724,12 +729,12 @@ import {
                     </table>
                   } @else {
                     <div class="empty-state">
-                      <mat-icon>monetization_on</mat-icon>
+                      <ion-icon name="cash-outline"></ion-icon>
                       <p>{{ 'LOANS.CHARGES' | translate }}</p>
                     </div>
                   }
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
 
@@ -828,26 +833,28 @@ import {
           <!-- Disbursement Details -->
           <mat-tab [label]="'LOANS.DISBURSEMENT_DETAILS' | translate">
             <div class="tab-content">
-              <mat-card class="info-card" style="margin-bottom: 24px;">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>launch</mat-icon>
+              <ion-card class="info-card" style="margin-bottom: 24px;">
+                <ion-card-header>
+                  <ion-card-title>
+                    <ion-icon name="open-outline"></ion-icon>
                     {{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
                   <div
                     class="form-row"
                     style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
                   >
-                    <mat-form-field appearance="outline" style="flex: 1;">
-                      <mat-label>{{ 'LOANS.DISBURSEMENT_ID' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="editDisbId" />
-                    </mat-form-field>
-                    <button mat-raised-button color="primary" (click)="loadDisbursementDetail()">
-                      <mat-icon>search</mat-icon>
+                    <ion-item fill="outline" style="flex: 1;">
+                      <ion-label position="stacked">{{
+                        'LOANS.DISBURSEMENT_ID' | translate
+                      }}</ion-label>
+                      <ion-input type="number" [(ngModel)]="editDisbId"></ion-input>
+                    </ion-item>
+                    <ion-button color="primary" (click)="loadDisbursementDetail()">
+                      <ion-icon name="search-outline"></ion-icon>
                       {{ 'LOANS.LOAD_DISBURSEMENT' | translate }}
-                    </button>
+                    </ion-button>
                   </div>
 
                   @if (disbursementDetail()) {
@@ -857,62 +864,66 @@ import {
                       class="edit-form"
                       style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;"
                     >
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</mat-label>
-                        <input
-                          matInput
+                      <ion-item fill="outline">
+                        <ion-label position="stacked">{{
+                          'LOANS.EXPECTED_DISBURSEMENT' | translate
+                        }}</ion-label>
+                        <ion-input
                           [(ngModel)]="disbursementEditForm.expectedDisbursementDate"
-                        />
-                      </mat-form-field>
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</mat-label>
-                        <input
-                          matInput
+                        ></ion-input>
+                      </ion-item>
+                      <ion-item fill="outline">
+                        <ion-label position="stacked">{{
+                          'LOANS.PRINCIPAL_AMOUNT' | translate
+                        }}</ion-label>
+                        <ion-input
                           type="number"
                           [(ngModel)]="disbursementEditForm.principal"
-                        />
-                      </mat-form-field>
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'COMMON.NOTE' | translate }}</mat-label>
-                        <input matInput [(ngModel)]="disbursementEditForm.note" />
-                      </mat-form-field>
+                        ></ion-input>
+                      </ion-item>
+                      <ion-item fill="outline">
+                        <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                        <ion-input [(ngModel)]="disbursementEditForm.note"></ion-input>
+                      </ion-item>
                       <div>
-                        <button mat-raised-button color="accent" (click)="saveDisbursementDetail()">
-                          <mat-icon>save</mat-icon>
+                        <ion-button color="accent" (click)="saveDisbursementDetail()">
+                          <ion-icon name="save-outline"></ion-icon>
                           {{ 'COMMON.SAVE' | translate }}
-                        </button>
+                        </ion-button>
                       </div>
                     </div>
                   }
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
 
           <!-- Collateral Management -->
           <mat-tab [label]="'LOANS.COLLATERAL_MANAGEMENT' | translate">
             <div class="tab-content">
-              <mat-card class="info-card" style="margin-bottom: 24px;">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>security</mat-icon>
+              <ion-card class="info-card" style="margin-bottom: 24px;">
+                <ion-card-header>
+                  <ion-card-title>
+                    <ion-icon name="shield-outline"></ion-icon>
                     {{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
                   <!-- Load collateral -->
                   <div
                     class="form-row"
                     style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;"
                   >
-                    <mat-form-field appearance="outline" style="flex: 1;">
-                      <mat-label>{{ 'LOANS.COLLATERAL_ID' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="collateralDetailId" />
-                    </mat-form-field>
-                    <button mat-raised-button color="primary" (click)="loadCollateralDetail()">
-                      <mat-icon>search</mat-icon>
+                    <ion-item fill="outline" style="flex: 1;">
+                      <ion-label position="stacked">{{
+                        'LOANS.COLLATERAL_ID' | translate
+                      }}</ion-label>
+                      <ion-input type="number" [(ngModel)]="collateralDetailId"></ion-input>
+                    </ion-item>
+                    <ion-button color="primary" (click)="loadCollateralDetail()">
+                      <ion-icon name="search-outline"></ion-icon>
                       {{ 'LOANS.LOAD_COLLATERAL' | translate }}
-                    </button>
+                    </ion-button>
                   </div>
 
                   @if (collateralDetail()) {
@@ -924,17 +935,19 @@ import {
                     class="form-row"
                     style="display: flex; gap: 12px; align-items: center; margin-top: 24px;"
                   >
-                    <mat-form-field appearance="outline" style="flex: 1;">
-                      <mat-label>{{ 'LOANS.COLLATERAL_ID' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="deleteCollateralId" />
-                    </mat-form-field>
-                    <button mat-raised-button color="warn" (click)="deleteCollateral()">
-                      <mat-icon>delete</mat-icon>
+                    <ion-item fill="outline" style="flex: 1;">
+                      <ion-label position="stacked">{{
+                        'LOANS.COLLATERAL_ID' | translate
+                      }}</ion-label>
+                      <ion-input type="number" [(ngModel)]="deleteCollateralId"></ion-input>
+                    </ion-item>
+                    <ion-button color="warn" (click)="deleteCollateral()">
+                      <ion-icon name="trash-outline"></ion-icon>
                       {{ 'LOANS.DELETE_COLLATERAL' | translate }}
-                    </button>
+                    </ion-button>
                   </div>
-                </mat-card-content>
-              </mat-card>
+                </ion-card-content>
+              </ion-card>
             </div>
           </mat-tab>
         </mat-tab-group>

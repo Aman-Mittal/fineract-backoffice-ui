@@ -20,11 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
@@ -38,6 +34,15 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
+import {
+  IonButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 export interface AuditFilters {
   actionName: string;
@@ -54,11 +59,7 @@ export interface AuditFilters {
   standalone: true,
   imports: [
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     MatFormFieldModule,
-    MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatInputModule,
@@ -68,55 +69,58 @@ export interface AuditFilters {
     CellTemplateDirective,
     MatDialogModule,
     DatePipe,
+    IonIcon,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonSelectOption,
+    IonSelect,
   ],
   template: `
     <div class="audit-logs-container">
       <mat-expansion-panel class="filter-panel" [expanded]="false">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon>filter_list</mat-icon>
+            <ion-icon name="filter-outline"></ion-icon>
             {{ 'COMMON.FILTERS' | translate }}
           </mat-panel-title>
         </mat-expansion-panel-header>
 
         <div class="filter-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Action Name</mat-label>
-            <input
-              matInput
+          <ion-item fill="outline">
+            <ion-label position="stacked">Action Name</ion-label>
+            <ion-input
               [(ngModel)]="activeFilters.actionName"
               (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+            ></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Entity Name</mat-label>
-            <input
-              matInput
+          <ion-item fill="outline">
+            <ion-label position="stacked">Entity Name</ion-label>
+            <ion-input
               [(ngModel)]="activeFilters.entityName"
               (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+            ></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Resource ID</mat-label>
-            <input
-              matInput
+          <ion-item fill="outline">
+            <ion-label position="stacked">Resource ID</ion-label>
+            <ion-input
               type="number"
               [(ngModel)]="activeFilters.resourceId"
               (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+            ></ion-input>
+          </ion-item>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Maker ID</mat-label>
-            <input
-              matInput
+          <ion-item fill="outline">
+            <ion-label position="stacked">Maker ID</ion-label>
+            <ion-input
               type="number"
               [(ngModel)]="activeFilters.makerId"
               (keyup.enter)="onApplyFilters()"
-            />
-          </mat-form-field>
+            ></ion-input>
+          </ion-item>
 
           <mat-form-field appearance="outline">
             <mat-label>Maker Date From</mat-label>
@@ -136,23 +140,23 @@ export interface AuditFilters {
             <mat-datepicker #makerTo></mat-datepicker>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Processing Result</mat-label>
-            <mat-select [(ngModel)]="activeFilters.processingResult">
-              <mat-option value="">All</mat-option>
-              <mat-option value="success">Success</mat-option>
-              <mat-option value="failure">Failure</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <ion-item fill="outline">
+            <ion-label position="stacked">Processing Result</ion-label>
+            <ion-select [(ngModel)]="activeFilters.processingResult">
+              <ion-select-option value="">All</ion-select-option>
+              <ion-select-option value="success">Success</ion-select-option>
+              <ion-select-option value="failure">Failure</ion-select-option>
+            </ion-select>
+          </ion-item>
         </div>
 
         <mat-action-row>
-          <button mat-button color="warn" (click)="onResetFilters()">
+          <ion-button fill="clear" color="warn" (click)="onResetFilters()">
             {{ 'COMMON.RESET' | translate }}
-          </button>
-          <button mat-raised-button color="primary" (click)="onApplyFilters()">
+          </ion-button>
+          <ion-button color="primary" (click)="onApplyFilters()">
             {{ 'COMMON.APPLY' | translate }}
-          </button>
+          </ion-button>
         </mat-action-row>
       </mat-expansion-panel>
 
@@ -177,14 +181,14 @@ export interface AuditFilters {
         </ng-template>
 
         <ng-template appCellTemplate="actions" let-row>
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             (click)="onViewDetails(row)"
-            [matTooltip]="'COMMON.VIEW_DETAILS' | translate"
+            [attr.title]="'COMMON.VIEW_DETAILS' | translate"
           >
-            <mat-icon>visibility</mat-icon>
-          </button>
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
         </ng-template>
       </app-data-table>
     </div>

@@ -20,14 +20,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DecimalPipe } from '@angular/common';
+import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/angular/standalone';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -53,22 +50,22 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatCardModule,
     MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
     MatTableModule,
     MatMenuModule,
-    MatTooltipModule,
     DecimalPipe,
+    IonIcon,
+    IonButton,
+    IonCardContent,
+    IonCard,
   ],
   template: `
     <div class="view-container">
-      <mat-card class="header-card">
-        <mat-card-content class="header-content">
+      <ion-card class="header-card">
+        <ion-card-content class="header-content">
           <div class="loan-title-area">
             <div class="avatar-circle">
-              <mat-icon>account_balance</mat-icon>
+              <ion-icon name="business-outline"></ion-icon>
             </div>
             <div class="title-details">
               <h2>#{{ loan()?.accountNo || loanId }}</h2>
@@ -80,89 +77,86 @@ import {
             </div>
           </div>
           <div class="actions-area">
-            <button mat-button (click)="onBack()">
-              <mat-icon>arrow_back</mat-icon>
+            <ion-button fill="clear" (click)="onBack()">
+              <ion-icon name="arrow-back-outline"></ion-icon>
               {{ 'COMMON.BACK' | translate }}
-            </button>
+            </ion-button>
 
             @if (isLoanActive) {
-              <button
-                mat-raised-button
+              <ion-button
                 color="primary"
                 (click)="onRepayment()"
-                [matTooltip]="'WC_LOANS.REPAYMENT' | translate"
+                [attr.title]="'WC_LOANS.REPAYMENT' | translate"
               >
-                <mat-icon>payments</mat-icon>
+                <ion-icon name="cash-outline"></ion-icon>
                 {{ 'WC_LOANS.REPAYMENT' | translate }}
-              </button>
+              </ion-button>
             }
 
             @if (isLoanPendingApproval) {
-              <button
-                mat-raised-button
+              <ion-button
                 color="accent"
                 (click)="onAction('approve')"
-                [matTooltip]="'WC_LOANS.APPROVE' | translate"
+                [attr.title]="'WC_LOANS.APPROVE' | translate"
               >
-                <mat-icon>check_circle</mat-icon>
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
                 {{ 'WC_LOANS.APPROVE' | translate }}
-              </button>
+              </ion-button>
             }
 
             @if (isLoanApproved) {
-              <button
-                mat-raised-button
+              <ion-button
                 color="accent"
                 (click)="onAction('disburse')"
-                [matTooltip]="'WC_LOANS.DISBURSE' | translate"
+                [attr.title]="'WC_LOANS.DISBURSE' | translate"
               >
-                <mat-icon>launch</mat-icon>
+                <ion-icon name="open-outline"></ion-icon>
                 {{ 'WC_LOANS.DISBURSE' | translate }}
-              </button>
+              </ion-button>
             }
 
-            <button mat-raised-button [matMenuTriggerFor]="loanMenu">
-              <mat-icon>arrow_drop_down</mat-icon>
+            <ion-button [matMenuTriggerFor]="loanMenu">
+              <ion-icon name="caret-down-outline"></ion-icon>
               {{ 'COMMON.ACTIONS' | translate }}
-            </button>
+            </ion-button>
             <mat-menu #loanMenu="matMenu">
               @if (isLoanPendingApproval) {
                 <button mat-menu-item (click)="onEdit()">
-                  <mat-icon>edit</mat-icon>
+                  <ion-icon name="create-outline"></ion-icon>
                   <span>{{ 'WC_LOANS.ACTIONS.MODIFY' | translate }}</span>
                 </button>
                 <button mat-menu-item (click)="onAction('reject')">
-                  <mat-icon>cancel</mat-icon>
+                  <ion-icon name="close-circle-outline"></ion-icon>
                   <span>{{ 'WC_LOANS.ACTIONS.REJECT' | translate }}</span>
                 </button>
               }
               @if (isLoanApproved) {
                 <button mat-menu-item (click)="onAction('undoapproval')">
-                  <mat-icon>undo</mat-icon>
+                  <ion-icon name="arrow-undo-outline"></ion-icon>
                   <span>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</span>
                 </button>
               }
               @if (isLoanActive) {
                 <button mat-menu-item (click)="onAction('undodisbursal')">
-                  <mat-icon>undo</mat-icon>
+                  <ion-icon name="arrow-undo-outline"></ion-icon>
                   <span>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</span>
                 </button>
               }
               <button mat-menu-item (click)="onDelete()">
-                <mat-icon>delete</mat-icon>
+                <ion-icon name="trash-outline"></ion-icon>
                 <span>{{ 'WC_LOANS.ACTIONS.DELETE' | translate }}</span>
               </button>
             </mat-menu>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
 
       <mat-tab-group class="tab-group" animationDuration="0ms">
         <!-- Details -->
         <mat-tab [label]="'WC_LOANS.TABS.DETAILS' | translate">
           <div class="tab-content">
-            <mat-card class="info-card">
-              <mat-card-content class="details-list">
+            <ion-card class="info-card">
+              <ion-card-content class="details-list">
                 <div class="detail-item">
                   <span class="label">{{ 'WC_LOANS.ACCOUNT_NO' | translate }}</span>
                   <span class="value">{{ loan()?.accountNo || '-' }}</span>
@@ -197,16 +191,16 @@ import {
                   <span class="label">{{ 'WC_LOANS.BREACH' | translate }}</span>
                   <span class="value">{{ loan()?.breach?.name || '-' }}</span>
                 </div>
-              </mat-card-content>
-            </mat-card>
+              </ion-card-content>
+            </ion-card>
           </div>
         </mat-tab>
 
         <!-- Charges -->
         <mat-tab [label]="'WC_LOANS.TABS.CHARGES' | translate">
           <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
+            <ion-card class="table-card">
+              <ion-card-content>
                 @if (charges().length > 0) {
                   <table mat-table [dataSource]="charges()" class="full-width-table">
                     <ng-container matColumnDef="name">
@@ -234,20 +228,20 @@ import {
                   </table>
                 } @else {
                   <div class="empty-state">
-                    <mat-icon>monetization_on</mat-icon>
+                    <ion-icon name="cash-outline"></ion-icon>
                     <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                   </div>
                 }
-              </mat-card-content>
-            </mat-card>
+              </ion-card-content>
+            </ion-card>
           </div>
         </mat-tab>
 
         <!-- Transactions -->
         <mat-tab [label]="'WC_LOANS.TABS.TRANSACTIONS' | translate">
           <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
+            <ion-card class="table-card">
+              <ion-card-content>
                 @if (transactions().length > 0) {
                   <table mat-table [dataSource]="transactions()" class="full-width-table">
                     <ng-container matColumnDef="id">
@@ -273,20 +267,20 @@ import {
                   </table>
                 } @else {
                   <div class="empty-state">
-                    <mat-icon>receipt</mat-icon>
+                    <ion-icon name="receipt-outline"></ion-icon>
                     <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                   </div>
                 }
-              </mat-card-content>
-            </mat-card>
+              </ion-card-content>
+            </ion-card>
           </div>
         </mat-tab>
 
         <!-- Delinquency Actions -->
         <mat-tab [label]="'WC_LOANS.TABS.DELINQUENCY_ACTIONS' | translate">
           <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
+            <ion-card class="table-card">
+              <ion-card-content>
                 @if (delinquencyActions().length > 0) {
                   <table mat-table [dataSource]="delinquencyActions()" class="full-width-table">
                     <ng-container matColumnDef="action">
@@ -310,20 +304,20 @@ import {
                   </table>
                 } @else {
                   <div class="empty-state">
-                    <mat-icon>gavel</mat-icon>
+                    <ion-icon name="hammer-outline"></ion-icon>
                     <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                   </div>
                 }
-              </mat-card-content>
-            </mat-card>
+              </ion-card-content>
+            </ion-card>
           </div>
         </mat-tab>
 
         <!-- Delinquency Range Schedule -->
         <mat-tab [label]="'WC_LOANS.TABS.DELINQUENCY_RANGE_SCHEDULE' | translate">
           <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
+            <ion-card class="table-card">
+              <ion-card-content>
                 @if (delinquencyRangeSchedule().length > 0) {
                   <table
                     mat-table
@@ -359,20 +353,20 @@ import {
                   </table>
                 } @else {
                   <div class="empty-state">
-                    <mat-icon>schedule</mat-icon>
+                    <ion-icon name="time-outline"></ion-icon>
                     <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                   </div>
                 }
-              </mat-card-content>
-            </mat-card>
+              </ion-card-content>
+            </ion-card>
           </div>
         </mat-tab>
 
         <!-- Breach Schedule -->
         <mat-tab [label]="'WC_LOANS.TABS.BREACH_SCHEDULE' | translate">
           <div class="tab-content">
-            <mat-card class="table-card">
-              <mat-card-content>
+            <ion-card class="table-card">
+              <ion-card-content>
                 @if (breachSchedule().length > 0) {
                   <table mat-table [dataSource]="breachSchedule()" class="full-width-table">
                     <ng-container matColumnDef="periodNumber">
@@ -402,12 +396,12 @@ import {
                   </table>
                 } @else {
                   <div class="empty-state">
-                    <mat-icon>report_problem</mat-icon>
+                    <ion-icon name="warning-outline"></ion-icon>
                     <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                   </div>
                 }
-              </mat-card-content>
-            </mat-card>
+              </ion-card-content>
+            </ion-card>
           </div>
         </mat-tab>
       </mat-tab-group>

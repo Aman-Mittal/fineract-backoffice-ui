@@ -20,9 +20,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
 import {
   DataTableComponent,
@@ -31,6 +28,7 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { NotesService, NoteData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-client-notes-list',
@@ -38,25 +36,23 @@ import { NotesService, NoteData } from '../../../api';
   imports: [
     RouterModule,
     TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
     DatePipe,
+    IonIcon,
+    IonButton,
   ],
   template: `
     <div class="tab-actions">
-      <button
-        mat-raised-button
+      <ion-button
         color="primary"
         [routerLink]="['/clients', clientId, 'notes', 'create']"
         *appHasPermission="'CREATE_NOTE'"
       >
-        <mat-icon>add</mat-icon>
+        <ion-icon name="add-outline"></ion-icon>
         {{ 'CLIENTS.ADD_NOTE' | translate }}
-      </button>
+      </ion-button>
     </div>
 
     <app-data-table
@@ -71,24 +67,24 @@ import { NotesService, NoteData } from '../../../api';
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <button
-            mat-icon-button
+          <ion-button
+            fill="clear"
             color="primary"
             [routerLink]="['/clients', clientId, 'notes', 'edit', row.id]"
             *appHasPermission="'UPDATE_NOTE'"
-            [matTooltip]="'COMMON.EDIT' | translate"
+            [attr.title]="'COMMON.EDIT' | translate"
           >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-icon-button
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="clear"
             color="warn"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_NOTE'"
-            [matTooltip]="'COMMON.DELETE' | translate"
+            [attr.title]="'COMMON.DELETE' | translate"
           >
-            <mat-icon>delete</mat-icon>
-          </button>
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
         </div>
       </ng-template>
     </app-data-table>

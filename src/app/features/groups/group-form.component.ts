@@ -22,17 +22,25 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import {
   GroupsService,
   OfficesService,
@@ -54,61 +62,64 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatTooltipModule,
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatProgressSpinnerModule,
+    IonButton,
+    IonSpinner,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCard,
+    IonSelectOption,
+    IonSelect,
+    IonCheckbox,
   ],
   template: `
     <div class="form-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
             {{
               isEditMode ? ('GROUPS.EDIT_GROUP' | translate) : ('GROUPS.CREATE_GROUP' | translate)
             }}
-          </mat-card-title>
-        </mat-card-header>
+          </ion-card-title>
+        </ion-card-header>
 
-        <mat-card-content>
+        <ion-card-content>
           <form #groupForm="ngForm" (ngSubmit)="onSubmit()" class="group-form">
             <div class="form-grid">
               <!-- Name -->
-              <mat-form-field
-                appearance="outline"
-                [matTooltip]="'HELP.GROUP_NAME_DESC' | translate"
-              >
-                <mat-label>{{ 'GROUPS.NAME' | translate }}</mat-label>
-                <input matInput name="name" [(ngModel)]="group.name" required />
-              </mat-form-field>
+              <ion-item fill="outline" [attr.title]="'HELP.GROUP_NAME_DESC' | translate">
+                <ion-label position="stacked">{{ 'GROUPS.NAME' | translate }}</ion-label>
+                <ion-input name="name" [(ngModel)]="group.name" required></ion-input>
+              </ion-item>
 
               <!-- Office -->
-              <mat-form-field appearance="outline" [matTooltip]="'HELP.OFFICE_DESC' | translate">
-                <mat-label>{{ 'COMMON.OFFICE' | translate }}</mat-label>
-                <mat-select
+              <ion-item fill="outline" [attr.title]="'HELP.OFFICE_DESC' | translate">
+                <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                <ion-select
                   name="officeId"
                   [(ngModel)]="group.officeId"
                   required
                   [disabled]="isEditMode"
                 >
                   @for (office of offices; track office.id) {
-                    <mat-option [value]="office.id">{{ office.name }}</mat-option>
+                    <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
-                </mat-select>
-              </mat-form-field>
+                </ion-select>
+              </ion-item>
 
               <!-- Activation Date -->
               @if (!isEditMode) {
                 <mat-form-field
                   appearance="outline"
-                  [matTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate"
+                  [attr.title]="'HELP.ACTIVATION_DATE_DESC' | translate"
                 >
                   <mat-label>{{ 'COMMON.ACTIVATION_DATE' | translate }}</mat-label>
                   <input
@@ -125,58 +136,46 @@ import {
 
               <!-- Active -->
               <div class="checkbox-container">
-                <mat-checkbox name="active" [(ngModel)]="group.active" [disabled]="isEditMode">
+                <ion-checkbox name="active" [(ngModel)]="group.active" [disabled]="isEditMode">
                   {{ 'COMMON.ACTIVE' | translate }}
-                </mat-checkbox>
-                <mat-icon [matTooltip]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
+                </ion-checkbox>
+                <mat-icon [attr.title]="'HELP.ACTIVE_DESC' | translate" class="help-icon"
                   >help_outline</mat-icon
                 >
               </div>
             </div>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
                 {{ 'COMMON.CANCEL' | translate }}
-              </button>
+              </ion-button>
               @if (isEditMode && !originalActive) {
-                <button
-                  mat-raised-button
+                <ion-button
                   color="accent"
                   type="button"
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"
                 >
                   @if (isSaving) {
-                    <mat-spinner
-                      diameter="20"
-                      style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                    ></mat-spinner>
+                    <ion-spinner name="crescent"></ion-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
                     Activate Group
                   }
-                </button>
+                </ion-button>
               }
-              <button
-                mat-raised-button
-                color="primary"
-                type="submit"
-                [disabled]="groupForm.invalid || isSaving"
-              >
+              <ion-button color="primary" type="submit" [disabled]="groupForm.invalid || isSaving">
                 @if (isSaving) {
-                  <mat-spinner
-                    diameter="20"
-                    style="margin-right: 8px; display: inline-block; vertical-align: middle;"
-                  ></mat-spinner>
+                  <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
                   {{ 'COMMON.SAVE' | translate }}
                 }
-              </button>
+              </ion-button>
             </div>
           </form>
-        </mat-card-content>
-      </mat-card>
+        </ion-card-content>
+      </ion-card>
     </div>
   `,
   styles: [

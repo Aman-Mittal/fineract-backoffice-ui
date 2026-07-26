@@ -20,12 +20,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { SpmSurveysService, SurveyData } from '../../../api';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
  * Lists SPM surveys (poverty / social-performance questionnaires). Surveys are small
@@ -35,14 +33,7 @@ import { SpmSurveysService, SurveyData } from '../../../api';
 @Component({
   selector: 'app-spm-surveys-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
       title="nav.spmSurveys"
@@ -55,24 +46,24 @@ import { SpmSurveysService, SurveyData } from '../../../api';
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="actions" let-row>
-        <button
-          mat-icon-button
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'SCORECARDS.VIEW' | translate"
-          [matTooltip]="'SCORECARDS.VIEW' | translate"
+          [attr.title]="'SCORECARDS.VIEW' | translate"
           (click)="onScorecards(row)"
         >
-          <mat-icon>assessment</mat-icon>
-        </button>
-        <button
-          mat-icon-button
+          <ion-icon name="bar-chart-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          [matTooltip]="'COMMON.EDIT' | translate"
+          [attr.title]="'COMMON.EDIT' | translate"
           (click)="onEdit(row)"
         >
-          <mat-icon>edit</mat-icon>
-        </button>
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
       </ng-template>
     </app-data-table>
   `,
