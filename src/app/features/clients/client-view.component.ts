@@ -135,7 +135,7 @@ interface ClientActionResult {
 
               <ion-button
                 fill="outline"
-                color="accent"
+                color="secondary"
                 id="clientActionsMenu-trigger"
                 *appHasPermission="[
                   'ACTIVATE_CLIENT',
@@ -431,7 +431,7 @@ interface ClientActionResult {
                           @if (account.status?.value === 'Submitted and pending approval') {
                             <ion-button
                               fill="clear"
-                              color="accent"
+                              color="secondary"
                               (click)="onSavingsAction(account.id, 'approve', account)"
                               *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
                               [attr.title]="'LOANS.APPROVE' | translate"
@@ -455,7 +455,7 @@ interface ClientActionResult {
                           @if (account.status?.value === 'Active') {
                             <ion-button
                               fill="clear"
-                              color="warn"
+                              color="danger"
                               (click)="onSavingsAction(account.id, 'close', account)"
                               *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
                               [attr.title]="'LOANS.CLOSE' | translate"
@@ -466,7 +466,7 @@ interface ClientActionResult {
 
                           <ion-button
                             fill="clear"
-                            color="warn"
+                            color="danger"
                             (click)="onSavingsTransaction(account.id, 'withdrawal')"
                             *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
                             [attr.title]="'SAVINGS.WITHDRAWAL' | translate"
@@ -550,7 +550,7 @@ interface ClientActionResult {
                           @if (account.status?.value === 'Submitted and pending approval') {
                             <ion-button
                               fill="clear"
-                              color="accent"
+                              color="secondary"
                               (click)="onLoanAction(account.id, 'approve')"
                               [attr.title]="'LOANS.APPROVE' | translate"
                             >
@@ -561,7 +561,7 @@ interface ClientActionResult {
                           @if (account.status?.value === 'Approved') {
                             <ion-button
                               fill="clear"
-                              color="accent"
+                              color="secondary"
                               (click)="onLoanAction(account.id, 'disburse')"
                               [attr.title]="'LOANS.DISBURSE' | translate"
                             >
@@ -572,7 +572,7 @@ interface ClientActionResult {
                           @if (account.status?.active) {
                             <ion-button
                               fill="clear"
-                              color="warn"
+                              color="danger"
                               (click)="onLoanAction(account.id, 'close')"
                               *appHasPermission="'CLOSE_LOAN'"
                               [attr.title]="'LOANS.CLOSE' | translate"

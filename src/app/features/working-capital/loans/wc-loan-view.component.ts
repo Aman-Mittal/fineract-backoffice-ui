@@ -108,7 +108,7 @@ import {
 
             @if (isLoanPendingApproval) {
               <ion-button
-                color="accent"
+                color="secondary"
                 (click)="onAction('approve')"
                 [attr.title]="'WC_LOANS.APPROVE' | translate"
               >
@@ -119,7 +119,7 @@ import {
 
             @if (isLoanApproved) {
               <ion-button
-                color="accent"
+                color="secondary"
                 (click)="onAction('disburse')"
                 [attr.title]="'WC_LOANS.DISBURSE' | translate"
               >

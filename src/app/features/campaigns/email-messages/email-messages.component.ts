@@ -116,7 +116,7 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                     }}</ion-label>
                     <ion-textarea rows="4" [(ngModel)]="newBody"></ion-textarea>
                   </ion-item>
-                  <ion-button color="accent" (click)="createMessage()">
+                  <ion-button color="secondary" (click)="createMessage()">
                     {{ 'EMAIL_MESSAGES.CREATE' | translate }}
                   </ion-button>
                 </div>
@@ -148,7 +148,7 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                   <cdk-cell *cdkCellDef="let row">
                     <ion-button
                       fill="clear"
-                      color="warn"
+                      color="danger"
                       (click)="deleteMessage(row.id)"
                       [title]="'EMAIL_MESSAGES.DELETE' | translate"
                     >

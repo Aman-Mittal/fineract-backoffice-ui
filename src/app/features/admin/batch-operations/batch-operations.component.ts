@@ -111,7 +111,7 @@ import {
         border-radius: 4px;
         overflow: auto;
       }
-      mat-spinner {
+      ion-spinner {
         display: inline-block;
       }
     `,

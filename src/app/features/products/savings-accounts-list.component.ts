@@ -96,7 +96,7 @@ import {
         @if (account.status?.submittedAndPendingApproval) {
           <ion-button
             fill="clear"
-            color="accent"
+            color="secondary"
             [attr.title]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
             *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
@@ -116,7 +116,7 @@ import {
         </ion-button>
         <ion-button
           fill="clear"
-          color="accent"
+          color="secondary"
           [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
           [attr.title]="'SAVINGS.DEPOSIT_CASH' | translate"
           (click)="onTransaction(account, 'deposit')"
@@ -126,7 +126,7 @@ import {
         </ion-button>
         <ion-button
           fill="clear"
-          color="warn"
+          color="danger"
           [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
           [attr.title]="'SAVINGS.WITHDRAW_CASH' | translate"
           (click)="onTransaction(account, 'withdrawal')"

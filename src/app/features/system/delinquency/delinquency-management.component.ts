@@ -96,7 +96,7 @@ import {
                 </ion-button>
                 <ion-button
                   fill="clear"
-                  color="warn"
+                  color="danger"
                   (click)="onDeleteRange(row.id)"
                   *appHasPermission="'DELETE_DELINQUENCYRANGE'"
                   [attr.title]="'COMMON.DELETE' | translate"
@@ -145,7 +145,7 @@ import {
                 </ion-button>
                 <ion-button
                   fill="clear"
-                  color="warn"
+                  color="danger"
                   (click)="onDeleteBucket(row.id)"
                   *appHasPermission="'DELETE_DELINQUENCYBUCKET'"
                   [attr.title]="'COMMON.DELETE' | translate"

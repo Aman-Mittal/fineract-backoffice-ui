@@ -173,7 +173,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   </ion-item>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     type="button"
                     (click)="removeDebit($index)"
                     [disabled]="debits.length === 1"
@@ -216,7 +216,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   </ion-item>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     type="button"
                     (click)="removeCredit($index)"
                     [disabled]="credits.length === 1"

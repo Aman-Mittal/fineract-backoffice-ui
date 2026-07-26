@@ -79,7 +79,7 @@ import {
       .field-config-container {
         padding: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 320px;
       }
     `,

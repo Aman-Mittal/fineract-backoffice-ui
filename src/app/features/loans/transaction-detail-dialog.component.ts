@@ -130,7 +130,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           @if (!showAdjustForm()) {
             <ion-button
               fill="outline"
-              color="warn"
+              color="danger"
               class="adjust-toggle"
               (click)="showAdjustForm.set(true)"
             >
@@ -179,7 +179,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
         'COMMON.CLOSE' | translate
       }}</ion-button>
       @if (showAdjustForm()) {
-        <ion-button color="warn" [disabled]="isSaving()" (click)="onConfirmAdjust()">
+        <ion-button color="danger" [disabled]="isSaving()" (click)="onConfirmAdjust()">
           {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | translate }}
         </ion-button>
       }

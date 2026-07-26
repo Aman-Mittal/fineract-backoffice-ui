@@ -95,10 +95,10 @@ const ERROR_OCCURRED = 'Error occurred';
           <ion-button color="primary" (click)="lookup()" [disabled]="isLoading">
             {{ 'INTEROP.LOOKUP' | translate }}
           </ion-button>
-          <ion-button color="accent" (click)="register()" [disabled]="isLoading">
+          <ion-button color="secondary" (click)="register()" [disabled]="isLoading">
             {{ 'INTEROP.REGISTER' | translate }}
           </ion-button>
-          <ion-button color="warn" (click)="deregister()" [disabled]="isLoading">
+          <ion-button color="danger" (click)="deregister()" [disabled]="isLoading">
             {{ 'INTEROP.DEREGISTER' | translate }}
           </ion-button>
         </div>

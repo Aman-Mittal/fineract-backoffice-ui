@@ -19,10 +19,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientSearchV2Service, PageClientSearchData, ClientSearchData } from '../../api';
 import { CdkTableModule } from '@angular/cdk/table';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
+import { PageEvent } from '../../shared/models/table.model';
 import {
   IonButton,
   IonCard,
@@ -42,7 +43,6 @@ import {
   imports: [
     FormsModule,
     CdkTableModule,
-    MatPaginatorModule,
     TranslateModule,
     IonIcon,
     IonButton,
@@ -54,6 +54,7 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    PaginatorComponent,
   ],
   template: `
     <ion-card>
@@ -128,12 +129,13 @@ import {
             ></tr>
           </table>
 
-          <mat-paginator
+          <app-paginator
             [length]="totalElements()"
             [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
             [pageSizeOptions]="[10, 25, 50]"
             (page)="onPage($event)"
-          ></mat-paginator>
+          ></app-paginator>
         }
 
         @if (searched && results().length === 0 && !isLoading) {
@@ -181,6 +183,7 @@ export class ClientSearchV2Component {
 
   query = '';
   pageSize = 10;
+  pageIndex = 0;
   pageNumber = 0;
   isLoading = false;
   searched = false;
@@ -217,6 +220,7 @@ export class ClientSearchV2Component {
 
   onPage(event: PageEvent): void {
     this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
     this.search(event.pageIndex);
   }
 

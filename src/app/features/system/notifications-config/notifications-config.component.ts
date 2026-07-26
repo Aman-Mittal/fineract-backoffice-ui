@@ -19,7 +19,6 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
 import { NotificationService, GetNotification } from '../../../api';
 import {
   IonButton,
@@ -27,6 +26,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonIcon,
   IonItem,
   IonLabel,
   IonList,
@@ -42,7 +42,6 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatIconModule,
     IonButton,
     IonSpinner,
     IonCardContent,
@@ -52,6 +51,7 @@ import {
     IonItem,
     IonLabel,
     IonList,
+    IonIcon,
   ],
   template: `
     <div class="form-container">
@@ -65,9 +65,10 @@ import {
             <ion-list>
               @for (note of notifications; track note.id) {
                 <ion-item>
-                  <mat-icon slot="start">
-                    {{ note.isRead ? 'drafts' : 'markunread' }}
-                  </mat-icon>
+                  <ion-icon
+                    slot="start"
+                    [name]="note.isRead ? 'mail-open-outline' : 'mail-outline'"
+                  ></ion-icon>
                   <span>{{ note.content }}</span>
                   <span>{{ note.createdAt }}</span>
                 </ion-item>

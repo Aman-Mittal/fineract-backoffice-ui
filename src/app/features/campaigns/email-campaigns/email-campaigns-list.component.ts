@@ -122,7 +122,7 @@ interface EmailCampaign {
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="accent"
+                    color="secondary"
                     [title]="'EMAIL_CAMPAIGNS.ACTIVATE' | translate"
                     (click)="activate(campaign.id)"
                   >
@@ -130,7 +130,7 @@ interface EmailCampaign {
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     [title]="'EMAIL_CAMPAIGNS.DEACTIVATE' | translate"
                     (click)="deactivate(campaign.id)"
                   >
@@ -138,7 +138,7 @@ interface EmailCampaign {
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     [title]="'EMAIL_CAMPAIGNS.DELETE' | translate"
                     (click)="delete(campaign.id)"
                   >

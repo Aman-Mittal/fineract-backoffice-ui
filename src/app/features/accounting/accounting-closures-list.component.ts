@@ -66,7 +66,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       <ng-template appCellTemplate="actions" let-closure>
         <ion-button
           fill="clear"
-          color="warn"
+          color="danger"
           title="Re-open Period"
           (click)="onDeleteClosure(closure)"
         >

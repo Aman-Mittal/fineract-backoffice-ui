@@ -124,7 +124,7 @@ import {
                     {{ 'CODE_VALUES.EDIT' | translate }}
                   </ion-button>
                   @if (row.isSystemDefined !== true) {
-                    <ion-button fill="clear" color="warn" (click)="onDelete(row)">
+                    <ion-button fill="clear" color="danger" (click)="onDelete(row)">
                       <ion-icon name="trash-outline"></ion-icon>
                       {{ 'CODE_VALUES.DELETE' | translate }}
                     </ion-button>

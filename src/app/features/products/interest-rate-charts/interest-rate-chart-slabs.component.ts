@@ -107,7 +107,7 @@ interface SlabRow {
                   <td>
                     <ion-button
                       fill="clear"
-                      color="warn"
+                      color="danger"
                       type="button"
                       [attr.aria-label]="'COMMON.DELETE' | translate"
                       [attr.title]="'COMMON.DELETE' | translate"

@@ -115,7 +115,7 @@ interface OfficeTransaction {
             <ng-container cdkColumnDef="actions">
               <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
               <td cdk-cell *cdkCellDef="let row">
-                <ion-button fill="clear" color="warn" (click)="onDelete(row)">
+                <ion-button fill="clear" color="danger" (click)="onDelete(row)">
                   <ion-icon name="trash-outline"></ion-icon>
                 </ion-button>
               </td>

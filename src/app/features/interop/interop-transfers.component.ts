@@ -123,7 +123,7 @@ const ERROR_OCCURRED = 'Error occurred';
               </ion-select>
             </ion-item>
 
-            <ion-button color="accent" (click)="createTransfer()">
+            <ion-button color="secondary" (click)="createTransfer()">
               {{ 'INTEROP.CREATE_TRANSFER' | translate }}
             </ion-button>
 
@@ -143,7 +143,11 @@ const ERROR_OCCURRED = 'Error occurred';
               <ion-button color="primary" (click)="disburse()" [disabled]="!disburseAccountId">
                 {{ 'INTEROP.DISBURSE' | translate }}
               </ion-button>
-              <ion-button color="accent" (click)="loanRepayment()" [disabled]="!disburseAccountId">
+              <ion-button
+                color="secondary"
+                (click)="loanRepayment()"
+                [disabled]="!disburseAccountId"
+              >
                 {{ 'INTEROP.LOAN_REPAYMENT' | translate }}
               </ion-button>
             </div>
@@ -164,7 +168,7 @@ const ERROR_OCCURRED = 'Error occurred';
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 300px;
       }
       .full-width {

@@ -53,7 +53,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       <ng-template appCellTemplate="actions" let-row>
         <ion-button
           fill="clear"
-          color="warn"
+          color="danger"
           [attr.aria-label]="'CLIENT_TRANSACTIONS.UNDO' | translate"
           [attr.title]="'CLIENT_TRANSACTIONS.UNDO' | translate"
           [disabled]="row.reversed"

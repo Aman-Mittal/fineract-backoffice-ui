@@ -94,7 +94,7 @@ import {
               {{ 'EXTERNAL_EVENTS.LOAD' | translate }}
             }
           </ion-button>
-          <ion-button color="warn" (click)="clearAll()" [disabled]="isLoading">
+          <ion-button color="danger" (click)="clearAll()" [disabled]="isLoading">
             {{ 'EXTERNAL_EVENTS.CLEAR_ALL' | translate }}
           </ion-button>
         </div>
@@ -166,7 +166,7 @@ import {
       .full-width {
         width: 100%;
       }
-      mat-spinner {
+      ion-spinner {
         display: inline-block;
       }
     `,

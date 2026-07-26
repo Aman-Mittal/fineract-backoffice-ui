@@ -19,7 +19,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatDividerModule } from '@angular/material/divider';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../../api';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -40,7 +39,6 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    MatDividerModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -69,7 +67,7 @@ import {
           }
         </section>
 
-        <mat-divider />
+        <hr class="divider" />
 
         <!-- Get Oldest COB Date Section -->
         <section class="section">
@@ -80,7 +78,7 @@ import {
             <ion-input type="number" [(ngModel)]="loanId"></ion-input>
           </ion-item>
 
-          <ion-button color="accent" [disabled]="!loanId" (click)="getOldestDate()">
+          <ion-button color="secondary" [disabled]="!loanId" (click)="getOldestDate()">
             {{ 'WC_LOAN_COB_CATCHUP.GET_OLDEST_DATE' | translate }}
           </ion-button>
 
@@ -91,7 +89,7 @@ import {
           }
         </section>
 
-        <mat-divider />
+        <hr class="divider" />
 
         <!-- Run COB Catch-Up Section -->
         <section class="section">
@@ -102,7 +100,7 @@ import {
             <ion-input type="number" [(ngModel)]="catchupLoanId"></ion-input>
           </ion-item>
 
-          <ion-button color="warn" [disabled]="!catchupLoanId" (click)="runCatchup()">
+          <ion-button color="danger" [disabled]="!catchupLoanId" (click)="runCatchup()">
             {{ 'WC_LOAN_COB_CATCHUP.RUN_CATCHUP' | translate }}
           </ion-button>
         </section>
@@ -124,7 +122,7 @@ import {
         color: rgba(0, 0, 0, 0.6);
         word-break: break-all;
       }
-      mat-divider {
+      hr.divider {
         margin: 8px 0;
       }
     `,

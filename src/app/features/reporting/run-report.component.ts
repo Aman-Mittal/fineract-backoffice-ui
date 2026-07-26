@@ -126,7 +126,7 @@ import {
             <ion-button fill="clear" (click)="onCancel()">{{
               'COMMON.CANCEL' | translate
             }}</ion-button>
-            <ion-button color="accent" (click)="onDownloadCSV()" [disabled]="isLoading">
+            <ion-button color="secondary" (click)="onDownloadCSV()" [disabled]="isLoading">
               <ion-icon name="download-outline"></ion-icon>
               {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
             </ion-button>

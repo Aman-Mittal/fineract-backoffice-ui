@@ -20,7 +20,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatIconModule } from '@angular/material/icon';
 import {
   DataTableComponent,
   ColumnDef,
@@ -36,7 +35,6 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   imports: [
     RouterModule,
     TranslateModule,
-    MatIconModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
@@ -67,9 +65,10 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       </ng-template>
 
       <ng-template appCellTemplate="isActive" let-row>
-        <mat-icon [color]="row.isActive ? 'primary' : 'warn'">
-          {{ row.isActive ? 'check_circle' : 'cancel' }}
-        </mat-icon>
+        <ion-icon
+          [color]="row.isActive ? 'primary' : 'danger'"
+          [name]="row.isActive ? 'checkmark-circle-outline' : 'close-circle-outline'"
+        ></ion-icon>
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-row>

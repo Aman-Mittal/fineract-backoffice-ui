@@ -142,7 +142,7 @@ import {
   `,
   styles: [
     `
-      mat-card {
+      ion-card {
         max-width: 640px;
         margin: 24px auto;
       }

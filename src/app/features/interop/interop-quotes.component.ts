@@ -97,7 +97,7 @@ const ERROR_OCCURRED = 'Error occurred';
             <ion-textarea rows="10" [(ngModel)]="quoteBodyJson"></ion-textarea>
           </ion-item>
 
-          <ion-button color="accent" (click)="createQuote()">
+          <ion-button color="secondary" (click)="createQuote()">
             {{ 'INTEROP.CREATE_QUOTE' | translate }}
           </ion-button>
         </section>
@@ -117,7 +117,7 @@ const ERROR_OCCURRED = 'Error occurred';
         flex-wrap: wrap;
         margin-bottom: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 300px;
       }
       .full-width {

@@ -128,7 +128,7 @@ import {
         flex-direction: column;
         gap: 16px;
       }
-      mat-form-field {
+      ion-item {
         width: 100%;
       }
       .checkbox-field {

@@ -21,7 +21,6 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CdkTableModule } from '@angular/cdk/table';
 import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
 import {
@@ -36,6 +35,7 @@ import {
   IonItem,
   IonLabel,
   IonModal,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 
 import {
@@ -52,7 +52,6 @@ import {
     DecimalPipe,
     TranslateModule,
     CdkTableModule,
-    MatProgressSpinnerModule,
     IonButton,
     IonInput,
     IonItem,
@@ -64,6 +63,7 @@ import {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    IonSpinner,
   ],
   template: `
     <ion-card>
@@ -104,7 +104,7 @@ import {
 
         @if (isLoading) {
           <div class="spinner-container">
-            <mat-spinner diameter="48" />
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 

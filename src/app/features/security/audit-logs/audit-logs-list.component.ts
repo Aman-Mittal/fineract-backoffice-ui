@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -31,6 +30,8 @@ import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-paylo
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { DialogService } from '../../../core/services/dialog.service';
 import {
+  IonAccordion,
+  IonAccordionGroup,
   IonButton,
   IonDatetime,
   IonDatetimeButton,
@@ -58,7 +59,6 @@ export interface AuditFilters {
   standalone: true,
   imports: [
     TranslateModule,
-    MatExpansionModule,
     FormsModule,
     DataTableComponent,
     CellTemplateDirective,
@@ -73,107 +73,110 @@ export interface AuditFilters {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    IonAccordion,
+    IonAccordionGroup,
   ],
   template: `
     <div class="audit-logs-container">
-      <mat-expansion-panel class="filter-panel" [expanded]="false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <ion-icon name="filter-outline"></ion-icon>
-            {{ 'COMMON.FILTERS' | translate }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <div class="filter-grid">
-          <ion-item fill="outline">
-            <ion-label position="stacked">Action Name</ion-label>
-            <ion-input
-              [(ngModel)]="activeFilters.actionName"
-              (keyup.enter)="onApplyFilters()"
-            ></ion-input>
+      <ion-accordion-group class="filter-panel">
+        <ion-accordion value="filters">
+          <ion-item slot="header">
+            <ion-icon slot="start" name="filter-outline"></ion-icon>
+            <ion-label>{{ 'COMMON.FILTERS' | translate }}</ion-label>
           </ion-item>
+          <div slot="content">
+            <div class="filter-grid">
+              <ion-item fill="outline">
+                <ion-label position="stacked">Action Name</ion-label>
+                <ion-input
+                  [(ngModel)]="activeFilters.actionName"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <ion-item fill="outline">
-            <ion-label position="stacked">Entity Name</ion-label>
-            <ion-input
-              [(ngModel)]="activeFilters.entityName"
-              (keyup.enter)="onApplyFilters()"
-            ></ion-input>
-          </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Entity Name</ion-label>
+                <ion-input
+                  [(ngModel)]="activeFilters.entityName"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <ion-item fill="outline">
-            <ion-label position="stacked">Resource ID</ion-label>
-            <ion-input
-              type="number"
-              [(ngModel)]="activeFilters.resourceId"
-              (keyup.enter)="onApplyFilters()"
-            ></ion-input>
-          </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Resource ID</ion-label>
+                <ion-input
+                  type="number"
+                  [(ngModel)]="activeFilters.resourceId"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <ion-item fill="outline">
-            <ion-label position="stacked">Maker ID</ion-label>
-            <ion-input
-              type="number"
-              [(ngModel)]="activeFilters.makerId"
-              (keyup.enter)="onApplyFilters()"
-            ></ion-input>
-          </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Maker ID</ion-label>
+                <ion-input
+                  type="number"
+                  [(ngModel)]="activeFilters.makerId"
+                  (keyup.enter)="onApplyFilters()"
+                ></ion-input>
+              </ion-item>
 
-          <ion-item fill="outline">
-            <ion-label position="stacked">Maker Date From</ion-label>
-            <ion-datetime-button
-              datetime="activeFiltersmakerDateTimeFrom-picker"
-            ></ion-datetime-button>
-            <ion-modal [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime
-                  id="activeFiltersmakerDateTimeFrom-picker"
-                  data-testid="activeFiltersmakerDateTimeFrom-picker"
-                  presentation="date"
-                  name="activeFiltersmakerDateTimeFrom"
-                  [(ngModel)]="activeFilters.makerDateTimeFrom"
-                ></ion-datetime>
-              </ng-template>
-            </ion-modal>
-          </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Maker Date From</ion-label>
+                <ion-datetime-button
+                  datetime="activeFiltersmakerDateTimeFrom-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="activeFiltersmakerDateTimeFrom-picker"
+                      data-testid="activeFiltersmakerDateTimeFrom-picker"
+                      presentation="date"
+                      name="activeFiltersmakerDateTimeFrom"
+                      [(ngModel)]="activeFilters.makerDateTimeFrom"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
-          <ion-item fill="outline">
-            <ion-label position="stacked">Maker Date To</ion-label>
-            <ion-datetime-button
-              datetime="activeFiltersmakerDateTimeTo-picker"
-            ></ion-datetime-button>
-            <ion-modal [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime
-                  id="activeFiltersmakerDateTimeTo-picker"
-                  data-testid="activeFiltersmakerDateTimeTo-picker"
-                  presentation="date"
-                  name="activeFiltersmakerDateTimeTo"
-                  [(ngModel)]="activeFilters.makerDateTimeTo"
-                ></ion-datetime>
-              </ng-template>
-            </ion-modal>
-          </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Maker Date To</ion-label>
+                <ion-datetime-button
+                  datetime="activeFiltersmakerDateTimeTo-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="activeFiltersmakerDateTimeTo-picker"
+                      data-testid="activeFiltersmakerDateTimeTo-picker"
+                      presentation="date"
+                      name="activeFiltersmakerDateTimeTo"
+                      [(ngModel)]="activeFilters.makerDateTimeTo"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
 
-          <ion-item fill="outline">
-            <ion-label position="stacked">Processing Result</ion-label>
-            <ion-select [(ngModel)]="activeFilters.processingResult">
-              <ion-select-option value="">All</ion-select-option>
-              <ion-select-option value="success">Success</ion-select-option>
-              <ion-select-option value="failure">Failure</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </div>
+              <ion-item fill="outline">
+                <ion-label position="stacked">Processing Result</ion-label>
+                <ion-select [(ngModel)]="activeFilters.processingResult">
+                  <ion-select-option value="">All</ion-select-option>
+                  <ion-select-option value="success">Success</ion-select-option>
+                  <ion-select-option value="failure">Failure</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
 
-        <mat-action-row>
-          <ion-button fill="clear" color="warn" (click)="onResetFilters()">
-            {{ 'COMMON.RESET' | translate }}
-          </ion-button>
-          <ion-button color="primary" (click)="onApplyFilters()">
-            {{ 'COMMON.APPLY' | translate }}
-          </ion-button>
-        </mat-action-row>
-      </mat-expansion-panel>
+            <div class="filter-actions">
+              <ion-button fill="clear" color="danger" (click)="onResetFilters()">
+                {{ 'COMMON.RESET' | translate }}
+              </ion-button>
+              <ion-button color="primary" (click)="onApplyFilters()">
+                {{ 'COMMON.APPLY' | translate }}
+              </ion-button>
+            </div>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
 
       <app-data-table
         title="SECURITY.AUDIT_LOGS"
@@ -212,6 +215,12 @@ export interface AuditFilters {
     `
       .audit-logs-container {
         padding: 16px;
+      }
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 8px 0;
       }
       .filter-panel {
         margin: 24px;

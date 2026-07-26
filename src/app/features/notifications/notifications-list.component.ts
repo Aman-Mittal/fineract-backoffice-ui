@@ -84,7 +84,7 @@ import {
               <th cdk-header-cell *cdkHeaderCellDef>{{ 'NOTIFICATIONS.READ' | translate }}</th>
               <td cdk-cell *cdkCellDef="let row">
                 <div>
-                  <ion-chip [color]="row.isRead ? 'primary' : 'warn'" highlighted>
+                  <ion-chip [color]="row.isRead ? 'primary' : 'danger'" highlighted>
                     {{ (row.isRead ? 'NOTIFICATIONS.READ' : 'NOTIFICATIONS.UNREAD') | translate }}
                   </ion-chip>
                 </div>

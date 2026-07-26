@@ -119,7 +119,7 @@ interface SurveyResponse {
               <cdk-cell *cdkCellDef="let row">
                 <ion-button
                   fill="clear"
-                  color="warn"
+                  color="danger"
                   (click)="deleteResponse(row.id ?? row.entryId)"
                   [title]="'SURVEY_RESPONSES.DELETE' | translate"
                 >
@@ -143,7 +143,7 @@ interface SurveyResponse {
           }}</ion-label>
           <ion-textarea rows="6" [(ngModel)]="responseBody"></ion-textarea>
         </ion-item>
-        <ion-button color="accent" (click)="submitResponse()" [disabled]="submitting">
+        <ion-button color="secondary" (click)="submitResponse()" [disabled]="submitting">
           {{ 'SURVEY_RESPONSES.SUBMIT' | translate }}
         </ion-button>
       </ion-card-content>
@@ -164,7 +164,7 @@ interface SurveyResponse {
       .section-divider {
         margin: 24px 0;
       }
-      mat-spinner {
+      ion-spinner {
         margin: 16px auto;
       }
     `,

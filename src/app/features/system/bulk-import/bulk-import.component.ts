@@ -145,7 +145,7 @@ import {
         display: flex;
         gap: 12px;
       }
-      mat-form-field {
+      ion-item {
         min-width: 250px;
       }
     `,

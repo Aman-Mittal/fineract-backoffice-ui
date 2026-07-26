@@ -72,7 +72,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           </ion-button>
           <ion-button
             fill="clear"
-            color="warn"
+            color="danger"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_DOCUMENT'"
             [attr.title]="'COMMON.DELETE' | translate"

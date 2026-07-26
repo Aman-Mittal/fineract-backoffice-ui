@@ -73,7 +73,7 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
             </div>
             <ion-button
               fill="clear"
-              color="warn"
+              color="danger"
               class="delete-btn"
               (click)="onDeleteNote(note.id!)"
             >

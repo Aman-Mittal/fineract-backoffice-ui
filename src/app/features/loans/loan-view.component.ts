@@ -117,7 +117,7 @@ import {
                   @if (loan()?.loanScheduleType?.value) {
                     <div>
                       <ion-chip
-                        [color]="isProgressiveLoan() ? 'accent' : 'primary'"
+                        [color]="isProgressiveLoan() ? 'secondary' : 'primary'"
                         highlighted
                         [attr.title]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
                       >
@@ -141,7 +141,7 @@ import {
 
               @if (isLoanPendingApproval) {
                 <ion-button
-                  color="accent"
+                  color="secondary"
                   (click)="onLoanAction('approve')"
                   [attr.title]="'LOANS.APPROVE' | translate"
                 >
@@ -152,7 +152,7 @@ import {
 
               @if (isLoanApproved) {
                 <ion-button
-                  color="accent"
+                  color="secondary"
                   (click)="onDisburse()"
                   [attr.title]="'LOANS.DISBURSE' | translate"
                 >
@@ -237,7 +237,7 @@ import {
                         class="warn-item"
                         (click)="onLoanTransactionAction('writeoff')"
                       >
-                        <ion-icon slot="start" color="warn" name="trash-bin-outline"></ion-icon>
+                        <ion-icon slot="start" color="danger" name="trash-bin-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</ion-label>
                       </ion-item>
                     }
@@ -908,7 +908,7 @@ import {
                       <ion-input [(ngModel)]="disbursementEditForm.note"></ion-input>
                     </ion-item>
                     <div>
-                      <ion-button color="accent" (click)="saveDisbursementDetail()">
+                      <ion-button color="secondary" (click)="saveDisbursementDetail()">
                         <ion-icon name="save-outline"></ion-icon>
                         {{ 'COMMON.SAVE' | translate }}
                       </ion-button>
@@ -961,7 +961,7 @@ import {
                     }}</ion-label>
                     <ion-input type="number" [(ngModel)]="deleteCollateralId"></ion-input>
                   </ion-item>
-                  <ion-button color="warn" (click)="deleteCollateral()">
+                  <ion-button color="danger" (click)="deleteCollateral()">
                     <ion-icon name="trash-outline"></ion-icon>
                     {{ 'LOANS.DELETE_COLLATERAL' | translate }}
                   </ion-button>

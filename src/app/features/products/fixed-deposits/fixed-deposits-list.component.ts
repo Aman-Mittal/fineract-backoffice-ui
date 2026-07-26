@@ -71,7 +71,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
         @if (account.status?.value === 'Submitted and pending approval') {
           <ion-button
             fill="clear"
-            color="accent"
+            color="secondary"
             [attr.title]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
           >

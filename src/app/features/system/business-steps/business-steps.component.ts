@@ -20,7 +20,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatListModule } from '@angular/material/list';
 import { BusinessStepConfigurationService, BusinessStep } from '../../../api';
 import {
   IonButton,
@@ -47,7 +46,6 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
-    MatListModule,
     IonIcon,
     IonButton,
     IonSpinner,

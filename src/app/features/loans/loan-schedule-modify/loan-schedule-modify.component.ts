@@ -136,7 +136,7 @@ import {
       .form-actions {
         margin: 8px 0 16px;
       }
-      mat-spinner {
+      ion-spinner {
         display: inline-block;
       }
       .response-card {

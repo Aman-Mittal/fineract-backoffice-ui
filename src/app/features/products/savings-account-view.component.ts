@@ -93,7 +93,7 @@ import {
             <div class="actions-area">
               @if (account()?.status?.submittedAndPendingApproval) {
                 <ion-button
-                  color="accent"
+                  color="secondary"
                   *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('approve')"
                   [attr.title]="'SAVINGS.APPROVE' | translate"
@@ -115,7 +115,7 @@ import {
               }
               @if (account()?.status?.active) {
                 <ion-button
-                  color="warn"
+                  color="danger"
                   *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
                   (click)="onSavingsAction('close')"
                   [attr.title]="'SAVINGS.CLOSE' | translate"
@@ -134,7 +134,7 @@ import {
                 Deposit
               </ion-button>
               <ion-button
-                color="warn"
+                color="danger"
                 *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
                 (click)="onTransaction('withdrawal')"
                 [attr.title]="'SAVINGS.WITHDRAW_CASH' | translate"

@@ -181,7 +181,7 @@ import {
                   </div>
 
                   @if (!isEditMode) {
-                    <ion-button fill="clear" color="warn" type="button" (click)="removeColumn(i)">
+                    <ion-button fill="clear" color="danger" type="button" (click)="removeColumn(i)">
                       <ion-icon name="trash-outline"></ion-icon>
                     </ion-button>
                   }

@@ -93,13 +93,13 @@ import {
                     <ion-icon name="create-outline"></ion-icon>
                     {{ 'CODES.EDIT' | translate }}
                   </ion-button>
-                  <ion-button fill="clear" color="accent" (click)="onCodeValues(row)">
+                  <ion-button fill="clear" color="secondary" (click)="onCodeValues(row)">
                     <ion-icon name="list-outline"></ion-icon>
                     {{ 'CODES.CODE_VALUES' | translate }}
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     (click)="onDelete(row)"
                     [disabled]="row.systemDefined === true"
                     [style.visibility]="row.systemDefined === true ? 'hidden' : 'visible'"

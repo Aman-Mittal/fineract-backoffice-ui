@@ -56,7 +56,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
         </ion-button>
         <ion-button
           fill="clear"
-          color="warn"
+          color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
           [attr.title]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"

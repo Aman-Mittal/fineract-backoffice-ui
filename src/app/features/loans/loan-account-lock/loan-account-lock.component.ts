@@ -96,7 +96,7 @@ import {
           </ion-item>
 
           <ion-button
-            color="accent"
+            color="secondary"
             [disabled]="isLoading || !loanId || !lockOwner"
             (click)="placeLock()"
           >
@@ -114,7 +114,7 @@ import {
         gap: 16px;
         padding: 16px 0;
       }
-      mat-form-field {
+      ion-item {
         width: 100%;
         max-width: 400px;
       }

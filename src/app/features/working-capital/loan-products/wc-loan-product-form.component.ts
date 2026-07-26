@@ -22,24 +22,25 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
+  IonButton,
   IonCard,
+  IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonCardContent,
+  IonCol,
+  IonDatetime,
+  IonDatetimeButton,
+  IonGrid,
+  IonInput,
   IonItem,
   IonLabel,
-  IonInput,
+  IonModal,
+  IonRow,
   IonSelect,
   IonSelectOption,
-  IonTextarea,
-  IonButton,
   IonSpinner,
-  IonGrid,
-  IonRow,
-  IonCol,
+  IonTextarea,
 } from '@ionic/angular/standalone';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import {
   WorkingCapitalLoanProductsService,
   PostWorkingCapitalLoanProductsRequest,
@@ -51,9 +52,10 @@ import {
   FundData,
 } from '../../../api';
 import {
-  formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 
 /**
@@ -82,8 +84,9 @@ import {
     IonGrid,
     IonRow,
     IonCol,
-    MatDatepickerModule,
-    MatNativeDateModule,
+    IonDatetime,
+    IonDatetimeButton,
+    IonModal,
   ],
   template: `
     <div class="form-container">
@@ -455,16 +458,18 @@ import {
                     <ion-label position="stacked">{{
                       'WC_LOAN_PRODUCTS.START_DATE' | translate
                     }}</ion-label>
-                    <input
-                      id="wc-product-start-date"
-                      data-testid="wc-product-start-date"
-                      matInput
-                      [matDatepicker]="startPicker"
-                      name="startDate"
-                      [(ngModel)]="startDate"
-                    />
-                    <mat-datepicker-toggle slot="end" [for]="startPicker"></mat-datepicker-toggle>
-                    <mat-datepicker #startPicker></mat-datepicker>
+                    <ion-datetime-button datetime="wc-product-start-date"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="wc-product-start-date"
+                          data-testid="wc-product-start-date"
+                          presentation="date"
+                          name="startDate"
+                          [(ngModel)]="startDate"
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
                   </ion-item>
                 </ion-col>
 
@@ -473,16 +478,18 @@ import {
                     <ion-label position="stacked">{{
                       'WC_LOAN_PRODUCTS.CLOSE_DATE' | translate
                     }}</ion-label>
-                    <input
-                      id="wc-product-close-date"
-                      data-testid="wc-product-close-date"
-                      matInput
-                      [matDatepicker]="closePicker"
-                      name="closeDate"
-                      [(ngModel)]="closeDate"
-                    />
-                    <mat-datepicker-toggle slot="end" [for]="closePicker"></mat-datepicker-toggle>
-                    <mat-datepicker #closePicker></mat-datepicker>
+                    <ion-datetime-button datetime="wc-product-close-date"></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          id="wc-product-close-date"
+                          data-testid="wc-product-close-date"
+                          presentation="date"
+                          name="closeDate"
+                          [(ngModel)]="closeDate"
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
                   </ion-item>
                 </ion-col>
 
@@ -572,8 +579,8 @@ export class WcLoanProductFormComponent implements OnInit {
   isSaving = false;
 
   product: Partial<PostWorkingCapitalLoanProductsRequest> = {};
-  startDate: Date | null = null;
-  closeDate: Date | null = null;
+  startDate: string | null = null;
+  closeDate: string | null = null;
 
   currencyOptions: CurrencyData[] = [];
   amortizationTypeOptions: StringEnumOptionData[] = [];
@@ -639,8 +646,8 @@ export class WcLoanProductFormComponent implements OnInit {
       if (data.closeDate) {
         const cd = data.closeDate as unknown as number[];
         this.closeDate = Array.isArray(cd)
-          ? new Date(cd[0], cd[1] - 1, cd[2])
-          : new Date(data.closeDate);
+          ? toIsoDate(new Date(cd[0], cd[1] - 1, cd[2]))
+          : toIsoDate(new Date(data.closeDate));
       }
     });
   }

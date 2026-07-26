@@ -155,7 +155,7 @@ import {
               </ion-button>
               @if (isEditMode && !originalActive) {
                 <ion-button
-                  color="accent"
+                  color="secondary"
                   type="button"
                   (click)="onActivate()"
                   [disabled]="isSaving || !activationDate"

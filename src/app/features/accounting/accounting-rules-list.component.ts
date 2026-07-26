@@ -53,7 +53,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           <ion-button fill="clear" color="primary" (click)="onEdit(row)">
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>
-          <ion-button fill="clear" color="warn" (click)="onDelete(row)">
+          <ion-button fill="clear" color="danger" (click)="onDelete(row)">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </ng-template>

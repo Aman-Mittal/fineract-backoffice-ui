@@ -100,7 +100,7 @@ import {
               }}</ion-label>
               <ion-input type="number" [(ngModel)]="fastForwardLoanId"></ion-input>
             </ion-item>
-            <ion-button color="accent" (click)="fastForward()" [disabled]="isLoading">
+            <ion-button color="secondary" (click)="fastForward()" [disabled]="isLoading">
               {{ 'COB_TOOLS.FAST_FORWARD' | translate }}
             </ion-button>
           </div>
@@ -118,7 +118,7 @@ import {
               }}</ion-label>
               <ion-input type="number" [(ngModel)]="reprocessLoanId"></ion-input>
             </ion-item>
-            <ion-button color="warn" (click)="reprocess()" [disabled]="isLoading">
+            <ion-button color="danger" (click)="reprocess()" [disabled]="isLoading">
               {{ 'COB_TOOLS.REPROCESS' | translate }}
             </ion-button>
           </div>
@@ -137,7 +137,7 @@ import {
         gap: 16px;
         flex-wrap: wrap;
       }
-      mat-divider {
+      hr.divider {
         margin: 16px 0;
       }
       .full-width {

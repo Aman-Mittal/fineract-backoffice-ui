@@ -65,10 +65,10 @@ import {
           <ion-button color="primary" (click)="loadModel()" [disabled]="isLoading">
             {{ 'PROGRESSIVE_LOAN.LOAD' | translate }}
           </ion-button>
-          <ion-button color="accent" (click)="createModel()" [disabled]="isLoading">
+          <ion-button color="secondary" (click)="createModel()" [disabled]="isLoading">
             {{ 'PROGRESSIVE_LOAN.CREATE' | translate }}
           </ion-button>
-          <ion-button color="warn" (click)="deleteModel()" [disabled]="isLoading">
+          <ion-button color="danger" (click)="deleteModel()" [disabled]="isLoading">
             {{ 'PROGRESSIVE_LOAN.DELETE' | translate }}
           </ion-button>
         </div>

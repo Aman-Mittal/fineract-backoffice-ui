@@ -117,7 +117,7 @@ import {
         </ion-button>
         <ion-button
           fill="clear"
-          color="accent"
+          color="secondary"
           [attr.aria-label]="'LOANS.COLLATERAL' | translate"
           [attr.title]="'LOANS.MANAGE_COLLATERAL' | translate"
           (click)="onViewCollateral(loan)"
@@ -138,7 +138,7 @@ import {
         @if (loan.status?.value === 'Submitted and pending approval') {
           <ion-button
             fill="clear"
-            color="accent"
+            color="secondary"
             [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
             [attr.title]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
             (click)="onLoanAction(loan, 'approve')"
@@ -149,7 +149,7 @@ import {
         @if (loan.status?.value === 'Approved') {
           <ion-button
             fill="clear"
-            color="accent"
+            color="secondary"
             [attr.aria-label]="'LOANS.DISBURSE_LOAN' | translate"
             [attr.title]="'LOANS.DISBURSE_LOAN' | translate"
             (click)="onLoanAction(loan, 'disburse')"

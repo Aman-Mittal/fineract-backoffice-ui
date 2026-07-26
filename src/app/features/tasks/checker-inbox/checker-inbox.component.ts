@@ -20,7 +20,6 @@
 import { Component, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../../shared';
@@ -28,18 +27,12 @@ import { MakerCheckerOr4EyeFunctionalityService, AuditData } from '../../../api'
 import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { NotificationService } from '../../../core/services/notification.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-checker-inbox',
   standalone: true,
-  imports: [
-    TranslateModule,
-    MatDialogModule,
-    DataTableComponent,
-    CellTemplateDirective,
-    IonIcon,
-    IonButton,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
       title="nav.checker_inbox"
@@ -66,7 +59,7 @@ import { NotificationService } from '../../../core/services/notification.service
           <ion-button fill="clear" class="approve-btn" title="Approve" (click)="onApprove(task)">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
           </ion-button>
-          <ion-button fill="clear" color="warn" title="Reject" (click)="onReject(task)">
+          <ion-button fill="clear" color="danger" title="Reject" (click)="onReject(task)">
             <ion-icon name="close-circle-outline"></ion-icon>
           </ion-button>
         </div>
@@ -88,7 +81,7 @@ import { NotificationService } from '../../../core/services/notification.service
 export class CheckerInboxComponent {
   private readonly makerCheckerService = inject(MakerCheckerOr4EyeFunctionalityService);
   private readonly notifications = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogService = inject(DialogService);
 
   columns: ColumnDef[] = [
     { key: 'id', label: 'COMMON.ID', sortable: true },
@@ -132,11 +125,10 @@ export class CheckerInboxComponent {
     // Local sorting handled by DataTableComponent if localLogic is true
   }
 
-  onViewPayload(task: Record<string, unknown>) {
-    this.dialog.open(ViewPayloadDialogComponent, {
-      width: '600px',
-      data: { payload: task['commandAsJson'] as string },
-    });
+  onViewPayload(task: Record<string, unknown>): Promise<void> {
+    return this.dialogService
+      .open(ViewPayloadDialogComponent, { data: { payload: task['commandAsJson'] as string } })
+      .then(() => undefined);
   }
 
   onApprove(task: Record<string, unknown>) {

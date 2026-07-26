@@ -98,7 +98,7 @@ import { CdkTableModule } from '@angular/cdk/table';
             </ion-button>
             <ion-button
               fill="clear"
-              color="warn"
+              color="danger"
               (click)="onDelete(doc.id)"
               [attr.title]="'COMMON.DELETE' | translate"
             >

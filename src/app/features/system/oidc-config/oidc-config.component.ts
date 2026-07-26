@@ -112,7 +112,7 @@ interface OidcConfig {
             </ion-item>
 
             <div class="actions">
-              <ion-button fill="clear" type="button" color="warn" (click)="onDelete()">
+              <ion-button fill="clear" type="button" color="danger" (click)="onDelete()">
                 {{ 'COMMON.DELETE' | translate }}
               </ion-button>
               <ion-button color="primary" type="button" [disabled]="isSaving" (click)="onSave()">

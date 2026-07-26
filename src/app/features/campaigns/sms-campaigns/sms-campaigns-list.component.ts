@@ -109,7 +109,7 @@ interface SmsCampaign {
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="accent"
+                    color="secondary"
                     (click)="activate(row.id)"
                     title="{{ 'SMS_CAMPAIGNS.ACTIVATE' | translate }}"
                   >
@@ -117,7 +117,7 @@ interface SmsCampaign {
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     (click)="deactivate(row.id)"
                     title="{{ 'SMS_CAMPAIGNS.DEACTIVATE' | translate }}"
                   >
@@ -125,7 +125,7 @@ interface SmsCampaign {
                   </ion-button>
                   <ion-button
                     fill="clear"
-                    color="warn"
+                    color="danger"
                     (click)="delete(row.id)"
                     title="{{ 'SMS_CAMPAIGNS.DELETE' | translate }}"
                   >

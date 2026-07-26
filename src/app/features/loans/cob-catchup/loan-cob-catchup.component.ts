@@ -96,7 +96,7 @@ import {
             <ion-input type="number" [(ngModel)]="catchupLoanId"></ion-input>
           </ion-item>
 
-          <ion-button color="accent" [disabled]="!catchupLoanId" (click)="runCatchup()">
+          <ion-button color="secondary" [disabled]="!catchupLoanId" (click)="runCatchup()">
             {{ 'LOAN_COB_CATCHUP.RUN_CATCHUP' | translate }}
           </ion-button>
         </div>
@@ -111,7 +111,7 @@ import {
         gap: 16px;
         padding: 16px 0;
       }
-      mat-form-field {
+      ion-item {
         width: 100%;
         max-width: 400px;
       }

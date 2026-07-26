@@ -18,7 +18,6 @@
  */
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanAccountLockService } from '../../../../api';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -31,6 +30,7 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -38,7 +38,6 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    MatProgressSpinnerModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -48,6 +47,7 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonSpinner,
   ],
   template: `
     <ion-card>
@@ -74,7 +74,7 @@ import {
         <div class="actions">
           <ion-button color="primary" [disabled]="!loanId || isLoading" (click)="placeLock()">
             @if (isLoading) {
-              <mat-spinner diameter="20" />
+              <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'WC_LOAN_ACCOUNT_LOCK.PLACE_LOCK' | translate }}
             }
@@ -95,7 +95,7 @@ import {
       .actions {
         margin-top: 8px;
       }
-      mat-spinner {
+      ion-spinner {
         display: inline-block;
       }
     `,

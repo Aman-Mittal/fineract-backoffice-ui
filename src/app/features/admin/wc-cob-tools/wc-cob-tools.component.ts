@@ -42,7 +42,7 @@ import {
           <ion-button color="primary" (click)="setLastCobRun()">
             {{ 'WC_COB_TOOLS.SET_LAST_RUN' | translate }}
           </ion-button>
-          <ion-button color="warn" (click)="deleteLastCobRun()">
+          <ion-button color="danger" (click)="deleteLastCobRun()">
             {{ 'WC_COB_TOOLS.DELETE_LAST_RUN' | translate }}
           </ion-button>
         </div>

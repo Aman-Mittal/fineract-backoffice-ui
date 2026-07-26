@@ -111,7 +111,7 @@ import {
   `,
   styles: [
     `
-      mat-form-field {
+      ion-item {
         width: 300px;
         display: block;
         margin-bottom: 16px;
