@@ -38,7 +38,7 @@ let nextId = 0;
  * The tooltip is appended to the body rather than the host, so it is never clipped by a
  * card's overflow, and it is wired up with aria-describedby so screen readers announce it.
  *
- * Usage: `<ion-button [appTooltip]="'HELP.FOO' | translate">`
+ * Usage: `<ion-button [appTooltip]="'HELP.SEARCH_DESC' | translate">`
  */
 @Directive({
   selector: '[appTooltip]',
