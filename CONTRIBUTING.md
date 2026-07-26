@@ -30,9 +30,34 @@ Thank you for your interest in contributing! This project is a GSOC 2026 initiat
 5.  **Run local checks**:
     - `npm run lint`
     - `npm run format:check`
-    - `npm run test`
+    - `npm test -- --watch=false`
+    - `npm run build`
 6.  **Ensure License Headers**: All new files must include the Apache License 2.0 header. You can verify this with `./scripts/check-license.sh`.
 7.  **Submit a Pull Request** against the `develop` branch.
+
+## UI Components
+
+The UI layer is **Ionic** (`@ionic/angular` v8), configured in `mode: 'md'`.
+
+Angular Material is being removed and **must not be used in new code**. If you touch a component
+that still imports `@angular/material`, migrate it as part of your change where the scope is
+reasonable. The [Code Style Guide](STYLE.md#ui-components-ionic) has the component-by-component
+equivalents, the date-picker and event idioms, and the icon registry rules.
+
+Two conventions are easy to miss and fail silently:
+
+- Every ionicon must be registered in `src/app/core/icons.ts`, or it renders as blank space.
+- Components using Ionic overlays need `provideIonicTesting()` in their TestBed.
+
+`@angular/cdk` is retained deliberately — use it for unstyled primitives (`cdk-table`, virtual
+scroll, a11y) rather than reaching back to Material.
+
+## Dependencies
+
+New runtime dependencies must be **Apache Category A** compatible. CI enforces the allowlist
+`MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD` via `license-checker`; anything GPL/LGPL/AGPL
+or SSPL will fail the build. Declare packages you import directly in `package.json` rather than
+relying on transitive resolution, so the audit sees them.
 
 ## Pull Request Guidelines
 

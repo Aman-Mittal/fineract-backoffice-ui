@@ -19,37 +19,67 @@ under the License.
 
 # Architectural Decisions & PM Responses
 
-As the Technical Architect, here are the strategic responses to the Product Manager's concerns regarding the Fineract Backoffice UI baseline, now updated to include Community Bank specific considerations.
+Strategic responses to the Product Manager's concerns regarding the Fineract Backoffice UI
+baseline, including Community Bank specific considerations.
+
+> Each item is tagged **Implemented** or **Planned**. "Planned" records an agreed direction, not
+> current behaviour — do not rely on a Planned item being present in the codebase. `security.md`
+> cross-references several of these; the tags here are the authority on what actually ships today.
 
 ---
 
-## 1. Data Privacy & Tenant Isolation
+## 0. UI Component Library — **Implemented**
+
+- **Ionic (`@ionic/angular` v8) in `mode: 'md'`.** Chosen over Angular Material for its
+  CSS-custom-property theming, which serves the white-labeling goal in §3 far better than
+  Material's Sass-compiled themes, and for its mobile-capable primitives, which matter for the MFI
+  field-officer profile in §2.
+- Angular Material is being removed; `@angular/cdk` is retained for unstyled primitives
+  (`cdk-table`, virtual scroll, a11y). See `STYLE.md` for the conventions.
+
+## 1. Data Privacy & Tenant Isolation — **Implemented**
 
 - **Dynamic Resolution:** Tenant ID resolved from hostname or storage, never hardcoded.
 - **Security Enforcement:** Strict injection via `HttpInterceptor` and immutable application state.
 
 ## 2. Connectivity & Performance (MFI vs. Community Bank)
 
-- **MFI (Last-Mile):** PWA support with IndexedDB sync queue for offline loan applications.
-- **Community Bank (Scalability):** We will implement a **Virtual Scrolling** and **Server-side Pagination** pattern as the default for all data grids to ensure the UI remains performant when handling community bank-sized datasets.
+- **MFI (Last-Mile)** — _Planned._ PWA support with IndexedDB sync queue for offline loan
+  applications. No service worker is registered today.
+- **Community Bank (Scalability)** — _Partially implemented._ Server-side pagination is the
+  default for data grids. Virtual scrolling is not yet applied; `@angular/cdk/scrolling` is
+  available for it.
 
 ## 3. White Labeling & Configuration-Driven UI
 
-- **Runtime Theme Injection:** CSS Variables used for branding, loaded from a tenant-specific `branding.json`.
-- **Formly / Dynamic Forms:** Entity forms (Clients, Loans) will be schema-driven to allow vendors to hide/show fields (e.g., "Social Collateral" for MFIs vs "FICO Score" for Banks) without code changes.
-- **Mode-Based Layouts:** The layout engine will support "MFI Mode" (Center/Group centric) vs "Bank Mode" (Individual/Branch centric) via high-level configuration.
+- **Runtime Theme Injection** — _Partially implemented._ Branding runs on CSS custom properties:
+  design tokens in `src/styles/_common.scss`, mapped onto Ionic's variables in
+  `src/styles/_ionic-theme.scss`. The per-tenant `branding.json` loader is **not** implemented;
+  runtime config today is `public/config.json` (API URL and default tenant) via `ConfigService`.
+- **Formly / Dynamic Forms** — _Planned._ Entity forms are currently template-driven and bound to
+  the OpenAPI-generated request models, not schema-driven.
+- **Mode-Based Layouts** — _Partially implemented._ `InstitutionConfigService` plus the
+  `*appInstitutionFeature` directive gate Groups, Centers and Collection Sheet by institution
+  type. There is no broader "MFI Mode" vs "Bank Mode" layout engine.
 
 ## 4. Security & Compliance
 
-- **Local HTTPS:** Automated SSL scaffolding for secure development against remote sandboxes.
-- **Zero Persistence for PII:** Sensitive data kept in-memory (Angular Signals).
-- **Encrypted Storage:** Non-sensitive persistence encrypted via Web Crypto API.
+- **Local HTTPS** — _Implemented._ Automated SSL scaffolding for development against remote
+  sandboxes.
+- **Zero Persistence for PII** — _Implemented._ Sensitive data kept in-memory (Angular Signals).
+- **Encrypted Storage** — _Planned._ Non-sensitive persistence is currently plaintext
+  `localStorage`; see `security.md` for the associated risk.
 
-## 5. Relationship Management & Domain Schemas
+## 5. Relationship Management & Domain Schemas — **Planned**
 
-- **360-View profile:** To support Community Bank relationship banking, the client profile will be designed as a "Composite Resource," aggregating data from Fineract's Clients, Accounts, and Loans APIs into a single dashboard view.
+- **360-View profile:** To support Community Bank relationship banking, the client profile will be
+  designed as a "Composite Resource," aggregating data from Fineract's Clients, Accounts, and
+  Loans APIs into a single dashboard view.
 
 ## 6. Regulatory & Audit
 
-- **Telemetry Service:** Scaffolded to log UI-side actions, meeting strict banking audit requirements.
-- **RBAC:** Structural directive `*appHasPermission` to dynamically adapt the UI based on granular Fineract permissions.
+- **Telemetry Service** — _Planned._ Scaffolded to log UI-side actions for banking audit
+  requirements.
+- **RBAC** — _Implemented._ Structural directives `*appHasPermission` and
+  `*appInstitutionFeature` adapt the UI to granular Fineract permissions, gated by
+  `environment.rbacEnabled`. UI visibility only — authorization is always enforced server-side.
