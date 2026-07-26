@@ -11,6 +11,7 @@ export default defineConfig({
     baseURL: 'https://localhost:4200',
     trace: 'on-first-retry',
     ignoreHTTPSErrors: true,
+    video: process.env.CI ? 'on' : 'retain-on-failure',
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

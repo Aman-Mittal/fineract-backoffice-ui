@@ -99,7 +99,7 @@ jobs:
           FINERACT_TENANT_ID: 'default'
           FINERACT_USERNAME: 'mifos'
           FINERACT_PASSWORD: 'password'
-        run: npx playwright test --video=on
+        run: npx playwright test
 
       - name: Upload E2E Test Report & Videos
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
