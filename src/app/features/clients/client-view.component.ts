@@ -21,7 +21,6 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
 import {
@@ -55,6 +54,9 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -64,7 +66,6 @@ import {
     RouterModule,
     TranslateModule,
     MatMenuModule,
-    MatTabsModule,
     CdkTableModule,
     MatDialogModule,
     StatusBadgeComponent,
@@ -82,6 +83,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
   ],
   template: `
     <div class="view-container">
@@ -260,338 +264,355 @@ import {
         </ion-card>
 
         <div class="content-body">
-          <mat-tab-group class="tab-group" animationDuration="0ms">
-            <!-- Client Details Tab -->
-            <mat-tab [label]="'CLIENTS.DETAILS' | translate">
-              <div class="tab-content">
-                <div class="info-grid">
-                  <ion-card class="info-card">
-                    <ion-card-header>
-                      <ion-card-title>
-                        <ion-icon name="id-card-outline"></ion-icon>
-                        {{ 'CLIENTS.GENERAL_PROFILE' | translate }}
-                      </ion-card-title>
-                    </ion-card-header>
-                    <ion-card-content class="details-list">
-                      <div class="detail-item">
-                        <span class="label">{{ 'CLIENTS.FIRST_NAME' | translate }}</span>
-                        <span class="value">{{ client()?.firstname || '-' }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="label">{{ 'CLIENTS.LAST_NAME' | translate }}</span>
-                        <span class="value">{{ client()?.lastname || '-' }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="label">{{ 'COMMON.EXTERNAL_ID' | translate }}</span>
-                        <span class="value">{{ client()?.externalId || '-' }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="label">{{ 'CLIENTS.LEGAL_FORM' | translate }}</span>
-                        <span class="value">{{ 'CLIENTS.PERSON' | translate }}</span>
-                      </div>
-                    </ion-card-content>
-                  </ion-card>
+          <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+            <ion-segment-button value="0">
+              <ion-label>{{ 'CLIENTS.DETAILS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="1">
+              <ion-label>{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="2">
+              <ion-label>{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="3">
+              <ion-label>{{ 'CLIENTS.IDENTIFIERS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="4">
+              <ion-label>{{ 'CLIENTS.ADDRESSES' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="5">
+              <ion-label>{{ 'CLIENTS.FAMILY_MEMBERS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="6">
+              <ion-label>{{ 'CLIENTS.NOTES' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="7">
+              <ion-label>{{ 'CLIENTS.DOCUMENTS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="8">
+              <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+            </ion-segment-button>
+          </ion-segment>
 
-                  <ion-card class="info-card">
-                    <ion-card-header>
-                      <ion-card-title>
-                        <ion-icon name="mail-open-outline"></ion-icon>
-                        {{ 'CLIENTS.CONTACT_STATUS' | translate }}
-                      </ion-card-title>
-                    </ion-card-header>
-                    <ion-card-content class="details-list">
-                      <div class="detail-item">
-                        <span class="label">{{ 'COMMON.EMAIL' | translate }}</span>
-                        <span class="value">{{ client()?.emailAddress || '-' }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
-                        <span class="value">{{ formattedActivationDate }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
-                        <span class="value">{{ formattedSubmissionDate }}</span>
-                      </div>
-                    </ion-card-content>
-                  </ion-card>
-                </div>
+          @if (activeTab() === '0') {
+            <div class="tab-content">
+              <div class="info-grid">
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>
+                      <ion-icon name="id-card-outline"></ion-icon>
+                      {{ 'CLIENTS.GENERAL_PROFILE' | translate }}
+                    </ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
+                    <div class="detail-item">
+                      <span class="label">{{ 'CLIENTS.FIRST_NAME' | translate }}</span>
+                      <span class="value">{{ client()?.firstname || '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">{{ 'CLIENTS.LAST_NAME' | translate }}</span>
+                      <span class="value">{{ client()?.lastname || '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">{{ 'COMMON.EXTERNAL_ID' | translate }}</span>
+                      <span class="value">{{ client()?.externalId || '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">{{ 'CLIENTS.LEGAL_FORM' | translate }}</span>
+                      <span class="value">{{ 'CLIENTS.PERSON' | translate }}</span>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+
+                <ion-card class="info-card">
+                  <ion-card-header>
+                    <ion-card-title>
+                      <ion-icon name="mail-open-outline"></ion-icon>
+                      {{ 'CLIENTS.CONTACT_STATUS' | translate }}
+                    </ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content class="details-list">
+                    <div class="detail-item">
+                      <span class="label">{{ 'COMMON.EMAIL' | translate }}</span>
+                      <span class="value">{{ client()?.emailAddress || '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
+                      <span class="value">{{ formattedActivationDate }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
+                      <span class="value">{{ formattedSubmissionDate }}</span>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
               </div>
-            </mat-tab>
+            </div>
+          }
+          @if (activeTab() === '1') {
+            <div class="tab-content">
+              <ion-card class="table-card">
+                <ion-card-content>
+                  @if (savingsAccounts().length > 0) {
+                    <table cdk-table [dataSource]="savingsAccounts()" class="full-width-table">
+                      <ng-container cdkColumnDef="accountNo">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.ACCOUNT_NO' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          <a
+                            class="clickable-link"
+                            [routerLink]="['/products/savings-accounts/view', account.id]"
+                          >
+                            {{ account.accountNo }}
+                          </a>
+                        </td>
+                      </ng-container>
 
-            <!-- Savings Accounts Tab -->
-            <mat-tab label="{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}">
-              <div class="tab-content">
-                <ion-card class="table-card">
-                  <ion-card-content>
-                    @if (savingsAccounts().length > 0) {
-                      <table cdk-table [dataSource]="savingsAccounts()" class="full-width-table">
-                        <ng-container cdkColumnDef="accountNo">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.ACCOUNT_NO' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
-                            <a
-                              class="clickable-link"
-                              [routerLink]="['/products/savings-accounts/view', account.id]"
+                      <ng-container cdkColumnDef="productName">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.PRODUCT' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">{{ account.productName }}</td>
+                      </ng-container>
+
+                      <ng-container cdkColumnDef="balance">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.BALANCE' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          {{ account.currency?.displaySymbol }}
+                          {{ account.accountBalance || 0 | number: '1.2-2' }}
+                        </td>
+                      </ng-container>
+
+                      <ng-container cdkColumnDef="status">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.STATUS' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          <app-status-badge [status]="account.status"></app-status-badge>
+                        </td>
+                      </ng-container>
+
+                      <ng-container cdkColumnDef="actions">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.ACTIONS' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          <ion-button
+                            fill="clear"
+                            color="primary"
+                            (click)="onSavingsTransaction(account.id, 'deposit')"
+                            *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
+                            [attr.title]="'SAVINGS.DEPOSIT' | translate"
+                          >
+                            <ion-icon name="add-circle-outline"></ion-icon>
+                          </ion-button>
+
+                          @if (account.status?.value === 'Submitted and pending approval') {
+                            <ion-button
+                              fill="clear"
+                              color="accent"
+                              (click)="onSavingsAction(account.id, 'approve', account)"
+                              *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
+                              [attr.title]="'LOANS.APPROVE' | translate"
                             >
-                              {{ account.accountNo }}
-                            </a>
-                          </td>
-                        </ng-container>
+                              <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            </ion-button>
+                          }
 
-                        <ng-container cdkColumnDef="productName">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.PRODUCT' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">{{ account.productName }}</td>
-                        </ng-container>
-
-                        <ng-container cdkColumnDef="balance">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.BALANCE' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
-                            {{ account.currency?.displaySymbol }}
-                            {{ account.accountBalance || 0 | number: '1.2-2' }}
-                          </td>
-                        </ng-container>
-
-                        <ng-container cdkColumnDef="status">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.STATUS' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
-                            <app-status-badge [status]="account.status"></app-status-badge>
-                          </td>
-                        </ng-container>
-
-                        <ng-container cdkColumnDef="actions">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.ACTIONS' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
+                          @if (account.status?.value === 'Approved') {
                             <ion-button
                               fill="clear"
                               color="primary"
-                              (click)="onSavingsTransaction(account.id, 'deposit')"
-                              *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
-                              [attr.title]="'SAVINGS.DEPOSIT' | translate"
+                              (click)="onSavingsAction(account.id, 'activate', account)"
+                              *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
+                              [attr.title]="'LOANS.ACTIVATE' | translate"
                             >
-                              <ion-icon name="add-circle-outline"></ion-icon>
+                              <ion-icon name="play-circle-outline"></ion-icon>
                             </ion-button>
+                          }
 
-                            @if (account.status?.value === 'Submitted and pending approval') {
-                              <ion-button
-                                fill="clear"
-                                color="accent"
-                                (click)="onSavingsAction(account.id, 'approve', account)"
-                                *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
-                                [attr.title]="'LOANS.APPROVE' | translate"
-                              >
-                                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                              </ion-button>
-                            }
-
-                            @if (account.status?.value === 'Approved') {
-                              <ion-button
-                                fill="clear"
-                                color="primary"
-                                (click)="onSavingsAction(account.id, 'activate', account)"
-                                *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
-                                [attr.title]="'LOANS.ACTIVATE' | translate"
-                              >
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                              </ion-button>
-                            }
-
-                            @if (account.status?.value === 'Active') {
-                              <ion-button
-                                fill="clear"
-                                color="warn"
-                                (click)="onSavingsAction(account.id, 'close', account)"
-                                *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
-                                [attr.title]="'LOANS.CLOSE' | translate"
-                              >
-                                <ion-icon name="close-circle-outline"></ion-icon>
-                              </ion-button>
-                            }
-
+                          @if (account.status?.value === 'Active') {
                             <ion-button
                               fill="clear"
                               color="warn"
-                              (click)="onSavingsTransaction(account.id, 'withdrawal')"
-                              *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
-                              [attr.title]="'SAVINGS.WITHDRAWAL' | translate"
+                              (click)="onSavingsAction(account.id, 'close', account)"
+                              *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
+                              [attr.title]="'LOANS.CLOSE' | translate"
                             >
-                              <ion-icon name="remove-circle-outline"></ion-icon>
+                              <ion-icon name="close-circle-outline"></ion-icon>
                             </ion-button>
-                          </td>
-                        </ng-container>
+                          }
 
-                        <tr cdk-header-row *cdkHeaderRowDef="savingsColumns"></tr>
-                        <tr cdk-row *cdkRowDef="let row; columns: savingsColumns"></tr>
-                      </table>
-                    } @else {
-                      <div class="empty-state">
-                        <ion-icon name="wallet-outline"></ion-icon>
-                        <p>{{ 'CLIENTS.NO_SAVINGS_ACCOUNTS' | translate }}</p>
-                      </div>
-                    }
-                  </ion-card-content>
-                </ion-card>
-              </div>
-            </mat-tab>
+                          <ion-button
+                            fill="clear"
+                            color="warn"
+                            (click)="onSavingsTransaction(account.id, 'withdrawal')"
+                            *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
+                            [attr.title]="'SAVINGS.WITHDRAWAL' | translate"
+                          >
+                            <ion-icon name="remove-circle-outline"></ion-icon>
+                          </ion-button>
+                        </td>
+                      </ng-container>
 
-            <!-- Loan Accounts Tab -->
-            <mat-tab label="{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}">
-              <div class="tab-content">
-                <ion-card class="table-card">
-                  <ion-card-content>
-                    @if (loanAccounts().length > 0) {
-                      <table cdk-table [dataSource]="loanAccounts()" class="full-width-table">
-                        <ng-container cdkColumnDef="accountNo">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.ACCOUNT_NO' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
-                            <a class="clickable-link" [routerLink]="['/loans/view', account.id]">
-                              {{ account.accountNo }}
-                            </a>
-                          </td>
-                        </ng-container>
+                      <tr cdk-header-row *cdkHeaderRowDef="savingsColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: savingsColumns"></tr>
+                    </table>
+                  } @else {
+                    <div class="empty-state">
+                      <ion-icon name="wallet-outline"></ion-icon>
+                      <p>{{ 'CLIENTS.NO_SAVINGS_ACCOUNTS' | translate }}</p>
+                    </div>
+                  }
+                </ion-card-content>
+              </ion-card>
+            </div>
+          }
+          @if (activeTab() === '2') {
+            <div class="tab-content">
+              <ion-card class="table-card">
+                <ion-card-content>
+                  @if (loanAccounts().length > 0) {
+                    <table cdk-table [dataSource]="loanAccounts()" class="full-width-table">
+                      <ng-container cdkColumnDef="accountNo">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.ACCOUNT_NO' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          <a class="clickable-link" [routerLink]="['/loans/view', account.id]">
+                            {{ account.accountNo }}
+                          </a>
+                        </td>
+                      </ng-container>
 
-                        <ng-container cdkColumnDef="productName">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.PRODUCT' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">{{ account.productName }}</td>
-                        </ng-container>
+                      <ng-container cdkColumnDef="productName">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.PRODUCT' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">{{ account.productName }}</td>
+                      </ng-container>
 
-                        <ng-container cdkColumnDef="principal">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'LOANS.PRINCIPAL' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
-                            {{ account.currency?.displaySymbol }}
-                            {{ account.originalPrincipal || 0 | number: '1.2-2' }}
-                          </td>
-                        </ng-container>
+                      <ng-container cdkColumnDef="principal">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'LOANS.PRINCIPAL' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          {{ account.currency?.displaySymbol }}
+                          {{ account.originalPrincipal || 0 | number: '1.2-2' }}
+                        </td>
+                      </ng-container>
 
-                        <ng-container cdkColumnDef="status">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.STATUS' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
-                            <app-status-badge [status]="account.status"></app-status-badge>
-                          </td>
-                        </ng-container>
+                      <ng-container cdkColumnDef="status">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.STATUS' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          <app-status-badge [status]="account.status"></app-status-badge>
+                        </td>
+                      </ng-container>
 
-                        <ng-container cdkColumnDef="actions">
-                          <th cdk-header-cell *cdkHeaderCellDef>
-                            {{ 'COMMON.ACTIONS' | translate }}
-                          </th>
-                          <td cdk-cell *cdkCellDef="let account">
+                      <ng-container cdkColumnDef="actions">
+                        <th cdk-header-cell *cdkHeaderCellDef>
+                          {{ 'COMMON.ACTIONS' | translate }}
+                        </th>
+                        <td cdk-cell *cdkCellDef="let account">
+                          <ion-button
+                            fill="clear"
+                            color="primary"
+                            (click)="onLoanTransaction(account.id, 'repayment')"
+                            *appHasPermission="'REPAYMENT_LOAN'"
+                            [attr.title]="'LOANS.REPAYMENT' | translate"
+                          >
+                            <ion-icon name="card-outline"></ion-icon>
+                          </ion-button>
+
+                          @if (account.status?.value === 'Submitted and pending approval') {
                             <ion-button
                               fill="clear"
-                              color="primary"
-                              (click)="onLoanTransaction(account.id, 'repayment')"
-                              *appHasPermission="'REPAYMENT_LOAN'"
-                              [attr.title]="'LOANS.REPAYMENT' | translate"
+                              color="accent"
+                              (click)="onLoanAction(account.id, 'approve')"
+                              [attr.title]="'LOANS.APPROVE' | translate"
                             >
-                              <ion-icon name="card-outline"></ion-icon>
+                              <ion-icon name="checkmark-circle-outline"></ion-icon>
                             </ion-button>
+                          }
 
-                            @if (account.status?.value === 'Submitted and pending approval') {
-                              <ion-button
-                                fill="clear"
-                                color="accent"
-                                (click)="onLoanAction(account.id, 'approve')"
-                                [attr.title]="'LOANS.APPROVE' | translate"
-                              >
-                                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                              </ion-button>
-                            }
+                          @if (account.status?.value === 'Approved') {
+                            <ion-button
+                              fill="clear"
+                              color="accent"
+                              (click)="onLoanAction(account.id, 'disburse')"
+                              [attr.title]="'LOANS.DISBURSE' | translate"
+                            >
+                              <ion-icon name="open-outline"></ion-icon>
+                            </ion-button>
+                          }
 
-                            @if (account.status?.value === 'Approved') {
-                              <ion-button
-                                fill="clear"
-                                color="accent"
-                                (click)="onLoanAction(account.id, 'disburse')"
-                                [attr.title]="'LOANS.DISBURSE' | translate"
-                              >
-                                <ion-icon name="open-outline"></ion-icon>
-                              </ion-button>
-                            }
+                          @if (account.status?.active) {
+                            <ion-button
+                              fill="clear"
+                              color="warn"
+                              (click)="onLoanAction(account.id, 'close')"
+                              *appHasPermission="'CLOSE_LOAN'"
+                              [attr.title]="'LOANS.CLOSE' | translate"
+                            >
+                              <ion-icon name="close-circle-outline"></ion-icon>
+                            </ion-button>
+                          }
+                        </td>
+                      </ng-container>
 
-                            @if (account.status?.active) {
-                              <ion-button
-                                fill="clear"
-                                color="warn"
-                                (click)="onLoanAction(account.id, 'close')"
-                                *appHasPermission="'CLOSE_LOAN'"
-                                [attr.title]="'LOANS.CLOSE' | translate"
-                              >
-                                <ion-icon name="close-circle-outline"></ion-icon>
-                              </ion-button>
-                            }
-                          </td>
-                        </ng-container>
-
-                        <tr cdk-header-row *cdkHeaderRowDef="loanColumns"></tr>
-                        <tr cdk-row *cdkRowDef="let row; columns: loanColumns"></tr>
-                      </table>
-                    } @else {
-                      <div class="empty-state">
-                        <ion-icon name="card-outline"></ion-icon>
-                        <p>{{ 'CLIENTS.NO_LOAN_ACCOUNTS' | translate }}</p>
-                      </div>
-                    }
-                  </ion-card-content>
-                </ion-card>
-              </div>
-            </mat-tab>
-
-            <mat-tab label="{{ 'CLIENTS.IDENTIFIERS' | translate }}">
-              <div class="tab-content">
-                <app-client-identifiers-list [clientId]="clientId"></app-client-identifiers-list>
-              </div>
-            </mat-tab>
-
-            <mat-tab label="{{ 'CLIENTS.ADDRESSES' | translate }}">
-              <div class="tab-content">
-                <app-client-addresses-list [clientId]="clientId"></app-client-addresses-list>
-              </div>
-            </mat-tab>
-
-            <mat-tab label="{{ 'CLIENTS.FAMILY_MEMBERS' | translate }}">
-              <div class="tab-content">
-                <app-client-family-members-list
-                  [clientId]="clientId"
-                ></app-client-family-members-list>
-              </div>
-            </mat-tab>
-
-            <mat-tab label="{{ 'CLIENTS.NOTES' | translate }}">
-              <div class="tab-content">
-                <app-client-notes-list [clientId]="clientId"></app-client-notes-list>
-              </div>
-            </mat-tab>
-
-            <mat-tab label="{{ 'CLIENTS.DOCUMENTS' | translate }}">
-              <div class="tab-content">
-                <app-client-documents-list [clientId]="clientId"></app-client-documents-list>
-              </div>
-            </mat-tab>
-
-            <mat-tab label="{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}">
-              <div class="tab-content">
-                <app-entity-datatables
-                  apptableName="m_client"
-                  [entityId]="clientId"
-                ></app-entity-datatables>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
+                      <tr cdk-header-row *cdkHeaderRowDef="loanColumns"></tr>
+                      <tr cdk-row *cdkRowDef="let row; columns: loanColumns"></tr>
+                    </table>
+                  } @else {
+                    <div class="empty-state">
+                      <ion-icon name="card-outline"></ion-icon>
+                      <p>{{ 'CLIENTS.NO_LOAN_ACCOUNTS' | translate }}</p>
+                    </div>
+                  }
+                </ion-card-content>
+              </ion-card>
+            </div>
+          }
+          @if (activeTab() === '3') {
+            <div class="tab-content">
+              <app-client-identifiers-list [clientId]="clientId"></app-client-identifiers-list>
+            </div>
+          }
+          @if (activeTab() === '4') {
+            <div class="tab-content">
+              <app-client-addresses-list [clientId]="clientId"></app-client-addresses-list>
+            </div>
+          }
+          @if (activeTab() === '5') {
+            <div class="tab-content">
+              <app-client-family-members-list
+                [clientId]="clientId"
+              ></app-client-family-members-list>
+            </div>
+          }
+          @if (activeTab() === '6') {
+            <div class="tab-content">
+              <app-client-notes-list [clientId]="clientId"></app-client-notes-list>
+            </div>
+          }
+          @if (activeTab() === '7') {
+            <div class="tab-content">
+              <app-client-documents-list [clientId]="clientId"></app-client-documents-list>
+            </div>
+          }
+          @if (activeTab() === '8') {
+            <div class="tab-content">
+              <app-entity-datatables
+                apptableName="m_client"
+                [entityId]="clientId"
+              ></app-entity-datatables>
+            </div>
+          }
         </div>
       }
     </div>
@@ -752,6 +773,8 @@ import {
   ],
 })
 export class ClientViewComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly clientService = inject(ClientService);
   private readonly notesService = inject(NotesService);
   private readonly route = inject(ActivatedRoute);

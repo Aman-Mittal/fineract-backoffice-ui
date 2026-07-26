@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -34,6 +33,9 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -41,7 +43,6 @@ import {
   standalone: true,
   imports: [
     TranslateModule,
-    MatTabsModule,
     CdkTableModule,
     MatMenuModule,
     StatusBadgeComponent,
@@ -54,6 +55,9 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
   ],
   template: `
     @if (account()) {
@@ -100,85 +104,93 @@ import {
           </ion-card-content>
         </ion-card>
 
-        <mat-tab-group class="tab-group" animationDuration="0ms">
-          <mat-tab [label]="'COMMON.OVERVIEW' | translate">
-            <div class="tab-content">
-              <div class="info-grid">
-                <ion-card class="info-card">
-                  <ion-card-header>
-                    <ion-card-title>{{ 'COMMON.DETAILS' | translate }}</ion-card-title>
-                  </ion-card-header>
-                  <ion-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">{{ 'COMMON.BALANCE' | translate }}</span>
-                      <span class="value"
-                        >{{ getCurrencySymbol() }} {{ getAccountBalance() | number: '1.2-2' }}</span
-                      >
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'COMMON.INTEREST_RATE' | translate }}</span>
-                      <span class="value">{{ account()?.['nominalAnnualInterestRate'] }}%</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="label">{{ 'SAVINGS.MIN_BALANCE_REQUIRED' | translate }}</span>
-                      <span class="value">{{ account()?.['minRequiredOpeningBalance'] }}</span>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
+        <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+          <ion-segment-button value="0">
+            <ion-label>{{ 'COMMON.OVERVIEW' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="1">
+            <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="2">
+            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
 
-                <ion-card class="info-card">
-                  <ion-card-header>
-                    <ion-card-title>{{ 'LOANS.TIMELINE_STATUS' | translate }}</ion-card-title>
-                  </ion-card-header>
-                  <ion-card-content class="details-list">
-                    <div class="detail-item">
-                      <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
-                      <span class="value">{{ getActivationDate() }}</span>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </div>
-            </div>
-          </mat-tab>
+        @if (activeTab() === '0') {
+          <div class="tab-content">
+            <div class="info-grid">
+              <ion-card class="info-card">
+                <ion-card-header>
+                  <ion-card-title>{{ 'COMMON.DETAILS' | translate }}</ion-card-title>
+                </ion-card-header>
+                <ion-card-content class="details-list">
+                  <div class="detail-item">
+                    <span class="label">{{ 'COMMON.BALANCE' | translate }}</span>
+                    <span class="value"
+                      >{{ getCurrencySymbol() }} {{ getAccountBalance() | number: '1.2-2' }}</span
+                    >
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'COMMON.INTEREST_RATE' | translate }}</span>
+                    <span class="value">{{ account()?.['nominalAnnualInterestRate'] }}%</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'SAVINGS.MIN_BALANCE_REQUIRED' | translate }}</span>
+                    <span class="value">{{ account()?.['minRequiredOpeningBalance'] }}</span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
 
-          <mat-tab [label]="'COMMON.TRANSACTIONS' | translate">
-            <div class="tab-content">
-              <table cdk-table [dataSource]="transactions()" class="full-width-table">
-                <ng-container cdkColumnDef="id">
-                  <th cdk-header-cell *cdkHeaderCellDef>ID</th>
-                  <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
-                </ng-container>
-                <ng-container cdkColumnDef="date">
-                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
-                  <td cdk-cell *cdkCellDef="let tx">{{ formatDate(tx.date) }}</td>
-                </ng-container>
-                <ng-container cdkColumnDef="type">
-                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
-                  <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
-                </ng-container>
-                <ng-container cdkColumnDef="amount">
-                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
-                  <td cdk-cell *cdkCellDef="let tx">
-                    <span [ngClass]="tx.entryType === 'DEBIT' ? 'debit' : 'credit'">
-                      {{ tx.currency?.displaySymbol }} {{ tx.amount | number: '1.2-2' }}
-                    </span>
-                  </td>
-                </ng-container>
-                <tr cdk-header-row *cdkHeaderRowDef="['id', 'date', 'type', 'amount']"></tr>
-                <tr cdk-row *cdkRowDef="let row; columns: ['id', 'date', 'type', 'amount']"></tr>
-              </table>
+              <ion-card class="info-card">
+                <ion-card-header>
+                  <ion-card-title>{{ 'LOANS.TIMELINE_STATUS' | translate }}</ion-card-title>
+                </ion-card-header>
+                <ion-card-content class="details-list">
+                  <div class="detail-item">
+                    <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
+                    <span class="value">{{ getActivationDate() }}</span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
             </div>
-          </mat-tab>
-
-          <mat-tab [label]="'SYSTEM.CUSTOM_FIELDS' | translate">
-            <div class="tab-content">
-              <app-entity-datatables
-                [apptableName]="isRD ? 'm_savings_account' : 'm_savings_account'"
-                [entityId]="accountId"
-              ></app-entity-datatables>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+          </div>
+        }
+        @if (activeTab() === '1') {
+          <div class="tab-content">
+            <table cdk-table [dataSource]="transactions()" class="full-width-table">
+              <ng-container cdkColumnDef="id">
+                <th cdk-header-cell *cdkHeaderCellDef>ID</th>
+                <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
+              </ng-container>
+              <ng-container cdkColumnDef="date">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let tx">{{ formatDate(tx.date) }}</td>
+              </ng-container>
+              <ng-container cdkColumnDef="type">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
+              </ng-container>
+              <ng-container cdkColumnDef="amount">
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                <td cdk-cell *cdkCellDef="let tx">
+                  <span [ngClass]="tx.entryType === 'DEBIT' ? 'debit' : 'credit'">
+                    {{ tx.currency?.displaySymbol }} {{ tx.amount | number: '1.2-2' }}
+                  </span>
+                </td>
+              </ng-container>
+              <tr cdk-header-row *cdkHeaderRowDef="['id', 'date', 'type', 'amount']"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: ['id', 'date', 'type', 'amount']"></tr>
+            </table>
+          </div>
+        }
+        @if (activeTab() === '2') {
+          <div class="tab-content">
+            <app-entity-datatables
+              [apptableName]="isRD ? 'm_savings_account' : 'm_savings_account'"
+              [entityId]="accountId"
+            ></app-entity-datatables>
+          </div>
+        }
       </div>
     }
   `,
@@ -276,6 +288,8 @@ import {
   ],
 })
 export class DepositAccountViewComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly fdService = inject(FixedDepositAccountService);
   private readonly rdService = inject(RecurringDepositAccountService);
   private readonly route = inject(ActivatedRoute);

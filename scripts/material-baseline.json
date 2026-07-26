@@ -1,4 +1,4 @@
 {
   "comment": "Ratchet baseline for the Angular Material -> Ionic migration. Never raise this number; lower it with `node scripts/check-material.mjs --update` as files are migrated. When it reaches 0, delete this file, scripts/check-material.mjs, and the check:material npm script, then enable no-restricted-imports in eslint.config.js.",
-  "count": 43
+  "count": 37
 }

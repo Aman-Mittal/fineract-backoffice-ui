@@ -19,7 +19,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -33,6 +32,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonSegment,
+  IonSegmentButton,
   IonTextarea,
 } from '@ionic/angular/standalone';
 
@@ -52,7 +53,6 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
   imports: [
     CommonModule,
     FormsModule,
-    MatTabsModule,
     CdkTableModule,
     TranslateModule,
     IonButton,
@@ -64,6 +64,8 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
     IonCardHeader,
     IonCardTitle,
     IonCard,
+    IonSegment,
+    IonSegmentButton,
   ],
   template: `
     <div class="container">
@@ -72,189 +74,194 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
           <ion-card-title>{{ 'EMAIL_MESSAGES.TITLE' | translate }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="onTabChange($event)">
-            <!-- Tab: Messages -->
-            <mat-tab [label]="'EMAIL_MESSAGES.MESSAGES_TAB' | translate">
-              <div class="tab-content">
-                <ion-button color="primary" (click)="showCreateForm = !showCreateForm">
-                  {{ 'EMAIL_MESSAGES.CREATE' | translate }}
-                </ion-button>
+          <ion-segment [value]="activeTab()" (ionChange)="onTabChange(+$any($event).detail.value)">
+            <ion-segment-button value="0">
+              <ion-label>{{ 'EMAIL_MESSAGES.MESSAGES_TAB' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="1">
+              <ion-label>{{ 'EMAIL_MESSAGES.PENDING_TAB' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="2">
+              <ion-label>{{ 'EMAIL_MESSAGES.SENT_TAB' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="3">
+              <ion-label>{{ 'EMAIL_MESSAGES.FAILED_TAB' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="4">
+              <ion-label>{{ 'EMAIL_MESSAGES.CONFIG_TAB' | translate }}</ion-label>
+            </ion-segment-button>
+          </ion-segment>
 
-                @if (showCreateForm) {
-                  <div class="create-form">
-                    <ion-item fill="outline" class="full-width">
-                      <ion-label position="stacked">{{
-                        'EMAIL_MESSAGES.TO' | translate
-                      }}</ion-label>
-                      <ion-input type="email" [(ngModel)]="newTo"></ion-input>
-                    </ion-item>
-                    <ion-item fill="outline" class="full-width">
-                      <ion-label position="stacked">{{
-                        'EMAIL_MESSAGES.SUBJECT' | translate
-                      }}</ion-label>
-                      <ion-input [(ngModel)]="newSubject"></ion-input>
-                    </ion-item>
-                    <ion-item fill="outline" class="full-width">
-                      <ion-label position="stacked">{{
-                        'EMAIL_MESSAGES.BODY' | translate
-                      }}</ion-label>
-                      <ion-textarea rows="4" [(ngModel)]="newBody"></ion-textarea>
-                    </ion-item>
-                    <ion-button color="accent" (click)="createMessage()">
-                      {{ 'EMAIL_MESSAGES.CREATE' | translate }}
+          @if (activeTab() === '0') {
+            <div class="tab-content">
+              <ion-button color="primary" (click)="showCreateForm = !showCreateForm">
+                {{ 'EMAIL_MESSAGES.CREATE' | translate }}
+              </ion-button>
+
+              @if (showCreateForm) {
+                <div class="create-form">
+                  <ion-item fill="outline" class="full-width">
+                    <ion-label position="stacked">{{ 'EMAIL_MESSAGES.TO' | translate }}</ion-label>
+                    <ion-input type="email" [(ngModel)]="newTo"></ion-input>
+                  </ion-item>
+                  <ion-item fill="outline" class="full-width">
+                    <ion-label position="stacked">{{
+                      'EMAIL_MESSAGES.SUBJECT' | translate
+                    }}</ion-label>
+                    <ion-input [(ngModel)]="newSubject"></ion-input>
+                  </ion-item>
+                  <ion-item fill="outline" class="full-width">
+                    <ion-label position="stacked">{{
+                      'EMAIL_MESSAGES.BODY' | translate
+                    }}</ion-label>
+                    <ion-textarea rows="4" [(ngModel)]="newBody"></ion-textarea>
+                  </ion-item>
+                  <ion-button color="accent" (click)="createMessage()">
+                    {{ 'EMAIL_MESSAGES.CREATE' | translate }}
+                  </ion-button>
+                </div>
+              }
+
+              <cdk-table [dataSource]="messages()" class="full-width">
+                <ng-container cdkColumnDef="id">
+                  <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="to">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.TO' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="subject">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SUBJECT' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="status">
+                  <cdk-header-cell *cdkHeaderCellDef>Status</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.status }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="actions">
+                  <cdk-header-cell *cdkHeaderCellDef>Actions</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">
+                    <ion-button
+                      fill="clear"
+                      color="warn"
+                      (click)="deleteMessage(row.id)"
+                      [title]="'EMAIL_MESSAGES.DELETE' | translate"
+                    >
+                      &#x1F5D1;
                     </ion-button>
-                  </div>
-                }
-
-                <cdk-table [dataSource]="messages()" class="full-width">
-                  <ng-container cdkColumnDef="id">
-                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="to">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.TO' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="subject">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="status">
-                    <cdk-header-cell *cdkHeaderCellDef>Status</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.status }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="actions">
-                    <cdk-header-cell *cdkHeaderCellDef>Actions</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">
-                      <ion-button
-                        fill="clear"
-                        color="warn"
-                        (click)="deleteMessage(row.id)"
-                        [title]="'EMAIL_MESSAGES.DELETE' | translate"
-                      >
-                        &#x1F5D1;
-                      </ion-button>
-                    </cdk-cell>
-                  </ng-container>
-                  <cdk-header-row *cdkHeaderRowDef="msgColumns"></cdk-header-row>
-                  <cdk-row *cdkRowDef="let row; columns: msgColumns"></cdk-row>
-                </cdk-table>
-              </div>
-            </mat-tab>
-
-            <!-- Tab: Pending -->
-            <mat-tab [label]="'EMAIL_MESSAGES.PENDING_TAB' | translate">
-              <div class="tab-content">
-                <cdk-table [dataSource]="pending()" class="full-width">
-                  <ng-container cdkColumnDef="id">
-                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="to">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.TO' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="subject">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="sentDate">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SENT_DATE' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
-                  </ng-container>
-                  <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
-                  <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
-                </cdk-table>
-              </div>
-            </mat-tab>
-
-            <!-- Tab: Sent -->
-            <mat-tab [label]="'EMAIL_MESSAGES.SENT_TAB' | translate">
-              <div class="tab-content">
-                <cdk-table [dataSource]="sent()" class="full-width">
-                  <ng-container cdkColumnDef="id">
-                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="to">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.TO' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="subject">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="sentDate">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SENT_DATE' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
-                  </ng-container>
-                  <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
-                  <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
-                </cdk-table>
-              </div>
-            </mat-tab>
-
-            <!-- Tab: Failed -->
-            <mat-tab [label]="'EMAIL_MESSAGES.FAILED_TAB' | translate">
-              <div class="tab-content">
-                <cdk-table [dataSource]="failed()" class="full-width">
-                  <ng-container cdkColumnDef="id">
-                    <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="to">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.TO' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="subject">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SUBJECT' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
-                  </ng-container>
-                  <ng-container cdkColumnDef="sentDate">
-                    <cdk-header-cell *cdkHeaderCellDef>{{
-                      'EMAIL_MESSAGES.SENT_DATE' | translate
-                    }}</cdk-header-cell>
-                    <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
-                  </ng-container>
-                  <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
-                  <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
-                </cdk-table>
-              </div>
-            </mat-tab>
-
-            <!-- Tab: Config -->
-            <mat-tab [label]="'EMAIL_MESSAGES.CONFIG_TAB' | translate">
-              <div class="tab-content">
-                <ion-item fill="outline" class="full-width">
-                  <ion-label position="stacked">Configuration JSON</ion-label>
-                  <ion-textarea rows="10" [(ngModel)]="configJson"></ion-textarea>
-                </ion-item>
-                <ion-button color="primary" (click)="saveConfig()">
-                  {{ 'EMAIL_MESSAGES.SAVE_CONFIG' | translate }}
-                </ion-button>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
+                  </cdk-cell>
+                </ng-container>
+                <cdk-header-row *cdkHeaderRowDef="msgColumns"></cdk-header-row>
+                <cdk-row *cdkRowDef="let row; columns: msgColumns"></cdk-row>
+              </cdk-table>
+            </div>
+          }
+          @if (activeTab() === '1') {
+            <div class="tab-content">
+              <cdk-table [dataSource]="pending()" class="full-width">
+                <ng-container cdkColumnDef="id">
+                  <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="to">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.TO' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="subject">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SUBJECT' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="sentDate">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SENT_DATE' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
+                </ng-container>
+                <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
+                <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
+              </cdk-table>
+            </div>
+          }
+          @if (activeTab() === '2') {
+            <div class="tab-content">
+              <cdk-table [dataSource]="sent()" class="full-width">
+                <ng-container cdkColumnDef="id">
+                  <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="to">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.TO' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="subject">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SUBJECT' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="sentDate">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SENT_DATE' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
+                </ng-container>
+                <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
+                <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
+              </cdk-table>
+            </div>
+          }
+          @if (activeTab() === '3') {
+            <div class="tab-content">
+              <cdk-table [dataSource]="failed()" class="full-width">
+                <ng-container cdkColumnDef="id">
+                  <cdk-header-cell *cdkHeaderCellDef>ID</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.id }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="to">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.TO' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.to }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="subject">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SUBJECT' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.subject }}</cdk-cell>
+                </ng-container>
+                <ng-container cdkColumnDef="sentDate">
+                  <cdk-header-cell *cdkHeaderCellDef>{{
+                    'EMAIL_MESSAGES.SENT_DATE' | translate
+                  }}</cdk-header-cell>
+                  <cdk-cell *cdkCellDef="let row">{{ row.sentDate }}</cdk-cell>
+                </ng-container>
+                <cdk-header-row *cdkHeaderRowDef="queueColumns"></cdk-header-row>
+                <cdk-row *cdkRowDef="let row; columns: queueColumns"></cdk-row>
+              </cdk-table>
+            </div>
+          }
+          @if (activeTab() === '4') {
+            <div class="tab-content">
+              <ion-item fill="outline" class="full-width">
+                <ion-label position="stacked">Configuration JSON</ion-label>
+                <ion-textarea rows="10" [(ngModel)]="configJson"></ion-textarea>
+              </ion-item>
+              <ion-button color="primary" (click)="saveConfig()">
+                {{ 'EMAIL_MESSAGES.SAVE_CONFIG' | translate }}
+              </ion-button>
+            </div>
+          }
         </ion-card-content>
       </ion-card>
     </div>
@@ -285,10 +292,11 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
   ],
 })
 export class EmailMessagesComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private defaultService = inject(DefaultService);
   private notifications = inject(NotificationService);
 
-  activeTab = 0;
   messages = signal<EmailMessage[]>([]);
   pending = signal<EmailMessage[]>([]);
   sent = signal<EmailMessage[]>([]);
@@ -317,7 +325,7 @@ export class EmailMessagesComponent implements OnInit {
   }
 
   onTabChange(index: number): void {
-    this.activeTab = index;
+    this.activeTab.set(String(index));
     switch (index) {
       case 0:
         this.loadMessages();

@@ -19,7 +19,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../core/services/notification.service';
 import {
@@ -31,6 +30,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
+  IonSegment,
+  IonSegmentButton,
   IonSelect,
   IonSelectOption,
   IonTextarea,
@@ -49,7 +50,6 @@ const ERROR_OCCURRED = 'Error occurred';
   imports: [
     FormsModule,
     JsonPipe,
-    MatTabsModule,
     TranslateModule,
     IonButton,
     IonInput,
@@ -62,6 +62,8 @@ const ERROR_OCCURRED = 'Error occurred';
     IonCard,
     IonSelectOption,
     IonSelect,
+    IonSegment,
+    IonSegmentButton,
   ],
   template: `
     <ion-card>
@@ -69,89 +71,88 @@ const ERROR_OCCURRED = 'Error occurred';
         <ion-card-title>{{ 'INTEROP.TRANSFER_TITLE' | translate }}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <mat-tab-group>
-          <!-- Tab 1: Get Transfer -->
-          <mat-tab [label]="'INTEROP.LOAD_TRANSFER' | translate">
-            <div class="tab-content">
-              <ion-item fill="outline">
-                <ion-label position="stacked">{{
-                  'INTEROP.TRANSACTION_CODE' | translate
-                }}</ion-label>
-                <ion-input [(ngModel)]="transactionCode"></ion-input>
-              </ion-item>
+        <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+          <ion-segment-button value="0">
+            <ion-label>{{ 'INTEROP.LOAD_TRANSFER' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="1">
+            <ion-label>{{ 'INTEROP.CREATE_TRANSFER' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="2">
+            <ion-label>Disburse / Repay</ion-label>
+          </ion-segment-button>
+        </ion-segment>
 
-              <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'INTEROP.TRANSFER_CODE' | translate }}</ion-label>
-                <ion-input [(ngModel)]="transferCode"></ion-input>
-              </ion-item>
+        @if (activeTab() === '0') {
+          <div class="tab-content">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.TRANSACTION_CODE' | translate }}</ion-label>
+              <ion-input [(ngModel)]="transactionCode"></ion-input>
+            </ion-item>
 
-              <ion-button
-                color="primary"
-                (click)="loadTransfer()"
-                [disabled]="!transactionCode || !transferCode"
-              >
-                {{ 'INTEROP.LOAD_TRANSFER' | translate }}
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.TRANSFER_CODE' | translate }}</ion-label>
+              <ion-input [(ngModel)]="transferCode"></ion-input>
+            </ion-item>
+
+            <ion-button
+              color="primary"
+              (click)="loadTransfer()"
+              [disabled]="!transactionCode || !transferCode"
+            >
+              {{ 'INTEROP.LOAD_TRANSFER' | translate }}
+            </ion-button>
+
+            @if (result()) {
+              <pre>{{ result() | json }}</pre>
+            }
+          </div>
+        }
+        @if (activeTab() === '1') {
+          <div class="tab-content">
+            <ion-item fill="outline" class="full-width">
+              <ion-label position="stacked">{{ 'INTEROP.TRANSFER_BODY' | translate }}</ion-label>
+              <ion-textarea rows="10" [(ngModel)]="transferBodyJson"></ion-textarea>
+            </ion-item>
+
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.ACTION' | translate }}</ion-label>
+              <ion-select [(ngModel)]="transferAction">
+                <ion-select-option value="prepare">prepare</ion-select-option>
+                <ion-select-option value="create">create</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-button color="accent" (click)="createTransfer()">
+              {{ 'INTEROP.CREATE_TRANSFER' | translate }}
+            </ion-button>
+
+            @if (result()) {
+              <pre>{{ result() | json }}</pre>
+            }
+          </div>
+        }
+        @if (activeTab() === '2') {
+          <div class="tab-content">
+            <ion-item fill="outline">
+              <ion-label position="stacked">{{ 'INTEROP.ACCOUNT_ID' | translate }}</ion-label>
+              <ion-input [(ngModel)]="disburseAccountId"></ion-input>
+            </ion-item>
+
+            <div class="button-row">
+              <ion-button color="primary" (click)="disburse()" [disabled]="!disburseAccountId">
+                {{ 'INTEROP.DISBURSE' | translate }}
               </ion-button>
-
-              @if (result()) {
-                <pre>{{ result() | json }}</pre>
-              }
-            </div>
-          </mat-tab>
-
-          <!-- Tab 2: Create Transfer -->
-          <mat-tab [label]="'INTEROP.CREATE_TRANSFER' | translate">
-            <div class="tab-content">
-              <ion-item fill="outline" class="full-width">
-                <ion-label position="stacked">{{ 'INTEROP.TRANSFER_BODY' | translate }}</ion-label>
-                <ion-textarea rows="10" [(ngModel)]="transferBodyJson"></ion-textarea>
-              </ion-item>
-
-              <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'INTEROP.ACTION' | translate }}</ion-label>
-                <ion-select [(ngModel)]="transferAction">
-                  <ion-select-option value="prepare">prepare</ion-select-option>
-                  <ion-select-option value="create">create</ion-select-option>
-                </ion-select>
-              </ion-item>
-
-              <ion-button color="accent" (click)="createTransfer()">
-                {{ 'INTEROP.CREATE_TRANSFER' | translate }}
+              <ion-button color="accent" (click)="loanRepayment()" [disabled]="!disburseAccountId">
+                {{ 'INTEROP.LOAN_REPAYMENT' | translate }}
               </ion-button>
-
-              @if (result()) {
-                <pre>{{ result() | json }}</pre>
-              }
             </div>
-          </mat-tab>
 
-          <!-- Tab 3: Disburse / Repay -->
-          <mat-tab label="Disburse / Repay">
-            <div class="tab-content">
-              <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'INTEROP.ACCOUNT_ID' | translate }}</ion-label>
-                <ion-input [(ngModel)]="disburseAccountId"></ion-input>
-              </ion-item>
-
-              <div class="button-row">
-                <ion-button color="primary" (click)="disburse()" [disabled]="!disburseAccountId">
-                  {{ 'INTEROP.DISBURSE' | translate }}
-                </ion-button>
-                <ion-button
-                  color="accent"
-                  (click)="loanRepayment()"
-                  [disabled]="!disburseAccountId"
-                >
-                  {{ 'INTEROP.LOAN_REPAYMENT' | translate }}
-                </ion-button>
-              </div>
-
-              @if (result()) {
-                <pre>{{ result() | json }}</pre>
-              }
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+            @if (result()) {
+              <pre>{{ result() | json }}</pre>
+            }
+          </div>
+        }
       </ion-card-content>
     </ion-card>
   `,
@@ -183,6 +184,8 @@ const ERROR_OCCURRED = 'Error occurred';
   ],
 })
 export class InteropTransfersComponent {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private interopService = inject(InterOperationService);
   private notifications = inject(NotificationService);
 

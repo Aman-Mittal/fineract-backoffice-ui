@@ -20,8 +20,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTabsModule } from '@angular/material/tabs';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonIcon,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
+} from '@ionic/angular/standalone';
 import {
   DataTableComponent,
   ColumnDef,
@@ -40,110 +45,118 @@ import {
   imports: [
     RouterModule,
     TranslateModule,
-    MatTabsModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
     IonIcon,
     IonButton,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
   ],
   template: `
     <div class="management-container">
-      <mat-tab-group>
-        <mat-tab [label]="'SYSTEM.DELINQUENCY_RANGES' | translate">
-          <div class="tab-content">
-            <app-data-table
-              [columns]="rangeColumns"
-              [data]="ranges()"
-              [isLoading]="isLoadingRanges()"
-              [localLogic]="true"
+      <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+        <ion-segment-button value="0">
+          <ion-label>{{ 'SYSTEM.DELINQUENCY_RANGES' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="1">
+          <ion-label>{{ 'SYSTEM.DELINQUENCY_BUCKETS' | translate }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      @if (activeTab() === '0') {
+        <div class="tab-content">
+          <app-data-table
+            [columns]="rangeColumns"
+            [data]="ranges()"
+            [isLoading]="isLoadingRanges()"
+            [localLogic]="true"
+          >
+            <ion-button
+              headerActions
+              color="primary"
+              [routerLink]="['ranges', 'create']"
+              *appHasPermission="'CREATE_DELINQUENCYRANGE'"
             >
-              <ion-button
-                headerActions
-                color="primary"
-                [routerLink]="['ranges', 'create']"
-                *appHasPermission="'CREATE_DELINQUENCYRANGE'"
-              >
-                <ion-icon name="add-outline"></ion-icon>
-                {{ 'SYSTEM.CREATE_RANGE' | translate }}
-              </ion-button>
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'SYSTEM.CREATE_RANGE' | translate }}
+            </ion-button>
 
-              <ng-template appCellTemplate="actions" let-row>
-                <div class="action-buttons">
-                  <ion-button
-                    fill="clear"
-                    color="primary"
-                    [routerLink]="['ranges', 'edit', row.id]"
-                    *appHasPermission="'UPDATE_DELINQUENCYRANGE'"
-                    [attr.title]="'COMMON.EDIT' | translate"
-                  >
-                    <ion-icon name="create-outline"></ion-icon>
-                  </ion-button>
-                  <ion-button
-                    fill="clear"
-                    color="warn"
-                    (click)="onDeleteRange(row.id)"
-                    *appHasPermission="'DELETE_DELINQUENCYRANGE'"
-                    [attr.title]="'COMMON.DELETE' | translate"
-                  >
-                    <ion-icon name="trash-outline"></ion-icon>
-                  </ion-button>
-                </div>
-              </ng-template>
-            </app-data-table>
-          </div>
-        </mat-tab>
-
-        <mat-tab [label]="'SYSTEM.DELINQUENCY_BUCKETS' | translate">
-          <div class="tab-content">
-            <app-data-table
-              [columns]="bucketColumns"
-              [data]="buckets()"
-              [isLoading]="isLoadingBuckets()"
-              [localLogic]="true"
+            <ng-template appCellTemplate="actions" let-row>
+              <div class="action-buttons">
+                <ion-button
+                  fill="clear"
+                  color="primary"
+                  [routerLink]="['ranges', 'edit', row.id]"
+                  *appHasPermission="'UPDATE_DELINQUENCYRANGE'"
+                  [attr.title]="'COMMON.EDIT' | translate"
+                >
+                  <ion-icon name="create-outline"></ion-icon>
+                </ion-button>
+                <ion-button
+                  fill="clear"
+                  color="warn"
+                  (click)="onDeleteRange(row.id)"
+                  *appHasPermission="'DELETE_DELINQUENCYRANGE'"
+                  [attr.title]="'COMMON.DELETE' | translate"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </ng-template>
+          </app-data-table>
+        </div>
+      }
+      @if (activeTab() === '1') {
+        <div class="tab-content">
+          <app-data-table
+            [columns]="bucketColumns"
+            [data]="buckets()"
+            [isLoading]="isLoadingBuckets()"
+            [localLogic]="true"
+          >
+            <ion-button
+              headerActions
+              color="primary"
+              [routerLink]="['buckets', 'create']"
+              *appHasPermission="'CREATE_DELINQUENCYBUCKET'"
             >
-              <ion-button
-                headerActions
-                color="primary"
-                [routerLink]="['buckets', 'create']"
-                *appHasPermission="'CREATE_DELINQUENCYBUCKET'"
-              >
-                <ion-icon name="add-outline"></ion-icon>
-                {{ 'SYSTEM.CREATE_BUCKET' | translate }}
-              </ion-button>
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'SYSTEM.CREATE_BUCKET' | translate }}
+            </ion-button>
 
-              <ng-template appCellTemplate="ranges" let-row>
-                @for (range of row.ranges; track range.id; let last = $last) {
-                  {{ range.classification }}{{ !last ? ', ' : '' }}
-                }
-              </ng-template>
+            <ng-template appCellTemplate="ranges" let-row>
+              @for (range of row.ranges; track range.id; let last = $last) {
+                {{ range.classification }}{{ !last ? ', ' : '' }}
+              }
+            </ng-template>
 
-              <ng-template appCellTemplate="actions" let-row>
-                <div class="action-buttons">
-                  <ion-button
-                    fill="clear"
-                    color="primary"
-                    [routerLink]="['buckets', 'edit', row.id]"
-                    *appHasPermission="'UPDATE_DELINQUENCYBUCKET'"
-                    [attr.title]="'COMMON.EDIT' | translate"
-                  >
-                    <ion-icon name="create-outline"></ion-icon>
-                  </ion-button>
-                  <ion-button
-                    fill="clear"
-                    color="warn"
-                    (click)="onDeleteBucket(row.id)"
-                    *appHasPermission="'DELETE_DELINQUENCYBUCKET'"
-                    [attr.title]="'COMMON.DELETE' | translate"
-                  >
-                    <ion-icon name="trash-outline"></ion-icon>
-                  </ion-button>
-                </div>
-              </ng-template>
-            </app-data-table>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
+            <ng-template appCellTemplate="actions" let-row>
+              <div class="action-buttons">
+                <ion-button
+                  fill="clear"
+                  color="primary"
+                  [routerLink]="['buckets', 'edit', row.id]"
+                  *appHasPermission="'UPDATE_DELINQUENCYBUCKET'"
+                  [attr.title]="'COMMON.EDIT' | translate"
+                >
+                  <ion-icon name="create-outline"></ion-icon>
+                </ion-button>
+                <ion-button
+                  fill="clear"
+                  color="warn"
+                  (click)="onDeleteBucket(row.id)"
+                  *appHasPermission="'DELETE_DELINQUENCYBUCKET'"
+                  [attr.title]="'COMMON.DELETE' | translate"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </ng-template>
+          </app-data-table>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -162,6 +175,8 @@ import {
   ],
 })
 export class DelinquencyManagementComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
 
   ranges = signal<DelinquencyRangeData[]>([]);

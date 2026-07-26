@@ -21,10 +21,16 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatTabsModule } from '@angular/material/tabs';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
-import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonIcon,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
 import {
   ReportMailingJobsService,
@@ -42,113 +48,119 @@ import {
   imports: [
     DatePipe,
     TranslateModule,
-    MatTabsModule,
     CdkTableModule,
     DataTableComponent,
     CellTemplateDirective,
     IonIcon,
     IonButton,
     IonSpinner,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
   ],
   template: `
-    <mat-tab-group (selectedTabChange)="onTabChange($event.index)">
-      <!-- Jobs tab -->
-      <mat-tab [label]="'nav.reportMailingJobs' | translate">
-        <app-data-table
-          title="nav.reportMailingJobs"
-          helpTextKey="HELP.REPORT_MAILING_JOBS_DESC"
-          createButtonLabel="REPORT_MAILING_JOBS.CREATE"
-          [columns]="columns"
-          [data]="jobs"
-          [totalRecords]="jobs.length"
-          [localLogic]="true"
-          (create)="onCreate()"
-        >
-          <ng-template appCellTemplate="isActive" let-row>
-            {{ (row.isActive ? 'COMMON.YES' : 'COMMON.NO') | translate }}
-          </ng-template>
-          <ng-template appCellTemplate="actions" let-row>
-            <ion-button
-              fill="clear"
-              color="primary"
-              [attr.aria-label]="'COMMON.EDIT' | translate"
-              [attr.title]="'COMMON.EDIT' | translate"
-              (click)="onEdit(row)"
-            >
-              <ion-icon name="create-outline"></ion-icon>
-            </ion-button>
-            <ion-button
-              fill="clear"
-              color="warn"
-              [attr.aria-label]="'COMMON.DELETE' | translate"
-              [attr.title]="'COMMON.DELETE' | translate"
-              (click)="onDelete(row)"
-            >
-              <ion-icon name="trash-outline"></ion-icon>
-            </ion-button>
-          </ng-template>
-        </app-data-table>
-      </mat-tab>
+    <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
+      <ion-segment-button value="0">
+        <ion-label>{{ 'nav.reportMailingJobs' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="1">
+        <ion-label>{{ 'REPORT_MAILING.RUN_HISTORY' | translate }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
 
-      <!-- Run History tab -->
-      <mat-tab [label]="'REPORT_MAILING.RUN_HISTORY' | translate">
-        <div class="history-container">
-          @if (historyLoading) {
-            <div class="spinner-wrap">
-              <ion-spinner name="crescent"></ion-spinner>
-            </div>
-          } @else {
-            <table cdk-table [dataSource]="runHistory()" class="history-table">
-              <ng-container cdkColumnDef="id">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
-              </ng-container>
+    @if (activeTab() === '0') {
+      <app-data-table
+        title="nav.reportMailingJobs"
+        helpTextKey="HELP.REPORT_MAILING_JOBS_DESC"
+        createButtonLabel="REPORT_MAILING_JOBS.CREATE"
+        [columns]="columns"
+        [data]="jobs"
+        [totalRecords]="jobs.length"
+        [localLogic]="true"
+        (create)="onCreate()"
+      >
+        <ng-template appCellTemplate="isActive" let-row>
+          {{ (row.isActive ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+        </ng-template>
+        <ng-template appCellTemplate="actions" let-row>
+          <ion-button
+            fill="clear"
+            color="primary"
+            [attr.aria-label]="'COMMON.EDIT' | translate"
+            [attr.title]="'COMMON.EDIT' | translate"
+            (click)="onEdit(row)"
+          >
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="clear"
+            color="warn"
+            [attr.aria-label]="'COMMON.DELETE' | translate"
+            [attr.title]="'COMMON.DELETE' | translate"
+            (click)="onDelete(row)"
+          >
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ng-template>
+      </app-data-table>
+    }
+    @if (activeTab() === '1') {
+      <div class="history-container">
+        @if (historyLoading) {
+          <div class="spinner-wrap">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        } @else {
+          <table cdk-table [dataSource]="runHistory()" class="history-table">
+            <ng-container cdkColumnDef="id">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
+            </ng-container>
 
-              <ng-container cdkColumnDef="jobName">
-                <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'REPORT_MAILING_JOBS.NAME' | translate }}
-                </th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.jobName }}</td>
-              </ng-container>
+            <ng-container cdkColumnDef="jobName">
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'REPORT_MAILING_JOBS.NAME' | translate }}
+              </th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.jobName }}</td>
+            </ng-container>
 
-              <ng-container cdkColumnDef="scheduledFireTime">
-                <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'REPORT_MAILING.SCHEDULED_FIRE_TIME' | translate }}
-                </th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.scheduledFireTime | date: 'medium' }}</td>
-              </ng-container>
+            <ng-container cdkColumnDef="scheduledFireTime">
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'REPORT_MAILING.SCHEDULED_FIRE_TIME' | translate }}
+              </th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.scheduledFireTime | date: 'medium' }}</td>
+            </ng-container>
 
-              <ng-container cdkColumnDef="triggerType">
-                <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'REPORT_MAILING.TRIGGER_TYPE' | translate }}
-                </th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.triggerType }}</td>
-              </ng-container>
+            <ng-container cdkColumnDef="triggerType">
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'REPORT_MAILING.TRIGGER_TYPE' | translate }}
+              </th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.triggerType }}</td>
+            </ng-container>
 
-              <ng-container cdkColumnDef="status">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'REPORT_MAILING.STATUS' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.status }}</td>
-              </ng-container>
+            <ng-container cdkColumnDef="status">
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'REPORT_MAILING.STATUS' | translate }}</th>
+              <td cdk-cell *cdkCellDef="let row">{{ row.status }}</td>
+            </ng-container>
 
-              <tr cdk-header-row *cdkHeaderRowDef="historyColumns"></tr>
-              <tr cdk-row *cdkRowDef="let row; columns: historyColumns"></tr>
+            <tr cdk-header-row *cdkHeaderRowDef="historyColumns"></tr>
+            <tr cdk-row *cdkRowDef="let row; columns: historyColumns"></tr>
 
-              @if (runHistory().length === 0) {
-                <tr class="cdk-row no-data-row">
-                  <td
-                    class="cdk-cell"
-                    [attr.colspan]="historyColumns.length"
-                    style="text-align:center;padding:1rem;"
-                  >
-                    {{ 'COMMON.NO_DATA' | translate }}
-                  </td>
-                </tr>
-              }
-            </table>
-          }
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+            @if (runHistory().length === 0) {
+              <tr class="cdk-row no-data-row">
+                <td
+                  class="cdk-cell"
+                  [attr.colspan]="historyColumns.length"
+                  style="text-align:center;padding:1rem;"
+                >
+                  {{ 'COMMON.NO_DATA' | translate }}
+                </td>
+              </tr>
+            }
+          </table>
+        }
+      </div>
+    }
   `,
   styles: [
     `
@@ -167,6 +179,8 @@ import {
   ],
 })
 export class ReportMailingJobsListComponent implements OnInit {
+  /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
+  readonly activeTab = signal('0');
   private readonly jobsService = inject(ReportMailingJobsService);
   private readonly historyService = inject(ListReportMailingJobHistoryService);
   private readonly router = inject(Router);
