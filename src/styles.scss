@@ -34,6 +34,10 @@
 @import '@ionic/angular/css/flex-utils.css';
 @import '@ionic/angular/css/display.css';
 
+/* Maps Ionic's theming variables onto the app's design tokens. Must come after
+   the Ionic CSS above, whose :root block defines the stock palette. */
+@import 'styles/ionic-theme';
+
 :root {
   --sidebar-width: 260px;
 }
