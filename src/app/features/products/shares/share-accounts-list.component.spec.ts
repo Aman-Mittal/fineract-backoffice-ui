@@ -28,8 +28,8 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { PageEvent } from '@angular/material/paginator';
 import { HttpEvent } from '@angular/common/http';
+import { PageEvent } from '../../../shared/models/table.model';
 
 describe('ShareAccountsListComponent', () => {
   let component: ShareAccountsListComponent;

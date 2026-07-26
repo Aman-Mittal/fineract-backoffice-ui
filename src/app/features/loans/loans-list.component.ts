@@ -27,8 +27,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import {
@@ -39,6 +37,7 @@ import {
   HasPermissionDirective,
 } from '../../shared';
 import { LoansService, GetLoansLoanIdResponse } from '../../api';
+import { PageEvent, SortEvent } from '../../shared/models/table.model';
 
 @Component({
   selector: 'app-loans-list',
@@ -187,12 +186,12 @@ export class LoansListComponent {
   activeFilters: { status?: string } = {};
 
   private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
   private filterSubject = new Subject<void>();
 
   private currentFilter = '';
-  private currentSort: Sort = { active: '', direction: '' };
+  private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
 
   constructor() {
@@ -241,7 +240,7 @@ export class LoansListComponent {
     this.searchSubject.next(filterValue);
   }
 
-  onSort(sort: Sort) {
+  onSort(sort: SortEvent) {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
     this.sortSubject.next(sort);

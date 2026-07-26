@@ -24,8 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { of, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
+import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 
 describe('AuditLogsListComponent', () => {
   let component: AuditLogsListComponent;
@@ -111,7 +110,7 @@ describe('AuditLogsListComponent', () => {
   it('should handle sorting changes', () => {
     fixture.detectChanges();
 
-    const sortEvent: Sort = { active: 'entityName', direction: 'asc' };
+    const sortEvent: SortEvent = { active: 'entityName', direction: 'asc' };
     component.onSort(sortEvent);
 
     expect(component.pageIndex()).toBe(0);

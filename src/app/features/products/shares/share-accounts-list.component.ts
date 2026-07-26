@@ -21,7 +21,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
-import { PageEvent } from '@angular/material/paginator';
 import {
   DataTableComponent,
   ColumnDef,
@@ -29,6 +28,7 @@ import {
   StatusBadgeComponent,
 } from '../../../shared';
 import { ShareAccountService, GetAccountsTypeResponse, GetAccountsPageItems } from '../../../api';
+import { PageEvent } from '../../../shared/models/table.model';
 
 /**
  * Component for listing customer share accounts.

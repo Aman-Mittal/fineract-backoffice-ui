@@ -24,8 +24,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
 import { CurrencyPipe } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
@@ -37,6 +35,7 @@ import {
   HasPermissionDirective,
 } from '../../shared';
 import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
+import { PageEvent, SortEvent } from '../../shared/models/table.model';
 import {
   resolveAccountActionType,
   resolveAccountRoutePrefix,
@@ -161,11 +160,11 @@ export class SavingsAccountsListComponent implements OnInit {
   isLoading = false;
 
   private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
 
   private currentFilter = '';
-  private currentSort: Sort = { active: '', direction: '' };
+  private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
 
   ngOnInit(): void {
@@ -221,7 +220,7 @@ export class SavingsAccountsListComponent implements OnInit {
     this.searchSubject.next(query);
   }
 
-  onSort(sort: Sort): void {
+  onSort(sort: SortEvent): void {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
     this.sortSubject.next(sort);

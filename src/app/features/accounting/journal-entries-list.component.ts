@@ -23,13 +23,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { JournalEntriesService, JournalEntryTransactionItem } from '../../api';
+import { PageEvent, SortEvent } from '../../shared/models/table.model';
 
 /**
  * Component for listing accounting journal entries.
@@ -108,11 +107,11 @@ export class JournalEntriesListComponent {
   totalRecords = 0;
 
   private searchSubject = new Subject<string>();
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
 
   private currentFilter = '';
-  private currentSort: Sort = { active: '', direction: '' };
+  private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
 
   constructor() {
@@ -163,7 +162,7 @@ export class JournalEntriesListComponent {
     this.searchSubject.next(filterValue);
   }
 
-  onSort(sort: Sort) {
+  onSort(sort: SortEvent) {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
     this.sortSubject.next(sort);

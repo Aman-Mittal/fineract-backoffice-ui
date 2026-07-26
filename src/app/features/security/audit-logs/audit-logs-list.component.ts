@@ -23,8 +23,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -39,6 +37,7 @@ import { AuditsService } from '../../../api';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
+import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 
 export interface AuditFilters {
   actionName: string;
@@ -241,11 +240,11 @@ export class AuditLogsListComponent implements OnInit {
     processingResult: '',
   };
 
-  private sortSubject = new Subject<Sort>();
+  private sortSubject = new Subject<SortEvent>();
   private pageSubject = new Subject<PageEvent>();
   private filterSubject = new Subject<void>();
 
-  private currentSort: Sort = { active: 'id', direction: 'desc' };
+  private currentSort: SortEvent = { active: 'id', direction: 'desc' };
 
   ngOnInit(): void {
     merge(this.sortSubject, this.pageSubject, this.filterSubject)
@@ -353,7 +352,7 @@ export class AuditLogsListComponent implements OnInit {
     this.pageSubject.next(event);
   }
 
-  onSort(sort: Sort): void {
+  onSort(sort: SortEvent): void {
     this.currentSort = sort;
     this.pageIndex.set(0);
     this.sortSubject.next(sort);
