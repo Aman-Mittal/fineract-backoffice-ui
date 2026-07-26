@@ -91,7 +91,7 @@ jobs:
         run: npm ci
 
       - name: Cache Playwright Browsers
-        uses: actions/cache@v4
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -108,7 +108,9 @@ jobs:
           FINERACT_TENANT_ID: 'default'
           FINERACT_USERNAME: 'mifos'
           FINERACT_PASSWORD: 'password'
-        run: npx playwright test --project=chromium
+        run: |
+          echo "🚀 Executing Playwright E2E Test Suite..."
+          npx playwright test --project=chromium --reporter=line
 
       - name: Upload E2E Test Report & Videos
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
