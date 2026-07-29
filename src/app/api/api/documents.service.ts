@@ -33,7 +33,13 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { DocumentCreateResponse } from '../model/documentCreateResponse';
+// @ts-ignore
 import { DocumentData } from '../model/documentData';
+// @ts-ignore
+import { DocumentDeleteResponse } from '../model/documentDeleteResponse';
+// @ts-ignore
+import { DocumentUpdateResponse } from '../model/documentUpdateResponse';
 // @ts-ignore
 import { FormDataBodyPart } from '../model/formDataBodyPart';
 
@@ -63,10 +69,10 @@ export class DocumentsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<DocumentDeleteResponse>;
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DocumentDeleteResponse>>;
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DocumentDeleteResponse>>;
+    public deleteEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
             throw new Error('Required parameter entityType was null or undefined when calling deleteEntityTypeEntityIdDocumentsDocumentId.');
         }
@@ -86,6 +92,7 @@ export class DocumentsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -109,7 +116,7 @@ export class DocumentsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DocumentDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -344,10 +351,10 @@ export class DocumentsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DocumentCreateResponse>;
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DocumentCreateResponse>>;
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DocumentCreateResponse>>;
+    public postEntityTypeEntityIdDocuments(entityType: string, entityId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
             throw new Error('Required parameter entityType was null or undefined when calling postEntityTypeEntityIdDocuments.');
         }
@@ -367,6 +374,7 @@ export class DocumentsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -415,7 +423,7 @@ export class DocumentsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DocumentCreateResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
@@ -444,10 +452,10 @@ export class DocumentsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DocumentUpdateResponse>;
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DocumentUpdateResponse>>;
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DocumentUpdateResponse>>;
+    public putEntityTypeEntityIdDocumentsDocumentId(entityType: string, entityId: number, documentId: number, contentLength?: number, description?: string, file?: FormDataBodyPart, name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (entityType === null || entityType === undefined) {
             throw new Error('Required parameter entityType was null or undefined when calling putEntityTypeEntityIdDocumentsDocumentId.');
         }
@@ -470,6 +478,7 @@ export class DocumentsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -518,7 +527,7 @@ export class DocumentsService extends BaseService {
 
         let localVarPath = `/v1/${this.configuration.encodeParam({name: "entityType", value: entityType, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "entityId", value: entityId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/documents/${this.configuration.encodeParam({name: "documentId", value: documentId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DocumentUpdateResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,

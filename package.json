@@ -2,6 +2,9 @@
   "name": "fineract-backoffice-ui",
   "version": "0.0.0",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.22.3"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -14,9 +17,10 @@
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "generate-api": "npm run copy-swagger && npm run clean-api && npx openapi-generator-cli generate -i ./api-spec/fineract.json -g typescript-angular -o src/app/api -t templates/openapi-generator --additional-properties=ngVersion=21.0.0",
+    "generate-api": "npm run copy-swagger && npm run clean-api && npx openapi-generator-cli generate -i ./api-spec/fineract.json -g typescript-angular -o src/app/api -t templates/openapi-generator --additional-properties=ngVersion=22.0.7",
     "copy-swagger": "mkdir -p api-spec && node scripts/preprocess-spec.mjs ${FINERACT_SWAGGER_PATH:-./public/api/fineract.json} api-spec/fineract.json",
     "clean-api": "node -e \"fs.rmSync('src/app/api/api',{recursive:true,force:true});fs.rmSync('src/app/api/model',{recursive:true,force:true})\"",
+    "verify-api-client": "npm run generate-api && git diff --exit-code src/app/api",
     "i18n:check": "node scripts/check-translations.mjs",
     "check:icons": "node scripts/check-icons.mjs"
   },

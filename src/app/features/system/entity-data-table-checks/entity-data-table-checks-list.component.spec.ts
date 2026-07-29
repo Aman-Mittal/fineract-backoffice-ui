@@ -38,9 +38,9 @@ describe('EntityDataTableChecksListComponent', () => {
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     serviceSpy.getEntityDatatableChecks.and.returnValue(
-      of([{ id: 1, entity: 'm_client', datatableName: 'dt' }]) as unknown as ReturnType<
-        EntityDataTableService['getEntityDatatableChecks']
-      >,
+      of({
+        pageItems: [{ id: 1, entity: 'm_client', datatableName: 'dt' }],
+      }) as unknown as ReturnType<EntityDataTableService['getEntityDatatableChecks']>,
     );
 
     await TestBed.configureTestingModule({

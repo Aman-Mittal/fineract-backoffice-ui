@@ -23,22 +23,14 @@
  * Do not edit the class manually.
  */
 
-import { Pageable } from './pageable';
-import { Sort } from './sort';
-import { LoanTransactionData } from './loanTransactionData';
+import { GetEntityDatatableChecksResponse } from './getEntityDatatableChecksResponse';
 
 
-export interface PageLoanTransactionData { 
-    content?: Array<LoanTransactionData>;
-    empty?: boolean;
-    first?: boolean;
-    last?: boolean;
-    number?: number;
-    numberOfElements?: number;
-    pageable?: Pageable;
-    size?: number;
-    sort?: Sort;
-    totalElements?: number;
-    totalPages?: number;
+/**
+ * PageGetEntityDatatableChecksResponse
+ */
+export interface PageGetEntityDatatableChecksResponse { 
+    pageItems?: Array<GetEntityDatatableChecksResponse>;
+    totalFilteredRecords?: number;
 }
 

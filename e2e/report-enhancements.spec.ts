@@ -138,7 +138,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText('Reports');
 
     // Run the report
-    await page.locator('button[matTooltip="Run Report"]').first().click();
+    await page.getByRole('button', { name: 'Run' }).first().click();
     await expect(page).toHaveURL(/\/reporting\/run\/Active%20Clients%20Summary/);
 
     // Select an office and click Run
@@ -159,7 +159,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
 
     // Check pagination range label
     const paginatorRange = page.locator('[data-testid="paginator-range-label"]');
-    await expect(paginatorRange).toContainText('1 – 10 of 12');
+    await expect(paginatorRange).toContainText('1 - 10 of 12');
 
     // Navigate to the next page
     await page.locator('button[aria-label="Next page"]').click();
@@ -167,7 +167,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await expect(page.locator('table')).toContainText(KEVIN_BACON);
     await expect(page.locator('table')).toContainText('Lois Lane');
     await expect(page.locator('table')).not.toContainText(ALICE_SMITH);
-    await expect(paginatorRange).toContainText('11 – 12 of 12');
+    await expect(paginatorRange).toContainText('11 - 12 of 12');
 
     // Intercept and assert the CSV download trigger
     const downloadPromise = page.waitForEvent('download');

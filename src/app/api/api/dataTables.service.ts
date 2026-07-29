@@ -420,9 +420,9 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<object>;
-    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<object>>;
-    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<object>>;
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
     public getDatatablesDatatableApptableId(datatable: string, apptableId: number, order?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
             throw new Error('Required parameter datatable was null or undefined when calling getDatatablesDatatableApptableId.');
@@ -475,7 +475,7 @@ export class DataTablesService extends BaseService {
 
         let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<object>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
@@ -502,9 +502,9 @@ export class DataTablesService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<object>;
-    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<object>>;
-    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<object>>;
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
     public getDatatablesDatatableApptableIdDatatableId(datatable: string, apptableId: number, datatableId: number, order?: string, genericResultSet?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (datatable === null || datatable === undefined) {
             throw new Error('Required parameter datatable was null or undefined when calling getDatatablesDatatableApptableIdDatatableId.');
@@ -569,7 +569,7 @@ export class DataTablesService extends BaseService {
 
         let localVarPath = `/v1/datatables/${this.configuration.encodeParam({name: "datatable", value: datatable, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/${this.configuration.encodeParam({name: "apptableId", value: apptableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/${this.configuration.encodeParam({name: "datatableId", value: datatableId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<object>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<string>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),

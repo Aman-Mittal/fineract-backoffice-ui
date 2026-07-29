@@ -85,7 +85,7 @@ import {
           </ion-card-header>
           <ion-card-content>
             @if (businessDateEntry?.description) {
-              <p>{{ businessDateEntry?.description }}</p>
+              <p>{{ businessDateEntry.description }}</p>
             }
             <p>
               <strong>{{ 'BUSINESS_DATES.CURRENT_DATE' | translate }}:</strong>

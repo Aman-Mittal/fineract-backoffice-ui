@@ -23,18 +23,30 @@
  * Do not edit the class manually.
  */
 
-import { DelinquencyPausePeriod } from './delinquencyPausePeriod';
-import { WorkingCapitalLoanRangeScheduleDelinquencyData } from './workingCapitalLoanRangeScheduleDelinquencyData';
+import { CurrencyData } from './currencyData';
+import { EnumOptionData } from './enumOptionData';
 
 
-export interface WorkingCapitalLoanCollectionData { 
-    delinquencyPausePeriods?: Array<DelinquencyPausePeriod>;
-    delinquentAmount?: number;
-    delinquentDate?: string;
-    delinquentDays?: number;
-    delinquentFee?: number;
-    delinquentPenalty?: number;
-    delinquentPrincipal?: number;
-    rangeLevelDelinquency?: Array<WorkingCapitalLoanRangeScheduleDelinquencyData>;
+/**
+ * Working Capital Loan charge
+ */
+export interface GetWorkingCapitalLoanCharge { 
+    amount?: number;
+    amountOutstanding?: number;
+    amountPaid?: number;
+    chargeCalculationType?: EnumOptionData;
+    chargeId?: number;
+    chargePaymentMode?: EnumOptionData;
+    chargeTimeType?: EnumOptionData;
+    currency?: CurrencyData;
+    dueDate?: string;
+    externalId?: string;
+    externalLoanId?: string;
+    id?: number;
+    loanId?: number;
+    name?: string;
+    paid?: boolean;
+    penalty?: boolean;
+    submittedOnDate?: string;
 }
 

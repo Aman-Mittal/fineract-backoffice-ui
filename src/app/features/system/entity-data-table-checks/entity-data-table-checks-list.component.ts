@@ -89,8 +89,8 @@ export class EntityDataTableChecksListComponent implements OnInit {
 
   load(): void {
     this.checksService.getEntityDatatableChecks().subscribe({
-      next: (data: GetEntityDatatableChecksResponse[]) => {
-        this.checks = data || [];
+      next: (data) => {
+        this.checks = data.pageItems || [];
       },
       error: (err: unknown) => {
         console.error('Failed to load entity data-table checks', err);

@@ -23,13 +23,12 @@
  * Do not edit the class manually.
  */
 
-import { CodeValueData } from './codeValueData';
 
 
-export interface LoanOriginatorTemplateData { 
-    channelTypeOptions?: Array<CodeValueData>;
-    externalId?: string;
-    originatorTypeOptions?: Array<CodeValueData>;
-    statusOptions?: Set<string>;
+/**
+ * Request for working capital loan transaction command execution
+ */
+export interface ExecuteWorkingCapitalLoanTransactionCommandRequest { 
+    reversalExternalId?: string;
 }
 

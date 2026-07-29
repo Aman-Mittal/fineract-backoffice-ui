@@ -23,29 +23,16 @@
  * Do not edit the class manually.
  */
 
-import { CurrencyData } from './currencyData';
-import { ExternalId } from './externalId';
-import { CodeValueData } from './codeValueData';
-import { PaymentDetailData } from './paymentDetailData';
-import { LoanTransactionEnumData } from './loanTransactionEnumData';
 
 
-export interface WorkingCapitalLoanTransactionData { 
-    classification?: CodeValueData;
-    currency?: CurrencyData;
-    externalId?: ExternalId;
-    feeChargesPortion?: number;
-    id?: number;
-    paymentDetailData?: PaymentDetailData;
-    penaltyChargesPortion?: number;
-    principalPortion?: number;
-    reversalExternalId?: ExternalId;
-    reversed?: boolean;
-    reversedOnDate?: string;
-    submittedOnDate?: string;
-    transactionAmount?: number;
-    transactionDate?: string;
-    type?: LoanTransactionEnumData;
-    wcLoanId?: number;
+/**
+ * PostWorkingCapitalLoansLoanIdChargesChargeIdRequest
+ */
+export interface PostWorkingCapitalLoansLoanIdChargesChargeIdRequest { 
+    amount?: number;
+    dateFormat?: string;
+    externalId?: string;
+    locale?: string;
+    note?: string;
 }
 

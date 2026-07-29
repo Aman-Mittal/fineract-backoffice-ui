@@ -31,7 +31,15 @@ import { PostPaymentAllocationRule } from './postPaymentAllocationRule';
  */
 export interface PutWorkingCapitalLoansLoanIdRequest { 
     accountNo?: string;
+    /**
+     * Number of days to shift the start of the first breach schedule period after disbursement
+     */
+    breachGraceDays?: number;
     breachId?: number;
+    /**
+     * Breach start type: LOAN_CREATION or DISBURSEMENT
+     */
+    breachStartType?: string;
     clientId?: number;
     dateFormat?: string;
     delinquencyBucketId?: number;

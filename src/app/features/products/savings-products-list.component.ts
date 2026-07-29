@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -38,8 +38,8 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
       helpTextKey="HELP.SAVINGS_PRODUCTS_DESC"
       createButtonLabel="PRODUCTS.CREATE_SAVINGS_PRODUCT"
       [columns]="columns"
-      [data]="products"
-      [totalRecords]="products.length"
+      [data]="products()"
+      [totalRecords]="products().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateProduct()"
@@ -68,7 +68,7 @@ export class SavingsProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: GetSavingsProductsResponse[] = [];
+  readonly products = signal<GetSavingsProductsResponse[]>([]);
 
   ngOnInit(): void {
     this.loadProducts();
@@ -79,7 +79,7 @@ export class SavingsProductsListComponent implements OnInit {
       .getSavingsproducts()
       .pipe(catchError(() => of([])))
       .subscribe((data: GetSavingsProductsResponse[]) => {
-        this.products = data || [];
+        this.products.set(data || []);
       });
   }
 

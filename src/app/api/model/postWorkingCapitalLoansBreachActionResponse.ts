@@ -25,14 +25,12 @@
 
 
 
-export interface ShareAccountStatusEnumData { 
-    active?: boolean;
-    approved?: boolean;
-    closed?: boolean;
-    code?: string;
-    id?: number;
-    rejected?: boolean;
-    submittedAndPendingApproval?: boolean;
-    value?: string;
+/**
+ * PostWorkingCapitalLoansBreachActionResponse
+ */
+export interface PostWorkingCapitalLoansBreachActionResponse { 
+    clientId?: number;
+    officeId?: number;
+    resourceId?: number;
 }
 

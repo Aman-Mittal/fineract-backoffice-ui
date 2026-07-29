@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -130,7 +130,7 @@ import {
                     required
                     [disabled]="isEditMode"
                   >
-                    @for (office of offices; track office.id) {
+                    @for (office of offices(); track office.id) {
                       <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                     }
                   </ion-select>
@@ -140,6 +140,7 @@ import {
                     fill="clear"
                     type="button"
                     color="primary"
+                    [attr.aria-label]="'CLIENTS.ADD_NEW_OFFICE' | translate"
                     [appTooltip]="'CLIENTS.ADD_NEW_OFFICE' | translate"
                     (click)="addOffice()"
                   >
@@ -359,7 +360,7 @@ export class ClientFormComponent implements OnInit {
   submittedOnDate = toIsoDate(new Date());
   activationDate = toIsoDate(new Date());
   dateOfBirth: string | null = null;
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit() {
     this.loadOffices();
@@ -375,7 +376,7 @@ export class ClientFormComponent implements OnInit {
 
   loadOffices() {
     this.officesService.getOffices(true).subscribe((offices) => {
-      this.offices = offices;
+      this.offices.set(offices);
     });
   }
 
@@ -384,7 +385,7 @@ export class ClientFormComponent implements OnInit {
       if (!newOfficeId) return;
       // Reload offices and select the new one
       this.officesService.getOffices(true).subscribe((offices) => {
-        this.offices = offices;
+        this.offices.set(offices);
         this.client.officeId = newOfficeId;
       });
     });

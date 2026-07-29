@@ -26,16 +26,16 @@
 
 
 /**
- * PostWorkingCapitalLoansDelinquencyActionRequest
+ * PostWorkingCapitalLoansBreachActionRequest
  */
-export interface PostWorkingCapitalLoansDelinquencyActionRequest { 
+export interface PostWorkingCapitalLoansBreachActionRequest { 
     /**
-     * Delinquency action type: pause, resume or reschedule
+     * Breach action type: pause, reschedule, resume, reset, undo reset, disable, enable
      */
     action?: string;
     dateFormat?: string;
     /**
-     * End date of the pause period (required for pause, must not be provided for resume)
+     * End date of the pause period. Must be omitted for resume, reschedule, disable and enable actions
      */
     endDate?: string;
     /**
@@ -56,9 +56,8 @@ export interface PostWorkingCapitalLoansDelinquencyActionRequest {
      */
     minimumPaymentType?: string;
     /**
-     * Start date of the pause period (required for pause) or resume date (required for resume, must be current business date)
+     * For pause: start date of the pause period. For resume/disable/enable: the action date, which must be the current business date
      */
     startDate?: string;
-    startNewPeriod?: boolean;
 }
 

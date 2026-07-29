@@ -29,6 +29,10 @@
  * Working capital loan running balances
  */
 export interface GetBalance { 
+    /**
+     * Cumulative breach past due amount, summed from each breach schedule period\'s outstanding amount
+     */
+    breachPastDueAmount?: number;
     fee?: number;
     feeOutstanding?: number;
     feePaid?: number;

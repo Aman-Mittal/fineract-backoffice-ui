@@ -37,6 +37,7 @@ export interface PostHolidaysRequest {
     name?: string;
     offices?: Array<PostHolidaysRequestOffices>;
     repaymentsRescheduledTo?: string;
+    reschedulingType?: number;
     toDate?: string;
 }
 

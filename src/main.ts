@@ -19,8 +19,14 @@
 
 import { initFederation } from '@angular-architects/native-federation';
 
+// No framework imports above this line: native-federation must set up its shared-dependency
+// import map before anything imports a package like '@angular/core', or resolution fails.
+const isLocalDevServer = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
 initFederation({
-  'fineract-mfe': 'http://localhost:4201/remoteEntry.json',
+  'fineract-mfe': isLocalDevServer
+    ? 'http://localhost:4201/remoteEntry.json'
+    : './remoteEntry.json',
 })
   .catch((err) => console.error(err))
   .then(() => import('./bootstrap'))

@@ -115,7 +115,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           @if (tx.paymentDetailData?.receiptNumber) {
             <tr>
               <td class="label">{{ 'LOANS.RECEIPT_NUMBER' | translate }}</td>
-              <td class="value">{{ tx.paymentDetailData?.receiptNumber }}</td>
+              <td class="value">{{ tx.paymentDetailData.receiptNumber }}</td>
             </tr>
           }
           @if (tx.manuallyReversed) {

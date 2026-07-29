@@ -25,18 +25,18 @@
 
 
 
-export interface WorkingCapitalLoanDelinquencyActionData { 
-    action?: WorkingCapitalLoanDelinquencyActionData.ActionEnum;
+export interface WorkingCapitalLoanBreachActionData { 
+    action?: WorkingCapitalLoanBreachActionData.ActionEnum;
     effectiveEndDate?: string;
     endDate?: string;
     frequency?: number;
-    frequencyType?: WorkingCapitalLoanDelinquencyActionData.FrequencyTypeEnum;
+    frequencyType?: WorkingCapitalLoanBreachActionData.FrequencyTypeEnum;
     id?: number;
     minimumPayment?: number;
-    minimumPaymentType?: WorkingCapitalLoanDelinquencyActionData.MinimumPaymentTypeEnum;
+    minimumPaymentType?: WorkingCapitalLoanBreachActionData.MinimumPaymentTypeEnum;
     startDate?: string;
 }
-export namespace WorkingCapitalLoanDelinquencyActionData {
+export namespace WorkingCapitalLoanBreachActionData {
     export const ActionEnum = {
         Pause: 'PAUSE',
         Resume: 'RESUME',

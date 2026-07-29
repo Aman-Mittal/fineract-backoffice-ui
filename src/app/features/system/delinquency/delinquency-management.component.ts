@@ -70,6 +70,7 @@ import {
       @if (activeTab() === '0') {
         <div class="tab-content">
           <app-data-table
+            title="SYSTEM.DELINQUENCY_RANGES"
             [columns]="rangeColumns"
             [data]="ranges()"
             [isLoading]="isLoadingRanges()"
@@ -113,6 +114,7 @@ import {
       @if (activeTab() === '1') {
         <div class="tab-content">
           <app-data-table
+            title="SYSTEM.DELINQUENCY_BUCKETS"
             [columns]="bucketColumns"
             [data]="buckets()"
             [isLoading]="isLoadingBuckets()"

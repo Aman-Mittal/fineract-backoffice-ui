@@ -1178,6 +1178,7 @@ export class LoansService extends BaseService {
     }
 
     /**
+     * Retrieve Loan Approval Template
      * @endpoint get /v1/loans/{loanId}/template
      * @param loanId loanId
      * @param templateType templateType
@@ -1255,14 +1256,15 @@ export class LoansService extends BaseService {
      * @endpoint get /v1/loans/repayments/downloadtemplate
      * @param officeId 
      * @param dateFormat 
+     * @param includeLookups 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, includeLookups?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, includeLookups?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, includeLookups?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public getLoansRepaymentsDownloadtemplate(officeId?: number, dateFormat?: string, includeLookups?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/vnd.ms-excel', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -1279,6 +1281,15 @@ export class LoansService extends BaseService {
             localVarQueryParameters,
             'dateFormat',
             <any>dateFormat,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'includeLookups',
+            <any>includeLookups,
             QueryParamStyle.Form,
             true,
         );

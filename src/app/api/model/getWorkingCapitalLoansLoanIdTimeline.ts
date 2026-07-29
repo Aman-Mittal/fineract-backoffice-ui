@@ -23,7 +23,6 @@
  * Do not edit the class manually.
  */
 
-import { GetDisbursementDetail } from './getDisbursementDetail';
 
 
 /**
@@ -46,12 +45,15 @@ export interface GetWorkingCapitalLoansLoanIdTimeline {
     disbursedByFirstname?: string;
     disbursedByLastname?: string;
     disbursedByUsername?: string;
-    disbursementDetails?: Array<GetDisbursementDetail>;
     expectedDisbursementDate?: string;
     /**
      * Expected maturity date
      */
     expectedMaturityDate?: string;
+    rejectedByFirstname?: string;
+    rejectedByLastname?: string;
+    rejectedByUsername?: string;
+    rejectedOnDate?: string;
     submittedByFirstname?: string;
     submittedByLastname?: string;
     submittedByUsername?: string;

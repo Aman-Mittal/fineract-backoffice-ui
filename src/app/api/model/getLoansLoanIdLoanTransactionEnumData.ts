@@ -38,6 +38,7 @@ export interface GetLoansLoanIdLoanTransactionEnumData {
     capitalizedIncome?: boolean;
     capitalizedIncomeAdjustment?: boolean;
     capitalizedIncomeAmortization?: boolean;
+    capitalizedIncomeAmortizationAdjustment?: boolean;
     chargeAdjustment?: boolean;
     chargePayment?: boolean;
     chargeoff?: boolean;

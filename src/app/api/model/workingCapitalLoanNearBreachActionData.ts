@@ -23,11 +23,22 @@
  * Do not edit the class manually.
  */
 
-import { StandingInstructionData } from './standingInstructionData';
 
 
-export interface PageStandingInstructionData { 
-    pageItems?: Array<StandingInstructionData>;
-    totalFilteredRecords?: number;
+export interface WorkingCapitalLoanNearBreachActionData { 
+    action?: WorkingCapitalLoanNearBreachActionData.ActionEnum;
+    createdDate?: string;
+    frequency?: number;
+    frequencyType?: string;
+    id?: number;
+    loanId?: number;
+    threshold?: number;
 }
+export namespace WorkingCapitalLoanNearBreachActionData {
+    export const ActionEnum = {
+        Reschedule: 'RESCHEDULE'
+    } as const;
+    export type ActionEnum = typeof ActionEnum[keyof typeof ActionEnum];
+}
+
 

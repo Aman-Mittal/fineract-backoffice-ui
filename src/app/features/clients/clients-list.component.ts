@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -65,8 +65,8 @@ import {
       title="MODULES.CLIENTS_CONTRACTS"
       helpTextKey="HELP.CLIENTS_CONTRACTS_DESC"
       [columns]="columns"
-      [data]="clients"
-      [totalRecords]="totalRecords"
+      [data]="clients()"
+      [totalRecords]="totalRecords()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
@@ -165,8 +165,8 @@ export class ClientsListComponent {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  clients: GetClientsPageItemsResponse[] = [];
-  totalRecords = 0;
+  readonly clients = signal<GetClientsPageItemsResponse[]>([]);
+  readonly totalRecords = signal(0);
 
   activeFilters: { status?: string } = {};
 
@@ -214,12 +214,12 @@ export class ClientsListComponent {
         }),
         map((response) => {
           if (response === null) return [];
-          this.totalRecords = response.totalFilteredRecords || 0;
+          this.totalRecords.set(response.totalFilteredRecords || 0);
           return response.pageItems || [];
         }),
       )
       .subscribe((data) => {
-        this.clients = data;
+        this.clients.set(data);
       });
   }
 

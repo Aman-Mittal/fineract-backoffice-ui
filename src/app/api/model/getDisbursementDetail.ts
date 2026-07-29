@@ -29,14 +29,21 @@
  * Single disbursement detail (expected and actual)
  */
 export interface GetDisbursementDetail { 
+    /**
+     * Actually disbursed amount; null until disbursed
+     */
     actualAmount?: number;
     actualDisbursementDate?: string;
     disbursedByFirstname?: string;
     disbursedByLastname?: string;
     disbursedByUsername?: string;
-    expectedAmount?: number;
     expectedDisbursementDate?: string;
     expectedMaturityDate?: string;
     id?: number;
+    loanId?: number;
+    /**
+     * Expected (planned) disbursement principal
+     */
+    principal?: number;
 }
 

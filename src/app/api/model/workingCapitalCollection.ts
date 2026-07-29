@@ -44,24 +44,20 @@ export interface WorkingCapitalCollection {
      */
     delinquentDate?: string;
     /**
-     * Working capital loan delinquency collection summary
+     * Number of days the loan has been delinquent, from the oldest active delinquency tag
      */
     delinquentDays?: number;
-    /**
-     * Delinquent fee amount
-     */
-    delinquentFee?: number;
-    /**
-     * Delinquent penalty amount
-     */
-    delinquentPenalty?: number;
     /**
      * Delinquent principal amount
      */
     delinquentPrincipal?: number;
     /**
-     * Delinquency amounts grouped by age range
+     * Delinquency amounts grouped by age range (installment-level delinquency; Term-compatible name)
      */
-    rangeLevelDelinquency?: Array<WorkingCapitalCollectionRangeScheduleDelinquency>;
+    installmentLevelDelinquency?: Array<WorkingCapitalCollectionRangeScheduleDelinquency>;
+    /**
+     * Days the oldest unmet minimum-payment period is past due (measured from its toDate); 0 when not past due
+     */
+    pastDueDays?: number;
 }
 

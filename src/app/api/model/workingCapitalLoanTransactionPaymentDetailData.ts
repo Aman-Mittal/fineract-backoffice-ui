@@ -23,6 +23,7 @@
  * Do not edit the class manually.
  */
 
+import { PaymentTypeData } from './paymentTypeData';
 
 
 /**
@@ -33,6 +34,7 @@ export interface WorkingCapitalLoanTransactionPaymentDetailData {
     bankNumber?: string;
     checkNumber?: string;
     id?: number;
+    paymentType?: PaymentTypeData;
     receiptNumber?: string;
     routingCode?: string;
 }

@@ -26,14 +26,17 @@
 import { GetBalance } from './getBalance';
 import { GetWorkingCapitalLoanProductsResponse } from './getWorkingCapitalLoanProductsResponse';
 import { StringEnumOptionData } from './stringEnumOptionData';
+import { GetWorkingCapitalLoanCharge } from './getWorkingCapitalLoanCharge';
 import { GetWorkingCapitalLoanNearBreach } from './getWorkingCapitalLoanNearBreach';
 import { GetWorkingCapitalLoansLoanIdStatus } from './getWorkingCapitalLoansLoanIdStatus';
 import { GetWorkingCapitalLoansLoanIdTimeline } from './getWorkingCapitalLoansLoanIdTimeline';
 import { GetDelinquencyBucket } from './getDelinquencyBucket';
 import { CurrencyData } from './currencyData';
 import { GetWorkingCapitalLoansClient } from './getWorkingCapitalLoansClient';
+import { GetWorkingCapitalLoansLoanIdOriginatorData } from './getWorkingCapitalLoansLoanIdOriginatorData';
 import { GetDisbursementDetail } from './getDisbursementDetail';
 import { WorkingCapitalCollection } from './workingCapitalCollection';
+import { GetWorkingCapitalLoanSummary } from './getWorkingCapitalLoanSummary';
 import { GetWorkingCapitalLoanBreach } from './getWorkingCapitalLoanBreach';
 import { GetPaymentAllocation } from './getPaymentAllocation';
 
@@ -43,16 +46,41 @@ import { GetPaymentAllocation } from './getPaymentAllocation';
  */
 export interface GetWorkingCapitalLoansLoanIdResponse { 
     accountNo?: string;
-    approvedOnDate?: string;
+    amortizationType?: StringEnumOptionData;
+    /**
+     * Approved discount fee set during loan approval
+     */
+    approvedDiscountFee?: number;
     approvedPrincipal?: number;
     balance?: GetBalance;
     breach?: GetWorkingCapitalLoanBreach;
     /**
+     * Number of days to shift the start of the first breach schedule period after disbursement
+     */
+    breachGraceDays?: number;
+    /**
+     * Start date of the loan\'s breach, i.e. the fromDate of the earliest breached breach schedule period (the breach grace days are already reflected in this date). Null when the loan is not in breach
+     */
+    breachStartDate?: string;
+    breachStartType?: StringEnumOptionData;
+    /**
      * Annualized EIR: (1 + dailyEir)^365 − 1; null if schedule not yet generated
      */
     calculatedAnnualEir?: number;
+    /**
+     * Charge-off flag. Placeholder: null until the WCP charge-off feature is implemented
+     */
+    chargedOff?: boolean;
+    /**
+     * Charges associated with the loan
+     */
+    charges?: Array<GetWorkingCapitalLoanCharge>;
     client?: GetWorkingCapitalLoansClient;
-    collectionData?: WorkingCapitalCollection;
+    clientAccountNo?: string;
+    clientExternalId?: string;
+    clientId?: number;
+    clientName?: string;
+    clientOfficeId?: number;
     currency?: CurrencyData;
     /**
      * Periodic (daily) effective interest rate computed via RATE(); null if schedule not yet generated
@@ -63,21 +91,26 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
      * Number of grace days before delinquency tracking starts
      */
     delinquencyGraceDays?: number;
+    /**
+     * Start date of the loan\'s delinquency, i.e. the fromDate of the earliest delinquent range schedule period shifted by delinquencyGraceDays. Null when the loan is not delinquent
+     */
+    delinquencyStartDate?: string;
     delinquencyStartType?: StringEnumOptionData;
+    delinquent?: WorkingCapitalCollection;
     disbursementDetails?: Array<GetDisbursementDetail>;
     /**
-     * Discount set during loan disbursement
+     * Discount fee set during loan disbursement
      */
-    discount?: number;
+    discountFee?: number;
     /**
-     * Approved discount set during loan approval
+     * Installment-level delinquency flag (Term-compatible name). True when the loan has a delinquency bucket configured (Working Capital tracks delinquency at the period level); false otherwise
      */
-    discountApproved?: number;
-    /**
-     * Proposed discount at loan submission time
-     */
-    discountProposed?: number;
+    enableInstallmentLevelDelinquency?: boolean;
     externalId?: string;
+    /**
+     * Fraud flag. Placeholder: null until the WCP fraud feature is implemented
+     */
+    fraud?: boolean;
     fundId?: number;
     fundName?: string;
     id?: number;
@@ -85,26 +118,51 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
      * Last closed business date (COB)
      */
     lastClosedBusinessDate?: string;
+    /**
+     * Loan cycle (sequential WC loan counter per client+product)
+     */
+    loanProductCounter?: number;
+    loanProductDescription?: string;
+    loanProductId?: number;
+    loanProductName?: string;
     nearBreach?: GetWorkingCapitalLoanNearBreach;
-    officeId?: number;
+    /**
+     * Net disbursal amount from the amortization schedule; null if schedule not yet generated
+     */
+    netDisbursalAmount?: number;
+    /**
+     * NPV day count used by the amortization schedule
+     */
+    npvDayCount?: number;
+    /**
+     * Number of repayments (effectiveTotalTerm from the amortization schedule; for WC this is the loan term in days); null if schedule not yet generated
+     */
+    numberOfRepayments?: number;
+    /**
+     * List of originators associated with this loan
+     */
+    originators?: Array<GetWorkingCapitalLoansLoanIdOriginatorData>;
     paymentAllocation?: Array<GetPaymentAllocation>;
+    paymentRate?: number;
     /**
      * Daily expected payment amount from the amortization schedule; null if schedule not yet generated
      */
     periodPaymentAmount?: number;
-    periodPaymentRate?: number;
+    /**
+     * Active principal (loanProductRelatedDetails.principal)
+     */
+    principal?: number;
     product?: GetWorkingCapitalLoanProductsResponse;
+    /**
+     * Proposed discount fee at loan submission time
+     */
+    proposedDiscountFee?: number;
     proposedPrincipal?: number;
-    rejectedOnDate?: string;
     repaymentEvery?: number;
     repaymentFrequencyType?: StringEnumOptionData;
     status?: GetWorkingCapitalLoansLoanIdStatus;
-    submittedOnDate?: string;
+    summary?: GetWorkingCapitalLoanSummary;
     timeline?: GetWorkingCapitalLoansLoanIdTimeline;
-    /**
-     * Loan term in days (originalPaymentNumber from amortization schedule); null if schedule not yet generated
-     */
-    totalNoPayments?: number;
     totalPaymentVolume?: number;
 }
 

@@ -36,6 +36,7 @@ import { GetWorkingCapitalLoanBreach } from './getWorkingCapitalLoanBreach';
  */
 export interface GetWorkingCapitalLoansTemplateResponse { 
     breachOptions?: Array<GetWorkingCapitalLoanBreach>;
+    breachStartTypeOptions?: Array<StringEnumOptionData>;
     delinquencyBucketOptions?: Array<GetDelinquencyBucket>;
     delinquencyMinimumPaymentTypeOptions?: Array<StringEnumOptionData>;
     delinquencyStartTypeOptions?: Array<StringEnumOptionData>;

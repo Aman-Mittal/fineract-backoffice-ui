@@ -36,6 +36,7 @@ import { GetLoansTotal } from './getLoansTotal';
  */
 export interface GetLoansLoanIdTransactionsTemplateResponse { 
     amount?: number;
+    calculatedStartDate?: string;
     chargeOffReasonOptions?: Array<GetLoanProductsChargeOffReasonOptions>;
     classificationOptions?: Array<GetCodeValuesDataResponse>;
     currency?: GetLoanCurrency;
@@ -43,6 +44,9 @@ export interface GetLoansLoanIdTransactionsTemplateResponse {
     feeChargesPortion?: number;
     interestPortion?: number;
     netDisbursalAmount?: number;
+    nextInstallmentDueDate?: string;
+    numberOfFutureInstallments?: number;
+    numberOfPastInstallments?: number;
     paymentTypeOptions?: Array<GetPaymentTypeOptions>;
     penaltyChargesPortion?: number;
     principalPortion?: number;

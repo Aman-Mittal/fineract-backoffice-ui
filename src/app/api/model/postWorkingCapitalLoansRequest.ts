@@ -24,6 +24,7 @@
  */
 
 import { PostPaymentAllocationRule } from './postPaymentAllocationRule';
+import { PostWorkingCapitalLoansOriginatorData } from './postWorkingCapitalLoansOriginatorData';
 
 
 /**
@@ -31,7 +32,15 @@ import { PostPaymentAllocationRule } from './postPaymentAllocationRule';
  */
 export interface PostWorkingCapitalLoansRequest { 
     accountNo?: string;
+    /**
+     * Number of days to shift the start of the first breach schedule period after disbursement
+     */
+    breachGraceDays?: number;
     breachId?: number;
+    /**
+     * Breach start type: LOAN_CREATION or DISBURSEMENT
+     */
+    breachStartType?: string;
     clientId: number;
     dateFormat?: string;
     delinquencyBucketId?: number;
@@ -46,6 +55,10 @@ export interface PostWorkingCapitalLoansRequest {
     fundId?: number;
     locale?: string;
     nearBreachId?: number;
+    /**
+     * Optional array of originators to associate with this loan. Each entry can reference an existing originator by \'id\' or \'externalId\'. If the global config \'enable_originator_creation_during_loan_application\' is enabled, non-existing originators will be auto-created using the provided details (name, typeId, channelTypeId).
+     */
+    originators?: Array<PostWorkingCapitalLoansOriginatorData>;
     paymentAllocation?: Array<PostPaymentAllocationRule>;
     periodPaymentRate?: number;
     /**

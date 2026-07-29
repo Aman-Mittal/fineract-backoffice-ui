@@ -30,6 +30,7 @@ import { GetDelinquencyRange } from './getDelinquencyRange';
  * GetDelinquencyBucket
  */
 export interface GetDelinquencyBucket { 
+    bucketType?: string;
     id?: number;
     name?: string;
     ranges?: Array<GetDelinquencyRange>;

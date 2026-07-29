@@ -25,40 +25,39 @@
 
 
 
-export interface WorkingCapitalLoanDelinquencyActionData { 
-    action?: WorkingCapitalLoanDelinquencyActionData.ActionEnum;
-    effectiveEndDate?: string;
-    endDate?: string;
-    frequency?: number;
-    frequencyType?: WorkingCapitalLoanDelinquencyActionData.FrequencyTypeEnum;
-    id?: number;
-    minimumPayment?: number;
-    minimumPaymentType?: WorkingCapitalLoanDelinquencyActionData.MinimumPaymentTypeEnum;
-    startDate?: string;
+/**
+ * Request body for creating a near breach action on an active Working Capital Loan
+ */
+export interface PostWorkingCapitalLoansLoanIdNearBreachActionsRequest { 
+    /**
+     * The near breach action type
+     */
+    action: PostWorkingCapitalLoansLoanIdNearBreachActionsRequest.ActionEnum;
+    locale?: string;
+    /**
+     * Near breach evaluation frequency (must be > 0)
+     */
+    nearBreachFrequency: number;
+    /**
+     * Near breach frequency type
+     */
+    nearBreachFrequencyType: PostWorkingCapitalLoansLoanIdNearBreachActionsRequest.NearBreachFrequencyTypeEnum;
+    /**
+     * Near breach threshold percentage (must be > 0 and <= 100)
+     */
+    nearBreachThreshold: number;
 }
-export namespace WorkingCapitalLoanDelinquencyActionData {
+export namespace PostWorkingCapitalLoansLoanIdNearBreachActionsRequest {
     export const ActionEnum = {
-        Pause: 'PAUSE',
-        Resume: 'RESUME',
-        Reschedule: 'RESCHEDULE',
-        Reset: 'RESET',
-        UndoReset: 'UNDO_RESET',
-        Disable: 'DISABLE',
-        Enable: 'ENABLE'
+        Reschedule: 'RESCHEDULE'
     } as const;
     export type ActionEnum = typeof ActionEnum[keyof typeof ActionEnum];
-    export const FrequencyTypeEnum = {
+    export const NearBreachFrequencyTypeEnum = {
         Days: 'DAYS',
         Weeks: 'WEEKS',
-        Months: 'MONTHS',
-        Years: 'YEARS'
+        Months: 'MONTHS'
     } as const;
-    export type FrequencyTypeEnum = typeof FrequencyTypeEnum[keyof typeof FrequencyTypeEnum];
-    export const MinimumPaymentTypeEnum = {
-        Percentage: 'PERCENTAGE',
-        Flat: 'FLAT'
-    } as const;
-    export type MinimumPaymentTypeEnum = typeof MinimumPaymentTypeEnum[keyof typeof MinimumPaymentTypeEnum];
+    export type NearBreachFrequencyTypeEnum = typeof NearBreachFrequencyTypeEnum[keyof typeof NearBreachFrequencyTypeEnum];
 }
 
 

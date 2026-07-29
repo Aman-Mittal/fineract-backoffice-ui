@@ -83,7 +83,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
               <ion-select interface="popover" [(ngModel)]="officeId">
-                @for (office of offices; track office.id) {
+                @for (office of offices(); track office.id) {
                   <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                 }
               </ion-select>
@@ -126,16 +126,16 @@ import {
             <ion-button fill="clear" (click)="onCancel()">{{
               'COMMON.CANCEL' | translate
             }}</ion-button>
-            <ion-button color="secondary" (click)="onDownloadCSV()" [disabled]="isLoading">
+            <ion-button color="secondary" (click)="onDownloadCSV()" [disabled]="isLoading()">
               <ion-icon name="download-outline"></ion-icon>
               {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
             </ion-button>
-            <ion-button color="primary" (click)="onRun()" [disabled]="isLoading">
-              {{ isLoading ? ('COMMON.LOADING' | translate) : ('REPORTS.RUN' | translate) }}
+            <ion-button color="primary" (click)="onRun()" [disabled]="isLoading()">
+              {{ isLoading() ? ('COMMON.LOADING' | translate) : ('REPORTS.RUN' | translate) }}
             </ion-button>
           </div>
 
-          @if (reportData) {
+          @if (reportData()) {
             <div class="report-results mt-4">
               <hr class="divider" />
               <div class="results-header">
@@ -147,17 +147,17 @@ import {
               </div>
               <div class="table-container">
                 <table cdk-table [dataSource]="pagedRows()">
-                  @for (col of displayedColumns; track col; let i = $index) {
+                  @for (col of displayedColumns(); track col; let i = $index) {
                     <ng-container [cdkColumnDef]="col">
                       <th cdk-header-cell *cdkHeaderCellDef>{{ col }}</th>
                       <td cdk-cell *cdkCellDef="let row">{{ getReportCellValue(row, i) }}</td>
                     </ng-container>
                   }
-                  <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-                  <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
+                  <tr cdk-header-row *cdkHeaderRowDef="displayedColumns()"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: displayedColumns()"></tr>
                 </table>
                 <app-paginator
-                  [length]="dataRows.length"
+                  [length]="dataRows().length"
                   [pageSize]="pageSize()"
                   [pageIndex]="pageIndex()"
                   [pageSizeOptions]="[10, 20, 50, 100]"
@@ -211,16 +211,16 @@ export class RunReportComponent implements OnInit {
 
   reportName = '';
   reportType = '';
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   officeId: number | undefined = undefined;
   fromDate: string | null = null;
   toDate: string | null = null;
 
-  offices: GetOfficesResponse[] = [];
-  reportData: Record<string, unknown> | null = null;
-  displayedColumns: string[] = [];
-  dataRows: Record<string, unknown>[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly reportData = signal<Record<string, unknown> | null>(null);
+  readonly displayedColumns = signal<string[]>([]);
+  readonly dataRows = signal<Record<string, unknown>[]>([]);
   /** Report results are fetched whole, so paging happens client-side. */
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
@@ -248,12 +248,12 @@ export class RunReportComponent implements OnInit {
 
   private loadMetadata(): void {
     this.officesService.getOffices(true).subscribe((data) => {
-      this.offices = data;
+      this.offices.set(data);
     });
   }
 
   onDownloadCSV(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
     const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
@@ -284,17 +284,17 @@ export class RunReportComponent implements OnInit {
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: () => {
           this.notifications.error('Operation failed. Please try again.');
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }
 
   onRun(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
     const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
@@ -312,30 +312,33 @@ export class RunReportComponent implements OnInit {
       .subscribe({
         next: (data) => {
           const result = data as unknown as Record<string, unknown>;
-          this.reportData = result;
+          this.reportData.set(result);
           const columnHeaders = (result['columnHeaders'] as Record<string, unknown>[]) || [];
-          this.displayedColumns = columnHeaders.map((h) => h['columnName'] as string);
-          this.dataRows = (result['data'] as Record<string, unknown>[]) || [];
-          this.rows.set(this.dataRows);
+          this.displayedColumns.set(columnHeaders.map((h) => h['columnName'] as string));
+          const dataRows = (result['data'] as Record<string, unknown>[]) || [];
+          this.dataRows.set(dataRows);
+          this.rows.set(dataRows);
           this.pageIndex.set(0);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: () => {
           this.notifications.error('Operation failed. Please try again.');
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }
 
   downloadCSV(): void {
-    if (!this.displayedColumns.length || !this.dataRows.length) {
+    const displayedColumns = this.displayedColumns();
+    const dataRows = this.dataRows();
+    if (!displayedColumns.length || !dataRows.length) {
       return;
     }
     const csvRows: string[] = [];
-    csvRows.push(this.displayedColumns.map((col) => `"${col.replace(/"/g, '""')}"`).join(','));
+    csvRows.push(displayedColumns.map((col) => `"${col.replace(/"/g, '""')}"`).join(','));
 
-    for (const row of this.dataRows) {
-      const values = this.displayedColumns.map((_, i) => {
+    for (const row of dataRows) {
+      const values = displayedColumns.map((_, i) => {
         const val = this.getReportCellValue(row, i);
         return `"${val.replace(/"/g, '""')}"`;
       });

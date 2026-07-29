@@ -129,7 +129,10 @@ test.describe('Navigation & Sidebar', () => {
     ];
 
     for (const linkName of navLinks) {
-      const link = page.getByRole('link', { name: linkName });
+      // .first(): some names (e.g. "Groups"/"Tax Groups" substring overlap, or
+      // "Loan Products" appearing both under Products and Working Capital) are not
+      // unique in the sidebar — this test only asserts presence, not uniqueness.
+      const link = page.getByRole('link', { name: linkName }).first();
       await expect(link).toBeVisible();
     }
   });
@@ -182,12 +185,14 @@ test.describe('Dashboard', () => {
   test('dashboard shows key metrics cards', async ({ page }) => {
     await expect(page.getByText('Total Clients')).toBeVisible();
     await expect(page.getByText('Active Loans')).toBeVisible();
-    await expect(page.getByText(SAVINGS_ACCOUNTS)).toBeVisible();
+    await expect(
+      page.getByTestId('dashboard-savings-widget').getByText(SAVINGS_ACCOUNTS),
+    ).toBeVisible();
     await expect(page.getByText('System Health')).toBeVisible();
   });
 
   test('dashboard shows pending approvals section', async ({ page }) => {
-    await expect(page.getByText('Pending Approvals')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Pending Approvals' })).toBeVisible();
   });
 
   test('dashboard shows loan and savings status distribution', async ({ page }) => {
@@ -218,13 +223,13 @@ test.describe('Groups', () => {
   });
 
   test('groups page renders with title', async ({ page }) => {
-    await page.getByRole('link', { name: 'Groups' }).click();
+    await page.getByRole('link', { name: 'Groups', exact: true }).click();
     await expect(page).toHaveURL('/groups');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Groups|Group/i);
   });
 
   test('groups page has create button', async ({ page }) => {
-    await page.getByRole('link', { name: 'Groups' }).click();
+    await page.getByRole('link', { name: 'Groups', exact: true }).click();
     await expect(page.getByRole('button', { name: BTN_CREATE })).toBeVisible();
   });
 });
@@ -497,7 +502,9 @@ test.describe('Products - Loan & Savings', () => {
   });
 
   test('loan products page loads', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    // .first(): "Loan Products" appears twice — once under Products, once under
+    // Working Capital — this test targets the Products one (/products/loan).
+    await page.getByRole('link', { name: 'Loan Products' }).first().click();
     await expect(page).toHaveURL('/products/loan');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Loan Product/i);
   });

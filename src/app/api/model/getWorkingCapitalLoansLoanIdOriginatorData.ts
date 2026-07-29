@@ -23,16 +23,18 @@
  * Do not edit the class manually.
  */
 
-import { ShareAccountData } from './shareAccountData';
-import { EnumOptionData } from './enumOptionData';
+import { CodeValueData } from './codeValueData';
 
 
-export interface ShareAccountDividendData { 
-    accountData?: ShareAccountData;
-    amount?: number;
+/**
+ * Originator data associated with the loan
+ */
+export interface GetWorkingCapitalLoansLoanIdOriginatorData { 
+    channelType?: CodeValueData;
+    externalId?: string;
     id?: number;
-    postedDate?: string;
-    savingsTransactionId?: number;
-    status?: EnumOptionData;
+    name?: string;
+    originatorType?: CodeValueData;
+    status?: string;
 }
 

@@ -36,12 +36,20 @@ import { WorkingCapitalPostWriteOffReasonToExpenseAccountMappings } from './work
  */
 export interface PostWorkingCapitalLoanProductsRequest { 
     /**
-     * NONE or CASH_BASED
+     * NONE or ACC_DEF_REV_AM
      */
     accountingRule?: PostWorkingCapitalLoanProductsRequest.AccountingRuleEnum;
     allowAttributeOverrides?: PostAllowAttributeOverrides;
     amortizationType?: PostWorkingCapitalLoanProductsRequest.AmortizationTypeEnum;
+    /**
+     * Number of days to shift the start of the first breach schedule period after disbursement
+     */
+    breachGraceDays?: number;
     breachId?: number;
+    /**
+     * Breach start type: LOAN_CREATION or DISBURSEMENT
+     */
+    breachStartType?: string;
     chargeOffExpenseAccountId?: number;
     chargeOffFraudExpenseAccountId?: number;
     chargeOffReasonToExpenseAccountMappings?: Array<WorkingCapitalPostChargeOffReasonToExpenseAccountMappings>;
@@ -100,7 +108,7 @@ export interface PostWorkingCapitalLoanProductsRequest {
 export namespace PostWorkingCapitalLoanProductsRequest {
     export const AccountingRuleEnum = {
         None: 'NONE',
-        CashBased: 'CASH_BASED'
+        AccDefRevAm: 'ACC_DEF_REV_AM'
     } as const;
     export type AccountingRuleEnum = typeof AccountingRuleEnum[keyof typeof AccountingRuleEnum];
     export const AmortizationTypeEnum = {

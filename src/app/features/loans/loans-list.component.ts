@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -67,8 +67,8 @@ import {
       title="MODULES.LOANS_PORTFOLIO"
       helpTextKey="HELP.LOANS_PORTFOLIO_DESC"
       [columns]="columns"
-      [data]="loans"
-      [totalRecords]="totalRecords"
+      [data]="loans()"
+      [totalRecords]="totalRecords()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
       (pageChange)="onPage($event)"
@@ -191,8 +191,8 @@ export class LoansListComponent {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  loans: GetLoansLoanIdResponse[] = [];
-  totalRecords = 0;
+  readonly loans = signal<GetLoansLoanIdResponse[]>([]);
+  readonly totalRecords = signal(0);
 
   activeFilters: { status?: string } = {};
 
@@ -236,12 +236,12 @@ export class LoansListComponent {
         }),
         map((response) => {
           if (response === null) return [];
-          this.totalRecords = response.totalFilteredRecords || 0;
+          this.totalRecords.set(response.totalFilteredRecords || 0);
           return Array.from((response.pageItems as unknown as GetLoansLoanIdResponse[]) || []);
         }),
       )
       .subscribe((data) => {
-        this.loans = data;
+        this.loans.set(data);
       });
   }
 

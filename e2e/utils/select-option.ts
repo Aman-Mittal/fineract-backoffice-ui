@@ -33,7 +33,12 @@ export async function selectOption(
   comboboxName: string,
   optionName: string,
 ): Promise<void> {
-  const combobox = page.getByRole('combobox', { name: comboboxName });
+  // ion-select has no accessible name until a value is chosen (and no combobox role at all —
+  // it renders as a plain button), so scope by the ion-item containing its stacked label instead.
+  const combobox = page
+    .locator('ion-item')
+    .filter({ has: page.getByText(comboboxName, { exact: true }) })
+    .locator('ion-select');
   const overlay = page.locator('ion-alert, ion-popover, ion-action-sheet');
   // Ionic renders select options as radios inside the overlay, not as role="option".
   const option = overlay.getByRole('radio', { name: optionName, exact: true });
