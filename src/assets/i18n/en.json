@@ -1931,7 +1931,8 @@
     "DISPLAY_NAME": "Display Name",
     "OFFICE": "Office",
     "EMAIL": "Email",
-    "ROLES": "Roles"
+    "ROLES": "Roles",
+    "LOAD_ERROR": "Could not load your profile. Try again, or contact an administrator if it persists."
   },
   "TWO_FACTOR_CONFIG": {
     "TITLE": "Two-Factor Authentication Config",
