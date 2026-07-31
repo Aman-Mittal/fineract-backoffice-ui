@@ -220,6 +220,55 @@ describe('DataTableComponent', () => {
 
       expect(emitted).toEqual({ active: 'name', direction: 'asc' });
     });
+
+    /*
+     * These pin the bug that made pagination unusable. effectivePageIndex read
+     * the raw @Input, which server-side parents never bind back, so it stayed 0:
+     * the range label never moved off "1 - 10", "previous" stayed disabled, and
+     * goTo() — which computes from the current index — resolved "next" to page 1
+     * every time, making page 2 the only page reachable.
+     */
+    it('advances its own page index without the parent binding it back', () => {
+      expect(component.effectivePageIndex).toBe(0);
+
+      component.onPage({ pageIndex: 1, pageSize: 10, length: 250 });
+      expect(component.effectivePageIndex).toBe(1);
+
+      component.onPage({ pageIndex: 2, pageSize: 10, length: 250 });
+      expect(component.effectivePageIndex).toBe(2);
+    });
+
+    it('still lets a parent drive the page index through the input', () => {
+      component.onPage({ pageIndex: 3, pageSize: 10, length: 250 });
+      expect(component.effectivePageIndex).toBe(3);
+
+      // What a parent does when a filter changes and it refetches from offset 0.
+      setInputs({ pageIndex: 0 });
+
+      expect(component.effectivePageIndex).toBe(0);
+    });
+
+    it('returns to the first page on search, matching the parent refetch', () => {
+      component.onPage({ pageIndex: 4, pageSize: 10, length: 250 });
+
+      component.onSearch('alice');
+
+      expect(component.effectivePageIndex).toBe(0);
+    });
+
+    it('returns to the first page on sort, since the order changed', () => {
+      component.onPage({ pageIndex: 4, pageSize: 10, length: 250 });
+
+      component.onSortHeaderClick(COLUMNS[1]);
+
+      expect(component.effectivePageIndex).toBe(0);
+    });
+
+    it('tracks page size changes too', () => {
+      component.onPage({ pageIndex: 1, pageSize: 25, length: 250 });
+
+      expect(component.effectivePageSize).toBe(25);
+    });
   });
 
   describe('outputs', () => {
