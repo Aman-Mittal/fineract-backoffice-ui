@@ -86,12 +86,12 @@ interface SurveyResponse {
             <ion-input type="number" [(ngModel)]="clientId"></ion-input>
           </ion-item>
 
-          <ion-button color="primary" (click)="loadResponses()" [disabled]="loading">
+          <ion-button color="primary" (click)="loadResponses()" [disabled]="loading()">
             {{ 'SURVEY_RESPONSES.LOAD' | translate }}
           </ion-button>
         </div>
 
-        @if (loading) {
+        @if (loading()) {
           <ion-spinner name="crescent"></ion-spinner>
         }
 
@@ -179,7 +179,7 @@ export class SurveyResponsesComponent implements OnInit {
   selectedSurveyName = '';
   clientId = 0;
   responseBody = '';
-  loading = false;
+  readonly loading = signal(false);
   submitting = false;
 
   displayedColumns = ['id', 'score', 'date', 'actions'];
@@ -199,7 +199,7 @@ export class SurveyResponsesComponent implements OnInit {
 
   loadResponses(): void {
     if (!this.selectedSurveyName || !this.clientId) return;
-    this.loading = true;
+    this.loading.set(true);
     this.surveyService
       .getSurveySurveyNameClientId(this.selectedSurveyName, this.clientId)
       .subscribe({
@@ -210,11 +210,11 @@ export class SurveyResponsesComponent implements OnInit {
           } catch {
             this.responses.set([]);
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: () => {
           this.responses.set([]);
-          this.loading = false;
+          this.loading.set(false);
         },
       });
   }

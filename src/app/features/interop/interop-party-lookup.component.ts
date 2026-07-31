@@ -92,18 +92,18 @@ const ERROR_OCCURRED = 'Error occurred';
         </div>
 
         <div class="button-row">
-          <ion-button color="primary" (click)="lookup()" [disabled]="isLoading">
+          <ion-button color="primary" (click)="lookup()" [disabled]="isLoading()">
             {{ 'INTEROP.LOOKUP' | translate }}
           </ion-button>
-          <ion-button color="secondary" (click)="register()" [disabled]="isLoading">
+          <ion-button color="secondary" (click)="register()" [disabled]="isLoading()">
             {{ 'INTEROP.REGISTER' | translate }}
           </ion-button>
-          <ion-button color="danger" (click)="deregister()" [disabled]="isLoading">
+          <ion-button color="danger" (click)="deregister()" [disabled]="isLoading()">
             {{ 'INTEROP.DEREGISTER' | translate }}
           </ion-button>
         </div>
 
-        @if (isLoading) {
+        @if (isLoading()) {
           <ion-spinner name="crescent"></ion-spinner>
         }
 
@@ -141,14 +141,14 @@ export class InteropPartyLookupComponent {
   private notifications = inject(NotificationService);
 
   result = signal<InteropIdentifierAccountResponseData | null>(null);
-  isLoading = false;
+  readonly isLoading = signal(false);
   idType = '';
   idValue = '';
   subIdOrType = '';
 
   lookup(): void {
     if (!this.idType || !this.idValue) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.result.set(null);
     const obs$ = this.subIdOrType
       ? this.interopService.getInteroperationPartiesIdTypeIdValueSubIdOrType(
@@ -163,18 +163,18 @@ export class InteropPartyLookupComponent {
     obs$.subscribe({
       next: (data) => {
         this.result.set(data);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: { message?: string }) => {
         this.notifications.error(err.message || ERROR_OCCURRED);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }
 
   register(): void {
     if (!this.idType || !this.idValue) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.result.set(null);
     const body = {};
     const obs$ = this.subIdOrType
@@ -192,18 +192,18 @@ export class InteropPartyLookupComponent {
     obs$.subscribe({
       next: (data) => {
         this.result.set(data);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: { message?: string }) => {
         this.notifications.error(err.message || ERROR_OCCURRED);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }
 
   deregister(): void {
     if (!this.idType || !this.idValue) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.result.set(null);
     const body = {};
     const obs$ = this.subIdOrType
@@ -221,11 +221,11 @@ export class InteropPartyLookupComponent {
     obs$.subscribe({
       next: (data) => {
         this.result.set(data);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: { message?: string }) => {
         this.notifications.error(err.message || ERROR_OCCURRED);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

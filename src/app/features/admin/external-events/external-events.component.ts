@@ -87,14 +87,14 @@ import {
         </div>
 
         <div class="action-row">
-          <ion-button color="primary" (click)="load()" [disabled]="isLoading">
-            @if (isLoading) {
+          <ion-button color="primary" (click)="load()" [disabled]="isLoading()">
+            @if (isLoading()) {
               <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'EXTERNAL_EVENTS.LOAD' | translate }}
             }
           </ion-button>
-          <ion-button color="danger" (click)="clearAll()" [disabled]="isLoading">
+          <ion-button color="danger" (click)="clearAll()" [disabled]="isLoading()">
             {{ 'EXTERNAL_EVENTS.CLEAR_ALL' | translate }}
           </ion-button>
         </div>
@@ -186,12 +186,12 @@ export class ExternalEventsComponent {
   };
 
   events = signal<ExternalEventResponse[]>([]);
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   displayedColumns = ['idempotencyKey', 'type', 'category', 'aggregateRootId', 'createdAt'];
 
   load(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const { idempotencyKey, type, category, aggregateRootId } = this.filters;
     this.defaultService
       .getInternalExternalevents(
@@ -203,10 +203,10 @@ export class ExternalEventsComponent {
       .subscribe({
         next: (data: ExternalEventResponse[]) => {
           this.events.set(Array.isArray(data) ? data : []);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }
@@ -223,14 +223,14 @@ export class ExternalEventsComponent {
         })
         .then((confirmed) => {
           if (!confirmed) return;
-          this.isLoading = true;
+          this.isLoading.set(true);
           this.defaultService.deleteInternalExternalevents().subscribe({
             next: () => {
               this.events.set([]);
-              this.isLoading = false;
+              this.isLoading.set(false);
             },
             error: () => {
-              this.isLoading = false;
+              this.isLoading.set(false);
             },
           });
         });

@@ -86,22 +86,22 @@ import {
             {{ 'SEARCH.EXACT_MATCH' | translate }}
           </ion-checkbox>
 
-          <ion-button color="primary" [disabled]="!query || isLoading" (click)="onSearch()">
+          <ion-button color="primary" [disabled]="!query || isLoading()" (click)="onSearch()">
             {{ 'SEARCH.SEARCH_BTN' | translate }}
           </ion-button>
         </div>
 
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="spinner-container">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
-        @if (!isLoading && searched && results().length === 0) {
+        @if (!isLoading() && searched && results().length === 0) {
           <p class="no-results">{{ 'SEARCH.NO_RESULTS' | translate }}</p>
         }
 
-        @if (!isLoading && results().length > 0) {
+        @if (!isLoading() && results().length > 0) {
           <table cdk-table [dataSource]="results()" class="results-table">
             <ng-container cdkColumnDef="entityType">
               <th cdk-header-cell *cdkHeaderCellDef>{{ 'SEARCH.ENTITY_TYPE' | translate }}</th>
@@ -181,7 +181,7 @@ export class GlobalSearchComponent implements OnInit {
   query = '';
   selectedResource = '';
   exactMatch = false;
-  isLoading = false;
+  readonly isLoading = signal(false);
   searched = false;
   allowedSearchTypes: string[] = [];
   results = signal<GetSearchResponse[]>([]);
@@ -204,18 +204,18 @@ export class GlobalSearchComponent implements OnInit {
 
   onSearch(): void {
     if (!this.query) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.searched = false;
     const resource = this.selectedResource || undefined;
     this.searchApiService.getSearch(this.query, resource, this.exactMatch).subscribe({
       next: (data) => {
         this.results.set(data ?? []);
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.searched = true;
       },
       error: () => {
         this.results.set([]);
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.searched = true;
       },
     });

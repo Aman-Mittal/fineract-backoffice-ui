@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MixReportService } from '../../../api';
@@ -82,8 +82,8 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button color="primary" type="submit" [disabled]="isLoading">
-                @if (isLoading) {
+              <ion-button color="primary" type="submit" [disabled]="isLoading()">
+                @if (isLoading()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'MIX_REPORT.GENERATING' | translate }}
                 } @else {
@@ -135,19 +135,19 @@ export class MixReportComponent {
   startDate?: string;
   endDate?: string;
   currency?: string;
-  isLoading = false;
+  readonly isLoading = signal(false);
   report = '';
 
   onGenerate(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.reportService.getMixreport(this.startDate, this.endDate, this.currency).subscribe({
       next: (data: string) => {
         this.report = data || '';
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to generate MIX report', err);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanAccountLockService } from '../../../../api';
@@ -72,8 +72,8 @@ import {
         </div>
 
         <div class="actions">
-          <ion-button color="primary" [disabled]="!loanId || isLoading" (click)="placeLock()">
-            @if (isLoading) {
+          <ion-button color="primary" [disabled]="!loanId || isLoading()" (click)="placeLock()">
+            @if (isLoading()) {
               <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'WC_LOAN_ACCOUNT_LOCK.PLACE_LOCK' | translate }}
@@ -108,15 +108,15 @@ export class WcLoanAccountLockComponent {
 
   loanId = 0;
   lockOwner = '';
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   placeLock(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.accountLockService
       .postInternalWorkingCapitalLoansLoanIdPlaceLockLockOwner(this.loanId, this.lockOwner)
       .subscribe({
         next: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.notifications.success(this.translate.instant('WC_LOAN_ACCOUNT_LOCK.SUCCESS'));
         },
       });

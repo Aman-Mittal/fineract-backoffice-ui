@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -58,13 +58,13 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          @if (isLoading) {
+          @if (isLoading()) {
             <div class="spinner-wrapper">
               <ion-spinner name="crescent"></ion-spinner>
             </div>
           }
 
-          @if (!isLoading) {
+          @if (!isLoading()) {
             <form (ngSubmit)="onSave()">
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{
@@ -128,11 +128,11 @@ export class TwoFactorConfigComponent implements OnInit {
   private translate = inject(TranslateService);
 
   configJson = '';
-  isLoading = false;
+  readonly isLoading = signal(false);
   isSaving = false;
 
   ngOnInit(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.defaultService.getTwofactorConfigure().subscribe({
       next: (raw: string) => {
         try {
@@ -141,10 +141,10 @@ export class TwoFactorConfigComponent implements OnInit {
         } catch {
           this.configJson = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
         }
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

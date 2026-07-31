@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpIconComponent } from '../../../shared';
@@ -83,12 +83,12 @@ interface LikelihoodRow {
               <ion-label position="stacked">{{ 'LIKELIHOOD.PPI_NAME' | translate }}</ion-label>
               <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
             </ion-item>
-            <ion-button color="primary" type="submit" [disabled]="lkForm.invalid || isLoading">
+            <ion-button color="primary" type="submit" [disabled]="lkForm.invalid || isLoading()">
               {{ 'LIKELIHOOD.LOAD' | translate }}
             </ion-button>
           </form>
 
-          @if (isLoading) {
+          @if (isLoading()) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
             <table cdk-table [dataSource]="rows" class="lk-table">
@@ -169,21 +169,21 @@ export class LikelihoodComponent {
 
   ppiName = '';
   rows: LikelihoodRow[] = [];
-  isLoading = false;
+  readonly isLoading = signal(false);
   isSaving = false;
 
   load(): void {
     if (!this.ppiName) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.likelihoodService.getLikelihoodPpiName(this.ppiName).subscribe({
       next: (raw: string) => {
         this.rows = this.parseList(raw);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load likelihoods', err);
         this.rows = [];
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

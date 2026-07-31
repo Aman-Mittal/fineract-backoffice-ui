@@ -68,16 +68,16 @@ import {
             <ion-input
               [(ngModel)]="query"
               (keyup.enter)="search()"
-              [disabled]="isLoading"
+              [disabled]="isLoading()"
             ></ion-input>
           </ion-item>
-          <ion-button color="primary" (click)="search()" [disabled]="!query || isLoading">
+          <ion-button color="primary" (click)="search()" [disabled]="!query || isLoading()">
             <ion-icon name="search-outline"></ion-icon>
             {{ 'CLIENT_SEARCH_V2.SEARCH' | translate }}
           </ion-button>
         </div>
 
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="spinner-row">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
@@ -138,7 +138,7 @@ import {
           ></app-paginator>
         }
 
-        @if (searched && results().length === 0 && !isLoading) {
+        @if (searched && results().length === 0 && !isLoading()) {
           <p class="no-results">{{ 'CLIENT_SEARCH_V2.NO_RESULTS' | translate }}</p>
         }
       </ion-card-content>
@@ -185,7 +185,7 @@ export class ClientSearchV2Component {
   pageSize = 10;
   pageIndex = 0;
   pageNumber = 0;
-  isLoading = false;
+  readonly isLoading = signal(false);
   searched = false;
 
   results = signal<ClientSearchData[]>([]);
@@ -195,7 +195,7 @@ export class ClientSearchV2Component {
 
   search(page = 0): void {
     if (!this.query.trim()) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.pageNumber = page;
 
     this.clientSearchService
@@ -208,11 +208,11 @@ export class ClientSearchV2Component {
         next: (data: PageClientSearchData) => {
           this.results.set(data?.content ?? []);
           this.totalElements.set(data?.totalElements ?? 0);
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.searched = true;
         },
         error: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.searched = true;
         },
       });

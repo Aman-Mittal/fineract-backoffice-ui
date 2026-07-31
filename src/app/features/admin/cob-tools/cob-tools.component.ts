@@ -67,12 +67,12 @@ import {
               <ion-label position="stacked">{{ 'COB_TOOLS.PARTITION_SIZE' | translate }}</ion-label>
               <ion-input type="number" [(ngModel)]="partitionSize"></ion-input>
             </ion-item>
-            <ion-button color="primary" (click)="loadPartitions()" [disabled]="isLoading">
+            <ion-button color="primary" (click)="loadPartitions()" [disabled]="isLoading()">
               {{ 'COB_TOOLS.LOAD_PARTITIONS' | translate }}
             </ion-button>
           </div>
 
-          @if (isLoading) {
+          @if (isLoading()) {
             <ion-spinner name="crescent"></ion-spinner>
           }
 
@@ -100,7 +100,7 @@ import {
               }}</ion-label>
               <ion-input type="number" [(ngModel)]="fastForwardLoanId"></ion-input>
             </ion-item>
-            <ion-button color="secondary" (click)="fastForward()" [disabled]="isLoading">
+            <ion-button color="secondary" (click)="fastForward()" [disabled]="isLoading()">
               {{ 'COB_TOOLS.FAST_FORWARD' | translate }}
             </ion-button>
           </div>
@@ -118,7 +118,7 @@ import {
               }}</ion-label>
               <ion-input type="number" [(ngModel)]="reprocessLoanId"></ion-input>
             </ion-item>
-            <ion-button color="danger" (click)="reprocess()" [disabled]="isLoading">
+            <ion-button color="danger" (click)="reprocess()" [disabled]="isLoading()">
               {{ 'COB_TOOLS.REPROCESS' | translate }}
             </ion-button>
           </div>
@@ -155,47 +155,47 @@ export class CobToolsComponent {
   partitions = signal<COBPartition[]>([]);
   fastForwardLoanId = 0;
   reprocessLoanId = 0;
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   loadPartitions(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.cobService.getInternalCobPartitionsPartitionSize(this.partitionSize).subscribe({
       next: (data: COBPartition[]) => {
         this.partitions.set(data ?? []);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showError();
       },
     });
   }
 
   fastForward(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.cobService
       .postInternalCobFastForwardCobDateOfLoanLoanId(this.fastForwardLoanId)
       .subscribe({
         next: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.showSuccess();
         },
         error: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.showError();
         },
       });
   }
 
   reprocess(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.cobService.postInternalCobLoanReprocessLoanId(this.reprocessLoanId).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showSuccess();
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showError();
       },
     });

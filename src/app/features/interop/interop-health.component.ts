@@ -48,11 +48,11 @@ import {
         <ion-card-title>{{ 'INTEROP.HEALTH_TITLE' | translate }}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-button color="primary" (click)="checkHealth()" [disabled]="isLoading">
+        <ion-button color="primary" (click)="checkHealth()" [disabled]="isLoading()">
           {{ 'INTEROP.CHECK_HEALTH' | translate }}
         </ion-button>
 
-        @if (isLoading) {
+        @if (isLoading()) {
           <ion-spinner name="crescent"></ion-spinner>
         }
 
@@ -82,18 +82,18 @@ export class InteropHealthComponent {
   private interopService = inject(InterOperationService);
 
   health = signal<unknown>(null);
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   checkHealth(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.health.set(null);
     this.interopService.getInteroperationHealth().subscribe({
       next: (data) => {
         this.health.set(data);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

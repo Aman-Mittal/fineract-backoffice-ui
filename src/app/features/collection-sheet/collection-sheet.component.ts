@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -78,13 +78,13 @@ import {
         <ion-card-title>{{ 'COLLECTION_SHEET.TITLE' | translate }}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="spinner-container">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
-        @if (!generated && !isLoading) {
+        @if (!generated && !isLoading()) {
           <form #filterForm="ngForm" (ngSubmit)="generate()">
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.OFFICE' | translate }}</ion-label>
@@ -130,7 +130,7 @@ import {
           </form>
         }
 
-        @if (generated && !isLoading) {
+        @if (generated && !isLoading()) {
           <h3>{{ 'COLLECTION_SHEET.RESULTS' | translate }}</h3>
           <pre class="json-output">{{ collectionData | json }}</pre>
           <div class="actions">
@@ -184,7 +184,7 @@ export class CollectionSheetComponent implements OnInit {
   private notifications = inject(NotificationService);
 
   generated = false;
-  isLoading = false;
+  readonly isLoading = signal(false);
   collectionData: PostCollectionSheetResponse | null = null;
   transactionDate = toIsoDate(new Date());
   staffId: number | null = null;
@@ -212,33 +212,33 @@ export class CollectionSheetComponent implements OnInit {
   }
 
   generate(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const body = this.buildBody();
     this.collectionSheetService.postCollectionsheet(body, 'generate').subscribe({
       next: (res: PostCollectionSheetResponse) => {
         this.collectionData = res;
         this.generated = true;
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
         this.notifications.error('Failed to generate collection sheet');
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }
 
   save(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const body = this.buildBody();
     this.collectionSheetService.postCollectionsheet(body, 'save').subscribe({
       next: () => {
         this.notifications.success('Collection sheet saved successfully');
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.back();
       },
       error: () => {
         this.notifications.error('Failed to save collection sheet');
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

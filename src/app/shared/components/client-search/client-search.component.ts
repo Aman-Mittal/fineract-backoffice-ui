@@ -26,6 +26,7 @@ import {
   SimpleChanges,
   Output,
   inject,
+  signal,
 } from '@angular/core';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -57,7 +58,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
           data-testid="client-search-input"
           (ionInput)="onInputChange($event)"
         ></ion-input>
-        @if (isLoading) {
+        @if (isLoading()) {
           <ion-spinner name="crescent" slot="end"></ion-spinner>
         }
       </ion-item>
@@ -85,7 +86,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
         </ion-list>
       }
 
-      @if (showDropdown && !isLoading && searchInputVal && filteredClients.length === 0) {
+      @if (showDropdown && !isLoading() && searchInputVal && filteredClients.length === 0) {
         <ion-list class="autocomplete-list">
           <ion-item class="autocomplete-item">
             <ion-label color="medium">{{ 'COMMON.NO_DATA' | translate }}</ion-label>
@@ -133,7 +134,7 @@ export class ClientSearchComponent implements OnInit, OnChanges {
   searchInputVal = '';
   showDropdown = false;
   filteredClients: Record<string, unknown>[] = [];
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   ngOnInit(): void {
     this.searchControl.valueChanges
@@ -148,7 +149,7 @@ export class ClientSearchComponent implements OnInit, OnChanges {
             this.showDropdown = false;
             return [];
           }
-          this.isLoading = true;
+          this.isLoading.set(true);
           this.showDropdown = true;
           const searchTerm = valueStr.length > 0 ? valueStr + '%' : undefined;
           return this.clientService.getClients(
@@ -168,10 +169,10 @@ export class ClientSearchComponent implements OnInit, OnChanges {
         next: (response: GetClientsResponse) => {
           this.filteredClients =
             (Array.from(response.pageItems || []) as Record<string, unknown>[]) || [];
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.filteredClients = [];
         },
       });

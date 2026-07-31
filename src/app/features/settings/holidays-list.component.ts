@@ -51,16 +51,7 @@ import {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonIcon,
-    IonButton,
-    IonItem,
-    IonLabel,
-    IonSelectOption,
-    IonSelect,
-    TooltipDirective,
-  ],
+  imports: [TranslateModule, IonButton],
   template: `
     <h2 class="dialog-title">{{ data.title | translate }}</h2>
     <div class="dialog-content">

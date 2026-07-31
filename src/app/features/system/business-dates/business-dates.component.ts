@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -70,13 +70,13 @@ import {
       <h2>{{ 'BUSINESS_DATES.TITLE' | translate }}</h2>
     </div>
 
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="loading-spinner">
         <ion-spinner name="crescent"></ion-spinner>
       </div>
     }
 
-    @if (!isLoading) {
+    @if (!isLoading()) {
       <div class="form-grid">
         <!-- Business Date Card -->
         <ion-card>
@@ -125,7 +125,7 @@ import {
           </ion-card-header>
           <ion-card-content>
             @if (cobDateEntry?.description) {
-              <p>{{ cobDateEntry?.description }}</p>
+              <p>{{ cobDateEntry.description }}</p>
             }
             <p>
               <strong>{{ 'BUSINESS_DATES.CURRENT_DATE' | translate }}:</strong>
@@ -192,7 +192,7 @@ export class BusinessDatesComponent implements OnInit {
   private businessDateService = inject(BusinessDateManagementService);
   private notifications = inject(NotificationService);
 
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   businessDateEntry: BusinessDateResponse | null = null;
   cobDateEntry: BusinessDateResponse | null = null;
@@ -205,7 +205,7 @@ export class BusinessDatesComponent implements OnInit {
   }
 
   private loadBusinessDates(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.businessDateService.getBusinessdate().subscribe({
       next: (dates: BusinessDateResponse[]) => {
         this.businessDateEntry = dates.find((d) => d.type === 'BUSINESS_DATE') ?? null;
@@ -217,10 +217,10 @@ export class BusinessDatesComponent implements OnInit {
         if (this.cobDateEntry?.date) {
           this.cobDate = toIsoDate(new Date(this.cobDateEntry.date));
         }
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.notifications.error('Failed to load business dates');
       },
     });

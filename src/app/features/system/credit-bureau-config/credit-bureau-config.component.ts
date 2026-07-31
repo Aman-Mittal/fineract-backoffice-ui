@@ -86,7 +86,7 @@ interface LoanProductMappingRow {
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          @if (isLoading) {
+          @if (isLoading()) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else {
             <h3>{{ 'CREDIT_BUREAU_CONFIG.BUREAUS' | translate }}</h3>
@@ -250,7 +250,7 @@ export class CreditBureauConfigComponent implements OnInit {
 
   bureaus: CreditBureauRow[] = [];
   mappings: LoanProductMappingRow[] = [];
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   nationalId = '';
   creditReport = signal<unknown[]>([]);
@@ -262,15 +262,15 @@ export class CreditBureauConfigComponent implements OnInit {
   }
 
   load(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.configService.getCreditBureauConfiguration().subscribe({
       next: (raw: string) => {
         this.bureaus = this.parseList<CreditBureauRow>(raw);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load credit bureaus', err);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
 

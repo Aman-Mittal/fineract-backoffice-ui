@@ -56,6 +56,6 @@ describe('MixReportComponent', () => {
     component.onGenerate();
     expect(serviceSpy.getMixreport).toHaveBeenCalledWith('2026-01-01', '2026-12-31', 'USD');
     expect(component.report).toBe('<xbrl></xbrl>');
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading()).toBeFalse();
   });
 });

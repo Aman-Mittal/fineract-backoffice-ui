@@ -97,22 +97,22 @@ import {
             <ion-input [(ngModel)]="loanIdsInput" placeholder="1, 2, 3"></ion-input>
           </ion-item>
 
-          <ion-button color="primary" [disabled]="!searchDate || isLoading" (click)="onSearch()">
+          <ion-button color="primary" [disabled]="!searchDate || isLoading()" (click)="onSearch()">
             {{ 'LOANS_POINT_IN_TIME.SEARCH' | translate }}
           </ion-button>
         </div>
 
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="spinner-container">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
-        @if (!isLoading && results().length === 0) {
+        @if (!isLoading() && results().length === 0) {
           <p class="no-results">{{ 'LOANS_POINT_IN_TIME.NO_RESULTS' | translate }}</p>
         }
 
-        @if (!isLoading && results().length > 0) {
+        @if (!isLoading() && results().length > 0) {
           <table cdk-table [dataSource]="results()" class="results-table">
             <ng-container cdkColumnDef="id">
               <th cdk-header-cell *cdkHeaderCellDef>Loan ID</th>
@@ -198,7 +198,7 @@ export class LoansPointInTimeComponent {
   searchDate = toIsoDate(new Date());
   loanIdsInput = '';
   results = signal<LoanPointInTimeData[]>([]);
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   readonly displayedColumns = [
     'id',
@@ -233,16 +233,16 @@ export class LoansPointInTimeComponent {
       ...(loanIds.length > 0 ? { loanIds } : {}),
     };
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.results.set([]);
 
     this.loansPointInTimeService.postLoansAtDateSearch(body).subscribe({
       next: (data) => {
         this.results.set(data ?? []);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }
