@@ -29,6 +29,11 @@
 import { test, expect } from '@playwright/test';
 import { login } from './utils/fineract-login';
 import { createActiveLoan } from './utils/create-active-loan';
+import { SEEDED_BACKEND, SEEDED_BACKEND_REASON } from './utils/seeded-backend';
+
+// Drives a real end-to-end loan flow, so it needs reference data a bare
+// Fineract does not ship with. Skipped unless the backend is seeded.
+test.skip(!SEEDED_BACKEND, SEEDED_BACKEND_REASON);
 
 test.describe('Loan account lifecycle actions', () => {
   test('new action menu items appear only for active loans', async ({ page }) => {

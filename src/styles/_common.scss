@@ -21,6 +21,11 @@
 :root {
   --primary-color: #3498db;
   --primary-dark: #2980b9;
+  /* Use wherever white text sits on a primary-coloured fill. --primary-color
+     carries white at 3.15:1 and --primary-dark at 4.31:1, both short of the 4.5:1
+     WCAG AA minimum for body-sized text; this clears it at 5.3:1. Keep
+     --primary-color for accents, borders and text on light backgrounds. */
+  --primary-strong: #2471a3;
   --secondary-color: #2c3e50;
   --bg-color: #f0f2f5;
   --card-bg: #ffffff;

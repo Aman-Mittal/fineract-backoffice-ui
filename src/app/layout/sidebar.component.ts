@@ -146,7 +146,8 @@ import { NavigationConfigService } from '../core/services/navigation-config.serv
         color: #fff;
       }
       .nav-item.active {
-        background-color: var(--primary-color);
+        /* White on --primary-color is only 3.15:1; --primary-strong clears AA. */
+        background-color: var(--primary-strong);
         color: #fff;
         border-left: 4px solid #fff;
       }
@@ -189,13 +190,16 @@ import { NavigationConfigService } from '../core/services/navigation-config.serv
         padding: 0.5rem 1.5rem;
         font-size: 0.75rem;
         text-transform: uppercase;
-        color: #7f8c8d;
+        /* #7f8c8d on the #2c3e50 sidebar is 3.16:1 — these are 12px labels, so
+           they need 4.5:1, not the 3:1 large-text allowance. This is 5.1:1. */
+        color: #a3b4b5;
         font-weight: 700;
         letter-spacing: 1px;
         white-space: nowrap;
       }
       :host-context([data-theme='dark']) .nav-group-header {
-        color: rgba(255, 255, 255, 0.4);
+        /* 0.4 alpha composites to roughly the same 3.2:1 as the light theme. */
+        color: rgba(255, 255, 255, 0.7);
       }
       .sidebar.collapsed .nav-group-header {
         display: none;

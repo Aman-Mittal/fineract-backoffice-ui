@@ -37,6 +37,11 @@
 import { test, expect } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { selectOption } from './utils/select-option';
+import { SEEDED_BACKEND, SEEDED_BACKEND_REASON } from './utils/seeded-backend';
+
+// Drives a real end-to-end loan flow, so it needs reference data a bare
+// Fineract does not ship with. Skipped unless the backend is seeded.
+test.skip(!SEEDED_BACKEND, SEEDED_BACKEND_REASON);
 
 test.use({ video: 'on', trace: 'on', launchOptions: { slowMo: 350 } });
 
