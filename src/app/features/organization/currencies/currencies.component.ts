@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -27,7 +27,6 @@ import {
   IonCardTitle,
   IonCheckbox,
   IonItem,
-  IonLabel,
   IonList,
   IonSpinner,
 } from '@ionic/angular/standalone';
@@ -49,7 +48,6 @@ import {
     IonCardTitle,
     IonCard,
     IonItem,
-    IonLabel,
     IonList,
     IonCheckbox,
   ],
@@ -57,7 +55,7 @@ import {
     <ion-card>
       <ion-card-title>{{ 'CURRENCIES.TITLE' | translate }}</ion-card-title>
       <ion-card-content>
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="form-container" style="display:flex;justify-content:center;padding:2rem;">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
@@ -127,7 +125,7 @@ export class CurrenciesComponent implements OnInit {
   private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
-  isLoading = true;
+  readonly isLoading = signal(true);
   availableCurrencies: CurrencyData[] = [];
   selectedCurrencies: CurrencyData[] = [];
 
@@ -139,10 +137,10 @@ export class CurrenciesComponent implements OnInit {
         this.availableCurrencies = (data.currencyOptions ?? []).filter(
           (c) => !selectedCodes.has(c.code),
         );
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

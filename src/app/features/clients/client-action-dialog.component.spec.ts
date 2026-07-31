@@ -126,7 +126,7 @@ describe('ClientActionDialogComponent', () => {
     it('should fetch and populate reject reason options', () => {
       expect(codesServiceSpy.getCodesNameCodeName).toHaveBeenCalledWith('ClientRejectReason');
       expect(codeValuesServiceSpy.getCodesCodeIdCodevalues).toHaveBeenCalledWith(10);
-      expect(component.reasonOptions.length).toBe(2);
+      expect(component.reasonOptions).toHaveSize(2);
       expect(component.showReasonDropdown).toBeTrue();
       expect(component.reasonLabel).toBe('ACTIONS.REJECTION_REASON');
     });

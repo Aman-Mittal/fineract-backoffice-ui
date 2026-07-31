@@ -72,7 +72,7 @@ describe('DelinquencyManagementComponent', () => {
   it('should load ranges and buckets on init', () => {
     expect(delinquencyServiceSpy.getDelinquencyRanges).toHaveBeenCalled();
     expect(delinquencyServiceSpy.getDelinquencyBuckets).toHaveBeenCalled();
-    expect(component.ranges().length).toBe(1);
-    expect(component.buckets().length).toBe(1);
+    expect(component.ranges()).toHaveSize(1);
+    expect(component.buckets()).toHaveSize(1);
   });
 });

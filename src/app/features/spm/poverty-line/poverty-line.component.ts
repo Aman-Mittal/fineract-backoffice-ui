@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { HelpIconComponent } from '../../../shared';
@@ -79,12 +79,12 @@ interface PovertyLineRow {
               <ion-label position="stacked">{{ 'POVERTY_LINE.PPI_NAME' | translate }}</ion-label>
               <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
             </ion-item>
-            <ion-button color="primary" type="submit" [disabled]="plForm.invalid || isLoading">
+            <ion-button color="primary" type="submit" [disabled]="plForm.invalid || isLoading()">
               {{ 'POVERTY_LINE.LOAD' | translate }}
             </ion-button>
           </form>
 
-          @if (isLoading) {
+          @if (isLoading()) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else if (rows.length) {
             <table cdk-table [dataSource]="rows" class="pl-table">
@@ -140,20 +140,20 @@ export class PovertyLineComponent {
 
   ppiName = '';
   rows: PovertyLineRow[] = [];
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   load(): void {
     if (!this.ppiName) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.povertyLineService.getPovertyLinePpiName(this.ppiName).subscribe({
       next: (raw: string) => {
         this.rows = this.parseList(raw);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load poverty line', err);
         this.rows = [];
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

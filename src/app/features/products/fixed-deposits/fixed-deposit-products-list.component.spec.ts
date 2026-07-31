@@ -67,7 +67,7 @@ describe('FixedDepositProductsListComponent', () => {
     fixture.detectChanges();
 
     expect(productServiceSpy.getFixeddepositproducts).toHaveBeenCalled();
-    expect(component.products.length).toBe(1);
+    expect(component.products).toHaveSize(1);
     expect(component.isLoading).toBeFalse();
   });
 

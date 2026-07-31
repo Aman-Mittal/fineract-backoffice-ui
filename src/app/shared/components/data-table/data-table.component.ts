@@ -346,12 +346,25 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
     return this.columns.map((c) => c.key);
   }
 
+  /*
+   * Page state is tracked here in both modes.
+   *
+   * These used to read the raw @Input in server-side mode, which left the
+   * paginator pinned to whatever the parent last bound. Since most parents fetch
+   * by offset and never bind `pageIndex` back, it stayed 0 forever: the range
+   * label was always "1 - 10", "previous" was always disabled, and because
+   * `goTo()` computes from `pageIndex()`, "next" resolved to page 1 every time —
+   * so page 2 was reachable and nothing beyond it.
+   *
+   * ngOnChanges still syncs from the @Input, so a parent that does drive
+   * `pageIndex` (to reset to the first page when a filter changes) keeps control.
+   */
   get effectivePageIndex(): number {
-    return this.localLogic ? this.localPageIndex() : this.pageIndex;
+    return this.localPageIndex();
   }
 
   get effectivePageSize(): number {
-    return this.localLogic ? this.localPageSize() : this.pageSize;
+    return this.localPageSize();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -375,10 +388,12 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   }
 
   onSearch(value: string): void {
+    // A narrower result set can leave the current page out of range. Server-side
+    // parents also refetch from offset 0 on a new search, so the paginator has to
+    // agree in both modes or the label drifts from the rows on screen.
+    this.localPageIndex.set(0);
     if (this.localLogic) {
       this.filterText = value.trim().toLowerCase();
-      // A narrower result set can leave the current page out of range.
-      this.localPageIndex.set(0);
       this.recompute();
     }
     this.searchChange.emit(value);
@@ -392,6 +407,9 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
       current.active === col.key ? NEXT_DIRECTION[current.direction] : ('asc' as SortDirection);
     this.sort.set({ active: direction ? col.key : '', direction });
 
+    // Re-sorting reorders the whole set, so the current page no longer means
+    // anything; server-side parents reset to offset 0 for the same reason.
+    this.localPageIndex.set(0);
     if (this.localLogic) {
       this.recompute();
     }
@@ -399,9 +417,9 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   }
 
   onPage(event: PageEvent): void {
+    this.localPageIndex.set(event.pageIndex);
+    this.localPageSize.set(event.pageSize);
     if (this.localLogic) {
-      this.localPageIndex.set(event.pageIndex);
-      this.localPageSize.set(event.pageSize);
       this.recompute();
     }
     this.pageChange.emit(event);

@@ -60,7 +60,7 @@ describe('WcNearBreachListComponent', () => {
   it('should load near-breaches on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getWorkingCapitalNearBreach).toHaveBeenCalled();
-    expect(component.items.length).toBe(1);
+    expect(component.items).toHaveSize(1);
   });
 
   it('should navigate to edit with the id', () => {

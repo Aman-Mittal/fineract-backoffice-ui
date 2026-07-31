@@ -61,7 +61,7 @@ describe('filterNavItems (pure function)', () => {
     const isVisible = (item: NavItemConfig) => item.route !== '/hidden';
 
     const result = filterNavItems(items, isVisible);
-    expect(result.length).toBe(1);
+    expect(result).toHaveSize(1);
     expect(result[0].children).toEqual([{ route: '/visible', labelKey: 'visible' }]);
   });
 

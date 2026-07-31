@@ -66,7 +66,7 @@ describe('SavingsChargeFormComponent', () => {
   it('should load charge options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSavingsaccountsSavingsAccountIdChargesTemplate).toHaveBeenCalledWith(1);
-    expect(component.chargeOptions.length).toBe(1);
+    expect(component.chargeOptions).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {

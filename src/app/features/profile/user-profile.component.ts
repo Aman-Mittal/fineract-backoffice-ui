@@ -19,13 +19,15 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { FetchAuthenticatedUserDetailsService, GetUserDetailsResponse, RoleData } from '../../api';
+import { GetUsersUserIdResponse, RoleData, UsersService } from '../../api';
+import { AuthService } from '../../core/services/auth.service';
 import {
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
   IonChip,
+  IonIcon,
   IonSpinner,
 } from '@ionic/angular/standalone';
 
@@ -35,6 +37,7 @@ import {
   imports: [
     TranslateModule,
     IonSpinner,
+    IonIcon,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
@@ -49,13 +52,18 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          @if (isLoading) {
+          @if (isLoading()) {
             <div class="spinner-wrapper">
               <ion-spinner name="crescent"></ion-spinner>
             </div>
+          } @else if (loadError()) {
+            <div class="load-error" role="alert" data-testid="profile-load-error">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <span>{{ 'PROFILE.LOAD_ERROR' | translate }}</span>
+            </div>
           }
 
-          @if (!isLoading && userDetails()) {
+          @if (!isLoading() && userDetails()) {
             <div>
               <div class="detail-row">
                 <span class="label">{{ 'PROFILE.USERNAME' | translate }}</span>
@@ -138,21 +146,35 @@ import {
       .roles-chips {
         flex: 1;
       }
+      .load-error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 24px 0;
+        color: var(--error-color);
+      }
     `,
   ],
 })
 export class UserProfileComponent implements OnInit {
-  private fetchAuthenticatedUserDetailsService = inject(FetchAuthenticatedUserDetailsService);
+  private readonly usersService = inject(UsersService);
+  private readonly authService = inject(AuthService);
 
-  isLoading = false;
-  userDetails = signal<GetUserDetailsResponse | null>(null);
+  /* Signals, not plain fields: these are written from an async callback, and a
+     plain field mutated there never marks the view dirty — which is why a failed
+     load previously left the spinner running forever instead of showing an
+     error. */
+  readonly isLoading = signal(true);
+  readonly loadError = signal(false);
+  readonly userDetails = signal<GetUsersUserIdResponse | null>(null);
 
   get username(): string {
     return this.userDetails()?.username ?? '';
   }
 
   get displayName(): string {
-    return ((this.userDetails() as Record<string, unknown>)?.[`displayName`] as string) ?? '';
+    const user = this.userDetails();
+    return [user?.firstname, user?.lastname].filter(Boolean).join(' ');
   }
 
   get officeName(): string {
@@ -164,22 +186,34 @@ export class UserProfileComponent implements OnInit {
   }
 
   get email(): string {
-    return ((this.userDetails() as Record<string, unknown>)?.[`email`] as string) ?? '';
+    return this.userDetails()?.email ?? '';
   }
 
   get roles(): RoleData[] {
-    return this.userDetails()?.roles ?? [];
+    return this.userDetails()?.selectedRoles ?? [];
   }
 
   ngOnInit(): void {
-    this.isLoading = true;
-    this.fetchAuthenticatedUserDetailsService.getUserdetails().subscribe({
+    /* GET /userdetails is not present on every Fineract build (it 404s on the
+       current one), while GET /users/{id} is, and carries the same fields plus
+       the user's selected roles. Resolve the id from the session established at
+       login rather than asking the server who we are. */
+    const userId = this.authService.currentUser()?.userId;
+    if (userId == null) {
+      this.isLoading.set(false);
+      this.loadError.set(true);
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.usersService.getUsersUserId(userId).subscribe({
       next: (data) => {
         this.userDetails.set(data);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
+        this.loadError.set(true);
       },
     });
   }

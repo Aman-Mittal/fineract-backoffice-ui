@@ -66,7 +66,7 @@ describe('WcLoansListComponent', () => {
   it('should load and flatten loans on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getWorkingCapitalLoans).toHaveBeenCalled();
-    expect(component.loans.length).toBe(1);
+    expect(component.loans).toHaveSize(1);
     expect(component.loans[0].clientName).toBe('Acme Ltd');
     expect(component.loans[0].principal).toBe(5000);
   });

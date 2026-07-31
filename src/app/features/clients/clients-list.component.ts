@@ -69,6 +69,7 @@ import {
       [totalRecords]="totalRecords()"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
+      [pageIndex]="pageIndex()"
       (pageChange)="onPage($event)"
     >
       <ion-button
@@ -178,6 +179,9 @@ export class ClientsListComponent {
   private currentFilter = '';
   private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
+  /** Mirrors currentPage.pageIndex for the data-table, so resetting to the
+      first page on search/sort/filter actually moves the paginator. */
+  readonly pageIndex = signal(0);
 
   constructor() {
     merge(this.searchSubject, this.sortSubject, this.pageSubject, this.filterSubject)
@@ -226,22 +230,26 @@ export class ClientsListComponent {
   onSearch(filterValue: string) {
     this.currentFilter = filterValue;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.searchSubject.next(filterValue);
   }
 
   onSort(sort: SortEvent) {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.sortSubject.next(sort);
   }
 
   onPage(event: PageEvent) {
     this.currentPage = event;
+    this.pageIndex.set(event.pageIndex);
     this.pageSubject.next(event);
   }
 
   onFilterChange() {
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.filterSubject.next();
   }
 

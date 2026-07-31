@@ -64,6 +64,6 @@ describe('FixedDepositTransactionsListComponent', () => {
     expect(
       serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactions,
     ).toHaveBeenCalledWith(1);
-    expect(component.transactions.length).toBe(1);
+    expect(component.transactions).toHaveSize(1);
   });
 });

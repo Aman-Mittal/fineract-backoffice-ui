@@ -64,8 +64,8 @@ describe('BulkReassignmentComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoansLoanreassignmentTemplate).toHaveBeenCalled();
-    expect(component.officeOptions.length).toBe(1);
-    expect(component.loanOfficerOptions.length).toBe(2);
+    expect(component.officeOptions).toHaveSize(1);
+    expect(component.loanOfficerOptions).toHaveSize(2);
   });
 
   it('should post the reassignment and navigate', () => {

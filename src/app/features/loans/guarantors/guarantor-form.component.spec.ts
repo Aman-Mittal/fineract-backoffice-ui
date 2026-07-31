@@ -66,7 +66,7 @@ describe('GuarantorFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoansLoanIdGuarantorsTemplate).toHaveBeenCalledWith(1);
-    expect(component.guarantorTypeOptions.length).toBe(1);
+    expect(component.guarantorTypeOptions).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {

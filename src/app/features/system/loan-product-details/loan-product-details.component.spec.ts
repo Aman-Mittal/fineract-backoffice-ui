@@ -55,6 +55,6 @@ describe('LoanProductDetailsComponent', () => {
   it('should load loan product basic details on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanproductsBasicDetails).toHaveBeenCalled();
-    expect(component.details.length).toBe(1);
+    expect(component.details).toHaveSize(1);
   });
 });

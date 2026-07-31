@@ -64,7 +64,7 @@ describe('CollateralManagementFormComponent', () => {
   it('should load currency options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getCollateralManagementTemplate).toHaveBeenCalled();
-    expect(component.currencyOptions.length).toBe(1);
+    expect(component.currencyOptions).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {

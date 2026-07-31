@@ -67,13 +67,13 @@ import {
       </ion-card-header>
 
       <ion-card-content>
-        @if (isLoading) {
+        @if (isLoading()) {
           <div class="spinner-container">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
         }
 
-        @if (!isLoading) {
+        @if (!isLoading()) {
           <table cdk-table [dataSource]="notifications()">
             <ng-container cdkColumnDef="content">
               <th cdk-header-cell *cdkHeaderCellDef>{{ 'NOTIFICATIONS.MESSAGE' | translate }}</th>
@@ -134,7 +134,7 @@ export class NotificationsListComponent implements OnInit {
 
   notifications = signal<GetNotification[]>([]);
   showUnreadOnly = false;
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   displayedColumns = ['content', 'isRead', 'createdAt'];
 
@@ -143,17 +143,17 @@ export class NotificationsListComponent implements OnInit {
   }
 
   loadNotifications(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const isRead = this.showUnreadOnly ? false : undefined;
     this.notificationService
       .getNotifications(undefined, undefined, undefined, undefined, isRead)
       .subscribe({
         next: (response: GetNotificationsResponse) => {
           this.notifications.set(response.pageItems ?? []);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }

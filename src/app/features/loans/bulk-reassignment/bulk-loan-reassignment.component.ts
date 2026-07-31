@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
@@ -117,13 +117,13 @@ interface StaffMember {
         </div>
       </ion-card-content>
       <div class="card-actions form-actions">
-        @if (isLoading) {
+        @if (isLoading()) {
           <ion-spinner name="crescent"></ion-spinner>
         }
         <ion-button
           color="primary"
           [disabled]="
-            !selectedOfficeId || !selectedFromOfficerId || !selectedToOfficerId || isLoading
+            !selectedOfficeId || !selectedFromOfficerId || !selectedToOfficerId || isLoading()
           "
           (click)="onReassign()"
         >
@@ -146,7 +146,7 @@ export class BulkLoanReassignmentComponent implements OnInit {
   selectedOfficeId: number | null = null;
   selectedFromOfficerId: number | null = null;
   selectedToOfficerId: number | null = null;
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   get toOfficerList(): StaffMember[] {
     return this.filteredStaff.filter((officer) => officer.id !== this.selectedFromOfficerId);
@@ -181,7 +181,7 @@ export class BulkLoanReassignmentComponent implements OnInit {
   onReassign(): void {
     if (!this.selectedFromOfficerId || !this.selectedToOfficerId) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     const body = JSON.stringify({
       fromLoanOfficerId: this.selectedFromOfficerId,
       toLoanOfficerId: this.selectedToOfficerId,
@@ -190,7 +190,7 @@ export class BulkLoanReassignmentComponent implements OnInit {
 
     this.bulkLoansService.postLoansLoanreassignment(body).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.notifications.success('BULK_LOANS.SUCCESS');
         this.selectedOfficeId = null;
         this.selectedFromOfficerId = null;
@@ -198,7 +198,7 @@ export class BulkLoanReassignmentComponent implements OnInit {
         this.filteredStaff = [...this.allStaff];
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

@@ -32,6 +32,10 @@ describe('ThemeService', () => {
     spyOn(localStorage, 'setItem');
     spyOn(document.documentElement, 'setAttribute');
     spyOn(document.documentElement, 'removeAttribute');
+    // With no saved theme the service falls back to the OS preference, so
+    // without this stub these specs pass or fail depending on the machine
+    // running them — dark-mode CI agents saw "expected true to be false".
+    spyOn(window, 'matchMedia').and.returnValue({ matches: false } as MediaQueryList);
   });
 
   const createService = () => {
@@ -47,6 +51,13 @@ describe('ThemeService', () => {
     expect(service.isDarkMode()).toBeFalse();
     expect(document.documentElement.removeAttribute).toHaveBeenCalledWith(DATA_THEME);
     expect(localStorage.setItem).toHaveBeenCalledWith(THEME_KEY, 'light');
+  });
+
+  it('should follow the OS preference when no theme is saved', () => {
+    (window.matchMedia as jasmine.Spy).and.returnValue({ matches: true } as MediaQueryList);
+    createService();
+    expect(service.isDarkMode()).toBeTrue();
+    expect(document.documentElement.setAttribute).toHaveBeenCalledWith(DATA_THEME, DARK_THEME);
   });
 
   it('should initialize to dark mode when savedTheme is dark', () => {

@@ -49,7 +49,7 @@ describe('CacheComponent', () => {
   });
 
   it('should select the enabled cache on load', () => {
-    expect(component.caches.length).toBe(2);
+    expect(component.caches).toHaveSize(2);
     expect(component.selectedCacheType).toBe(2);
   });
 

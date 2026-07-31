@@ -64,7 +64,7 @@ describe('AdhocQueryFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getAdhocqueryTemplate).toHaveBeenCalled();
-    expect(component.frequencyOptions.length).toBe(1);
+    expect(component.frequencyOptions).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {

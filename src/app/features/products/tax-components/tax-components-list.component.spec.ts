@@ -57,7 +57,7 @@ describe('TaxComponentsListComponent', () => {
   it('should load tax components on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getTaxesComponent).toHaveBeenCalled();
-    expect(component.components.length).toBe(1);
+    expect(component.components).toHaveSize(1);
   });
 
   it('should format array dates', () => {

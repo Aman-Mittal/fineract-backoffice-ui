@@ -84,7 +84,7 @@ describe('AuditLogsListComponent', () => {
 
     expect(component).toBeTruthy();
     expect(auditsServiceSpy.getAudits).toHaveBeenCalled();
-    expect(component.auditLogs().length).toBe(1);
+    expect(component.auditLogs()).toHaveSize(1);
     expect(component.auditLogs()[0]['entityName']).toBe('Client');
   });
 

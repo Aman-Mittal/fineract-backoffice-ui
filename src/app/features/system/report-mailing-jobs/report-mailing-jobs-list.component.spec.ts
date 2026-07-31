@@ -60,7 +60,7 @@ describe('ReportMailingJobsListComponent', () => {
   it('should load jobs on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getReportmailingjobs).toHaveBeenCalled();
-    expect(component.jobs.length).toBe(1);
+    expect(component.jobs).toHaveSize(1);
   });
 
   it('should navigate to edit with the job id', () => {

@@ -75,6 +75,7 @@ describe('LoginComponent', () => {
       customUrl: '',
       tenantId: 'default',
       username: 'mifos',
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fixture for a form-submission test, not a credential
       password: 'password123',
     });
 
@@ -94,6 +95,7 @@ describe('LoginComponent', () => {
       customUrl: '',
       tenantId: 'default',
       username: 'mifos',
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fixture for a form-submission test, not a credential
       password: 'wrongpassword',
     });
 

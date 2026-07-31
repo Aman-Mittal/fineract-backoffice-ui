@@ -63,7 +63,7 @@ describe('TaxGroupFormComponent', () => {
   it('should load the component template on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getTaxesGroupTemplate).toHaveBeenCalled();
-    expect(component.availableComponents.length).toBe(1);
+    expect(component.availableComponents).toHaveSize(1);
   });
 
   it('should post a tax group with selected components as an array', () => {

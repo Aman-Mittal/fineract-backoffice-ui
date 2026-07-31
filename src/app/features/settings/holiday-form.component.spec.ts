@@ -84,7 +84,7 @@ describe('HolidayFormComponent', () => {
     expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
     expect(holidaysServiceSpy.getHolidaysTemplate).toHaveBeenCalled();
     expect(component.offices).toEqual([{ id: 1, name: 'Head Office' }]);
-    expect(component.reschedulingTypeOptions.length).toBe(2);
+    expect(component.reschedulingTypeOptions).toHaveSize(2);
   });
 
   it('should submit new holiday form successfully', () => {

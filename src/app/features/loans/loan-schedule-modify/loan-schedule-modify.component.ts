@@ -95,10 +95,10 @@ import {
         <div class="form-actions">
           <ion-button
             color="primary"
-            [disabled]="!loanId || !command || isLoading"
+            [disabled]="!loanId || !command || isLoading()"
             (click)="submit()"
           >
-            @if (isLoading) {
+            @if (isLoading()) {
               <ion-spinner name="crescent"></ion-spinner>
             } @else {
               {{ 'LOAN_SCHEDULE_MODIFY.SUBMIT' | translate }}
@@ -159,7 +159,7 @@ export class LoanScheduleModifyComponent {
   loanId = 0;
   command = '';
   bodyText = '';
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   response = signal<unknown>(null);
 
@@ -181,7 +181,7 @@ export class LoanScheduleModifyComponent {
       }
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.response.set(null);
 
     this.loanReschedulingService
@@ -189,11 +189,11 @@ export class LoanScheduleModifyComponent {
       .subscribe({
         next: (data) => {
           this.response.set(data);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: (err: { error?: unknown }) => {
           this.response.set(err?.error ?? { error: 'Request failed' });
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }

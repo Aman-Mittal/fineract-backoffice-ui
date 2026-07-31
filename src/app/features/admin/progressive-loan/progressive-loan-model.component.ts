@@ -62,18 +62,18 @@ import {
             <ion-label position="stacked">{{ 'PROGRESSIVE_LOAN.LOAN_ID' | translate }}</ion-label>
             <ion-input type="number" [(ngModel)]="loanId"></ion-input>
           </ion-item>
-          <ion-button color="primary" (click)="loadModel()" [disabled]="isLoading">
+          <ion-button color="primary" (click)="loadModel()" [disabled]="isLoading()">
             {{ 'PROGRESSIVE_LOAN.LOAD' | translate }}
           </ion-button>
-          <ion-button color="secondary" (click)="createModel()" [disabled]="isLoading">
+          <ion-button color="secondary" (click)="createModel()" [disabled]="isLoading()">
             {{ 'PROGRESSIVE_LOAN.CREATE' | translate }}
           </ion-button>
-          <ion-button color="danger" (click)="deleteModel()" [disabled]="isLoading">
+          <ion-button color="danger" (click)="deleteModel()" [disabled]="isLoading()">
             {{ 'PROGRESSIVE_LOAN.DELETE' | translate }}
           </ion-button>
         </div>
 
-        @if (isLoading) {
+        @if (isLoading()) {
           <ion-spinner name="crescent"></ion-spinner>
         }
 
@@ -112,46 +112,46 @@ export class ProgressiveLoanModelComponent {
 
   loanId = 0;
   model = signal<ProgressiveLoanInterestScheduleModel | null>(null);
-  isLoading = false;
+  readonly isLoading = signal(false);
 
   loadModel(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.progressiveLoanService.getInternalLoanProgressiveLoanIdModel(this.loanId).subscribe({
       next: (data) => {
         this.model.set(data);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showError();
       },
     });
   }
 
   createModel(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.progressiveLoanService.postInternalLoanProgressiveLoanIdModel(this.loanId).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showSuccess();
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showError();
       },
     });
   }
 
   deleteModel(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.progressiveLoanService.deleteInternalLoanProgressiveLoanIdModel(this.loanId).subscribe({
       next: () => {
         this.model.set(null);
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showSuccess();
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showError();
       },
     });

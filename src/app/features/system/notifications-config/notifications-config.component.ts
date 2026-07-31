@@ -28,7 +28,6 @@ import {
   IonCardTitle,
   IonIcon,
   IonItem,
-  IonLabel,
   IonList,
   IonSpinner,
 } from '@ionic/angular/standalone';
@@ -49,7 +48,6 @@ import {
     IonCardTitle,
     IonCard,
     IonItem,
-    IonLabel,
     IonList,
     IonIcon,
   ],

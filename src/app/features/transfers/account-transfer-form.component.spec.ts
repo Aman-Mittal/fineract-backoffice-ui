@@ -94,7 +94,7 @@ describe('AccountTransferFormComponent', () => {
     expect(officesServiceSpy.getOffices).toHaveBeenCalled();
     expect(clientServiceSpy.getClients).toHaveBeenCalled();
     expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(10);
-    expect(component.fromAccounts().length).toBe(1);
+    expect(component.fromAccounts()).toHaveSize(1);
     expect(component.fromAccounts()[0].id).toBe(22);
   });
 
@@ -118,7 +118,7 @@ describe('AccountTransferFormComponent', () => {
       undefined,
       undefined,
     );
-    expect(component.toClients().length).toBe(1);
+    expect(component.toClients()).toHaveSize(1);
   });
 
   it('should load loan accounts when account type changes to loan', () => {
@@ -128,7 +128,7 @@ describe('AccountTransferFormComponent', () => {
     component.onAccountTypeChange('to');
 
     expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(10);
-    expect(component.toAccounts().length).toBe(1);
+    expect(component.toAccounts()).toHaveSize(1);
     expect(component.toAccounts()[0].id).toBe(11); // Loan A
   });
 

@@ -67,7 +67,7 @@ describe('ProductMixComponent', () => {
   it('should load product mix options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanproductsProductIdProductmix).toHaveBeenCalledWith(1);
-    expect(component.productOptions.length).toBe(1);
+    expect(component.productOptions).toHaveSize(1);
     expect(component.hasMix).toBeFalse();
   });
 

@@ -55,7 +55,7 @@ describe('PasswordPreferencesComponent', () => {
   });
 
   it('should select the active policy on load', () => {
-    expect(component.policies.length).toBe(2);
+    expect(component.policies).toHaveSize(2);
     expect(component.selectedPolicyId).toBe(2);
   });
 

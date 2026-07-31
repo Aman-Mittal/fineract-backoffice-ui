@@ -55,7 +55,7 @@ describe('FieldConfigurationComponent', () => {
   it('should load field config for the default entity', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getFieldconfigurationEntity).toHaveBeenCalledWith('CLIENT');
-    expect(component.fields.length).toBe(1);
+    expect(component.fields).toHaveSize(1);
   });
 
   it('should reload when the entity changes', () => {

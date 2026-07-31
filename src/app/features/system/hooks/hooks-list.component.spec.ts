@@ -57,7 +57,7 @@ describe('HooksListComponent', () => {
   it('should load hooks on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getHooks).toHaveBeenCalled();
-    expect(component.hooks.length).toBe(1);
+    expect(component.hooks).toHaveSize(1);
   });
 
   it('should navigate to edit with the hook id', () => {

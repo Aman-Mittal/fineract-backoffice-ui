@@ -77,8 +77,8 @@ describe('InterestRateChartSlabsComponent', () => {
     expect(component).toBeTruthy();
     expect(component.chartId).toBe(12);
     expect(serviceSpy.getInterestratechartsChartIdChartslabs).toHaveBeenCalledWith(12);
-    expect(component.slabs.length).toBe(1);
-    expect(component.periodTypeOptions.length).toBe(1);
+    expect(component.slabs).toHaveSize(1);
+    expect(component.periodTypeOptions).toHaveSize(1);
   });
 
   it('should post a new slab and reload', () => {
