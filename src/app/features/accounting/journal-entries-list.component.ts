@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
@@ -53,6 +53,7 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       [totalRecords]="totalRecords"
       (create)="onCreateEntry()"
       (sortChange)="onSort($event)"
+      [pageIndex]="pageIndex()"
       (pageChange)="onPage($event)"
       (searchChange)="onSearch($event)"
     >
@@ -107,6 +108,9 @@ export class JournalEntriesListComponent {
   private currentFilter = '';
   private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
+  /** Mirrors currentPage.pageIndex for the data-table, so resetting to the
+      first page on search/sort/filter actually moves the paginator. */
+  readonly pageIndex = signal(0);
 
   constructor() {
     merge(this.searchSubject, this.sortSubject, this.pageSubject)
@@ -153,17 +157,20 @@ export class JournalEntriesListComponent {
   onSearch(filterValue: string) {
     this.currentFilter = filterValue;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.searchSubject.next(filterValue);
   }
 
   onSort(sort: SortEvent) {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.sortSubject.next(sort);
   }
 
   onPage(event: PageEvent) {
     this.currentPage = event;
+    this.pageIndex.set(event.pageIndex);
     this.pageSubject.next(event);
   }
 

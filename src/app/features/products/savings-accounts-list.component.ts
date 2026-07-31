@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,6 +66,7 @@ import {
       [isLoading]="isLoading"
       (searchChange)="onSearch($event)"
       (sortChange)="onSort($event)"
+      [pageIndex]="pageIndex()"
       (pageChange)="onPage($event)"
     >
       <ion-button
@@ -164,6 +165,9 @@ export class SavingsAccountsListComponent implements OnInit {
   private currentFilter = '';
   private currentSort: SortEvent = { active: '', direction: '' };
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
+  /** Mirrors currentPage.pageIndex for the data-table, so resetting to the
+      first page on search/sort/filter actually moves the paginator. */
+  readonly pageIndex = signal(0);
 
   ngOnInit(): void {
     merge(this.searchSubject, this.sortSubject, this.pageSubject)
@@ -215,17 +219,20 @@ export class SavingsAccountsListComponent implements OnInit {
   onSearch(query: string): void {
     this.currentFilter = query;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.searchSubject.next(query);
   }
 
   onSort(sort: SortEvent): void {
     this.currentSort = sort;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.sortSubject.next(sort);
   }
 
   onPage(event: PageEvent): void {
     this.currentPage = event;
+    this.pageIndex.set(event.pageIndex);
     this.pageSubject.next(event);
   }
 

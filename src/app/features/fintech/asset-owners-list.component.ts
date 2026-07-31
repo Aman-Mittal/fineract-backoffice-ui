@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { NgClass } from '@angular/common';
@@ -47,6 +47,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       [data]="transfers"
       [totalRecords]="totalRecords"
       (searchChange)="onSearch($event)"
+      [pageIndex]="pageIndex()"
       (pageChange)="onPage($event)"
     >
       <ng-template appCellTemplate="status" let-transfer>
@@ -108,6 +109,9 @@ export class ExternalAssetOwnersListComponent {
 
   private currentFilter = '';
   private currentPage: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
+  /** Mirrors currentPage.pageIndex for the data-table, so resetting to the
+      first page on search/sort/filter actually moves the paginator. */
+  readonly pageIndex = signal(0);
 
   constructor() {
     merge(this.searchSubject, this.pageSubject)
@@ -141,11 +145,13 @@ export class ExternalAssetOwnersListComponent {
   onSearch(value: string) {
     this.currentFilter = value;
     this.currentPage.pageIndex = 0;
+    this.pageIndex.set(0);
     this.searchSubject.next(value);
   }
 
   onPage(event: PageEvent) {
     this.currentPage = event;
+    this.pageIndex.set(event.pageIndex);
     this.pageSubject.next(event);
   }
 
