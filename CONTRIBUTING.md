@@ -37,6 +37,31 @@ Thank you for your interest in contributing! This project is a GSOC 2026 initiat
 6.  **Ensure License Headers**: All new files must include the Apache License 2.0 header. You can verify this with `./scripts/check-license.sh`.
 7.  **Submit a Pull Request** against the `develop` branch.
 
+## End-to-End Tests
+
+Playwright specs live in `e2e/`, one file per use case. Most run against `page.route()`
+mocks and need no backend. The loan specs (`loan-*.spec.ts`, `full-demo.spec.ts`) drive a
+real Fineract instance and read their target from `FINERACT_SERVER_URL`.
+
+To run the full suite against a self-contained backend:
+
+```bash
+docker compose -f deploy/docker-compose-e2e.yml up -d --wait fineract-db
+docker exec -i fineract-db psql -U postgres < deploy/init-db.sql
+docker compose -f deploy/docker-compose-e2e.yml up -d fineract-backend
+# wait for https://localhost:8443/fineract-provider/actuator/info to return 200
+
+FINERACT_SERVER_URL=/fineract-provider/api/v1 npm run test:e2e -- --project=chromium
+```
+
+Point `FINERACT_SERVER_URL` at the **relative proxy path**, not `https://localhost:8443`.
+`proxy.conf.json` forwards `/fineract-provider` to the backend, which keeps the browser
+same-origin — no CORS preflight and no self-signed certificate prompt.
+
+The same flow runs in CI via `.github/workflows/e2e.yml`. See
+[`DOCS/E2E_TESTING.md`](DOCS/E2E_TESTING.md) for writing specs, and prefer `data-testid`
+over element selectors so tests survive markup changes.
+
 ## UI Components
 
 The UI layer is **Ionic** (`@ionic/angular` v8), configured in `mode: 'md'`.

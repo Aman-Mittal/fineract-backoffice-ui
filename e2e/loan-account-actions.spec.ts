@@ -19,7 +19,7 @@
 
 /**
  * Exercises the new loan-account lifecycle actions added in this session:
- * the Material confirm dialog (replacing native confirm()), Undo Disbursal,
+ * the confirm dialog (replacing native confirm()), Undo Disbursal,
  * and Write Off. Each test creates its own throwaway client/loan so it
  * doesn't disturb other loans used by other specs/demos.
  *
@@ -29,6 +29,7 @@
 import { test, expect } from '@playwright/test';
 import { login } from './utils/fineract-login';
 import { createActiveLoan } from './utils/create-active-loan';
+import { confirmDialog, menuItem } from './utils/ionic-locators';
 
 test.describe('Loan account lifecycle actions', () => {
   test('new action menu items appear only for active loans', async ({ page }) => {
@@ -38,15 +39,15 @@ test.describe('Loan account lifecycle actions', () => {
 
     await page.goto(`/loans/view/${loanId}`);
     await page.getByRole('button', { name: 'Actions' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Undo Disbursal' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Waive Interest' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Prepay Loan' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Foreclosure' })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Close', exact: true })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: 'Write Off' })).toBeVisible();
+    await expect(menuItem(page, 'Undo Disbursal')).toBeVisible();
+    await expect(menuItem(page, 'Waive Interest')).toBeVisible();
+    await expect(menuItem(page, 'Prepay Loan')).toBeVisible();
+    await expect(menuItem(page, 'Foreclosure')).toBeVisible();
+    await expect(menuItem(page, /^Close$/)).toBeVisible();
+    await expect(menuItem(page, 'Write Off')).toBeVisible();
   });
 
-  test('undo disbursal shows a Material confirm dialog and reverts the loan to Approved', async ({
+  test('undo disbursal shows a confirm dialog and reverts the loan to Approved', async ({
     page,
   }) => {
     test.setTimeout(120000);
@@ -55,12 +56,14 @@ test.describe('Loan account lifecycle actions', () => {
 
     await page.goto(`/loans/view/${loanId}`);
     await page.getByRole('button', { name: 'Actions' }).click();
-    await page.getByRole('menuitem', { name: 'Undo Disbursal' }).click();
+    await menuItem(page, 'Undo Disbursal').click();
 
-    // Confirm it's a real Material dialog, not a native confirm() popup.
-    const dialog = page.getByRole('dialog');
+    // Confirm it's a real modal, not a native confirm() popup. ion-modal exposes
+    // role="dialog" on the host, but its projected content sits behind a shadow
+    // boundary a chained getByRole() does not reach, so match on text.
+    const dialog = confirmDialog(page);
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText('Undo Disbursal')).toBeVisible();
+    await expect(dialog.locator('h2')).toHaveText('Undo Disbursal');
 
     // Cancelling must not perform the action.
     await dialog.getByRole('button', { name: 'Cancel' }).click();
@@ -69,8 +72,8 @@ test.describe('Loan account lifecycle actions', () => {
 
     // Confirming performs it and refreshes the same page in place.
     await page.getByRole('button', { name: 'Actions' }).click();
-    await page.getByRole('menuitem', { name: 'Undo Disbursal' }).click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Confirm' }).click();
+    await menuItem(page, 'Undo Disbursal').click();
+    await confirmDialog(page).getByRole('button', { name: 'Confirm' }).click();
 
     await expect(page.getByText('Approved', { exact: true })).toBeVisible({ timeout: 15000 });
   });
@@ -84,16 +87,16 @@ test.describe('Loan account lifecycle actions', () => {
 
     await page.goto(`/loans/view/${loanId}`);
     await page.getByRole('button', { name: 'Actions' }).click();
-    await page.getByRole('menuitem', { name: 'Write Off' }).click();
+    await menuItem(page, 'Write Off').click();
 
     await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/writeoff$`));
     await page.getByRole('button', { name: 'Save' }).click();
 
     // The transaction form itself gates the irreversible action behind a
-    // second, explicit Material confirmation before calling the API.
-    const dialog = page.getByRole('dialog');
+    // second, explicit confirmation before calling the API.
+    const dialog = confirmDialog(page);
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole('heading', { name: 'Write Off' })).toBeVisible();
+    await expect(dialog.locator('h2')).toContainText('Write Off');
     await dialog.getByRole('button', { name: 'Confirm' }).click();
 
     await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });

@@ -76,7 +76,7 @@ const CLOSED_CLIENT = {
 /* ─────────── helpers ─────────── */
 
 async function mockConfig(page: Page) {
-  await page.route('**/config.json', async (route) => {
+  await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -126,7 +126,7 @@ async function setupClientMocks(page: Page, clients: unknown[] = []) {
     clients.length > 0
       ? JSON.stringify({ totalFilteredRecords: clients.length, pageItems: clients })
       : EMPTY_RESPONSE;
-  await page.route('**/api/v1/clients?**', async (route) => {
+  await page.route(/\/api\/v1\/clients(\?|$)/, async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body });
   });
   await page.route('**/api/v1/clients', async (route) => {

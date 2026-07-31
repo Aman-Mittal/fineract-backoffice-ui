@@ -40,7 +40,15 @@ export const PASSWORD = process.env.FINERACT_PASSWORD ?? 'password';
 export async function login(page: Page): Promise<void> {
   await page.goto('/login');
 
+  if (
+    page.url().includes('/dashboard') ||
+    (await page.getByRole('navigation', { name: 'Main Navigation' }).isVisible())
+  ) {
+    return;
+  }
+
   const serverSelect = page.locator('#serverUrl');
+  await serverSelect.waitFor({ state: 'visible' });
   const presetCount = await serverSelect.locator(`option[value="${SERVER_URL}"]`).count();
   if (presetCount > 0) {
     await serverSelect.selectOption(SERVER_URL);

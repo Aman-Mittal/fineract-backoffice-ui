@@ -21,6 +21,11 @@
 :root {
   --primary-color: #3498db;
   --primary-dark: #2980b9;
+  /* Use wherever white text sits on a primary-coloured fill. --primary-color
+     carries white at 3.15:1 and --primary-dark at 4.31:1, both short of the 4.5:1
+     WCAG AA minimum for body-sized text; this clears it at 5.3:1. Keep
+     --primary-color for accents, borders and text on light backgrounds. */
+  --primary-strong: #2471a3;
   --secondary-color: #2c3e50;
   --bg-color: #f0f2f5;
   --card-bg: #ffffff;
@@ -111,6 +116,51 @@ table[cdk-table] th {
   top: 0;
   z-index: 1;
   background-color: var(--card-bg);
+}
+
+/* Tab bars built from ion-segment.
+   Ionic sizes segment buttons to an equal share of the track, so once a view has
+   more than a handful of tabs every label is clipped to "CLIENT DE…" / "DOCUMEN…".
+   Entity views are the worst case (loan-view has 11 tabs, client-view 9). Size the
+   buttons to their text instead and let the row scroll horizontally — a label you
+   can read is worth more than fitting every tab on screen at once. */
+ion-segment {
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+ion-segment::-webkit-scrollbar {
+  height: 3px;
+}
+
+ion-segment::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Thumb stays invisible until the row is hovered, so the tab bar reads as a tab
+   bar rather than a scrolling pane. */
+ion-segment::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+
+ion-segment:hover::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+ion-segment-button {
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+
+/* ion-label defaults to ellipsis truncation; the width now comes from the text. */
+ion-segment-button ion-label {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
 /* Tooltip surface for TooltipDirective. Global because the element is appended to the

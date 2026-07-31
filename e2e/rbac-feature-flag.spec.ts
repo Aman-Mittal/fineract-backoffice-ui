@@ -65,7 +65,7 @@ async function login(page: Page, options: LoginOptions): Promise<void> {
     );
   }
 
-  await page.route('**/config.json', async (route) => {
+  await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

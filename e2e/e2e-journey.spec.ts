@@ -132,7 +132,18 @@ async function loginAndGoToDashboard(page: Page) {
   await mockDashboardCounts(page);
   await page.goto('/login');
 
-  await page.locator('#serverUrl').selectOption(API_BASE);
+  // API_BASE is a relative path, so it is not one of the preset <option> values —
+  // fall back to the "Custom URL..." entry. Kept general so the same helper works
+  // when FINERACT_SERVER_URL points at a preset.
+  const serverSelect = page.locator('#serverUrl');
+  await serverSelect.waitFor({ state: 'visible' });
+  if ((await serverSelect.locator(`option[value="${API_BASE}"]`).count()) > 0) {
+    await serverSelect.selectOption(API_BASE);
+  } else {
+    await serverSelect.selectOption('custom');
+    await page.locator('#customUrl').fill(API_BASE);
+  }
+
   await page.locator('#tenantId').fill(TENANT_ID);
   await page.locator('#username').fill(TEST_USER);
   await page.locator('#password').fill(TEST_PASSWORD);

@@ -32,7 +32,7 @@ for FILE in $FILES; do
   fi
 done
 
-JSON_FILES=$(find . -maxdepth 1 -name "*.json" ! -name "package-lock.json" ! -name "angular.json")
+JSON_FILES=$(find . -maxdepth 1 -name "*.json" ! -name "package-lock.json" ! -name "angular.json" ! -name "playwright-results.json")
 JSON_FILES="$JSON_FILES $(find src/assets/i18n -name "*.json")"
 JSON_FILES="$JSON_FILES .asf.yaml"
 

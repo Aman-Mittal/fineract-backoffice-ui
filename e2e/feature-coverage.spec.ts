@@ -26,7 +26,7 @@ const SAVINGS_ACCOUNTS = 'Savings Accounts';
 
 /** Shared login + API mock setup used across all feature tests */
 async function loginAndMockApi(page: Page) {
-  await page.route('**/config.json', async (route) => {
+  await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -55,11 +55,13 @@ async function loginAndMockApi(page: Page) {
   });
 
   await page.goto('/login');
-  await page.locator('#tenantId').fill(TENANT_DEFAULT);
-  await page.locator('#username').fill(TEST_USER);
-  await page.locator('#password').fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await expect(page).toHaveURL('/dashboard');
+  if (!page.url().includes('/dashboard')) {
+    await page.locator('#tenantId').fill(TENANT_DEFAULT);
+    await page.locator('#username').fill(TEST_USER);
+    await page.locator('#password').fill(TEST_PASSWORD);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await expect(page).toHaveURL('/dashboard');
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -129,11 +131,19 @@ test.describe('Navigation & Sidebar', () => {
     ];
 
     for (const linkName of navLinks) {
-      // .first(): some names (e.g. "Groups"/"Tax Groups" substring overlap, or
-      // "Loan Products" appearing both under Products and Working Capital) are not
-      // unique in the sidebar — this test only asserts presence, not uniqueness.
-      const link = page.getByRole('link', { name: linkName }).first();
-      await expect(link).toBeVisible();
+      // The list mixes routable children (rendered as <a>) with group headings
+      // such as "Embedded Fintech", which the sidebar renders as a plain
+      // <span class="nav-group-header"> and which therefore has no link role.
+      // Accept either. Without this, a heading only passes when its text happens
+      // to be a substring of some child link ("Accounting" matching "Accounting
+      // Closures"), which is why "Embedded Fintech" was the one that failed.
+      //
+      // .first(): some names are not unique in the sidebar (e.g. "Loan Products"
+      // appears under both Products and Working Capital) — this test asserts
+      // presence, not uniqueness.
+      const link = page.getByRole('link', { name: linkName });
+      const groupHeading = page.locator('.nav-group-header', { hasText: linkName });
+      await expect(link.or(groupHeading).first()).toBeVisible();
     }
   });
 

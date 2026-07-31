@@ -254,8 +254,8 @@ security property, and enabling it does not substitute for server-side permissio
 ### Size and rate
 
 - **API response size:** Not explicitly bounded by the SPA; very large responses (e.g.,
-  un-paginated list endpoints) could cause UI lag. Per `ARCHITECTURE_DECISIONS.md`,
-  server-side pagination is the mandated pattern for all data grids.
+  un-paginated list endpoints) could cause UI lag. Server-side pagination is the
+  mandated pattern for all data grids.
 - **Rate limiting:** Not enforced by the SPA. The SPA does not implement any client-side
   throttling of its API calls. Left to the reverse proxy / Fineract server.
 
@@ -333,8 +333,8 @@ security property, and enabling it does not substitute for server-side permissio
   load, and then fail at the API layer (Fineract enforces RBAC server-side). No client-side
   permission check gates route activation beyond login status.
 - **`sessionStorage` / `localStorage` encryption** — auth tokens and config are stored in
-  plaintext browser storage. Any script on the same origin can read them. (`ARCHITECTURE_DECISIONS.md`
-  notes encrypted storage as a future goal via Web Crypto API; it is not implemented yet.)
+  plaintext browser storage. Any script on the same origin can read them. (Encrypted
+  storage via the Web Crypto API is a future goal; it is not implemented yet.)
 - **Audit log for UI actions** — a telemetry service is scaffolded but not implemented.
   There is no persistent, tamper-resistant record of which back-office users performed which
   actions via the UI.
@@ -462,15 +462,15 @@ The following changes should trigger a revision of this threat model:
    Node.js server-side trust boundary and change where secrets and sessions are held.
 3. **WebSocket or gRPC-Web transport** — current model assumes stateless HTTP; persistent
    bi-directional connections introduce new session-hijacking surfaces.
-4. **Service Worker / PWA support** — `ARCHITECTURE_DECISIONS.md` notes IndexedDB sync as a
-   future offline feature. A service worker intercepts all outgoing requests (including those
+4. **Service Worker / PWA support** — IndexedDB sync is a candidate future offline
+   feature. A service worker intercepts all outgoing requests (including those
    bearing credentials) and constitutes a new trust boundary.
 5. **Third-party script embedding** — addition of analytics, monitoring, chat, or A/B
    testing scripts changes the effective CSP and expands the XSS / data-exfiltration surface.
 6. **Cross-origin iframe embedding** — if the SPA is designed to be embedded in a parent
    frame, `X-Frame-Options: DENY` must be revisited and clickjacking considered.
-7. **Encrypted `localStorage` via Web Crypto API** — as noted in `ARCHITECTURE_DECISIONS.md`
-   as a planned improvement. If implemented, the key management strategy must be modelled.
+7. **Encrypted `localStorage` via Web Crypto API** — a planned improvement. If
+   implemented, the key management strategy must be modelled.
 8. **White-label / multi-tenant branding via `branding.json`** — if a tenant-controlled JSON
    file is fetched and its values are rendered into the DOM without sanitisation, a stored
    XSS vector is introduced.
@@ -648,7 +648,7 @@ All contributors — human or AI-assisted — must satisfy the following before 
 | **Apache License 2.0 header on every new file**    | Copy the header block from any existing source file. RAT scan will fail without it.                                  |
 | **No hard-coded credentials, URLs, or tenant IDs** | Use `ConfigService` / environment files / container env vars.                                                        |
 | **Translation keys for all user-facing strings**   | Run `npm run i18n:check` to verify no key is missing or unused.                                                      |
-| **Server-side pagination for new data grids**      | Per `ARCHITECTURE_DECISIONS.md`; loading unbounded result sets is a denial-of-service vector.                        |
+| **Server-side pagination for new data grids**      | Loading unbounded result sets is a denial-of-service vector.                                                         |
 
 ### Security-sensitive areas — extra review required
 
