@@ -169,7 +169,7 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
         height: 64px;
         background-color: var(--card-bg);
         color: var(--text-color);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-sm);
         z-index: 1000;
         transition:
           background-color 0.2s,
@@ -216,11 +216,11 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
         border-radius: 4px;
         font-size: 11px;
         text-transform: uppercase;
-        color: #666;
+        color: var(--text-muted);
         font-weight: 600;
       }
       .result-acc {
-        color: #888;
+        color: var(--text-muted);
         font-size: 12px;
       }
       .system-info {
@@ -250,7 +250,7 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
       .toggle-btn {
         background: none;
         border: none;
-        color: #555;
+        color: var(--text-muted);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -263,7 +263,7 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
       }
       .toggle-btn:hover {
         background-color: var(--hover-bg);
-        color: #111;
+        color: var(--text-color);
       }
       /* Native select, kept for its keyboard behaviour, styled to sit with the Ionic
          controls around it rather than reading as browser default chrome. */
@@ -320,29 +320,30 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
       }
       .office {
         font-size: 0.75rem;
-        color: #666;
+        color: var(--text-muted);
       }
       select {
         padding: 0.25rem 0.5rem;
         border-radius: 4px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
       }
       .logout-btn {
         padding: 0.5rem 1rem;
-        background-color: #f44336;
+        background-color: var(--error-color);
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
         font-size: 0.875rem;
+        transition: filter 0.2s;
       }
       .logout-btn:hover {
-        background-color: #d32f2f;
+        filter: brightness(0.9);
       }
       .theme-toggle-btn {
         background: none;
         border: none;
-        color: #555;
+        color: var(--text-muted);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -366,10 +367,10 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 500;
-        transition: background-color 0.2s;
+        transition: filter 0.2s;
       }
       .tour-btn:hover {
-        background-color: #303f9f;
+        filter: brightness(0.9);
       }
       .tour-btn ion-icon {
         font-size: 18px;

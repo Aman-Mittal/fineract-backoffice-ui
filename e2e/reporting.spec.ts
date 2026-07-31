@@ -94,8 +94,8 @@ test.describe('Reporting', () => {
     await page.getByRole('link', { name: 'Reports' }).click();
     await expect(page).toHaveURL('/reporting');
 
-    // Click on the first report's 'play_arrow' button
-    await page.locator('button[matTooltip="Run Report"]').first().click();
+    // Click on the first report's Run button
+    await page.getByRole('button', { name: 'Run' }).first().click();
 
     // Should be on run-report page
     await expect(page).toHaveURL(/\/reporting\/run\//);

@@ -33,7 +33,7 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { CommandProcessingResult } from '../model/commandProcessingResult';
+import { LoanCollateralDeleteResponse } from '../model/loanCollateralDeleteResponse';
 // @ts-ignore
 import { LoanCollateralResponseData } from '../model/loanCollateralResponseData';
 
@@ -63,9 +63,9 @@ export class LoanCollateralManagementService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
-    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
-    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanCollateralDeleteResponse>;
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanCollateralDeleteResponse>>;
+    public deleteLoanCollateralManagementId(loanId: number, id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanCollateralDeleteResponse>>;
     public deleteLoanCollateralManagementId(loanId: number, id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling deleteLoanCollateralManagementId.');
@@ -107,7 +107,7 @@ export class LoanCollateralManagementService extends BaseService {
 
         let localVarPath = `/v1/loan-collateral-management/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CommandProcessingResult>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanCollateralDeleteResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

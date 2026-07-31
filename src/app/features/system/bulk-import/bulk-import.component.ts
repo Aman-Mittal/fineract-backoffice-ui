@@ -212,7 +212,50 @@ export class BulkImportComponent implements OnInit {
   }
 
   onDownloadTemplate(): void {
-    console.log('Download template for', this.selectedEntity);
+    let template$: Observable<unknown> | undefined;
+
+    switch (this.selectedEntity) {
+      case 'clients':
+        template$ = this.clientService.getClientsDownloadtemplate(
+          undefined,
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'loans':
+        template$ = this.loansService.getLoansDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'savingsaccounts':
+        template$ = this.savingsService.getSavingsaccountsDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'glaccounts':
+        template$ = this.journalEntriesService.getJournalentriesDownloadtemplate(
+          undefined,
+          this.dateFormat,
+        );
+        break;
+    }
+
+    template$?.subscribe({
+      next: (blob: unknown) => {
+        const url = window.URL.createObjectURL(blob as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.selectedEntity}_template.xls`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err: unknown) => console.error('Failed to download template', err),
+    });
   }
 
   onFileSelected(event: Event): void {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonBadge, IonIcon } from '@ionic/angular/standalone';
@@ -46,8 +46,8 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
       helpTextKey="HELP.LOAN_PRODUCTS_DESC"
       createButtonLabel="PRODUCTS.CREATE_LOAN_PRODUCT"
       [columns]="columns"
-      [data]="products"
-      [totalRecords]="products.length"
+      [data]="products()"
+      [totalRecords]="products().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateProduct()"
@@ -92,7 +92,7 @@ export class LoanProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: GetLoanProductsResponse[] = [];
+  readonly products = signal<GetLoanProductsResponse[]>([]);
 
   ngOnInit(): void {
     this.loadProducts();
@@ -103,7 +103,7 @@ export class LoanProductsListComponent implements OnInit {
       .getLoanproducts()
       .pipe(catchError(() => of([])))
       .subscribe((data: GetLoanProductsResponse[]) => {
-        this.products = data || [];
+        this.products.set(data || []);
       });
   }
 

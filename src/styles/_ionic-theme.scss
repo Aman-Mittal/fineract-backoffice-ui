@@ -140,3 +140,32 @@ ion-toast.success-toast {
   --color: #ffffff;
   --button-color: #ffffff;
 }
+
+/* `ion-item[fill="outline"]` is used across the app's forms to render an outlined field
+   box, but `ion-item` has no `fill` property in this Ionic version (8.8.15) — only leaf
+   controls like `ion-input`/`ion-select` do. The attribute is silently ignored by the
+   component, so every such item falls back to its default underline-only look instead of
+   a bordered box. Rather than moving `fill="outline"` onto every individual `ion-input`/
+   `ion-select` across the app, this makes the (harmless, already-present) attribute do
+   what was clearly intended, via ion-item's own real border/spacing custom properties —
+   background and border-color already resolve correctly through the bridge above. */
+ion-item[fill='outline'] {
+  --border-width: 1px;
+  --border-radius: var(--border-radius);
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+}
+
+/* ion-datetime-button has no ::part() to style its shadow-DOM button, so it always renders
+   Ionic's default rounded gray "pill" (var(--ion-color-step-300)) regardless of theme intent —
+   the only visible date fields in the app look like a disconnected chip floating inside an
+   otherwise plain outlined ion-item, in both light and dark mode. --ion-color-step-300 does
+   inherit into the shadow DOM, so scoping it to transparent here (rather than overriding the
+   global step token, which is used elsewhere for real step-color purposes) removes the pill
+   background; display/justify-content target the host element itself (not shadow content) to
+   left-align the date text like every sibling ion-input/ion-select. */
+ion-datetime-button {
+  display: flex;
+  justify-content: flex-start;
+  --ion-color-step-300: transparent;
+}

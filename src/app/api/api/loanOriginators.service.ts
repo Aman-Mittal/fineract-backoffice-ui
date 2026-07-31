@@ -39,6 +39,10 @@ import { GetLoanOriginatorTemplateResponse } from '../model/getLoanOriginatorTem
 // @ts-ignore
 import { GetLoanOriginatorsResponse } from '../model/getLoanOriginatorsResponse';
 // @ts-ignore
+import { LoanOriginatorMappingResponse } from '../model/loanOriginatorMappingResponse';
+// @ts-ignore
+import { LoanOriginatorsResponse } from '../model/loanOriginatorsResponse';
+// @ts-ignore
 import { PostLoanOriginatorsRequest } from '../model/postLoanOriginatorsRequest';
 // @ts-ignore
 import { PostLoanOriginatorsResponse } from '../model/postLoanOriginatorsResponse';
@@ -198,10 +202,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
             throw new Error('Required parameter loanExternalId was null or undefined when calling deleteLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId.');
         }
@@ -218,6 +222,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -241,7 +246,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/originators/external-id/${this.configuration.encodeParam({name: "originatorExternalId", value: originatorExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -263,10 +268,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
             throw new Error('Required parameter loanExternalId was null or undefined when calling deleteLoansExternalIdLoanExternalIdOriginatorsOriginatorId.');
         }
@@ -283,6 +288,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -306,7 +312,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/originators/${this.configuration.encodeParam({name: "originatorId", value: originatorId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -328,10 +334,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling deleteLoansLoanIdOriginatorsExternalIdOriginatorExternalId.');
         }
@@ -348,6 +354,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -371,7 +378,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/originators/external-id/${this.configuration.encodeParam({name: "originatorExternalId", value: originatorExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -394,10 +401,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public deleteLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling deleteLoansLoanIdOriginatorsOriginatorId.');
         }
@@ -414,6 +421,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -437,7 +445,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/originators/${this.configuration.encodeParam({name: "originatorId", value: originatorId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -703,10 +711,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorsResponse>;
+    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorsResponse>>;
+    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorsResponse>>;
+    public getLoansExternalIdLoanExternalIdOriginators(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
             throw new Error('Required parameter loanExternalId was null or undefined when calling getLoansExternalIdLoanExternalIdOriginators.');
         }
@@ -720,6 +728,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -743,7 +752,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/originators`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorsResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -765,10 +774,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getLoansLoanIdOriginators(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public getLoansLoanIdOriginators(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public getLoansLoanIdOriginators(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public getLoansLoanIdOriginators(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getLoansLoanIdOriginators(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorsResponse>;
+    public getLoansLoanIdOriginators(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorsResponse>>;
+    public getLoansLoanIdOriginators(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorsResponse>>;
+    public getLoansLoanIdOriginators(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling getLoansLoanIdOriginators.');
         }
@@ -782,6 +791,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -805,7 +815,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/originators`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorsResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -900,10 +910,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId(loanExternalId: string, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
             throw new Error('Required parameter loanExternalId was null or undefined when calling postLoansExternalIdLoanExternalIdOriginatorsExternalIdOriginatorExternalId.');
         }
@@ -920,6 +930,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -943,7 +954,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/originators/external-id/${this.configuration.encodeParam({name: "originatorExternalId", value: originatorExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -965,10 +976,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public postLoansExternalIdLoanExternalIdOriginatorsOriginatorId(loanExternalId: string, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
             throw new Error('Required parameter loanExternalId was null or undefined when calling postLoansExternalIdLoanExternalIdOriginatorsOriginatorId.');
         }
@@ -985,6 +996,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -1008,7 +1020,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/originators/${this.configuration.encodeParam({name: "originatorId", value: originatorId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -1030,10 +1042,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public postLoansLoanIdOriginatorsExternalIdOriginatorExternalId(loanId: number, originatorExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling postLoansLoanIdOriginatorsExternalIdOriginatorExternalId.');
         }
@@ -1050,6 +1062,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -1073,7 +1086,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/originators/external-id/${this.configuration.encodeParam({name: "originatorExternalId", value: originatorExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -1096,10 +1109,10 @@ export class LoanOriginatorsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanOriginatorMappingResponse>;
+    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanOriginatorMappingResponse>>;
+    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanOriginatorMappingResponse>>;
+    public postLoansLoanIdOriginatorsOriginatorId(loanId: number, originatorId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling postLoansLoanIdOriginatorsOriginatorId.');
         }
@@ -1116,6 +1129,7 @@ export class LoanOriginatorsService extends BaseService {
         localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -1139,7 +1153,7 @@ export class LoanOriginatorsService extends BaseService {
 
         let localVarPath = `/v1/loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/originators/${this.configuration.encodeParam({name: "originatorId", value: originatorId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanOriginatorMappingResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

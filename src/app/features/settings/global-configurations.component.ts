@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
@@ -52,8 +52,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       title="nav.globalConfigurations"
       helpTextKey="HELP.GLOBAL_CONFIG_DESC"
       [columns]="columns"
-      [data]="configurations"
-      [totalRecords]="configurations.length"
+      [data]="configurations()"
+      [totalRecords]="configurations().length"
       [showSearch]="true"
       [localLogic]="true"
     >
@@ -92,7 +92,7 @@ export class GlobalConfigurationsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  configurations: Record<string, unknown>[] = [];
+  readonly configurations = signal<Record<string, unknown>[]>([]);
 
   ngOnInit(): void {
     this.loadConfigurations();
@@ -101,8 +101,9 @@ export class GlobalConfigurationsListComponent implements OnInit {
   private loadConfigurations(): void {
     this.configService.getConfigurations().subscribe({
       next: (data: GetGlobalConfigurationsResponse) => {
-        this.configurations =
-          (data.globalConfiguration as unknown as Record<string, unknown>[]) || [];
+        this.configurations.set(
+          (data.globalConfiguration as unknown as Record<string, unknown>[]) || [],
+        );
       },
       error: (err) => console.error('Failed to load configurations', err),
     });

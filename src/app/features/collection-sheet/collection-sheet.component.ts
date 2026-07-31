@@ -167,7 +167,8 @@ import {
         padding: 32px;
       }
       .json-output {
-        background: #f5f5f5;
+        background: var(--surface-sunken);
+        color: var(--text-color);
         padding: 16px;
         border-radius: 4px;
         overflow: auto;

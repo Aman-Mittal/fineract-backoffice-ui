@@ -20,7 +20,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   DataTableComponent,
   ColumnDef,
@@ -28,6 +28,7 @@ import {
   StatusBadgeComponent,
 } from '../../../shared';
 import { RescheduleLoansService, GetLoanRescheduleRequestResponse } from '../../../api';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
@@ -88,6 +89,8 @@ export class RescheduleRequestsListComponent implements OnInit {
   private readonly rescheduleService = inject(RescheduleLoansService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   loanId: number | null = null;
 
@@ -127,8 +130,42 @@ export class RescheduleRequestsListComponent implements OnInit {
   }
 
   onViewRequest(request: GetLoanRescheduleRequestResponse): void {
-    // Navigation to details/approval screen
-    console.log('View reschedule request', request.id);
+    const details: { label: string; value: string }[] = [
+      { label: 'LOANS.ACCOUNT_NO', value: request.loanAccountNumber },
+      { label: 'COMMON.CLIENT', value: request.clientName },
+      { label: 'COMMON.STATUS', value: request.statusEnum?.value },
+      { label: 'LOANS.RESCHEDULE_FROM', value: this.formatArrayDate(request.rescheduleFromDate) },
+      { label: 'COMMON.REASON', value: request.rescheduleReasonCodeValue?.name },
+      { label: 'COMMON.COMMENT', value: request.rescheduleReasonComment },
+      {
+        label: 'COMMON.SUBMITTED_BY',
+        value: request.timeline?.submittedByUsername,
+      },
+      {
+        label: 'COMMON.SUBMITTED_ON',
+        value: this.formatArrayDate(request.timeline?.submittedOnDate),
+      },
+      ...(request.statusEnum?.approved
+        ? [
+            { label: 'COMMON.APPROVED_BY', value: request.timeline?.approvedByUsername },
+            {
+              label: 'COMMON.APPROVED_ON',
+              value: this.formatArrayDate(request.timeline?.approvedOnDate),
+            },
+          ]
+        : []),
+    ]
+      .filter((row): row is { label: string; value: string } => !!row.value && row.value !== '-')
+      .map((row) => ({ label: this.translate.instant(row.label), value: row.value }));
+
+    const closeLabel = this.translate.instant('COMMON.CLOSE');
+    this.dialogService.confirm({
+      title: this.translate.instant('LOANS.RESCHEDULE_REQUEST_DETAILS'),
+      message: '',
+      details,
+      confirmText: closeLabel,
+      cancelText: closeLabel,
+    });
   }
 
   formatArrayDate(dateArray: unknown): string {

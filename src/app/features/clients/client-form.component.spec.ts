@@ -107,7 +107,7 @@ describe('ClientFormComponent', () => {
       dialogSpy.open.and.resolveTo(2);
 
       // Initially offices has 1 office.
-      component.offices = [{ id: 1, name: HEAD_OFFICE }];
+      component.offices.set([{ id: 1, name: HEAD_OFFICE }]);
       // After addOffice, getOffices should be called again and we can make it return 2 offices.
       officesServiceSpy.getOffices.and.returnValue(
         of([
@@ -119,7 +119,7 @@ describe('ClientFormComponent', () => {
       await component.addOffice();
 
       expect(dialogSpy.open).toHaveBeenCalled();
-      expect(component.offices.length).toBe(2);
+      expect(component.offices().length).toBe(2);
       expect(component.client.officeId).toBe(2);
     });
 

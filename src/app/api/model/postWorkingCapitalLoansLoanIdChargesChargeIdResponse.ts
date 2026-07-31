@@ -23,11 +23,18 @@
  * Do not edit the class manually.
  */
 
-import { AccountTransferData } from './accountTransferData';
 
 
-export interface PageAccountTransferData { 
-    pageItems?: Array<AccountTransferData>;
-    totalFilteredRecords?: number;
+/**
+ * PostWorkingCapitalLoansLoanIdChargesChargeIdResponse
+ */
+export interface PostWorkingCapitalLoansLoanIdChargesChargeIdResponse { 
+    clientId?: number;
+    loanId?: number;
+    officeId?: number;
+    resourceExternalId?: string;
+    resourceId?: number;
+    subResourceExternalId?: string;
+    subResourceId?: number;
 }
 

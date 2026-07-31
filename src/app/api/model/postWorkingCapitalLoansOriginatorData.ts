@@ -23,22 +23,31 @@
  * Do not edit the class manually.
  */
 
-import { OfficeData } from './officeData';
 
 
-export interface GLClosureData { 
-    allowedOffices?: Array<OfficeData>;
-    closingDate?: string;
-    comments?: string;
-    createdByUserId?: number;
-    createdByUsername?: string;
-    createdDate?: string;
-    deleted?: boolean;
+/**
+ * Originator data for loan creation request
+ */
+export interface PostWorkingCapitalLoansOriginatorData { 
+    /**
+     * Code value ID for channel type (from LoanOriginationChannelType code)
+     */
+    channelTypeId?: number;
+    /**
+     * Originator external ID (use this OR id, not both)
+     */
+    externalId?: string;
+    /**
+     * Originator internal ID (use this OR externalId, not both)
+     */
     id?: number;
-    lastUpdatedByUserId?: number;
-    lastUpdatedByUsername?: string;
-    lastUpdatedDate?: string;
-    officeId?: number;
-    officeName?: string;
+    /**
+     * Originator name (used when creating new originator if config enabled)
+     */
+    name?: string;
+    /**
+     * Code value ID for originator type (from LoanOriginatorType code)
+     */
+    typeId?: number;
 }
 

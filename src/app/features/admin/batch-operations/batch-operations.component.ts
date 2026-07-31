@@ -106,7 +106,8 @@ import {
         margin-top: 16px;
       }
       pre {
-        background: #f5f5f5;
+        background: var(--surface-sunken);
+        color: var(--text-color);
         padding: 16px;
         border-radius: 4px;
         overflow: auto;

@@ -71,7 +71,7 @@ describe('OfficesListComponent', () => {
 
     expect(component).toBeTruthy();
     expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
-    expect(component.offices).toEqual(mockOffices as unknown as GetOfficesResponse[]);
+    expect(component.offices()).toEqual(mockOffices as unknown as GetOfficesResponse[]);
   });
 
   it('should handle error when loading offices', () => {
@@ -82,7 +82,7 @@ describe('OfficesListComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.offices).toEqual([]);
+    expect(component.offices()).toEqual([]);
     expect(console.error).toHaveBeenCalledWith('Failed to load offices', jasmine.any(Error));
   });
 

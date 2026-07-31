@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -40,12 +40,12 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
   template: `
     <app-data-table
-      title="nav.organization"
+      title="nav.offices"
       helpTextKey="HELP.OFFICES_DESC"
       createButtonLabel="OFFICES.CREATE_OFFICE"
       [columns]="columns"
-      [data]="offices"
-      [totalRecords]="offices.length"
+      [data]="offices()"
+      [totalRecords]="offices().length"
       [localLogic]="true"
       (create)="onCreateOffice()"
     >
@@ -78,12 +78,12 @@ export class OfficesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit(): void {
     this.officesService.getOffices(true).subscribe({
       next: (data: GetOfficesResponse[]) => {
-        this.offices = data || [];
+        this.offices.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load offices', err);

@@ -70,6 +70,9 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
               <app-help-icon helpTextKey="login.tooltips.serverUrl"></app-help-icon>
             </label>
             <select id="serverUrl" formControlName="serverUrl">
+              <option [value]="configService.apiUrl">
+                {{ 'login.defaultOption' | translate }} ({{ configService.apiUrl }})
+              </option>
               <option value="https://demo.mifos.io/fineract-provider/api/v1">
                 Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)
               </option>
@@ -194,11 +197,11 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
       }
       h1 {
         font-size: 1.25rem;
-        color: #333;
+        color: var(--text-color);
         margin: 0;
       }
       .subtitle {
-        color: #666;
+        color: var(--text-muted);
         font-size: 0.85rem;
         margin-top: 0.25rem;
       }
@@ -268,7 +271,7 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
       .login-footer {
         margin-top: 1.5rem;
         text-align: center;
-        color: #999;
+        color: var(--text-muted);
         font-size: 0.7rem;
       }
       .spinner {
@@ -290,7 +293,7 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly configService = inject(ConfigService);
+  protected readonly configService = inject(ConfigService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly translate = inject(TranslateService);

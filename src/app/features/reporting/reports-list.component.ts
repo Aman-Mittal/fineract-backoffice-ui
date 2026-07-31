@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,8 +42,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       title="nav.reports"
       helpTextKey="HELP.REPORTS_DESC"
       [columns]="columns"
-      [data]="reports"
-      [totalRecords]="reports.length"
+      [data]="reports()"
+      [totalRecords]="reports().length"
       [showSearch]="true"
       [localLogic]="true"
     >
@@ -72,7 +72,7 @@ export class ReportsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  reports: GetReportsResponse[] = [];
+  readonly reports = signal<GetReportsResponse[]>([]);
 
   ngOnInit(): void {
     this.loadReports();
@@ -81,7 +81,7 @@ export class ReportsListComponent implements OnInit {
   private loadReports(): void {
     this.reportsService.getReports().subscribe({
       next: (data) => {
-        this.reports = data || [];
+        this.reports.set(data || []);
       },
       error: (err) => console.error('Failed to load reports', err),
     });

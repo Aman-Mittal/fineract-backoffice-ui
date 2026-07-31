@@ -183,7 +183,7 @@ export class WorkingCapitalLoanDelinquencyActionsService extends BaseService {
 
     /**
      * Create Delinquency Action by external id
-     * Creates a delinquency action (pause or reschedule) for a Working Capital loan identified by external id.
+     * Creates a delinquency action (pause, reschedule, resume, disable, enable) for a Working Capital loan identified by external id.
      * @endpoint post /v1/working-capital-loans/external-id/{loanExternalId}/delinquency-actions
      * @param loanExternalId loanExternalId
      * @param postWorkingCapitalLoansDelinquencyActionRequest 
@@ -260,7 +260,7 @@ export class WorkingCapitalLoanDelinquencyActionsService extends BaseService {
 
     /**
      * Create Delinquency Action
-     * Creates a delinquency action (pause or reschedule) for a Working Capital loan.
+     * Creates a delinquency action (pause, reschedule, resume, disable, enable) for a Working Capital loan. A disable stops delinquency evaluation as of the current business date; an enable re-triggers and recomputes delinquency evaluation as of that date.
      * @endpoint post /v1/working-capital-loans/{loanId}/delinquency-actions
      * @param loanId loanId
      * @param postWorkingCapitalLoansDelinquencyActionRequest 

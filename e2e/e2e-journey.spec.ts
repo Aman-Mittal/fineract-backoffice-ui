@@ -132,7 +132,7 @@ async function loginAndGoToDashboard(page: Page) {
   await mockDashboardCounts(page);
   await page.goto('/login');
 
-  await page.locator('#serverUrl').fill(API_BASE);
+  await page.locator('#serverUrl').selectOption(API_BASE);
   await page.locator('#tenantId').fill(TENANT_ID);
   await page.locator('#username').fill(TEST_USER);
   await page.locator('#password').fill(TEST_PASSWORD);
@@ -243,7 +243,9 @@ test.describe('E2E: Dashboard', () => {
   test('should display dashboard summary cards', async ({ page }) => {
     await expect(page.getByText('Total Clients')).toBeVisible();
     await expect(page.getByText('Active Loans')).toBeVisible();
-    await expect(page.getByText('Savings Accounts')).toBeVisible();
+    await expect(
+      page.getByTestId('dashboard-savings-widget').getByText('Savings Accounts'),
+    ).toBeVisible();
     await expect(page.getByText('System Health')).toBeVisible();
   });
 
@@ -252,7 +254,7 @@ test.describe('E2E: Dashboard', () => {
   });
 
   test('should display pending approvals section', async ({ page }) => {
-    await expect(page.getByText('Pending Approvals')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Pending Approvals' })).toBeVisible();
   });
 
   test('should display loan and savings status distribution charts', async ({ page }) => {
@@ -303,34 +305,40 @@ test.describe('E2E: Sidebar Navigation', () => {
   });
 
   test('should have all main navigation links', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Clients' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Groups' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Centers' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Loans' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Dashboard', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Clients', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Groups', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Centers', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Loans', exact: true })).toBeVisible();
   });
 
   test('should have Products section with sub-links', async ({ page }) => {
-    await expect(page.getByText('Products')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Loan Products' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Savings Products' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Fixed Deposit Products' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Recurring Deposit Products' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Share Products' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Tax Components' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Tax Groups' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Floating Rates' })).toBeVisible();
+    await expect(page.getByText('Products', { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: 'Loan Products', exact: true }).first(),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Savings Products', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: 'Fixed Deposit Products', exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: 'Recurring Deposit Products', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Share Products', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Tax Components', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Tax Groups', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Floating Rates', exact: true })).toBeVisible();
   });
 
   test('should have Transfers section with sub-links', async ({ page }) => {
-    await expect(page.getByText('Transfers')).toBeVisible();
+    await expect(page.getByText('Transfers', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Account Transfer' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Standing Instructions' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'SI History' })).toBeVisible();
   });
 
   test('should have Accounting section with sub-links', async ({ page }) => {
-    await expect(page.getByText('Accounting')).toBeVisible();
+    await expect(page.getByText('Accounting', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Chart of Accounts' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Journal Entries' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Accounting Closures' })).toBeVisible();
@@ -362,7 +370,7 @@ test.describe('E2E: Sidebar Navigation', () => {
   });
 
   test('should have System section', async ({ page }) => {
-    await expect(page.getByText('System')).toBeVisible();
+    await expect(page.getByText('System', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Data Tables' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Bulk Import' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Delinquency' })).toBeVisible();
@@ -408,8 +416,8 @@ test.describe('E2E: Offices', () => {
     await expect(page.getByRole('columnheader', { name: 'External ID' })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Opening Date' })).toBeVisible();
 
-    await expect(page.getByText(HEAD_OFFICE)).toBeVisible();
-    await expect(page.getByText(BRANCH_OFFICE)).toBeVisible();
+    await expect(page.getByRole('table').getByText(HEAD_OFFICE)).toBeVisible();
+    await expect(page.getByRole('table').getByText(BRANCH_OFFICE)).toBeVisible();
   });
 
   test('should have Create Office button', async ({ page }) => {
@@ -441,10 +449,7 @@ test.describe('E2E: Offices', () => {
     await page.locator('ion-select[name="parentId"]').click();
     await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
 
-    await page.locator('input[name="openingDate"]').click();
-    await page.getByText('15').first().click();
-    await page.keyboard.press('Escape');
-
+    // openingDate already has a valid default (today), so the form is valid without touching it.
     await expect(page.getByRole('button', { name: SAVE_BTN })).toBeEnabled();
   });
 
@@ -469,7 +474,7 @@ test.describe('E2E: Offices', () => {
 
   test('should have pagination controls', async ({ page }) => {
     await page.getByRole('link', { name: 'Offices' }).click();
-    await expect(page.getByRole('combobox', { name: ITEMS_PER_PAGE })).toBeVisible();
+    await expect(page.getByRole('button', { name: ITEMS_PER_PAGE })).toBeVisible();
   });
 });
 
@@ -501,13 +506,14 @@ test.describe('E2E: Clients', () => {
 
     await expect(page.getByText('Jane Smith')).toBeVisible();
     await expect(page.getByText('00000001')).toBeVisible();
-    await expect(page.getByText(HEAD_OFFICE)).toBeVisible();
+    await expect(page.getByRole('table').getByText(HEAD_OFFICE)).toBeVisible();
   });
 
   test('should show ACTIVE status badge', async ({ page }) => {
     await mockClients(page, [MOCK_CLIENT]);
     await page.getByRole('link', { name: 'Clients' }).click();
-    await expect(page.getByText('Active')).toBeVisible();
+    await expect(page).toHaveURL('/clients');
+    await expect(page.getByRole('table').getByText('Active')).toBeVisible();
   });
 
   test('should have Create Client button', async ({ page }) => {
@@ -531,7 +537,7 @@ test.describe('E2E: Clients', () => {
   test('should have pagination controls', async ({ page }) => {
     await mockClients(page);
     await page.getByRole('link', { name: 'Clients' }).click();
-    await expect(page.getByRole('combobox', { name: ITEMS_PER_PAGE })).toBeVisible();
+    await expect(page.getByRole('button', { name: ITEMS_PER_PAGE })).toBeVisible();
   });
 });
 
@@ -616,8 +622,8 @@ test.describe('E2E: Client Creation', () => {
     await page.locator('ion-select[name="officeId"]').click();
     await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
 
-    await page.getByRole('textbox', { name: 'First Name' }).fill('Jane');
-    await page.getByRole('textbox', { name: 'Last Name' }).fill('Smith');
+    await page.locator('input[name="firstname"]').fill('Jane');
+    await page.locator('input[name="lastname"]').fill('Smith');
 
     await expect(page.getByRole('button', { name: SAVE_BTN })).toBeEnabled();
   });
@@ -637,8 +643,8 @@ test.describe('E2E: Client Creation', () => {
     await page.locator('ion-select[name="officeId"]').click();
     await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
 
-    await page.getByRole('textbox', { name: 'First Name' }).fill('Jane');
-    await page.getByRole('textbox', { name: 'Last Name' }).fill('Smith');
+    await page.locator('input[name="firstname"]').fill('Jane');
+    await page.locator('input[name="lastname"]').fill('Smith');
 
     await page.getByRole('button', { name: SAVE_BTN }).click();
     await expect(page).toHaveURL('/clients');
@@ -659,10 +665,7 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    const addOfficeBtn = page
-      .locator('button')
-      .filter({ has: page.locator('ion-icon[name="add-circle-outline"]') });
-    await expect(addOfficeBtn).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add New Office' })).toBeVisible();
   });
 
   test('should have help icons for form fields', async ({ page }) => {
@@ -678,7 +681,7 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
 
-    await expect(page.getByRole('button', { name: 'Open calendar' }).first()).toBeVisible();
+    await expect(page.locator('ion-datetime-button').first()).toBeVisible();
   });
 
   test('should have pre-filled dates in Submitted On and Activation Date', async ({ page }) => {
@@ -744,30 +747,30 @@ test.describe('E2E: Loan Products Page', () => {
   });
 
   test('should display loan products list page', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    await page.getByRole('link', { name: 'Loan Products', exact: true }).first().click();
     await expect(page).toHaveURL('/products/loan');
-    await expect(page.getByText('Loan Products')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Loan Products' })).toBeVisible();
   });
 
   test('should have Create Loan Product button', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    await page.getByRole('link', { name: 'Loan Products', exact: true }).first().click();
     await expect(page.getByRole('button', { name: /Create Loan Product/i })).toBeVisible();
   });
 
   test('should display table with correct headers', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loan Products' }).click();
-    await expect(page.getByRole('columnheader', { name: 'Name' })).toBeVisible();
+    await page.getByRole('link', { name: 'Loan Products', exact: true }).first().click();
+    await expect(page.getByRole('columnheader', { name: 'Name', exact: true })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Short Name' })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Description' })).toBeVisible();
   });
 
   test('should show empty state when no products exist', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    await page.getByRole('link', { name: 'Loan Products', exact: true }).first().click();
     await expect(page.getByText('No records found')).toBeVisible();
   });
 
   test('should have search input', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    await page.getByRole('link', { name: 'Loan Products', exact: true }).first().click();
     await expect(page.getByPlaceholder(SEARCH_PLACEHOLDER)).toBeVisible();
   });
 
@@ -779,7 +782,7 @@ test.describe('E2E: Loan Products Page', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
     });
 
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    await page.getByRole('link', { name: 'Loan Products', exact: true }).first().click();
     await page.getByRole('button', { name: /Create Loan Product/i }).click();
     await expect(page).toHaveURL('/products/loan/create');
   });
@@ -794,7 +797,7 @@ test.describe('E2E: Savings Products Page', () => {
 
     await page.getByRole('link', { name: 'Savings Products' }).click();
     await expect(page).toHaveURL('/products/savings');
-    await expect(page.getByText('Savings Products')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Savings Products' })).toBeVisible();
     await expect(page.getByRole('button', { name: /Create/i })).toBeVisible();
   });
 });
@@ -810,7 +813,7 @@ test.describe('E2E: Other Products Pages', () => {
     });
     await page.getByRole('link', { name: 'Fixed Deposit Products' }).click();
     await expect(page).toHaveURL('/products/fixed');
-    await expect(page.getByText('Fixed Deposit Products')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Fixed Deposit Products' })).toBeVisible();
   });
 
   test('Recurring Deposit Products page loads', async ({ page }) => {
@@ -883,18 +886,18 @@ test.describe('E2E: Loans Portfolio', () => {
   });
 
   test('should display loans portfolio page', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loans' }).click();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
     await expect(page).toHaveURL('/loans');
     await expect(page.getByText('Loans Portfolio')).toBeVisible();
   });
 
   test('should have Create Loan Account button', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loans' }).click();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
     await expect(page.getByRole('button', { name: /Create Loan Account/i })).toBeVisible();
   });
 
   test('should display table with correct headers', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loans' }).click();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
     await expect(page.getByRole('columnheader', { name: 'Account No' })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Client Name' })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Product Name' })).toBeVisible();
@@ -902,18 +905,18 @@ test.describe('E2E: Loans Portfolio', () => {
   });
 
   test('should show empty state when no loans exist', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loans' }).click();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
     await expect(page.getByText('No records found')).toBeVisible();
   });
 
   test('should have search input', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loans' }).click();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
     await expect(page.getByPlaceholder(SEARCH_PLACEHOLDER)).toBeVisible();
   });
 
   test('should have pagination controls', async ({ page }) => {
-    await page.getByRole('link', { name: 'Loans' }).click();
-    await expect(page.getByRole('combobox', { name: ITEMS_PER_PAGE })).toBeVisible();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
+    await expect(page.getByRole('button', { name: ITEMS_PER_PAGE })).toBeVisible();
   });
 });
 

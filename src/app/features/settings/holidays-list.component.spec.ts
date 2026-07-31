@@ -104,13 +104,13 @@ describe('HolidaysListComponent', () => {
     expect(component).toBeTruthy();
     expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
     expect(holidaysServiceSpy.getHolidays).toHaveBeenCalledWith(1);
-    expect(component.holidays).toEqual(mockHolidays as unknown as GetHolidaysResponse[]);
+    expect(component.holidays()).toEqual(mockHolidays as unknown as GetHolidaysResponse[]);
   });
 
   it('should load holidays for a different office on change', () => {
     fixture.detectChanges();
     component.onOfficeChange(5);
-    expect(component.selectedOfficeId).toBe(5);
+    expect(component.selectedOfficeId()).toBe(5);
     expect(holidaysServiceSpy.getHolidays).toHaveBeenCalledWith(5);
   });
 

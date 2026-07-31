@@ -33,15 +33,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { DeleteEntityDatatableChecksTemplateResponse } from '../model/deleteEntityDatatableChecksTemplateResponse';
+import { PostWorkingCapitalLoansBreachActionRequest } from '../model/postWorkingCapitalLoansBreachActionRequest';
 // @ts-ignore
-import { GetEntityDatatableChecksTemplateResponse } from '../model/getEntityDatatableChecksTemplateResponse';
+import { PostWorkingCapitalLoansBreachActionResponse } from '../model/postWorkingCapitalLoansBreachActionResponse';
 // @ts-ignore
-import { PageGetEntityDatatableChecksResponse } from '../model/pageGetEntityDatatableChecksResponse';
-// @ts-ignore
-import { PostEntityDatatableChecksTemplateRequest } from '../model/postEntityDatatableChecksTemplateRequest';
-// @ts-ignore
-import { PostEntityDatatableChecksTemplateResponse } from '../model/postEntityDatatableChecksTemplateResponse';
+import { WorkingCapitalLoanBreachActionData } from '../model/workingCapitalLoanBreachActionData';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -53,27 +49,27 @@ import { BaseService } from '../api.base.service';
 @Injectable({
   providedIn: 'root'
 })
-export class EntityDataTableService extends BaseService {
+export class WorkingCapitalLoanBreachActionsService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * Delete Entity-Datatable Checks
-     * Deletes an existing Entity-Datatable Check
-     * @endpoint delete /v1/entityDatatableChecks/{entityDatatableCheckId}
-     * @param entityDatatableCheckId entityDatatableCheckId
+     * Retrieve Breach Actions by external id
+     * Retrieves all breach actions for a Working Capital loan identified by external id
+     * @endpoint get /v1/working-capital-loans/external-id/{loanExternalId}/breach-actions
+     * @param loanExternalId loanExternalId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteEntityDatatableChecksEntityDatatableCheckId(entityDatatableCheckId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DeleteEntityDatatableChecksTemplateResponse>;
-    public deleteEntityDatatableChecksEntityDatatableCheckId(entityDatatableCheckId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DeleteEntityDatatableChecksTemplateResponse>>;
-    public deleteEntityDatatableChecksEntityDatatableCheckId(entityDatatableCheckId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DeleteEntityDatatableChecksTemplateResponse>>;
-    public deleteEntityDatatableChecksEntityDatatableCheckId(entityDatatableCheckId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (entityDatatableCheckId === null || entityDatatableCheckId === undefined) {
-            throw new Error('Required parameter entityDatatableCheckId was null or undefined when calling deleteEntityDatatableChecksEntityDatatableCheckId.');
+    public getWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<WorkingCapitalLoanBreachActionData>>;
+    public getWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<WorkingCapitalLoanBreachActionData>>>;
+    public getWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<WorkingCapitalLoanBreachActionData>>>;
+    public getWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanExternalId === null || loanExternalId === undefined) {
+            throw new Error('Required parameter loanExternalId was null or undefined when calling getWorkingCapitalLoansExternalIdLoanExternalIdBreachActions.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -107,9 +103,9 @@ export class EntityDataTableService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/entityDatatableChecks/${this.configuration.encodeParam({name: "entityDatatableCheckId", value: entityDatatableCheckId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/v1/working-capital-loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/breach-actions`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DeleteEntityDatatableChecksTemplateResponse>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<WorkingCapitalLoanBreachActionData>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -123,69 +119,21 @@ export class EntityDataTableService extends BaseService {
     }
 
     /**
-     * List Entity-Datatable Checks
-     * The list capability of Entity-Datatable Checks can support pagination.  OPTIONAL ARGUMENTS offset Integer optional, defaults to 0 Indicates the result from which pagination startslimit Integer optional, defaults to 200 Restricts the size of results returned. To override the default and return all entries you must explicitly pass a non-positive integer value for limit e.g. limit&#x3D;0, or limit&#x3D;-1 Example Request:  entityDatatableChecks?offset&#x3D;0&amp;limit&#x3D;15
-     * @endpoint get /v1/entityDatatableChecks
-     * @param status status
-     * @param entity entity
-     * @param productId productId
-     * @param offset offset
-     * @param limit limit
+     * Retrieve Breach Actions
+     * Retrieves all breach actions for a Working Capital loan
+     * @endpoint get /v1/working-capital-loans/{loanId}/breach-actions
+     * @param loanId loanId
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getEntityDatatableChecks(status?: number, entity?: string, productId?: number, offset?: number, limit?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PageGetEntityDatatableChecksResponse>;
-    public getEntityDatatableChecks(status?: number, entity?: string, productId?: number, offset?: number, limit?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PageGetEntityDatatableChecksResponse>>;
-    public getEntityDatatableChecks(status?: number, entity?: string, productId?: number, offset?: number, limit?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PageGetEntityDatatableChecksResponse>>;
-    public getEntityDatatableChecks(status?: number, entity?: string, productId?: number, offset?: number, limit?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'status',
-            <any>status,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'entity',
-            <any>entity,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'productId',
-            <any>productId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'offset',
-            <any>offset,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'limit',
-            <any>limit,
-            QueryParamStyle.Form,
-            true,
-        );
-
+    public getWorkingCapitalLoansLoanIdBreachActions(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<WorkingCapitalLoanBreachActionData>>;
+    public getWorkingCapitalLoansLoanIdBreachActions(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<WorkingCapitalLoanBreachActionData>>>;
+    public getWorkingCapitalLoansLoanIdBreachActions(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<WorkingCapitalLoanBreachActionData>>>;
+    public getWorkingCapitalLoansLoanIdBreachActions(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling getWorkingCapitalLoansLoanIdBreachActions.');
+        }
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -218,69 +166,9 @@ export class EntityDataTableService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/entityDatatableChecks`;
+        let localVarPath = `/v1/working-capital-loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/breach-actions`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PageGetEntityDatatableChecksResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retrieve Entity-Datatable Checks Template
-     * This is a convenience resource useful for building maintenance user interface screens for Entity-Datatable Checks applications. The template data returned consists of:  Allowed description Lists Example Request:  entityDatatableChecks/template
-     * @endpoint get /v1/entityDatatableChecks/template
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getEntityDatatableChecksTemplate(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GetEntityDatatableChecksTemplateResponse>;
-    public getEntityDatatableChecksTemplate(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GetEntityDatatableChecksTemplateResponse>>;
-    public getEntityDatatableChecksTemplate(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GetEntityDatatableChecksTemplateResponse>>;
-    public getEntityDatatableChecksTemplate(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/entityDatatableChecks/template`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GetEntityDatatableChecksTemplateResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<WorkingCapitalLoanBreachActionData>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -294,20 +182,24 @@ export class EntityDataTableService extends BaseService {
     }
 
     /**
-     * Create Entity-Datatable Checks
-     * Mandatory Fields :  entity, status, datatableName  Non-Mandatory Fields :  productId
-     * @endpoint post /v1/entityDatatableChecks
-     * @param postEntityDatatableChecksTemplateRequest 
+     * Create Breach Action by external id
+     * Creates a breach action (pause, reschedule, resume, reset, undo_reset, disable, enable) for a Working Capital loan identified by external id.
+     * @endpoint post /v1/working-capital-loans/external-id/{loanExternalId}/breach-actions
+     * @param loanExternalId loanExternalId
+     * @param postWorkingCapitalLoansBreachActionRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postEntityDatatableChecks(postEntityDatatableChecksTemplateRequest: PostEntityDatatableChecksTemplateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostEntityDatatableChecksTemplateResponse>;
-    public postEntityDatatableChecks(postEntityDatatableChecksTemplateRequest: PostEntityDatatableChecksTemplateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostEntityDatatableChecksTemplateResponse>>;
-    public postEntityDatatableChecks(postEntityDatatableChecksTemplateRequest: PostEntityDatatableChecksTemplateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostEntityDatatableChecksTemplateResponse>>;
-    public postEntityDatatableChecks(postEntityDatatableChecksTemplateRequest: PostEntityDatatableChecksTemplateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (postEntityDatatableChecksTemplateRequest === null || postEntityDatatableChecksTemplateRequest === undefined) {
-            throw new Error('Required parameter postEntityDatatableChecksTemplateRequest was null or undefined when calling postEntityDatatableChecks.');
+    public postWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostWorkingCapitalLoansBreachActionResponse>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostWorkingCapitalLoansBreachActionResponse>>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostWorkingCapitalLoansBreachActionResponse>>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdBreachActions(loanExternalId: string, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanExternalId === null || loanExternalId === undefined) {
+            throw new Error('Required parameter loanExternalId was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdBreachActions.');
+        }
+        if (postWorkingCapitalLoansBreachActionRequest === null || postWorkingCapitalLoansBreachActionRequest === undefined) {
+            throw new Error('Required parameter postWorkingCapitalLoansBreachActionRequest was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdBreachActions.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -350,12 +242,89 @@ export class EntityDataTableService extends BaseService {
             }
         }
 
-        let localVarPath = `/v1/entityDatatableChecks`;
+        let localVarPath = `/v1/working-capital-loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/breach-actions`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostEntityDatatableChecksTemplateResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PostWorkingCapitalLoansBreachActionResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: postEntityDatatableChecksTemplateRequest,
+                body: postWorkingCapitalLoansBreachActionRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create Breach Action
+     * Creates a breach action (pause, reschedule, resume, reset, undo_reset, disable, enable) for a Working Capital loan. A resume shortens the currently active pause to the current business date. A disable stops breach evaluation as of the current business date; an enable re-triggers and recomputes breach evaluation as of that date.
+     * @endpoint post /v1/working-capital-loans/{loanId}/breach-actions
+     * @param loanId loanId
+     * @param postWorkingCapitalLoansBreachActionRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postWorkingCapitalLoansLoanIdBreachActions(loanId: number, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostWorkingCapitalLoansBreachActionResponse>;
+    public postWorkingCapitalLoansLoanIdBreachActions(loanId: number, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostWorkingCapitalLoansBreachActionResponse>>;
+    public postWorkingCapitalLoansLoanIdBreachActions(loanId: number, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostWorkingCapitalLoansBreachActionResponse>>;
+    public postWorkingCapitalLoansLoanIdBreachActions(loanId: number, postWorkingCapitalLoansBreachActionRequest: PostWorkingCapitalLoansBreachActionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling postWorkingCapitalLoansLoanIdBreachActions.');
+        }
+        if (postWorkingCapitalLoansBreachActionRequest === null || postWorkingCapitalLoansBreachActionRequest === undefined) {
+            throw new Error('Required parameter postWorkingCapitalLoansBreachActionRequest was null or undefined when calling postWorkingCapitalLoansLoanIdBreachActions.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/working-capital-loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/breach-actions`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PostWorkingCapitalLoansBreachActionResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: postWorkingCapitalLoansBreachActionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

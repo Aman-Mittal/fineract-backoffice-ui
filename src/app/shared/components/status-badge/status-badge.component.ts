@@ -67,6 +67,34 @@ import { NgClass } from '@angular/common';
         color: #5f6368;
         border: 1px solid #e8eaed;
       }
+
+      /* Dark mode: the light-only pastel chips above are unreadable on a dark card, so
+         re-theme each status against the app's semantic tokens (--success/--warning/--error-color)
+         instead of the Google-Material-style palette used for light mode. */
+      :host-context([data-theme='dark']) .status-active {
+        background-color: rgba(46, 204, 113, 0.16);
+        color: var(--success-color);
+        border-color: rgba(46, 204, 113, 0.4);
+      }
+
+      :host-context([data-theme='dark']) .status-pending {
+        background-color: rgba(243, 156, 18, 0.16);
+        color: var(--warning-color);
+        border-color: rgba(243, 156, 18, 0.4);
+      }
+
+      :host-context([data-theme='dark']) .status-closed,
+      :host-context([data-theme='dark']) .status-rejected {
+        background-color: rgba(231, 76, 60, 0.16);
+        color: var(--error-color);
+        border-color: rgba(231, 76, 60, 0.4);
+      }
+
+      :host-context([data-theme='dark']) .status-default {
+        background-color: var(--surface-sunken);
+        color: var(--text-muted);
+        border-color: var(--border-color);
+      }
     `,
   ],
 })

@@ -45,8 +45,6 @@ import { GetWorkingCapitalLoansPagedResponse } from '../model/getWorkingCapitalL
 // @ts-ignore
 import { GetWorkingCapitalLoansTemplateResponse } from '../model/getWorkingCapitalLoansTemplateResponse';
 // @ts-ignore
-import { InternalWorkingCapitalLoanPaymentRequest } from '../model/internalWorkingCapitalLoanPaymentRequest';
-// @ts-ignore
 import { PostWorkingCapitalLoansLoanIdRequest } from '../model/postWorkingCapitalLoansLoanIdRequest';
 // @ts-ignore
 import { PostWorkingCapitalLoansLoanIdResponse } from '../model/postWorkingCapitalLoansLoanIdResponse';
@@ -836,7 +834,7 @@ export class WorkingCapitalLoansService extends BaseService {
 
     /**
      * Activate a Working Capital Loan (testing only)
-     * Sets the WC loan status to ACTIVE and records a disbursement detail with the given date. Also generates the initial delinquency range schedule period if a delinquency bucket is configured.  DO NOT USE THIS IN PRODUCTION! Disbursement must go through the proper disbursement flow.
+     * Sets the WC loan status to ACTIVE, records a disbursement detail with the given date and initializes the loan balance as a real disbursement would. Also generates the initial delinquency range schedule period if a delinquency bucket is configured.  DO NOT USE THIS IN PRODUCTION! Disbursement must go through the proper disbursement flow.
      * @endpoint post /v1/internal/working-capital-loans/{loanId}/activate
      * @param loanId loanId
      * @param disbursementDate Disbursement date (yyyy-MM-dd)
@@ -1047,79 +1045,6 @@ export class WorkingCapitalLoansService extends BaseService {
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Makes Payment (testing)
-     * Makes payment for testing purposes.  DO NOT USE THIS IN PRODUCTION! In the real flow, the schedule will be generated during loan approval/disbursement from the loan and product data.
-     * @endpoint post /v1/internal/working-capital-loans/{loanId}/internalMakePayment
-     * @param loanId loanId
-     * @param internalWorkingCapitalLoanPaymentRequest 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public postInternalWorkingCapitalLoansLoanIdInternalMakePayment(loanId: number, internalWorkingCapitalLoanPaymentRequest?: InternalWorkingCapitalLoanPaymentRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public postInternalWorkingCapitalLoansLoanIdInternalMakePayment(loanId: number, internalWorkingCapitalLoanPaymentRequest?: InternalWorkingCapitalLoanPaymentRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public postInternalWorkingCapitalLoansLoanIdInternalMakePayment(loanId: number, internalWorkingCapitalLoanPaymentRequest?: InternalWorkingCapitalLoanPaymentRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public postInternalWorkingCapitalLoansLoanIdInternalMakePayment(loanId: number, internalWorkingCapitalLoanPaymentRequest?: InternalWorkingCapitalLoanPaymentRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (loanId === null || loanId === undefined) {
-            throw new Error('Required parameter loanId was null or undefined when calling postInternalWorkingCapitalLoansLoanIdInternalMakePayment.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (basicAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
-
-        // authentication (tenantid) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/v1/internal/working-capital-loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/internalMakePayment`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: internalWorkingCapitalLoanPaymentRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

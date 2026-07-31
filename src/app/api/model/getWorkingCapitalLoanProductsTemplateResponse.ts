@@ -45,6 +45,7 @@ export interface GetWorkingCapitalLoanProductsTemplateResponse {
     advancedPaymentAllocationTypes?: Array<StringEnumOptionData>;
     amortizationTypeOptions?: Array<StringEnumOptionData>;
     breachOptions?: Array<WorkingCapitalBreachData>;
+    breachStartTypeOptions?: Array<StringEnumOptionData>;
     chargeOffReasonOptions?: Array<CodeValueData>;
     chargeOptions?: Array<ChargeData>;
     currencyOptions?: Array<CurrencyData>;

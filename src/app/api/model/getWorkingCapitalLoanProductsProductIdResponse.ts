@@ -45,6 +45,11 @@ export interface GetWorkingCapitalLoanProductsProductIdResponse {
     allowAttributeOverrides?: GetConfigurableAttributes;
     amortizationType?: StringEnumOptionData;
     breach?: GetWorkingCapitalLoanBreach;
+    /**
+     * Number of days to shift the start of the first breach schedule period after disbursement
+     */
+    breachGraceDays?: number;
+    breachStartType?: StringEnumOptionData;
     chargeOffReasonToExpenseAccountMappings?: Array<AdvancedMappingToExpenseAccountData>;
     closeDate?: string;
     currency?: CurrencyData;

@@ -27,7 +27,7 @@ const SELECT_LEGAL_FORM = 'ion-select[name="legalFormId"]';
 const SELECT_OFFICE = 'ion-select[name="officeId"]';
 const OPTION = 'ion-alert [role="radio"], ion-popover [role="radio"]';
 const ROUTE_CLIENT_2001 = '**/api/v1/clients/2001**';
-const URL_CLIENT_2001 = '/clients/2001';
+const URL_CLIENT_2001 = '/clients/view/2001';
 const ARIA_SELECTED = 'aria-selected';
 const SEARCH_INPUT_LOCATOR = 'input[placeholder="Type to search..."]';
 const ROUTE_CHARGES = '**/api/v1/charges**';
@@ -188,15 +188,11 @@ test.describe('Client CRUD Workflow', () => {
     await page.locator(SELECT_OFFICE).click();
     await page.locator(OPTION).first().click();
 
-    /* set submitted on date */
-    await page.locator('input[name="submittedOnDate"]').click();
-    await page.getByText('15').first().click();
-    await page.keyboard.press('Escape');
+    /* submitted on / activation date already default to today; no interaction needed */
 
-    /* set activation date */
-    await page.locator('input[name="activationDate"]').click();
-    await page.getByText('15').first().click();
-    await page.keyboard.press('Escape');
+    /* fill required name fields */
+    await page.locator('input[name="firstname"]').fill('Test');
+    await page.locator('input[name="lastname"]').fill('User');
 
     /* now save button should be enabled */
     await expect(page.getByRole('button', { name: BTN_SAVE })).toBeEnabled();
@@ -233,14 +229,7 @@ test.describe('Client CRUD Workflow', () => {
     await page.locator(SELECT_OFFICE).click();
     await page.locator(OPTION).first().click();
 
-    /* date pickers */
-    await page.locator('input[name="submittedOnDate"]').click();
-    await page.getByText('15').first().click();
-    await page.keyboard.press('Escape');
-
-    await page.locator('input[name="activationDate"]').click();
-    await page.getByText('15').first().click();
-    await page.keyboard.press('Escape');
+    /* submitted on / activation date already default to today; no interaction needed */
 
     /* entity shows fullname field instead of first/last */
     const fullname = page.locator('input[name="fullname"]');
@@ -272,9 +261,11 @@ test.describe('Client CRUD Workflow', () => {
     await setupClientMocks(page, [ACTIVE_CLIENT]);
 
     /* navigate to client view then edit */
-    await page.goto('/clients/2001/edit');
-    await expect(page.locator(SELECT_LEGAL_FORM)).toBeDisabled();
-    await expect(page.locator(SELECT_OFFICE)).toBeDisabled();
+    await page.goto('/clients/edit/2001');
+    /* ion-select's `disabled` prop has reflect:false in Ionic, so it never surfaces as an
+       attribute/aria-disabled for toBeDisabled() to see; assert via its disabled CSS class instead */
+    await expect(page.locator(SELECT_LEGAL_FORM)).toHaveClass(/select-disabled/);
+    await expect(page.locator(SELECT_OFFICE)).toHaveClass(/select-disabled/);
   });
 });
 
@@ -317,10 +308,10 @@ test.describe('Client View & Status Transitions', () => {
 
     /* open actions menu */
     await page.getByRole('button', { name: /Actions/i }).click();
-    await expect(page.getByRole('menuitem', { name: /Activate/i })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: /Reject/i })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: /Withdraw/i })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: /Delete/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Activate/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Reject/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Withdraw/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Delete/i })).toBeVisible();
   });
 
   test('should show actions menu for active client (status 300)', async ({ page }) => {
@@ -334,7 +325,7 @@ test.describe('Client View & Status Transitions', () => {
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /Actions/i }).click();
-    await expect(page.getByRole('menuitem', { name: /Close/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Close Client/i })).toBeVisible();
   });
 
   test('should show actions menu for closed client (status 600)', async ({ page }) => {
@@ -348,7 +339,7 @@ test.describe('Client View & Status Transitions', () => {
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /Actions/i }).click();
-    await expect(page.getByRole('menuitem', { name: /Reactivate/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Reactivate/i })).toBeVisible();
   });
 
   test('should show New Account menu for active client', async ({ page }) => {
@@ -362,10 +353,10 @@ test.describe('Client View & Status Transitions', () => {
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /New Account/i }).click();
-    await expect(page.getByRole('menuitem', { name: /Loan Account/i })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: /Savings Account/i })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: /Fixed Deposit/i })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: /Recurring Deposit/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Loan Account/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Savings Account/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Fixed Deposit/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Recurring Deposit/i })).toBeVisible();
   });
 
   test('should navigate from client view to client list via breadcrumb', async ({ page }) => {
@@ -404,8 +395,7 @@ test.describe('Client View & Status Transitions', () => {
 
 test.describe('Client View Tabs', () => {
   test('should display all expected tabs on client view', async ({ page }) => {
-    await mockConfig(page);
-    await mockAuth(page);
+    await loginAndGoToDashboard(page);
     await page.route(ROUTE_CLIENT_2001, async (route) => {
       await route.fulfill({
         status: 200,
@@ -441,8 +431,7 @@ test.describe('Client View Tabs', () => {
   });
 
   test('should switch between client view tabs', async ({ page }) => {
-    await mockConfig(page);
-    await mockAuth(page);
+    await loginAndGoToDashboard(page);
     await page.route(ROUTE_CLIENT_2001, async (route) => {
       await route.fulfill({
         status: 200,
@@ -474,15 +463,16 @@ test.describe('Client View Tabs', () => {
       'true',
     );
 
-    /* switch to Identifiers tab */
-    await page.getByRole('tab', { name: /Identifiers/i }).click();
+    /* switch to Identifiers tab (force: Ionic's segment indicator overlay sits in the
+       hit-test path of its own segment-button, tripping Playwright's actionability check) */
+    await page.getByRole('tab', { name: /Identifiers/i }).click({ force: true });
     await expect(page.getByRole('tab', { name: /Identifiers/i })).toHaveAttribute(
       ARIA_SELECTED,
       'true',
     );
 
     /* switch to Notes tab */
-    await page.getByRole('tab', { name: /Notes/i }).click();
+    await page.getByRole('tab', { name: /Notes/i }).click({ force: true });
     await expect(page.getByRole('tab', { name: /Notes/i })).toHaveAttribute(ARIA_SELECTED, 'true');
   });
 });
@@ -510,7 +500,7 @@ test.describe('Search & Filter Interactions', () => {
     await page.route('**/api/v1/groups*', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: EMPTY_RESPONSE });
     });
-    await page.getByRole('link', { name: 'Groups' }).click();
+    await page.getByRole('link', { name: 'Groups', exact: true }).click();
 
     /* verify office filter dropdown is present */
     const officeFilter = page.locator('ion-select').first();
@@ -540,7 +530,7 @@ test.describe('Search & Filter Interactions', () => {
         body: JSON.stringify({ totalPending: 0 }),
       });
     });
-    await page.getByRole('link', { name: 'Loans' }).click();
+    await page.getByRole('link', { name: 'Loans', exact: true }).click();
     const searchInput = page.locator(SEARCH_INPUT_LOCATOR);
     await expect(searchInput).toBeVisible();
   });
@@ -631,7 +621,7 @@ test.describe('Navigation Flow Verification', () => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
     });
 
-    await page.getByRole('link', { name: 'Loan Products' }).click();
+    await page.getByRole('link', { name: 'Loan Products' }).first().click();
     await expect(page).toHaveURL('/products/loan');
 
     /* click create loan product */
@@ -698,10 +688,7 @@ test.describe('Office CRUD', () => {
     await page.locator('ion-select[name="parentId"]').click();
     await page.locator(OPTION).first().click();
 
-    /* fill opening date */
-    await page.locator('input[name="openingDate"]').click();
-    await page.getByText('15').first().click();
-    await page.keyboard.press('Escape');
+    /* opening date already defaults to today; no interaction needed */
 
     await expect(page.getByRole('button', { name: BTN_SAVE })).toBeEnabled();
   });
@@ -741,8 +728,8 @@ test.describe('Organization Create Flows', () => {
     await page.getByRole('link', { name: 'Staff' }).click();
     await expect(page).toHaveURL('/organization/staff');
 
-    /* click create */
-    await page.getByRole('button', { name: /Create/i }).click();
+    /* click create (ion-button[routerLink] renders as a link, not a button) */
+    await page.getByRole('link', { name: /Create/i }).click();
     await expect(page).toHaveURL('/organization/staff/create');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Staff/i);
   });
@@ -789,9 +776,9 @@ test.describe('Accounting CRUD', () => {
     });
 
     await page.getByRole('link', { name: 'Accounting Closures' }).click();
-    await page.getByRole('button', { name: /Create/i }).click();
+    await page.getByRole('button', { name: /Close Period/i }).click();
     await expect(page).toHaveURL(/\/accounting\/closures\/create/);
-    await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Closing/i);
+    await expect(page.locator(CARD_TITLE).first()).toContainText(/Close Accounting Period/i);
   });
 
   test('accounting rule create form loads', async ({ page }) => {
@@ -808,7 +795,7 @@ test.describe('Accounting CRUD', () => {
     await page.getByRole('link', { name: 'Accounting Rules' }).click();
     await page.getByRole('button', { name: /Create/i }).click();
     await expect(page).toHaveURL(/\/accounting\/rules\/create/);
-    await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Rule/i);
+    await expect(page.locator('h1').first()).toContainText(/Create Accounting Rule/i);
   });
 
   test('financial activity mapping create form loads', async ({ page }) => {
@@ -820,8 +807,10 @@ test.describe('Accounting CRUD', () => {
     });
 
     await page.getByRole('link', { name: 'Financial Activity Mappings' }).click();
-    await page.getByRole('button', { name: /Create/i }).click();
-    await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Mapping/i);
+    await page.getByRole('button', { name: /Define Mapping/i }).click();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      /Define Financial Activity Mapping/i,
+    );
   });
 
   test('charge create form loads', async ({ page }) => {
@@ -841,8 +830,8 @@ test.describe('Accounting CRUD', () => {
     });
 
     await page.getByRole('link', { name: 'Chart of Accounts' }).click();
-    await page.getByRole('button', { name: /Add Account/i }).click();
-    await expect(page.locator(CARD_TITLE).first()).toContainText(/Add GL Account/i);
+    await page.getByRole('button', { name: /Add Ledger Account/i }).click();
+    await expect(page.locator(CARD_TITLE).first()).toContainText(/Create GL Account/i);
   });
 });
 
@@ -861,20 +850,22 @@ test.describe('Settings CRUD', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            id: 1,
-            name: 'maker-checker-for-loan',
-            value: true,
-            description: 'Enable maker-checker for loans',
-          },
-          {
-            id: 2,
-            name: 'maker-checker-for-savings',
-            value: false,
-            description: 'Enable maker-checker for savings',
-          },
-        ]),
+        body: JSON.stringify({
+          globalConfiguration: [
+            {
+              id: 1,
+              name: 'maker-checker-for-loan',
+              value: true,
+              description: 'Enable maker-checker for loans',
+            },
+            {
+              id: 2,
+              name: 'maker-checker-for-savings',
+              value: false,
+              description: 'Enable maker-checker for savings',
+            },
+          ],
+        }),
       });
     });
 
@@ -886,6 +877,9 @@ test.describe('Settings CRUD', () => {
   });
 
   test('holiday create form loads', async ({ page }) => {
+    await page.route(ROUTE_OFFICES_WILDCARD, async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: OFFICE_ARRAY });
+    });
     await page.route('**/api/v1/holidays**', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: EMPTY_ARRAY });
     });
@@ -896,21 +890,23 @@ test.describe('Settings CRUD', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Holiday/i);
   });
 
-  test('working days page has edit button', async ({ page }) => {
+  test('working days page has save button', async ({ page }) => {
     await page.route('**/api/v1/workingdays**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([
-          { id: 1, day: 'Monday', daysIsOn: true },
-          { id: 2, day: 'Tuesday', daysIsOn: true },
-        ]),
+        body: JSON.stringify({
+          recurrence: 'FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR',
+          repaymentRescheduleType: { id: 1 },
+          extendTermForDailyRepayments: false,
+          extendTermForRepaymentsOnHolidays: false,
+        }),
       });
     });
 
     await page.getByRole('link', { name: 'Working Days' }).click();
     await expect(page).toHaveURL('/settings/working-days');
-    await expect(page.getByRole('button', { name: /Edit/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Save/i })).toBeVisible();
   });
 });
 
@@ -929,7 +925,7 @@ test.describe('System CRUD', () => {
     });
 
     await page.getByRole('link', { name: 'Data Tables' }).click();
-    await page.getByRole('button', { name: /Create/i }).click();
+    await page.getByRole('link', { name: /Create/i }).click();
     await expect(page).toHaveURL(/\/system\/data-tables\/create/);
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Data Table/i);
   });
@@ -945,8 +941,8 @@ test.describe('System CRUD', () => {
     await page.getByRole('link', { name: 'Delinquency' }).click();
     await expect(page).toHaveURL('/system/delinquency');
 
-    /* verify Create buttons are visible */
-    const createButtons = page.getByRole('button', { name: /Create/i });
+    /* verify Create buttons are visible (ion-button[routerLink] renders as a link) */
+    const createButtons = page.getByRole('link', { name: /Create/i });
     await expect(createButtons.first()).toBeVisible();
   });
 });
@@ -969,7 +965,7 @@ test.describe('Security CRUD', () => {
     });
 
     await page.getByRole('link', { name: 'Roles' }).click();
-    await page.getByRole('button', { name: /Add Role/i }).click();
+    await page.getByRole('button', { name: /Create Role/i }).click();
     await expect(page).toHaveURL(/\/security\/roles\/create/);
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Role/i);
   });
@@ -985,9 +981,12 @@ test.describe('Security CRUD', () => {
     await page.getByRole('link', { name: 'Audit Logs' }).click();
     await expect(page).toHaveURL('/security/audits');
 
+    /* filters live in a collapsed accordion; expand it first */
+    await page.getByText('Filters').click();
+
     /* verify date range inputs are present */
-    await expect(page.getByPlaceholder('From')).toBeVisible();
-    await expect(page.getByPlaceholder('To')).toBeVisible();
+    await expect(page.getByText('Maker Date From')).toBeVisible();
+    await expect(page.getByText('Maker Date To')).toBeVisible();
   });
 });
 
@@ -1035,7 +1034,7 @@ test.describe('Reporting — Run Report Flow', () => {
     await expect(page).toHaveURL('/reporting');
 
     /* run the report */
-    await page.locator('button[matTooltip="Run Report"]').first().click();
+    await page.getByRole('button', { name: 'Run' }).first().click();
     await expect(page).toHaveURL(/\/reporting\/run/);
 
     /* select office and run */
@@ -1094,14 +1093,12 @@ test.describe('Create Office Dialog from Client Form', () => {
     await expect(page).toHaveURL(URL_CLIENTS_CREATE);
 
     /* click the add office button (the + icon) */
-    const addOfficeBtn = page
-      .locator('ion-ion-button:has(ion-icon[name="add-circle-outline"])')
-      .first();
+    const addOfficeBtn = page.getByRole('button', { name: 'Add New Office' });
     await expect(addOfficeBtn).toBeVisible();
     await addOfficeBtn.click();
 
-    /* verify dialog opens */
-    const dialog = page.locator('ion-modal');
+    /* verify dialog opens (exclude the ion-datetime-button's own auto-generated overlays) */
+    const dialog = page.locator('ion-modal:not(.ion-datetime-button-overlay)');
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText(/Create Office/i);
   });

@@ -25,9 +25,15 @@
 
 
 
-export interface DelinquencyPausePeriod { 
-    active?: boolean;
-    pausePeriodEnd?: string;
-    pausePeriodStart?: string;
+/**
+ * Response for working capital loan transaction command execution
+ */
+export interface ExecuteWorkingCapitalLoanTransactionCommandResponse { 
+    clientId?: number;
+    loanExternalId?: string;
+    loanId?: number;
+    officeId?: number;
+    resourceExternalId?: string;
+    resourceId?: number;
 }
 

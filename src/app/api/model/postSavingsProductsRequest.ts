@@ -45,6 +45,7 @@ export interface PostSavingsProductsRequest {
     interestPostingPeriodType?: number;
     isDormancyTrackingActive?: boolean;
     locale?: string;
+    minRequiredOpeningBalance?: number;
     name?: string;
     nominalAnnualInterestRate?: number;
     shortName?: string;

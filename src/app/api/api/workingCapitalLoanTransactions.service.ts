@@ -33,6 +33,10 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ExecuteWorkingCapitalLoanTransactionCommandRequest } from '../model/executeWorkingCapitalLoanTransactionCommandRequest';
+// @ts-ignore
+import { ExecuteWorkingCapitalLoanTransactionCommandResponse } from '../model/executeWorkingCapitalLoanTransactionCommandResponse';
+// @ts-ignore
 import { GetWorkingCapitalLoanTransactionIdResponse } from '../model/getWorkingCapitalLoanTransactionIdResponse';
 // @ts-ignore
 import { GetWorkingCapitalLoanTransactionsResponse } from '../model/getWorkingCapitalLoanTransactionsResponse';
@@ -623,21 +627,118 @@ export class WorkingCapitalLoanTransactionsService extends BaseService {
     }
 
     /**
-     * Execute a command on an existing Working Capital Loan transaction by loan external id
+     * Execute Working Capital Loan transaction command by loan external id and transaction external id
+     * Supported command query parameter: undo
+     * @endpoint post /v1/working-capital-loans/external-id/{loanExternalId}/transactions/external-id/{transactionExternalId}
+     * @param loanExternalId loanExternalId
+     * @param transactionExternalId transactionExternalId
+     * @param command command
+     * @param executeWorkingCapitalLoanTransactionCommandRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId(loanExternalId: string, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExecuteWorkingCapitalLoanTransactionCommandResponse>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId(loanExternalId: string, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId(loanExternalId: string, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId(loanExternalId: string, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanExternalId === null || loanExternalId === undefined) {
+            throw new Error('Required parameter loanExternalId was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (command === null || command === undefined) {
+            throw new Error('Required parameter command was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (executeWorkingCapitalLoanTransactionCommandRequest === null || executeWorkingCapitalLoanTransactionCommandRequest === undefined) {
+            throw new Error('Required parameter executeWorkingCapitalLoanTransactionCommandRequest was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsExternalIdTransactionExternalId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/working-capital-loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ExecuteWorkingCapitalLoanTransactionCommandResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: executeWorkingCapitalLoanTransactionCommandRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Execute Working Capital Loan transaction command by loan external id and transaction id
      * Supported command query parameter: undo
      * @endpoint post /v1/working-capital-loans/external-id/{loanExternalId}/transactions/{transactionId}
      * @param loanExternalId loanExternalId
      * @param transactionId transactionId
      * @param command command
-     * @param postWorkingCapitalLoanTransactionsRequest 
+     * @param executeWorkingCapitalLoanTransactionCommandRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostWorkingCapitalLoanTransactionsResponse>;
-    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostWorkingCapitalLoanTransactionsResponse>>;
-    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostWorkingCapitalLoanTransactionsResponse>>;
-    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExecuteWorkingCapitalLoanTransactionCommandResponse>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId(loanExternalId: string, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanExternalId === null || loanExternalId === undefined) {
             throw new Error('Required parameter loanExternalId was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId.');
         }
@@ -647,8 +748,8 @@ export class WorkingCapitalLoanTransactionsService extends BaseService {
         if (command === null || command === undefined) {
             throw new Error('Required parameter command was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId.');
         }
-        if (postWorkingCapitalLoanTransactionsRequest === null || postWorkingCapitalLoanTransactionsRequest === undefined) {
-            throw new Error('Required parameter postWorkingCapitalLoanTransactionsRequest was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId.');
+        if (executeWorkingCapitalLoanTransactionCommandRequest === null || executeWorkingCapitalLoanTransactionCommandRequest === undefined) {
+            throw new Error('Required parameter executeWorkingCapitalLoanTransactionCommandRequest was null or undefined when calling postWorkingCapitalLoansExternalIdLoanExternalIdTransactionsTransactionId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -704,10 +805,10 @@ export class WorkingCapitalLoanTransactionsService extends BaseService {
 
         let localVarPath = `/v1/working-capital-loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostWorkingCapitalLoanTransactionsResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ExecuteWorkingCapitalLoanTransactionCommandResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: postWorkingCapitalLoanTransactionsRequest,
+                body: executeWorkingCapitalLoanTransactionCommandRequest,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
@@ -813,21 +914,118 @@ export class WorkingCapitalLoanTransactionsService extends BaseService {
     }
 
     /**
-     * Execute a command on an existing Working Capital Loan transaction
+     * Execute Working Capital Loan transaction command by loan id and transaction external id
+     * Supported command query parameter: undo
+     * @endpoint post /v1/working-capital-loans/{loanId}/transactions/external-id/{transactionExternalId}
+     * @param loanId loanId
+     * @param transactionExternalId transactionExternalId
+     * @param command command
+     * @param executeWorkingCapitalLoanTransactionCommandRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId(loanId: number, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExecuteWorkingCapitalLoanTransactionCommandResponse>;
+    public postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId(loanId: number, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId(loanId: number, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId(loanId: number, transactionExternalId: string, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (transactionExternalId === null || transactionExternalId === undefined) {
+            throw new Error('Required parameter transactionExternalId was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (command === null || command === undefined) {
+            throw new Error('Required parameter command was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId.');
+        }
+        if (executeWorkingCapitalLoanTransactionCommandRequest === null || executeWorkingCapitalLoanTransactionCommandRequest === undefined) {
+            throw new Error('Required parameter executeWorkingCapitalLoanTransactionCommandRequest was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsExternalIdTransactionExternalId.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'command',
+            <any>command,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/working-capital-loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/external-id/${this.configuration.encodeParam({name: "transactionExternalId", value: transactionExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ExecuteWorkingCapitalLoanTransactionCommandResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: executeWorkingCapitalLoanTransactionCommandRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Execute Working Capital Loan transaction command by loan id and transaction id
      * Supported command query parameter: undo
      * @endpoint post /v1/working-capital-loans/{loanId}/transactions/{transactionId}
      * @param loanId loanId
      * @param transactionId transactionId
      * @param command command
-     * @param postWorkingCapitalLoanTransactionsRequest 
+     * @param executeWorkingCapitalLoanTransactionCommandRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PostWorkingCapitalLoanTransactionsResponse>;
-    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PostWorkingCapitalLoanTransactionsResponse>>;
-    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PostWorkingCapitalLoanTransactionsResponse>>;
-    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, postWorkingCapitalLoanTransactionsRequest: PostWorkingCapitalLoanTransactionsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExecuteWorkingCapitalLoanTransactionCommandResponse>;
+    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExecuteWorkingCapitalLoanTransactionCommandResponse>>;
+    public postWorkingCapitalLoansLoanIdTransactionsTransactionId(loanId: number, transactionId: number, command: string, executeWorkingCapitalLoanTransactionCommandRequest: ExecuteWorkingCapitalLoanTransactionCommandRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsTransactionId.');
         }
@@ -837,8 +1035,8 @@ export class WorkingCapitalLoanTransactionsService extends BaseService {
         if (command === null || command === undefined) {
             throw new Error('Required parameter command was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsTransactionId.');
         }
-        if (postWorkingCapitalLoanTransactionsRequest === null || postWorkingCapitalLoanTransactionsRequest === undefined) {
-            throw new Error('Required parameter postWorkingCapitalLoanTransactionsRequest was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsTransactionId.');
+        if (executeWorkingCapitalLoanTransactionCommandRequest === null || executeWorkingCapitalLoanTransactionCommandRequest === undefined) {
+            throw new Error('Required parameter executeWorkingCapitalLoanTransactionCommandRequest was null or undefined when calling postWorkingCapitalLoansLoanIdTransactionsTransactionId.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -894,10 +1092,10 @@ export class WorkingCapitalLoanTransactionsService extends BaseService {
 
         let localVarPath = `/v1/working-capital-loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transactions/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PostWorkingCapitalLoanTransactionsResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ExecuteWorkingCapitalLoanTransactionCommandResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: postWorkingCapitalLoanTransactionsRequest,
+                body: executeWorkingCapitalLoanTransactionCommandRequest,
                 params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),

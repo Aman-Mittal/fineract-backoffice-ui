@@ -160,7 +160,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   <div>
                     <ion-chip [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
                       {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
-                      {{ selectedProductDetails?.loanScheduleType?.value }}
+                      {{ selectedProductDetails.loanScheduleType?.value }}
                     </ion-chip>
                   </div>
                 </div>

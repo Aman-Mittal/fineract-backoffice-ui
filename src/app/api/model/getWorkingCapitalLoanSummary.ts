@@ -23,14 +23,18 @@
  * Do not edit the class manually.
  */
 
+import { CurrencyData } from './currencyData';
 
 
-export interface WorkingCapitalLoanBalanceData { 
+/**
+ * Working Capital Loan summary
+ */
+export interface GetWorkingCapitalLoanSummary { 
+    currency?: CurrencyData;
     fee?: number;
     feeOutstanding?: number;
     feePaid?: number;
-    id?: number;
-    overpaymentAmount?: number;
+    overpayment?: number;
     penalty?: number;
     penaltyOutstanding?: number;
     penaltyPaid?: number;

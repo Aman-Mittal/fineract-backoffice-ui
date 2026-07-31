@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../core/services/notification.service';
@@ -115,11 +115,11 @@ export class ConfirmDialogComponent {
       helpTextKey="HELP.HOLIDAYS_DESC"
       createButtonLabel="SETTINGS.CREATE_HOLIDAY"
       [columns]="columns"
-      [data]="holidays"
-      [totalRecords]="holidays.length"
+      [data]="holidays()"
+      [totalRecords]="holidays().length"
       [showSearch]="true"
       [localLogic]="true"
-      [isLoading]="isLoading"
+      [isLoading]="isLoading()"
       (create)="onCreateHoliday()"
     >
       <div filters class="office-filter-container">
@@ -127,10 +127,10 @@ export class ConfirmDialogComponent {
           <ion-label position="stacked">{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</ion-label>
           <ion-select
             interface="popover"
-            [value]="selectedOfficeId"
+            [value]="selectedOfficeId()"
             (ionChange)="onOfficeChange($event.detail.value)"
           >
-            @for (office of offices; track office.id) {
+            @for (office of offices(); track office.id) {
               <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
             }
           </ion-select>
@@ -192,23 +192,23 @@ export class HolidaysListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  holidays: GetHolidaysResponse[] = [];
-  offices: GetOfficesResponse[] = [];
-  selectedOfficeId = 1;
-  isLoading = false;
+  readonly holidays = signal<GetHolidaysResponse[]>([]);
+  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly selectedOfficeId = signal(1);
+  readonly isLoading = signal(false);
 
   ngOnInit(): void {
     this.loadOffices();
   }
 
   private loadOffices(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.officesService.getOffices(true).subscribe({
       next: (data) => {
-        this.offices = data || [];
-        if (this.offices.length > 0) {
-          const hasOffice1 = this.offices.some((o) => o.id === 1);
-          this.selectedOfficeId = hasOffice1 ? 1 : this.offices[0].id!;
+        this.offices.set(data || []);
+        if (this.offices().length > 0) {
+          const hasOffice1 = this.offices().some((o) => o.id === 1);
+          this.selectedOfficeId.set(hasOffice1 ? 1 : this.offices()[0].id!);
         }
         this.loadHolidays();
       },
@@ -220,21 +220,21 @@ export class HolidaysListComponent implements OnInit {
   }
 
   private loadHolidays(): void {
-    this.isLoading = true;
-    this.holidaysService.getHolidays(this.selectedOfficeId).subscribe({
+    this.isLoading.set(true);
+    this.holidaysService.getHolidays(this.selectedOfficeId()).subscribe({
       next: (data) => {
-        this.holidays = data || [];
-        this.isLoading = false;
+        this.holidays.set(data || []);
+        this.isLoading.set(false);
       },
       error: (err) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         console.error('Failed to load holidays', err);
       },
     });
   }
 
   onOfficeChange(officeId: number): void {
-    this.selectedOfficeId = officeId;
+    this.selectedOfficeId.set(officeId);
     this.loadHolidays();
   }
 
@@ -253,14 +253,14 @@ export class HolidaysListComponent implements OnInit {
       })
       .then((result) => {
         if (result) {
-          this.isLoading = true;
+          this.isLoading.set(true);
           this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
             next: () => {
               this.notifications.success('Holiday activated successfully');
               this.loadHolidays();
             },
             error: (err) => {
-              this.isLoading = false;
+              this.isLoading.set(false);
               console.error('Failed to activate holiday', err);
               this.notifications.error('Failed to activate holiday');
             },
