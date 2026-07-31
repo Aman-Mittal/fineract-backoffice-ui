@@ -20,7 +20,7 @@ under the License.
 # AGENTS.md
 
 Guidance for AI coding agents and human contributors working in this repository.
-This complements `CONTRIBUTING.md`, `STYLE.md`, `ARCHITECTURE_DECISIONS.md`, and the
+This complements `CONTRIBUTING.md`, `STYLE.md`, the ADRs under `DOCS/adr/`, and the
 threat model in `security.md`.
 
 ## Project
