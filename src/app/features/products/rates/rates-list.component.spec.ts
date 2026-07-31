@@ -57,7 +57,7 @@ describe('RatesListComponent', () => {
   it('should load rates on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getRates).toHaveBeenCalled();
-    expect(component.rates.length).toBe(1);
+    expect(component.rates).toHaveSize(1);
   });
 
   it('should navigate to create', () => {

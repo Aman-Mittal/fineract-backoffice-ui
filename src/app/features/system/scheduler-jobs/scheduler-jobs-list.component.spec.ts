@@ -70,7 +70,7 @@ describe('SchedulerJobsListComponent', () => {
   it('should load jobs and scheduler status on init', () => {
     expect(component).toBeTruthy();
     expect(jobSpy.getJobs).toHaveBeenCalled();
-    expect(component.jobs.length).toBe(1);
+    expect(component.jobs).toHaveSize(1);
     expect(component.schedulerActive).toBeTrue();
   });
 

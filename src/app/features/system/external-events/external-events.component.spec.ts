@@ -59,7 +59,7 @@ describe('ExternalEventsComponent', () => {
   });
 
   it('should load events on init', () => {
-    expect(component.events.length).toBe(2);
+    expect(component.events).toHaveSize(2);
   });
 
   it('should put a map of toggles on save', () => {

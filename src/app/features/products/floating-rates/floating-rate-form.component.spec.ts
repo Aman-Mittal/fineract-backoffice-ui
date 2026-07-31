@@ -60,12 +60,12 @@ describe('FloatingRateFormComponent', () => {
   });
 
   it('should add and remove rate periods', () => {
-    expect(component.periods.length).toBe(0);
+    expect(component.periods).toHaveSize(0);
     component.addPeriod();
     component.addPeriod();
-    expect(component.periods.length).toBe(2);
+    expect(component.periods).toHaveSize(2);
     component.removePeriod(0);
-    expect(component.periods.length).toBe(1);
+    expect(component.periods).toHaveSize(1);
   });
 
   it('should post a floating rate with mapped rate periods', () => {

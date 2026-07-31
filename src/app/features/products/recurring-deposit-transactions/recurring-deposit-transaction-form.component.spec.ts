@@ -66,7 +66,7 @@ describe('RecurringDepositTransactionFormComponent', () => {
     expect(
       serviceSpy.getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate,
     ).toHaveBeenCalledWith(1);
-    expect(component.paymentTypeOptions.length).toBe(2);
+    expect(component.paymentTypeOptions).toHaveSize(2);
   });
 
   it('should post a deposit and navigate to the transactions list', () => {

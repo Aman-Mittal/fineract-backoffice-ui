@@ -66,7 +66,7 @@ describe('ClientCollateralFormComponent', () => {
   it('should load collateral product options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdCollateralsTemplate).toHaveBeenCalledWith(1);
-    expect(component.collateralProductOptions.length).toBe(1);
+    expect(component.collateralProductOptions).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {

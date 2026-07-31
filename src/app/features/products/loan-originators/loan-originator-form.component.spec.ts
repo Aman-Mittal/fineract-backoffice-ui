@@ -66,9 +66,9 @@ describe('LoanOriginatorFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanOriginatorsTemplate).toHaveBeenCalled();
-    expect(component.originatorTypeOptions.length).toBe(1);
-    expect(component.channelTypeOptions.length).toBe(1);
-    expect(component.statusOptions.length).toBe(2);
+    expect(component.originatorTypeOptions).toHaveSize(1);
+    expect(component.channelTypeOptions).toHaveSize(1);
+    expect(component.statusOptions).toHaveSize(2);
   });
 
   it('should post on create and navigate to the list', () => {

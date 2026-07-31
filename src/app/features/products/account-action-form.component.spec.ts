@@ -210,7 +210,7 @@ describe('AccountActionFormComponent', () => {
     createComponent();
 
     expect(staffSpy.getStaff).toHaveBeenCalled();
-    expect(component.staffOptions.length).toBe(1);
+    expect(component.staffOptions).toHaveSize(1);
 
     loansSpy.postLoansLoanId.and.returnValue(of({}) as unknown as Observable<never>);
     component.toLoanOfficerId = 1;

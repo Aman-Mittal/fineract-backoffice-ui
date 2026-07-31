@@ -75,6 +75,9 @@ describe('DialogService', () => {
     });
   });
 
+  /* eslint-disable sonarjs/assertions-in-tests --
+     These assert with expectAsync().toBeResolvedTo(), which the rule does not
+     recognise as an assertion. Rewriting them would only satisfy the check. */
   describe('confirm', () => {
     it('resolves true only when the dialog reports confirmation', async () => {
       onWillDismiss.and.resolveTo({ data: true });

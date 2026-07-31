@@ -64,7 +64,7 @@ describe('BusinessStepsComponent', () => {
   });
 
   it('should load job names on init', () => {
-    expect(component.jobNames.length).toBe(1);
+    expect(component.jobNames).toHaveSize(1);
   });
 
   it('should load and sort steps by order', () => {

@@ -57,7 +57,7 @@ describe('PovertyLineComponent', () => {
     component.ppiName = 'PPI_INDIA';
     component.load();
     expect(serviceSpy.getPovertyLinePpiName).toHaveBeenCalledWith('PPI_INDIA');
-    expect(component.rows.length).toBe(1);
+    expect(component.rows).toHaveSize(1);
     expect(component.rows[0].povertyLine).toBe(100);
   });
 });

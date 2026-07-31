@@ -128,11 +128,11 @@ describe('WcLoanViewComponent', () => {
     expect(component.loanId).toBe(1);
     expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledWith(1);
     expect(component.loan()?.accountNo).toBe('000001');
-    expect(component.charges().length).toBe(1);
-    expect(component.transactions().length).toBe(1);
-    expect(component.delinquencyActions().length).toBe(1);
-    expect(component.delinquencyRangeSchedule().length).toBe(1);
-    expect(component.breachSchedule().length).toBe(1);
+    expect(component.charges()).toHaveSize(1);
+    expect(component.transactions()).toHaveSize(1);
+    expect(component.delinquencyActions()).toHaveSize(1);
+    expect(component.delinquencyRangeSchedule()).toHaveSize(1);
+    expect(component.breachSchedule()).toHaveSize(1);
   });
 
   it('should navigate back to the list', () => {

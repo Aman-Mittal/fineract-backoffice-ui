@@ -62,9 +62,9 @@ describe('WcLoanFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getWorkingCapitalLoansTemplate).toHaveBeenCalled();
-    expect(component.productOptions.length).toBe(1);
-    expect(component.breachOptions.length).toBe(1);
-    expect(component.repaymentFrequencyTypeOptions.length).toBe(1);
+    expect(component.productOptions).toHaveSize(1);
+    expect(component.breachOptions).toHaveSize(1);
+    expect(component.repaymentFrequencyTypeOptions).toHaveSize(1);
   });
 
   it('should post on submit and navigate to the list', () => {

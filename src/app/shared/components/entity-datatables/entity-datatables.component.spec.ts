@@ -117,7 +117,7 @@ describe('EntityDatatablesComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.datatables().length).toBe(0);
+    expect(component.datatables()).toHaveSize(0);
     expect(datatablesServiceSpy.getDatatablesDatatableApptableId).not.toHaveBeenCalled();
   });
 
@@ -143,7 +143,7 @@ describe('EntityDatatablesComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.tableData().length).toBe(2);
+    expect(component.tableData()).toHaveSize(2);
   });
 
   it('should handle error when loading table data', () => {
@@ -185,7 +185,7 @@ describe('EntityDatatablesComponent', () => {
 
   it('should format column defs and filter out standard ID columns', () => {
     const colDefs = component.getColumnDefs(mockDatatables[0]);
-    expect(colDefs.length).toBe(2);
+    expect(colDefs).toHaveSize(2);
     expect(colDefs[0].key).toBe('business_type');
     expect(colDefs[1].key).toBe('revenue');
   });

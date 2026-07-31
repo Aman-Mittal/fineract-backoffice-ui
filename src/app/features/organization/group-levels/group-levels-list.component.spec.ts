@@ -51,6 +51,6 @@ describe('GroupLevelsListComponent', () => {
   it('should load group levels on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getGrouplevels).toHaveBeenCalled();
-    expect(component.groupLevels.length).toBe(2);
+    expect(component.groupLevels).toHaveSize(2);
   });
 });

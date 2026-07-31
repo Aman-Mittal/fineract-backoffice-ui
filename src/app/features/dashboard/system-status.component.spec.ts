@@ -60,7 +60,7 @@ describe('SystemStatusComponent', () => {
   it('should display environment information', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const listItems = compiled.querySelectorAll('li');
-    expect(listItems.length).toBe(4);
+    expect(listItems).toHaveSize(4);
     expect(compiled.textContent).toContain('Runtime API URL:');
     expect(compiled.textContent).toContain('Fallback API URL:');
     expect(compiled.textContent).toContain('Environment:');

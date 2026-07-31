@@ -71,7 +71,7 @@ describe('DataTableComponent', () => {
   });
 
   it('renders a row per record', () => {
-    expect(component.rows().length).toBe(2);
+    expect(component.rows()).toHaveSize(2);
     expect(renderedNames()).toEqual(['Alice', 'Bob']);
   });
 
@@ -175,7 +175,7 @@ describe('DataTableComponent', () => {
     it('paginates and reports the filtered total', () => {
       setInputs({ pageSize: 1 });
 
-      expect(component.rows().length).toBe(1);
+      expect(component.rows()).toHaveSize(1);
       expect(component.displayedTotal()).toBe(2);
 
       component.onPage({ pageIndex: 1, pageSize: 1, length: 2 });

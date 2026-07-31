@@ -55,7 +55,7 @@ describe('PermissionsListComponent', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getPermissions).toHaveBeenCalled();
     expect(component.groupNames).toEqual(['portfolio', 'transaction']);
-    expect(component.grouped['portfolio'].length).toBe(1);
+    expect(component.grouped['portfolio']).toHaveSize(1);
   });
 
   it('should track toggled permissions and save them', () => {

@@ -119,7 +119,7 @@ describe('ClientFormComponent', () => {
       await component.addOffice();
 
       expect(dialogSpy.open).toHaveBeenCalled();
-      expect(component.offices().length).toBe(2);
+      expect(component.offices()).toHaveSize(2);
       expect(component.client.officeId).toBe(2);
     });
 

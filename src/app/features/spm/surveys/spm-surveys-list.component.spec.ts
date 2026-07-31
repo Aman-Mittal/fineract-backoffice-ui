@@ -57,7 +57,7 @@ describe('SpmSurveysListComponent', () => {
   it('should load surveys on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSurveys).toHaveBeenCalled();
-    expect(component.surveys.length).toBe(1);
+    expect(component.surveys).toHaveSize(1);
   });
 
   it('should navigate to edit with the survey id', () => {

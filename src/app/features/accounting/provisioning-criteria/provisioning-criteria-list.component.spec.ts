@@ -60,7 +60,7 @@ describe('ProvisioningCriteriaListComponent', () => {
   it('should load criteria on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getProvisioningcriteria).toHaveBeenCalled();
-    expect(component.criteria.length).toBe(1);
+    expect(component.criteria).toHaveSize(1);
   });
 
   it('should navigate to edit with the criteria id', () => {

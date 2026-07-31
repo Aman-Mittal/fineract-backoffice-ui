@@ -60,7 +60,7 @@ describe('PaymentTypesListComponent', () => {
   it('should load payment types on init', () => {
     expect(component).toBeTruthy();
     expect(paymentTypeServiceSpy.getPaymenttypes).toHaveBeenCalled();
-    expect(component.paymentTypes.length).toBe(1);
+    expect(component.paymentTypes).toHaveSize(1);
   });
 
   it('should delete after confirmation and reload', () => {

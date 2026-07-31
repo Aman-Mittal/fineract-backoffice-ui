@@ -107,7 +107,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
     expect(component.account['clientId']).toBe(456);
     expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(456);
-    expect(component.products.length).toBe(1);
+    expect(component.products).toHaveSize(1);
   });
 
   it('should handle missing product options in template', () => {

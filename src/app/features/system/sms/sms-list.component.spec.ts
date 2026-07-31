@@ -57,7 +57,7 @@ describe('SmsListComponent', () => {
   it('should load messages on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSms).toHaveBeenCalled();
-    expect(component.messages.length).toBe(1);
+    expect(component.messages).toHaveSize(1);
   });
 
   it('should navigate to edit with the message id', () => {
