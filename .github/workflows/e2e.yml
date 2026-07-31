@@ -51,21 +51,15 @@ jobs:
 
       - name: Start PostgreSQL Database
         run: |
-          docker compose -f deploy/docker-compose-e2e.yml up -d fineract-db
+          docker compose -f deploy/docker-compose-e2e.yml up -d --wait fineract-db
 
-      - name: Wait for Database and Initialize Fineract Databases
+      # deploy/init-db.sql is the single source of truth for the Fineract
+      # multi-tenancy databases. It is piped in rather than bind-mounted into
+      # /docker-entrypoint-initdb.d so the stack also comes up on hosts where
+      # the repo lives outside Docker's shared-paths allowlist.
+      - name: Initialize Fineract databases
         run: |
-          echo "Waiting for PostgreSQL to be healthy..."
-          for i in {1..30}; do
-            if docker exec fineract-db pg_isready -U postgres >/dev/null 2>&1; then
-              echo "✅ PostgreSQL is ready!"
-              break
-            fi
-            echo "Waiting for postgres... ($i/30)"
-            sleep 3
-          done
-          echo "Initializing Fineract tenants and default databases..."
-          docker exec -i fineract-db psql -U postgres -c "CREATE DATABASE fineract_tenants;" -c "CREATE DATABASE fineract_default;"
+          docker exec -i fineract-db psql -U postgres < deploy/init-db.sql
 
       - name: Start Apache Fineract Backend
         run: |
@@ -100,12 +94,17 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Build Application
-        run: npm run build
+      # No build step: playwright.config.ts serves the app with `ng serve`, which
+      # compiles from source. A production build is already gated by ci.yml.
 
       - name: Run E2E Tests
         env:
-          FINERACT_SERVER_URL: 'https://localhost:8443/fineract-provider/api/v1'
+          # Go through the dev server's proxy (proxy.conf.json forwards
+          # /fineract-provider -> https://127.0.0.1:8443 with secure:false)
+          # rather than hitting the backend cross-origin. This keeps the browser
+          # same-origin, so no CORS preflight and no self-signed cert prompt, and
+          # it matches a preset <option> on the login form.
+          FINERACT_SERVER_URL: '/fineract-provider/api/v1'
           FINERACT_TENANT_ID: 'default'
           FINERACT_USERNAME: 'mifos'
           FINERACT_PASSWORD: 'password'
