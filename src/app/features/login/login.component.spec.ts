@@ -19,7 +19,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
@@ -35,7 +35,8 @@ describe('LoginComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
   const mockApiUrl = 'https://localhost:8443/fineract-provider/api/v1';
 
-  beforeEach(async () => {
+  /** Configures the TestBed with the query parameters the login route was reached with. */
+  async function setup(queryParams: Record<string, string> = {}) {
     authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'currentTenantId']);
     authServiceSpy.currentTenantId.and.returnValue('default');
 
@@ -51,12 +52,20 @@ describe('LoginComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ConfigService, useValue: configServiceSpy },
         { provide: Router, useValue: routerSpy },
+        {
+          provide: ActivatedRoute,
+          useValue: { queryParamMap: of(convertToParamMap(queryParams)) },
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    await setup();
   });
 
   it('should create', () => {
@@ -107,5 +116,19 @@ describe('LoginComponent', () => {
     expect(
       (component as unknown as { isLoading: WritableSignal<boolean> }).isLoading(),
     ).toBeFalse();
+  });
+
+  describe('session expiry notice', () => {
+    it('should not show a notice when the user came here on their own', () => {
+      expect(fixture.nativeElement.querySelector('.notice')).toBeNull();
+    });
+
+    it('should explain the redirect when errorInterceptor sent the user back', async () => {
+      TestBed.resetTestingModule();
+      await setup({ reason: 'session-expired' });
+
+      // Without this the redirect reads as the app losing the page for no reason.
+      expect(fixture.nativeElement.querySelector('.notice')).not.toBeNull();
+    });
   });
 });

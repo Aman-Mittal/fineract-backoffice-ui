@@ -17,58 +17,110 @@
  * under the License.
  */
 
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
 import { SKIP_ERROR_TOAST } from '../http/http-context';
+
+/** Query parameter the login page reads to explain an involuntary return to it. */
+export const SESSION_EXPIRED_REASON = 'session-expired';
+
+/**
+ * True when this 401 means an established session stopped being valid, as opposed to
+ * credentials being rejected at sign-in.
+ *
+ * The test is whether the request carried credentials. `authInterceptor` runs before this one
+ * and only sets `Authorization` when a token exists, so a 401 on a request without that header
+ * cannot be an expired session — there was nothing to expire. That distinction matters: the
+ * login POST is the one request that legitimately 401s, and treating it as an expiry would log
+ * the user out of a session they never had and redirect them to the page they are already on.
+ */
+function isExpiredSession(req: HttpRequest<unknown>, error: HttpErrorResponse): boolean {
+  return error.status === 401 && req.headers.has('Authorization');
+}
+
+/**
+ * Builds the user-facing message for a failed request.
+ *
+ * Fineract returns validation failures as an `errors` array, each entry naming the parameter
+ * it rejected; those are stacked into one message so the user sees every problem at once
+ * rather than fixing them one round-trip at a time.
+ */
+function messageFor(error: HttpErrorResponse, translate: TranslateService): string {
+  if (error.error instanceof ErrorEvent) {
+    return `Error: ${error.error.message}`;
+  }
+
+  // Fineract's 403 body describes the missing permission in backend terms ("NOT_ALLOWED",
+  // a permission code) which means nothing to the user. What they can act on is that this
+  // account lacks the right, not which internal code was checked.
+  if (error.status === 403) {
+    return translate.instant('COMMON.ERRORS.FORBIDDEN');
+  }
+
+  if (error.error?.errors && Array.isArray(error.error.errors) && error.error.errors.length > 0) {
+    const stacked = error.error.errors
+      .map((err: Record<string, unknown>) => {
+        const msg = err['developerMessage'] || err['defaultUserMessage'] || 'Validation error';
+        const param = err['parameterName'] ? `[${err['parameterName']}] ` : '';
+        return `• ${param}${msg}`;
+      })
+      .join('\n');
+
+    if (error.error?.defaultUserMessage || error.error?.developerMessage) {
+      return `${error.error.defaultUserMessage || error.error.developerMessage}\n\n${stacked}`;
+    }
+    return stacked;
+  }
+
+  if (error.error?.developerMessage) {
+    return error.error.developerMessage;
+  }
+  if (error.error?.defaultUserMessage) {
+    return error.error.defaultUserMessage;
+  }
+  if (error.status === 0) {
+    return translate.instant('COMMON.ERRORS.NETWORK');
+  }
+  return `Error Code: ${error.status}\nMessage: ${error.message}`;
+}
 
 /**
  * Functional HTTP Interceptor that catches API errors and displays all validation
  * errors in a stacked notification toast.
+ *
+ * It also ends the session on a 401. Credentials live in `sessionStorage` and are replayed on
+ * every request, so without this a revoked or expired session keeps the user on a page that
+ * silently fails and stacks a toast per request instead of sending them back to sign in.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notifications = inject(NotificationService);
+  const translate = inject(TranslateService);
+  const auth = inject(AuthService);
+  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      let errorMessage: string;
-
-      if (error.error instanceof ErrorEvent) {
-        errorMessage = `Error: ${error.error.message}`;
-      } else {
-        if (
-          error.error?.errors &&
-          Array.isArray(error.error.errors) &&
-          error.error.errors.length > 0
-        ) {
-          errorMessage = error.error.errors
-            .map((err: Record<string, unknown>) => {
-              const msg =
-                err['developerMessage'] || err['defaultUserMessage'] || 'Validation error';
-              const param = err['parameterName'] ? `[${err['parameterName']}] ` : '';
-              return `• ${param}${msg}`;
-            })
-            .join('\n');
-
-          if (error.error?.defaultUserMessage || error.error?.developerMessage) {
-            errorMessage = `${error.error.defaultUserMessage || error.error.developerMessage}\n\n${errorMessage}`;
-          }
-        } else if (error.error?.developerMessage) {
-          errorMessage = error.error.developerMessage;
-        } else if (error.error?.defaultUserMessage) {
-          errorMessage = error.error.defaultUserMessage;
-        } else if (error.status === 0) {
-          errorMessage =
-            'Unable to connect to the server. Please check your network or CORS settings.';
-        } else {
-          errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      if (isExpiredSession(req, error)) {
+        // A page typically has several requests in flight, so this path runs once per failure.
+        // `logout()` clears `isAuthenticated` synchronously, so the rest of the burst finds the
+        // session already gone and does not re-navigate.
+        if (auth.isAuthenticated()) {
+          auth.logout();
+          void router.navigate(['/login'], { queryParams: { reason: SESSION_EXPIRED_REASON } });
         }
+        // No toast: the login page states the reason, and a toast over a full-page redirect
+        // is the same news twice.
+        return throwError(() => error);
       }
 
       // The caller renders this failure itself. Still rethrown, so its catchError runs.
       if (!req.context.get(SKIP_ERROR_TOAST)) {
-        notifications.error(errorMessage);
+        notifications.error(messageFor(error, translate));
       }
 
       return throwError(() => error);

@@ -20,11 +20,13 @@
 import { Component, inject, signal, DestroyRef } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
+import { SESSION_EXPIRED_REASON } from '../../core/interceptors/error.interceptor';
 import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
 
 /**
@@ -62,6 +64,12 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
           <h1>{{ 'app.title' | translate }}</h1>
           <p class="subtitle">{{ 'login.welcome' | translate }}</p>
         </div>
+
+        @if (sessionExpired()) {
+          <div class="notice" role="status">
+            {{ 'login.sessionExpired' | translate }}
+          </div>
+        }
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-field">
@@ -241,6 +249,17 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
         border-color: var(--primary-color);
         box-shadow: var(--focus-ring);
       }
+      /* Text stays at --text-color rather than --warning-color: the amber reads as low
+         contrast at this size, and the tint plus the rule already carry the severity. */
+      .notice {
+        background-color: color-mix(in srgb, var(--warning-color) 12%, transparent);
+        color: var(--text-color);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--border-radius);
+        font-size: 0.8rem;
+        border-left: 4px solid var(--warning-color);
+        margin-bottom: var(--space-4);
+      }
       .error-message {
         background-color: color-mix(in srgb, var(--error-color) 12%, transparent);
         color: var(--error-color);
@@ -295,6 +314,7 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   protected readonly configService = inject(ConfigService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly translate = inject(TranslateService);
 
@@ -302,6 +322,16 @@ export class LoginComponent {
   protected readonly isLoading = signal(false);
   /** Signal containing the current login error message if any */
   protected readonly error = signal<string | null>(null);
+
+  /**
+   * True when `errorInterceptor` sent the user back here after a 401, rather than the user
+   * navigating to sign in. Without this the redirect looks like the app dropping them at the
+   * login screen for no reason.
+   */
+  protected readonly sessionExpired = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('reason') === SESSION_EXPIRED_REASON)),
+    { initialValue: false },
+  );
 
   /** Reactive form group for login credentials and server settings */
   protected readonly loginForm = this.fb.group({

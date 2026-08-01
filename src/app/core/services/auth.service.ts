@@ -21,6 +21,7 @@ import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { ConfigService } from './config.service';
+import { skipErrorToast } from '../http/http-context';
 
 /**
  * Interface representing a user role within Fineract.
@@ -101,7 +102,9 @@ export class AuthService {
       .post<UserSession>(
         `${this.configService.apiUrl}/authentication`,
         { username, password },
-        { headers },
+        // The login form renders the rejection inline, next to the fields that caused it.
+        // A toast as well would report the same failure twice.
+        { headers, context: skipErrorToast() },
       )
       .pipe(
         tap((session) => {
