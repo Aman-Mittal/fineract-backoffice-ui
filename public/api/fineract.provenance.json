@@ -1,0 +1,37 @@
+{
+  "$comment": "Provenance for public/api/fineract.json. Written by .github/workflows/api-spec-sync.yml; do not edit by hand.",
+  "license": "Apache-2.0",
+  "schemaVersion": 1,
+  "fetchedAt": "2026-08-01T13:15:30.156Z",
+  "source": {
+    "project": "apache/fineract",
+    "method": "http",
+    "url": "",
+    "image": {
+      "requested": "apache/fineract:latest",
+      "ref": "",
+      "digest": ""
+    },
+    "commit": "unknown"
+  },
+  "spec": {
+    "path": "public/api/fineract.json",
+    "infoVersion": "1.16.0-SNAPSHOT",
+    "upstreamSha256": "c1a020614d455686c49787a850455e3a0738e42d600732210999cbdeeccdeb72",
+    "committedSha256": "360a6dfd0e48c11f0bc630cf23f3ce4bf6cab525ae1b8476869b83a7dd720e4d",
+    "committedBytes": 2091873,
+    "pathCount": 600,
+    "operationCount": 965,
+    "schemaCount": 1466
+  },
+  "generator": {
+    "tool": "openapi-generator-cli",
+    "version": "7.20.0",
+    "generatorName": "typescript-angular",
+    "preprocessor": "scripts/preprocess-spec.mjs",
+    "output": "src/app/api"
+  },
+  "workflow": {
+    "runUrl": ""
+  }
+}

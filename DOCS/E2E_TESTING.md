@@ -21,21 +21,30 @@ under the License.
 
 This project uses [Playwright](https://playwright.dev/) for end-to-end (E2E) browser tests of the
 Fineract back-office UI. This guide covers the current setup, how to run the suite, how tests
-authenticate, the user journeys worth covering, and how to wire E2E into CI.
+authenticate, and the conventions worth knowing before writing a spec.
+
+For how the E2E jobs fit alongside the rest of CI, see [`CI_CHECKS.md`](CI_CHECKS.md).
 
 ## Status at a glance
 
 - **Runner**: Playwright (`playwright.config.ts`), test directory `e2e/`.
-- **Browsers**: three projects — `chromium`, `firefox`, `webkit`.
 - **Base URL**: `https://localhost:4200` with `ignoreHTTPSErrors: true` (the dev server uses a
   self-signed certificate — see [Prerequisites](#prerequisites)).
 - **Web server**: Playwright auto-starts `npm run start` (`ng serve`) and reuses an already-running
   instance (`reuseExistingServer: true`).
-- **Existing specs**: `e2e/login.spec.ts`, `e2e/client.spec.ts`, `e2e/reporting.spec.ts`,
-  `e2e/report-enhancements.spec.ts`.
-- **Backend**: every spec past the login screen **mocks the backend** with `page.route(...)` — these
-  are UI-integration tests with stubbed network calls, not tests against a live Fineract.
-- **CI**: there is **no** E2E job today; `npm run test:e2e` is run locally only.
+- **Suite**: 204 tests across 15 spec files, split into two projects:
+  - **`mocked`** (188 tests, 9 files) stubs every request with `page.route(...)`. Needs no
+    Fineract — verified to pass with the backend stopped entirely.
+  - **`backend`** (16 tests, 6 files) drives a real Fineract end to end. A `setup` project seeds
+    the reference data it needs — enabled currencies, a datatable on `m_loan`, a collateral type —
+    so nothing is gated behind manual preparation.
+- **Browsers**: chromium for both projects; `firefox` and `webkit` projects exist for local
+  cross-browser runs and are not part of CI.
+- **CI**: `.github/workflows/e2e.yml` runs the two projects as **parallel jobs**, so the mocked half
+  never waits on a Fineract boot. Each uploads its own report and videos and comments on the PR.
+- **Artifacts**: written to `PLAYWRIGHT_OUTPUT_DIR` (system temp by default), deliberately outside
+  the repository — the dev server watches the working tree, and Playwright's artifact churn used to
+  race the file watcher and kill the server mid-run.
 
 ## Prerequisites
 
@@ -153,47 +162,48 @@ banking workflow end to end.
 
 ## Continuous integration
 
-E2E is not yet run in CI (`.github/workflows/ci.yml` has unit, lint, build, and security jobs but no
-Playwright job). To add one:
+`.github/workflows/e2e.yml` runs the suite on every pull request to `main`/`develop`, as two jobs in
+parallel:
 
-```yaml
-e2e:
-  name: E2E Tests
-  needs: dependencies
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 'lts/*'
-        cache: 'npm'
-    - run: npm ci
-    - run: npx playwright install --with-deps
-    - name: Generate dev TLS certs
-      run: |
-        mkdir -p ssl
-        openssl req -x509 -newkey rsa:2048 -nodes \
-          -keyout ssl/localhost.key -out ssl/localhost.crt \
-          -days 825 -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
-    - run: npm run test:e2e
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report
-        path: playwright-report/
+| Job       | Project   | Tests | Fineract     |
+| --------- | --------- | ----- | ------------ |
+| `mocked`  | `mocked`  | 188   | not needed   |
+| `backend` | `backend` | 16    | docker stack |
+
+Splitting them means a broken mock reports in a couple of minutes instead of waiting behind a
+90-second Fineract boot it never touches, and one slow real-backend flow no longer sets the
+wall-clock for everything else.
+
+`playwright.config.ts` already gates CI behaviour — `forbidOnly`, `retries: 2` and `workers: 1` apply
+only when `process.env.CI` is set.
+
+### Running the real-backend half locally
+
+```bash
+npm run e2e:stack          # bring the Fineract stack up
+npm run e2e:stack:fresh    # ...destroying the volume first — what CI gets every run
+npm run test:e2e:local     # both projects against it
 ```
 
-The config already gates CI behavior: `forbidOnly`, `retries: 2`, and `workers: 1` apply only when
-`process.env.CI` is set, so no config change is needed. Keep the CI suite on the **mocked** path so it
-is hermetic; run live smoke tests out of band.
+**Use `--fresh` before concluding a CI-only failure is CI's fault.** A local database accumulates
+data across runs and hides assumptions that a migration-fresh one exposes immediately: an assertion
+like "the products list shows a badge" passes on leftover records and fails in CI, where nothing has
+created one yet. That has been the cause of most CI-only failures in this suite.
+
+The real-backend specs create genuine clients, products and loans, so they refuse to run against a
+non-local backend when `CI` is set (`e2e/utils/backend-env.ts`). Pointing them at a shared instance
+from your own machine is still possible, and still a deliberate act.
 
 ## Conventions
 
-- Place specs in `e2e/` named `<feature>.spec.ts`; keep shared helpers/fixtures under `e2e/fixtures/`.
+- Place specs in `e2e/` named `<feature>.spec.ts`; shared helpers live in `e2e/utils/`.
+- A spec with no `page.route()` mocks belongs to the `backend` project — add it to `BACKEND_SPECS`
+  in `playwright.config.ts`, or it will run in the mocked job without a backend.
 - Prefer role/label/test-id selectors over brittle CSS where practical.
 - Every source file carries the Apache license header (enforced by Apache RAT); `.spec.ts` E2E files
   should too.
 
 ## Related docs
 
+- [`DOCS/CI_CHECKS.md`](./CI_CHECKS.md) — every check that runs on a pull request.
 - [`DOCS/OPENAPI_GENERATOR.md`](./OPENAPI_GENERATOR.md) — how the API client the UI calls is generated.

@@ -1,0 +1,57 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Feature request
+description: A screen, field or workflow the back-office UI should support.
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If the capability does not exist in the Fineract API yet, it needs to land there
+        first — raise that in the
+        [ASF Jira project](https://issues.apache.org/jira/projects/FINERACT).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What can't you do today
+      description: The task you are trying to complete, and where the UI stops you.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like instead
+    validations:
+      required: true
+
+  - type: input
+    id: endpoint
+    attributes:
+      label: Fineract endpoint
+      description: |
+        If you know which API this needs, naming it saves a lot of time — the generated
+        client in `src/app/api/` almost certainly already has the method.
+      placeholder: GET /loans/{loanId}/collaterals
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workaround you are using now
+      description: Helps judge urgency, and sometimes suggests a smaller fix.

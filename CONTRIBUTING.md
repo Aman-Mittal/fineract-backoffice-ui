@@ -19,7 +19,21 @@ under the License.
 
 # Contributing to Fineract Backoffice UI
 
-Thank you for your interest in contributing! This project is a GSOC 2026 initiative for Apache Fineract.
+Thank you for your interest in contributing! This is a back-office web client for
+[Apache Fineract](https://github.com/apache/fineract).
+
+## Reporting bugs
+
+Use this repository's **GitHub Issues** for anything about the web UI — a screen that
+renders wrongly, a form that will not submit, a missing field.
+
+Bugs in the platform itself belong in the
+[ASF Jira project](https://issues.apache.org/jira/projects/FINERACT) for
+[apache/fineract](https://github.com/apache/fineract): wrong balances, rejected API
+payloads, scheduler or accounting behaviour — anything the back end decides. A useful
+rule of thumb is the network tab: if the request succeeded and the screen is still
+wrong, it is a UI issue; if Fineract returned a 4xx with a `defaultUserMessage`
+explaining why, start with Jira.
 
 ## How to Contribute
 
@@ -35,6 +49,11 @@ Thank you for your interest in contributing! This project is a GSOC 2026 initiat
     - `npm run check:icons` — every `<ion-icon name="...">` is registered
     - `npm run i18n:check` — translations are complete
 6.  **Ensure License Headers**: All new files must include the Apache License 2.0 header. You can verify this with `./scripts/check-license.sh`.
+
+    Every check that runs on a pull request — what it enforces, how to reproduce a
+    failure locally, and the rules that most often surprise people — is documented in
+    [`DOCS/CI_CHECKS.md`](DOCS/CI_CHECKS.md).
+
 7.  **Submit a Pull Request** against the `develop` branch.
 
 ## End-to-End Tests
@@ -96,6 +115,8 @@ relying on transitive resolution, so the audit sees them.
 ## Pull Request Guidelines
 
 - Provide a clear description of the changes.
-- Link to any related Jira issues or GSOC proposals.
+- Link to the related GitHub issue in this repository. Bugs and features for the
+  back-office UI are tracked here, not in Jira — the ASF Jira project is for
+  [apache/fineract](https://github.com/apache/fineract), the platform itself.
 - Ensure CI checks pass.
 - New features should include unit tests.
