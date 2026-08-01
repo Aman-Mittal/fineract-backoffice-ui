@@ -75,8 +75,16 @@ export class AuthService {
   /** Signal indicating whether a user is currently authenticated */
   readonly isAuthenticated = signal<boolean>(!!this.currentUser());
 
-  /** Signal containing the currently active Tenant ID */
-  readonly currentTenantId = signal<string>(localStorage.getItem(this.tenantKey) || 'default');
+  /**
+   * Signal containing the currently active Tenant ID.
+   *
+   * Falls back to the deployment's configured tenant rather than the literal `'default'`.
+   * `AppConfig.defaultTenant` existed but nothing read it, so an institution whose Fineract
+   * tenant is not named `default` had every user type it into the login form.
+   */
+  readonly currentTenantId = signal<string>(
+    localStorage.getItem(this.tenantKey) || this.configService.config().defaultTenant,
+  );
 
   /** Computed signal for the current username */
   readonly username = computed(() => this.currentUser()?.username || '');

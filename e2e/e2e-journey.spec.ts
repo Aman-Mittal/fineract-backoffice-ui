@@ -82,7 +82,7 @@ const JSON_CONTENT = 'application/json';
 async function mockConfig(page: Page) {
   await page.route('**/config.json', async (route) => {
     await route.fulfill(
-      okJsonResponse(JSON.stringify({ fineractApiUrl: API_BASE, defaultTenantId: TENANT_ID })),
+      okJsonResponse(JSON.stringify({ fineractApiUrl: API_BASE, defaultTenant: TENANT_ID })),
     );
   });
 }

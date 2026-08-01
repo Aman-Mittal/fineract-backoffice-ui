@@ -19,7 +19,7 @@
 
 import { Directive, Input, TemplateRef, ViewContainerRef, inject, effect } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { environment } from '../../../environments/environment';
+import { ConfigService } from '../../core/services/config.service';
 
 /**
  * Structural directive to conditionally include an element based on the user's Fineract permissions.
@@ -37,6 +37,7 @@ export class HasPermissionDirective {
   private readonly templateRef = inject(TemplateRef<unknown>);
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly authService = inject(AuthService);
+  private readonly config = inject(ConfigService);
 
   private permissions: string | string[] = [];
   private matchAllValue = false;
@@ -45,8 +46,11 @@ export class HasPermissionDirective {
   constructor() {
     // React to authentication changes or signal changes automatically
     effect(() => {
-      // Access signal to register dependency
+      // Access signals to register dependencies. `rbacEnabled` is read here as well as in
+      // updateView() so that a deployment toggling it re-runs this directive rather than
+      // leaving whatever was rendered at construction.
       this.authService.currentUser();
+      this.config.rbacEnabled();
       this.updateView();
     });
   }
@@ -65,7 +69,7 @@ export class HasPermissionDirective {
 
   private updateView(): void {
     // When RBAC is disabled, render everything regardless of permissions.
-    if (!environment.rbacEnabled) {
+    if (!this.config.rbacEnabled()) {
       this.showTemplate();
       return;
     }

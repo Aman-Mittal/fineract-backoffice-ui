@@ -22,14 +22,14 @@ import {
   InstitutionConfigService,
   InstitutionFeature,
 } from '../../core/services/institution-config.service';
-import { environment } from '../../../environments/environment';
+import { ConfigService } from '../../core/services/config.service';
 
 /**
  * Structural directive to conditionally include an element based on whether a
  * feature is enabled for the current institution type (see
  * {@link InstitutionConfigService}).
  *
- * When RBAC is disabled (`environment.rbacEnabled === false`), the element is
+ * When RBAC is disabled (`rbacEnabled: false` in `config.json`), the element is
  * always rendered, preserving pre-RBAC behavior.
  *
  * Usage:
@@ -43,6 +43,7 @@ export class HasInstitutionFeatureDirective {
   private readonly templateRef = inject(TemplateRef<unknown>);
   private readonly viewContainer = inject(ViewContainerRef);
   private readonly institutionConfig = inject(InstitutionConfigService);
+  private readonly config = inject(ConfigService);
 
   private feature: InstitutionFeature | null = null;
   private hasView = false;
@@ -50,8 +51,11 @@ export class HasInstitutionFeatureDirective {
   constructor() {
     // React to institution type changes automatically.
     effect(() => {
-      // Access signal to register dependency.
+      // Access signals to register dependencies. `rbacEnabled` is read here as well as in
+      // updateView() so that a deployment toggling it re-runs this directive rather than
+      // leaving whatever was rendered at construction.
       this.institutionConfig.institutionType();
+      this.config.rbacEnabled();
       this.updateView();
     });
   }
@@ -64,7 +68,7 @@ export class HasInstitutionFeatureDirective {
 
   private updateView(): void {
     // When RBAC is disabled, render everything regardless of institution config.
-    if (!environment.rbacEnabled) {
+    if (!this.config.rbacEnabled()) {
       this.showTemplate();
       return;
     }

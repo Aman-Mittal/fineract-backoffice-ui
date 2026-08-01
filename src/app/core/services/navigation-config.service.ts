@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { Injectable, computed, inject } from '@angular/core';
+import { InjectionToken, Injectable, Signal, computed, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { InstitutionConfigService, InstitutionFeature } from './institution-config.service';
-import { environment } from '../../../environments/environment';
+import { ConfigService, NavOverrides } from './config.service';
 
 // Icon names shared by several nav items, hoisted so the strings are not duplicated.
 const ICON_BUSINESS_OUTLINE = 'business-outline';
@@ -597,6 +597,22 @@ export function filterNavItems(
 }
 
 /**
+ * Deployment adjustments to the navigation tree.
+ *
+ * Reads from `config.json` by default, so hiding an entry needs no rebuild and no patch
+ * against `NAV_CONFIG` — a file every feature appends to, and therefore a conflict on every
+ * upstream release for anyone who edits it. A downstream that wants to decide this in code
+ * instead can override the token, which is why the indirection exists at all.
+ */
+export const NAV_OVERRIDES = new InjectionToken<Signal<NavOverrides>>('NAV_OVERRIDES', {
+  providedIn: 'root',
+  factory: () => {
+    const config = inject(ConfigService);
+    return computed(() => config.config().nav ?? {});
+  },
+});
+
+/**
  * Provides the application's navigation tree, filtered by the current user's
  * permissions and institution configuration.
  */
@@ -606,23 +622,36 @@ export function filterNavItems(
 export class NavigationConfigService {
   private readonly authService = inject(AuthService);
   private readonly institutionConfig = inject(InstitutionConfigService);
+  private readonly config = inject(ConfigService);
+  private readonly overrides = inject(NAV_OVERRIDES);
 
   /** The full, unfiltered navigation tree. */
   readonly navConfig: readonly NavItemConfig[] = NAV_CONFIG;
 
+  /** `labelKey`s this deployment hides outright, whatever the user's permissions. */
+  private readonly hidden = computed(() => new Set(this.overrides().hidden ?? []));
+
   /**
    * Reactive, filtered navigation tree — recomputed whenever the current
-   * user's permissions or the institution type change.
+   * user's permissions, the institution type, or the deployment's configuration change.
    */
   readonly filteredNavItems = computed(() => {
-    // Access the signals so this computed re-evaluates when either changes.
+    // Access the signals so this computed re-evaluates when any of them changes.
     this.authService.currentUser();
     this.institutionConfig.institutionType();
+    this.config.rbacEnabled();
+    this.hidden();
     return filterNavItems(NAV_CONFIG, (item) => this.isItemVisible(item));
   });
 
   private isItemVisible(item: NavItemConfig): boolean {
-    if (!environment.rbacEnabled) {
+    // Checked before the RBAC short-circuit: hiding an entry is what this deployment offers,
+    // which is a separate question from what this user is allowed to reach.
+    if (this.hidden().has(item.labelKey)) {
+      return false;
+    }
+
+    if (!this.config.rbacEnabled()) {
       return true;
     }
 

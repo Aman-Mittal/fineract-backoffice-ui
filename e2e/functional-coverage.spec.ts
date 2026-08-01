@@ -80,7 +80,7 @@ async function mockConfig(page: Page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ fineractApiUrl: API_BASE, defaultTenantId: TENANT_DEFAULT }),
+      body: JSON.stringify({ fineractApiUrl: API_BASE, defaultTenant: TENANT_DEFAULT }),
     });
   });
 }

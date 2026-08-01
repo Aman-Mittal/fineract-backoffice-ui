@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { ConfigService } from './config.service';
 
 /**
  * Category of institution the deployment serves. Determines which
@@ -31,28 +32,40 @@ export type InstitutionType = 'mfis' | 'cb' | 'cu' | 'universal';
 export type InstitutionFeature = 'groups' | 'centers' | 'collection_sheet';
 
 /**
+ * What each institution type exposes when `config.json` does not say otherwise.
+ *
+ * Exported so a deployment overriding one type in configuration can see what it is
+ * departing from, and so the type guard has a stable list of valid keys.
+ */
+export const DEFAULT_FEATURE_MATRIX: Record<InstitutionType, readonly InstitutionFeature[]> = {
+  mfis: ['groups', 'centers', 'collection_sheet'],
+  cb: [],
+  cu: ['groups'],
+  universal: ['groups', 'centers', 'collection_sheet'],
+};
+
+/**
  * Service that persists the deployment's institution type to local storage
  * and answers whether a given group-lending feature is enabled for it.
  *
  * This is the single source of truth for mode-based feature toggles. It is
  * consumed by RBAC sidebar filtering (issue #113) alongside permission checks.
+ *
+ * Both the default type and the matrix come from `config.json`, so a deployment can name
+ * the kind of institution it serves once, for everyone, rather than relying on each user's
+ * local storage happening to hold the right value.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class InstitutionConfigService {
+  private readonly config = inject(ConfigService);
   private readonly storageKey = 'fineract_institution_type';
 
-  /** Institution type used when none is persisted (backward-compatible default). */
-  private readonly defaultType: InstitutionType = 'universal';
-
-  /** Which features each institution type exposes. */
-  private readonly featureMatrix: Record<InstitutionType, readonly InstitutionFeature[]> = {
-    mfis: ['groups', 'centers', 'collection_sheet'],
-    cb: [],
-    cu: ['groups'],
-    universal: ['groups', 'centers', 'collection_sheet'],
-  };
+  /** Which features each institution type exposes, as configured for this deployment. */
+  private readonly featureMatrix = computed<Record<InstitutionType, readonly InstitutionFeature[]>>(
+    () => ({ ...DEFAULT_FEATURE_MATRIX, ...this.config.config().institutionFeatures }),
+  );
 
   private readonly _institutionType = signal<InstitutionType>(this.getStored());
 
@@ -73,17 +86,17 @@ export class InstitutionConfigService {
    * @param feature - The feature to check
    */
   isFeatureEnabled(feature: InstitutionFeature): boolean {
-    return this.featureMatrix[this._institutionType()].includes(feature);
+    return this.featureMatrix()[this._institutionType()].includes(feature);
   }
 
   /**
-   * Retrieves the initial institution type from local storage, falling back to
-   * the default when absent or invalid (e.g. a tampered or legacy value).
+   * Retrieves the initial institution type from local storage, falling back to the type
+   * this deployment configured when absent or invalid (e.g. a tampered or legacy value).
    * @returns The resolved institution type
    */
   private getStored(): InstitutionType {
     const stored = localStorage.getItem(this.storageKey);
-    return this.isInstitutionType(stored) ? stored : this.defaultType;
+    return this.isInstitutionType(stored) ? stored : this.config.config().institutionType;
   }
 
   /**
@@ -91,6 +104,6 @@ export class InstitutionConfigService {
    * @param value - The value read from local storage
    */
   private isInstitutionType(value: string | null): value is InstitutionType {
-    return value !== null && Object.keys(this.featureMatrix).includes(value);
+    return value !== null && Object.keys(DEFAULT_FEATURE_MATRIX).includes(value);
   }
 }

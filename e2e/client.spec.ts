@@ -28,7 +28,7 @@ test.describe('Client Management', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           fineractApiUrl: '/api/v1',
-          defaultTenantId: 'default',
+          defaultTenant: 'default',
         }),
       });
     });
