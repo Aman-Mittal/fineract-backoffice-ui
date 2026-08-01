@@ -20,7 +20,9 @@
 import {
   ApplicationConfig,
   importProvidersFrom,
+  isDevMode,
   provideBrowserGlobalErrorListeners,
+  provideCheckNoChangesConfig,
   provideZoneChangeDetection,
   APP_INITIALIZER,
 } from '@angular/core';
@@ -52,6 +54,16 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular({ mode: 'md' }),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
+    // Surfaces the failure mode behind the empty API-fed dropdowns: a plain field assigned
+    // from an HTTP callback changes the rendered value without ever marking the view dirty.
+    // `checkNoChanges` compares a second pass against the first and reports the difference as
+    // NG0100, so the bug becomes a console error instead of a blank control. `exhaustive` also
+    // walks views that were *not* marked for check — the ordinary check skips those, which is
+    // exactly where OnPush components will hide once they land.
+    //
+    // Dev only. `checkNoChanges` is compiled out of production builds, but `interval` would
+    // still schedule a timer, so there is no reason to provide it there.
+    ...(isDevMode() ? [provideCheckNoChangesConfig({ interval: 500, exhaustive: true })] : []),
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
