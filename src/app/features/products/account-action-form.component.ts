@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -85,65 +85,72 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          @if (accountDetails) {
+          @if (accountDetails()) {
             <div class="account-summary-panel">
               <div class="summary-grid">
                 <div class="summary-item">
                   <span class="label">{{ 'COMMON.ACCOUNT_NO' | translate }}:</span>
-                  <span class="value">{{ accountDetails['accountNo'] }}</span>
+                  <span class="value">{{ accountDetails()!['accountNo'] }}</span>
                 </div>
                 <div class="summary-item">
                   <span class="label">{{ 'COMMON.NAME' | translate }}:</span>
                   <span class="value">{{
-                    accountDetails['clientName'] || accountDetails['groupName']
+                    accountDetails()!['clientName'] || accountDetails()!['groupName']
                   }}</span>
                 </div>
                 <div class="summary-item">
                   <span class="label">{{ 'COMMON.PRODUCT' | translate }}:</span>
                   <span class="value">{{
-                    accountDetails['savingsProductName'] ||
-                      accountDetails['productName'] ||
-                      accountDetails['loanProductName']
+                    accountDetails()!['savingsProductName'] ||
+                      accountDetails()!['productName'] ||
+                      accountDetails()!['loanProductName']
                   }}</span>
                 </div>
 
-                @if (getAmount(accountDetails['depositAmount'], accountDetails['principal'])) {
+                @if (
+                  getAmount(accountDetails()!['depositAmount'], accountDetails()!['principal'])
+                ) {
                   <div class="summary-item">
                     <span class="label">{{ 'COMMON.AMOUNT' | translate }}:</span>
                     <span class="value">{{
-                      getAmount(accountDetails['depositAmount'], accountDetails['principal'])
-                        | currency: getCurrencyCode(accountDetails['currency'])
+                      getAmount(accountDetails()!['depositAmount'], accountDetails()!['principal'])
+                        | currency: getCurrencyCode(accountDetails()!['currency'])
                     }}</span>
                   </div>
                 }
 
-                @if (accountDetails['nominalAnnualInterestRate'] !== undefined) {
+                @if (accountDetails()!['nominalAnnualInterestRate'] !== undefined) {
                   <div class="summary-item">
                     <span class="label">{{ 'COMMON.INTEREST_RATE' | translate }}:</span>
-                    <span class="value">{{ accountDetails['nominalAnnualInterestRate'] }}%</span>
+                    <span class="value">{{ accountDetails()!['nominalAnnualInterestRate'] }}%</span>
                   </div>
                 }
 
-                @if (accountDetails['depositPeriod'] || accountDetails['numberOfRepayments']) {
+                @if (
+                  accountDetails()!['depositPeriod'] || accountDetails()!['numberOfRepayments']
+                ) {
                   <div class="summary-item">
                     <span class="label">{{ 'COMMON.TERM' | translate }}:</span>
                     <span class="value">
-                      {{ accountDetails['depositPeriod'] || accountDetails['numberOfRepayments'] }}
+                      {{
+                        accountDetails()!['depositPeriod'] ||
+                          accountDetails()!['numberOfRepayments']
+                      }}
                       {{
                         getFrequencyValue(
-                          accountDetails['depositPeriodFrequency'] ||
-                            accountDetails['repaymentFrequencyType']
+                          accountDetails()!['depositPeriodFrequency'] ||
+                            accountDetails()!['repaymentFrequencyType']
                         )
                       }}
                     </span>
                   </div>
                 }
 
-                @if (getTimelineSubmittedOnDate(accountDetails['timeline'])) {
+                @if (getTimelineSubmittedOnDate(accountDetails()!['timeline'])) {
                   <div class="summary-item full-width">
                     <span class="label">{{ 'COMMON.SUBMITTED_ON' | translate }}:</span>
                     <span class="value">{{
-                      getFineractDate(getTimelineSubmittedOnDate(accountDetails['timeline']))
+                      getFineractDate(getTimelineSubmittedOnDate(accountDetails()!['timeline']))
                         | date: 'longDate'
                     }}</span>
                   </div>
@@ -166,7 +173,7 @@ import {
                   [(ngModel)]="toLoanOfficerId"
                   required
                 >
-                  @for (staff of staffOptions; track staff.id) {
+                  @for (staff of staffOptions(); track staff.id) {
                     <ion-select-option [value]="staff.id">{{
                       staff.displayName
                     }}</ion-select-option>
@@ -189,7 +196,7 @@ import {
                   (ionChange)="onChargeSelected($event.detail.value)"
                   required
                 >
-                  @for (charge of chargeOptions; track charge.id) {
+                  @for (charge of chargeOptions(); track charge.id) {
                     <ion-select-option [value]="charge.id">{{ charge.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -235,8 +242,8 @@ import {
                   id="account-action-disbursement-date"
                   data-testid="account-action-disbursement-date"
                   type="date"
-                  name="expectedDisbursementDate"
-                  [ngModel]="expectedDisbursementDate | date: 'yyyy-MM-dd'"
+                  name="expectedDisbursementDate()"
+                  [ngModel]="expectedDisbursementDate() | date: 'yyyy-MM-dd'"
                   (ngModelChange)="onExpectedDisbursementDateChange($event)"
                   required
                 ></ion-input>
@@ -264,7 +271,7 @@ import {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -273,9 +280,9 @@ import {
                 data-testid="account-action-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="actionForm.invalid || isSaving"
+                [disabled]="actionForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -349,10 +356,10 @@ export class AccountActionFormComponent implements OnInit {
   accountId = 0;
   accountType = ''; // 'savings', 'fixed', 'recurring', 'loan'
   command = ''; // 'approve', 'activate', 'close', 'disburse', 'assignloanofficer', 'unassignloanofficer', 'applycharges'
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   actionDate: Date = new Date();
-  expectedDisbursementDate: Date | null = null;
+  readonly expectedDisbursementDate = signal<Date | null>(null);
   note = '';
 
   onActionDateChange(val: string): void {
@@ -360,19 +367,19 @@ export class AccountActionFormComponent implements OnInit {
   }
 
   onExpectedDisbursementDateChange(val: string): void {
-    this.expectedDisbursementDate = val ? new Date(val) : null;
+    this.expectedDisbursementDate.set(val ? new Date(val) : null);
   }
 
   title = '';
   dateLabel = '';
 
-  staffOptions: StaffData[] = [];
-  chargeOptions: ChargeData[] = [];
+  readonly staffOptions = signal<StaffData[]>([]);
+  readonly chargeOptions = signal<ChargeData[]>([]);
   toLoanOfficerId?: number;
   chargeId?: number;
   amount?: number;
 
-  accountDetails: Record<string, unknown> | null = null;
+  readonly accountDetails = signal<Record<string, unknown> | null>(null);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -418,12 +425,12 @@ export class AccountActionFormComponent implements OnInit {
     if (this.accountType === 'loan') {
       this.loansService.getLoansLoanId(this.accountId).subscribe({
         next: (data) => {
-          this.accountDetails = data as unknown as Record<string, unknown>;
+          this.accountDetails.set(data as unknown as Record<string, unknown>);
           if (this.command === 'approve') {
             const timeline = data.timeline as Record<string, unknown> | undefined;
             if (timeline?.['expectedDisbursementDate']) {
-              this.expectedDisbursementDate = this.getFineractDate(
-                timeline['expectedDisbursementDate'],
+              this.expectedDisbursementDate.set(
+                this.getFineractDate(timeline['expectedDisbursementDate']),
               );
             }
           }
@@ -432,17 +439,17 @@ export class AccountActionFormComponent implements OnInit {
       });
     } else if (this.accountType === 'savings') {
       this.savingsService.getSavingsaccountsAccountId(this.accountId).subscribe({
-        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        next: (data) => this.accountDetails.set(data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load savings details', err),
       });
     } else if (this.accountType === 'fixed') {
       this.fixedDepositService.getFixeddepositaccountsAccountId(this.accountId).subscribe({
-        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        next: (data) => this.accountDetails.set(data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load fixed deposit details', err),
       });
     } else if (this.accountType === 'recurring') {
       this.recurringDepositService.getRecurringdepositaccountsAccountId(this.accountId).subscribe({
-        next: (data) => (this.accountDetails = data as unknown as Record<string, unknown>),
+        next: (data) => this.accountDetails.set(data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load recurring deposit details', err),
       });
     }
@@ -470,7 +477,7 @@ export class AccountActionFormComponent implements OnInit {
   loadStaffOptions(): void {
     this.staffService.getStaff(undefined, undefined, true, 'Active').subscribe({
       next: (data) => {
-        this.staffOptions = data;
+        this.staffOptions.set(data);
       },
       error: (err) => console.error('Failed to load staff options', err),
     });
@@ -479,8 +486,10 @@ export class AccountActionFormComponent implements OnInit {
   loadChargeOptions(): void {
     this.chargesService.getCharges().subscribe({
       next: (data) => {
-        this.chargeOptions = data.filter(
-          (c) => c.active && (c.chargeAppliesTo?.id === 1 || c.chargeAppliesTo?.value === 'Loan'),
+        this.chargeOptions.set(
+          data.filter(
+            (c) => c.active && (c.chargeAppliesTo?.id === 1 || c.chargeAppliesTo?.value === 'Loan'),
+          ),
         );
       },
       error: (err) => console.error('Failed to load charge options', err),
@@ -488,14 +497,14 @@ export class AccountActionFormComponent implements OnInit {
   }
 
   onChargeSelected(chargeId: number): void {
-    const selected = this.chargeOptions.find((c) => c.id === chargeId);
+    const selected = this.chargeOptions().find((c) => c.id === chargeId);
     if (selected) {
       this.amount = selected.amount;
     }
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const formattedDate = formatDateToFineract(this.actionDate);
 
     let obs$: Observable<unknown> | null = null;
@@ -514,7 +523,7 @@ export class AccountActionFormComponent implements OnInit {
     if (obs$) {
       obs$.subscribe({
         next: () => this.router.navigate([redirectPath]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }
@@ -526,13 +535,18 @@ export class AccountActionFormComponent implements OnInit {
       note: this.note,
       approvedOnDate: formattedDate,
     };
-    if (!this.accountDetails) return payload;
+    // Read each signal once into a local: TypeScript cannot narrow a call
+    // expression, so a null check on this.accountDetails() does not carry over
+    // to the next call.
+    const details = this.accountDetails();
+    if (!details) return payload;
 
-    if (this.accountDetails['principal'] !== undefined) {
-      payload['approvedLoanAmount'] = this.accountDetails['principal'];
+    if (details['principal'] !== undefined) {
+      payload['approvedLoanAmount'] = details['principal'];
     }
-    if (this.expectedDisbursementDate) {
-      payload['expectedDisbursementDate'] = formatDateToFineract(this.expectedDisbursementDate);
+    const expectedDisbursement = this.expectedDisbursementDate();
+    if (expectedDisbursement) {
+      payload['expectedDisbursementDate'] = formatDateToFineract(expectedDisbursement);
     }
     return payload;
   }

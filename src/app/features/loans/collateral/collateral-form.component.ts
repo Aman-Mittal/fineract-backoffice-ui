@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -107,7 +107,7 @@ import {
                   required
                   [disabled]="isEditMode"
                 >
-                  @for (type of collateralTypes; track type.id) {
+                  @for (type of collateralTypes(); track type.id) {
                     <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -142,15 +142,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="collateralForm.invalid || isSaving"
+                [disabled]="collateralForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -192,9 +192,9 @@ export class CollateralFormComponent implements OnInit {
   loanId: number | null = null;
   collateralId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  collateralTypes: CodeValueData[] = [];
+  readonly collateralTypes = signal<CodeValueData[]>([]);
   loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
 
   // Binding variables
@@ -241,7 +241,7 @@ export class CollateralFormComponent implements OnInit {
     if (!this.loanId) return;
     this.collateralService.getLoansLoanIdCollateralsTemplate(this.loanId).subscribe({
       next: (template: CollateralData) => {
-        this.collateralTypes = template.allowedCollateralTypes || [];
+        this.collateralTypes.set(template.allowedCollateralTypes || []);
       },
       error: (err) => console.error('Failed to load collateral template', err),
     });
@@ -263,7 +263,7 @@ export class CollateralFormComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.loanId) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const requestPayload = {
       collateralTypeId: this.selectedCollateralTypeId,
@@ -281,14 +281,14 @@ export class CollateralFormComponent implements OnInit {
         )
         .subscribe({
           next: () => this.router.navigate(['/loans', this.loanId, 'collateral']),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
       this.collateralService
         .postLoansLoanIdCollaterals(this.loanId, requestPayload as LoansLoanIdCollateralsRequest)
         .subscribe({
           next: () => this.router.navigate(['/loans', this.loanId, 'collateral']),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }
