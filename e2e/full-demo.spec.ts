@@ -46,6 +46,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { confirmDialog, ionSelect, menuItem, modalFor, selectTab } from './utils/ionic-locators';
+import { captureJson } from './utils/capture-response';
 import { selectOption } from './utils/select-option';
 
 test.use({ video: 'on', trace: 'on' });
@@ -91,7 +92,12 @@ test.describe('Full feature demo recording', () => {
     await selectOption(page, 'Parent Office', 'Head Office');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/organization\/offices$/, { timeout: 15000 });
-    await expect(page.getByText(officeName)).toBeVisible({ timeout: 15000 });
+    // The list paginates at 10 rows and accumulates offices across runs, so the
+    // new one is not necessarily on the first page — search for it by name.
+    await page.getByPlaceholder('Type to search...').fill(officeName);
+    await expect(page.getByRole('row', { name: new RegExp(officeName) })).toBeVisible({
+      timeout: 15000,
+    });
     await beat(page);
 
     // 2. Loan Products list: schedule type badge per product
@@ -206,17 +212,10 @@ test.describe('Full feature demo recording', () => {
     await selectOption(page, 'Amortization Type', 'Equal Installments');
     await selectOption(page, 'Interest Calculation Period Type', 'Same as repayment period');
 
-    const [response] = await Promise.all([
-      page.waitForResponse(
-        (res) =>
-          new URL(res.url()).pathname.endsWith('/loans') && res.request().method() === 'POST',
-      ),
+    const created = await captureJson<{ loanId: number }>(page, /\/loans$/, 'POST', () =>
       page.getByRole('button', { name: 'Save' }).click(),
-    ]);
-    // The app navigates as soon as Save succeeds, which can discard the body
-    // before it is read ('No data found for resource'). finished() waits for it.
-    await response.finished();
-    const loanId = (await response.json()).loanId as number;
+    );
+    const loanId = created.loanId;
 
     // 8. Approve and disburse
     await page.goto(`/loans/view/${loanId}`);
