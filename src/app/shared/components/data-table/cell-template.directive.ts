@@ -17,14 +17,20 @@
  * under the License.
  */
 
-import { Directive, Input, TemplateRef, inject } from '@angular/core';
+import { Directive, TemplateRef, inject, input } from '@angular/core';
 
 @Directive({
   selector: '[appCellTemplate]',
   standalone: true,
 })
 export class CellTemplateDirective {
-  @Input('appCellTemplate') columnName!: string;
+  /**
+   * Column this template renders, named by the directive's own selector.
+   *
+   * A signal input so that the map `DataTableComponent` builds from these stays correct if a
+   * template's column is itself bound to an expression.
+   */
+  readonly columnName = input.required<string>({ alias: 'appCellTemplate' });
 
   public readonly template = inject(TemplateRef<unknown>);
 }

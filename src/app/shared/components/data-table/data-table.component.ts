@@ -19,18 +19,13 @@
 
 import {
   Component,
-  Input,
-  signal,
-  Output,
-  EventEmitter,
-  ContentChildren,
-  QueryList,
-  AfterContentInit,
   TemplateRef,
-  OnChanges,
-  SimpleChanges,
+  computed,
+  contentChildren,
   input,
+  linkedSignal,
   output,
+  signal,
 } from '@angular/core';
 import { CdkTableModule } from '@angular/cdk/table';
 import { NgTemplateOutlet } from '@angular/common';
@@ -99,23 +94,23 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
   ],
   template: `
     <ion-card class="data-table-card">
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="loading-overlay">
           <ion-spinner name="crescent" data-testid="data-table-spinner"></ion-spinner>
         </div>
       }
       <ion-card-header>
         <ion-card-title>
-          {{ title | translate }}
-          @if (helpTextKey) {
-            <app-help-icon [helpTextKey]="helpTextKey"></app-help-icon>
+          {{ title() | translate }}
+          @if (helpTextKey()) {
+            <app-help-icon [helpTextKey]="helpTextKey()"></app-help-icon>
           }
         </ion-card-title>
         <div class="header-actions">
-          @if (createButtonLabel) {
+          @if (createButtonLabel()) {
             <ion-button data-testid="data-table-create" color="primary" (click)="onCreate()">
               <ion-icon name="add-outline" slot="start"></ion-icon>
-              {{ createButtonLabel | translate }}
+              {{ createButtonLabel() | translate }}
             </ion-button>
           }
           <ng-content select="[headerActions]"></ng-content>
@@ -124,11 +119,11 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
 
       <ion-card-content>
         <div class="table-header">
-          @if (showSearch) {
+          @if (showSearch()) {
             <div class="search-container">
               <app-search-filter
-                [label]="searchLabel | translate"
-                [placeholder]="searchPlaceholder | translate"
+                [label]="searchLabel() | translate"
+                [placeholder]="searchPlaceholder() | translate"
                 (searchChange)="onSearch($event)"
               >
               </app-search-filter>
@@ -158,7 +153,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         } @else {
           <div class="table-container">
             <table cdk-table [dataSource]="rows()" class="data-table">
-              @for (col of columns; track col.key) {
+              @for (col of columns(); track col.key) {
                 <ng-container [cdkColumnDef]="col.key">
                   <th
                     cdk-header-cell
@@ -179,9 +174,9 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                     }
                   </th>
                   <td cdk-cell *cdkCellDef="let row">
-                    @if (columnTemplates[col.key]) {
+                    @if (columnTemplates()[col.key]) {
                       <ng-container
-                        *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
+                        *ngTemplateOutlet="columnTemplates()[col.key]; context: { $implicit: row }"
                       ></ng-container>
                     } @else {
                       <span class="truncate-text" [appTooltip]="getTooltipText(row, col.key)">
@@ -192,11 +187,11 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                 </ng-container>
               }
 
-              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns()"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns()"></tr>
 
               <tr class="no-data-row" *cdkNoDataRow>
-                <td [attr.colspan]="displayedColumns.length">
+                <td [attr.colspan]="displayedColumns().length">
                   {{ 'COMMON.NO_DATA' | translate }}
                 </td>
               </tr>
@@ -206,7 +201,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
               [length]="displayedTotal()"
               [pageSize]="effectivePageSize"
               [pageIndex]="effectivePageIndex"
-              [pageSizeOptions]="pageSizeOptions"
+              [pageSizeOptions]="pageSizeOptions()"
               (page)="onPage($event)"
             ></app-paginator>
           </div>
@@ -338,78 +333,79 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
     `,
   ],
 })
-export class DataTableComponent<T> implements AfterContentInit, OnChanges {
-  @Input() title = '';
-  @Input() helpTextKey = '';
-  @Input() createButtonLabel = '';
-  @Input() columns: ColumnDef[] = [];
-  @Input() data: T[] = [];
+export class DataTableComponent<T> {
+  readonly title = input('');
+  readonly helpTextKey = input('');
+  readonly createButtonLabel = input('');
+  readonly columns = input<ColumnDef[]>([]);
+  readonly data = input<T[]>([]);
   /** Total number of records. If server-side, this comes from API response. */
-  @Input() totalRecords = 0;
-  @Input() pageSize = 10;
-  @Input() pageIndex = 0;
-  @Input() pageSizeOptions = [5, 10, 25, 100];
-  @Input() showSearch = true;
-  @Input() searchLabel = 'COMMON.SEARCH';
-  @Input() searchPlaceholder = 'COMMON.SEARCH_PLACEHOLDER';
+  readonly totalRecords = input(0);
+  readonly pageSize = input(10);
+  readonly pageIndex = input(0);
+  readonly pageSizeOptions = input([5, 10, 25, 100]);
+  readonly showSearch = input(true);
+  readonly searchLabel = input('COMMON.SEARCH');
+  readonly searchPlaceholder = input('COMMON.SEARCH_PLACEHOLDER');
   /** If true, the component will handle pagination/sorting locally. */
-  @Input() localLogic = false;
-  @Input() isLoading = false;
+  readonly localLogic = input(false);
+  readonly isLoading = input(false);
   /**
    * Whether the last load failed.
    *
    * Set this instead of swallowing the failure into an empty array. A table that renders
    * "No records found" after a request errored tells the user the data does not exist, when
    * in fact nobody knows — and leaves them no way to ask again short of reloading the page.
-   *
-   * A signal input rather than a decorator: the surrounding `@Input()`s are on the Wave 3
-   * conversion list, and adding to that list is the wrong direction.
    */
   readonly hasError = input(false);
 
-  @Output() create = new EventEmitter<void>();
-  @Output() searchChange = new EventEmitter<string>();
-  @Output() sortChange = new EventEmitter<SortEvent>();
-  @Output() pageChange = new EventEmitter<PageEvent>();
+  readonly create = output<void>();
+  readonly searchChange = output<string>();
+  readonly sortChange = output<SortEvent>();
+  readonly pageChange = output<PageEvent>();
   /** Emitted when the user asks to load again after a failure. */
   readonly retry = output<void>();
 
-  @ContentChildren(CellTemplateDirective) cellTemplates!: QueryList<CellTemplateDirective>;
-
   /**
-   * Rows currently rendered — the visible page when `localLogic`, otherwise `data` verbatim.
+   * Per-column templates projected by the parent.
    *
-   * Signals rather than plain fields so the view refreshes whenever the derived state changes,
-   * independently of how change detection was triggered.
+   * A signal query rather than `@ContentChildren` + `QueryList`: `QueryList.changes` does not
+   * mark an OnPush view dirty, so a template registered after the first pass — one inside an
+   * `@if`, say — would never appear.
    */
-  readonly rows = signal<T[]>([]);
-  /** Record count reported to the paginator; local filtering shrinks it. */
-  readonly displayedTotal = signal(0);
+  readonly cellTemplates = contentChildren(CellTemplateDirective);
+
   readonly sort = signal<SortEvent>({ active: '', direction: '' });
 
-  columnTemplates: Record<string, TemplateRef<unknown>> = {};
+  protected readonly columnTemplates = computed<Record<string, TemplateRef<unknown>>>(() => {
+    const map: Record<string, TemplateRef<unknown>> = {};
+    for (const directive of this.cellTemplates()) {
+      map[directive.columnName()] = directive.template;
+    }
+    return map;
+  });
 
-  private filterText = '';
-  private readonly localPageIndex = signal(0);
-  private readonly localPageSize = signal(10);
-
-  get displayedColumns(): string[] {
-    return this.columns.map((c) => c.key);
-  }
+  private readonly filterText = signal('');
 
   /*
    * Page state is tracked here in both modes.
    *
-   * These used to read the raw @Input in server-side mode, which left the
-   * paginator pinned to whatever the parent last bound. Since most parents fetch
-   * by offset and never bind `pageIndex` back, it stayed 0 forever: the range
-   * label was always "1 - 10", "previous" was always disabled, and because
-   * `goTo()` computes from `pageIndex()`, "next" resolved to page 1 every time —
-   * so page 2 was reachable and nothing beyond it.
+   * Reading the raw input in server-side mode left the paginator pinned to whatever the parent
+   * last bound. Since most parents fetch by offset and never bind `pageIndex` back, it stayed 0
+   * forever: the range label was always "1 - 10", "previous" was always disabled, and because
+   * `goTo()` computes from `pageIndex()`, "next" resolved to page 1 every time — so page 2 was
+   * reachable and nothing beyond it.
    *
-   * ngOnChanges still syncs from the @Input, so a parent that does drive
-   * `pageIndex` (to reset to the first page when a filter changes) keeps control.
+   * `linkedSignal` keeps both halves of that: writable here, and reset whenever the parent
+   * binds a new value, so a parent that drives `pageIndex` (to return to the first page when a
+   * filter changes) keeps control. This is what the old `ngOnChanges` did by hand, and it has
+   * to be expressed this way now — `ngOnChanges` does not run for signal inputs.
    */
+  private readonly localPageIndex = linkedSignal(() => this.pageIndex());
+  private readonly localPageSize = linkedSignal(() => this.pageSize());
+
+  readonly displayedColumns = computed(() => this.columns().map((c) => c.key));
+
   get effectivePageIndex(): number {
     return this.localPageIndex();
   }
@@ -418,21 +414,44 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
     return this.localPageSize();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['pageSize']) {
-      this.localPageSize.set(this.pageSize);
+  /**
+   * The full result set behind the table: `data` verbatim server-side, filtered and sorted
+   * locally otherwise. Derived rather than recomputed on notification, so it cannot fall out
+   * of step with the inputs it is built from.
+   */
+  private readonly resolved = computed<T[]>(() => {
+    const data = this.data() ?? [];
+    if (!this.localLogic()) {
+      return data;
     }
-    if (changes['pageIndex']) {
-      this.localPageIndex.set(this.pageIndex);
-    }
-    this.recompute();
-  }
 
-  ngAfterContentInit(): void {
-    this.cellTemplates.forEach((directive) => {
-      this.columnTemplates[directive.columnName] = directive.template;
-    });
-  }
+    let result = [...data];
+
+    const filter = this.filterText();
+    if (filter) {
+      result = result.filter((row) => this.matchesFilter(row, filter));
+    }
+    const { active, direction } = this.sort();
+    if (active && direction) {
+      result = this.sortRows(result, active, direction);
+    }
+    return result;
+  });
+
+  /** Rows currently rendered — the visible page when `localLogic`, otherwise `data` verbatim. */
+  readonly rows = computed<T[]>(() => {
+    if (!this.localLogic()) {
+      return this.resolved();
+    }
+    const pageSize = this.localPageSize();
+    const start = this.localPageIndex() * pageSize;
+    return this.resolved().slice(start, start + pageSize);
+  });
+
+  /** Record count reported to the paginator; local filtering shrinks it. */
+  readonly displayedTotal = computed(() =>
+    this.localLogic() ? this.resolved().length : this.totalRecords(),
+  );
 
   onCreate(): void {
     this.create.emit();
@@ -447,9 +466,8 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
     // parents also refetch from offset 0 on a new search, so the paginator has to
     // agree in both modes or the label drifts from the rows on screen.
     this.localPageIndex.set(0);
-    if (this.localLogic) {
-      this.filterText = value.trim().toLowerCase();
-      this.recompute();
+    if (this.localLogic()) {
+      this.filterText.set(value.trim().toLowerCase());
     }
     this.searchChange.emit(value);
   }
@@ -465,18 +483,12 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
     // Re-sorting reorders the whole set, so the current page no longer means
     // anything; server-side parents reset to offset 0 for the same reason.
     this.localPageIndex.set(0);
-    if (this.localLogic) {
-      this.recompute();
-    }
     this.sortChange.emit(this.sort());
   }
 
   onPage(event: PageEvent): void {
     this.localPageIndex.set(event.pageIndex);
     this.localPageSize.set(event.pageSize);
-    if (this.localLogic) {
-      this.recompute();
-    }
     this.pageChange.emit(event);
   }
 
@@ -505,37 +517,12 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
     return String(val);
   }
 
-  /** Recomputes the rendered rows. Server-side mode passes `data` straight through. */
-  private recompute(): void {
-    if (!this.localLogic) {
-      this.rows.set(this.data ?? []);
-      this.displayedTotal.set(this.totalRecords);
-      return;
-    }
-
-    let result = [...(this.data ?? [])];
-
-    if (this.filterText) {
-      result = result.filter((row) => this.matchesFilter(row));
-    }
-    const { active, direction } = this.sort();
-    if (active && direction) {
-      result = this.sortRows(result, active, direction);
-    }
-
-    this.displayedTotal.set(result.length);
-
-    const pageSize = this.localPageSize();
-    const start = this.localPageIndex() * pageSize;
-    this.rows.set(result.slice(start, start + pageSize));
-  }
-
   /** Matches the row against the search text across every displayed column. */
-  private matchesFilter(row: T): boolean {
-    return this.columns.some((col) => {
+  private matchesFilter(row: T, filter: string): boolean {
+    return this.columns().some((col) => {
       const value = this.getCellValue(row, col.key);
       return value !== null && value !== undefined
-        ? String(value).toLowerCase().includes(this.filterText)
+        ? String(value).toLowerCase().includes(filter)
         : false;
     });
   }

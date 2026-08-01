@@ -17,9 +17,11 @@
  * under the License.
  */
 
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef } from './data-table.component';
+import { CellTemplateDirective } from './cell-template.directive';
 import { PageEvent, SortEvent } from '../../models/table.model';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 
@@ -39,6 +41,8 @@ const ROWS: TestData[] = [
   { id: 1, name: 'Alice', status: { value: 'Active', code: 'active' } },
   { id: 2, name: 'Bob', status: { value: 'Inactive', code: 'inactive' } },
 ];
+
+const CUSTOM_CELL = '.custom-cell';
 
 describe('DataTableComponent', () => {
   let fixture: ComponentFixture<DataTableComponent<TestData>>;
@@ -239,7 +243,10 @@ describe('DataTableComponent', () => {
     });
 
     it('still lets a parent drive the page index through the input', () => {
+      // Parents mirror the index back from (pageChange) — see onPage() in clients-list and
+      // centers-list — so the bound value tracks the table while the user pages.
       component.onPage({ pageIndex: 3, pageSize: 10, length: 250 });
+      setInputs({ pageIndex: 3 });
       expect(component.effectivePageIndex).toBe(3);
 
       // What a parent does when a filter changes and it refetches from offset 0.
@@ -340,6 +347,45 @@ describe('DataTableComponent', () => {
 
       expect(errorPanel()).toBeNull();
       expect(renderedNames()).toEqual(['Alice', 'Bob']);
+    });
+  });
+  describe('projected cell templates', () => {
+    /**
+     * The template for `name` sits inside an `@if`, so it registers after the table's first
+     * content pass. Under `@ContentChildren` + `QueryList` this is the case that silently
+     * failed: `QueryList.changes` does not mark an OnPush view dirty, so the late template
+     * was never picked up and the column kept rendering its plain value.
+     */
+    @Component({
+      standalone: true,
+      imports: [DataTableComponent, CellTemplateDirective],
+      template: `
+        <app-data-table [columns]="columns" [data]="data" [localLogic]="true">
+          @if (showCustom()) {
+            <ng-template appCellTemplate="name" let-row>
+              <span class="custom-cell">custom:{{ row.name }}</span>
+            </ng-template>
+          }
+        </app-data-table>
+      `,
+    })
+    class HostComponent {
+      readonly columns = COLUMNS;
+      readonly data = ROWS;
+      readonly showCustom = signal(false);
+    }
+
+    it('picks up a template that registers after the first pass', () => {
+      const host = TestBed.createComponent(HostComponent);
+      host.detectChanges();
+
+      expect(host.nativeElement.querySelectorAll(CUSTOM_CELL)).toHaveSize(0);
+
+      host.componentInstance.showCustom.set(true);
+      host.detectChanges();
+
+      expect(host.nativeElement.querySelectorAll(CUSTOM_CELL)).toHaveSize(2);
+      expect(host.nativeElement.querySelector(CUSTOM_CELL).textContent.trim()).toBe('custom:Alice');
     });
   });
 });

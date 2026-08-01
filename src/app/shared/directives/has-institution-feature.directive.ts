@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Directive, Input, TemplateRef, ViewContainerRef, inject, effect } from '@angular/core';
+import { Directive, TemplateRef, ViewContainerRef, effect, inject, input } from '@angular/core';
 import {
   InstitutionConfigService,
   InstitutionFeature,
@@ -45,25 +45,15 @@ export class HasInstitutionFeatureDirective {
   private readonly institutionConfig = inject(InstitutionConfigService);
   private readonly config = inject(ConfigService);
 
-  private feature: InstitutionFeature | null = null;
+  /** Feature the element requires. */
+  readonly appInstitutionFeature = input<InstitutionFeature | null>(null);
+
   private hasView = false;
 
   constructor() {
-    // React to institution type changes automatically.
-    effect(() => {
-      // Access signals to register dependencies. `rbacEnabled` is read here as well as in
-      // updateView() so that a deployment toggling it re-runs this directive rather than
-      // leaving whatever was rendered at construction.
-      this.institutionConfig.institutionType();
-      this.config.rbacEnabled();
-      this.updateView();
-    });
-  }
-
-  @Input()
-  set appInstitutionFeature(val: InstitutionFeature) {
-    this.feature = val;
-    this.updateView();
+    // One effect over every input the decision depends on, rather than an updateView() call per
+    // setter plus one for the configuration. The signal input is tracked like any other signal.
+    effect(() => this.updateView());
   }
 
   private updateView(): void {
@@ -73,7 +63,12 @@ export class HasInstitutionFeatureDirective {
       return;
     }
 
-    if (this.feature && this.institutionConfig.isFeatureEnabled(this.feature)) {
+    // Read outside the guard below so the effect re-runs when the deployment's type changes,
+    // not only when the feature being asked about changes.
+    this.institutionConfig.institutionType();
+
+    const feature = this.appInstitutionFeature();
+    if (feature && this.institutionConfig.isFeatureEnabled(feature)) {
       this.showTemplate();
     } else {
       this.hideTemplate();

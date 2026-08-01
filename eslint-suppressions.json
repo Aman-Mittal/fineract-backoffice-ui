@@ -355,19 +355,6 @@
       "count": 1
     }
   },
-  "src/app/shared/components/data-table/cell-template.directive.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/data-table/data-table.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 15
-    }
-  },
   "src/app/shared/components/datatable-entry-dialog/datatable-entry-dialog.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 1
@@ -394,16 +381,6 @@
   "src/app/shared/components/status-badge/status-badge.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/shared/directives/has-institution-feature.directive.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/shared/directives/has-permission.directive.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
     }
   },
   "src/app/shared/directives/tooltip.directive.ts": {

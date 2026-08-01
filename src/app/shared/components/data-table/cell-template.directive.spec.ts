@@ -50,7 +50,7 @@ describe('CellTemplateDirective', () => {
 
   it('should create the directive and capture the template and columnName', () => {
     expect(component.cellTemplateDirective).toBeTruthy();
-    expect(component.cellTemplateDirective.columnName).toBe('testColumn');
+    expect(component.cellTemplateDirective.columnName()).toBe('testColumn');
     expect(component.cellTemplateDirective.template).toBeInstanceOf(TemplateRef);
   });
 });

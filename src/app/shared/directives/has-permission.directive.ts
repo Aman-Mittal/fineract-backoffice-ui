@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Directive, Input, TemplateRef, ViewContainerRef, inject, effect } from '@angular/core';
+import { Directive, TemplateRef, ViewContainerRef, effect, inject, input } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 
@@ -39,32 +39,20 @@ export class HasPermissionDirective {
   private readonly authService = inject(AuthService);
   private readonly config = inject(ConfigService);
 
-  private permissions: string | string[] = [];
-  private matchAllValue = false;
+  /** Permission, or permissions, the element requires. */
+  readonly appHasPermission = input<string | string[]>([]);
+  /** AND semantics for an array. Default is OR — any one of them is enough. */
+  readonly appHasPermissionMatchAll = input(false);
+
   private hasView = false;
 
   constructor() {
-    // React to authentication changes or signal changes automatically
-    effect(() => {
-      // Access signals to register dependencies. `rbacEnabled` is read here as well as in
-      // updateView() so that a deployment toggling it re-runs this directive rather than
-      // leaving whatever was rendered at construction.
-      this.authService.currentUser();
-      this.config.rbacEnabled();
-      this.updateView();
-    });
-  }
-
-  @Input()
-  set appHasPermission(val: string | string[]) {
-    this.permissions = val;
-    this.updateView();
-  }
-
-  @Input()
-  set appHasPermissionMatchAll(val: boolean) {
-    this.matchAllValue = val;
-    this.updateView();
+    // One effect over every input the decision depends on, rather than an updateView() call
+    // per setter plus one for the session. Signal inputs are tracked like any other signal, so
+    // the directive re-evaluates when the permissions change, when the user changes, and when a
+    // deployment toggles RBAC — the last of which previously needed reading the signal here
+    // purely to register the dependency.
+    effect(() => this.updateView());
   }
 
   private updateView(): void {
@@ -74,14 +62,17 @@ export class HasPermissionDirective {
       return;
     }
 
-    if (!this.permissions || this.permissions.length === 0) {
+    // Reading `currentUser` registers the dependency; `hasPermission` reads it internally,
+    // but not through a signal this effect would see.
+    this.authService.currentUser();
+
+    const permissions = this.appHasPermission();
+    if (!permissions || permissions.length === 0) {
       this.showTemplate();
       return;
     }
 
-    const isAuthorized = this.authService.hasPermission(this.permissions, this.matchAllValue);
-
-    if (isAuthorized) {
+    if (this.authService.hasPermission(permissions, this.appHasPermissionMatchAll())) {
       this.showTemplate();
     } else {
       this.hideTemplate();
