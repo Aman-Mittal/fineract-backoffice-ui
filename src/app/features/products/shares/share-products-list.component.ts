@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { CurrencyPipe } from '@angular/common';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '../../../api';
 
@@ -40,6 +40,8 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.shares"
       createButtonLabel="PRODUCTS.CREATE_SHARE_PRODUCT"
       [columns]="columns"
@@ -67,6 +69,9 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
   `,
 })
 export class ShareProductsListComponent implements OnInit {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
   private readonly productService = inject(ProductsService);
   private readonly router = inject(Router);
 
@@ -89,7 +94,13 @@ export class ShareProductsListComponent implements OnInit {
     this.isLoading = true;
     this.productService
       .getProductsType('share')
-      .pipe(catchError(() => of({ pageItems: [] } as unknown as GetProductsTypeResponse)))
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of({ pageItems: [] } as unknown as GetProductsTypeResponse);
+        }),
+      )
       .subscribe((response: GetProductsTypeResponse) => {
         this.products = Array.from(response.pageItems || []);
         this.isLoading = false;
@@ -102,5 +113,9 @@ export class ShareProductsListComponent implements OnInit {
 
   onEdit(product: GetProductsPageItems) {
     this.router.navigate(['/products/share/edit', product.id]);
+  }
+
+  onRetry(): void {
+    this.loadProducts();
   }
 }

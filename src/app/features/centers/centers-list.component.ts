@@ -22,7 +22,7 @@ import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import {
   StatusBadgeComponent,
   DataTableComponent,
@@ -46,6 +46,8 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.centers"
       helpTextKey="HELP.CENTERS_DESC"
       createButtonLabel="Create Center"
@@ -77,6 +79,12 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   `,
 })
 export class CentersListComponent {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
+  /** Re-runs the query behind the table when the user asks to try again. */
+  private readonly retrySubject = new Subject<void>();
+
   private readonly centersService = inject(CentersService);
   private readonly router = inject(Router);
 
@@ -103,7 +111,7 @@ export class CentersListComponent {
   readonly pageIndex = signal(0);
 
   constructor() {
-    merge(this.searchSubject, this.sortSubject, this.pageSubject)
+    merge(this.searchSubject, this.sortSubject, this.pageSubject, this.retrySubject)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -130,7 +138,13 @@ export class CentersListComponent {
               orderBy,
               sortOrder,
             )
-            .pipe(catchError(() => of(null)));
+            .pipe(
+              tap(() => this.hasError.set(false)),
+              catchError(() => {
+                this.hasError.set(true);
+                return of(null);
+              }),
+            );
         }),
         map((response) => {
           if (response === null) return [];
@@ -169,5 +183,9 @@ export class CentersListComponent {
 
   onEditCenter(center: GetCentersPageItems) {
     this.router.navigate(['/centers/edit', center.id]);
+  }
+
+  onRetry(): void {
+    this.retrySubject.next();
   }
 }

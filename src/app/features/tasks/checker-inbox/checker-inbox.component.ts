@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../../shared';
 import { MakerCheckerOr4EyeFunctionalityService, AuditData } from '../../../api';
 import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
@@ -35,6 +35,8 @@ import { DialogService } from '../../../core/services/dialog.service';
   imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.checker_inbox"
       helpTextKey="HELP.TASKS_DESC"
       [columns]="columns"
@@ -79,6 +81,9 @@ import { DialogService } from '../../../core/services/dialog.service';
   ],
 })
 export class CheckerInboxComponent {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
   private readonly makerCheckerService = inject(MakerCheckerOr4EyeFunctionalityService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogService = inject(DialogService);
@@ -101,8 +106,11 @@ export class CheckerInboxComponent {
         startWith({}),
         switchMap(() =>
           this.makerCheckerService.getMakercheckers().pipe(
+            tap(() => this.hasError.set(false)),
+            // Reported in the table itself rather than as a toast: the failure is about
+            // this list, and the retry belongs next to the empty space it explains.
             catchError(() => {
-              this.notifications.error('Error fetching pending tasks');
+              this.hasError.set(true);
               return of([]);
             }),
           ),
@@ -162,5 +170,8 @@ export class CheckerInboxComponent {
       return new Date(dateArray[0], dateArray[1] - 1, dateArray[2]).toLocaleDateString();
     }
     return (dateArray as string) || '';
+  }
+  onRetry(): void {
+    this.refreshSubject.next();
   }
 }

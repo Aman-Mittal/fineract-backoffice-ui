@@ -306,4 +306,40 @@ describe('DataTableComponent', () => {
       expect(headers[0].getAttribute('aria-sort')).toBeNull();
     });
   });
+  describe('error state', () => {
+    const errorPanel = () =>
+      fixture.nativeElement.querySelector('[data-testid="data-table-error"]');
+
+    it('should not show anything about errors on a normal load', () => {
+      expect(errorPanel()).toBeNull();
+      expect(renderedNames()).toEqual(['Alice', 'Bob']);
+    });
+
+    it('should replace the table rather than showing an empty one', () => {
+      setInputs({ hasError: true });
+
+      // "No records found" under a failed request tells the user the data does not exist,
+      // when in fact nobody knows.
+      expect(errorPanel()).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('table.data-table')).toBeNull();
+    });
+
+    it('should ask the parent to load again when the user retries', () => {
+      setInputs({ hasError: true });
+      let retries = 0;
+      component.retry.subscribe(() => retries++);
+
+      fixture.nativeElement.querySelector('[data-testid="data-table-retry"]').click();
+
+      expect(retries).toBe(1);
+    });
+
+    it('should restore the table once a retry succeeds', () => {
+      setInputs({ hasError: true });
+      setInputs({ hasError: false });
+
+      expect(errorPanel()).toBeNull();
+      expect(renderedNames()).toEqual(['Alice', 'Bob']);
+    });
+  });
 });

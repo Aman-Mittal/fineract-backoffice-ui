@@ -23,7 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonBadge, IonIcon } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { CellTemplateDirective, ColumnDef } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { LoanProductsService, GetLoanProductsResponse } from '../../api';
@@ -42,6 +42,8 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.loanProducts"
       helpTextKey="HELP.LOAN_PRODUCTS_DESC"
       createButtonLabel="PRODUCTS.CREATE_LOAN_PRODUCT"
@@ -81,6 +83,9 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
   `,
 })
 export class LoanProductsListComponent implements OnInit {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
   private readonly loanProductsService = inject(LoanProductsService);
   private readonly router = inject(Router);
 
@@ -101,7 +106,13 @@ export class LoanProductsListComponent implements OnInit {
   private loadProducts(): void {
     this.loanProductsService
       .getLoanproducts()
-      .pipe(catchError(() => of([])))
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([]);
+        }),
+      )
       .subscribe((data: GetLoanProductsResponse[]) => {
         this.products.set(data || []);
       });
@@ -135,5 +146,9 @@ export class LoanProductsListComponent implements OnInit {
         ? 'Progressive'
         : 'Cumulative')
     );
+  }
+
+  onRetry(): void {
+    this.loadProducts();
   }
 }

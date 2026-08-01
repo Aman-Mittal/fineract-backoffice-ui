@@ -23,7 +23,7 @@ import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyPipe } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import {
   DataTableComponent,
   ColumnDef,
@@ -57,6 +57,8 @@ import {
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.savingsAccounts"
       helpTextKey="HELP.SAVINGS_ACCOUNTS_DESC"
       [columns]="columns"
@@ -142,6 +144,12 @@ import {
   `,
 })
 export class SavingsAccountsListComponent implements OnInit {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
+  /** Re-runs the query behind the table when the user asks to try again. */
+  private readonly retrySubject = new Subject<void>();
+
   private readonly savingsService = inject(SavingsAccountService);
   private readonly router = inject(Router);
 
@@ -170,7 +178,7 @@ export class SavingsAccountsListComponent implements OnInit {
   readonly pageIndex = signal(0);
 
   ngOnInit(): void {
-    merge(this.searchSubject, this.sortSubject, this.pageSubject)
+    merge(this.searchSubject, this.sortSubject, this.pageSubject, this.retrySubject)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -189,7 +197,13 @@ export class SavingsAccountsListComponent implements OnInit {
 
           return this.savingsService
             .getSavingsaccounts(searchVal, offset, limit, orderBy, sortOrder)
-            .pipe(catchError(() => of(null)));
+            .pipe(
+              tap(() => this.hasError.set(false)),
+              catchError(() => {
+                this.hasError.set(true);
+                return of(null);
+              }),
+            );
         }),
         map((response: GetSavingsAccountsResponse | null) => {
           this.isLoading = false;
@@ -266,5 +280,9 @@ export class SavingsAccountsListComponent implements OnInit {
     this.router.navigate([
       `/products/${this.getAccountActionType(account)}/${account.id}/action/approve`,
     ]);
+  }
+
+  onRetry(): void {
+    this.retrySubject.next();
   }
 }

@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { of } from 'rxjs';
-import { catchError, startWith } from 'rxjs/operators';
+import { catchError, startWith, tap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
 import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -40,6 +40,8 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="Chart of Accounts"
       helpTextKey="HELP.CHART_OF_ACCOUNTS_DESC"
       createButtonLabel="Add Ledger Account"
@@ -98,6 +100,9 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   ],
 })
 export class ChartOfAccountsComponent {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
   private readonly glAccountService = inject(GeneralLedgerAccountService);
   private readonly router = inject(Router);
 
@@ -112,11 +117,23 @@ export class ChartOfAccountsComponent {
   accounts: GetGLAccountsResponse[] = [];
 
   constructor() {
+    this.loadAccounts();
+  }
+
+  onRetry(): void {
+    this.loadAccounts();
+  }
+
+  private loadAccounts(): void {
     this.glAccountService
       .getGlaccounts()
       .pipe(
         startWith([]),
-        catchError(() => of([])),
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([]);
+        }),
       )
       .subscribe((data) => {
         this.accounts = data;
