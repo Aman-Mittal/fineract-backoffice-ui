@@ -19,6 +19,7 @@
 
 import {
   ApplicationConfig,
+  ErrorHandler,
   importProvidersFrom,
   isDevMode,
   provideBrowserGlobalErrorListeners,
@@ -37,6 +38,8 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { retryInterceptor } from './core/interceptors/retry.interceptor';
+import { GlobalErrorHandler } from './core/errors/global-error-handler';
 import { ConfigService } from './core/services/config.service';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 
@@ -64,13 +67,19 @@ export const appConfig: ApplicationConfig = {
     // Dev only. `checkNoChanges` is compiled out of production builds, but `interval` would
     // still schedule a timer, so there is no reason to provide it there.
     ...(isDevMode() ? [provideCheckNoChangesConfig({ interval: 500, exhaustive: true })] : []),
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideRouter(routes),
+    // Order is the chain order, outermost first. `retryInterceptor` is last, and so closest
+    // to the backend, deliberately: `loadingInterceptor` outside it counts one logical request
+    // instead of flickering the progress bar per attempt, `errorInterceptor` toasts only once
+    // the retries are spent, and every attempt reuses the same correlation ID.
     provideHttpClient(
       withInterceptors([
         correlationIdInterceptor,
         authInterceptor,
         errorInterceptor,
         loadingInterceptor,
+        retryInterceptor,
       ]),
     ),
     provideAnimationsAsync(),

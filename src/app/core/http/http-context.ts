@@ -58,10 +58,58 @@ export const SKIP_LOADING = new HttpContextToken<boolean>(() => false);
  */
 export const SKIP_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
 
+/**
+ * Marks a non-GET request as safe to send more than once.
+ *
+ * `retryInterceptor` retries GET without being asked, because GET is defined as
+ * side-effect-free. Everything else is retried only when the call site says so: a POST that
+ * timed out may well have been applied server-side, and repeating it would post the journal
+ * entry twice. Set this only for endpoints that are genuinely idempotent — a PUT that
+ * overwrites a resource with a fixed payload, or a POST with a client-supplied idempotency key.
+ */
+export const IDEMPOTENT = new HttpContextToken<boolean>(() => false);
+
+/**
+ * Number of retry attempts after the first failure. Defaults to `DEFAULT_RETRY_COUNT`.
+ *
+ * Set to `0` to opt a request out of retrying entirely — for a poll that will come round
+ * again anyway, or where the caller wants to surface the first failure immediately.
+ *
+ * This tunes retrying where it is already allowed; it does not authorise it. On a request
+ * that is not a GET and not marked {@link IDEMPOTENT} it has no effect, so that "safe to
+ * send twice" is always stated as such rather than implied by a number.
+ */
+export const RETRY = new HttpContextToken<number | null>(() => null);
+
+/**
+ * Milliseconds after which the request is abandoned. Off unless set.
+ *
+ * There is deliberately no default. Fineract has endpoints that legitimately run for minutes
+ * — report generation, scheduler jobs, bulk import — and a blanket ceiling would cancel work
+ * the server is still doing, while the client reports a failure that did not happen. Set it
+ * per call site, where the expected duration is actually known.
+ */
+export const TIMEOUT_MS = new HttpContextToken<number | null>(() => null);
+
 export function skipLoading(context = new HttpContext()): HttpContext {
   return context.set(SKIP_LOADING, true);
 }
 
 export function skipErrorToast(context = new HttpContext()): HttpContext {
   return context.set(SKIP_ERROR_TOAST, true);
+}
+
+/** Declares a non-GET request safe to repeat, opting it into `retryInterceptor`. */
+export function idempotent(context = new HttpContext()): HttpContext {
+  return context.set(IDEMPOTENT, true);
+}
+
+/** Overrides the retry count for this request. `0` disables retrying. */
+export function withRetry(count: number, context = new HttpContext()): HttpContext {
+  return context.set(RETRY, count);
+}
+
+/** Abandons this request after `ms` milliseconds. */
+export function withTimeout(ms: number, context = new HttpContext()): HttpContext {
+  return context.set(TIMEOUT_MS, ms);
 }
