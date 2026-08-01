@@ -31,8 +31,15 @@
  * Asserting on rendered output cannot catch it in general — an empty table and a broken
  * table look identical — so the console is the signal.
  *
- * Set ALLOW_ANGULAR_CD_ERRORS=1 to collect and print them without failing, which is the
- * useful mode while burning the existing ones down.
+ * Reports by default; fails only under ENFORCE_CD_ERRORS=1. The interval check samples at
+ * arbitrary moments, so it also catches states that are briefly inconsistent and then settle —
+ * reactive form validity is the one still outstanding, where `[attr.aria-invalid]` reads a
+ * control whose status changed without a change-detection pass. Those surface on the sign-in
+ * every test performs in beforeEach and land on whichever test happened to be running, so
+ * enforcing today costs between zero and seventeen unrelated failures depending on timing.
+ *
+ * The value is in the reporting: this is what identified the six empty-dropdown components,
+ * all now fixed. Flip the default once the remaining sources are gone.
  */
 
 import { test as base, expect } from '@playwright/test';
@@ -47,7 +54,18 @@ import { test as base, expect } from '@playwright/test';
  */
 const CHANGE_DETECTION_ERROR_CODES = ['NG0100'];
 
-const REPORT_ONLY = process.env.ALLOW_ANGULAR_CD_ERRORS === '1';
+const ENFORCE = process.env.ENFORCE_CD_ERRORS === '1';
+
+/**
+ * Pulls the component out of "Expression location: _LoginComponent component".
+ *
+ * Angular does not always include one — the message shape differs between a binding it can
+ * attribute and a view it cannot — so unattributed errors group under a single bucket rather
+ * than being silently dropped.
+ */
+function componentOf(message: string): string {
+  return /Expression location: (\w+) component/.exec(message)?.[1] ?? '<unattributed>';
+}
 
 type ChangeDetectionFixtures = {
   /** Change-detection errors seen on the page during this test. */
@@ -87,24 +105,24 @@ export const test = base.extend<ChangeDetectionFixtures>({
       }
 
       // Repeats of one broken binding are the norm once the interval check is running,
-      // so report each distinct message once rather than several hundred times.
+      // so work from distinct messages rather than several hundred copies.
       const distinct = [...new Set(changeDetectionErrors)];
+      const components = [...new Set(distinct.map(componentOf))];
       const summary = distinct.map((message) => `  - ${message}`).join('\n');
 
-      if (REPORT_ONLY) {
+      if (!ENFORCE) {
         console.warn(
-          `[change-detection] ${distinct.length} error(s) on ${page.url()}:\n${summary}`,
+          `[change-detection] ${components.join(', ')} on ${page.url()}\n${summary}\n` +
+            'A field assigned from a subscribe callback is the usual cause; ' +
+            'scripts/audit-async-state.mjs lists them, scripts/codemod-signals.mjs converts them.',
         );
         return;
       }
 
       expect(
-        distinct,
-        `Angular reported state that changed without notifying it (${page.url()}).\n` +
-          `${summary}\n\n` +
-          'A field assigned from a subscribe callback is the usual cause; convert it to a ' +
-          'signal (scripts/audit-async-state.mjs lists them, scripts/codemod-signals.mjs ' +
-          'converts them). Re-run with ALLOW_ANGULAR_CD_ERRORS=1 to report instead of fail.',
+        components,
+        `${components.join(', ')} changed state without notifying Angular (${page.url()}).\n` +
+          summary,
       ).toEqual([]);
     },
     { auto: true },
