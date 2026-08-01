@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -105,7 +105,7 @@ import {
                   required
                   [disabled]="isEditMode"
                 >
-                  @for (o of offices; track o.id) {
+                  @for (o of offices(); track o.id) {
                     <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -189,7 +189,7 @@ export class OfficeFormComponent implements OnInit {
 
   office: PostOfficesRequest = {};
   openingDate = toIsoDate(new Date());
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit() {
     this.loadOffices();
@@ -205,7 +205,7 @@ export class OfficeFormComponent implements OnInit {
 
   loadOffices() {
     this.officesService.getOffices(true).subscribe((offices) => {
-      this.offices = offices;
+      this.offices.set(offices);
     });
   }
 
