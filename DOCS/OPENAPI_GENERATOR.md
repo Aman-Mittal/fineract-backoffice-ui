@@ -70,7 +70,7 @@ This command will:
 
 1. **Preprocess** the spec (`copy-swagger`): run `scripts/preprocess-spec.mjs` to rewrite operationIds and patch missing response descriptions, writing `api-spec/fineract.json`.
 2. **Clean** the previous output (`clean-api`): remove `src/app/api/api` and `src/app/api/model` so endpoints removed upstream do not leave orphan files behind (the generator never prunes).
-3. Run the OpenAPI generator (`typescript-angular`, `ngVersion=21.0.0`) with the custom license header template.
+3. Run the OpenAPI generator (`typescript-angular`, `ngVersion=22.0.7`) with the custom license header template.
 
 ### Update the Swagger Spec
 
