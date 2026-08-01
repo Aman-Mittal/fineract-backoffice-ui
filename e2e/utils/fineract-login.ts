@@ -31,11 +31,12 @@
 
 import { Page, expect } from '@playwright/test';
 
-export const SERVER_URL =
-  process.env.FINERACT_SERVER_URL ?? 'https://apis.mifos.community/1.0/core/api/v1';
-export const TENANT_ID = process.env.FINERACT_TENANT_ID ?? 'default';
-export const USERNAME = process.env.FINERACT_USERNAME ?? 'mifos';
-export const PASSWORD = process.env.FINERACT_PASSWORD ?? 'password';
+// Re-exported rather than read here, so the browser-facing SERVER_URL and the
+// Node-facing API_BASE in seed-api.ts cannot drift onto two different instances.
+// See backend-env.ts for why they are derived from one another.
+import { PASSWORD, SERVER_URL, TENANT_ID, USERNAME } from './backend-env';
+
+export { PASSWORD, SERVER_URL, TENANT_ID, USERNAME };
 
 export async function login(page: Page): Promise<void> {
   await page.goto('/login');

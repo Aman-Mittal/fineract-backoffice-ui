@@ -20,9 +20,14 @@ export default defineConfig({
     video: process.env.CI ? 'on' : 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // Seeds the reference data the real-backend specs need — enabled currencies, a
+    // datatable on m_loan, a collateral product. Running it as a dependency rather
+    // than as a CI step means a local run gets the same baseline for free, which is
+    // what allows those specs to run unconditionally instead of behind an env gate.
+    { name: 'setup', testMatch: /backend\.setup\.ts/ },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
   ],
   webServer: {
     command: 'npm start',

@@ -90,7 +90,8 @@ function main() {
   if (skipped) {
     lines.push(
       '',
-      `<sub>Skipped specs need a seeded backend (\`FINERACT_SEEDED_BACKEND=1\`) or are marked \`fixme\`.</sub>`,
+      '<sub>Skipped specs are marked `fixme` — the backend prerequisites are now seeded by the ' +
+        '`setup` project, so nothing should be skipped for want of reference data.</sub>',
     );
   }
 

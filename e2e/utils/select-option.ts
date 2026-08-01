@@ -19,6 +19,8 @@
 
 import { Page, expect } from '@playwright/test';
 
+import { ionSelect } from './ionic-locators';
+
 /**
  * Opens an ion-select and picks an option by name, retrying the open if the option list
  * hasn't rendered yet (async template loads) or a stray overlay from a prior interaction
@@ -33,12 +35,9 @@ export async function selectOption(
   comboboxName: string,
   optionName: string,
 ): Promise<void> {
-  // ion-select has no accessible name until a value is chosen (and no combobox role at all —
-  // it renders as a plain button), so scope by the ion-item containing its stacked label instead.
-  const combobox = page
-    .locator('ion-item')
-    .filter({ has: page.getByText(comboboxName, { exact: true }) })
-    .locator('ion-select');
+  // Scoped by its label rather than by role: ion-select renders as a button, and its
+  // accessible name folds in the current value ("Office, Head Office"). See ionSelect().
+  const combobox = ionSelect(page, comboboxName);
   const overlay = page.locator('ion-alert, ion-popover, ion-action-sheet');
   // Ionic renders select options as radios inside the overlay, not as role="option".
   const option = overlay.getByRole('radio', { name: optionName, exact: true });
