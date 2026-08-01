@@ -68,6 +68,34 @@ describe('DialogService', () => {
       expect(result).toEqual({ id: 7 });
     });
 
+    /*
+     * `app-dialog` is what gives a dialog's body its scroll container
+     * (src/styles/_dialogs.scss). Losing it puts the action buttons of any
+     * dialog taller than the viewport out of reach, which is invisible until
+     * someone opens a long one — so pin the composition here rather than
+     * relying on an e2e to notice.
+     */
+    it('always applies the app-dialog class', async () => {
+      await service.open(StubDialogComponent);
+
+      expect(modalController.create.calls.mostRecent().args[0]!.cssClass).toEqual(['app-dialog']);
+    });
+
+    it('keeps a caller-supplied class, as a string or an array', async () => {
+      await service.open(StubDialogComponent, undefined, 'wide');
+      expect(modalController.create.calls.mostRecent().args[0]!.cssClass).toEqual([
+        'app-dialog',
+        'wide',
+      ]);
+
+      await service.open(StubDialogComponent, undefined, ['wide', 'tall']);
+      expect(modalController.create.calls.mostRecent().args[0]!.cssClass).toEqual([
+        'app-dialog',
+        'wide',
+        'tall',
+      ]);
+    });
+
     it('resolves undefined when dismissed without a payload', async () => {
       const result = await service.open(StubDialogComponent);
 

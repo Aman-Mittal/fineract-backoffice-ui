@@ -47,16 +47,16 @@ export class DialogService {
     data?: Record<string, unknown>,
     cssClass?: string | string[],
   ): Promise<T | undefined> {
+    // `[x].flat()` normalises both accepted shapes — a single class or an array.
+    const callerClasses = cssClass ? [cssClass].flat() : [];
+
     const modal = await this.modalController.create({
       component,
       componentProps: data,
       // Every dialog gets `app-dialog`, which is what gives its body a scroll
       // container — see src/styles/_dialogs.scss. Without it a dialog taller than
       // the viewport puts its own action buttons out of reach.
-      cssClass: [
-        'app-dialog',
-        ...(Array.isArray(cssClass) ? cssClass : cssClass ? [cssClass] : []),
-      ],
+      cssClass: ['app-dialog', ...callerClasses],
     });
 
     await modal.present();
