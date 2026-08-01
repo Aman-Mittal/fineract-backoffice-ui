@@ -21,6 +21,9 @@ permissions:
   contents: read
 
 on:
+  # Manual runs are useful for re-checking a branch without pushing to it, and
+  # for re-running after an infrastructure blip.
+  workflow_dispatch:
   pull_request:
     branches:
       - main

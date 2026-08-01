@@ -1,0 +1,99 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Bug report
+description: Something in the back-office UI behaves incorrectly.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For bugs in the Fineract platform itself — wrong balances, rejected payloads,
+        scheduler or accounting behaviour — please use the
+        [ASF Jira project](https://issues.apache.org/jira/projects/FINERACT) instead.
+        This tracker is for the web UI.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to Loan Products -> Create
+        2. Pick a Progressive schedule type
+        3. The Repayment Strategy dropdown is empty
+    validations:
+      required: true
+
+  - type: input
+    id: screen
+    attributes:
+      label: Screen or route
+      description: The URL path, if you have it — it usually identifies the component directly.
+      placeholder: /products/loan/create
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console and network errors
+      description: |
+        Anything red in the console, and any failing request with its status code. This
+        is often the whole diagnosis — a 4xx from Fineract usually carries a
+        `defaultUserMessage` explaining exactly what it rejected.
+      render: text
+
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Which backend
+      options:
+        - Local docker stack (deploy/docker-compose-e2e.yml)
+        - A self-hosted Fineract
+        - The public Mifos community sandbox
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: fineract-version
+    attributes:
+      label: Fineract version
+      description: From the backend's `/actuator/info`, or the image tag you are running.
+      placeholder: 1.16.0-SNAPSHOT
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 149
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for this.
+          required: true
+        - label: This is a bug in the UI, not in the Fineract platform.
+          required: true

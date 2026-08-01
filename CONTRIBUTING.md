@@ -22,6 +22,19 @@ under the License.
 Thank you for your interest in contributing! This is a back-office web client for
 [Apache Fineract](https://github.com/apache/fineract).
 
+## Reporting bugs
+
+Use this repository's **GitHub Issues** for anything about the web UI — a screen that
+renders wrongly, a form that will not submit, a missing field.
+
+Bugs in the platform itself belong in the
+[ASF Jira project](https://issues.apache.org/jira/projects/FINERACT) for
+[apache/fineract](https://github.com/apache/fineract): wrong balances, rejected API
+payloads, scheduler or accounting behaviour — anything the back end decides. A useful
+rule of thumb is the network tab: if the request succeeded and the screen is still
+wrong, it is a UI issue; if Fineract returned a 4xx with a `defaultUserMessage`
+explaining why, start with Jira.
+
 ## How to Contribute
 
 1.  **Fork the repository** on GitHub.
@@ -102,6 +115,8 @@ relying on transitive resolution, so the audit sees them.
 ## Pull Request Guidelines
 
 - Provide a clear description of the changes.
-- Link to any related Jira issues.
+- Link to the related GitHub issue in this repository. Bugs and features for the
+  back-office UI are tracked here, not in Jira — the ASF Jira project is for
+  [apache/fineract](https://github.com/apache/fineract), the platform itself.
 - Ensure CI checks pass.
 - New features should include unit tests.
