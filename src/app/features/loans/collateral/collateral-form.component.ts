@@ -48,6 +48,7 @@ import {
   GetLoansLoanIdCollateralsResponse,
   LoansService,
 } from '../../../api';
+import { LoanSummary } from '../loan-summary.model';
 
 /**
  * Component for adding or editing loan collateral.
@@ -79,16 +80,16 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('LOANS.EDIT_COLLATERAL' | translate)
                 : ('LOANS.ADD_COLLATERAL' | translate)
             }}
           </ion-card-title>
-          @if (loanSummary) {
+          @if (loanSummary(); as summary) {
             <ion-card-subtitle>
-              {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
-              {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
-              {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
+              {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ summary.accountNo }} &middot;
+              {{ 'COMMON.CLIENT' | translate }}: {{ summary.clientName }} &middot;
+              {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ summary.loanProductName }}
             </ion-card-subtitle>
           }
         </ion-card-header>
@@ -103,9 +104,10 @@ import {
                   [attr.aria-label]="'COMMON.TYPE' | translate"
                   interface="popover"
                   name="collateralTypeId"
-                  [(ngModel)]="selectedCollateralTypeId"
+                  [ngModel]="selectedCollateralTypeId()"
+                  (ngModelChange)="selectedCollateralTypeId.set($event)"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   @for (type of collateralTypes(); track type.id) {
                     <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
@@ -120,7 +122,8 @@ import {
                   [attr.aria-label]="'COMMON.VALUE' | translate"
                   type="number"
                   name="value"
-                  [(ngModel)]="collateralValue"
+                  [ngModel]="collateralValue()"
+                  (ngModelChange)="collateralValue.set($event)"
                   required
                 ></ion-input>
               </ion-item>
@@ -135,7 +138,8 @@ import {
                 <ion-textarea
                   [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                   name="description"
-                  [(ngModel)]="collateralDescription"
+                  [ngModel]="collateralDescription()"
+                  (ngModelChange)="collateralDescription.set($event)"
                   rows="3"
                 ></ion-textarea>
               </ion-item>
@@ -191,16 +195,16 @@ export class CollateralFormComponent implements OnInit {
 
   loanId: number | null = null;
   collateralId: number | null = null;
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
   readonly collateralTypes = signal<CodeValueData[]>([]);
-  loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
+  readonly loanSummary = signal<LoanSummary | null>(null);
 
   // Binding variables
-  selectedCollateralTypeId: number | null = null;
-  collateralValue = 0;
-  collateralDescription = '';
+  readonly selectedCollateralTypeId = signal<number | null>(null);
+  readonly collateralValue = signal(0);
+  readonly collateralDescription = signal('');
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -214,7 +218,7 @@ export class CollateralFormComponent implements OnInit {
 
         if (collateralIdParam) {
           this.collateralId = +collateralIdParam;
-          this.isEditMode = true;
+          this.isEditMode.set(true);
           this.loadCollateral();
         }
       }
@@ -225,11 +229,11 @@ export class CollateralFormComponent implements OnInit {
     if (!this.loanId) return;
     this.loansService.getLoansLoanId(this.loanId).subscribe({
       next: (data) => {
-        this.loanSummary = {
+        this.loanSummary.set({
           accountNo: data.accountNo,
           clientName: data.clientName,
           loanProductName: data.loanProductName,
-        };
+        });
       },
       error: () => {
         // Non-critical context display; the form still works without it.
@@ -253,9 +257,9 @@ export class CollateralFormComponent implements OnInit {
       .getLoansLoanIdCollateralsCollateralId(this.loanId, this.collateralId)
       .subscribe({
         next: (data: GetLoansLoanIdCollateralsResponse) => {
-          this.selectedCollateralTypeId = data.type?.id || null;
-          this.collateralValue = data.value || 0;
-          this.collateralDescription = data.description || '';
+          this.selectedCollateralTypeId.set(data.type?.id || null);
+          this.collateralValue.set(data.value || 0);
+          this.collateralDescription.set(data.description || '');
         },
         error: (err) => console.error('Failed to load collateral details', err),
       });
@@ -266,13 +270,13 @@ export class CollateralFormComponent implements OnInit {
     this.isSaving.set(true);
 
     const requestPayload = {
-      collateralTypeId: this.selectedCollateralTypeId,
-      value: this.collateralValue,
-      description: this.collateralDescription,
+      collateralTypeId: this.selectedCollateralTypeId(),
+      value: this.collateralValue(),
+      description: this.collateralDescription(),
       locale: FINERACT_LOCALE,
     };
 
-    if (this.isEditMode && this.collateralId) {
+    if (this.isEditMode() && this.collateralId) {
       this.collateralService
         .putLoansLoanIdCollateralsCollateralId(
           this.loanId,
