@@ -98,12 +98,12 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       ionSelect(page, 'Repayment Strategy').locator('ion-select-option').first(),
     ).toBeAttached({ timeout: 15000 });
 
-    await page.getByTestId('loan-product-name').fill(productName);
-    await page.getByTestId('loan-product-short-name').fill(shortName);
-    await page.getByTestId('loan-product-principal').fill('5000');
-    await page.getByTestId('loan-product-interest-rate').fill('10');
-    await page.getByTestId('loan-product-repayments-count').fill('6');
-    await page.getByTestId('loan-product-repayment-every').fill('1');
+    await page.getByTestId('loan-product-name').locator('input').fill(productName);
+    await page.getByTestId('loan-product-short-name').locator('input').fill(shortName);
+    await page.getByTestId('loan-product-principal').locator('input').fill('5000');
+    await page.getByTestId('loan-product-interest-rate').locator('input').fill('10');
+    await page.getByTestId('loan-product-repayments-count').locator('input').fill('6');
+    await page.getByTestId('loan-product-repayment-every').locator('input').fill('1');
 
     // Switch to Progressive and verify the reactive strategy lock + processing
     // type field appear immediately (no page reload needed).
@@ -114,7 +114,9 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       .click();
 
     const strategySelect = ionSelect(page, 'Repayment Strategy');
-    await expect(strategySelect).toBeDisabled();
+    // ion-select reflects `disabled` only as a JS property and an internal class —
+    // there is no disabled/aria-disabled attribute on the host for toBeDisabled() to read.
+    await expect(strategySelect).toHaveJSProperty('disabled', true);
     await expect(strategySelect).toHaveText(/Advanced payment allocation strategy/);
     await expect(ionSelect(page, 'Loan Schedule Processing Type')).toBeVisible();
 
@@ -163,7 +165,7 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     await page.getByRole('button', { name: 'Edit' }).click();
     await expect(page).toHaveURL(/\/products\/loan\/edit\/\d+$/);
     await expect(ionSelect(page, LOAN_SCHEDULE_TYPE_LABEL)).toHaveText(/Progressive/);
-    await expect(ionSelect(page, 'Repayment Strategy')).toBeDisabled();
+    await expect(ionSelect(page, 'Repayment Strategy')).toHaveJSProperty('disabled', true);
     const reloadedFirstRuleText = await page
       .locator(ALLOCATION_ORDER_ITEM_SELECTOR)
       .first()

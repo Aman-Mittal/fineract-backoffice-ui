@@ -111,9 +111,12 @@ async function createLoanApplication(
   // endpoint on the first call, and the failure lands on the option click,
   // which reads as "the dropdown is broken" rather than "the index lagged".
   const clientSearch = page.getByRole('textbox', { name: 'Client ID' });
+  // Client search is app-client-search, not an ion-select: it renders its hits as
+  // ion-items in an inline ion-list, so there is no overlay and no radio role.
   const clientOption = page
-    .locator('ion-alert, ion-popover')
-    .getByRole('radio', { name: new RegExp(clientName) });
+    .getByTestId('client-search-results')
+    .locator('ion-item')
+    .filter({ hasText: clientName });
   await expect(async () => {
     await clientSearch.fill('');
     await clientSearch.fill(clientName.split(' ')[0]);
