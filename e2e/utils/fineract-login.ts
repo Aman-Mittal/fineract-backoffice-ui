@@ -21,8 +21,9 @@
  * Shared real-backend login helper for e2e specs that exercise the app
  * end-to-end against an actual Fineract instance (not page.route() mocks).
  *
- * Configurable via env vars so the same specs run against either the public
- * Mifos community sandbox (default) or a fresh local Fineract instance:
+ * Points at the local docker stack by default. A different instance can be
+ * supplied through the environment, but never from CI — these specs create real
+ * data, so assertLocalBackend() refuses anything non-local there:
  *
  *   FINERACT_SERVER_URL="https://localhost:8443/fineract-provider/api/v1" \
  *   FINERACT_TENANT_ID=default FINERACT_USERNAME=mifos FINERACT_PASSWORD=password \
@@ -34,11 +35,15 @@ import { Page, expect } from '@playwright/test';
 // Re-exported rather than read here, so the browser-facing SERVER_URL and the
 // Node-facing API_BASE in seed-api.ts cannot drift onto two different instances.
 // See backend-env.ts for why they are derived from one another.
-import { PASSWORD, SERVER_URL, TENANT_ID, USERNAME } from './backend-env';
+import { PASSWORD, SERVER_URL, TENANT_ID, USERNAME, assertLocalBackend } from './backend-env';
 
 export { PASSWORD, SERVER_URL, TENANT_ID, USERNAME };
 
 export async function login(page: Page): Promise<void> {
+  // Covers the specs that log in but never seed, so nothing reaches a public
+  // instance from CI. See assertLocalBackend.
+  assertLocalBackend();
+
   await page.goto('/login');
 
   if (
