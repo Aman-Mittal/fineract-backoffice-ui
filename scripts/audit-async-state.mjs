@@ -64,6 +64,9 @@ function assignedFields(node) {
   return names;
 }
 
+/** Escapes a value used inside a dynamically built pattern. */
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const findings = [];
 
 for (const file of files) {
@@ -96,7 +99,9 @@ for (const file of files) {
         for (const name of assignedFields(arg)) {
           if (signalFields.has(name)) continue;
           // Referenced by the template? Word-boundary match on the bare name.
-          if (!new RegExp(`\\b${name}\\b`).test(template)) continue;
+          // `name` comes from an AST identifier so it cannot hold a metacharacter,
+          // but escaping keeps this honest if the source of the name ever changes.
+          if (!new RegExp(`\\b${escapeRegExp(name)}\\b`).test(template)) continue;
           flagged.add(name);
         }
       }
