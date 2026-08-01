@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 const HEAD_OFFICE = 'Head Office';
 const ALICE_SMITH = 'Alice Smith';

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -95,7 +95,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   [(ngModel)]="request.officeId"
                   required
                 >
-                  @for (office of offices; track office.id) {
+                  @for (office of offices(); track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -178,7 +178,7 @@ export class AccountingClosureFormComponent implements OnInit {
   private readonly officeService = inject(OfficesService);
   private readonly router = inject(Router);
 
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
   request: PostGlClosuresRequest = {
     officeId: undefined,
     comments: '',
@@ -189,7 +189,7 @@ export class AccountingClosureFormComponent implements OnInit {
   ngOnInit() {
     this.officeService
       .getOffices()
-      .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
+      .subscribe((data: GetOfficesResponse[]) => this.offices.set(data));
   }
 
   onSubmit() {

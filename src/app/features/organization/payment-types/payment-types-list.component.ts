@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.PAYMENT_TYPES_DESC"
       createButtonLabel="PAYMENT_TYPES.CREATE"
       [columns]="columns"
-      [data]="paymentTypes"
-      [totalRecords]="paymentTypes.length"
+      [data]="paymentTypes()"
+      [totalRecords]="paymentTypes().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -94,7 +94,7 @@ export class PaymentTypesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  paymentTypes: PaymentTypeData[] = [];
+  readonly paymentTypes = signal<PaymentTypeData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -103,7 +103,7 @@ export class PaymentTypesListComponent implements OnInit {
   load(): void {
     this.paymentTypeService.getPaymenttypes().subscribe({
       next: (data: PaymentTypeData[]) => {
-        this.paymentTypes = data || [];
+        this.paymentTypes.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load payment types', err);

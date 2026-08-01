@@ -65,8 +65,10 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
+      # --prune-suppressions fails when eslint-suppressions.json lists a violation that no
+      # longer exists, so a fixed one cannot quietly come back and the file only shrinks.
       - name: Lint TypeScript files
-        run: npm run lint
+        run: npm run lint:prune
 
   html-lint:
     name: HTML Lint

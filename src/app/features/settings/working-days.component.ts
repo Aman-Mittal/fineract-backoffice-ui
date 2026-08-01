@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,13 +66,14 @@ import {
         <ion-card-content>
           <form #workingDaysForm="ngForm" (ngSubmit)="onSubmit()" class="working-days-form">
             <div class="days-grid">
-              <ion-checkbox name="monday" [(ngModel)]="recurrence['MO']">Monday</ion-checkbox>
-              <ion-checkbox name="tuesday" [(ngModel)]="recurrence['TU']">Tuesday</ion-checkbox>
-              <ion-checkbox name="wednesday" [(ngModel)]="recurrence['WE']">Wednesday</ion-checkbox>
-              <ion-checkbox name="thursday" [(ngModel)]="recurrence['TH']">Thursday</ion-checkbox>
-              <ion-checkbox name="friday" [(ngModel)]="recurrence['FR']">Friday</ion-checkbox>
-              <ion-checkbox name="saturday" [(ngModel)]="recurrence['SA']">Saturday</ion-checkbox>
-              <ion-checkbox name="sunday" [(ngModel)]="recurrence['SU']">Sunday</ion-checkbox>
+              @for (day of DAYS; track day.code) {
+                <ion-checkbox
+                  [name]="day.name"
+                  [ngModel]="recurrence()[day.code]"
+                  (ngModelChange)="setDay(day.code, $event)"
+                  >{{ day.label }}</ion-checkbox
+                >
+              }
             </div>
 
             <div class="reschedule-rules mt-4">
@@ -82,9 +83,10 @@ import {
                   aria-label="Repayments Rescheduling Rule"
                   interface="popover"
                   name="rescheduleStrategy"
-                  [(ngModel)]="rescheduleId"
+                  [ngModel]="rescheduleId()"
+                  (ngModelChange)="rescheduleId.set($event)"
                 >
-                  @for (option of rescheduleOptions; track option['id']) {
+                  @for (option of rescheduleOptions(); track option['id']) {
                     <ion-select-option [value]="option['id']">{{
                       option['value']
                     }}</ion-select-option>
@@ -92,21 +94,26 @@ import {
                 </ion-select>
               </ion-item>
 
-              <ion-checkbox name="extendTerm" [(ngModel)]="extendTerm">
+              <ion-checkbox
+                name="extendTerm"
+                [ngModel]="extendTerm()"
+                (ngModelChange)="extendTerm.set($event)"
+              >
                 Extend Term for Daily Repayments
               </ion-checkbox>
 
               <ion-checkbox
                 name="extendTermForRepaymentsOnHolidays"
-                [(ngModel)]="extendTermForRepaymentsOnHolidays"
+                [ngModel]="extendTermForRepaymentsOnHolidays()"
+                (ngModelChange)="extendTermForRepaymentsOnHolidays.set($event)"
               >
                 Extend Term for Repayments on Holidays
               </ion-checkbox>
             </div>
 
             <div class="form-actions">
-              <ion-button color="primary" type="submit" [disabled]="isSaving">
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+              <ion-button color="primary" type="submit" [disabled]="isSaving()">
+                {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </ion-button>
             </div>
           </form>
@@ -145,21 +152,34 @@ export class WorkingDaysComponent implements OnInit {
   private readonly workingDaysService = inject(WorkingDaysService);
   private readonly notifications = inject(NotificationService);
 
+  /** Rendered in order; `code` is the BYDAY token the API uses. */
+  protected readonly DAYS = [
+    { code: 'MO', name: 'monday', label: 'Monday' },
+    { code: 'TU', name: 'tuesday', label: 'Tuesday' },
+    { code: 'WE', name: 'wednesday', label: 'Wednesday' },
+    { code: 'TH', name: 'thursday', label: 'Thursday' },
+    { code: 'FR', name: 'friday', label: 'Friday' },
+    { code: 'SA', name: 'saturday', label: 'Saturday' },
+    { code: 'SU', name: 'sunday', label: 'Sunday' },
+  ] as const;
+
   workingDays: Record<string, unknown> = {};
-  recurrence: Record<string, boolean> = {
-    MO: false,
-    TU: false,
-    WE: false,
-    TH: false,
-    FR: false,
-    SA: false,
-    SU: false,
-  };
-  rescheduleOptions: Record<string, unknown>[] = [];
-  rescheduleId: number | undefined = undefined;
-  extendTerm = false;
-  extendTermForRepaymentsOnHolidays = false;
-  isSaving = false;
+
+  readonly recurrence = signal<Record<string, boolean>>(this.noDaysSelected());
+  readonly rescheduleOptions = signal<Record<string, unknown>[]>([]);
+  readonly rescheduleId = signal<number | undefined>(undefined);
+  readonly extendTerm = signal(false);
+  readonly extendTermForRepaymentsOnHolidays = signal(false);
+  readonly isSaving = signal(false);
+
+  /** Replaces the map rather than mutating it: a signal only notifies on a new reference. */
+  setDay(code: string, checked: boolean): void {
+    this.recurrence.update((days) => ({ ...days, [code]: checked }));
+  }
+
+  private noDaysSelected(): Record<string, boolean> {
+    return Object.fromEntries(this.DAYS.map((day) => [day.code, false]));
+  }
 
   ngOnInit(): void {
     this.loadWorkingDays();
@@ -169,64 +189,63 @@ export class WorkingDaysComponent implements OnInit {
     this.workingDaysService.getWorkingdays().subscribe((data: WorkingDaysData) => {
       this.workingDays = data as unknown as Record<string, unknown>;
       const rescheduleType = this.workingDays['repaymentRescheduleType'] as Record<string, unknown>;
-      this.rescheduleId = rescheduleType?.['id'] as number;
-      this.extendTerm = !!this.workingDays['extendTermForDailyRepayments'];
-      this.extendTermForRepaymentsOnHolidays =
-        !!this.workingDays['extendTermForRepaymentsOnHolidays'];
+      this.rescheduleId.set(rescheduleType?.['id'] as number);
+      this.extendTerm.set(!!this.workingDays['extendTermForDailyRepayments']);
+      this.extendTermForRepaymentsOnHolidays.set(
+        !!this.workingDays['extendTermForRepaymentsOnHolidays'],
+      );
 
-      // Reset recurrence object
-      Object.keys(this.recurrence).forEach((day) => (this.recurrence[day] = false));
-
-      // Parse recurrence string (e.g. "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR")
-      const recurrence = this.workingDays['recurrence'] as string;
-      const byDayMatch = recurrence?.match(/BYDAY=([^;]+)/);
-      if (byDayMatch) {
-        const days = byDayMatch[1].split(',');
-        days.forEach((day) => (this.recurrence[day] = true));
-      }
+      // Parse recurrence string (e.g. "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR"), starting
+      // from a cleared map so a day dropped upstream is cleared here too.
+      const selected = this.noDaysSelected();
+      const byDayMatch = (this.workingDays['recurrence'] as string)?.match(/BYDAY=([^;]+)/);
+      byDayMatch?.[1].split(',').forEach((day) => (selected[day] = true));
+      this.recurrence.set(selected);
 
       // Load reschedule options from the API template
       this.workingDaysService.getWorkingdaysTemplate().subscribe({
         next: (templateData) => {
-          this.rescheduleOptions = (templateData.repaymentRescheduleOptions ||
-            []) as unknown as Record<string, unknown>[];
+          this.rescheduleOptions.set(
+            (templateData.repaymentRescheduleOptions || []) as unknown as Record<string, unknown>[],
+          );
         },
         error: () => {
           // Fallback to static defaults if template API is not available
-          this.rescheduleOptions = [
+          this.rescheduleOptions.set([
             { id: 1, value: 'Same Day' },
             { id: 2, value: 'Move to Next Working Day' },
             { id: 3, value: 'Move to Previous Working Day' },
-          ];
+          ]);
         },
       });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    const activeDays = Object.keys(this.recurrence)
-      .filter((day) => this.recurrence[day])
+    const selected = this.recurrence();
+    const activeDays = this.DAYS.filter((day) => selected[day.code])
+      .map((day) => day.code)
       .join(',');
     const recurrenceStr = `FREQ=WEEKLY;INTERVAL=1;BYDAY=${activeDays}`;
 
     const request = {
       recurrence: recurrenceStr,
-      repaymentRescheduleType: this.rescheduleId,
-      extendTermForDailyRepayments: this.extendTerm,
-      extendTermForRepaymentsOnHolidays: this.extendTermForRepaymentsOnHolidays,
+      repaymentRescheduleType: this.rescheduleId(),
+      extendTermForDailyRepayments: this.extendTerm(),
+      extendTermForRepaymentsOnHolidays: this.extendTermForRepaymentsOnHolidays(),
       locale: 'en',
     } as unknown as WorkingDaysUpdateRequest;
 
     this.workingDaysService.putWorkingdays(request).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.notifications.success('Working days updated successfully');
         this.loadWorkingDays();
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.notifications.error('Operation failed. Please try again.');
       },
     });

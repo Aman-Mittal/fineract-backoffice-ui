@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 
 const TEST_USER = 'mifos';
 const TEST_PASSWORD = 'password';
@@ -23,6 +23,20 @@ const CARD_TITLE = 'ion-card-title';
 const RESP_EMPTY = JSON.stringify([]);
 const RESP_EMPTY_PAGINATED = JSON.stringify({ totalFilteredRecords: 0, pageItems: [] });
 const SAVINGS_ACCOUNTS = 'Savings Accounts';
+
+/**
+ * A list mocked with [] renders exactly the same DOM as a list whose rows never reached the
+ * template, so a test asserting only the page title passes against either. That is how the
+ * empty parent-office dropdown survived this suite. One row makes the two distinguishable.
+ */
+const oneRow = (fields: Record<string, unknown>) => JSON.stringify([{ id: 1, ...fields }]);
+
+/** Asserts the shared data table actually rendered its row, not just its heading. */
+async function expectRow(page: Page, text: string | RegExp) {
+  const rows = page.locator('table.data-table tr[cdk-row]');
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText(text);
+}
 
 /** Shared login + API mock setup used across all feature tests */
 async function loginAndMockApi(page: Page) {
@@ -290,21 +304,26 @@ test.describe('Organization', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: RESP_EMPTY,
+        body: oneRow({ displayName: 'Ada Lovelace', officeName: HEAD_OFFICE, isLoanOfficer: true }),
       });
     });
     await page.route('**/api/v1/funds*', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: RESP_EMPTY,
+        body: oneRow({ name: 'Microfinance Fund', externalId: 'FUND-1' }),
       });
     });
     await page.route('**/api/v1/paymenttypes*', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: RESP_EMPTY,
+        body: oneRow({
+          name: 'Bank Transfer',
+          description: 'Wire',
+          isCashPayment: false,
+          position: 1,
+        }),
       });
     });
   });
@@ -314,24 +333,28 @@ test.describe('Organization', () => {
     await expect(page).toHaveURL('/organization/offices');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Office/i);
     await expect(page.getByRole('button', { name: BTN_CREATE })).toBeVisible();
+    await expectRow(page, HEAD_OFFICE);
   });
 
   test('staff page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Staff' }).click();
     await expect(page).toHaveURL('/organization/staff');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Staff/i);
+    await expectRow(page, 'Ada Lovelace');
   });
 
   test('funds page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Funds' }).click();
     await expect(page).toHaveURL('/organization/funds');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Funds/i);
+    await expectRow(page, 'Microfinance Fund');
   });
 
   test('payment types page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Payment Types' }).click();
     await expect(page).toHaveURL('/organization/payment-types');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Payment/i);
+    await expectRow(page, 'Bank Transfer');
   });
 });
 

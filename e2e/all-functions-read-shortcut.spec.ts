@@ -30,7 +30,7 @@
  * which is hidden or shown purely by `AuthService.hasPermission()`.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 
 const API_BASE = '/api/v1';
 const TENANT_DEFAULT = 'default';

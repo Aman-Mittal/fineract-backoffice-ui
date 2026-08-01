@@ -26,7 +26,7 @@
  *   npx playwright test e2e/loan-account-actions.spec.ts --workers=1
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { login } from './utils/fineract-login';
 import { createActiveLoan } from './utils/create-active-loan';
 import { confirmDialog, menuItem } from './utils/ionic-locators';

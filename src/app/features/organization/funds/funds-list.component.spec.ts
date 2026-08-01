@@ -57,7 +57,7 @@ describe('FundsListComponent', () => {
   it('should load funds on init', () => {
     expect(component).toBeTruthy();
     expect(fundsServiceSpy.getFunds).toHaveBeenCalled();
-    expect(component.funds).toHaveSize(1);
+    expect(component.funds()).toHaveSize(1);
   });
 
   it('should navigate to create', () => {

@@ -24,6 +24,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { asyncOf, renderComponent } from '../../../testing/render';
 
 describe('OfficeFormComponent', () => {
   let component: OfficeFormComponent;
@@ -125,6 +126,40 @@ describe('OfficeFormComponent', () => {
     it('should navigate away on cancel', () => {
       component.onCancel();
       expect(routerSpy.navigate).toHaveBeenCalledWith([OFFICES_PATH]);
+    });
+  });
+
+  describe('Parent office dropdown', () => {
+    // renderComponent configures its own module, so drop the one the outer beforeEach built.
+    beforeEach(() => TestBed.resetTestingModule());
+
+    // The rest of this file asserts on the component instance, which holds the right value
+    // whether or not Angular was told about it. This one asserts on the DOM, with a mock that
+    // emits a macrotask later like a real response does, so it fails if `offices` is assigned
+    // without notifying Angular — the reason API-fed dropdowns render empty in the app.
+    it('renders an option per office returned by the API', async () => {
+      officesServiceSpy.getOffices.and.returnValue(
+        asyncOf([
+          { id: 1, name: 'Head Office' },
+          { id: 2, name: 'Branch Office' },
+        ]) as unknown as Observable<never>,
+      );
+
+      const rendered = await renderComponent(OfficeFormComponent, {
+        imports: [TranslateModule.forRoot()],
+        providers: [
+          { provide: OfficesService, useValue: officesServiceSpy },
+          { provide: Router, useValue: routerSpy },
+          { provide: ActivatedRoute, useValue: { paramMap: of({ get: () => null }) } },
+          provideNoopAnimations(),
+        ],
+      });
+
+      const options = rendered.nativeElement.querySelectorAll('ion-select-option');
+      expect(Array.from(options).map((o) => (o as HTMLElement).textContent?.trim())).toEqual([
+        'Head Office',
+        'Branch Office',
+      ]);
     });
   });
 

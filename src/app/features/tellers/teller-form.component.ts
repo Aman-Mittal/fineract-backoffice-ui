@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -134,7 +134,7 @@ import {
                       id="teller-office-select"
                       data-testid="teller-office-select"
                     >
-                      @for (office of offices; track office.id) {
+                      @for (office of offices(); track office.id) {
                         <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -306,7 +306,7 @@ export class TellerFormComponent implements OnInit {
   /** Formatted start date for Fineract API */
   startDate: Date = new Date();
   /** List of available offices for teller assignment */
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
 
   /**
    * Component initialization.
@@ -329,7 +329,7 @@ export class TellerFormComponent implements OnInit {
    */
   private loadOffices(): void {
     this.officesService.getOffices(true).subscribe((data) => {
-      this.offices = data;
+      this.offices.set(data);
     });
   }
 

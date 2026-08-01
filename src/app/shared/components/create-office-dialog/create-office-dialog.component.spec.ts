@@ -64,7 +64,7 @@ describe('CreateOfficeDialogComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(mockOfficesService.getOffices).toHaveBeenCalledWith(true);
-    expect(component.offices).toHaveSize(1);
+    expect(component.offices()).toHaveSize(1);
   });
 
   it('should close dialog on cancel', () => {

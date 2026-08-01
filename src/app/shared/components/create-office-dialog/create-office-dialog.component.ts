@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -83,7 +83,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
             [(ngModel)]="office.parentId"
             required
           >
-            @for (o of offices; track o.id) {
+            @for (o of offices(); track o.id) {
               <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
             }
           </ion-select>
@@ -156,12 +156,12 @@ export class CreateOfficeDialogComponent implements OnInit {
     parentId: 1, // Default to head office
   };
   openingDate = toIsoDate(new Date());
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
   isSaving = false;
 
   ngOnInit() {
     this.officesService.getOffices(true).subscribe((offices) => {
-      this.offices = offices;
+      this.offices.set(offices);
     });
   }
 

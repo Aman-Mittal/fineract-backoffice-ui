@@ -33,7 +33,7 @@
  * and is covered by the directive unit specs.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 
 const API_BASE = '/api/v1';
 const TENANT_DEFAULT = 'default';
