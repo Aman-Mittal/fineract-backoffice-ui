@@ -18,51 +18,91 @@
  */
 
 /**
- * One continuous, video-recorded walkthrough of every area covered by this
- * session's testing: Loan Schedule Type (Cumulative/Progressive), Payment
- * Allocation reordering, the Loan Product view/edit round-trip, the full
- * loan lifecycle (client -> product -> loan -> approve -> disburse), the
- * loan-account schedule-type chip, Custom Fields (datatable Add Entry
- * dialog), Collateral Management, the Disbursement Details tab, the Notes
- * tab, a repayment followed by viewing/adjusting that transaction, and the
- * full set of new loan lifecycle actions in the Actions menu.
+ * One continuous, video-recorded walkthrough: creating an office, a Progressive
+ * loan product (with the payment allocation reorder), the product view/edit
+ * round-trip, a Cumulative product, a client, then the full loan lifecycle
+ * (apply -> approve -> disburse), the loan-account schedule-type badge, Custom
+ * Fields, Collateral, Disbursement Details, Notes, and a repayment that is then
+ * viewed and adjusted.
  *
- * This is a demo/recording aid, not a strict assertion suite — run it with
- * `--workers=1` against the shared public sandbox (see loan-schedule-type.spec.ts
- * for why) and find the recording under test-results/*\/video.webm afterwards.
+ * Everything the demo shows is created through the UI, because demonstrating
+ * those screens is the point. The only exceptions are the two things the app has
+ * no screen for — registering a datatable against m_loan, and creating a
+ * collateral *product* — which the `setup` project seeds over the API so the
+ * Custom Fields and Collateral steps have something to work with.
  *
- *   npx playwright test e2e/full-demo.spec.ts --workers=1
+ * It runs in the normal suite as a real assertion, and can also be recorded as a
+ * presentable demo:
+ *
+ *   npm run test:e2e:local -- e2e/full-demo.spec.ts            # fast, ~2 min
+ *   DEMO_BEAT_MS=900 npm run test:e2e:local -- e2e/full-demo.spec.ts
+ *
+ * DEMO_BEAT_MS inserts a deliberate pause between steps so the recording is
+ * watchable. It is cosmetic only: nothing below synchronises on it, so the spec
+ * is equally correct with it unset. The recording lands in
+ * test-results/*\/video.webm.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
+import { confirmDialog, ionSelect, menuItem, modalFor, selectTab } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
 
-test.use({ video: 'on', trace: 'on', launchOptions: { slowMo: 350 } });
+test.use({ video: 'on', trace: 'on' });
+
+/** Cosmetic pacing for the recording; 0 (the default) makes every beat a no-op. */
+const BEAT = Number(process.env.DEMO_BEAT_MS ?? 0);
+const beat = (page: Page): Promise<void> =>
+  BEAT ? page.waitForTimeout(BEAT) : Promise.resolve(undefined);
 
 const LOAN_SCHEDULE_TYPE_LABEL = 'Loan Schedule Type';
 const INTEREST_RATE_LABEL = 'Interest Rate';
 const NUMBER_OF_REPAYMENTS_LABEL = 'Number of Repayments';
 const REPAYMENT_EVERY_LABEL = 'Repayment Every';
 
+/**
+ * The loan product form's selects are filled from GET /loanproducts/template.
+ * Wait for the options to exist rather than for one particular strategy name:
+ * the default is whatever the instance happens to list first, and the name also
+ * matches the select's own display text, which makes it ambiguous.
+ */
+async function waitForProductTemplate(page: Page): Promise<void> {
+  await expect(
+    ionSelect(page, 'Repayment Strategy').locator('ion-select-option').first(),
+  ).toBeAttached({ timeout: 15000 });
+}
+
 test.describe('Full feature demo recording', () => {
   test('walk through loan schedule type, lifecycle, custom fields, collateral, and disbursement', async ({
     page,
   }) => {
-    test.setTimeout(180000);
+    // Every screen in the walkthrough is driven through the UI, so this is a long
+    // test by design: two loan products, an office, a client, the loan lifecycle,
+    // and six loan-view tabs.
+    test.setTimeout(BEAT ? 600000 : 360000);
 
     await login(page);
 
-    // 1. Loan Products list: schedule type chips
+    // 1. Create a branch office, so later screens have more than one to pick from.
+    const officeSuffix = uniqueSuffix();
+    const officeName = `Demo Branch ${officeSuffix}`;
+    await page.goto('/organization/offices/create');
+    await page.getByRole('textbox', { name: 'Office Name' }).fill(officeName);
+    await selectOption(page, 'Parent Office', 'Head Office');
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page).toHaveURL(/\/organization\/offices$/, { timeout: 15000 });
+    await expect(page.getByText(officeName)).toBeVisible({ timeout: 15000 });
+    await beat(page);
+
+    // 2. Loan Products list: schedule type badge per product
     await page.goto('/products/loan');
     await expect(page.getByRole('columnheader', { name: LOAN_SCHEDULE_TYPE_LABEL })).toBeVisible();
-    await page.waitForTimeout(3000);
+    await expect(page.locator('ion-badge').first()).toBeVisible();
+    await beat(page);
 
-    // 2. Create a Progressive loan product with payment allocation reorder
+    // 3. Create a Progressive loan product with a payment allocation reorder
     await page.goto('/products/loan/create');
-    await expect(
-      page.getByText('Penalties, Fees, Interest, Principal order', { exact: true }),
-    ).toBeVisible({ timeout: 15000 });
+    await waitForProductTemplate(page);
 
     const progSuffix = uniqueSuffix();
     const progressiveProductName = `Demo Progressive ${progSuffix}`;
@@ -76,41 +116,40 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('spinbutton', { name: REPAYMENT_EVERY_LABEL }).fill('1');
 
     await selectOption(page, LOAN_SCHEDULE_TYPE_LABEL, 'Progressive');
-    await expect(page.getByRole('combobox', { name: 'Repayment Strategy' })).toBeDisabled();
-    await expect(
-      page.getByRole('combobox', { name: 'Loan Schedule Processing Type' }),
-    ).toBeVisible();
+    // Progressive forces the advanced-payment-allocation strategy, so the field
+    // locks. ion-select carries `disabled` only as a JS property — there is no
+    // disabled/aria-disabled attribute on the host for toBeDisabled() to read.
+    await expect(ionSelect(page, 'Repayment Strategy')).toHaveJSProperty('disabled', true);
+    await expect(ionSelect(page, 'Loan Schedule Processing Type')).toBeVisible();
 
     const firstOrderItem = page.locator('.allocation-order-list ion-item').first();
+    const orderBefore = await firstOrderItem.textContent();
     await firstOrderItem.getByRole('button').nth(1).click(); // reorder
-    await page.waitForTimeout(1600);
+    await expect(firstOrderItem).not.toHaveText(orderBefore ?? '');
+    await beat(page);
 
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/products\/loan$/, { timeout: 15000 });
 
-    // 3. View and edit the new Progressive product
+    // 4. View and edit the new Progressive product
     await page.getByPlaceholder('Type to search...').fill(progressiveProductName);
     const progressiveRow = page.getByRole('row', { name: new RegExp(progressiveProductName) });
     await expect(progressiveRow).toBeVisible({ timeout: 15000 });
-    await expect(progressiveRow.locator('ion-chip')).toHaveText('Progressive');
+    await expect(progressiveRow.locator('ion-badge')).toHaveText('Progressive');
 
     await progressiveRow.getByRole('button', { name: 'View' }).click();
     await expect(page).toHaveURL(/\/products\/loan\/view\/\d+$/);
     await expect(page.getByText('Advanced payment allocation strategy').first()).toBeVisible();
-    await page.waitForTimeout(2000);
+    await beat(page);
 
     await page.getByRole('button', { name: 'Edit' }).click();
     await expect(page).toHaveURL(/\/products\/loan\/edit\/\d+$/);
-    await expect(page.getByRole('combobox', { name: LOAN_SCHEDULE_TYPE_LABEL })).toHaveText(
-      /Progressive/,
-    );
-    await page.waitForTimeout(2000);
+    await expect(ionSelect(page, LOAN_SCHEDULE_TYPE_LABEL)).toHaveText(/Progressive/);
+    await beat(page);
 
-    // 4. Create a Cumulative loan product for the lifecycle walkthrough
+    // 5. Create a Cumulative loan product for the lifecycle walkthrough
     await page.goto('/products/loan/create');
-    await expect(
-      page.getByText('Penalties, Fees, Interest, Principal order', { exact: true }),
-    ).toBeVisible({ timeout: 15000 });
+    await waitForProductTemplate(page);
 
     const cumSuffix = uniqueSuffix();
     const cumulativeProductName = `Demo Cumulative ${cumSuffix}`;
@@ -123,32 +162,39 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/products\/loan$/, { timeout: 15000 });
 
-    // 5. Create a client
+    // 6. Create a client, in the office created above
     await page.goto('/clients/create', { waitUntil: 'networkidle' });
-    await page.getByRole('combobox', { name: 'Office' }).click({ force: true });
-    await expect(page.locator('ion-alert, ion-popover').getByRole('radio').first()).toBeVisible({
-      timeout: 15000,
-    });
-    await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
+    await selectOption(page, 'Office', officeName);
     const clientSuffix = uniqueSuffix();
     const firstName = `DemoClient${clientSuffix}`;
     await page.getByRole('textbox', { name: 'First Name' }).fill(firstName);
     await page.getByRole('textbox', { name: 'Last Name' }).fill('Tester');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/clients$/, { timeout: 15000 });
+    await beat(page);
 
-    // 6. Create the loan application
+    // 7. Create the loan application
     await page.goto('/loans/create', { waitUntil: 'networkidle' });
-    await page.getByRole('combobox', { name: 'Client ID' }).fill(firstName);
-    await page
-      .locator('ion-alert, ion-popover')
-      .getByRole('radio', { name: new RegExp(firstName) })
-      .click();
+    // app-client-search is a custom autocomplete, not an ion-select: it renders
+    // its hits as ion-items in an inline list, so there is no overlay to query.
+    // Retried because a just-created client is not always returned by the search
+    // endpoint on the first call.
+    const clientSearch = page.getByRole('textbox', { name: 'Client ID' });
+    const clientOption = page
+      .getByTestId('client-search-results')
+      .locator('ion-item')
+      .filter({ hasText: firstName });
+    await expect(async () => {
+      await clientSearch.fill('');
+      await clientSearch.fill(firstName);
+      await expect(clientOption).toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 20000, intervals: [1000, 2000, 3000] });
+    await clientOption.click();
+
     await selectOption(page, 'Loan Product', cumulativeProductName);
     await expect(page.getByText(/Loan Schedule Type:\s*Cumulative/)).toBeVisible({
       timeout: 15000,
     });
-    await page.waitForTimeout(1500);
     await page.getByRole('spinbutton', { name: 'Principal', exact: true }).fill('1000');
     await page.getByRole('spinbutton', { name: 'Term Frequency' }).fill('3');
     await selectOption(page, 'Term Type', 'Months');
@@ -162,13 +208,17 @@ test.describe('Full feature demo recording', () => {
 
     const [response] = await Promise.all([
       page.waitForResponse(
-        (res) => res.url().includes('/loans') && res.request().method() === 'POST',
+        (res) =>
+          new URL(res.url()).pathname.endsWith('/loans') && res.request().method() === 'POST',
       ),
       page.getByRole('button', { name: 'Save' }).click(),
     ]);
+    // The app navigates as soon as Save succeeds, which can discard the body
+    // before it is read ('No data found for resource'). finished() waits for it.
+    await response.finished();
     const loanId = (await response.json()).loanId as number;
 
-    // 7. Approve and disburse
+    // 8. Approve and disburse
     await page.goto(`/loans/view/${loanId}`);
     await expect(page.getByText('Submitted and pending approval')).toBeVisible({
       timeout: 15000,
@@ -178,97 +228,121 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(new RegExp(`/loans/view/${loanId}$`), { timeout: 15000 });
     await expect(page.getByText('Approved', { exact: true })).toBeVisible({ timeout: 15000 });
+    await beat(page);
 
     await page.getByRole('button', { name: 'Disburse' }).click();
     await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/disburse$`));
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
 
-    // 8. Loan view: schedule type chip on the account itself
+    // 9. Loan view: schedule type badge on the account itself
     await page.goto(`/loans/view/${loanId}`);
     await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Loan Schedule Type:\s*Cumulative/)).toBeVisible();
-    await page.waitForTimeout(2000);
+    await beat(page);
 
-    // 9. Custom Fields tab: add an entry via the dialog
-    await page.getByRole('tab', { name: /Custom Fields/i }).click();
-    await page.waitForTimeout(2000);
-    const addEntryButton = page.getByRole('button', { name: /Add Entry/i });
-    if (await addEntryButton.count()) {
-      await addEntryButton.click();
-      await page.waitForTimeout(1600);
-      const notesInput = page.locator('input[name="notes"]');
-      if (await notesInput.count()) {
-        await notesInput.fill('Recorded via full demo walkthrough');
-        await page.getByRole('button', { name: 'Save' }).click();
-        await page.waitForTimeout(3000);
-      } else {
-        await page.getByRole('button', { name: 'Cancel' }).click();
-      }
-    }
+    // 10. Custom Fields tab: add an entry through the dialog. The datatable this
+    // needs is registered by the setup project; without one the tab renders an
+    // empty state and this step would silently pass while doing nothing.
+    await selectTab(page, /Custom Fields/i);
+    const addEntry = page.getByRole('button', { name: /Add Entry/i }).first();
+    await expect(addEntry).toBeVisible({ timeout: 15000 });
+    await addEntry.click();
 
-    // 10. Collateral: view list and open the Add Collateral form
+    const entryDialog = modalFor(page, 'app-datatable-entry-dialog');
+    await expect(entryDialog).toBeVisible();
+    const remark = 'Recorded via full demo walkthrough';
+    await entryDialog.getByRole('textbox').first().fill(remark);
+    await Promise.all([
+      page.waitForResponse(
+        (res) => res.url().includes('/datatables/') && res.request().method() === 'POST',
+      ),
+      entryDialog.getByRole('button', { name: 'Save' }).click(),
+    ]);
+    await expect(entryDialog).toHaveCount(0);
+    await expect(page.getByText(remark)).toBeVisible({ timeout: 15000 });
+    await beat(page);
+
+    // 11. Collateral: the list, then the Add Collateral form. The collateral
+    // product the dropdown offers is seeded by the setup project.
     await page.goto(`/loans/${loanId}/collateral`);
-    await page.waitForTimeout(2000);
     await page
       .getByRole('button', { name: /Create|Add/i })
       .first()
       .click();
-    await page.waitForTimeout(3000);
+    await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/collateral/create$`));
+    await expect(ionSelect(page, 'Type').locator('ion-select-option').first()).toBeAttached({
+      timeout: 15000,
+    });
+    await beat(page);
 
-    // 11. Disbursement Details tab
+    // 12. Disbursement Details tab
     await page.goto(`/loans/view/${loanId}`);
-    await page.getByRole('tab', { name: /Disbursement Details/i }).click();
-    await page.waitForTimeout(3000);
+    await selectTab(page, /Disbursement Details/i);
+    await expect(page.getByText(/Disbursement/i).first()).toBeVisible();
+    await beat(page);
 
-    // 12. Notes tab: add a note (an append-only audit trail entry)
-    await page.getByRole('tab', { name: 'Notes' }).click();
-    await page.waitForTimeout(1500);
-    await page.locator('textarea[name="newNote"]').fill('Recorded via full demo walkthrough');
-    await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(2500);
+    // 13. Notes tab: an append-only audit trail entry
+    await selectTab(page, 'Notes');
+    const noteText = 'Recorded via full demo walkthrough';
+    await page.locator('textarea[name="newNote"]').fill(noteText);
+    await Promise.all([
+      page.waitForResponse(
+        (res) => /\/loans\/\d+\/notes/.test(res.url()) && res.request().method() === 'POST',
+      ),
+      page.getByRole('button', { name: 'Save' }).click(),
+    ]);
+    await expect(page.getByText(noteText).first()).toBeVisible({ timeout: 15000 });
+    await beat(page);
 
-    // 13. Record a repayment, then view and adjust that transaction
+    // 14. Record a repayment, then view and adjust that transaction.
     await page.getByRole('button', { name: 'Repayment' }).click();
     await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/repayment$`));
-    await page.waitForTimeout(1500);
-    const today = new Date();
-    const todayStr = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
-    await page.locator('input[name="transactionDate"]').fill(todayStr);
+    // The transaction date prefills from the loan template. It renders as an
+    // ion-datetime behind an ion-datetime-button, which has no native <input>,
+    // so there is nothing to fill — only the amount needs setting.
     await page.locator('input[name="transactionAmount"]').fill('100');
-    await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
 
     await page.goto(`/loans/view/${loanId}`);
-    await page.getByRole('tab', { name: 'Transactions' }).click();
-    await page.waitForTimeout(1500);
+    await selectTab(page, 'Transactions');
     const repaymentRow = page.getByRole('row', { name: /Repayment/ }).first();
     await expect(repaymentRow).toBeVisible({ timeout: 10000 });
-    await repaymentRow.locator('ion-icon[name="eye-outline"]').click();
-    const txDialog = page.getByRole('dialog');
+    // Click the ion-button, not the ion-icon inside it: the button's shadow-DOM
+    // native element sits above the icon and swallows the pointer event.
+    await repaymentRow.locator('ion-button:has(ion-icon[name="eye-outline"])').click();
+
+    const txDialog = modalFor(page, 'app-transaction-detail-dialog');
     await expect(txDialog).toBeVisible();
-    await page.waitForTimeout(2000);
+    await expect(txDialog.getByText('$100.00').first()).toBeVisible({ timeout: 15000 });
+    await beat(page);
 
     await txDialog.getByRole('button', { name: 'Adjust Transaction' }).click();
-    await page.waitForTimeout(1000);
     await txDialog.locator('input[name="adjustAmount"]').fill('75');
     await txDialog
       .locator('textarea[name="adjustNote"]')
       .fill('Corrected mis-entered repayment amount');
-    await page.waitForTimeout(1000);
+    await beat(page);
     await txDialog.getByRole('button', { name: 'Adjust Transaction' }).click();
-    const confirmDialog = page.getByRole('dialog').last();
-    await expect(confirmDialog.getByText(/reverse the original transaction/i)).toBeVisible();
-    await page.waitForTimeout(1500);
-    await confirmDialog.getByRole('button', { name: 'Confirm' }).click();
-    await page.waitForTimeout(2000);
 
-    // 14. Actions menu: show the full set of new loan lifecycle actions
+    const confirm = confirmDialog(page);
+    await expect(confirm.getByText(/reverse the original transaction/i)).toBeVisible();
+    await beat(page);
+    const [adjustResponse] = await Promise.all([
+      page.waitForResponse(
+        (res) => /\/transactions\/\d+$/.test(res.url()) && res.request().method() === 'POST',
+      ),
+      confirm.getByRole('button', { name: 'Confirm' }).click(),
+    ]);
+    expect(adjustResponse.ok()).toBeTruthy();
+
+    // 15. Actions menu: the full set of loan lifecycle actions
     await page.goto(`/loans/view/${loanId}`);
     await page.getByRole('button', { name: 'Actions' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Undo Disbursal' })).toBeVisible();
-    await page.waitForTimeout(3000);
+    // Popover entries are ion-items exposing role="listitem", not "menuitem".
+    await expect(menuItem(page, 'Undo Disbursal')).toBeVisible();
+    await beat(page);
     await page.keyboard.press('Escape');
   });
 });

@@ -174,8 +174,31 @@ export async function seedLoanDatatable(api: APIRequestContext): Promise<string>
 }
 
 /**
- * A collateral product, so the loan Collateral form opens with a non-empty product
- * dropdown instead of an unusable one.
+ * A collateral type for the loan Collateral form.
+ *
+ * Note this is *not* the same thing as a collateral product: the loan form's Type
+ * dropdown is filled from GET /loans/{id}/collaterals/template, which returns the
+ * code values of the `LoanCollateral` code — a bare Fineract defines the code but
+ * leaves it empty, so the dropdown opens with nothing in it. Client collateral is
+ * the one that uses /collateral-management.
+ */
+export async function seedLoanCollateralType(api: APIRequestContext): Promise<void> {
+  const codes = await get<{ id: number; name: string }[]>(api, '/codes');
+  const loanCollateral = codes.find((c) => c.name === 'LoanCollateral');
+  if (!loanCollateral) return;
+
+  const values = await get<unknown[]>(api, `/codes/${loanCollateral.id}/codevalues`);
+  if (values.length > 0) return;
+
+  await post(api, `/codes/${loanCollateral.id}/codevalues`, {
+    name: 'E2E Gold',
+    position: 0,
+    isActive: true,
+  });
+}
+
+/**
+ * A collateral product, used by *client* collateral (/collateral-management).
  */
 export async function seedCollateralProduct(api: APIRequestContext): Promise<number> {
   const existing = await get<{ id: number }[]>(api, '/collateral-management');

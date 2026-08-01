@@ -35,6 +35,7 @@ import {
   createApiContext,
   ensureReferenceData,
   seedCollateralProduct,
+  seedLoanCollateralType,
   seedLoanDatatable,
 } from './utils/seed-api';
 
@@ -47,6 +48,7 @@ setup('seed backend reference data', async () => {
     await ensureReferenceData(api);
     await seedLoanDatatable(api);
     await seedCollateralProduct(api);
+    await seedLoanCollateralType(api);
   } finally {
     await api.dispose();
   }
