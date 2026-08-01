@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.FUNDS_DESC"
       createButtonLabel="FUNDS.CREATE_FUND"
       [columns]="columns"
-      [data]="funds"
-      [totalRecords]="funds.length"
+      [data]="funds()"
+      [totalRecords]="funds().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -76,12 +76,12 @@ export class FundsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  funds: FundData[] = [];
+  readonly funds = signal<FundData[]>([]);
 
   ngOnInit(): void {
     this.fundsService.getFunds().subscribe({
       next: (data: FundData[]) => {
-        this.funds = data || [];
+        this.funds.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load funds', err);
