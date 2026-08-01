@@ -28,10 +28,6 @@ on:
         description: 'Fineract image to read the spec from (tag, digest, or a commit-SHA tag).'
         required: false
         default: 'apache/fineract:latest'
-      base_branch:
-        description: 'Base branch for the pull request.'
-        required: false
-        default: 'develop'
       dry_run:
         description: 'Do everything except open the PR; upload the result instead.'
         type: boolean
@@ -60,12 +56,33 @@ jobs:
       contents: write # push the sync branch
       pull-requests: write # open or update the PR
     steps:
+      # No `ref:` override on purpose. This job runs scripts that live in the
+      # repository — spec-diff-summary, write-provenance, the PR body — so the
+      # tree it checks out has to be the one this workflow file came from.
+      # Checking out a different branch meant `develop`, where those scripts do
+      # not exist, and the run died on MODULE_NOT_FOUND. The PR targets the same
+      # branch for the same reason.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.base_branch || 'develop' }}
           # create-pull-request pushes with its own token input, not the
           # credential helper, so nothing here needs persisted credentials.
           persist-credentials: false
+
+      # Cheap, and it turns "MODULE_NOT_FOUND twelve steps in, after pulling an
+      # image and regenerating 1,600 files" into an immediate, legible failure
+      # if the checked-out tree ever drifts from this workflow again.
+      - name: Check the tooling this job needs is present
+        run: |
+          set -euo pipefail
+          missing=0
+          for f in scripts/spec-diff-summary.mjs scripts/write-provenance.mjs \
+                   scripts/preprocess-spec.mjs .github/scripts/spec-sync-pr-body.js; do
+            if [ ! -f "$f" ]; then echo "::error::missing $f"; missing=1; fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "The checked-out branch does not carry this workflow's scripts."
+            exit 1
+          fi
 
       # A manifest-only registry lookup: no layers are pulled, so the common
       # "nothing changed" run costs seconds rather than a 371 MB image.
@@ -244,7 +261,9 @@ jobs:
           # api-client-drift and the rest would stay silent. Falls back so the
           # workflow still works with no configuration at all.
           token: ${{ secrets.SPEC_SYNC_TOKEN || github.token }}
-          base: ${{ inputs.base_branch || 'develop' }}
+          # The branch this run checked out, so the PR contains only the spec
+          # change and not whatever else separates two branches.
+          base: ${{ github.ref_name }}
           # Fixed branch: a re-run updates the same PR instead of opening another.
           branch: chore/fineract-spec-sync
           delete-branch: false
