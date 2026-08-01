@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -174,7 +174,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                     name="paymentTypeId"
                     [(ngModel)]="transaction.paymentTypeId"
                   >
-                    @for (type of paymentTypeOptions; track type.id) {
+                    @for (type of paymentTypeOptions(); track type.id) {
                       <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                     }
                   </ion-select>
@@ -240,15 +240,15 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="transactionForm.invalid || isSaving"
+                [disabled]="transactionForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -294,11 +294,11 @@ export class LoanTransactionFormComponent implements OnInit {
 
   loanId = 0;
   transactionType = '';
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   transaction: PostLoansLoanIdTransactionsRequest = {};
   transactionDate = toIsoDate(new Date());
-  paymentTypeOptions: GetPaymentTypeOptions[] = [];
+  readonly paymentTypeOptions = signal<GetPaymentTypeOptions[]>([]);
   loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
 
   get transactionTitleKey(): string {
@@ -344,11 +344,16 @@ export class LoanTransactionFormComponent implements OnInit {
           this.transaction.transactionAmount = template.amount;
           const dateArray = template.date as unknown as number[];
           if (dateArray) {
-            this.transactionDate = toIsoDate(
-              new Date(dateArray[0], dateArray[1] - 1, dateArray[2]),
-            );
+            const templateDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+            // Fineract's transaction template returns the *next installment's due
+            // date*, which on a healthy loan is in the future — and it then rejects
+            // any transaction dated in the future ("The transaction date cannot be
+            // in the future"). Prefilling it verbatim meant Save always failed with
+            // a 403 until the user noticed and corrected the date by hand.
+            const today = new Date();
+            this.transactionDate = toIsoDate(templateDate > today ? today : templateDate);
           }
-          this.paymentTypeOptions = template.paymentTypeOptions || [];
+          this.paymentTypeOptions.set(template.paymentTypeOptions || []);
         },
         error: () => {
           this.notifications.error('Operation failed. Please try again.');
@@ -375,7 +380,7 @@ export class LoanTransactionFormComponent implements OnInit {
   }
 
   private performSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const formattedDate = toIsoDate(this.transactionDate);
 
@@ -388,7 +393,7 @@ export class LoanTransactionFormComponent implements OnInit {
       };
       this.loansService.postLoansLoanId(this.loanId, payload, 'approve').subscribe({
         next: () => this.router.navigate(['/loans']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else if (this.transactionType === 'disburse') {
       // Disbursement is a loan state-transition command (POST /loans/{id}?command=disburse),
@@ -404,7 +409,7 @@ export class LoanTransactionFormComponent implements OnInit {
       };
       this.loansService.postLoansLoanId(this.loanId, payload, 'disburse').subscribe({
         next: () => this.router.navigate(['/loans']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else if (this.transactionType === 'undoDisbursal') {
       // Undo-disbursal is also a loan state-transition command, not a
@@ -413,7 +418,7 @@ export class LoanTransactionFormComponent implements OnInit {
       const payload = { note: this.transaction.note };
       this.loansService.postLoansLoanId(this.loanId, payload, 'undoDisbursal').subscribe({
         next: () => this.router.navigate(['/loans']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       this.transaction.transactionDate = formattedDate;
@@ -431,7 +436,7 @@ export class LoanTransactionFormComponent implements OnInit {
         .postLoansLoanIdTransactions(this.loanId, this.transaction, this.transactionType)
         .subscribe({
           next: () => this.router.navigate(['/loans']),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }
