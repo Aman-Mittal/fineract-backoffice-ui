@@ -45,9 +45,17 @@ import { APIRequestContext } from '@playwright/test';
 /** Where the backend actually listens, used to absolutise a relative SERVER_URL. */
 export const BACKEND_ORIGIN = process.env.FINERACT_BACKEND_ORIGIN ?? 'https://localhost:8443';
 
-/** What goes into the login form's server field. Consumed by the browser. */
-export const SERVER_URL =
-  process.env.FINERACT_SERVER_URL ?? 'https://apis.mifos.community/1.0/core/api/v1';
+/**
+ * What goes into the login form's server field. Consumed by the browser.
+ *
+ * Defaults to the relative path the dev-server proxy forwards to the local stack.
+ * It used to default to the public Mifos community sandbox, which meant a run with
+ * the environment unset — a CI job missing a variable, say — would create clients,
+ * products and loans on somebody else's shared instance. Pointing at a public API
+ * is now something you have to ask for explicitly, and CI refuses it outright
+ * (see assertLocalBackend).
+ */
+export const SERVER_URL = process.env.FINERACT_SERVER_URL ?? '/fineract-provider/api/v1';
 
 export const TENANT_ID = process.env.FINERACT_TENANT_ID ?? 'default';
 export const USERNAME = process.env.FINERACT_USERNAME ?? 'mifos';
@@ -57,13 +65,37 @@ function deriveApiBase(): string {
   if (process.env.FINERACT_API_BASE) {
     return process.env.FINERACT_API_BASE;
   }
-  // An absolute SERVER_URL is already usable from Node; a relative one (the CI case)
-  // needs the origin the proxy would have forwarded to.
+  // An absolute SERVER_URL is already usable from Node; a relative one (the default,
+  // and what CI sets) needs the origin the proxy would have forwarded to.
   return /^https?:\/\//i.test(SERVER_URL) ? SERVER_URL : new URL(SERVER_URL, BACKEND_ORIGIN).href;
 }
 
 /** Absolute API root for the seeding helpers. Consumed by Node. */
 export const API_BASE = deriveApiBase().replace(/\/$/, '');
+
+/** Hosts the suite is allowed to write to unattended. */
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0']);
+
+/**
+ * Refuses to run against a non-local backend in CI.
+ *
+ * These specs create real clients, loan products and loans. On a developer's
+ * machine, pointing them at a shared instance is a considered choice; from an
+ * automated run it is an accident, and one that writes junk into infrastructure
+ * the project does not own. Fail loudly instead.
+ */
+export function assertLocalBackend(): void {
+  if (!process.env.CI) return;
+
+  const { hostname } = new URL(API_BASE);
+  if (LOCAL_HOSTS.has(hostname)) return;
+
+  throw new Error(
+    `Refusing to run against a non-local backend in CI: ${API_BASE} (host "${hostname}").\n` +
+      `These specs create real data. Set FINERACT_SERVER_URL to the local stack ` +
+      `(the dev-server proxy path "/fineract-provider/api/v1"), or unset it to use the default.`,
+  );
+}
 
 /**
  * Fails fast, and with the derivation spelled out, when the seeding context cannot
@@ -71,6 +103,8 @@ export const API_BASE = deriveApiBase().replace(/\/$/, '');
  * an unrelated-looking assertion failure.
  */
 export async function assertBackendReachable(api: APIRequestContext): Promise<void> {
+  assertLocalBackend();
+
   let status: number | string;
   try {
     status = (await api.get(`${API_BASE}/offices/1`)).status();

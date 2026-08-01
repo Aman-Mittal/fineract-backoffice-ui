@@ -30,8 +30,8 @@
  *
  *   npm run test:e2e:local -- e2e/loan-lifecycle.spec.ts
  *
- * Add `--workers=1` against the shared public sandbox — see the matching note
- * in loan-schedule-type.spec.ts.
+ * Runs against the local docker stack; see e2e/utils/backend-env.ts for how the
+ * backend is chosen.
  *
  * Videos/traces for every run are written under test-results/.
  */
@@ -39,6 +39,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
+import { captureJson } from './utils/capture-response';
 import { selectOption } from './utils/select-option';
 
 test.use({ video: 'on', trace: 'on' });
@@ -143,15 +144,11 @@ async function createLoanApplication(
   // `accountNo` query param, not a general search), and pagination makes
   // locating a specific row unreliable in a shared environment that
   // accumulates loans across test runs.
-  const [response] = await Promise.all([
-    page.waitForResponse(
-      (res) => res.url().includes('/loans') && res.request().method() === 'POST',
-    ),
+  const created = await captureJson<{ loanId: number }>(page, /\/loans$/, 'POST', () =>
     page.getByRole('button', { name: 'Save' }).click(),
-  ]);
+  );
   await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
-  const body = await response.json();
-  return body.loanId as number;
+  return created.loanId;
 }
 
 test.describe('Loan lifecycle: creation, approval, disbursement', () => {

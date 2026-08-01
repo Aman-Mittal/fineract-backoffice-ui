@@ -22,7 +22,7 @@
  * Notes tab (audit-trail add/delete) and the Transactions tab's detail
  * dialog with transaction adjustment (correcting a mis-entered repayment).
  * Each test configures its own Office/Client/Loan Product/Loan so it runs
- * independently of other specs and demo data on the shared sandbox.
+ * independently of other specs and of data left by earlier runs.
  *
  *   npx playwright test e2e/loan-servicing.spec.ts --workers=1
  */

@@ -32,9 +32,7 @@
  *   npm run test:e2e:local -- e2e/loan-schedule-type.spec.ts
  *
  * The `setup` project seeds the reference data these tests need, so no manual
- * preparation is required. Against the shared public Mifos sandbox, add
- * `--workers=1`: it has been observed to intermittently lose writes when
- * several spec files hammer it from separate workers at once.
+ * preparation is required.
  *
  * Videos/traces for every run are written under test-results/ (see
  * `test.use({ video: 'on', trace: 'on' })` below) so failures can be replayed.
