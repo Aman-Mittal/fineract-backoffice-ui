@@ -22,6 +22,7 @@ import { provideHttpClient, withInterceptors, HttpClient, HttpHeaders } from '@a
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { LoadingService } from '../services/loading.service';
 import { loadingInterceptor } from './loading.interceptor';
+import { skipLoading } from '../http/http-context';
 
 describe('loadingInterceptor', () => {
   let httpClient: HttpClient;
@@ -59,6 +60,17 @@ describe('loadingInterceptor', () => {
     req.flush({ data: 'ok' });
 
     expect(loadingServiceSpy.setLoading).toHaveBeenCalledWith(false, testUrl);
+  });
+
+  it('should skip loading indicator when the SKIP_LOADING context is set', () => {
+    httpClient.get('/api/test-skip-context', { context: skipLoading() }).subscribe();
+
+    expect(loadingServiceSpy.setLoading).not.toHaveBeenCalled();
+
+    const req = httpTestingController.expectOne('/api/test-skip-context');
+    // Context is client-side only: nothing about the opt-out reaches the server.
+    expect(req.request.headers.has('X-Skip-Loading')).toBeFalse();
+    req.flush({});
   });
 
   it('should skip loading indicator if X-Skip-Loading header is present', () => {

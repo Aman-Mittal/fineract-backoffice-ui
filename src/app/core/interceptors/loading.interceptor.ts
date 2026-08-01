@@ -21,6 +21,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { LoadingService } from '../services/loading.service';
+import { SKIP_LOADING } from '../http/http-context';
 
 /**
  * Interceptor to automatically track HTTP requests and update the LoadingService.
@@ -28,8 +29,9 @@ import { LoadingService } from '../services/loading.service';
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const loadingService = inject(LoadingService);
 
-  // Skip loading indicator for background tasks if needed
-  if (req.headers.has('X-Skip-Loading')) {
+  // The X-Skip-Loading header is the older form of this opt-out and is still honoured, but a
+  // header is sent to Fineract to be ignored there. Prefer skipLoading() from ../http/http-context.
+  if (req.context.get(SKIP_LOADING) || req.headers.has('X-Skip-Loading')) {
     return next(req);
   }
 
