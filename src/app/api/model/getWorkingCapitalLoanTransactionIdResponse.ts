@@ -39,6 +39,7 @@ export interface GetWorkingCapitalLoanTransactionIdResponse {
      */
     feeChargesPortion?: number;
     id?: number;
+    overpaymentPortion?: number;
     paymentDetailData?: WorkingCapitalLoanTransactionPaymentDetailData;
     /**
      * Penalty charges portion from allocation

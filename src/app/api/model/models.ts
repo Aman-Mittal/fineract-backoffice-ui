@@ -1061,6 +1061,7 @@ export * from './postLoansLoanIdChargesRequest';
 export * from './postLoansLoanIdChargesResponse';
 export * from './postLoansLoanIdCollateralsResponse';
 export * from './postLoansLoanIdDisbursementData';
+export * from './postLoansLoanIdOriginatorData';
 export * from './postLoansLoanIdRequest';
 export * from './postLoansLoanIdResponse';
 export * from './postLoansLoanIdScheduleResponse';

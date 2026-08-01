@@ -26,32 +26,28 @@
 
 
 /**
- * Working capital loan running balances
+ * Originator data for loan disbursement request
  */
-export interface GetBalance { 
+export interface PostLoansLoanIdOriginatorData { 
     /**
-     * Cumulative breach past due amount, summed from each breach schedule period\'s outstanding amount
+     * Code value ID for channel type (from LoanOriginationChannelType code)
      */
-    breachPastDueAmount?: number;
-    fee?: number;
-    feeOutstanding?: number;
-    feePaid?: number;
+    channelTypeId?: number;
+    /**
+     * Originator external ID (use this OR id, not both)
+     */
+    externalId?: string;
+    /**
+     * Originator internal ID (use this OR externalId, not both)
+     */
     id?: number;
-    overpaymentAmount?: number;
-    penalty?: number;
-    penaltyOutstanding?: number;
-    penaltyPaid?: number;
-    principal?: number;
-    principalAdjustment?: number;
-    principalOutstanding?: number;
-    principalPaid?: number;
-    realizedIncomeFromDiscountFee?: number;
-    totalDisbursement?: number;
-    totalDiscountFee?: number;
-    totalDiscountFeeAdjustment?: number;
-    totalExpectedRepayment?: number;
-    totalOutstanding?: number;
-    totalRepayment?: number;
-    unrealizedIncomeFromDiscountFee?: number;
+    /**
+     * Originator name (used when creating a new originator during disbursement)
+     */
+    name?: string;
+    /**
+     * Code value ID for originator type (from LoanOriginatorType code)
+     */
+    typeId?: number;
 }
 

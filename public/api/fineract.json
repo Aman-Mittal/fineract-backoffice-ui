@@ -33245,6 +33245,7 @@
           "penaltyOutstanding": { "type": "number", "example": 10000.0 },
           "penaltyPaid": { "type": "number", "example": 10000.0 },
           "principal": { "type": "number", "example": 10000.0 },
+          "principalAdjustment": { "type": "number", "example": 0.0 },
           "principalOutstanding": { "type": "number", "example": 10000.0 },
           "principalPaid": { "type": "number", "example": 10000.0 },
           "realizedIncomeFromDiscountFee": { "type": "number", "example": 10000.0 },
@@ -41110,7 +41111,14 @@
           "penalty": { "type": "number" },
           "penaltyOutstanding": { "type": "number" },
           "penaltyPaid": { "type": "number" },
-          "principal": { "type": "number" },
+          "principal": {
+            "type": "number",
+            "description": "Total principal due: original principal plus principalAdjustment. Already inclusive of principalAdjustment — do not add the two together."
+          },
+          "principalAdjustment": {
+            "type": "number",
+            "description": "Principal re-injected by an over-refunding credit balance refund. Already included in principal."
+          },
           "principalOutstanding": { "type": "number" },
           "principalPaid": { "type": "number" },
           "realizedIncomeFromDiscountFee": { "type": "number" },
@@ -41135,6 +41143,7 @@
             "example": 0.0
           },
           "id": { "type": "integer", "format": "int64", "example": 1 },
+          "overpaymentPortion": { "type": "number" },
           "paymentDetailData": {
             "$ref": "#/components/schemas/WorkingCapitalLoanTransactionPaymentDetailData"
           },
@@ -46242,6 +46251,40 @@
           "principal": { "type": "number", "example": 22000 }
         }
       },
+      "PostLoansLoanIdOriginatorData": {
+        "type": "object",
+        "description": "Originator data for loan disbursement request",
+        "properties": {
+          "channelTypeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Code value ID for channel type (from LoanOriginationChannelType code)",
+            "example": 2
+          },
+          "externalId": {
+            "type": "string",
+            "description": "Originator external ID (use this OR id, not both)",
+            "example": "REV-SHARE-001"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Originator internal ID (use this OR externalId, not both)",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Originator name (used when creating a new originator during disbursement)",
+            "example": "PP Merchant"
+          },
+          "typeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Code value ID for originator type (from LoanOriginatorType code)",
+            "example": 1
+          }
+        }
+      },
       "PostLoansLoanIdRequest": {
         "type": "object",
         "description": "PostLoansLoanIdRequest",
@@ -46263,6 +46306,11 @@
           "fromLoanOfficerId": { "type": "integer", "format": "int64" },
           "locale": { "type": "string", "example": "en" },
           "note": { "type": "string", "example": "Description of disbursement details." },
+          "originators": {
+            "type": "array",
+            "description": "Optional array of originators to reconcile during loan disbursement. Omit the field to leave existing mappings unchanged. Send an empty array to detach all originators. Each entry can reference an existing originator by 'id' or 'externalId'. Missing externalIds are created during disbursement.",
+            "items": { "$ref": "#/components/schemas/PostLoansLoanIdOriginatorData" }
+          },
           "paymentTypeId": { "type": "integer", "format": "int32", "example": 3 },
           "rejectedOnDate": { "type": "string", "example": "28 June 2022" },
           "toLoanOfficerId": { "type": "integer", "format": "int64", "example": 2 },
