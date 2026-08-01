@@ -100,10 +100,12 @@ test.describe('Full feature demo recording', () => {
     });
     await beat(page);
 
-    // 2. Loan Products list: schedule type badge per product
+    // 2. Loan Products list. Only the column is asserted here: on a freshly
+    //    migrated Fineract there are no products yet, and this walkthrough is the
+    //    thing that creates them. The badge itself is asserted in step 4, on the
+    //    specific row the demo just created, which is the stronger check anyway.
     await page.goto('/products/loan');
     await expect(page.getByRole('columnheader', { name: LOAN_SCHEDULE_TYPE_LABEL })).toBeVisible();
-    await expect(page.locator('ion-badge').first()).toBeVisible();
     await beat(page);
 
     // 3. Create a Progressive loan product with a payment allocation reorder
