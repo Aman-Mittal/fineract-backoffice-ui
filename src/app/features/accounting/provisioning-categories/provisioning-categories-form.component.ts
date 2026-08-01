@@ -73,6 +73,7 @@ import {
                 'PROVISIONING_CATEGORIES.NAME' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'PROVISIONING_CATEGORIES.NAME' | translate"
                 name="categoryName"
                 [(ngModel)]="category.categoryName"
                 required
@@ -84,6 +85,7 @@ import {
                 'PROVISIONING_CATEGORIES.DESCRIPTION' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'PROVISIONING_CATEGORIES.DESCRIPTION' | translate"
                 name="categoryDescription"
                 [(ngModel)]="category.categoryDescription"
               ></ion-input>

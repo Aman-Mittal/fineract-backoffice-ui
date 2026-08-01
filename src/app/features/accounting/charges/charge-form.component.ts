@@ -86,13 +86,19 @@ import {
               <!-- Name -->
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="charge.name" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="charge.name"
+                  required
+                ></ion-input>
               </ion-item>
 
               <!-- Charge Applies To -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Applies To</ion-label>
                 <ion-select
+                  aria-label="Applies To"
                   interface="popover"
                   name="chargeAppliesTo"
                   [(ngModel)]="charge.chargeAppliesTo"
@@ -110,6 +116,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.CURRENCY' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.CURRENCY' | translate"
                   interface="popover"
                   name="currencyCode"
                   [(ngModel)]="charge.currencyCode"
@@ -127,6 +134,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Charge Time Type</ion-label>
                 <ion-select
+                  aria-label="Charge Time Type"
                   interface="popover"
                   name="chargeTimeType"
                   [(ngModel)]="charge.chargeTimeType"
@@ -144,6 +152,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Calculation Type</ion-label>
                 <ion-select
+                  aria-label="Calculation Type"
                   interface="popover"
                   name="chargeCalculationType"
                   [(ngModel)]="charge.chargeCalculationType"
@@ -161,6 +170,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="amount"
                   [(ngModel)]="charge.amount"

@@ -107,6 +107,7 @@ import {
                   'WC_LOANS.ACTIONS.APPROVED_AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.APPROVED_AMOUNT' | translate"
                   type="number"
                   name="approvedLoanAmount"
                   [(ngModel)]="lifecycle.approvedLoanAmount"
@@ -157,6 +158,7 @@ import {
                   'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | translate"
                   type="number"
                   name="transactionAmount"
                   [(ngModel)]="lifecycle.transactionAmount"
@@ -168,6 +170,7 @@ import {
                   'WC_LOANS.ACTIONS.DISCOUNT_AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.DISCOUNT_AMOUNT' | translate"
                   type="number"
                   name="discountAmount"
                   [(ngModel)]="lifecycle.discountAmount"
@@ -220,6 +223,7 @@ import {
                   'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | translate"
                   type="number"
                   name="repaymentAmount"
                   [(ngModel)]="repayment.transactionAmount"
@@ -228,14 +232,22 @@ import {
               </ion-item>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'WC_LOANS.ACTIONS.NOTE' | translate }}</ion-label>
-                <ion-textarea name="repaymentNote" [(ngModel)]="repayment.note"></ion-textarea>
+                <ion-textarea
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.NOTE' | translate"
+                  name="repaymentNote"
+                  [(ngModel)]="repayment.note"
+                ></ion-textarea>
               </ion-item>
             }
 
             @if (command !== 'repayment') {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'WC_LOANS.ACTIONS.NOTE' | translate }}</ion-label>
-                <ion-textarea name="note" [(ngModel)]="lifecycle.note"></ion-textarea>
+                <ion-textarea
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.NOTE' | translate"
+                  name="note"
+                  [(ngModel)]="lifecycle.note"
+                ></ion-textarea>
               </ion-item>
             }
 

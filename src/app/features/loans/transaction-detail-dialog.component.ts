@@ -161,11 +161,21 @@ const DATE_FORMAT = 'yyyy-MM-dd';
                 <ion-label position="stacked">{{
                   'COMMON.TRANSACTION_AMOUNT' | translate
                 }}</ion-label>
-                <ion-input type="number" [(ngModel)]="adjustAmount" name="adjustAmount"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
+                  type="number"
+                  [(ngModel)]="adjustAmount"
+                  name="adjustAmount"
+                ></ion-input>
               </ion-item>
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-                <ion-textarea rows="2" [(ngModel)]="adjustNote" name="adjustNote"></ion-textarea>
+                <ion-textarea
+                  [attr.aria-label]="'COMMON.NOTE' | translate"
+                  rows="2"
+                  [(ngModel)]="adjustNote"
+                  name="adjustNote"
+                ></ion-textarea>
               </ion-item>
             </div>
           }

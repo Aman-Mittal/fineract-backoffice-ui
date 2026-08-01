@@ -74,7 +74,11 @@ interface SurveyResponse {
         <div class="filter-row">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SURVEY_RESPONSES.SURVEY' | translate }}</ion-label>
-            <ion-select interface="popover" [(ngModel)]="selectedSurveyName">
+            <ion-select
+              [attr.aria-label]="'SURVEY_RESPONSES.SURVEY' | translate"
+              interface="popover"
+              [(ngModel)]="selectedSurveyName"
+            >
               @for (s of surveys(); track s.name) {
                 <ion-select-option [value]="s.name">{{ s.name }}</ion-select-option>
               }
@@ -83,7 +87,11 @@ interface SurveyResponse {
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SURVEY_RESPONSES.CLIENT_ID' | translate }}</ion-label>
-            <ion-input type="number" [(ngModel)]="clientId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'SURVEY_RESPONSES.CLIENT_ID' | translate"
+              type="number"
+              [(ngModel)]="clientId"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="primary" (click)="loadResponses()" [disabled]="loading()">
@@ -141,7 +149,11 @@ interface SurveyResponse {
           <ion-label position="stacked">{{
             'SURVEY_RESPONSES.RESPONSE_BODY' | translate
           }}</ion-label>
-          <ion-textarea rows="6" [(ngModel)]="responseBody"></ion-textarea>
+          <ion-textarea
+            [attr.aria-label]="'SURVEY_RESPONSES.RESPONSE_BODY' | translate"
+            rows="6"
+            [(ngModel)]="responseBody"
+          ></ion-textarea>
         </ion-item>
         <ion-button color="secondary" (click)="submitResponse()" [disabled]="submitting">
           {{ 'SURVEY_RESPONSES.SUBMIT' | translate }}

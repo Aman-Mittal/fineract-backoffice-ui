@@ -80,6 +80,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'SYSTEM.TABLE_NAME' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'SYSTEM.TABLE_NAME' | translate"
                   name="datatableName"
                   [(ngModel)]="datatable.datatableName"
                   required
@@ -90,6 +91,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'SYSTEM.APP_TABLE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'SYSTEM.APP_TABLE' | translate"
                   interface="popover"
                   name="apptableName"
                   [(ngModel)]="datatable.apptableName"
@@ -121,6 +123,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.NAME' | translate"
                       [name]="'colName' + i"
                       [(ngModel)]="column.name"
                       required
@@ -131,6 +134,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'COMMON.TYPE' | translate"
                       interface="popover"
                       [name]="'colType' + i"
                       [(ngModel)]="column.type"
@@ -147,6 +151,7 @@ import {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'SYSTEM.LENGTH' | translate }}</ion-label>
                       <ion-input
+                        [attr.aria-label]="'SYSTEM.LENGTH' | translate"
                         type="number"
                         [name]="'colLength' + i"
                         [(ngModel)]="column.length"
@@ -158,6 +163,7 @@ import {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'SYSTEM.CODE' | translate }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'SYSTEM.CODE' | translate"
                         interface="popover"
                         [name]="'colCode' + i"
                         [(ngModel)]="column.code"

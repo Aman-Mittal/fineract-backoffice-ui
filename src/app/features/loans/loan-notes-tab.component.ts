@@ -45,7 +45,12 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
     <div class="add-note-row">
       <ion-item fill="outline" class="note-input">
         <ion-label position="stacked">{{ 'LOANS.ADD_NOTE' | translate }}</ion-label>
-        <ion-textarea rows="2" [(ngModel)]="newNoteText" name="newNote"></ion-textarea>
+        <ion-textarea
+          [attr.aria-label]="'LOANS.ADD_NOTE' | translate"
+          rows="2"
+          [(ngModel)]="newNoteText"
+          name="newNote"
+        ></ion-textarea>
       </ion-item>
       <ion-button
         color="primary"

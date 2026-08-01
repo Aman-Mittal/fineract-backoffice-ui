@@ -64,13 +64,7 @@ test.describe('Loan servicing: notes and transaction adjustment', () => {
     await expect(page.getByText('No notes recorded for this loan yet.')).toBeVisible();
   });
 
-  // Blocked on a UI defect, not a selector problem: once the adjust form
-  // expands, its "Adjust Transaction" submit sits outside the modal's viewport
-  // and cannot be scrolled to ("Element is outside of the viewport"), so the
-  // action is unreachable by mouse. Re-enable once the modal scrolls its own
-  // content. Everything up to that point — opening the dialog, the breakdown,
-  // and the amount — is verified.
-  test.fixme('a repayment transaction can be viewed and adjusted with a corrected amount', async ({
+  test('a repayment transaction can be viewed and adjusted with a corrected amount', async ({
     page,
   }) => {
     test.setTimeout(120000);
@@ -110,12 +104,7 @@ test.describe('Loan servicing: notes and transaction adjustment', () => {
       .locator('textarea[name="adjustNote"]')
       .fill('E2E: corrected mis-entered repayment amount');
 
-    // Submitting: the expanded form pushes this button down inside the modal's
-    // own scroll container, so scroll it in and force past the stability check.
-    // Safe to force here because the assertions below verify the POST landed.
-    const submitAdjust = dialog.getByRole('button', { name: 'Adjust Transaction' });
-    await submitAdjust.scrollIntoViewIfNeeded();
-    await submitAdjust.click({ force: true });
+    await dialog.getByRole('button', { name: 'Adjust Transaction' }).click();
 
     const confirm = confirmDialog(page);
     await expect(confirm.getByText(/reverse the original transaction/i)).toBeVisible();

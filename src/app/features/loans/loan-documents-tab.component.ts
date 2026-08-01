@@ -49,11 +49,19 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
     <div class="upload-row">
       <ion-item fill="outline">
         <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
-        <ion-input [(ngModel)]="newDocName" name="docName"></ion-input>
+        <ion-input
+          [attr.aria-label]="'COMMON.NAME' | translate"
+          [(ngModel)]="newDocName"
+          name="docName"
+        ></ion-input>
       </ion-item>
       <ion-item fill="outline" class="description-input">
         <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
-        <ion-input [(ngModel)]="newDocDescription" name="docDescription"></ion-input>
+        <ion-input
+          [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
+          [(ngModel)]="newDocDescription"
+          name="docDescription"
+        ></ion-input>
       </ion-item>
       <ion-button fill="outline" type="button" (click)="fileInput.click()">
         <ion-icon name="attach-outline"></ion-icon>

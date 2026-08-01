@@ -65,7 +65,11 @@ import {
           <div class="row-actions">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COB_TOOLS.PARTITION_SIZE' | translate }}</ion-label>
-              <ion-input type="number" [(ngModel)]="partitionSize"></ion-input>
+              <ion-input
+                [attr.aria-label]="'COB_TOOLS.PARTITION_SIZE' | translate"
+                type="number"
+                [(ngModel)]="partitionSize"
+              ></ion-input>
             </ion-item>
             <ion-button color="primary" (click)="loadPartitions()" [disabled]="isLoading()">
               {{ 'COB_TOOLS.LOAD_PARTITIONS' | translate }}
@@ -98,7 +102,11 @@ import {
               <ion-label position="stacked">{{
                 'COB_TOOLS.FAST_FORWARD_LOAN_ID' | translate
               }}</ion-label>
-              <ion-input type="number" [(ngModel)]="fastForwardLoanId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'COB_TOOLS.FAST_FORWARD_LOAN_ID' | translate"
+                type="number"
+                [(ngModel)]="fastForwardLoanId"
+              ></ion-input>
             </ion-item>
             <ion-button color="secondary" (click)="fastForward()" [disabled]="isLoading()">
               {{ 'COB_TOOLS.FAST_FORWARD' | translate }}
@@ -116,7 +124,11 @@ import {
               <ion-label position="stacked">{{
                 'COB_TOOLS.REPROCESS_LOAN_ID' | translate
               }}</ion-label>
-              <ion-input type="number" [(ngModel)]="reprocessLoanId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'COB_TOOLS.REPROCESS_LOAN_ID' | translate"
+                type="number"
+                [(ngModel)]="reprocessLoanId"
+              ></ion-input>
             </ion-item>
             <ion-button color="danger" (click)="reprocess()" [disabled]="isLoading()">
               {{ 'COB_TOOLS.REPROCESS' | translate }}

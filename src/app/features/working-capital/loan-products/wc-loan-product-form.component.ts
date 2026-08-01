@@ -111,6 +111,7 @@ import {
                       'WC_LOAN_PRODUCTS.NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.NAME' | translate"
                       id="wc-product-name"
                       data-testid="wc-product-name"
                       name="name"
@@ -126,6 +127,7 @@ import {
                       'WC_LOAN_PRODUCTS.SHORT_NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.SHORT_NAME' | translate"
                       id="wc-product-short-name"
                       data-testid="wc-product-short-name"
                       name="shortName"
@@ -141,6 +143,7 @@ import {
                       'WC_LOAN_PRODUCTS.DESCRIPTION' | translate
                     }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.DESCRIPTION' | translate"
                       id="wc-product-description"
                       data-testid="wc-product-description"
                       name="description"
@@ -155,6 +158,7 @@ import {
                       'WC_LOAN_PRODUCTS.CURRENCY' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.CURRENCY' | translate"
                       interface="popover"
                       id="wc-product-currency-code"
                       data-testid="wc-product-currency-code"
@@ -177,6 +181,7 @@ import {
                       'WC_LOAN_PRODUCTS.DIGITS_AFTER_DECIMAL' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.DIGITS_AFTER_DECIMAL' | translate"
                       id="wc-product-digits-after-decimal"
                       data-testid="wc-product-digits-after-decimal"
                       type="number"
@@ -193,6 +198,7 @@ import {
                       'WC_LOAN_PRODUCTS.IN_MULTIPLES_OF' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.IN_MULTIPLES_OF' | translate"
                       id="wc-product-in-multiples-of"
                       data-testid="wc-product-in-multiples-of"
                       type="number"
@@ -208,6 +214,7 @@ import {
                       'WC_LOAN_PRODUCTS.PRINCIPAL' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.PRINCIPAL' | translate"
                       id="wc-product-principal"
                       data-testid="wc-product-principal"
                       type="number"
@@ -224,6 +231,7 @@ import {
                       'WC_LOAN_PRODUCTS.PERIOD_PAYMENT_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.PERIOD_PAYMENT_RATE' | translate"
                       id="wc-product-period-payment-rate"
                       data-testid="wc-product-period-payment-rate"
                       type="number"
@@ -240,6 +248,7 @@ import {
                       'WC_LOAN_PRODUCTS.REPAYMENT_EVERY' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.REPAYMENT_EVERY' | translate"
                       id="wc-product-repayment-every"
                       data-testid="wc-product-repayment-every"
                       type="number"
@@ -256,6 +265,7 @@ import {
                       'WC_LOAN_PRODUCTS.REPAYMENT_FREQUENCY' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.REPAYMENT_FREQUENCY' | translate"
                       interface="popover"
                       id="wc-product-repayment-frequency"
                       data-testid="wc-product-repayment-frequency"
@@ -276,6 +286,7 @@ import {
                       'WC_LOAN_PRODUCTS.AMORTIZATION_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.AMORTIZATION_TYPE' | translate"
                       interface="popover"
                       id="wc-product-amortization-type"
                       data-testid="wc-product-amortization-type"
@@ -296,6 +307,7 @@ import {
                       'WC_LOAN_PRODUCTS.NPV_DAY_COUNT' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.NPV_DAY_COUNT' | translate"
                       id="wc-product-npv-day-count"
                       data-testid="wc-product-npv-day-count"
                       type="number"
@@ -312,6 +324,7 @@ import {
                       'WC_LOAN_PRODUCTS.MIN_PRINCIPAL' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.MIN_PRINCIPAL' | translate"
                       id="wc-product-min-principal"
                       data-testid="wc-product-min-principal"
                       type="number"
@@ -327,6 +340,7 @@ import {
                       'WC_LOAN_PRODUCTS.MAX_PRINCIPAL' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.MAX_PRINCIPAL' | translate"
                       id="wc-product-max-principal"
                       data-testid="wc-product-max-principal"
                       type="number"
@@ -342,6 +356,7 @@ import {
                       'WC_LOAN_PRODUCTS.MIN_PERIOD_PAYMENT_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.MIN_PERIOD_PAYMENT_RATE' | translate"
                       id="wc-product-min-period-payment-rate"
                       data-testid="wc-product-min-period-payment-rate"
                       type="number"
@@ -357,6 +372,7 @@ import {
                       'WC_LOAN_PRODUCTS.MAX_PERIOD_PAYMENT_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.MAX_PERIOD_PAYMENT_RATE' | translate"
                       id="wc-product-max-period-payment-rate"
                       data-testid="wc-product-max-period-payment-rate"
                       type="number"
@@ -372,6 +388,7 @@ import {
                       'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | translate"
                       interface="popover"
                       id="wc-product-accounting-rule"
                       data-testid="wc-product-accounting-rule"
@@ -391,6 +408,7 @@ import {
                       'WC_LOAN_PRODUCTS.BREACH' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.BREACH' | translate"
                       interface="popover"
                       id="wc-product-breach-id"
                       data-testid="wc-product-breach-id"
@@ -410,6 +428,7 @@ import {
                       'WC_LOAN_PRODUCTS.NEAR_BREACH' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.NEAR_BREACH' | translate"
                       interface="popover"
                       id="wc-product-near-breach-id"
                       data-testid="wc-product-near-breach-id"
@@ -429,6 +448,7 @@ import {
                       'WC_LOAN_PRODUCTS.DELINQUENCY_BUCKET' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.DELINQUENCY_BUCKET' | translate"
                       interface="popover"
                       id="wc-product-delinquency-bucket-id"
                       data-testid="wc-product-delinquency-bucket-id"
@@ -448,6 +468,7 @@ import {
                       'WC_LOAN_PRODUCTS.FUND' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.FUND' | translate"
                       interface="popover"
                       id="wc-product-fund-id"
                       data-testid="wc-product-fund-id"
@@ -507,6 +528,7 @@ import {
                       'WC_LOAN_PRODUCTS.EXTERNAL_ID' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'WC_LOAN_PRODUCTS.EXTERNAL_ID' | translate"
                       id="wc-product-external-id"
                       data-testid="wc-product-external-id"
                       name="externalId"

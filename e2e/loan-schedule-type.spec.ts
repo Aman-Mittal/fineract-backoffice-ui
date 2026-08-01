@@ -28,20 +28,13 @@
  * requirements (e.g. the payment allocation payload Fineract requires for
  * advanced-payment-allocation-strategy products).
  *
- * Run against the public Mifos community sandbox (default, no setup needed):
- *   npx playwright test e2e/loan-schedule-type.spec.ts --workers=1
+ * Run against the local docker stack (what CI does — see DOCS/E2E_TESTING.md):
+ *   npm run test:e2e:local -- e2e/loan-schedule-type.spec.ts
  *
- * Run against a fresh local Fineract instance instead:
- *   FINERACT_SERVER_URL="https://localhost:8443/fineract-provider/api/v1" \
- *   FINERACT_TENANT_ID=default FINERACT_USERNAME=mifos FINERACT_PASSWORD=password \
- *   npx playwright test e2e/loan-schedule-type.spec.ts --workers=1
- *
- * `--workers=1` is recommended (required against the shared public sandbox):
- * this file uses `mode: 'serial'` to stay ordered internally, but Playwright
- * still runs different spec files in separate workers concurrently by
- * default, and the shared sandbox has been observed to intermittently lose
- * writes under that concurrent load. A dedicated local instance should be
- * fine with default parallelism.
+ * The `setup` project seeds the reference data these tests need, so no manual
+ * preparation is required. Against the shared public Mifos sandbox, add
+ * `--workers=1`: it has been observed to intermittently lose writes when
+ * several spec files hammer it from separate workers at once.
  *
  * Videos/traces for every run are written under test-results/ (see
  * `test.use({ video: 'on', trace: 'on' })` below) so failures can be replayed.
@@ -49,11 +42,9 @@
 
 import { test, expect } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
-import { SEEDED_BACKEND, SEEDED_BACKEND_REASON } from './utils/seeded-backend';
-
-// Drives a real end-to-end loan flow, so it needs reference data a bare
-// Fineract does not ship with. Skipped unless the backend is seeded.
-test.skip(!SEEDED_BACKEND, SEEDED_BACKEND_REASON);
+import { ionSelect } from './utils/ionic-locators';
+import { selectOption } from './utils/select-option';
+import { createApiContext, seedLoanProduct } from './utils/seed-api';
 
 test.use({ video: 'on', trace: 'on' });
 
@@ -61,13 +52,21 @@ const LOAN_SCHEDULE_TYPE_LABEL = 'Loan Schedule Type';
 const ALLOCATION_ORDER_ITEM_SELECTOR = '.allocation-order-list ion-item';
 
 test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
-  // These tests hit a real shared backend (the public Mifos community
-  // sandbox by default). Running the product-creation tests concurrently
-  // with other suites that also create Progressive products has been
-  // observed to intermittently lose writes under the sandbox's load —
-  // serial execution avoids overloading that shared, rate-sensitive
-  // resource. Parallelism is safe again against a dedicated local instance.
-  test.describe.configure({ mode: 'serial' });
+  // Seeded over the API so the read-only tests below do not depend on the
+  // creation test having run first. They used to, via `mode: 'serial'`, which
+  // made "does the list render a badge" fail for reasons that had nothing to
+  // do with badges. Serial mode is gone with the dependency.
+  let seededProgressiveName: string;
+
+  test.beforeAll(async () => {
+    const api = await createApiContext();
+    try {
+      await seedLoanProduct(api, 'ScheduleTypeSeed');
+      seededProgressiveName = (await seedLoanProduct(api, 'ScheduleTypeSeed', true)).productName;
+    } finally {
+      await api.dispose();
+    }
+  });
 
   test.beforeEach(async ({ page }) => {
     await login(page);
@@ -90,20 +89,21 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     await page.goto('/products/loan/create');
 
     // The Loan Schedule Type / Repayment Strategy options come from an async
-    // GET /loanproducts/template call. Wait for it to resolve (surfaced by the
-    // default strategy name rendering) before interacting with either select,
-    // otherwise the dropdown can open with zero options under real network
-    // latency and the subsequent option click hangs until timeout.
+    // GET /loanproducts/template call. Wait for the strategy select to carry a
+    // value before touching either one, otherwise the dropdown opens with zero
+    // options and the subsequent click hangs until timeout. Asserting on the
+    // select having *a* value rather than one specific strategy name keeps this
+    // independent of how the instance orders its options.
     await expect(
-      page.getByText('Penalties, Fees, Interest, Principal order', { exact: true }),
-    ).toBeVisible({ timeout: 15000 });
+      ionSelect(page, 'Repayment Strategy').locator('ion-select-option').first(),
+    ).toBeAttached({ timeout: 15000 });
 
-    await page.getByTestId('loan-product-name').fill(productName);
-    await page.getByTestId('loan-product-short-name').fill(shortName);
-    await page.getByTestId('loan-product-principal').fill('5000');
-    await page.getByTestId('loan-product-interest-rate').fill('10');
-    await page.getByTestId('loan-product-repayments-count').fill('6');
-    await page.getByTestId('loan-product-repayment-every').fill('1');
+    await page.getByTestId('loan-product-name').locator('input').fill(productName);
+    await page.getByTestId('loan-product-short-name').locator('input').fill(shortName);
+    await page.getByTestId('loan-product-principal').locator('input').fill('5000');
+    await page.getByTestId('loan-product-interest-rate').locator('input').fill('10');
+    await page.getByTestId('loan-product-repayments-count').locator('input').fill('6');
+    await page.getByTestId('loan-product-repayment-every').locator('input').fill('1');
 
     // Switch to Progressive and verify the reactive strategy lock + processing
     // type field appear immediately (no page reload needed).
@@ -113,12 +113,12 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
       .getByRole('radio', { name: 'Progressive' })
       .click();
 
-    const strategySelect = page.getByRole('combobox', { name: 'Repayment Strategy' });
-    await expect(strategySelect).toBeDisabled();
+    const strategySelect = ionSelect(page, 'Repayment Strategy');
+    // ion-select reflects `disabled` only as a JS property and an internal class —
+    // there is no disabled/aria-disabled attribute on the host for toBeDisabled() to read.
+    await expect(strategySelect).toHaveJSProperty('disabled', true);
     await expect(strategySelect).toHaveText(/Advanced payment allocation strategy/);
-    await expect(
-      page.getByRole('combobox', { name: 'Loan Schedule Processing Type' }),
-    ).toBeVisible();
+    await expect(ionSelect(page, 'Loan Schedule Processing Type')).toBeVisible();
 
     // Payment Allocation editor should show a DEFAULT transaction-type block
     // with the backend's own suggested rule ordering already populated.
@@ -164,10 +164,8 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
     // and the reordered allocation rules all read back correctly).
     await page.getByRole('button', { name: 'Edit' }).click();
     await expect(page).toHaveURL(/\/products\/loan\/edit\/\d+$/);
-    await expect(page.getByRole('combobox', { name: LOAN_SCHEDULE_TYPE_LABEL })).toHaveText(
-      /Progressive/,
-    );
-    await expect(page.getByRole('combobox', { name: 'Repayment Strategy' })).toBeDisabled();
+    await expect(ionSelect(page, LOAN_SCHEDULE_TYPE_LABEL)).toHaveText(/Progressive/);
+    await expect(ionSelect(page, 'Repayment Strategy')).toHaveJSProperty('disabled', true);
     const reloadedFirstRuleText = await page
       .locator(ALLOCATION_ORDER_ITEM_SELECTOR)
       .first()
@@ -178,28 +176,18 @@ test.describe('Loan Schedule Type (Cumulative vs Progressive)', () => {
   test('loan creation shows the schedule type badge for a Progressive product', async ({
     page,
   }) => {
-    await page.goto('/products/loan');
-    // Reuse whichever Progressive product already exists in this environment
-    // (created by the previous test, or pre-seeded) rather than creating a
-    // new one, since the badge only depends on product selection. The list
-    // paginates at 10 rows, so search to make sure a Progressive product is
-    // actually on the visible page.
-    await page.getByPlaceholder('Type to search...').fill('Progressive');
-    const progressiveRow = page.getByRole('row', { name: /Progressive/ }).first();
-    await expect(progressiveRow).toBeVisible({ timeout: 15000 });
-    const productName = (await progressiveRow.getByRole('cell').first().textContent())?.trim();
-    expect(productName).toBeTruthy();
+    // Uses the product seeded in beforeAll by its exact name. Searching for
+    // /Progressive/ and taking the first row would silently pick up whatever
+    // another spec happened to leave behind, which is how this test came to
+    // depend on the creation test running before it.
+    const productName = seededProgressiveName;
 
     // Wait for network idle so the async getLoanproducts() call backing the
     // Product dropdown has resolved before opening it — otherwise the
     // dropdown can open empty under real network latency and the option
     // click hangs until timeout.
     await page.goto('/loans/create', { waitUntil: 'networkidle' });
-    await page.getByRole('combobox', { name: 'Product' }).click();
-    await page
-      .locator('ion-alert, ion-popover')
-      .getByRole('radio', { name: productName!, exact: true })
-      .click();
+    await selectOption(page, 'Loan Product', productName);
 
     await expect(page.getByText(/Loan Schedule Type:\s*Progressive/)).toBeVisible({
       timeout: 15000,

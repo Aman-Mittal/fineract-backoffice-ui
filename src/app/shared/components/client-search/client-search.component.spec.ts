@@ -82,8 +82,8 @@ describe('ClientSearchComponent', () => {
       0,
       20,
     );
-    expect(component.filteredClients).toHaveSize(1);
-    expect(component.filteredClients[0]['displayName']).toBe('John Doe');
+    expect(component.filteredClients()).toHaveSize(1);
+    expect(component.filteredClients()[0]['displayName']).toBe('John Doe');
   }));
 
   it('should emit selected client id', () => {

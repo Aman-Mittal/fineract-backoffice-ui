@@ -59,7 +59,7 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
         <ion-segment
           scrollable
           data-testid="entity-datatables-tabs"
-          [value]="activeTable?.registeredTableName"
+          [value]="activeTable()?.registeredTableName"
           (ionChange)="onTabChange($event)"
         >
           @for (dt of datatables(); track dt.registeredTableName) {
@@ -69,7 +69,7 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
           }
         </ion-segment>
 
-        @if (activeTable; as dt) {
+        @if (activeTable(); as dt) {
           <div class="tab-content">
             <app-data-table
               [columns]="getColumnDefs(dt)"
@@ -128,7 +128,7 @@ export class EntityDatatablesComponent implements OnInit {
 
   tableData = signal<Record<string, unknown>[]>([]);
   isTableLoading = signal<boolean>(false);
-  activeTable?: GetDataTablesResponse;
+  readonly activeTable = signal<GetDataTablesResponse | undefined>(undefined);
 
   ngOnInit(): void {
     this.loadDatatables();
@@ -141,7 +141,7 @@ export class EntityDatatablesComponent implements OnInit {
         this.datatables.set(data);
         this.isLoading.set(false);
         if (data.length > 0) {
-          this.activeTable = data[0];
+          this.activeTable.set(data[0]);
           this.loadTableData(data[0].registeredTableName!);
         }
       },
@@ -207,7 +207,7 @@ export class EntityDatatablesComponent implements OnInit {
     const tableName = detail?.value ?? (event.target as HTMLInputElement)?.value;
     if (!tableName) return;
 
-    this.activeTable = this.datatables().find((d) => d.registeredTableName === tableName);
+    this.activeTable.set(this.datatables().find((d) => d.registeredTableName === tableName));
     this.loadTableData(tableName);
   }
 

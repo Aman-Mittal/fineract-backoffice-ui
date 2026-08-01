@@ -69,12 +69,22 @@ import {
         <div class="search-form">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SEARCH.QUERY' | translate }}</ion-label>
-            <ion-input [(ngModel)]="query" name="query" required></ion-input>
+            <ion-input
+              [attr.aria-label]="'SEARCH.QUERY' | translate"
+              [(ngModel)]="query"
+              name="query"
+              required
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SEARCH.RESOURCE_TYPE' | translate }}</ion-label>
-            <ion-select interface="popover" [(ngModel)]="selectedResource" name="resource">
+            <ion-select
+              [attr.aria-label]="'SEARCH.RESOURCE_TYPE' | translate"
+              interface="popover"
+              [(ngModel)]="selectedResource"
+              name="resource"
+            >
               <ion-select-option value="">{{ 'SEARCH.ALL_TYPES' | translate }}</ion-select-option>
               @for (type of allowedSearchTypes; track type) {
                 <ion-select-option [value]="type">{{ type }}</ion-select-option>

@@ -58,14 +58,24 @@ import {
         <ion-card-content class="filter-form">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'CASHIER_JOURNALS.TELLER_ID' | translate }}</ion-label>
-            <ion-input type="number" name="tellerId" [(ngModel)]="tellerId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'CASHIER_JOURNALS.TELLER_ID' | translate"
+              type="number"
+              name="tellerId"
+              [(ngModel)]="tellerId"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{
               'CASHIER_JOURNALS.CASHIER_ID' | translate
             }}</ion-label>
-            <ion-input type="number" name="cashierId" [(ngModel)]="cashierId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'CASHIER_JOURNALS.CASHIER_ID' | translate"
+              type="number"
+              name="cashierId"
+              [(ngModel)]="cashierId"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="primary" (click)="load()">

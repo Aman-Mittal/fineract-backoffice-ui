@@ -88,6 +88,7 @@ import {
                       'CLIENTS.ADDRESS_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.ADDRESS_TYPE' | translate"
                       interface="popover"
                       name="addressTypeId"
                       [(ngModel)]="address.addressTypeId"
@@ -108,6 +109,7 @@ import {
                       'CLIENTS.ADDRESS_LINE_1' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.ADDRESS_LINE_1' | translate"
                       type="text"
                       name="addressLine1"
                       [(ngModel)]="address.addressLine1"
@@ -124,6 +126,7 @@ import {
                       'CLIENTS.ADDRESS_LINE_2' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.ADDRESS_LINE_2' | translate"
                       type="text"
                       name="addressLine2"
                       [(ngModel)]="address.addressLine2"
@@ -139,6 +142,7 @@ import {
                       'CLIENTS.ADDRESS_LINE_3' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.ADDRESS_LINE_3' | translate"
                       type="text"
                       name="addressLine3"
                       [(ngModel)]="address.addressLine3"
@@ -152,6 +156,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.CITY' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.CITY' | translate"
                       type="text"
                       name="city"
                       [(ngModel)]="address.city"
@@ -167,6 +172,7 @@ import {
                       'CLIENTS.TOWN_VILLAGE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.TOWN_VILLAGE' | translate"
                       type="text"
                       name="townVillage"
                       [(ngModel)]="address.townVillage"
@@ -182,6 +188,7 @@ import {
                       'CLIENTS.COUNTY_DISTRICT' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.COUNTY_DISTRICT' | translate"
                       type="text"
                       name="countyDistrict"
                       [(ngModel)]="address.countyDistrict"
@@ -195,6 +202,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.STATE' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.STATE' | translate"
                       interface="popover"
                       name="stateProvinceId"
                       [(ngModel)]="address.stateProvinceId"
@@ -212,6 +220,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.COUNTRY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.COUNTRY' | translate"
                       interface="popover"
                       name="countryId"
                       [(ngModel)]="address.countryId"
@@ -233,6 +242,7 @@ import {
                       'CLIENTS.POSTAL_CODE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.POSTAL_CODE' | translate"
                       type="text"
                       name="postalCode"
                       [(ngModel)]="address.postalCode"
@@ -246,6 +256,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.LATITUDE' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.LATITUDE' | translate"
                       type="number"
                       name="latitude"
                       [(ngModel)]="address.latitude"
@@ -259,6 +270,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.LONGITUDE' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.LONGITUDE' | translate"
                       type="number"
                       name="longitude"
                       [(ngModel)]="address.longitude"

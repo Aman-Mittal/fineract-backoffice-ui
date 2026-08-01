@@ -84,12 +84,18 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
             <div class="form-grid">
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="product['name']" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="product['name']"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                   name="shortName"
                   [(ngModel)]="product['shortName']"
                   required
@@ -100,6 +106,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
                 <ion-textarea
+                  [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                   name="description"
                   [(ngModel)]="product['description']"
                   rows="2"
@@ -109,6 +116,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                   interface="popover"
                   name="currencyCode"
                   [(ngModel)]="product['currencyCode']"
@@ -127,6 +135,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   'PRODUCTS.DECIMAL_PLACES' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                   type="number"
                   name="digitsAfterDecimal"
                   [(ngModel)]="product['digitsAfterDecimal']"
@@ -137,6 +146,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="depositAmount"
                   [(ngModel)]="product['depositAmount']"
@@ -149,6 +159,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   'PRODUCTS.MIN_DEPOSIT_TERM' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'PRODUCTS.MIN_DEPOSIT_TERM' | translate"
                   type="number"
                   name="minDepositTerm"
                   [(ngModel)]="product['minDepositTerm']"
@@ -159,6 +170,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.MIN_TERM_TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.MIN_TERM_TYPE' | translate"
                   interface="popover"
                   name="minDepositTermTypeId"
                   [(ngModel)]="product['minDepositTermTypeId']"

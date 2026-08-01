@@ -91,14 +91,23 @@ import {
               <ion-label position="stacked">{{
                 'INTEREST_RATE_CHARTS.NAME' | translate
               }}</ion-label>
-              <ion-input name="name" [(ngModel)]="name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.NAME' | translate"
+                name="name"
+                [(ngModel)]="name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'INTEREST_RATE_CHARTS.DESCRIPTION' | translate
               }}</ion-label>
-              <ion-input name="description" [(ngModel)]="description"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.DESCRIPTION' | translate"
+                name="description"
+                [(ngModel)]="description"
+              ></ion-input>
             </ion-item>
 
             @if (!isEditMode) {

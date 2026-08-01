@@ -37,11 +37,11 @@
 
 import { APIRequestContext, request as playwrightRequest } from '@playwright/test';
 
-export const API_BASE =
-  process.env.FINERACT_API_BASE ?? 'https://localhost:8443/fineract-provider/api/v1';
-export const TENANT = process.env.FINERACT_TENANT_ID ?? 'default';
-const USERNAME = process.env.FINERACT_USERNAME ?? 'mifos';
-const PASSWORD = process.env.FINERACT_PASSWORD ?? 'password';
+import { API_BASE, PASSWORD, TENANT_ID, USERNAME, assertBackendReachable } from './backend-env';
+
+export { API_BASE };
+/** Kept as `TENANT` for the existing call sites; `TENANT_ID` is the canonical name. */
+export const TENANT = TENANT_ID;
 
 const DATE_FORMAT = 'dd MMMM yyyy';
 const LOCALE = 'en';
@@ -91,6 +91,163 @@ async function post<T>(api: APIRequestContext, path: string, body: unknown): Pro
   return (await res.json()) as T;
 }
 
+async function get<T>(api: APIRequestContext, path: string): Promise<T> {
+  const res = await api.get(`${API_BASE}${path}`);
+  if (!res.ok()) {
+    throw new Error(`GET ${path} -> ${res.status()}: ${(await res.text()).slice(0, 400)}`);
+  }
+  return (await res.json()) as T;
+}
+
+/**
+ * Brings a bare Fineract up to the baseline the specs assume, once per run.
+ *
+ * Everything here is checked before it is created, because the compose stack keeps
+ * its database in a named volume: the second run of the day starts from whatever the
+ * first one left behind, not from a migration-fresh instance.
+ *
+ * The currency step is the one that actually matters. Fineract ships 163 currency
+ * definitions but *enables* only what is in `m_organisation_currency`, and a loan
+ * product cannot be created in a currency that is not enabled — which surfaces as an
+ * unhelpful validation error on the product form rather than as anything about
+ * currencies.
+ */
+export async function ensureReferenceData(api: APIRequestContext): Promise<void> {
+  await assertBackendReachable(api);
+
+  const currencies = await get<{ selectedCurrencyOptions?: { code: string }[] }>(
+    api,
+    '/currencies',
+  );
+  const enabled = (currencies.selectedCurrencyOptions ?? []).map((c) => c.code);
+  if (!enabled.includes('USD')) {
+    await put(api, '/currencies', { currencies: [...enabled, 'USD'] });
+  }
+
+  const paymentTypes = await get<unknown[]>(api, '/paymenttypes');
+  if (paymentTypes.length === 0) {
+    await post(api, '/paymenttypes', {
+      name: 'E2E Cash',
+      description: 'Seeded by the e2e suite',
+      isCashPayment: true,
+      position: 1,
+    });
+  }
+}
+
+async function put<T>(api: APIRequestContext, path: string, body: unknown): Promise<T> {
+  const res = await api.put(`${API_BASE}${path}`, { data: body });
+  if (!res.ok()) {
+    throw new Error(`PUT ${path} -> ${res.status()}: ${(await res.text()).slice(0, 400)}`);
+  }
+  return (await res.json()) as T;
+}
+
+/**
+ * A datatable registered against `m_loan`, so the loan view's Custom Fields tab has
+ * something to show. Without one the tab renders SYSTEM.NO_DATA_TABLES_REGISTERED
+ * and the demo's "add an entry" step silently does nothing.
+ *
+ * Reuses an existing e2e table rather than adding one per run — registered datatables
+ * are DDL, so accumulating them would leave real tables behind in the volume.
+ */
+export async function seedLoanDatatable(api: APIRequestContext): Promise<string> {
+  const existing = await get<{ registeredTableName: string; applicationTableName: string }[]>(
+    api,
+    '/datatables',
+  );
+  const found = existing.find(
+    (t) => t.applicationTableName === 'm_loan' && t.registeredTableName.startsWith('e2e_loan_'),
+  );
+  if (found) {
+    return found.registeredTableName;
+  }
+
+  const datatableName = `e2e_loan_remarks_${seedSuffix()}`;
+  await post(api, '/datatables', {
+    datatableName,
+    apptableName: 'm_loan',
+    multiRow: true,
+    columns: [{ name: 'Remark', type: 'String', length: 200, mandatory: false }],
+  });
+  return datatableName;
+}
+
+/**
+ * A collateral type for the loan Collateral form.
+ *
+ * Note this is *not* the same thing as a collateral product: the loan form's Type
+ * dropdown is filled from GET /loans/{id}/collaterals/template, which returns the
+ * code values of the `LoanCollateral` code — a bare Fineract defines the code but
+ * leaves it empty, so the dropdown opens with nothing in it. Client collateral is
+ * the one that uses /collateral-management.
+ */
+export async function seedLoanCollateralType(api: APIRequestContext): Promise<void> {
+  const codes = await get<{ id: number; name: string }[]>(api, '/codes');
+  const loanCollateral = codes.find((c) => c.name === 'LoanCollateral');
+  if (!loanCollateral) return;
+
+  const values = await get<unknown[]>(api, `/codes/${loanCollateral.id}/codevalues`);
+  if (values.length > 0) return;
+
+  await post(api, `/codes/${loanCollateral.id}/codevalues`, {
+    name: 'E2E Gold',
+    position: 0,
+    isActive: true,
+  });
+}
+
+/**
+ * A collateral product, used by *client* collateral (/collateral-management).
+ */
+export async function seedCollateralProduct(api: APIRequestContext): Promise<number> {
+  const existing = await get<{ id: number }[]>(api, '/collateral-management');
+  if (existing.length > 0) {
+    return existing[0].id;
+  }
+
+  const { resourceId } = await post<{ resourceId: number }>(api, '/collateral-management', {
+    name: `E2E Gold ${seedSuffix()}`,
+    quality: 'Fine',
+    basePrice: 1000,
+    pctToBase: 80,
+    unitType: 'Grams',
+    currency: 'USD',
+    locale: LOCALE,
+  });
+  return resourceId;
+}
+
+export interface SeededOffice {
+  officeId: number;
+  officeName: string;
+}
+
+/**
+ * A branch office under Head Office.
+ *
+ * A bare Fineract ships with exactly one office, so any screen that asks the user to
+ * pick a branch has a single-entry dropdown and demonstrates nothing. Seeding a second
+ * one gives those pickers something to actually choose between.
+ */
+export async function seedOffice(
+  api: APIRequestContext,
+  namePrefix = 'E2ESeed',
+  parentId = 1,
+): Promise<SeededOffice> {
+  const officeName = `${namePrefix} Branch ${seedSuffix()}`;
+  const { officeId } = await post<{ officeId: number }>(api, '/offices', {
+    name: officeName,
+    parentId,
+    // Backdated so it is never rejected as being in the future relative to the
+    // instance's business date.
+    openingDate: '01 January 2020',
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+  return { officeId, officeName };
+}
+
 export interface SeededClient {
   clientId: number;
   firstName: string;
@@ -122,6 +279,25 @@ export interface SeededLoanProduct {
   productId: number;
   productName: string;
 }
+
+/**
+ * Fineract's default payment allocation order, in the order the loan product
+ * template returns it (GET /loanproducts/template -> advancedPaymentAllocationTypes).
+ */
+const ADVANCED_PAYMENT_ALLOCATION_ORDER = [
+  'PAST_DUE_PENALTY',
+  'PAST_DUE_FEE',
+  'PAST_DUE_PRINCIPAL',
+  'PAST_DUE_INTEREST',
+  'DUE_PENALTY',
+  'DUE_FEE',
+  'DUE_PRINCIPAL',
+  'DUE_INTEREST',
+  'IN_ADVANCE_PENALTY',
+  'IN_ADVANCE_FEE',
+  'IN_ADVANCE_PRINCIPAL',
+  'IN_ADVANCE_INTEREST',
+];
 
 /**
  * `isProgressive` switches the product to the progressive schedule + advanced
@@ -161,6 +337,21 @@ export async function seedLoanProduct(
   if (isProgressive) {
     body['loanScheduleType'] = 'PROGRESSIVE';
     body['loanScheduleProcessingType'] = 'HORIZONTAL';
+    // Fineract rejects the advanced-payment-allocation strategy outright unless a
+    // DEFAULT allocation accompanies it ("no DEFAULT payment allocation was
+    // provided"). This mirrors buildDefaultPaymentAllocation() in
+    // features/products/loan-product-form.component.ts, so a seeded product matches
+    // what the form would have created.
+    body['paymentAllocation'] = [
+      {
+        transactionType: 'DEFAULT',
+        futureInstallmentAllocationRule: 'NEXT_INSTALLMENT',
+        paymentAllocationOrder: ADVANCED_PAYMENT_ALLOCATION_ORDER.map((rule, index) => ({
+          order: index + 1,
+          paymentAllocationRule: rule,
+        })),
+      },
+    ];
   }
   const { resourceId } = await post<{ resourceId: number }>(api, '/loanproducts', body);
   return { productId: resourceId, productName };

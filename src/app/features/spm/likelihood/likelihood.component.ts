@@ -81,7 +81,12 @@ interface LikelihoodRow {
           <form #lkForm="ngForm" (ngSubmit)="load()" class="lk-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'LIKELIHOOD.PPI_NAME' | translate }}</ion-label>
-              <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'LIKELIHOOD.PPI_NAME' | translate"
+                name="ppiName"
+                [(ngModel)]="ppiName"
+                required
+              ></ion-input>
             </ion-item>
             <ion-button color="primary" type="submit" [disabled]="lkForm.invalid || isLoading()">
               {{ 'LIKELIHOOD.LOAD' | translate }}

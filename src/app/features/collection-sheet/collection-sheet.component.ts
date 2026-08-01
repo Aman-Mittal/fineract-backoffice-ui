@@ -89,6 +89,7 @@ import {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.OFFICE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'COLLECTION_SHEET.OFFICE' | translate"
                 interface="popover"
                 name="officeId"
                 [(ngModel)]="request.officeId"
@@ -119,7 +120,12 @@ import {
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.STAFF' | translate }}</ion-label>
-              <ion-input type="number" name="staffId" [(ngModel)]="staffId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'COLLECTION_SHEET.STAFF' | translate"
+                type="number"
+                name="staffId"
+                [(ngModel)]="staffId"
+              ></ion-input>
             </ion-item>
 
             <div class="actions">

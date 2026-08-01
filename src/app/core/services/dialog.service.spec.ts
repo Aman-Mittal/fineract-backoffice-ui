@@ -26,6 +26,11 @@ import { DialogService } from './dialog.service';
 @Component({ selector: 'app-stub-dialog', standalone: true, template: '' })
 class StubDialogComponent {}
 
+/** The class DialogService puts on every modal; see src/styles/_dialogs.scss. */
+const APP_DIALOG_CLASS = 'app-dialog';
+/** Stand-in for whatever a caller passes through. */
+const WIDE_CLASS = 'wide';
+
 describe('DialogService', () => {
   let service: DialogService;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -66,6 +71,29 @@ describe('DialogService', () => {
       );
       expect(present).toHaveBeenCalled();
       expect(result).toEqual({ id: 7 });
+    });
+
+    const cssClassOfLastModal = () => modalController.create.calls.mostRecent().args[0]!.cssClass;
+
+    /*
+     * `app-dialog` is what gives a dialog's body its scroll container
+     * (src/styles/_dialogs.scss). Losing it puts the action buttons of any
+     * dialog taller than the viewport out of reach, which is invisible until
+     * someone opens a long one — so pin the composition here rather than
+     * relying on an e2e to notice.
+     */
+    it('always applies the app-dialog class', async () => {
+      await service.open(StubDialogComponent);
+
+      expect(cssClassOfLastModal()).toEqual([APP_DIALOG_CLASS]);
+    });
+
+    it('keeps a caller-supplied class, as a string or an array', async () => {
+      await service.open(StubDialogComponent, undefined, WIDE_CLASS);
+      expect(cssClassOfLastModal()).toEqual([APP_DIALOG_CLASS, WIDE_CLASS]);
+
+      await service.open(StubDialogComponent, undefined, [WIDE_CLASS, 'tall']);
+      expect(cssClassOfLastModal()).toEqual([APP_DIALOG_CLASS, WIDE_CLASS, 'tall']);
     });
 
     it('resolves undefined when dismissed without a payload', async () => {

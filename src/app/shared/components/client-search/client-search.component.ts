@@ -50,6 +50,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
       <ion-item fill="outline">
         <ion-label position="stacked">{{ label | translate }}</ion-label>
         <ion-input
+          [attr.aria-label]="label | translate"
           type="text"
           [formControl]="searchControl"
           [placeholder]="'COMMON.SEARCH_PLACEHOLDER' | translate"
@@ -63,13 +64,13 @@ import { ClientService, GetClientsResponse } from '../../../api';
         }
       </ion-item>
 
-      @if (showDropdown && filteredClients.length > 0) {
+      @if (showDropdown() && filteredClients().length > 0) {
         <ion-list
           class="autocomplete-list"
           id="client-search-results"
           data-testid="client-search-results"
         >
-          @for (client of filteredClients; track client['id']) {
+          @for (client of filteredClients(); track client['id']) {
             <ion-item
               button
               (click)="onSelected(client)"
@@ -86,7 +87,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
         </ion-list>
       }
 
-      @if (showDropdown && !isLoading() && searchInputVal && filteredClients.length === 0) {
+      @if (showDropdown() && !isLoading() && searchInputVal() && filteredClients().length === 0) {
         <ion-list class="autocomplete-list">
           <ion-item class="autocomplete-item">
             <ion-label color="medium">{{ 'COMMON.NO_DATA' | translate }}</ion-label>
@@ -131,9 +132,9 @@ export class ClientSearchComponent implements OnInit, OnChanges {
   @Output() clientSelected = new EventEmitter<number>();
 
   searchControl = new FormControl<string | Record<string, unknown>>('');
-  searchInputVal = '';
-  showDropdown = false;
-  filteredClients: Record<string, unknown>[] = [];
+  readonly searchInputVal = signal('');
+  readonly showDropdown = signal(false);
+  readonly filteredClients = signal<Record<string, unknown>[]>([]);
   readonly isLoading = signal(false);
 
   ngOnInit(): void {
@@ -144,13 +145,13 @@ export class ClientSearchComponent implements OnInit, OnChanges {
         distinctUntilChanged(),
         switchMap((val) => {
           const valueStr = typeof val === 'string' ? val : '';
-          this.searchInputVal = valueStr;
+          this.searchInputVal.set(valueStr);
           if (!valueStr) {
-            this.showDropdown = false;
+            this.showDropdown.set(false);
             return [];
           }
           this.isLoading.set(true);
-          this.showDropdown = true;
+          this.showDropdown.set(true);
           const searchTerm = valueStr.length > 0 ? valueStr + '%' : undefined;
           return this.clientService.getClients(
             undefined,
@@ -167,13 +168,14 @@ export class ClientSearchComponent implements OnInit, OnChanges {
       )
       .subscribe({
         next: (response: GetClientsResponse) => {
-          this.filteredClients =
-            (Array.from(response.pageItems || []) as Record<string, unknown>[]) || [];
+          this.filteredClients.set(
+            (Array.from(response.pageItems || []) as Record<string, unknown>[]) || [],
+          );
           this.isLoading.set(false);
         },
         error: () => {
           this.isLoading.set(false);
-          this.filteredClients = [];
+          this.filteredClients.set([]);
         },
       });
 
@@ -212,7 +214,7 @@ export class ClientSearchComponent implements OnInit, OnChanges {
     if (client && client['id']) {
       const displayName = (client['displayName'] as string) || '';
       this.searchControl.setValue(displayName, { emitEvent: false });
-      this.showDropdown = false;
+      this.showDropdown.set(false);
       this.clientSelected.emit(client['id'] as number);
     }
   }

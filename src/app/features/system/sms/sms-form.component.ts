@@ -69,17 +69,28 @@ import {
           <form #smsForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SMS.MESSAGE' | translate }}</ion-label>
-              <ion-textarea name="message" [(ngModel)]="message" required></ion-textarea>
+              <ion-textarea
+                [attr.aria-label]="'SMS.MESSAGE' | translate"
+                name="message"
+                [(ngModel)]="message"
+                required
+              ></ion-textarea>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SMS.MOBILE_NO' | translate }}</ion-label>
-              <ion-input name="mobileNo" [(ngModel)]="mobileNo" [disabled]="isEditMode"></ion-input>
+              <ion-input
+                [attr.aria-label]="'SMS.MOBILE_NO' | translate"
+                name="mobileNo"
+                [(ngModel)]="mobileNo"
+                [disabled]="isEditMode"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SMS.CLIENT_ID' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'SMS.CLIENT_ID' | translate"
                 type="number"
                 name="clientId"
                 [(ngModel)]="clientId"

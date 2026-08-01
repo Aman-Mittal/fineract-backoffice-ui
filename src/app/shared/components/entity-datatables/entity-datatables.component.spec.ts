@@ -100,7 +100,7 @@ describe('EntityDatatablesComponent', () => {
     expect(component).toBeTruthy();
     expect(datatablesServiceSpy.getDatatables).toHaveBeenCalledWith('client');
     expect(component.datatables()).toEqual(mockDatatables);
-    expect(component.activeTable).toEqual(mockDatatables[0]);
+    expect(component.activeTable()).toEqual(mockDatatables[0]);
 
     expect(datatablesServiceSpy.getDatatablesDatatableApptableId).toHaveBeenCalledWith(
       'm_client_details',
@@ -176,7 +176,7 @@ describe('EntityDatatablesComponent', () => {
       new CustomEvent('ionChange', { detail: { value: 'm_client_more_details' } }),
     );
 
-    expect(component.activeTable).toEqual(mockDatatables[1]);
+    expect(component.activeTable()).toEqual(mockDatatables[1]);
     expect(datatablesServiceSpy.getDatatablesDatatableApptableId).toHaveBeenCalledWith(
       'm_client_more_details',
       123,

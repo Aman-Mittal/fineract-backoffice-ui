@@ -72,6 +72,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CLIENTS.DOCUMENT_TYPE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'CLIENTS.DOCUMENT_TYPE' | translate"
                 interface="popover"
                 name="documentTypeId"
                 [(ngModel)]="identifier.documentTypeId"
@@ -88,6 +89,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CLIENTS.DOCUMENT_KEY' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'CLIENTS.DOCUMENT_KEY' | translate"
                 type="text"
                 name="documentKey"
                 [(ngModel)]="identifier.documentKey"
@@ -100,6 +102,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'COMMON.STATUS' | translate"
                 interface="popover"
                 name="status"
                 [(ngModel)]="identifier.status"
@@ -114,6 +117,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                 name="description"
                 [(ngModel)]="identifier.description"
                 rows="3"

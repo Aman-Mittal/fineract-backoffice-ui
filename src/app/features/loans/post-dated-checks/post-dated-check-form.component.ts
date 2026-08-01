@@ -82,12 +82,23 @@ import {
           <form #checkForm="ngForm" (ngSubmit)="onSubmit()" class="check-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'POST_DATED_CHECKS.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'POST_DATED_CHECKS.NAME' | translate"
+                name="name"
+                [(ngModel)]="name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'POST_DATED_CHECKS.AMOUNT' | translate }}</ion-label>
-              <ion-input type="number" name="amount" [(ngModel)]="amount" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'POST_DATED_CHECKS.AMOUNT' | translate"
+                type="number"
+                name="amount"
+                [(ngModel)]="amount"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -95,6 +106,7 @@ import {
                 'POST_DATED_CHECKS.ACCOUNT_NO' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'POST_DATED_CHECKS.ACCOUNT_NO' | translate"
                 type="number"
                 name="accountNo"
                 [(ngModel)]="accountNo"

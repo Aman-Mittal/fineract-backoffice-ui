@@ -102,19 +102,30 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                 <div class="create-form">
                   <ion-item fill="outline" class="full-width">
                     <ion-label position="stacked">{{ 'EMAIL_MESSAGES.TO' | translate }}</ion-label>
-                    <ion-input type="email" [(ngModel)]="newTo"></ion-input>
+                    <ion-input
+                      [attr.aria-label]="'EMAIL_MESSAGES.TO' | translate"
+                      type="email"
+                      [(ngModel)]="newTo"
+                    ></ion-input>
                   </ion-item>
                   <ion-item fill="outline" class="full-width">
                     <ion-label position="stacked">{{
                       'EMAIL_MESSAGES.SUBJECT' | translate
                     }}</ion-label>
-                    <ion-input [(ngModel)]="newSubject"></ion-input>
+                    <ion-input
+                      [attr.aria-label]="'EMAIL_MESSAGES.SUBJECT' | translate"
+                      [(ngModel)]="newSubject"
+                    ></ion-input>
                   </ion-item>
                   <ion-item fill="outline" class="full-width">
                     <ion-label position="stacked">{{
                       'EMAIL_MESSAGES.BODY' | translate
                     }}</ion-label>
-                    <ion-textarea rows="4" [(ngModel)]="newBody"></ion-textarea>
+                    <ion-textarea
+                      [attr.aria-label]="'EMAIL_MESSAGES.BODY' | translate"
+                      rows="4"
+                      [(ngModel)]="newBody"
+                    ></ion-textarea>
                   </ion-item>
                   <ion-button color="secondary" (click)="createMessage()">
                     {{ 'EMAIL_MESSAGES.CREATE' | translate }}
@@ -255,7 +266,11 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
             <div class="tab-content">
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">Configuration JSON</ion-label>
-                <ion-textarea rows="10" [(ngModel)]="configJson"></ion-textarea>
+                <ion-textarea
+                  aria-label="Configuration JSON"
+                  rows="10"
+                  [(ngModel)]="configJson"
+                ></ion-textarea>
               </ion-item>
               <ion-button color="primary" (click)="saveConfig()">
                 {{ 'EMAIL_MESSAGES.SAVE_CONFIG' | translate }}

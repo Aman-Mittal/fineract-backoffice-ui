@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -96,6 +96,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.NAME' | translate"
                       id="loan-product-name"
                       data-testid="loan-product-name"
                       name="name"
@@ -112,6 +113,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.SHORT_NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                       id="loan-product-short-name"
                       data-testid="loan-product-short-name"
                       name="shortName"
@@ -129,6 +131,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DESCRIPTION' | translate
                     }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                       id="loan-product-description"
                       data-testid="loan-product-description"
                       name="description"
@@ -143,6 +146,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
                       id="loan-product-external-id"
                       data-testid="loan-product-external-id"
                       name="externalId"
@@ -156,6 +160,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.FUND' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.FUND' | translate"
                       interface="popover"
                       id="loan-product-fund-id"
                       data-testid="loan-product-fund-id"
@@ -163,7 +168,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.fundId"
                       placeholder="{{ 'PRODUCTS.FUND' | translate }}"
                     >
-                      @for (fund of fundOptions; track fund.id) {
+                      @for (fund of fundOptions(); track fund.id) {
                         <ion-select-option [value]="fund.id">{{ fund.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -176,6 +181,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DELINQUENCY_BUCKET' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.DELINQUENCY_BUCKET' | translate"
                       interface="popover"
                       id="loan-product-delinquency-bucket-id"
                       data-testid="loan-product-delinquency-bucket-id"
@@ -183,7 +189,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       [(ngModel)]="product.delinquencyBucketId"
                       placeholder="{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}"
                     >
-                      @for (bucket of delinquencyBucketOptions; track bucket.id) {
+                      @for (bucket of delinquencyBucketOptions(); track bucket.id) {
                         <ion-select-option [value]="bucket.id">{{ bucket.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -194,6 +200,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                       interface="popover"
                       id="loan-product-currency-code"
                       data-testid="loan-product-currency-code"
@@ -215,6 +222,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DECIMAL_PLACES' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                       id="loan-product-digits-after-decimal"
                       data-testid="loan-product-digits-after-decimal"
                       type="number"
@@ -229,6 +237,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.PRINCIPAL' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.PRINCIPAL' | translate"
                       id="loan-product-principal"
                       data-testid="loan-product-principal"
                       type="number"
@@ -245,6 +254,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.INTEREST_RATE' | translate"
                       id="loan-product-interest-rate"
                       data-testid="loan-product-interest-rate"
                       type="number"
@@ -261,6 +271,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'LOANS.REPAYMENTS_COUNT' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | translate"
                       id="loan-product-repayments-count"
                       data-testid="loan-product-repayments-count"
                       type="number"
@@ -277,6 +288,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'LOANS.REPAYMENT_EVERY' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | translate"
                       id="loan-product-repayment-every"
                       data-testid="loan-product-repayment-every"
                       type="number"
@@ -292,6 +304,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                       interface="popover"
                       id="loan-product-repayment-frequency"
                       data-testid="loan-product-repayment-frequency"
@@ -322,6 +335,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate"
                       interface="popover"
                       id="loan-product-interest-frequency"
                       data-testid="loan-product-interest-frequency"
@@ -346,6 +360,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.AMORTIZATION_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.AMORTIZATION_TYPE' | translate"
                       interface="popover"
                       id="loan-product-amortization-type"
                       data-testid="loan-product-amortization-type"
@@ -370,6 +385,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.INTEREST_TYPE' | translate"
                       interface="popover"
                       id="loan-product-interest-type"
                       data-testid="loan-product-interest-type"
@@ -394,6 +410,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate"
                       interface="popover"
                       id="loan-product-interest-calc-period"
                       data-testid="loan-product-interest-calc-period"
@@ -418,6 +435,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate"
                       interface="popover"
                       id="loan-product-schedule-type"
                       data-testid="loan-product-schedule-type"
@@ -426,7 +444,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       (ngModelChange)="onLoanScheduleTypeChange($event)"
                       required
                     >
-                      @for (option of loanScheduleTypeOptions; track option.code) {
+                      @for (option of loanScheduleTypeOptions(); track option.code) {
                         <ion-select-option [value]="option.code">{{
                           option.value
                         }}</ion-select-option>
@@ -442,15 +460,16 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate"
                       interface="popover"
                       id="loan-product-transaction-strategy"
                       data-testid="loan-product-transaction-strategy"
                       name="transactionProcessingStrategyCode"
                       [(ngModel)]="product.transactionProcessingStrategyCode"
-                      [disabled]="isProgressive"
+                      [disabled]="isProgressive()"
                       required
                     >
-                      @for (option of transactionProcessingStrategyOptions; track option.code) {
+                      @for (option of transactionProcessingStrategyOptions(); track option.code) {
                         <ion-select-option [value]="option.code">{{
                           option.name
                         }}</ion-select-option>
@@ -460,13 +479,14 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 </ion-col>
 
                 <!-- Loan Schedule Processing Type (Progressive only) -->
-                @if (isProgressive) {
+                @if (isProgressive()) {
                   <ion-col size="12" size-md="6">
                     <ion-item fill="outline" class="form-item">
                       <ion-label position="stacked">{{
                         'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate"
                         interface="popover"
                         id="loan-product-schedule-processing-type"
                         data-testid="loan-product-schedule-processing-type"
@@ -474,7 +494,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                         [(ngModel)]="product.loanScheduleProcessingType"
                         required
                       >
-                        @for (option of loanScheduleProcessingTypeOptions; track option.code) {
+                        @for (option of loanScheduleProcessingTypeOptions(); track option.code) {
                           <ion-select-option [value]="option.code">{{
                             option.value
                           }}</ion-select-option>
@@ -486,15 +506,15 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
               </ion-row>
             </ion-grid>
 
-            @if (isProgressive) {
+            @if (isProgressive()) {
               <app-payment-credit-allocation-editor
-                [transactionTypeOptions]="advancedPaymentAllocationTransactionTypes"
-                [allocationRuleOptions]="advancedPaymentAllocationTypes"
+                [transactionTypeOptions]="advancedPaymentAllocationTransactionTypes()"
+                [allocationRuleOptions]="advancedPaymentAllocationTypes()"
                 [futureInstallmentOptions]="
-                  advancedPaymentAllocationFutureInstallmentAllocationRules
+                  advancedPaymentAllocationFutureInstallmentAllocationRules()
                 "
-                [creditTransactionTypeOptions]="creditAllocationTransactionTypes"
-                [creditAllocationRuleOptions]="creditAllocationAllocationTypes"
+                [creditTransactionTypeOptions]="creditAllocationTransactionTypes()"
+                [creditAllocationRuleOptions]="creditAllocationAllocationTypes()"
                 [paymentAllocation]="product.paymentAllocation ?? []"
                 (paymentAllocationChange)="product.paymentAllocation = $event"
                 [creditAllocation]="product.creditAllocation ?? []"
@@ -510,7 +530,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -519,9 +539,9 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 data-testid="loan-product-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="productForm.invalid || isSaving"
+                [disabled]="productForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -571,22 +591,24 @@ export class LoanProductFormComponent implements OnInit {
 
   productId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  fundOptions: FundData[] = [];
-  delinquencyBucketOptions: DelinquencyBucketResponse[] = [];
+  readonly fundOptions = signal<FundData[]>([]);
+  readonly delinquencyBucketOptions = signal<DelinquencyBucketResponse[]>([]);
 
-  loanScheduleTypeOptions: EnumOptionData[] = [];
-  loanScheduleProcessingTypeOptions: EnumOptionData[] = [];
-  advancedPaymentAllocationTypes: EnumOptionData[] = [];
-  advancedPaymentAllocationTransactionTypes: EnumOptionData[] = [];
-  advancedPaymentAllocationFutureInstallmentAllocationRules: EnumOptionData[] = [];
-  creditAllocationTransactionTypes: EnumOptionData[] = [];
-  creditAllocationAllocationTypes: EnumOptionData[] = [];
+  readonly loanScheduleTypeOptions = signal<EnumOptionData[]>([]);
+  readonly loanScheduleProcessingTypeOptions = signal<EnumOptionData[]>([]);
+  readonly advancedPaymentAllocationTypes = signal<EnumOptionData[]>([]);
+  readonly advancedPaymentAllocationTransactionTypes = signal<EnumOptionData[]>([]);
+  readonly advancedPaymentAllocationFutureInstallmentAllocationRules = signal<EnumOptionData[]>([]);
+  readonly creditAllocationTransactionTypes = signal<EnumOptionData[]>([]);
+  readonly creditAllocationAllocationTypes = signal<EnumOptionData[]>([]);
   transactionProcessingStrategyOptionsBase: GetLoanProductsTransactionProcessingStrategyOptions[] =
     [];
-  transactionProcessingStrategyOptions: GetLoanProductsTransactionProcessingStrategyOptions[] = [];
-  isProgressive = false;
+  readonly transactionProcessingStrategyOptions = signal<
+    GetLoanProductsTransactionProcessingStrategyOptions[]
+  >([]);
+  readonly isProgressive = signal(false);
 
   product: PostLoanProductsRequest = {
     currencyCode: 'USD',
@@ -606,21 +628,23 @@ export class LoanProductFormComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.fundsService.getFunds().subscribe((data) => (this.fundOptions = data));
+    this.fundsService.getFunds().subscribe((data) => this.fundOptions.set(data));
     this.delinquencyService
       .getDelinquencyBuckets()
-      .subscribe((data) => (this.delinquencyBucketOptions = data));
+      .subscribe((data) => this.delinquencyBucketOptions.set(data));
 
     this.productService.getLoanproductsTemplate().subscribe((template) => {
-      this.loanScheduleTypeOptions = template.loanScheduleTypeOptions ?? [];
-      this.loanScheduleProcessingTypeOptions = template.loanScheduleProcessingTypeOptions ?? [];
-      this.advancedPaymentAllocationTypes = template.advancedPaymentAllocationTypes ?? [];
-      this.advancedPaymentAllocationTransactionTypes =
-        template.advancedPaymentAllocationTransactionTypes ?? [];
-      this.advancedPaymentAllocationFutureInstallmentAllocationRules =
-        template.advancedPaymentAllocationFutureInstallmentAllocationRules ?? [];
-      this.creditAllocationTransactionTypes = template.creditAllocationTransactionTypes ?? [];
-      this.creditAllocationAllocationTypes = template.creditAllocationAllocationTypes ?? [];
+      this.loanScheduleTypeOptions.set(template.loanScheduleTypeOptions ?? []);
+      this.loanScheduleProcessingTypeOptions.set(template.loanScheduleProcessingTypeOptions ?? []);
+      this.advancedPaymentAllocationTypes.set(template.advancedPaymentAllocationTypes ?? []);
+      this.advancedPaymentAllocationTransactionTypes.set(
+        template.advancedPaymentAllocationTransactionTypes ?? [],
+      );
+      this.advancedPaymentAllocationFutureInstallmentAllocationRules.set(
+        template.advancedPaymentAllocationFutureInstallmentAllocationRules ?? [],
+      );
+      this.creditAllocationTransactionTypes.set(template.creditAllocationTransactionTypes ?? []);
+      this.creditAllocationAllocationTypes.set(template.creditAllocationAllocationTypes ?? []);
       this.transactionProcessingStrategyOptionsBase = template.transactionProcessingStrategyOptions
         ? Array.from(template.transactionProcessingStrategyOptions)
         : [];
@@ -638,10 +662,10 @@ export class LoanProductFormComponent implements OnInit {
   }
 
   onLoanScheduleTypeChange(loanScheduleType: string) {
-    this.isProgressive = loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+    this.isProgressive.set(loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
     this.applyTransactionProcessingStrategyFilter();
 
-    if (this.isProgressive) {
+    if (this.isProgressive()) {
       this.product.loanScheduleProcessingType = 'HORIZONTAL';
       this.product.paymentAllocation = this.buildDefaultPaymentAllocation();
     } else {
@@ -652,26 +676,28 @@ export class LoanProductFormComponent implements OnInit {
   }
 
   private applyTransactionProcessingStrategyFilter() {
-    if (this.isProgressive) {
-      this.transactionProcessingStrategyOptions =
+    if (this.isProgressive()) {
+      this.transactionProcessingStrategyOptions.set(
         this.transactionProcessingStrategyOptionsBase.filter((option) =>
           isAdvancedPaymentAllocationStrategy(option.code),
-        );
-      if (this.transactionProcessingStrategyOptions.length) {
+        ),
+      );
+      if (this.transactionProcessingStrategyOptions().length) {
         this.product.transactionProcessingStrategyCode =
-          this.transactionProcessingStrategyOptions[0].code;
+          this.transactionProcessingStrategyOptions()[0].code;
       }
     } else {
-      this.transactionProcessingStrategyOptions =
+      this.transactionProcessingStrategyOptions.set(
         this.transactionProcessingStrategyOptionsBase.filter(
           (option) => !isAdvancedPaymentAllocationStrategy(option.code),
-        );
+        ),
+      );
       if (
         isAdvancedPaymentAllocationStrategy(this.product.transactionProcessingStrategyCode) &&
-        this.transactionProcessingStrategyOptions.length
+        this.transactionProcessingStrategyOptions().length
       ) {
         this.product.transactionProcessingStrategyCode =
-          this.transactionProcessingStrategyOptions[0].code;
+          this.transactionProcessingStrategyOptions()[0].code;
       }
     }
   }
@@ -681,7 +707,7 @@ export class LoanProductFormComponent implements OnInit {
       {
         transactionType: 'DEFAULT',
         futureInstallmentAllocationRule: 'NEXT_INSTALLMENT',
-        paymentAllocationOrder: this.advancedPaymentAllocationTypes.map((type, index) => ({
+        paymentAllocationOrder: this.advancedPaymentAllocationTypes().map((type, index) => ({
           order: index + 1,
           paymentAllocationRule: type.code,
         })),
@@ -719,13 +745,13 @@ export class LoanProductFormComponent implements OnInit {
         paymentAllocation: data.paymentAllocation,
         creditAllocation: data.creditAllocation,
       };
-      this.isProgressive = this.product.loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+      this.isProgressive.set(this.product.loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
       this.applyTransactionProcessingStrategyFilter();
     });
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.product.locale = 'en';
 
     if (this.isEditMode && this.productId) {
@@ -733,12 +759,12 @@ export class LoanProductFormComponent implements OnInit {
         .putLoanproductsProductId(this.productId, this.product as PutLoanProductsProductIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
       this.productService.postLoanproducts(this.product).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

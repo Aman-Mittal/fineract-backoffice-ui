@@ -73,7 +73,11 @@ import {
         <div class="section">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'LOAN_COB_CATCHUP.LOAN_ID' | translate }}</ion-label>
-            <ion-input type="number" [(ngModel)]="loanId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'LOAN_COB_CATCHUP.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="loanId"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="primary" [disabled]="!loanId" (click)="getOldestCobDate()">
@@ -93,7 +97,11 @@ import {
         <div class="section">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'LOAN_COB_CATCHUP.LOAN_ID' | translate }}</ion-label>
-            <ion-input type="number" [(ngModel)]="catchupLoanId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'LOAN_COB_CATCHUP.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="catchupLoanId"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="secondary" [disabled]="!catchupLoanId" (click)="runCatchup()">

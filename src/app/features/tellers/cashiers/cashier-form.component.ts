@@ -93,6 +93,7 @@ import {
                   <ion-item fill="outline" [appTooltip]="'HELP.CASHIER_STAFF_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.STAFF' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'TELLERS.STAFF' | translate"
                       interface="popover"
                       name="staffId"
                       [(ngModel)]="cashier.staffId"
@@ -164,6 +165,7 @@ import {
                   <ion-item fill="outline" class="full-width">
                     <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'COMMON.NOTE' | translate"
                       name="description"
                       [(ngModel)]="cashier.description"
                       rows="2"

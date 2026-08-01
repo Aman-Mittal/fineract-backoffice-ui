@@ -88,6 +88,7 @@ const PRODUCT_TYPE = 'share';
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.NAME' | translate"
                       id="share-product-name"
                       data-testid="share-product-name"
                       name="name"
@@ -103,6 +104,7 @@ const PRODUCT_TYPE = 'share';
                       'PRODUCTS.SHORT_NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                       id="share-product-short-name"
                       data-testid="share-product-short-name"
                       name="shortName"
@@ -119,6 +121,7 @@ const PRODUCT_TYPE = 'share';
                       'PRODUCTS.DESCRIPTION' | translate
                     }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                       id="share-product-description"
                       data-testid="share-product-description"
                       name="description"
@@ -132,6 +135,7 @@ const PRODUCT_TYPE = 'share';
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                       interface="popover"
                       id="share-product-currency-code"
                       data-testid="share-product-currency-code"
@@ -154,6 +158,7 @@ const PRODUCT_TYPE = 'share';
                       'PRODUCTS.TOTAL_SHARES' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.TOTAL_SHARES' | translate"
                       id="share-product-total-shares"
                       data-testid="share-product-total-shares"
                       type="number"
@@ -170,6 +175,7 @@ const PRODUCT_TYPE = 'share';
                       'PRODUCTS.UNIT_PRICE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.UNIT_PRICE' | translate"
                       id="share-product-unit-price"
                       data-testid="share-product-unit-price"
                       type="number"
@@ -186,6 +192,7 @@ const PRODUCT_TYPE = 'share';
                       'PRODUCTS.NOMINAL_SHARES' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.NOMINAL_SHARES' | translate"
                       id="share-product-nominal-shares"
                       data-testid="share-product-nominal-shares"
                       type="number"

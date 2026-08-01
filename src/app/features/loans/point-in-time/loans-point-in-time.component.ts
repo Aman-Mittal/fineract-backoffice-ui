@@ -94,7 +94,11 @@ import {
             <ion-label position="stacked">{{
               'LOANS_POINT_IN_TIME.LOAN_IDS' | translate
             }}</ion-label>
-            <ion-input [(ngModel)]="loanIdsInput" placeholder="1, 2, 3"></ion-input>
+            <ion-input
+              [attr.aria-label]="'LOANS_POINT_IN_TIME.LOAN_IDS' | translate"
+              [(ngModel)]="loanIdsInput"
+              placeholder="1, 2, 3"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="primary" [disabled]="!searchDate || isLoading()" (click)="onSearch()">

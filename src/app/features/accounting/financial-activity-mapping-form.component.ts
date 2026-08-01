@@ -50,7 +50,12 @@ import {
       <form [formGroup]="mappingForm" (ngSubmit)="onSubmit()">
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">Financial Activity</ion-label>
-          <ion-select interface="popover" formControlName="financialActivityId" required>
+          <ion-select
+            aria-label="Financial Activity"
+            interface="popover"
+            formControlName="financialActivityId"
+            required
+          >
             @for (activity of activities; track activity['id']) {
               <ion-select-option [value]="activity['id']">
                 {{ activity['name'] }}
@@ -61,7 +66,12 @@ import {
 
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">GL Account</ion-label>
-          <ion-select interface="popover" formControlName="glAccountId" required>
+          <ion-select
+            aria-label="GL Account"
+            interface="popover"
+            formControlName="glAccountId"
+            required
+          >
             @for (account of filteredAccounts; track account['id']) {
               <ion-select-option [value]="account['id']">
                 {{ account['name'] }} ({{ account['glCode'] }})

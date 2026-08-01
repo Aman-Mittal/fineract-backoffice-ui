@@ -17,6 +17,7 @@
  * under the License.
  */
 @use 'styles/common' as *;
+@use 'styles/dialogs';
 
 /* Ionic's base CSS is loaded via the `styles` array in angular.json rather than an
    @import here. A Sass `@import` of a .css file is emitted as a plain CSS @import with a

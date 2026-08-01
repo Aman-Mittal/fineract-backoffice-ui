@@ -64,7 +64,10 @@ import {
       <ion-card-content>
         <ion-item fill="outline">
           <ion-label position="stacked">{{ 'INTEROP.ACCOUNT_ID' | translate }}</ion-label>
-          <ion-input [(ngModel)]="accountId"></ion-input>
+          <ion-input
+            [attr.aria-label]="'INTEROP.ACCOUNT_ID' | translate"
+            [(ngModel)]="accountId"
+          ></ion-input>
         </ion-item>
 
         <div class="button-row">

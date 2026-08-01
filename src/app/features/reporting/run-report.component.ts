@@ -82,7 +82,11 @@ import {
           <div class="report-parameters form-grid">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
-              <ion-select interface="popover" [(ngModel)]="officeId">
+              <ion-select
+                [attr.aria-label]="'COMMON.OFFICE' | translate"
+                interface="popover"
+                [(ngModel)]="officeId"
+              >
                 @for (office of offices(); track office.id) {
                   <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                 }

@@ -60,7 +60,12 @@ import {
         <div class="section">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'LOAN_ACCOUNT_LOCK.LOAN_ID' | translate }}</ion-label>
-            <ion-input type="number" [(ngModel)]="loanId" required></ion-input>
+            <ion-input
+              [attr.aria-label]="'LOAN_ACCOUNT_LOCK.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="loanId"
+              required
+            ></ion-input>
           </ion-item>
 
           <ion-button color="primary" [disabled]="isLoading() || !loanId" (click)="checkLock()">
@@ -92,7 +97,11 @@ import {
             <ion-label position="stacked">{{
               'LOAN_ACCOUNT_LOCK.LOCK_OWNER' | translate
             }}</ion-label>
-            <ion-input type="text" [(ngModel)]="lockOwner"></ion-input>
+            <ion-input
+              [attr.aria-label]="'LOAN_ACCOUNT_LOCK.LOCK_OWNER' | translate"
+              type="text"
+              [(ngModel)]="lockOwner"
+            ></ion-input>
           </ion-item>
 
           <ion-button

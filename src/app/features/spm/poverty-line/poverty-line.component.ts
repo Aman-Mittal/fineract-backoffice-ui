@@ -77,7 +77,12 @@ interface PovertyLineRow {
           <form #plForm="ngForm" (ngSubmit)="load()" class="pl-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'POVERTY_LINE.PPI_NAME' | translate }}</ion-label>
-              <ion-input name="ppiName" [(ngModel)]="ppiName" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'POVERTY_LINE.PPI_NAME' | translate"
+                name="ppiName"
+                [(ngModel)]="ppiName"
+                required
+              ></ion-input>
             </ion-item>
             <ion-button color="primary" type="submit" [disabled]="plForm.invalid || isLoading()">
               {{ 'POVERTY_LINE.LOAD' | translate }}

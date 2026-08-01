@@ -89,7 +89,12 @@ import {
                 [appTooltip]="'HELP.HOLIDAY_NAME_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'HOLIDAYS.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="holiday.name" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'HOLIDAYS.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="holiday.name"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item
@@ -101,6 +106,7 @@ import {
                   'HOLIDAYS.APPLICABLE_OFFICES' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'HOLIDAYS.APPLICABLE_OFFICES' | translate"
                   interface="popover"
                   name="offices"
                   [(ngModel)]="selectedOfficeIds"
@@ -164,6 +170,7 @@ import {
                   'HOLIDAYS.RESCHEDULING_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'HOLIDAYS.RESCHEDULING_TYPE' | translate"
                   interface="popover"
                   name="reschedulingType"
                   [(ngModel)]="reschedulingType"
@@ -210,6 +217,7 @@ import {
             >
               <ion-label position="stacked">{{ 'HOLIDAYS.DESCRIPTION' | translate }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'HOLIDAYS.DESCRIPTION' | translate"
                 name="description"
                 [(ngModel)]="holiday.description"
                 rows="3"

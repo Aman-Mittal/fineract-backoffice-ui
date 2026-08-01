@@ -77,17 +77,27 @@ const ERROR_OCCURRED = 'Error occurred';
         <div class="form-row">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'INTEROP.ID_TYPE' | translate }}</ion-label>
-            <ion-input [(ngModel)]="idType" placeholder="e.g. MSISDN"></ion-input>
+            <ion-input
+              [attr.aria-label]="'INTEROP.ID_TYPE' | translate"
+              [(ngModel)]="idType"
+              placeholder="e.g. MSISDN"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'INTEROP.ID_VALUE' | translate }}</ion-label>
-            <ion-input [(ngModel)]="idValue"></ion-input>
+            <ion-input
+              [attr.aria-label]="'INTEROP.ID_VALUE' | translate"
+              [(ngModel)]="idValue"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'INTEROP.SUB_ID' | translate }}</ion-label>
-            <ion-input [(ngModel)]="subIdOrType"></ion-input>
+            <ion-input
+              [attr.aria-label]="'INTEROP.SUB_ID' | translate"
+              [(ngModel)]="subIdOrType"
+            ></ion-input>
           </ion-item>
         </div>
 

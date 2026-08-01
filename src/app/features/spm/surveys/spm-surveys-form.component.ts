@@ -74,22 +74,40 @@ import {
           <form #surveyForm="ngForm" (ngSubmit)="onSubmit()" class="spm-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SPM_SURVEYS.KEY' | translate }}</ion-label>
-              <ion-input name="key" [(ngModel)]="survey.key" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'SPM_SURVEYS.KEY' | translate"
+                name="key"
+                [(ngModel)]="survey.key"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SPM_SURVEYS.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="survey.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'SPM_SURVEYS.NAME' | translate"
+                name="name"
+                [(ngModel)]="survey.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SPM_SURVEYS.COUNTRY_CODE' | translate }}</ion-label>
-              <ion-input name="countryCode" [(ngModel)]="survey.countryCode"></ion-input>
+              <ion-input
+                [attr.aria-label]="'SPM_SURVEYS.COUNTRY_CODE' | translate"
+                name="countryCode"
+                [(ngModel)]="survey.countryCode"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SPM_SURVEYS.DESCRIPTION' | translate }}</ion-label>
-              <ion-input name="description" [(ngModel)]="survey.description"></ion-input>
+              <ion-input
+                [attr.aria-label]="'SPM_SURVEYS.DESCRIPTION' | translate"
+                name="description"
+                [(ngModel)]="survey.description"
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

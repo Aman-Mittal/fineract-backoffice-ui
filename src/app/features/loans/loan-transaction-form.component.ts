@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -157,6 +157,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                     'COMMON.TRANSACTION_AMOUNT' | translate
                   }}</ion-label>
                   <ion-input
+                    [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
                     type="number"
                     name="transactionAmount"
                     [(ngModel)]="transaction.transactionAmount"
@@ -168,11 +169,12 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'COMMON.PAYMENT_TYPE' | translate"
                     interface="popover"
                     name="paymentTypeId"
                     [(ngModel)]="transaction.paymentTypeId"
                   >
-                    @for (type of paymentTypeOptions; track type.id) {
+                    @for (type of paymentTypeOptions(); track type.id) {
                       <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
                     }
                   </ion-select>
@@ -184,6 +186,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.RECEIPT_NUMBER' | translate }}</ion-label>
                   <ion-input
+                    [attr.aria-label]="'LOANS.RECEIPT_NUMBER' | translate"
                     name="receiptNumber"
                     [(ngModel)]="transaction.receiptNumber"
                   ></ion-input>
@@ -192,19 +195,31 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <!-- Bank Number -->
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.BANK_NUMBER' | translate }}</ion-label>
-                  <ion-input name="bankNumber" [(ngModel)]="transaction.bankNumber"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'LOANS.BANK_NUMBER' | translate"
+                    name="bankNumber"
+                    [(ngModel)]="transaction.bankNumber"
+                  ></ion-input>
                 </ion-item>
 
                 <!-- Check Number -->
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.CHECK_NUMBER' | translate }}</ion-label>
-                  <ion-input name="checkNumber" [(ngModel)]="transaction.checkNumber"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'LOANS.CHECK_NUMBER' | translate"
+                    name="checkNumber"
+                    [(ngModel)]="transaction.checkNumber"
+                  ></ion-input>
                 </ion-item>
 
                 <!-- Routing Code -->
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.ROUTING_CODE' | translate }}</ion-label>
-                  <ion-input name="routingCode" [(ngModel)]="transaction.routingCode"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'LOANS.ROUTING_CODE' | translate"
+                    name="routingCode"
+                    [(ngModel)]="transaction.routingCode"
+                  ></ion-input>
                 </ion-item>
               }
 
@@ -215,20 +230,25 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 class="full-width"
               >
                 <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-                <ion-textarea name="note" [(ngModel)]="transaction.note" rows="3"></ion-textarea>
+                <ion-textarea
+                  [attr.aria-label]="'COMMON.NOTE' | translate"
+                  name="note"
+                  [(ngModel)]="transaction.note"
+                  rows="3"
+                ></ion-textarea>
               </ion-item>
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="transactionForm.invalid || isSaving"
+                [disabled]="transactionForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -274,11 +294,11 @@ export class LoanTransactionFormComponent implements OnInit {
 
   loanId = 0;
   transactionType = '';
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   transaction: PostLoansLoanIdTransactionsRequest = {};
   transactionDate = toIsoDate(new Date());
-  paymentTypeOptions: GetPaymentTypeOptions[] = [];
+  readonly paymentTypeOptions = signal<GetPaymentTypeOptions[]>([]);
   loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
 
   get transactionTitleKey(): string {
@@ -324,11 +344,16 @@ export class LoanTransactionFormComponent implements OnInit {
           this.transaction.transactionAmount = template.amount;
           const dateArray = template.date as unknown as number[];
           if (dateArray) {
-            this.transactionDate = toIsoDate(
-              new Date(dateArray[0], dateArray[1] - 1, dateArray[2]),
-            );
+            const templateDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+            // Fineract's transaction template returns the *next installment's due
+            // date*, which on a healthy loan is in the future — and it then rejects
+            // any transaction dated in the future ("The transaction date cannot be
+            // in the future"). Prefilling it verbatim meant Save always failed with
+            // a 403 until the user noticed and corrected the date by hand.
+            const today = new Date();
+            this.transactionDate = toIsoDate(templateDate > today ? today : templateDate);
           }
-          this.paymentTypeOptions = template.paymentTypeOptions || [];
+          this.paymentTypeOptions.set(template.paymentTypeOptions || []);
         },
         error: () => {
           this.notifications.error('Operation failed. Please try again.');
@@ -355,7 +380,7 @@ export class LoanTransactionFormComponent implements OnInit {
   }
 
   private performSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const formattedDate = toIsoDate(this.transactionDate);
 
@@ -368,7 +393,7 @@ export class LoanTransactionFormComponent implements OnInit {
       };
       this.loansService.postLoansLoanId(this.loanId, payload, 'approve').subscribe({
         next: () => this.router.navigate(['/loans']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else if (this.transactionType === 'disburse') {
       // Disbursement is a loan state-transition command (POST /loans/{id}?command=disburse),
@@ -384,7 +409,7 @@ export class LoanTransactionFormComponent implements OnInit {
       };
       this.loansService.postLoansLoanId(this.loanId, payload, 'disburse').subscribe({
         next: () => this.router.navigate(['/loans']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else if (this.transactionType === 'undoDisbursal') {
       // Undo-disbursal is also a loan state-transition command, not a
@@ -393,7 +418,7 @@ export class LoanTransactionFormComponent implements OnInit {
       const payload = { note: this.transaction.note };
       this.loansService.postLoansLoanId(this.loanId, payload, 'undoDisbursal').subscribe({
         next: () => this.router.navigate(['/loans']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       this.transaction.transactionDate = formattedDate;
@@ -411,7 +436,7 @@ export class LoanTransactionFormComponent implements OnInit {
         .postLoansLoanIdTransactions(this.loanId, this.transaction, this.transactionType)
         .subscribe({
           next: () => this.router.navigate(['/loans']),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }

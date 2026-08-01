@@ -81,6 +81,7 @@ import {
                   'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate"
                   interface="popover"
                   name="fromOfficeId"
                   [(ngModel)]="fromOfficeId"
@@ -96,7 +97,13 @@ import {
                 <ion-label position="stacked">{{
                   'OFFICE_TRANSACTIONS.TO_OFFICE' | translate
                 }}</ion-label>
-                <ion-select interface="popover" name="toOfficeId" [(ngModel)]="toOfficeId" required>
+                <ion-select
+                  [attr.aria-label]="'OFFICE_TRANSACTIONS.TO_OFFICE' | translate"
+                  interface="popover"
+                  name="toOfficeId"
+                  [(ngModel)]="toOfficeId"
+                  required
+                >
                   @for (opt of toOfficeOptions; track opt.id) {
                     <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }
@@ -108,6 +115,7 @@ import {
                   'OFFICE_TRANSACTIONS.AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'OFFICE_TRANSACTIONS.AMOUNT' | translate"
                   type="number"
                   name="amount"
                   [(ngModel)]="amount"
@@ -139,7 +147,11 @@ import {
                 <ion-label position="stacked">{{
                   'OFFICE_TRANSACTIONS.DESC' | translate
                 }}</ion-label>
-                <ion-input name="description" [(ngModel)]="description"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'OFFICE_TRANSACTIONS.DESC' | translate"
+                  name="description"
+                  [(ngModel)]="description"
+                ></ion-input>
               </ion-item>
             </div>
 

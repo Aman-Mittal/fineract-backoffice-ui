@@ -86,6 +86,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SAVINGS_CHARGES.CHARGE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'SAVINGS_CHARGES.CHARGE' | translate"
                 interface="popover"
                 name="chargeId"
                 [(ngModel)]="charge.chargeId"
@@ -100,6 +101,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SAVINGS_CHARGES.AMOUNT' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'SAVINGS_CHARGES.AMOUNT' | translate"
                 type="number"
                 name="amount"
                 [(ngModel)]="charge.amount"

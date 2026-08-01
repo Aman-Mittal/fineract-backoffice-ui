@@ -41,7 +41,13 @@ import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/
       <form #configForm="ngForm" class="config-form">
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">{{ 'COMMON.VALUE' | translate }}</ion-label>
-          <ion-input type="number" name="value" [(ngModel)]="value" required></ion-input>
+          <ion-input
+            [attr.aria-label]="'COMMON.VALUE' | translate"
+            type="number"
+            name="value"
+            [(ngModel)]="value"
+            required
+          ></ion-input>
         </ion-item>
       </form>
     </div>

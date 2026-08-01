@@ -89,14 +89,23 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
           <form #jobForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'REPORT_MAILING_JOBS.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="job.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'REPORT_MAILING_JOBS.NAME' | translate"
+                name="name"
+                [(ngModel)]="job.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'REPORT_MAILING_JOBS.DESCRIPTION' | translate
               }}</ion-label>
-              <ion-textarea name="description" [(ngModel)]="job.description"></ion-textarea>
+              <ion-textarea
+                [attr.aria-label]="'REPORT_MAILING_JOBS.DESCRIPTION' | translate"
+                name="description"
+                [(ngModel)]="job.description"
+              ></ion-textarea>
             </ion-item>
 
             <ion-item fill="outline">
@@ -104,6 +113,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
                 'REPORT_MAILING_JOBS.EMAIL_RECIPIENTS' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'REPORT_MAILING_JOBS.EMAIL_RECIPIENTS' | translate"
                 name="emailRecipients"
                 [(ngModel)]="job.emailRecipients"
                 required
@@ -114,7 +124,12 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
               <ion-label position="stacked">{{
                 'REPORT_MAILING_JOBS.EMAIL_SUBJECT' | translate
               }}</ion-label>
-              <ion-input name="emailSubject" [(ngModel)]="job.emailSubject" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'REPORT_MAILING_JOBS.EMAIL_SUBJECT' | translate"
+                name="emailSubject"
+                [(ngModel)]="job.emailSubject"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -122,6 +137,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
                 'REPORT_MAILING_JOBS.STRETCHY_REPORT_ID' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'REPORT_MAILING_JOBS.STRETCHY_REPORT_ID' | translate"
                 type="number"
                 name="stretchyReportId"
                 [(ngModel)]="job.stretchyReportId"

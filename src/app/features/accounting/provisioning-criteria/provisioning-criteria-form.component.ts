@@ -75,6 +75,7 @@ import {
                 'PROVISIONING_CRITERIA.NAME' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'PROVISIONING_CRITERIA.NAME' | translate"
                 name="criteriaName"
                 [(ngModel)]="criteria.criteriaName"
                 required

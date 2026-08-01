@@ -84,6 +84,7 @@ import {
                 'CLIENT_COLLATERAL.PRODUCT' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'CLIENT_COLLATERAL.PRODUCT' | translate"
                 interface="popover"
                 name="collateralId"
                 [(ngModel)]="collateral.collateralId"
@@ -101,6 +102,7 @@ import {
                 'CLIENT_COLLATERAL.QUANTITY' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'CLIENT_COLLATERAL.QUANTITY' | translate"
                 type="number"
                 name="quantity"
                 [(ngModel)]="collateral.quantity"

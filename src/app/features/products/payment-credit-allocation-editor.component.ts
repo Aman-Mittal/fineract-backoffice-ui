@@ -81,6 +81,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | translate"
                 interface="popover"
                 [(ngModel)]="rule.futureInstallmentAllocationRule"
                 [name]="'futureInstallmentRule' + ruleIndex"
@@ -132,6 +133,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'PRODUCTS.ADD_TRANSACTION_TYPE' | translate"
                 interface="popover"
                 name="newPaymentTransactionType"
                 [(ngModel)]="newPaymentTransactionType"
@@ -217,6 +219,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 'PRODUCTS.ADD_TRANSACTION_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'PRODUCTS.ADD_TRANSACTION_TYPE' | translate"
                 interface="popover"
                 name="newCreditTransactionType"
                 [(ngModel)]="newCreditTransactionType"

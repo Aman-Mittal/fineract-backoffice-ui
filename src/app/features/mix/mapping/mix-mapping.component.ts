@@ -70,17 +70,30 @@ import {
           <form #mappingForm="ngForm" (ngSubmit)="onSubmit()" class="mix-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MIX_MAPPING.IDENTIFIER' | translate }}</ion-label>
-              <ion-input name="identifier" [(ngModel)]="mapping.identifier"></ion-input>
+              <ion-input
+                [attr.aria-label]="'MIX_MAPPING.IDENTIFIER' | translate"
+                name="identifier"
+                [(ngModel)]="mapping.identifier"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MIX_MAPPING.CURRENCY' | translate }}</ion-label>
-              <ion-input name="currency" [(ngModel)]="mapping.currency"></ion-input>
+              <ion-input
+                [attr.aria-label]="'MIX_MAPPING.CURRENCY' | translate"
+                name="currency"
+                [(ngModel)]="mapping.currency"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MIX_MAPPING.CONFIG' | translate }}</ion-label>
-              <ion-textarea rows="10" name="config" [(ngModel)]="mapping.config"></ion-textarea>
+              <ion-textarea
+                [attr.aria-label]="'MIX_MAPPING.CONFIG' | translate"
+                rows="10"
+                name="config"
+                [(ngModel)]="mapping.config"
+              ></ion-textarea>
             </ion-item>
 
             <div class="form-actions">

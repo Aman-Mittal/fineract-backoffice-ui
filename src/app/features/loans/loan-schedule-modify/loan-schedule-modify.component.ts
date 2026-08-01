@@ -68,14 +68,24 @@ import {
             <ion-label position="stacked">{{
               'LOAN_SCHEDULE_MODIFY.LOAN_ID' | translate
             }}</ion-label>
-            <ion-input type="number" [(ngModel)]="loanId" required></ion-input>
+            <ion-input
+              [attr.aria-label]="'LOAN_SCHEDULE_MODIFY.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="loanId"
+              required
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{
               'LOAN_SCHEDULE_MODIFY.COMMAND' | translate
             }}</ion-label>
-            <ion-select interface="popover" [(ngModel)]="command" required>
+            <ion-select
+              [attr.aria-label]="'LOAN_SCHEDULE_MODIFY.COMMAND' | translate"
+              interface="popover"
+              [(ngModel)]="command"
+              required
+            >
               @for (cmd of commands; track cmd.value) {
                 <ion-select-option [value]="cmd.value">{{ cmd.label }}</ion-select-option>
               }
@@ -86,6 +96,7 @@ import {
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">{{ 'LOAN_SCHEDULE_MODIFY.BODY' | translate }}</ion-label>
           <ion-textarea
+            [attr.aria-label]="'LOAN_SCHEDULE_MODIFY.BODY' | translate"
             [(ngModel)]="bodyText"
             rows="6"
             [placeholder]="'LOAN_SCHEDULE_MODIFY.BODY_PLACEHOLDER' | translate"

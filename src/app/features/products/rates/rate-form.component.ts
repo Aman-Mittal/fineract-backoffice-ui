@@ -72,12 +72,18 @@ import {
           <form #rateForm="ngForm" (ngSubmit)="onSubmit()" class="rate-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'RATES.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="rate.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'RATES.NAME' | translate"
+                name="name"
+                [(ngModel)]="rate.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'RATES.PERCENTAGE' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'RATES.PERCENTAGE' | translate"
                 type="number"
                 name="percentage"
                 [(ngModel)]="rate.percentage"
@@ -87,7 +93,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'RATES.PRODUCT_APPLY' | translate }}</ion-label>
-              <ion-select interface="popover" name="productApply" [(ngModel)]="rate.productApply">
+              <ion-select
+                [attr.aria-label]="'RATES.PRODUCT_APPLY' | translate"
+                interface="popover"
+                name="productApply"
+                [(ngModel)]="rate.productApply"
+              >
                 <ion-select-option [value]="1">{{
                   'RATES.PRODUCT_APPLY_LOAN' | translate
                 }}</ion-select-option>

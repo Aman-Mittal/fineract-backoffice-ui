@@ -95,6 +95,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.CLIENT_ID' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_LOANS.CLIENT_ID' | translate"
                 type="number"
                 name="clientId"
                 [(ngModel)]="loan.clientId"
@@ -105,6 +106,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.PRODUCT' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'WC_LOANS.PRODUCT' | translate"
                 interface="popover"
                 name="productId"
                 [(ngModel)]="loan.productId"
@@ -119,6 +121,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.PRINCIPAL' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_LOANS.PRINCIPAL' | translate"
                 type="number"
                 name="principalAmount"
                 [(ngModel)]="loan.principalAmount"
@@ -165,6 +168,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_LOANS.REPAYMENT_EVERY' | translate"
                 type="number"
                 name="repaymentEvery"
                 [(ngModel)]="loan.repaymentEvery"
@@ -176,6 +180,7 @@ import {
                 'WC_LOANS.REPAYMENT_FREQUENCY_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'WC_LOANS.REPAYMENT_FREQUENCY_TYPE' | translate"
                 interface="popover"
                 name="repaymentFrequencyType"
                 [(ngModel)]="loan.repaymentFrequencyType"
@@ -188,7 +193,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.BREACH' | translate }}</ion-label>
-              <ion-select interface="popover" name="breachId" [(ngModel)]="loan.breachId">
+              <ion-select
+                [attr.aria-label]="'WC_LOANS.BREACH' | translate"
+                interface="popover"
+                name="breachId"
+                [(ngModel)]="loan.breachId"
+              >
                 @for (opt of breachOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -197,7 +207,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.NEAR_BREACH' | translate }}</ion-label>
-              <ion-select interface="popover" name="nearBreachId" [(ngModel)]="loan.nearBreachId">
+              <ion-select
+                [attr.aria-label]="'WC_LOANS.NEAR_BREACH' | translate"
+                interface="popover"
+                name="nearBreachId"
+                [(ngModel)]="loan.nearBreachId"
+              >
                 @for (opt of nearBreachOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -209,6 +224,7 @@ import {
                 'WC_LOANS.DELINQUENCY_BUCKET' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'WC_LOANS.DELINQUENCY_BUCKET' | translate"
                 interface="popover"
                 name="delinquencyBucketId"
                 [(ngModel)]="loan.delinquencyBucketId"
@@ -221,7 +237,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.FUND' | translate }}</ion-label>
-              <ion-select interface="popover" name="fundId" [(ngModel)]="loan.fundId">
+              <ion-select
+                [attr.aria-label]="'WC_LOANS.FUND' | translate"
+                interface="popover"
+                name="fundId"
+                [(ngModel)]="loan.fundId"
+              >
                 @for (opt of fundOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
@@ -233,6 +254,7 @@ import {
                 'WC_LOANS.PERIOD_PAYMENT_RATE' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_LOANS.PERIOD_PAYMENT_RATE' | translate"
                 type="number"
                 name="periodPaymentRate"
                 [(ngModel)]="loan.periodPaymentRate"
@@ -244,6 +266,7 @@ import {
                 'WC_LOANS.TOTAL_PAYMENT_VOLUME' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_LOANS.TOTAL_PAYMENT_VOLUME' | translate"
                 type="number"
                 name="totalPaymentVolume"
                 [(ngModel)]="loan.totalPaymentVolume"
@@ -252,7 +275,11 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_LOANS.EXTERNAL_ID' | translate }}</ion-label>
-              <ion-input name="externalId" [(ngModel)]="loan.externalId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'WC_LOANS.EXTERNAL_ID' | translate"
+                name="externalId"
+                [(ngModel)]="loan.externalId"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -260,6 +287,7 @@ import {
                 'WC_LOANS.SUBMITTED_ON_NOTE' | translate
               }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'WC_LOANS.SUBMITTED_ON_NOTE' | translate"
                 name="submittedOnNote"
                 [(ngModel)]="loan.submittedOnNote"
               ></ion-textarea>

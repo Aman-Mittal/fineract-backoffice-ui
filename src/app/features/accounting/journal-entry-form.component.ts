@@ -101,6 +101,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <ion-item fill="outline">
                 <ion-label position="stacked">Office</ion-label>
                 <ion-select
+                  aria-label="Office"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="command.officeId"
@@ -116,6 +117,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <ion-item fill="outline">
                 <ion-label position="stacked">Currency</ion-label>
                 <ion-select
+                  aria-label="Currency"
                   interface="popover"
                   name="currencyCode"
                   [(ngModel)]="command.currencyCode"
@@ -150,7 +152,11 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <!-- Reference Number -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Reference Number</ion-label>
-                <ion-input name="referenceNumber" [(ngModel)]="command.referenceNumber"></ion-input>
+                <ion-input
+                  aria-label="Reference Number"
+                  name="referenceNumber"
+                  [(ngModel)]="command.referenceNumber"
+                ></ion-input>
               </ion-item>
             </div>
 
@@ -161,6 +167,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   <ion-item fill="outline" class="account-field">
                     <ion-label position="stacked">Account</ion-label>
                     <ion-select
+                      aria-label="Account"
                       interface="popover"
                       name="debitAccount{{ $index }}"
                       [(ngModel)]="debit.glAccountId"
@@ -176,6 +183,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   <ion-item fill="outline" class="amount-field">
                     <ion-label position="stacked">Amount</ion-label>
                     <ion-input
+                      aria-label="Amount"
                       type="number"
                       name="debitAmount{{ $index }}"
                       [(ngModel)]="debit.amount"
@@ -205,6 +213,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   <ion-item fill="outline" class="account-field">
                     <ion-label position="stacked">Account</ion-label>
                     <ion-select
+                      aria-label="Account"
                       interface="popover"
                       name="creditAccount{{ $index }}"
                       [(ngModel)]="credit.glAccountId"
@@ -220,6 +229,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   <ion-item fill="outline" class="amount-field">
                     <ion-label position="stacked">Amount</ion-label>
                     <ion-input
+                      aria-label="Amount"
                       type="number"
                       name="creditAmount{{ $index }}"
                       [(ngModel)]="credit.amount"
@@ -245,7 +255,12 @@ import { toIsoDate } from '../../core/utils/date-formatter';
             <!-- Comments -->
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">Comments</ion-label>
-              <ion-textarea name="comments" [(ngModel)]="command.comments" rows="3"></ion-textarea>
+              <ion-textarea
+                aria-label="Comments"
+                name="comments"
+                [(ngModel)]="command.comments"
+                rows="3"
+              ></ion-textarea>
             </ion-item>
 
             <div class="form-actions">

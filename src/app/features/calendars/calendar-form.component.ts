@@ -84,7 +84,12 @@ import {
           <form #calendarForm="ngForm" (ngSubmit)="onSubmit()" class="calendar-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CALENDARS.TITLE_FIELD' | translate }}</ion-label>
-              <ion-input name="title" [(ngModel)]="title" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'CALENDARS.TITLE_FIELD' | translate"
+                name="title"
+                [(ngModel)]="title"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -106,7 +111,13 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CALENDARS.TYPE' | translate }}</ion-label>
-              <ion-select interface="popover" name="typeId" [(ngModel)]="typeId" required>
+              <ion-select
+                [attr.aria-label]="'CALENDARS.TYPE' | translate"
+                interface="popover"
+                name="typeId"
+                [(ngModel)]="typeId"
+                required
+              >
                 @for (opt of typeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }

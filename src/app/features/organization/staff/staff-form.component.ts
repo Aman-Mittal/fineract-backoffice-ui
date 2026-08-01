@@ -92,6 +92,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="staff.officeId"
@@ -107,6 +108,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
                   name="firstname"
                   [(ngModel)]="staff.firstname"
                   required
@@ -117,6 +119,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
                   name="lastname"
                   [(ngModel)]="staff.lastname"
                   required
@@ -126,12 +129,17 @@ import {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
-                <ion-input name="externalId" [(ngModel)]="staff.externalId"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
+                  name="externalId"
+                  [(ngModel)]="staff.externalId"
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'CLIENTS.MOBILE_NO' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'CLIENTS.MOBILE_NO' | translate"
                   name="mobileNo"
                   [(ngModel)]="staff.mobileNo"
                   [disabled]="isEditMode"
@@ -141,6 +149,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.EMAIL' | translate"
                   type="email"
                   name="emailAddress"
                   [(ngModel)]="staff.emailAddress"

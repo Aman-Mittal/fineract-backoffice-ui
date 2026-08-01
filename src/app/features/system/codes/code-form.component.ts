@@ -64,7 +64,12 @@ import {
           <form #codeForm="ngForm" (ngSubmit)="onSubmit()" class="code-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CODES.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="code.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'CODES.NAME' | translate"
+                name="name"
+                [(ngModel)]="code.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

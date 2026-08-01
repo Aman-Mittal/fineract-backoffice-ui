@@ -78,6 +78,7 @@ import {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'COMMON.NAME' | translate"
                 name="name"
                 [(ngModel)]="role.name"
                 required
@@ -88,6 +89,7 @@ import {
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                 name="description"
                 [(ngModel)]="role.description"
                 required

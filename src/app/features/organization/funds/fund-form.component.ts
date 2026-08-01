@@ -67,12 +67,21 @@ import {
           <form #fundForm="ngForm" (ngSubmit)="onSubmit()" class="fund-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'FUNDS.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="fund.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'FUNDS.NAME' | translate"
+                name="name"
+                [(ngModel)]="fund.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'FUNDS.EXTERNAL_ID' | translate }}</ion-label>
-              <ion-input name="externalId" [(ngModel)]="fund.externalId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'FUNDS.EXTERNAL_ID' | translate"
+                name="externalId"
+                [(ngModel)]="fund.externalId"
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

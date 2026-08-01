@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -131,6 +131,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 >
                   <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'LOANS.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
                     [(ngModel)]="loan.productId"
@@ -138,7 +139,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                     required
                     [disabled]="isEditMode"
                   >
-                    @for (product of products; track product.id) {
+                    @for (product of products(); track product.id) {
                       <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
                     }
                   </ion-select>
@@ -155,12 +156,11 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 </ion-button>
               </div>
 
-              @if (selectedProductDetails?.loanScheduleType?.value) {
+              @if (selectedProductDetails()?.loanScheduleType?.value; as scheduleType) {
                 <div class="field-container-row full-width">
                   <div>
                     <ion-chip [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate">
-                      {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
-                      {{ selectedProductDetails.loanScheduleType.value }}
+                      {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}: {{ scheduleType }}
                     </ion-chip>
                   </div>
                 </div>
@@ -170,6 +170,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.PRINCIPAL_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.PRINCIPAL' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.PRINCIPAL' | translate"
                   type="number"
                   name="principal"
                   [(ngModel)]="loan.principal"
@@ -180,7 +181,11 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <!-- External ID -->
               <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
-                <ion-input name="externalId" [(ngModel)]="loan.externalId"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
+                  name="externalId"
+                  [(ngModel)]="loan.externalId"
+                ></ion-input>
               </ion-item>
 
               <!-- Submitted On -->
@@ -227,6 +232,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_FREQUENCY' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.TERM_FREQUENCY' | translate"
                   type="number"
                   name="loanTermFrequency"
                   [(ngModel)]="loan.loanTermFrequency"
@@ -238,6 +244,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.TERM_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'LOANS.TERM_TYPE' | translate"
                   interface="popover"
                   name="loanTermFrequencyType"
                   [(ngModel)]="loan.loanTermFrequencyType"
@@ -260,6 +267,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | translate"
                   type="number"
                   name="numberOfRepayments"
                   [(ngModel)]="loan.numberOfRepayments"
@@ -271,6 +279,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | translate"
                   type="number"
                   name="repaymentEvery"
                   [(ngModel)]="loan.repaymentEvery"
@@ -282,6 +291,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                   interface="popover"
                   name="repaymentFrequencyType"
                   [(ngModel)]="loan.repaymentFrequencyType"
@@ -301,6 +311,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.INTEREST_RATE' | translate"
                   type="number"
                   name="interestRatePerPeriod"
                   [(ngModel)]="loan.interestRatePerPeriod"
@@ -312,6 +323,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.INTEREST_TYPE' | translate"
                   interface="popover"
                   name="interestType"
                   [(ngModel)]="loan.interestType"
@@ -330,6 +342,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'PRODUCTS.AMORTIZATION_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.AMORTIZATION_TYPE' | translate"
                   interface="popover"
                   name="amortizationType"
                   [(ngModel)]="loan.amortizationType"
@@ -350,6 +363,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate"
                   interface="popover"
                   name="interestCalculationPeriodType"
                   [(ngModel)]="loan.interestCalculationPeriodType"
@@ -368,6 +382,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate"
                   type="number"
                   name="graceOnPrincipalPayment"
                   [(ngModel)]="loan.graceOnPrincipalPayment"
@@ -380,6 +395,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate"
                   type="number"
                   name="graceOnInterestPayment"
                   [(ngModel)]="loan.graceOnInterestPayment"
@@ -392,6 +408,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.GRACE_ON_INTEREST_CHARGED' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.GRACE_ON_INTEREST_CHARGED' | translate"
                   type="number"
                   name="graceOnInterestCharged"
                   [(ngModel)]="loan.graceOnInterestCharged"
@@ -404,6 +421,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.IN_ARREARS_TOLERANCE' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.IN_ARREARS_TOLERANCE' | translate"
                   type="number"
                   name="inArrearsTolerance"
                   [(ngModel)]="loan.inArrearsTolerance"
@@ -440,7 +458,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 </ion-checkbox>
               }
 
-              @if (isProgressive() && selectedProductDetails?.multiDisburseLoan) {
+              @if (isProgressive() && selectedProductDetails()?.multiDisburseLoan) {
                 <ion-checkbox
                   name="allowFullTermForTranche"
                   [(ngModel)]="loan.allowFullTermForTranche"
@@ -451,11 +469,11 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -507,7 +525,7 @@ export class LoanFormComponent implements OnInit {
 
   loanId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   loan: PostLoansRequest = {
     loanType: 'individual',
@@ -515,8 +533,8 @@ export class LoanFormComponent implements OnInit {
   submittedOnDate = toIsoDate(new Date());
   expectedDisbursementDate = toIsoDate(new Date());
   repaymentsStartingFromDate: string | null = null;
-  products: GetLoanProductsResponse[] = [];
-  selectedProductDetails: GetLoanProductsProductIdResponse | null = null;
+  readonly products = signal<GetLoanProductsResponse[]>([]);
+  readonly selectedProductDetails = signal<GetLoanProductsProductIdResponse | null>(null);
 
   ngOnInit() {
     this.loadProducts();
@@ -548,26 +566,26 @@ export class LoanFormComponent implements OnInit {
 
   private loadProducts() {
     this.productService.getLoanproducts().subscribe({
-      next: (data: GetLoanProductsResponse[]) => (this.products = data || []),
+      next: (data: GetLoanProductsResponse[]) => this.products.set(data || []),
       error: () => this.notifications.error(OPERATION_FAILED_MESSAGE),
     });
   }
 
   onProductSelected(productId: number, resetProgressiveFields = true) {
-    this.selectedProductDetails = null;
+    this.selectedProductDetails.set(null);
     if (resetProgressiveFields) {
       this.loan.interestRecognitionOnDisbursementDate = undefined;
       this.loan.allowFullTermForTranche = undefined;
     }
     if (!productId) return;
     this.productService.getLoanproductsProductId(productId).subscribe({
-      next: (data: GetLoanProductsProductIdResponse) => (this.selectedProductDetails = data),
+      next: (data: GetLoanProductsProductIdResponse) => this.selectedProductDetails.set(data),
       error: () => this.notifications.error(OPERATION_FAILED_MESSAGE),
     });
   }
 
   isProgressive(): boolean {
-    return this.selectedProductDetails?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+    return this.selectedProductDetails()?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
   }
 
   private loadLoanData() {
@@ -614,7 +632,7 @@ export class LoanFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     this.loan.submittedOnDate = formatDateToFineract(this.submittedOnDate);
     this.loan.expectedDisbursementDate = formatDateToFineract(this.expectedDisbursementDate);
@@ -624,11 +642,14 @@ export class LoanFormComponent implements OnInit {
     this.loan.dateFormat = FINERACT_DATE_FORMAT;
     this.loan.locale = FINERACT_LOCALE;
 
-    if (this.selectedProductDetails?.transactionProcessingStrategyCode) {
+    // Read the signal once: TypeScript cannot narrow a call expression, so the
+    // guard above does not carry over to a second call.
+    const productDetails = this.selectedProductDetails();
+    if (productDetails?.transactionProcessingStrategyCode) {
       this.loan.transactionProcessingStrategyCode =
-        this.selectedProductDetails.transactionProcessingStrategyCode;
+        productDetails.transactionProcessingStrategyCode;
     } else {
-      const selectedProduct = this.products.find((p) => p.id === this.loan.productId);
+      const selectedProduct = this.products().find((p) => p.id === this.loan.productId);
       if (selectedProduct && selectedProduct.transactionProcessingStrategy) {
         this.loan.transactionProcessingStrategyCode = selectedProduct.transactionProcessingStrategy;
       } else if (!this.loan.transactionProcessingStrategyCode) {
@@ -639,12 +660,12 @@ export class LoanFormComponent implements OnInit {
     if (this.isEditMode && this.loanId) {
       this.loansService.putLoansLoanId(this.loanId, this.loan as PutLoansLoanIdRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       this.loansService.postLoans(this.loan).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

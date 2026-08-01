@@ -156,7 +156,11 @@ interface LoanProductMappingRow {
                 <ion-label position="stacked">{{
                   'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate
                 }}</ion-label>
-                <ion-input [(ngModel)]="nationalId" name="nationalId"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'CREDIT_BUREAU_CONFIG.NATIONAL_ID' | translate"
+                  [(ngModel)]="nationalId"
+                  name="nationalId"
+                ></ion-input>
               </ion-item>
 
               @for (bureau of bureaus; track bureau.id) {

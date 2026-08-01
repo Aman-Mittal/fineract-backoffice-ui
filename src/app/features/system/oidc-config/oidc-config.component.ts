@@ -72,7 +72,11 @@ interface OidcConfig {
           <form class="oidc-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'OIDC_CONFIG.TENANT_ID' | translate }}</ion-label>
-              <ion-input name="tenantId" [(ngModel)]="tenantId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.TENANT_ID' | translate"
+                name="tenantId"
+                [(ngModel)]="tenantId"
+              ></ion-input>
             </ion-item>
             <div class="load-action">
               <ion-button fill="clear" type="button" (click)="load()">
@@ -82,33 +86,57 @@ interface OidcConfig {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'OIDC_CONFIG.ISSUER' | translate }}</ion-label>
-              <ion-input name="issuer" [(ngModel)]="config.issuer"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.ISSUER' | translate"
+                name="issuer"
+                [(ngModel)]="config.issuer"
+              ></ion-input>
             </ion-item>
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'OIDC_CONFIG.CLIENT_ID' | translate }}</ion-label>
-              <ion-input name="clientId" [(ngModel)]="config.clientId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.CLIENT_ID' | translate"
+                name="clientId"
+                [(ngModel)]="config.clientId"
+              ></ion-input>
             </ion-item>
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'OIDC_CONFIG.CLIENT_SECRET' | translate
               }}</ion-label>
-              <ion-input name="clientSecret" [(ngModel)]="config.clientSecret"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.CLIENT_SECRET' | translate"
+                name="clientSecret"
+                [(ngModel)]="config.clientSecret"
+              ></ion-input>
             </ion-item>
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'OIDC_CONFIG.AUTH_ENDPOINT' | translate
               }}</ion-label>
-              <ion-input name="authEndpoint" [(ngModel)]="config.authorizationEndpoint"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.AUTH_ENDPOINT' | translate"
+                name="authEndpoint"
+                [(ngModel)]="config.authorizationEndpoint"
+              ></ion-input>
             </ion-item>
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'OIDC_CONFIG.TOKEN_ENDPOINT' | translate
               }}</ion-label>
-              <ion-input name="tokenEndpoint" [(ngModel)]="config.tokenEndpoint"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.TOKEN_ENDPOINT' | translate"
+                name="tokenEndpoint"
+                [(ngModel)]="config.tokenEndpoint"
+              ></ion-input>
             </ion-item>
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'OIDC_CONFIG.JWKS_URL' | translate }}</ion-label>
-              <ion-input name="jwksUrl" [(ngModel)]="config.jwksUrl"></ion-input>
+              <ion-input
+                [attr.aria-label]="'OIDC_CONFIG.JWKS_URL' | translate"
+                name="jwksUrl"
+                [(ngModel)]="config.jwksUrl"
+              ></ion-input>
             </ion-item>
 
             <div class="actions">

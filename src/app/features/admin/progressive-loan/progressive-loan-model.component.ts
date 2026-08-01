@@ -60,7 +60,11 @@ import {
         <div class="row-actions">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'PROGRESSIVE_LOAN.LOAN_ID' | translate }}</ion-label>
-            <ion-input type="number" [(ngModel)]="loanId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'PROGRESSIVE_LOAN.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="loanId"
+            ></ion-input>
           </ion-item>
           <ion-button color="primary" (click)="loadModel()" [disabled]="isLoading()">
             {{ 'PROGRESSIVE_LOAN.LOAD' | translate }}

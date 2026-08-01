@@ -109,6 +109,10 @@ jobs:
           FINERACT_PASSWORD: 'password'
           PLAYWRIGHT_HTML_OPEN: 'never'
           PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
+          # Videos and traces land here rather than in the repo, so the dev server's
+          # file watcher cannot race Playwright's artifact churn — see the note in
+          # playwright.config.ts.
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/e2e-output
         run: |
           echo "🚀 Executing Playwright E2E Test Suite..."
           # line for readable logs, html for the artifact, json for the summary.
@@ -121,12 +125,12 @@ jobs:
         if: always()
         with:
           name: playwright-report
-          # Videos and traces are written to test-results/, not playwright-report/,
+          # Videos and traces are written to PLAYWRIGHT_OUTPUT_DIR, not playwright-report/,
           # so both paths are needed. if-no-files-found: warn keeps a run that
           # produced neither from silently uploading an empty artifact.
           path: |
             playwright-report/
-            test-results/
+            ${{ runner.temp }}/e2e-output/
           if-no-files-found: warn
           retention-days: 7
 

@@ -98,6 +98,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MEETINGS.CALENDAR_ID' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'MEETINGS.CALENDAR_ID' | translate"
                 type="number"
                 name="calendarId"
                 [(ngModel)]="calendarId"

@@ -24,31 +24,22 @@
  * Progressive product, since the schedule-generation code path differs
  * between the two once a loan is actually disbursed.
  *
- * Each test is fully self-contained (creates its own client and product) so
- * it can run against any backend with no pre-seeded data required — the
- * public Mifos community sandbox (default) or a fresh local Fineract
- * instance:
+ * Each test is fully self-contained — it creates its own client and product
+ * through the UI, which is the point: this spec is the one that exercises
+ * those forms end to end rather than seeding around them.
  *
- *   npx playwright test e2e/loan-lifecycle.spec.ts --workers=1
+ *   npm run test:e2e:local -- e2e/loan-lifecycle.spec.ts
  *
- *   FINERACT_SERVER_URL="https://localhost:8443/fineract-provider/api/v1" \
- *   FINERACT_TENANT_ID=default FINERACT_USERNAME=mifos FINERACT_PASSWORD=password \
- *   npx playwright test e2e/loan-lifecycle.spec.ts --workers=1
- *
- * `--workers=1` is recommended against the shared public sandbox — see the
- * matching note in loan-schedule-type.spec.ts.
+ * Add `--workers=1` against the shared public sandbox — see the matching note
+ * in loan-schedule-type.spec.ts.
  *
  * Videos/traces for every run are written under test-results/.
  */
 
 import { test, expect, Page } from '@playwright/test';
 import { login, uniqueSuffix } from './utils/fineract-login';
+import { ionSelect } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
-import { SEEDED_BACKEND, SEEDED_BACKEND_REASON } from './utils/seeded-backend';
-
-// Drives a real end-to-end loan flow, so it needs reference data a bare
-// Fineract does not ship with. Skipped unless the backend is seeded.
-test.skip(!SEEDED_BACKEND, SEEDED_BACKEND_REASON);
 
 test.use({ video: 'on', trace: 'on' });
 
@@ -60,11 +51,7 @@ async function createClient(page: Page): Promise<string> {
   // Wait for network idle so the async GET /offices call backing the Office
   // dropdown has resolved before opening it — otherwise it opens empty.
   await page.goto('/clients/create', { waitUntil: 'networkidle' });
-  await page.getByRole('combobox', { name: 'Office' }).click({ force: true });
-  await expect(page.locator('ion-alert, ion-popover').getByRole('radio').first()).toBeVisible({
-    timeout: 15000,
-  });
-  await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
+  await selectOption(page, 'Office', 'Head Office');
   await page.getByRole('textbox', { name: 'First Name' }).fill(firstName);
   await page.getByRole('textbox', { name: 'Last Name' }).fill(lastName);
   await page.getByRole('button', { name: 'Save' }).click();
@@ -83,9 +70,13 @@ async function createLoanProduct(
 
   await page.goto('/products/loan/create');
   // Wait for the template-driven dropdowns to populate before touching them.
+  // The template-driven dropdowns populate from an async GET /loanproducts/template.
+  // Wait for the strategy select to carry a value rather than for one particular
+  // strategy name: the default is whatever the instance lists first, so pinning the
+  // name couples the test to the backend's option ordering.
   await expect(
-    page.getByText('Penalties, Fees, Interest, Principal order', { exact: true }),
-  ).toBeVisible({ timeout: 15000 });
+    ionSelect(page, 'Repayment Strategy').locator('ion-select-option').first(),
+  ).toBeAttached({ timeout: 15000 });
 
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(productName);
   await page.getByRole('textbox', { name: 'Short Name' }).fill(shortName);
@@ -115,11 +106,23 @@ async function createLoanApplication(
 
   // Client search is a debounced autocomplete backed by GET /clients — type
   // enough of the unique first name to filter server-side to just our client.
-  await page.getByRole('combobox', { name: 'Client ID' }).fill(clientName.split(' ')[0]);
-  await page
-    .locator('ion-alert, ion-popover')
-    .getByRole('radio', { name: new RegExp(clientName) })
-    .click();
+  //
+  // Retried because a just-created client is not always returned by the search
+  // endpoint on the first call, and the failure lands on the option click,
+  // which reads as "the dropdown is broken" rather than "the index lagged".
+  const clientSearch = page.getByRole('textbox', { name: 'Client ID' });
+  // Client search is app-client-search, not an ion-select: it renders its hits as
+  // ion-items in an inline ion-list, so there is no overlay and no radio role.
+  const clientOption = page
+    .getByTestId('client-search-results')
+    .locator('ion-item')
+    .filter({ hasText: clientName });
+  await expect(async () => {
+    await clientSearch.fill('');
+    await clientSearch.fill(clientName.split(' ')[0]);
+    await expect(clientOption).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20000, intervals: [1000, 2000, 3000] });
+  await clientOption.click();
 
   await selectOption(page, 'Loan Product', productName);
 

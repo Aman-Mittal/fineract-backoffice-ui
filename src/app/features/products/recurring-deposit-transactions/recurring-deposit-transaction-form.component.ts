@@ -109,6 +109,7 @@ import {
                 'RECURRING_DEPOSIT_TRANSACTIONS.AMOUNT' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'RECURRING_DEPOSIT_TRANSACTIONS.AMOUNT' | translate"
                 type="number"
                 name="transactionAmount"
                 [(ngModel)]="transactionAmount"
@@ -120,7 +121,12 @@ import {
               <ion-label position="stacked">{{
                 'RECURRING_DEPOSIT_TRANSACTIONS.PAYMENT_TYPE' | translate
               }}</ion-label>
-              <ion-select interface="popover" name="paymentTypeId" [(ngModel)]="paymentTypeId">
+              <ion-select
+                [attr.aria-label]="'RECURRING_DEPOSIT_TRANSACTIONS.PAYMENT_TYPE' | translate"
+                interface="popover"
+                name="paymentTypeId"
+                [(ngModel)]="paymentTypeId"
+              >
                 @for (opt of paymentTypeOptions; track opt) {
                   <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                 }

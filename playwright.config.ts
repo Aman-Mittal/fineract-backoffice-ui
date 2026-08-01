@@ -1,7 +1,17 @@
+import os from 'node:os';
+import path from 'node:path';
+
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
+  // Kept outside the project directory. The dev server under test watches the
+  // repo, and Playwright creates and deletes .playwright-artifacts-* directories
+  // inside outputDir continuously while a run is in progress. Vite's watcher
+  // races those deletions and dies on an ENOENT scandir, which takes the whole
+  // server down mid-suite — every test after that point fails with
+  // ERR_CONNECTION_REFUSED, including retries, for reasons unrelated to the code.
+  outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR ?? path.join(os.tmpdir(), 'fineract-e2e-output'),
   globalSetup: './e2e/global-setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -20,9 +30,14 @@ export default defineConfig({
     video: process.env.CI ? 'on' : 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // Seeds the reference data the real-backend specs need — enabled currencies, a
+    // datatable on m_loan, a collateral product. Running it as a dependency rather
+    // than as a CI step means a local run gets the same baseline for free, which is
+    // what allows those specs to run unconditionally instead of behind an env gate.
+    { name: 'setup', testMatch: /backend\.setup\.ts/ },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
   ],
   webServer: {
     command: 'npm start',

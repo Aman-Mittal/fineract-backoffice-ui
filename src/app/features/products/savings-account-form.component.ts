@@ -126,6 +126,7 @@ import {
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'COMMON.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
                     [(ngModel)]="account.productId"
@@ -171,6 +172,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.INTEREST_RATE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.INTEREST_RATE' | translate"
                   type="number"
                   name="nominalAnnualInterestRate"
                   [(ngModel)]="interestRate"

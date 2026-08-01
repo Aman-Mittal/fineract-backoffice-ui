@@ -88,7 +88,12 @@ export interface ClientActionDialogData {
         @if (showReasonDropdown) {
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ reasonLabel | translate }}</ion-label>
-            <ion-select interface="popover" [(ngModel)]="reasonId" required>
+            <ion-select
+              [attr.aria-label]="reasonLabel | translate"
+              interface="popover"
+              [(ngModel)]="reasonId"
+              required
+            >
               @for (reason of reasonOptions; track reason.id) {
                 <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
               }
@@ -98,7 +103,11 @@ export interface ClientActionDialogData {
 
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-          <ion-textarea [(ngModel)]="note" rows="3"></ion-textarea>
+          <ion-textarea
+            [attr.aria-label]="'COMMON.NOTE' | translate"
+            [(ngModel)]="note"
+            rows="3"
+          ></ion-textarea>
         </ion-item>
       </div>
     </div>

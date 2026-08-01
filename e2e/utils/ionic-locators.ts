@@ -73,3 +73,21 @@ export function confirmDialog(page: Page): Locator {
 export function modalFor(page: Page, componentSelector: string): Locator {
   return page.locator('ion-modal').filter({ has: page.locator(componentSelector) });
 }
+
+/**
+ * An ion-select, addressed by the label shown above it.
+ *
+ * `getByRole('combobox', { name })` does not work and never will: ion-select
+ * renders as a `button` with `aria-haspopup="dialog"`, and Ionic folds the
+ * control's aria-label together with the current value, so the accessible name
+ * reads "Office, Head Office" rather than "Office".
+ *
+ * Returns the ion-select host element rather than the shadow button, so
+ * `toHaveText()`, `toBeDisabled()` and `.click()` all behave as expected.
+ */
+export function ionSelect(page: Page, label: string): Locator {
+  return page
+    .locator('ion-item')
+    .filter({ has: page.getByText(label, { exact: true }) })
+    .locator('ion-select');
+}

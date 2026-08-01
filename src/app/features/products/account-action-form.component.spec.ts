@@ -210,7 +210,7 @@ describe('AccountActionFormComponent', () => {
     createComponent();
 
     expect(staffSpy.getStaff).toHaveBeenCalled();
-    expect(component.staffOptions).toHaveSize(1);
+    expect(component.staffOptions()).toHaveSize(1);
 
     loansSpy.postLoansLoanId.and.returnValue(of({}) as unknown as Observable<never>);
     component.toLoanOfficerId = 1;
@@ -294,7 +294,7 @@ describe('AccountActionFormComponent', () => {
     createComponent();
     component.onSubmit();
 
-    expect(component.isSaving).toBeFalse();
+    expect(component.isSaving()).toBeFalse();
   });
 
   it('should extract currency code and frequency value safely', () => {

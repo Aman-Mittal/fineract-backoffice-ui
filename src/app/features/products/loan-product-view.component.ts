@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -46,13 +46,13 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
     IonIcon,
   ],
   template: `
-    @if (product) {
+    @if (product()) {
       <div class="view-container">
         <ion-card class="header-card">
           <ion-card-content class="header-content">
             <div>
-              <h2>{{ product.name }}</h2>
-              <span class="short-name">{{ product.shortName }}</span>
+              <h2>{{ product()!.name }}</h2>
+              <span class="short-name">{{ product()!.shortName }}</span>
             </div>
             <div class="actions-area">
               <ion-button color="primary" (click)="onEdit()">
@@ -74,28 +74,28 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
           <ion-card-content class="details-list">
             <div class="detail-item">
               <span class="label">{{ 'PRODUCTS.CURRENCY' | translate }}</span>
-              <span class="value">{{ product.currency?.code }}</span>
+              <span class="value">{{ product()!.currency?.code }}</span>
             </div>
             <div class="detail-item">
               <span class="label">{{ 'PRODUCTS.PRINCIPAL' | translate }}</span>
-              <span class="value">{{ product.principal }}</span>
+              <span class="value">{{ product()!.principal }}</span>
             </div>
             <div class="detail-item">
               <span class="label">{{ 'PRODUCTS.INTEREST_RATE' | translate }}</span>
               <span class="value"
-                >{{ product.interestRatePerPeriod }}
-                {{ product.interestRateFrequencyType?.description }}</span
+                >{{ product()!.interestRatePerPeriod }}
+                {{ product()!.interestRateFrequencyType?.description }}</span
               >
             </div>
             <div class="detail-item">
               <span class="label">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</span>
-              <span class="value">{{ product.numberOfRepayments }}</span>
+              <span class="value">{{ product()!.numberOfRepayments }}</span>
             </div>
             <div class="detail-item">
               <span class="label">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</span>
               <span class="value"
-                >{{ product.repaymentEvery }}
-                {{ product.repaymentFrequencyType?.description }}</span
+                >{{ product()!.repaymentEvery }}
+                {{ product()!.repaymentFrequencyType?.description }}</span
               >
             </div>
           </ion-card-content>
@@ -110,7 +110,7 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
               <span class="label">{{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}</span>
               <span class="value">
                 <ion-badge [color]="isProgressive() ? 'tertiary' : 'primary'">
-                  {{ product.loanScheduleType?.value }}
+                  {{ product()!.loanScheduleType?.value }}
                 </ion-badge>
               </span>
             </div>
@@ -118,26 +118,26 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
               <span class="label">{{
                 'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate
               }}</span>
-              <span class="value">{{ product.transactionProcessingStrategyName }}</span>
+              <span class="value">{{ product()!.transactionProcessingStrategyName }}</span>
             </div>
             @if (isProgressive()) {
               <div class="detail-item">
                 <span class="label">{{
                   'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate
                 }}</span>
-                <span class="value">{{ product.loanScheduleProcessingType?.value }}</span>
+                <span class="value">{{ product()!.loanScheduleProcessingType?.value }}</span>
               </div>
             }
           </ion-card-content>
         </ion-card>
 
-        @if (isProgressive() && product.paymentAllocation?.length) {
+        @if (isProgressive() && product()!.paymentAllocation?.length) {
           <ion-card>
             <ion-card-header>
               <ion-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              @for (rule of product.paymentAllocation; track rule.transactionType) {
+              @for (rule of product()!.paymentAllocation; track rule.transactionType) {
                 <div class="allocation-rule">
                   <strong>{{ rule.transactionType }}</strong>
                   <span class="future-rule"
@@ -155,13 +155,13 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
           </ion-card>
         }
 
-        @if (isProgressive() && product.creditAllocation?.length) {
+        @if (isProgressive() && product()!.creditAllocation?.length) {
           <ion-card>
             <ion-card-header>
               <ion-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              @for (rule of product.creditAllocation; track rule.transactionType) {
+              @for (rule of product()!.creditAllocation; track rule.transactionType) {
                 <div class="allocation-rule">
                   <strong>{{ rule.transactionType }}</strong>
                   <ol class="order-list">
@@ -241,17 +241,17 @@ export class LoanProductViewComponent implements OnInit {
   private readonly router = inject(Router);
 
   productId = 0;
-  product: GetLoanProductsProductIdResponse | null = null;
+  readonly product = signal<GetLoanProductsProductIdResponse | null>(null);
 
   ngOnInit(): void {
     this.productId = Number(this.route.snapshot.paramMap.get('id'));
     this.productService.getLoanproductsProductId(this.productId).subscribe((data) => {
-      this.product = data;
+      this.product.set(data);
     });
   }
 
   isProgressive(): boolean {
-    return this.product?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
+    return this.product()?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
   }
 
   onEdit(): void {

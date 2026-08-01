@@ -132,6 +132,7 @@ import {
                 >
                   <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'COMMON.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
                     [(ngModel)]="account['productId']"
@@ -162,6 +163,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.DEPOSIT_AMOUNT_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="depositAmount"
                   [(ngModel)]="account['depositAmount']"
@@ -191,6 +193,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.DEPOSIT_PERIOD_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.PERIOD' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.PERIOD' | translate"
                   type="number"
                   name="depositPeriod"
                   [(ngModel)]="account['depositPeriod']"
@@ -202,6 +205,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.PERIOD_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                   interface="popover"
                   name="depositPeriodFrequencyId"
                   [(ngModel)]="account['depositPeriodFrequencyId']"
@@ -227,6 +231,7 @@ import {
               >
                 <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.INTEREST_RATE' | translate"
                   type="number"
                   name="nominalAnnualInterestRate"
                   [(ngModel)]="account['nominalAnnualInterestRate']"

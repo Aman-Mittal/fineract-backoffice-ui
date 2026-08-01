@@ -74,6 +74,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'HOOKS.NAME' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'HOOKS.NAME' | translate"
                 interface="popover"
                 name="name"
                 [(ngModel)]="hook.name"
@@ -88,7 +89,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'HOOKS.DISPLAY_NAME' | translate }}</ion-label>
-              <ion-input name="displayName" [(ngModel)]="hook.displayName" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'HOOKS.DISPLAY_NAME' | translate"
+                name="displayName"
+                [(ngModel)]="hook.displayName"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-checkbox name="isActive" [(ngModel)]="hook.isActive">

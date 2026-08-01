@@ -873,7 +873,11 @@ import {
                     <ion-label position="stacked">{{
                       'LOANS.DISBURSEMENT_ID' | translate
                     }}</ion-label>
-                    <ion-input type="number" [(ngModel)]="editDisbId"></ion-input>
+                    <ion-input
+                      [attr.aria-label]="'LOANS.DISBURSEMENT_ID' | translate"
+                      type="number"
+                      [(ngModel)]="editDisbId"
+                    ></ion-input>
                   </ion-item>
                   <ion-button color="primary" (click)="loadDisbursementDetail()">
                     <ion-icon name="search-outline"></ion-icon>
@@ -893,6 +897,7 @@ import {
                         'LOANS.EXPECTED_DISBURSEMENT' | translate
                       }}</ion-label>
                       <ion-input
+                        [attr.aria-label]="'LOANS.EXPECTED_DISBURSEMENT' | translate"
                         [(ngModel)]="disbursementEditForm.expectedDisbursementDate"
                       ></ion-input>
                     </ion-item>
@@ -901,13 +906,17 @@ import {
                         'LOANS.PRINCIPAL_AMOUNT' | translate
                       }}</ion-label>
                       <ion-input
+                        [attr.aria-label]="'LOANS.PRINCIPAL_AMOUNT' | translate"
                         type="number"
                         [(ngModel)]="disbursementEditForm.principal"
                       ></ion-input>
                     </ion-item>
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-                      <ion-input [(ngModel)]="disbursementEditForm.note"></ion-input>
+                      <ion-input
+                        [attr.aria-label]="'COMMON.NOTE' | translate"
+                        [(ngModel)]="disbursementEditForm.note"
+                      ></ion-input>
                     </ion-item>
                     <div>
                       <ion-button color="secondary" (click)="saveDisbursementDetail()">
@@ -940,7 +949,11 @@ import {
                     <ion-label position="stacked">{{
                       'LOANS.COLLATERAL_ID' | translate
                     }}</ion-label>
-                    <ion-input type="number" [(ngModel)]="collateralDetailId"></ion-input>
+                    <ion-input
+                      [attr.aria-label]="'LOANS.COLLATERAL_ID' | translate"
+                      type="number"
+                      [(ngModel)]="collateralDetailId"
+                    ></ion-input>
                   </ion-item>
                   <ion-button color="primary" (click)="loadCollateralDetail()">
                     <ion-icon name="search-outline"></ion-icon>
@@ -961,7 +974,11 @@ import {
                     <ion-label position="stacked">{{
                       'LOANS.COLLATERAL_ID' | translate
                     }}</ion-label>
-                    <ion-input type="number" [(ngModel)]="deleteCollateralId"></ion-input>
+                    <ion-input
+                      [attr.aria-label]="'LOANS.COLLATERAL_ID' | translate"
+                      type="number"
+                      [(ngModel)]="deleteCollateralId"
+                    ></ion-input>
                   </ion-item>
                   <ion-button color="danger" (click)="deleteCollateral()">
                     <ion-icon name="trash-outline"></ion-icon>
