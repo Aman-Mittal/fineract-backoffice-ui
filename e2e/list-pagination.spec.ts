@@ -26,7 +26,7 @@
  * against page.route() mocks, so it needs no backend.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 
 const TENANT = 'default';
 const USER = 'mifos';

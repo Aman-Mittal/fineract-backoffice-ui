@@ -38,7 +38,7 @@
  * `test.use({ video: 'on', trace: 'on' })` below) so failures can be replayed.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';

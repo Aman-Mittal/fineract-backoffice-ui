@@ -36,7 +36,7 @@
  * Videos/traces for every run are written under test-results/.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
 import { captureJson } from './utils/capture-response';

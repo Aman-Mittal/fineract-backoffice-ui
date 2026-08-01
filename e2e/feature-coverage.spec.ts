@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 
 const TEST_USER = 'mifos';
 const TEST_PASSWORD = 'password';

@@ -43,7 +43,7 @@
  * test-results/*\/video.webm.
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { confirmDialog, ionSelect, menuItem, modalFor, selectTab } from './utils/ionic-locators';
 import { captureJson } from './utils/capture-response';

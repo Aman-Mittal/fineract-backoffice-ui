@@ -13,7 +13,7 @@
 
 /* eslint-disable sonarjs/no-duplicate-string -- Playwright test patterns inherently repeat locator strings */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from './fixtures';
 
 /* ─────────── Constants ─────────── */
 
