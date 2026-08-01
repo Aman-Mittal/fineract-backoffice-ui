@@ -38,7 +38,14 @@ export interface GetWorkingCapitalLoanSummary {
     penalty?: number;
     penaltyOutstanding?: number;
     penaltyPaid?: number;
+    /**
+     * Total principal due: original principal plus principalAdjustment. Already inclusive of principalAdjustment — do not add the two together.
+     */
     principal?: number;
+    /**
+     * Principal re-injected by an over-refunding credit balance refund. Already included in principal.
+     */
+    principalAdjustment?: number;
     principalOutstanding?: number;
     principalPaid?: number;
     realizedIncomeFromDiscountFee?: number;

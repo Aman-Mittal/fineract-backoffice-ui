@@ -1225,6 +1225,7 @@ model/postLoansLoanIdChargesRequest.ts
 model/postLoansLoanIdChargesResponse.ts
 model/postLoansLoanIdCollateralsResponse.ts
 model/postLoansLoanIdDisbursementData.ts
+model/postLoansLoanIdOriginatorData.ts
 model/postLoansLoanIdRequest.ts
 model/postLoansLoanIdResponse.ts
 model/postLoansLoanIdScheduleResponse.ts
