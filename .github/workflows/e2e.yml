@@ -24,9 +24,10 @@ on:
       - develop
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pull-requests: write
+# Granted per job rather than here: a workflow-level `pull-requests: write` hands
+# that token to every step in every job, including the ones that run npm install
+# and Playwright. Each job below re-declares the minimum it needs.
+permissions: {}
 
 # The suite is split in two so a broken mock does not wait behind a Fineract
 # boot, and so the slow half is not on the critical path for the fast one.
@@ -43,6 +44,9 @@ jobs:
   mocked:
     name: E2E (mocked backend)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout
+      pull-requests: write # upsert this job's summary comment
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
         with:
@@ -114,6 +118,9 @@ jobs:
   backend:
     name: E2E (real Fineract)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout
+      pull-requests: write # upsert this job's summary comment
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
         with:
