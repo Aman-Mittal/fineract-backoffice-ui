@@ -21,6 +21,7 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
+import { SKIP_ERROR_TOAST } from '../http/http-context';
 
 /**
  * Functional HTTP Interceptor that catches API errors and displays all validation
@@ -65,7 +66,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      notifications.error(errorMessage);
+      // The caller renders this failure itself. Still rethrown, so its catchError runs.
+      if (!req.context.get(SKIP_ERROR_TOAST)) {
+        notifications.error(errorMessage);
+      }
 
       return throwError(() => error);
     }),

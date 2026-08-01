@@ -22,6 +22,7 @@ import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { NotificationService } from '../services/notification.service';
 import { errorInterceptor } from './error.interceptor';
+import { skipErrorToast } from '../http/http-context';
 
 describe('errorInterceptor', () => {
   let httpClient: HttpClient;
@@ -158,5 +159,20 @@ describe('errorInterceptor', () => {
     req.flush('Plain error body', { status: 503, statusText: 'Service Unavailable' });
 
     expect(notificationsSpy.error).toHaveBeenCalledWith(jasmine.stringMatching(/Error Code: 503/));
+  });
+
+  it('should not toast when the SKIP_ERROR_TOAST context is set, but still rethrow', () => {
+    let received: unknown = null;
+    httpClient.get(testUrl, { context: skipErrorToast() }).subscribe({
+      next: () => fail(expectedErrorMsg),
+      error: (err) => (received = err),
+    });
+
+    const req = httpTestingController.expectOne(testUrl);
+    req.flush('Plain error body', { status: 500, statusText: 'Server Error' });
+
+    expect(notificationsSpy.error).not.toHaveBeenCalled();
+    // Suppressing the toast must not swallow the failure — the caller still handles it.
+    expect(received).toBeTruthy();
   });
 });
