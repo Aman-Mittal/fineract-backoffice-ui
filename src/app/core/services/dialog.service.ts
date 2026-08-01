@@ -50,7 +50,13 @@ export class DialogService {
     const modal = await this.modalController.create({
       component,
       componentProps: data,
-      cssClass,
+      // Every dialog gets `app-dialog`, which is what gives its body a scroll
+      // container — see src/styles/_dialogs.scss. Without it a dialog taller than
+      // the viewport puts its own action buttons out of reach.
+      cssClass: [
+        'app-dialog',
+        ...(Array.isArray(cssClass) ? cssClass : cssClass ? [cssClass] : []),
+      ],
     });
 
     await modal.present();
