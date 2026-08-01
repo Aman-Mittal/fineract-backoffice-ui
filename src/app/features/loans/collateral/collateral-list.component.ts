@@ -17,12 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { LoanCollateralService, CollateralData, LoansService } from '../../../api';
+import { LoanSummary } from '../loan-summary.model';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
@@ -33,11 +34,11 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   standalone: true,
   imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
-    @if (loanSummary) {
+    @if (loanSummary(); as summary) {
       <div class="loan-context">
-        {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ loanSummary.accountNo }} &middot;
-        {{ 'COMMON.CLIENT' | translate }}: {{ loanSummary.clientName }} &middot;
-        {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ loanSummary.loanProductName }}
+        {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ summary.accountNo }} &middot;
+        {{ 'COMMON.CLIENT' | translate }}: {{ summary.clientName }} &middot;
+        {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ summary.loanProductName }}
       </div>
     }
     <app-data-table
@@ -45,8 +46,8 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.COLLATERAL_DESC"
       createButtonLabel="LOANS.ADD_COLLATERAL"
       [columns]="columns"
-      [data]="collaterals"
-      [totalRecords]="collaterals.length"
+      [data]="collaterals()"
+      [totalRecords]="collaterals().length"
       [showSearch]="false"
       [localLogic]="true"
       (create)="onCreateCollateral()"
@@ -94,7 +95,7 @@ export class CollateralListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   loanId: number | null = null;
-  loanSummary: { accountNo?: string; clientName?: string; loanProductName?: string } | null = null;
+  readonly loanSummary = signal<LoanSummary | null>(null);
 
   readonly columns: ColumnDef[] = [
     { key: 'type', label: 'COMMON.TYPE', sortable: true },
@@ -103,7 +104,7 @@ export class CollateralListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  collaterals: CollateralData[] = [];
+  readonly collaterals = signal<CollateralData[]>([]);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -120,7 +121,7 @@ export class CollateralListComponent implements OnInit {
     if (!this.loanId) return;
     this.collateralService.getLoansLoanIdCollaterals(this.loanId).subscribe({
       next: (data) => {
-        this.collaterals = data || [];
+        this.collaterals.set(data || []);
       },
       error: (err) => console.error('Failed to load collateral details', err),
     });
@@ -130,11 +131,11 @@ export class CollateralListComponent implements OnInit {
     if (!this.loanId) return;
     this.loansService.getLoansLoanId(this.loanId).subscribe({
       next: (data) => {
-        this.loanSummary = {
+        this.loanSummary.set({
           accountNo: data.accountNo,
           clientName: data.clientName,
           loanProductName: data.loanProductName,
-        };
+        });
       },
       error: () => {
         // Non-critical context display; the list still works without it.

@@ -74,9 +74,9 @@ describe('CollateralFormComponent', () => {
   });
 
   it('should format payload correctly on submission', () => {
-    component.selectedCollateralTypeId = 1;
-    component.collateralValue = 5000;
-    component.collateralDescription = 'Gold jewelry';
+    component.selectedCollateralTypeId.set(1);
+    component.collateralValue.set(5000);
+    component.collateralDescription.set('Gold jewelry');
 
     collateralServiceSpy.postLoansLoanIdCollaterals.and.returnValue(
       of({}) as unknown as Observable<HttpEvent<PostLoansLoanIdCollateralsResponse>>,
