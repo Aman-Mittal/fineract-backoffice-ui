@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RecurringDepositProductService, GetRecurringDepositProductsResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -42,6 +42,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.recurringDeposits"
       createButtonLabel="PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT"
       [columns]="columns"
@@ -69,6 +71,9 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   `,
 })
 export class RecurringDepositProductsListComponent implements OnInit {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
   private readonly productService = inject(RecurringDepositProductService);
   private readonly router = inject(Router);
 
@@ -95,7 +100,13 @@ export class RecurringDepositProductsListComponent implements OnInit {
     this.isLoading = true;
     this.productService
       .getRecurringdepositproducts()
-      .pipe(catchError(() => of([])))
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([]);
+        }),
+      )
       .subscribe((data) => {
         this.products = data;
         this.isLoading = false;
@@ -108,5 +119,9 @@ export class RecurringDepositProductsListComponent implements OnInit {
 
   onEdit(product: GetRecurringDepositProductsResponse) {
     this.router.navigate(['/products/recurring/edit', product.id]);
+  }
+
+  onRetry(): void {
+    this.loadProducts();
   }
 }

@@ -21,6 +21,7 @@ import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { ConfigService } from './config.service';
+import { skipErrorToast } from '../http/http-context';
 
 /**
  * Interface representing a user role within Fineract.
@@ -74,8 +75,16 @@ export class AuthService {
   /** Signal indicating whether a user is currently authenticated */
   readonly isAuthenticated = signal<boolean>(!!this.currentUser());
 
-  /** Signal containing the currently active Tenant ID */
-  readonly currentTenantId = signal<string>(localStorage.getItem(this.tenantKey) || 'default');
+  /**
+   * Signal containing the currently active Tenant ID.
+   *
+   * Falls back to the deployment's configured tenant rather than the literal `'default'`.
+   * `AppConfig.defaultTenant` existed but nothing read it, so an institution whose Fineract
+   * tenant is not named `default` had every user type it into the login form.
+   */
+  readonly currentTenantId = signal<string>(
+    localStorage.getItem(this.tenantKey) || this.configService.config().defaultTenant,
+  );
 
   /** Computed signal for the current username */
   readonly username = computed(() => this.currentUser()?.username || '');
@@ -101,7 +110,9 @@ export class AuthService {
       .post<UserSession>(
         `${this.configService.apiUrl}/authentication`,
         { username, password },
-        { headers },
+        // The login form renders the rejection inline, next to the fields that caused it.
+        // A toast as well would report the same failure twice.
+        { headers, context: skipErrorToast() },
       )
       .pipe(
         tap((session) => {

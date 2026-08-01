@@ -17,27 +17,80 @@
  * under the License.
  */
 
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { skipErrorToast, skipLoading } from '../http/http-context';
+import type { InstitutionFeature, InstitutionType } from './institution-config.service';
 
 /**
- * Interface for application runtime configuration.
+ * Adjustments a deployment makes to the navigation tree without editing it.
+ *
+ * `navigation-config.service.ts` is a single 600-line file every feature adds to, so a
+ * downstream that removes an entry there conflicts with every upstream release that touches
+ * it. Naming the entry here instead keeps the deployment's decision out of the shared file.
+ */
+export interface NavOverrides {
+  /**
+   * `labelKey`s of navigation entries to hide, headers included. `labelKey` is the identifier
+   * because it is the only field every entry carries — group headers have no `route`.
+   *
+   * Hiding is presentational only. The route stays reachable by URL, so this is a way to
+   * narrow what a deployment offers, not a way to deny access to it.
+   */
+  hidden?: string[];
+}
+
+/**
+ * Runtime configuration for the application.
+ *
+ * Everything here is deliberately readable from `config.json` rather than compiled in.
+ * A deployment that had to change `environment.ts` would carry a patch against a file
+ * upstream also edits — a merge conflict on every release, for a value that was never
+ * code in the first place.
  */
 export interface AppConfig {
   /** The base URL for the Fineract API */
   fineractApiUrl: string;
-  /** The default tenant to use for authentication */
+  /** The tenant to use when the user has not chosen one */
   defaultTenant: string;
+  /**
+   * Enables role-based access control in the UI. When `false`, the sidebar shows every
+   * navigation item and the permission/institution directives render everything, which is
+   * the pre-RBAC behaviour existing deployments were built against.
+   */
+  rbacEnabled: boolean;
+  /** Institution type to assume when the user has not selected one. */
+  institutionType: InstitutionType;
+  /**
+   * Which group-lending features each institution type exposes. Omit to use the built-in
+   * matrix; supply it to change what a type means for this deployment.
+   */
+  institutionFeatures?: Record<InstitutionType, InstitutionFeature[]>;
+  /** Deployment-specific navigation adjustments. */
+  nav?: NavOverrides;
 }
+
+/**
+ * Values used until `config.json` is read, and for any key it omits.
+ *
+ * `fineractApiUrl` comes from the build because it is the one value needed before any
+ * request can be made — including the request that fetches `config.json`.
+ */
+const DEFAULT_CONFIG: AppConfig = {
+  fineractApiUrl: environment.fineractApiUrl,
+  defaultTenant: 'default',
+  rbacEnabled: true,
+  institutionType: 'universal',
+};
 
 /**
  * Service responsible for loading and managing runtime configuration.
  *
  * This service allows the application to be configured without a rebuild
- * by fetching a `config.json` file at startup. User overrides are persisted
- * in local storage.
+ * by fetching a `config.json` file at startup. The user's own API-endpoint
+ * choice is persisted in local storage and applied on top.
  */
 @Injectable({
   providedIn: 'root',
@@ -46,29 +99,39 @@ export class ConfigService {
   private readonly http = inject(HttpClient);
   private readonly storageKey = 'fineract_runtime_config';
 
-  // Initialize with environment fallback or stored preference
-  private readonly _config = signal<AppConfig>(this.getStoredConfig());
+  private readonly _config = signal<AppConfig>({
+    ...DEFAULT_CONFIG,
+    ...this.getStoredOverride(),
+  });
 
   /** Readonly access to the current application configuration signal */
   readonly config = this._config.asReadonly();
 
+  /** Whether permission and institution gating applies. See {@link AppConfig.rbacEnabled}. */
+  readonly rbacEnabled = computed(() => this._config().rbacEnabled);
+
+  /** Navigation entries this deployment hides, as a set of `labelKey`s. */
+  readonly hiddenNavKeys = computed(() => new Set(this._config().nav?.hidden ?? []));
+
   /**
    * Loads configuration from the public `config.json` at runtime.
    *
-   * If a user-defined override exists in localStorage, the HTTP request
-   * is skipped to respect the user's preference.
+   * The file is always read, even when the user has stored an API-endpoint override. The
+   * override is a choice about one field; letting it freeze the whole object would mean a
+   * deployment turning RBAC off never reached anyone who had ever changed their endpoint.
    */
   async loadConfig(): Promise<void> {
-    // Only load from server if no user override exists in localStorage
-    if (localStorage.getItem(this.storageKey)) {
-      return;
-    }
-
     try {
-      const config = await firstValueFrom(
-        this.http.get<AppConfig>(`config.json?cb=${new Date().getTime()}`),
+      const loaded = await firstValueFrom(
+        this.http.get<Partial<AppConfig>>(`config.json?cb=${new Date().getTime()}`, {
+          // This runs before the app renders: there is no progress bar to drive yet, and no
+          // route on which to show a toast. The catch below is the reporting.
+          context: skipLoading(skipErrorToast()),
+        }),
       );
-      this._config.set(config);
+      // Merged, not assigned: a config.json listing only the keys a deployment cares about
+      // must not blank out the rest.
+      this._config.set({ ...DEFAULT_CONFIG, ...loaded, ...this.getStoredOverride() });
     } catch (error) {
       console.error('❌ Could not load config.json, using environment defaults.', error);
     }
@@ -79,9 +142,8 @@ export class ConfigService {
    * @param url - The new API base URL
    */
   setApiUrl(url: string): void {
-    const newConfig = { ...this.config(), fineractApiUrl: url };
-    this._config.set(newConfig);
-    localStorage.setItem(this.storageKey, JSON.stringify(newConfig));
+    this._config.update((config) => ({ ...config, fineractApiUrl: url }));
+    localStorage.setItem(this.storageKey, JSON.stringify({ fineractApiUrl: url }));
   }
 
   /**
@@ -92,22 +154,25 @@ export class ConfigService {
   }
 
   /**
-   * Retrieves the initial configuration from local storage or environment defaults.
-   * @returns The resolved AppConfig
+   * The user's stored API-endpoint choice, if any.
+   *
+   * Only `fineractApiUrl` is read. Earlier versions wrote the entire config object under
+   * this key, so the stored value may carry other fields; they are deployment configuration
+   * and belong to `config.json`, not to whatever was current when the user last switched
+   * endpoints.
    */
-  private getStoredConfig(): AppConfig {
+  private getStoredOverride(): Partial<AppConfig> {
     const stored = localStorage.getItem(this.storageKey);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Error parsing stored config', e);
-      }
+    if (!stored) {
+      return {};
     }
 
-    return {
-      fineractApiUrl: environment.fineractApiUrl,
-      defaultTenant: 'default',
-    };
+    try {
+      const { fineractApiUrl } = JSON.parse(stored) as Partial<AppConfig>;
+      return fineractApiUrl ? { fineractApiUrl } : {};
+    } catch (e) {
+      console.error('Error parsing stored config', e);
+      return {};
+    }
   }
 }

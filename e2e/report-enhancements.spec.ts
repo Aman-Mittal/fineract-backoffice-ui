@@ -33,7 +33,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           fineractApiUrl: '/api/v1',
-          defaultTenantId: 'default',
+          defaultTenant: 'default',
         }),
       });
     });

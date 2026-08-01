@@ -20,11 +20,6 @@
 export const environment = {
   production: false,
   fineractApiUrl: 'https://demo.mifos.io/fineract-provider/api',
-  /**
-   * Enables role-based access control (RBAC) in the UI. When `false`, the
-   * sidebar shows all navigation items and permission/institution directives
-   * render everything, preserving pre-RBAC behavior for existing deployments.
-   * When `true`, the sidebar filters by permissions and institution config.
-   */
-  rbacEnabled: true,
+  // rbacEnabled and the institution feature matrix now live in config.json, so a deployment
+  // configures them instead of forking this file. See AppConfig in core/services/config.service.
 };

@@ -27,7 +27,8 @@ import {
   NavItemConfig,
   filterNavItems,
 } from './navigation-config.service';
-import { environment } from '../../../environments/environment';
+import type { AppConfig } from './config.service';
+import { provideTestConfig } from '../../testing/config';
 
 describe('filterNavItems (pure function)', () => {
   const alwaysVisible = () => true;
@@ -95,7 +96,6 @@ describe('NavigationConfigService', () => {
   let service: NavigationConfigService;
   let authService: AuthService;
   let institutionConfig: InstitutionConfigService;
-  const originalRbacEnabled = environment.rbacEnabled;
 
   const mockSession: UserSession = {
     username: 'mifos',
@@ -122,10 +122,8 @@ describe('NavigationConfigService', () => {
   const SECURITY_USERS_ROUTE = '/security/users';
   const ACCOUNTING_CHART_ROUTE = '/accounting/chart-of-accounts';
 
-  beforeEach(() => {
-    environment.rbacEnabled = true;
-    sessionStorage.clear();
-    localStorage.clear();
+  /** Configures the TestBed with the deployment configuration under test. */
+  function configure(config: Partial<AppConfig> = {}): void {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
@@ -133,15 +131,21 @@ describe('NavigationConfigService', () => {
         NavigationConfigService,
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideTestConfig({ rbacEnabled: true, ...config }),
       ],
     });
     service = TestBed.inject(NavigationConfigService);
     authService = TestBed.inject(AuthService);
     institutionConfig = TestBed.inject(InstitutionConfigService);
+  }
+
+  beforeEach(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+    configure();
   });
 
   afterEach(() => {
-    environment.rbacEnabled = originalRbacEnabled;
     sessionStorage.clear();
     localStorage.clear();
   });
@@ -155,7 +159,8 @@ describe('NavigationConfigService', () => {
   });
 
   it('shows everything when rbacEnabled is false, regardless of permissions', () => {
-    environment.rbacEnabled = false;
+    TestBed.resetTestingModule();
+    configure({ rbacEnabled: false });
     setPermissions([]);
     const items = service.filteredNavItems();
     expect(findRoute(items, SECURITY_USERS_ROUTE)).toBeTrue();
@@ -196,6 +201,31 @@ describe('NavigationConfigService', () => {
     expect(findRoute(items, '/centers')).toBeFalse();
     expect(findRoute(items, '/collection-sheet')).toBeFalse();
     expect(findRoute(items, '/clients')).toBeTrue();
+  });
+
+  describe('deployment navigation overrides', () => {
+    it('hides the entries config.json names, leaving the rest alone', () => {
+      TestBed.resetTestingModule();
+      configure({ nav: { hidden: ['nav.groups', 'nav.centers'] } });
+      setPermissions(['ALL_FUNCTIONS']);
+
+      const items = service.filteredNavItems();
+      expect(findRoute(items, '/groups')).toBeFalse();
+      expect(findRoute(items, '/centers')).toBeFalse();
+      expect(findRoute(items, '/clients')).toBeTrue();
+    });
+
+    it('hides an entry even where RBAC is off', () => {
+      // What a deployment offers is a different question from what a user may reach, so the
+      // switch that answers the second one must not answer the first.
+      TestBed.resetTestingModule();
+      configure({ rbacEnabled: false, nav: { hidden: ['nav.groups'] } });
+      setPermissions([]);
+
+      const items = service.filteredNavItems();
+      expect(findRoute(items, '/groups')).toBeFalse();
+      expect(findRoute(items, '/clients')).toBeTrue();
+    });
   });
 
   describe('issue #142 — Interop, Campaigns, Working Capital, Account Transfer gates', () => {

@@ -217,3 +217,39 @@ test.describe('Profile', () => {
     await expect(page.locator('ion-spinner')).toHaveCount(0);
   });
 });
+
+test.describe('List load failure', () => {
+  test('reports the failure and reloads when the user retries', async ({ page }) => {
+    await login(page);
+
+    // Fail the first request, serve the second. The retry has to be what fixes it, or this
+    // passes whether or not the button is wired to anything.
+    let attempts = 0;
+    await page.route(/\/api\/v1\/clients(\?|$)/, async (route) => {
+      attempts += 1;
+      if (attempts === 1) {
+        await route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+        return;
+      }
+      const url = new URL(route.request().url());
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(
+          clientsPage(Number(url.searchParams.get('offset') ?? 0), PAGE_SIZE, undefined),
+        ),
+      });
+    });
+
+    await page.goto('/clients');
+
+    // Not "No records found": nobody knows whether there are records.
+    await expect(page.getByTestId('data-table-error')).toBeVisible();
+    await expect(page.locator('table.data-table')).toHaveCount(0);
+
+    await page.getByTestId('data-table-retry').click();
+
+    await expect(page.getByTestId('data-table-error')).toHaveCount(0);
+    await expect(firstAccountNo(page)).toHaveText('000000001');
+  });
+});

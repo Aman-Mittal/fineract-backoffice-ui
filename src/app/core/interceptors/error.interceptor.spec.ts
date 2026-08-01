@@ -18,9 +18,12 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
 import { errorInterceptor } from './error.interceptor';
 import { skipErrorToast } from '../http/http-context';
 
@@ -28,8 +31,13 @@ describe('errorInterceptor', () => {
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
   let notificationsSpy: jasmine.SpyObj<NotificationService>;
+  let routerSpy: jasmine.SpyObj<Router>;
+  let authSpy: jasmine.SpyObj<AuthService>;
   const testUrl = '/api/test';
   const expectedErrorMsg = 'expected an error';
+
+  /** Mirrors what `authInterceptor` puts on a request once a session exists. */
+  const authorized = { headers: new HttpHeaders({ Authorization: 'Basic abc123' }) };
 
   beforeEach(() => {
     notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
@@ -39,11 +47,26 @@ describe('errorInterceptor', () => {
     ]);
     notificationsSpy.error.and.resolveTo();
 
+    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    routerSpy.navigate.and.resolveTo(true);
+
+    authSpy = jasmine.createSpyObj<AuthService>('AuthService', ['logout', 'isAuthenticated']);
+    authSpy.isAuthenticated.and.returnValue(true);
+    // `logout()` flips the signal synchronously in the real service; the burst-dedupe in the
+    // interceptor depends on that, so the double is wired to behave the same way.
+    authSpy.logout.and.callFake(() => authSpy.isAuthenticated.and.returnValue(false));
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting(),
         { provide: NotificationService, useValue: notificationsSpy },
+        { provide: Router, useValue: routerSpy },
+        { provide: AuthService, useValue: authSpy },
+        {
+          provide: TranslateService,
+          useValue: { instant: (key: string) => key } as Partial<TranslateService>,
+        },
       ],
     });
 
@@ -144,9 +167,7 @@ describe('errorInterceptor', () => {
     const req = httpTestingController.expectOne(testUrl);
     req.flush(null, { status: 0, statusText: '' });
 
-    expect(notificationsSpy.error).toHaveBeenCalledWith(
-      'Unable to connect to the server. Please check your network or CORS settings.',
-    );
+    expect(notificationsSpy.error).toHaveBeenCalledWith('COMMON.ERRORS.NETWORK');
   });
 
   it('should fallback to status code and message description for other errors', () => {
@@ -174,5 +195,92 @@ describe('errorInterceptor', () => {
     expect(notificationsSpy.error).not.toHaveBeenCalled();
     // Suppressing the toast must not swallow the failure — the caller still handles it.
     expect(received).toBeTruthy();
+  });
+
+  describe('401', () => {
+    it('should end the session and redirect when a credentialed request is rejected', () => {
+      let received: unknown = null;
+      httpClient.get(testUrl, authorized).subscribe({
+        next: () => fail(expectedErrorMsg),
+        error: (err) => (received = err),
+      });
+
+      httpTestingController
+        .expectOne(testUrl)
+        .flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(authSpy.logout).toHaveBeenCalled();
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { reason: 'session-expired' },
+      });
+      // The login page states the reason; a toast over the redirect repeats it.
+      expect(notificationsSpy.error).not.toHaveBeenCalled();
+      // The caller must still see the failure so it can stop its own loading state.
+      expect(received).toBeTruthy();
+    });
+
+    it('should redirect once when several in-flight requests are rejected together', () => {
+      const urls = ['/api/a', '/api/b', '/api/c'];
+      for (const url of urls) {
+        httpClient.get(url, authorized).subscribe({ error: () => expect().nothing() });
+      }
+      for (const url of urls) {
+        httpTestingController
+          .expectOne(url)
+          .flush(null, { status: 401, statusText: 'Unauthorized' });
+      }
+
+      expect(authSpy.logout).toHaveBeenCalledTimes(1);
+      expect(routerSpy.navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not end a session that never existed when sign-in credentials are rejected', () => {
+      authSpy.isAuthenticated.and.returnValue(false);
+
+      // No Authorization header: this is the login POST, the one request that legitimately 401s.
+      httpClient.post('/api/authentication', {}).subscribe({ error: () => expect().nothing() });
+
+      httpTestingController
+        .expectOne('/api/authentication')
+        .flush(
+          { defaultUserMessage: 'Bad credentials' },
+          { status: 401, statusText: 'Unauthorized' },
+        );
+
+      expect(authSpy.logout).not.toHaveBeenCalled();
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      // Falls through to ordinary reporting — the caller may still opt out via context.
+      expect(notificationsSpy.error).toHaveBeenCalledWith('Bad credentials');
+    });
+  });
+
+  describe('403', () => {
+    it("should report a permission failure in the user's terms, keeping the session", () => {
+      httpClient.get(testUrl, authorized).subscribe({ error: () => expect().nothing() });
+
+      httpTestingController
+        .expectOne(testUrl)
+        .flush(
+          { developerMessage: 'NOT_ALLOWED: permission READ_LOAN is required' },
+          { status: 403, statusText: 'Forbidden' },
+        );
+
+      expect(notificationsSpy.error).toHaveBeenCalledWith('COMMON.ERRORS.FORBIDDEN');
+      // A 403 means the user is known but unauthorized — logging them out would be wrong.
+      expect(authSpy.logout).not.toHaveBeenCalled();
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should stay silent when the caller opts out', () => {
+      httpClient
+        .get(testUrl, { context: skipErrorToast() })
+        .subscribe({ error: () => expect().nothing() });
+
+      httpTestingController
+        .expectOne(testUrl)
+        .flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(notificationsSpy.error).not.toHaveBeenCalled();
+    });
   });
 });

@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HasInstitutionFeatureDirective } from './has-institution-feature.directive';
 import { InstitutionConfigService } from '../../core/services/institution-config.service';
-import { environment } from '../../../environments/environment';
+import { provideTestConfig } from '../../testing/config';
 
 @Component({
   template: `
@@ -42,25 +42,27 @@ const COLLECTION_SHEET_SELECTOR = '#collection-sheet';
 describe('HasInstitutionFeatureDirective', () => {
   let fixture: ComponentFixture<TestComponent>;
   let service: InstitutionConfigService;
-  const originalRbacEnabled = environment.rbacEnabled;
 
   const render = () => {
     fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
   };
 
-  beforeEach(() => {
-    environment.rbacEnabled = true;
-    localStorage.clear();
+  /** Configures the TestBed with RBAC on or off for this deployment. */
+  function configure(rbacEnabled: boolean): void {
     TestBed.configureTestingModule({
       imports: [TestComponent],
-      providers: [InstitutionConfigService],
+      providers: [InstitutionConfigService, provideTestConfig({ rbacEnabled })],
     });
     service = TestBed.inject(InstitutionConfigService);
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+    configure(true);
   });
 
   afterEach(() => {
-    environment.rbacEnabled = originalRbacEnabled;
     localStorage.clear();
   });
 
@@ -89,7 +91,8 @@ describe('HasInstitutionFeatureDirective', () => {
   });
 
   it('should render everything when RBAC is disabled, regardless of institution type', () => {
-    environment.rbacEnabled = false;
+    TestBed.resetTestingModule();
+    configure(false);
     service.setInstitutionType('cb');
     render();
     expect(fixture.debugElement.query(By.css(GROUPS_SELECTOR))).toBeTruthy();

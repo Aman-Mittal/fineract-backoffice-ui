@@ -23,7 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { CellTemplateDirective, ColumnDef } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
@@ -34,6 +34,8 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
   imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="nav.savingsProducts"
       helpTextKey="HELP.SAVINGS_PRODUCTS_DESC"
       createButtonLabel="PRODUCTS.CREATE_SAVINGS_PRODUCT"
@@ -58,6 +60,9 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
   `,
 })
 export class SavingsProductsListComponent implements OnInit {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
   private readonly savingsProductService = inject(SavingsProductService);
   private readonly router = inject(Router);
 
@@ -77,7 +82,13 @@ export class SavingsProductsListComponent implements OnInit {
   private loadProducts(): void {
     this.savingsProductService
       .getSavingsproducts()
-      .pipe(catchError(() => of([])))
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([]);
+        }),
+      )
       .subscribe((data: GetSavingsProductsResponse[]) => {
         this.products.set(data || []);
       });
@@ -89,5 +100,9 @@ export class SavingsProductsListComponent implements OnInit {
 
   onEditProduct(product: GetSavingsProductsResponse): void {
     this.router.navigate(['/products/savings/edit', product.id]);
+  }
+
+  onRetry(): void {
+    this.loadProducts();
   }
 }

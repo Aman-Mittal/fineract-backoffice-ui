@@ -46,7 +46,7 @@ async function loginAndMockApi(page: Page) {
       contentType: 'application/json',
       body: JSON.stringify({
         fineractApiUrl: API_BASE,
-        defaultTenantId: TENANT_DEFAULT,
+        defaultTenant: TENANT_DEFAULT,
       }),
     });
   });

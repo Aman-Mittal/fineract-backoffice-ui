@@ -80,7 +80,7 @@ async function mockConfig(page: Page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ fineractApiUrl: API_BASE, defaultTenantId: TENANT_DEFAULT }),
+      body: JSON.stringify({ fineractApiUrl: API_BASE, defaultTenant: TENANT_DEFAULT }),
     });
   });
 }
@@ -570,6 +570,12 @@ test.describe('Navigation Flow Verification', () => {
   });
 
   test('should navigate from dashboard to all top-level pages via sidebar', async ({ page }) => {
+    // Ten sequential navigations, each lazy-loading its own route chunk, against the default
+    // 30s test budget — while a single toHaveURL is allowed 15s on its own. One slow chunk
+    // under parallel load exhausts the test before the walk finishes, at whichever link
+    // happens to be next. The work is genuinely ~10x a normal test, so the budget should be.
+    test.slow();
+
     const navRoutes = [
       { link: 'Dashboard', expected: '/dashboard' },
       { link: 'Clients', expected: '/clients' },

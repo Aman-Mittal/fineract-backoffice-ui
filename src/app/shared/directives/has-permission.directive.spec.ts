@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HasPermissionDirective } from './has-permission.directive';
 import { AuthService } from '../../core/services/auth.service';
-import { environment } from '../../../environments/environment';
+import { provideTestConfig } from '../../testing/config';
 
 @Component({
   template: `
@@ -49,22 +49,23 @@ const STRICT_PERMISSION_SELECTOR = '#strict-permission';
 describe('HasPermissionDirective', () => {
   let fixture: ComponentFixture<TestComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
-  const originalRbacEnabled = environment.rbacEnabled;
+
+  /** Configures the TestBed with RBAC on or off for this deployment. */
+  function configure(rbacEnabled: boolean): void {
+    TestBed.configureTestingModule({
+      imports: [TestComponent],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        provideTestConfig({ rbacEnabled }),
+      ],
+    });
+  }
 
   beforeEach(() => {
-    environment.rbacEnabled = true;
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: () => ({ permissions: ['CREATE_CLIENT'] }),
     });
-
-    TestBed.configureTestingModule({
-      imports: [TestComponent],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
-    });
-  });
-
-  afterEach(() => {
-    environment.rbacEnabled = originalRbacEnabled;
+    configure(true);
   });
 
   it('should render elements when permission is granted', () => {
@@ -96,7 +97,8 @@ describe('HasPermissionDirective', () => {
   });
 
   it('should render everything when RBAC is disabled, even without permission', () => {
-    environment.rbacEnabled = false;
+    TestBed.resetTestingModule();
+    configure(false);
     authServiceSpy.hasPermission.and.returnValue(false);
     fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();

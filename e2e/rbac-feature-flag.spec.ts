@@ -20,17 +20,18 @@
 /**
  * End-to-end coverage for issue #113 — RBAC feature flag for gradual rollout.
  *
- * The `environment.rbacEnabled` flag is a build-time constant and the e2e build
- * ships with its default value (`true`). These tests therefore exercise the
- * observable RBAC-enabled behaviour:
+ * `rbacEnabled` is read from `config.json` at runtime, so every path is reachable here by
+ * serving a different file — including `rbacEnabled: false`, which was previously a
+ * compile-time variant no e2e build could reach.
+ *
+ * Covered:
  *   - the sidebar filters permission-gated nav groups by the user's permissions
- *     (via `*appHasPermission`), and
+ *     (via `*appHasPermission`),
  *   - it filters the institution-feature items Groups / Centers / Collection
  *     Sheet by institution type (via `*appInstitutionFeature` +
- *     `InstitutionConfigService`).
- *
- * The `rbacEnabled = false` path (everything visible) is a compile-time variant
- * and is covered by the directive unit specs.
+ *     `InstitutionConfigService`),
+ *   - `rbacEnabled: false` restores the pre-RBAC behaviour of showing everything, and
+ *   - `nav.hidden` removes an entry for this deployment whichever of those applies.
  */
 
 import { test, expect, Page } from './fixtures';
@@ -46,6 +47,8 @@ type InstitutionType = 'mfis' | 'cb' | 'cu' | 'universal';
 interface LoginOptions {
   permissions: string[];
   institutionType?: InstitutionType;
+  /** Extra keys merged into the served config.json, e.g. `rbacEnabled` or `nav`. */
+  config?: Record<string, unknown>;
 }
 
 /**
@@ -54,7 +57,7 @@ interface LoginOptions {
  * localStorage before the app bootstraps.
  */
 async function login(page: Page, options: LoginOptions): Promise<void> {
-  const { permissions, institutionType } = options;
+  const { permissions, institutionType, config = {} } = options;
 
   if (institutionType) {
     await page.addInitScript(
@@ -69,7 +72,11 @@ async function login(page: Page, options: LoginOptions): Promise<void> {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ fineractApiUrl: API_BASE, defaultTenantId: TENANT_DEFAULT }),
+      body: JSON.stringify({
+        fineractApiUrl: API_BASE,
+        defaultTenant: TENANT_DEFAULT,
+        ...config,
+      }),
     });
   });
 
@@ -181,5 +188,53 @@ test.describe('RBAC institution-feature gating (rbacEnabled = true)', () => {
     await expect(link(page, 'Groups')).toBeVisible();
     await expect(link(page, 'Centers')).toHaveCount(0);
     await expect(link(page, 'Collection Sheet')).toHaveCount(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Runtime configuration — reachable now that these are read from config.json
+// ─────────────────────────────────────────────────────────────────────────────
+test.describe('rbacEnabled = false', () => {
+  test('restores the pre-RBAC behaviour of showing everything', async ({ page }) => {
+    // A user with no permissions at all, at an institution type that gates group lending
+    // off: both filters would otherwise apply, and neither does.
+    await login(page, {
+      permissions: [],
+      institutionType: 'cb',
+      config: { rbacEnabled: false },
+    });
+
+    for (const name of GATED_LINKS) {
+      await expect(link(page, name)).toBeVisible();
+    }
+    await expect(link(page, 'Groups')).toBeVisible();
+    await expect(link(page, 'Collection Sheet')).toBeVisible();
+  });
+});
+
+test.describe('deployment navigation overrides', () => {
+  test('removes the entries config.json names, leaving the rest alone', async ({ page }) => {
+    await login(page, {
+      permissions: ['ALL_FUNCTIONS'],
+      institutionType: 'universal',
+      config: { nav: { hidden: ['nav.groups', 'SIDEBAR.SEARCH'] } },
+    });
+
+    await expect(link(page, 'Groups')).toHaveCount(0);
+    await expect(link(page, 'Centers')).toBeVisible();
+    await expect(link(page, 'Clients')).toBeVisible();
+  });
+
+  test('removes them even where RBAC is off', async ({ page }) => {
+    // What a deployment offers is a different question from what a user may reach, so the
+    // switch that answers the second one must not answer the first.
+    await login(page, {
+      permissions: ['ALL_FUNCTIONS'],
+      institutionType: 'universal',
+      config: { rbacEnabled: false, nav: { hidden: ['nav.groups'] } },
+    });
+
+    await expect(link(page, 'Groups')).toHaveCount(0);
+    await expect(link(page, 'Centers')).toBeVisible();
   });
 });

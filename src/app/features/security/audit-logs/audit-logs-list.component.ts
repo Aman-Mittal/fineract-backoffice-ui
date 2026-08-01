@@ -22,7 +22,7 @@ import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { AuditsService } from '../../../api';
 import { DatePipe } from '@angular/common';
@@ -189,6 +189,8 @@ export interface AuditFilters {
       </ion-accordion-group>
 
       <app-data-table
+        [hasError]="hasError()"
+        (retry)="onRetry()"
         title="SECURITY.AUDIT_LOGS"
         [columns]="columns"
         [data]="auditLogs()"
@@ -246,6 +248,12 @@ export interface AuditFilters {
   ],
 })
 export class AuditLogsListComponent implements OnInit {
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
+
+  /** Re-runs the query behind the table when the user asks to try again. */
+  private readonly retrySubject = new Subject<void>();
+
   private readonly auditsService = inject(AuditsService);
   private readonly dialogService = inject(DialogService);
 
@@ -285,7 +293,7 @@ export class AuditLogsListComponent implements OnInit {
   private currentSort: SortEvent = { active: 'id', direction: 'desc' };
 
   ngOnInit(): void {
-    merge(this.sortSubject, this.pageSubject, this.filterSubject)
+    merge(this.sortSubject, this.pageSubject, this.filterSubject, this.retrySubject)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -328,7 +336,13 @@ export class AuditLogsListComponent implements OnInit {
               sortOrder,
               true,
             )
-            .pipe(catchError(() => of(null)));
+            .pipe(
+              tap(() => this.hasError.set(false)),
+              catchError(() => {
+                this.hasError.set(true);
+                return of(null);
+              }),
+            );
         }),
         map((data: unknown) => {
           this.isLoading.set(false);
@@ -401,5 +415,9 @@ export class AuditLogsListComponent implements OnInit {
     return this.dialogService
       .open(ViewPayloadDialogComponent, { data: { payload } })
       .then(() => undefined);
+  }
+
+  onRetry(): void {
+    this.retrySubject.next();
   }
 }

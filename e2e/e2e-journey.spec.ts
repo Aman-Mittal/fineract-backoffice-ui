@@ -82,7 +82,7 @@ const JSON_CONTENT = 'application/json';
 async function mockConfig(page: Page) {
   await page.route('**/config.json', async (route) => {
     await route.fulfill(
-      okJsonResponse(JSON.stringify({ fineractApiUrl: API_BASE, defaultTenantId: TENANT_ID })),
+      okJsonResponse(JSON.stringify({ fineractApiUrl: API_BASE, defaultTenant: TENANT_ID })),
     );
   });
 }
@@ -388,6 +388,12 @@ test.describe('E2E: Sidebar Navigation', () => {
   });
 
   test('should navigate to all major pages via sidebar', async ({ page }) => {
+    // Ten sequential navigations, each lazy-loading its own route chunk, against the default
+    // 30s test budget — while a single toHaveURL is allowed 15s on its own. One slow chunk
+    // under parallel load exhausts the test before the walk finishes, at whichever link
+    // happens to be next. The work is genuinely ~10x a normal test, so the budget should be.
+    test.slow();
+
     const routes = [
       { link: 'Dashboard', url: '/dashboard' },
       { link: 'Clients', url: '/clients' },

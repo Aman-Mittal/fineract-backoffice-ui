@@ -29,6 +29,8 @@ import {
   TemplateRef,
   OnChanges,
   SimpleChanges,
+  input,
+  output,
 } from '@angular/core';
 import { CdkTableModule } from '@angular/cdk/table';
 import { NgTemplateOutlet } from '@angular/common';
@@ -136,60 +138,79 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
           <ng-content select="[filters]"></ng-content>
         </div>
 
-        <div class="table-container">
-          <table cdk-table [dataSource]="rows()" class="data-table">
-            @for (col of columns; track col.key) {
-              <ng-container [cdkColumnDef]="col.key">
-                <th
-                  cdk-header-cell
-                  *cdkHeaderCellDef
-                  [appTooltip]="col.tooltip || ''"
-                  [attr.aria-sort]="ariaSortFor(col)"
-                  [class.sortable]="col.sortable"
-                  (click)="onSortHeaderClick(col)"
-                >
-                  {{ col.label | translate }}
-                  @if (col.sortable && sort().active === col.key && sort().direction) {
-                    <ion-icon
-                      class="sort-indicator"
-                      [name]="
-                        sort().direction === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'
-                      "
-                    ></ion-icon>
-                  }
-                </th>
-                <td cdk-cell *cdkCellDef="let row">
-                  @if (columnTemplates[col.key]) {
-                    <ng-container
-                      *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
-                    ></ng-container>
-                  } @else {
-                    <span class="truncate-text" [appTooltip]="getTooltipText(row, col.key)">
-                      {{ getCellValue(row, col.key) }}
-                    </span>
-                  }
+        @if (hasError()) {
+          <!-- Replaces the table rather than sitting above it. A failed load leaves the rows
+               empty, and an empty table reads as "there is nothing here" — the opposite of
+               what happened. -->
+          <div class="error-state" role="alert" data-testid="data-table-error">
+            <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+            <p class="error-text">{{ 'COMMON.ERRORS.LOAD_FAILED' | translate }}</p>
+            <ion-button
+              fill="outline"
+              size="small"
+              data-testid="data-table-retry"
+              (click)="onRetry()"
+            >
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              {{ 'COMMON.RETRY' | translate }}
+            </ion-button>
+          </div>
+        } @else {
+          <div class="table-container">
+            <table cdk-table [dataSource]="rows()" class="data-table">
+              @for (col of columns; track col.key) {
+                <ng-container [cdkColumnDef]="col.key">
+                  <th
+                    cdk-header-cell
+                    *cdkHeaderCellDef
+                    [appTooltip]="col.tooltip || ''"
+                    [attr.aria-sort]="ariaSortFor(col)"
+                    [class.sortable]="col.sortable"
+                    (click)="onSortHeaderClick(col)"
+                  >
+                    {{ col.label | translate }}
+                    @if (col.sortable && sort().active === col.key && sort().direction) {
+                      <ion-icon
+                        class="sort-indicator"
+                        [name]="
+                          sort().direction === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'
+                        "
+                      ></ion-icon>
+                    }
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">
+                    @if (columnTemplates[col.key]) {
+                      <ng-container
+                        *ngTemplateOutlet="columnTemplates[col.key]; context: { $implicit: row }"
+                      ></ng-container>
+                    } @else {
+                      <span class="truncate-text" [appTooltip]="getTooltipText(row, col.key)">
+                        {{ getCellValue(row, col.key) }}
+                      </span>
+                    }
+                  </td>
+                </ng-container>
+              }
+
+              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
+              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
+
+              <tr class="no-data-row" *cdkNoDataRow>
+                <td [attr.colspan]="displayedColumns.length">
+                  {{ 'COMMON.NO_DATA' | translate }}
                 </td>
-              </ng-container>
-            }
+              </tr>
+            </table>
 
-            <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-            <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
-
-            <tr class="no-data-row" *cdkNoDataRow>
-              <td [attr.colspan]="displayedColumns.length">
-                {{ 'COMMON.NO_DATA' | translate }}
-              </td>
-            </tr>
-          </table>
-
-          <app-paginator
-            [length]="displayedTotal()"
-            [pageSize]="effectivePageSize"
-            [pageIndex]="effectivePageIndex"
-            [pageSizeOptions]="pageSizeOptions"
-            (page)="onPage($event)"
-          ></app-paginator>
-        </div>
+            <app-paginator
+              [length]="displayedTotal()"
+              [pageSize]="effectivePageSize"
+              [pageIndex]="effectivePageIndex"
+              [pageSizeOptions]="pageSizeOptions"
+              (page)="onPage($event)"
+            ></app-paginator>
+          </div>
+        }
       </ion-card-content>
     </ion-card>
   `,
@@ -276,6 +297,23 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         text-align: center;
         color: var(--text-muted, #7f8c8d);
       }
+      .error-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-6) var(--space-4);
+        text-align: center;
+      }
+      .error-icon {
+        font-size: 2rem;
+        color: var(--error-color);
+      }
+      .error-text {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
       .loading-overlay {
         position: absolute;
         top: 0;
@@ -317,11 +355,24 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
   /** If true, the component will handle pagination/sorting locally. */
   @Input() localLogic = false;
   @Input() isLoading = false;
+  /**
+   * Whether the last load failed.
+   *
+   * Set this instead of swallowing the failure into an empty array. A table that renders
+   * "No records found" after a request errored tells the user the data does not exist, when
+   * in fact nobody knows — and leaves them no way to ask again short of reloading the page.
+   *
+   * A signal input rather than a decorator: the surrounding `@Input()`s are on the Wave 3
+   * conversion list, and adding to that list is the wrong direction.
+   */
+  readonly hasError = input(false);
 
   @Output() create = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() sortChange = new EventEmitter<SortEvent>();
   @Output() pageChange = new EventEmitter<PageEvent>();
+  /** Emitted when the user asks to load again after a failure. */
+  readonly retry = output<void>();
 
   @ContentChildren(CellTemplateDirective) cellTemplates!: QueryList<CellTemplateDirective>;
 
@@ -385,6 +436,10 @@ export class DataTableComponent<T> implements AfterContentInit, OnChanges {
 
   onCreate(): void {
     this.create.emit();
+  }
+
+  onRetry(): void {
+    this.retry.emit();
   }
 
   onSearch(value: string): void {

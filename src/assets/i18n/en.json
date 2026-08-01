@@ -255,7 +255,14 @@
     "TERM": "Term",
     "DOWNLOAD": "Download",
     "CLOSE": "Close",
-    "ERROR": "Operation failed."
+    "ERROR": "Operation failed.",
+    "ERRORS": {
+      "FORBIDDEN": "You do not have permission to perform this action. Contact an administrator if you believe this is a mistake.",
+      "NETWORK": "Unable to connect to the server. Please check your network or CORS settings.",
+      "UNEXPECTED": "Something went wrong. The action was not completed — please try again.",
+      "LOAD_FAILED": "This list could not be loaded."
+    },
+    "RETRY": "Try again"
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "New Account",
@@ -1030,7 +1037,8 @@
     "tooltips": {
       "serverUrl": "The Fineract server address. Use 'Mifos Sandbox' for testing or 'Local' for your own instance.",
       "tenantId": "A unique ID for the financial institution. Default is 'default'. This is passed via the Fineract-Platform-TenantId header."
-    }
+    },
+    "sessionExpired": "Your session has expired. Please sign in again."
   },
   "idle": {
     "warning": {
