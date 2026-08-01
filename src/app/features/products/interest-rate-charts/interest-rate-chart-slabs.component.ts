@@ -128,7 +128,12 @@ interface SlabRow {
               <ion-label position="stacked">{{
                 'INTEREST_RATE_CHARTS.PERIOD_TYPE' | translate
               }}</ion-label>
-              <ion-select interface="popover" name="periodType" [(ngModel)]="newSlab.periodType">
+              <ion-select
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.PERIOD_TYPE' | translate"
+                interface="popover"
+                name="periodType"
+                [(ngModel)]="newSlab.periodType"
+              >
                 @for (opt of periodTypeOptions; track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
@@ -140,6 +145,7 @@ interface SlabRow {
                 'INTEREST_RATE_CHARTS.FROM_PERIOD' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.FROM_PERIOD' | translate"
                 type="number"
                 name="fromPeriod"
                 [(ngModel)]="newSlab.fromPeriod"
@@ -150,7 +156,12 @@ interface SlabRow {
               <ion-label position="stacked">{{
                 'INTEREST_RATE_CHARTS.TO_PERIOD' | translate
               }}</ion-label>
-              <ion-input type="number" name="toPeriod" [(ngModel)]="newSlab.toPeriod"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.TO_PERIOD' | translate"
+                type="number"
+                name="toPeriod"
+                [(ngModel)]="newSlab.toPeriod"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -158,6 +169,7 @@ interface SlabRow {
                 'INTEREST_RATE_CHARTS.AMOUNT_RANGE_FROM' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.AMOUNT_RANGE_FROM' | translate"
                 type="number"
                 name="amountRangeFrom"
                 [(ngModel)]="newSlab.amountRangeFrom"
@@ -169,6 +181,7 @@ interface SlabRow {
                 'INTEREST_RATE_CHARTS.AMOUNT_RANGE_TO' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.AMOUNT_RANGE_TO' | translate"
                 type="number"
                 name="amountRangeTo"
                 [(ngModel)]="newSlab.amountRangeTo"
@@ -180,6 +193,7 @@ interface SlabRow {
                 'INTEREST_RATE_CHARTS.ANNUAL_INTEREST_RATE' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'INTEREST_RATE_CHARTS.ANNUAL_INTEREST_RATE' | translate"
                 type="number"
                 name="annualInterestRate"
                 [(ngModel)]="newSlab.annualInterestRate"

@@ -79,6 +79,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SHARE_DIVIDENDS.AMOUNT' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'SHARE_DIVIDENDS.AMOUNT' | translate"
                 type="number"
                 name="dividendAmount"
                 [(ngModel)]="dividendAmount"

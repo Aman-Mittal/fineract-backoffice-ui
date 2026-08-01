@@ -63,6 +63,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
         <ion-item fill="outline">
           <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
           <ion-input
+            [attr.aria-label]="'OFFICES.NAME' | translate"
             id="office-name"
             data-testid="office-name"
             name="name"
@@ -74,6 +75,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
         <ion-item fill="outline">
           <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
           <ion-select
+            [attr.aria-label]="'OFFICES.PARENT' | translate"
             interface="popover"
             id="office-parent"
             data-testid="office-parent"

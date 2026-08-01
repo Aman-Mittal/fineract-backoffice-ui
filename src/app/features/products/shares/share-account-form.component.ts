@@ -146,6 +146,7 @@ interface ShareAccountTemplateResponse {
                     <ion-item fill="outline" class="form-item flex-grow">
                       <ion-label position="stacked">{{ 'COMMON.PRODUCT' | translate }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'COMMON.PRODUCT' | translate"
                         interface="popover"
                         id="share-account-product-select"
                         data-testid="share-account-product-select"
@@ -183,6 +184,7 @@ interface ShareAccountTemplateResponse {
                       'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'SHARE_ACCOUNTS.REQUESTED_SHARES' | translate"
                       id="share-account-requested-shares"
                       data-testid="share-account-requested-shares"
                       type="number"
@@ -200,6 +202,7 @@ interface ShareAccountTemplateResponse {
                       'SHARE_ACCOUNTS.APPLICATION_DATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'SHARE_ACCOUNTS.APPLICATION_DATE' | translate"
                       id="share-account-application-date"
                       data-testid="share-account-application-date"
                       type="date"
@@ -218,6 +221,7 @@ interface ShareAccountTemplateResponse {
                       'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'SHARE_ACCOUNTS.SAVINGS_ACCOUNT_ID' | translate"
                       interface="popover"
                       id="share-account-savings-select"
                       data-testid="share-account-savings-select"

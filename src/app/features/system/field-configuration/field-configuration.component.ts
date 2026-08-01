@@ -56,7 +56,12 @@ import {
         <ion-card-content>
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'FIELD_CONFIG.ENTITY' | translate }}</ion-label>
-            <ion-select interface="popover" [(ngModel)]="entity" (ngModelChange)="load()">
+            <ion-select
+              [attr.aria-label]="'FIELD_CONFIG.ENTITY' | translate"
+              interface="popover"
+              [(ngModel)]="entity"
+              (ngModelChange)="load()"
+            >
               @for (opt of entityOptions; track opt) {
                 <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
               }

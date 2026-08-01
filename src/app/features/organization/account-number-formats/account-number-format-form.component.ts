@@ -80,6 +80,7 @@ import {
                   'ACCOUNT_NUMBER_FORMATS.ACCOUNT_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'ACCOUNT_NUMBER_FORMATS.ACCOUNT_TYPE' | translate"
                   interface="popover"
                   name="accountType"
                   [(ngModel)]="format.accountType"
@@ -98,6 +99,7 @@ import {
                   'ACCOUNT_NUMBER_FORMATS.PREFIX_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'ACCOUNT_NUMBER_FORMATS.PREFIX_TYPE' | translate"
                   interface="popover"
                   name="prefixType"
                   [(ngModel)]="format.prefixType"

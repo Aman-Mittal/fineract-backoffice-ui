@@ -66,6 +66,7 @@ import {
           <ion-item fill="outline" class="search-field">
             <ion-label position="stacked">{{ 'CLIENT_SEARCH_V2.QUERY' | translate }}</ion-label>
             <ion-input
+              [attr.aria-label]="'CLIENT_SEARCH_V2.QUERY' | translate"
               [(ngModel)]="query"
               (keyup.enter)="search()"
               [disabled]="isLoading()"

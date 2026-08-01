@@ -75,17 +75,31 @@ import {
           <form #codeValueForm="ngForm" (ngSubmit)="onSubmit()" class="code-value-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CODE_VALUES.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="codeValue.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'CODE_VALUES.NAME' | translate"
+                name="name"
+                [(ngModel)]="codeValue.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CODE_VALUES.DESCRIPTION' | translate }}</ion-label>
-              <ion-input name="description" [(ngModel)]="codeValue.description"></ion-input>
+              <ion-input
+                [attr.aria-label]="'CODE_VALUES.DESCRIPTION' | translate"
+                name="description"
+                [(ngModel)]="codeValue.description"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CODE_VALUES.POSITION' | translate }}</ion-label>
-              <ion-input type="number" name="position" [(ngModel)]="codeValue.position"></ion-input>
+              <ion-input
+                [attr.aria-label]="'CODE_VALUES.POSITION' | translate"
+                type="number"
+                name="position"
+                [(ngModel)]="codeValue.position"
+              ></ion-input>
             </ion-item>
 
             <div class="checkbox-field">

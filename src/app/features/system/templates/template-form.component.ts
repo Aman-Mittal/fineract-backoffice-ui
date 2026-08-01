@@ -70,12 +70,19 @@ import {
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'TEMPLATES.NAME' | translate }}</ion-label>
-            <ion-input formControlName="name"></ion-input>
+            <ion-input
+              [attr.aria-label]="'TEMPLATES.NAME' | translate"
+              formControlName="name"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'TEMPLATES.ENTITY' | translate }}</ion-label>
-            <ion-select interface="popover" formControlName="entity">
+            <ion-select
+              [attr.aria-label]="'TEMPLATES.ENTITY' | translate"
+              interface="popover"
+              formControlName="entity"
+            >
               @for (opt of entityOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.label | translate }}</ion-select-option>
               }
@@ -84,7 +91,11 @@ import {
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'TEMPLATES.TYPE' | translate }}</ion-label>
-            <ion-select interface="popover" formControlName="type">
+            <ion-select
+              [attr.aria-label]="'TEMPLATES.TYPE' | translate"
+              interface="popover"
+              formControlName="type"
+            >
               @for (opt of typeOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.label | translate }}</ion-select-option>
               }
@@ -93,7 +104,11 @@ import {
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'TEMPLATES.TEXT' | translate }}</ion-label>
-            <ion-textarea formControlName="text" rows="10"></ion-textarea>
+            <ion-textarea
+              [attr.aria-label]="'TEMPLATES.TEXT' | translate"
+              formControlName="text"
+              rows="10"
+            ></ion-textarea>
           </ion-item>
 
           <div class="form-actions">

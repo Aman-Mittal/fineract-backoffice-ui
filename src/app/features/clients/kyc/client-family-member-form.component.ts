@@ -92,6 +92,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
                       type="text"
                       name="firstName"
                       [(ngModel)]="member.firstName"
@@ -107,6 +108,7 @@ import {
                       'CLIENTS.MIDDLE_NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.MIDDLE_NAME' | translate"
                       type="text"
                       name="middleName"
                       [(ngModel)]="member.middleName"
@@ -119,6 +121,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
                       type="text"
                       name="lastName"
                       [(ngModel)]="member.lastName"
@@ -134,6 +137,7 @@ import {
                       'CLIENTS.RELATIONSHIP' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.RELATIONSHIP' | translate"
                       interface="popover"
                       name="relationshipId"
                       [(ngModel)]="member.relationshipId"
@@ -151,6 +155,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.GENDER' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.GENDER' | translate"
                       interface="popover"
                       name="genderId"
                       [(ngModel)]="member.genderId"
@@ -169,6 +174,7 @@ import {
                       'CLIENTS.MARITAL_STATUS' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.MARITAL_STATUS' | translate"
                       interface="popover"
                       name="maritalStatusId"
                       [(ngModel)]="member.maritalStatusId"
@@ -185,6 +191,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.PROFESSION' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'CLIENTS.PROFESSION' | translate"
                       interface="popover"
                       name="professionId"
                       [(ngModel)]="member.professionId"
@@ -203,6 +210,7 @@ import {
                       'CLIENTS.QUALIFICATION' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.QUALIFICATION' | translate"
                       type="text"
                       name="qualification"
                       [(ngModel)]="member.qualification"
@@ -215,6 +223,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.MOBILE_NO' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.MOBILE_NO' | translate"
                       type="text"
                       name="mobileNumber"
                       [(ngModel)]="member.mobileNumber"
@@ -245,6 +254,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'CLIENTS.AGE' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'CLIENTS.AGE' | translate"
                       type="number"
                       name="age"
                       [(ngModel)]="member.age"

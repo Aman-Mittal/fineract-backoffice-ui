@@ -74,17 +74,32 @@ import {
           <form #adhocForm="ngForm" (ngSubmit)="onSubmit()" class="entity-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'ADHOC_QUERY.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="query.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'ADHOC_QUERY.NAME' | translate"
+                name="name"
+                [(ngModel)]="query.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'ADHOC_QUERY.QUERY' | translate }}</ion-label>
-              <ion-textarea name="query" [(ngModel)]="query.query" required></ion-textarea>
+              <ion-textarea
+                [attr.aria-label]="'ADHOC_QUERY.QUERY' | translate"
+                name="query"
+                [(ngModel)]="query.query"
+                required
+              ></ion-textarea>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'ADHOC_QUERY.TABLE_NAME' | translate }}</ion-label>
-              <ion-input name="tableName" [(ngModel)]="query.tableName" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'ADHOC_QUERY.TABLE_NAME' | translate"
+                name="tableName"
+                [(ngModel)]="query.tableName"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -92,6 +107,7 @@ import {
                 'ADHOC_QUERY.REPORT_RUN_FREQUENCY' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'ADHOC_QUERY.REPORT_RUN_FREQUENCY' | translate"
                 interface="popover"
                 name="reportRunFrequency"
                 [(ngModel)]="query.reportRunFrequency"

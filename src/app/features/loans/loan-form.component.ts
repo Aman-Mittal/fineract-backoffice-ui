@@ -131,6 +131,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 >
                   <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'LOANS.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
                     [(ngModel)]="loan.productId"
@@ -170,6 +171,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.PRINCIPAL_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.PRINCIPAL' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.PRINCIPAL' | translate"
                   type="number"
                   name="principal"
                   [(ngModel)]="loan.principal"
@@ -180,7 +182,11 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <!-- External ID -->
               <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
-                <ion-input name="externalId" [(ngModel)]="loan.externalId"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
+                  name="externalId"
+                  [(ngModel)]="loan.externalId"
+                ></ion-input>
               </ion-item>
 
               <!-- Submitted On -->
@@ -227,6 +233,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.TERM_FREQUENCY_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_FREQUENCY' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.TERM_FREQUENCY' | translate"
                   type="number"
                   name="loanTermFrequency"
                   [(ngModel)]="loan.loanTermFrequency"
@@ -238,6 +245,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.TERM_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.TERM_TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'LOANS.TERM_TYPE' | translate"
                   interface="popover"
                   name="loanTermFrequencyType"
                   [(ngModel)]="loan.loanTermFrequencyType"
@@ -260,6 +268,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.REPAYMENTS_COUNT_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | translate"
                   type="number"
                   name="numberOfRepayments"
                   [(ngModel)]="loan.numberOfRepayments"
@@ -271,6 +280,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline" [appTooltip]="'HELP.REPAYMENT_EVERY_DESC' | translate">
                 <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | translate"
                   type="number"
                   name="repaymentEvery"
                   [(ngModel)]="loan.repaymentEvery"
@@ -282,6 +292,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                   interface="popover"
                   name="repaymentFrequencyType"
                   [(ngModel)]="loan.repaymentFrequencyType"
@@ -301,6 +312,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.INTEREST_RATE' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.INTEREST_RATE' | translate"
                   type="number"
                   name="interestRatePerPeriod"
                   [(ngModel)]="loan.interestRatePerPeriod"
@@ -312,6 +324,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.INTEREST_TYPE' | translate"
                   interface="popover"
                   name="interestType"
                   [(ngModel)]="loan.interestType"
@@ -330,6 +343,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'PRODUCTS.AMORTIZATION_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.AMORTIZATION_TYPE' | translate"
                   interface="popover"
                   name="amortizationType"
                   [(ngModel)]="loan.amortizationType"
@@ -350,6 +364,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate"
                   interface="popover"
                   name="interestCalculationPeriodType"
                   [(ngModel)]="loan.interestCalculationPeriodType"
@@ -368,6 +383,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate"
                   type="number"
                   name="graceOnPrincipalPayment"
                   [(ngModel)]="loan.graceOnPrincipalPayment"
@@ -380,6 +396,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate"
                   type="number"
                   name="graceOnInterestPayment"
                   [(ngModel)]="loan.graceOnInterestPayment"
@@ -392,6 +409,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.GRACE_ON_INTEREST_CHARGED' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.GRACE_ON_INTEREST_CHARGED' | translate"
                   type="number"
                   name="graceOnInterestCharged"
                   [(ngModel)]="loan.graceOnInterestCharged"
@@ -404,6 +422,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   'LOANS.IN_ARREARS_TOLERANCE' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'LOANS.IN_ARREARS_TOLERANCE' | translate"
                   type="number"
                   name="inArrearsTolerance"
                   [(ngModel)]="loan.inArrearsTolerance"

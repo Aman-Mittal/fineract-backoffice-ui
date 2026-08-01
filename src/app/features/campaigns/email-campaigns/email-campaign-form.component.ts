@@ -80,12 +80,22 @@ import {
           <form #campaignForm="ngForm" (ngSubmit)="onSubmit()" class="campaign-form">
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.NAME' | translate }}</ion-label>
-              <ion-input name="campaignName" [(ngModel)]="campaignName" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'EMAIL_CAMPAIGNS.NAME' | translate"
+                name="campaignName"
+                [(ngModel)]="campaignName"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.TYPE' | translate }}</ion-label>
-              <ion-select interface="popover" name="campaignType" [(ngModel)]="campaignType">
+              <ion-select
+                [attr.aria-label]="'EMAIL_CAMPAIGNS.TYPE' | translate"
+                interface="popover"
+                name="campaignType"
+                [(ngModel)]="campaignType"
+              >
                 @for (option of campaignTypeOptions(); track option.id) {
                   <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                 }
@@ -94,12 +104,21 @@ import {
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.SUBJECT' | translate }}</ion-label>
-              <ion-input name="emailSubject" [(ngModel)]="emailSubject"></ion-input>
+              <ion-input
+                [attr.aria-label]="'EMAIL_CAMPAIGNS.SUBJECT' | translate"
+                name="emailSubject"
+                [(ngModel)]="emailSubject"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.MESSAGE' | translate }}</ion-label>
-              <ion-textarea name="emailMessage" [(ngModel)]="emailMessage" rows="5"></ion-textarea>
+              <ion-textarea
+                [attr.aria-label]="'EMAIL_CAMPAIGNS.MESSAGE' | translate"
+                name="emailMessage"
+                [(ngModel)]="emailMessage"
+                rows="5"
+              ></ion-textarea>
             </ion-item>
 
             <ion-item fill="outline" class="full-width">

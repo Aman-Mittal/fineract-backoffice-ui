@@ -88,19 +88,35 @@ import {
             <div class="form-grid">
               <ion-item fill="outline" [appTooltip]="'HELP.ACCOUNT_NAME_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="account.name" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="account.name"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline" [appTooltip]="'HELP.GL_CODE_DESC' | translate">
                 <ion-label position="stacked">{{ 'ACCOUNTING.GL_CODE' | translate }}</ion-label>
-                <ion-input name="glCode" [(ngModel)]="account.glCode" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'ACCOUNTING.GL_CODE' | translate"
+                  name="glCode"
+                  [(ngModel)]="account.glCode"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline" [appTooltip]="'HELP.ACCOUNT_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{
                   'ACCOUNTING.ACCOUNT_TYPE' | translate
                 }}</ion-label>
-                <ion-select interface="popover" name="type" [(ngModel)]="account.type" required>
+                <ion-select
+                  [attr.aria-label]="'ACCOUNTING.ACCOUNT_TYPE' | translate"
+                  interface="popover"
+                  name="type"
+                  [(ngModel)]="account.type"
+                  required
+                >
                   <ion-select-option [value]="1">{{
                     'ACCOUNTING.ASSET' | translate
                   }}</ion-select-option>
@@ -123,7 +139,13 @@ import {
                 <ion-label position="stacked">{{
                   'ACCOUNTING.ACCOUNT_USAGE' | translate
                 }}</ion-label>
-                <ion-select interface="popover" name="usage" [(ngModel)]="account.usage" required>
+                <ion-select
+                  [attr.aria-label]="'ACCOUNTING.ACCOUNT_USAGE' | translate"
+                  interface="popover"
+                  name="usage"
+                  [(ngModel)]="account.usage"
+                  required
+                >
                   <ion-select-option [value]="1">{{
                     'ACCOUNTING.DETAIL' | translate
                   }}</ion-select-option>
@@ -140,6 +162,7 @@ import {
               >
                 <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
                 <ion-textarea
+                  [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                   name="description"
                   [(ngModel)]="account.description"
                   rows="3"

@@ -76,6 +76,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'SYSTEM.ENTITY_TYPE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'SYSTEM.ENTITY_TYPE' | translate"
                 interface="popover"
                 [(ngModel)]="selectedEntity"
                 (ionChange)="onEntityChange()"

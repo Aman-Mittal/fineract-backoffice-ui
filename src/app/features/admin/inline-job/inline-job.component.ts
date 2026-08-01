@@ -60,12 +60,21 @@ import {
       <ion-card-content>
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">{{ 'INLINE_JOB.JOB_NAME' | translate }}</ion-label>
-          <ion-input [(ngModel)]="jobName" required></ion-input>
+          <ion-input
+            [attr.aria-label]="'INLINE_JOB.JOB_NAME' | translate"
+            [(ngModel)]="jobName"
+            required
+          ></ion-input>
         </ion-item>
 
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">{{ 'INLINE_JOB.BODY' | translate }}</ion-label>
-          <ion-textarea [(ngModel)]="jobBody" rows="6" placeholder="{}"></ion-textarea>
+          <ion-textarea
+            [attr.aria-label]="'INLINE_JOB.BODY' | translate"
+            [(ngModel)]="jobBody"
+            rows="6"
+            placeholder="{}"
+          ></ion-textarea>
         </ion-item>
 
         @if (error()) {

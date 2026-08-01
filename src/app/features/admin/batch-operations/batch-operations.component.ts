@@ -60,7 +60,12 @@ import {
       <ion-card-content>
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">{{ 'BATCH_OPERATIONS.INPUT' | translate }}</ion-label>
-          <ion-textarea [(ngModel)]="batchInput" rows="10" placeholder="[]"></ion-textarea>
+          <ion-textarea
+            [attr.aria-label]="'BATCH_OPERATIONS.INPUT' | translate"
+            [(ngModel)]="batchInput"
+            rows="10"
+            placeholder="[]"
+          ></ion-textarea>
         </ion-item>
 
         <ion-checkbox [(ngModel)]="enclosingTransaction">

@@ -89,6 +89,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <ion-item fill="outline">
                 <ion-label position="stacked">Office</ion-label>
                 <ion-select
+                  aria-label="Office"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="request.officeId"
@@ -122,6 +123,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">Comments</ion-label>
                 <ion-textarea
+                  aria-label="Comments"
                   name="comments"
                   [(ngModel)]="request.comments"
                   rows="3"

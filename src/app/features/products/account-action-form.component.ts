@@ -158,6 +158,7 @@ import {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'LOANS.LOAN_OFFICER' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'LOANS.LOAN_OFFICER' | translate"
                   interface="popover"
                   id="account-action-officer"
                   data-testid="account-action-officer"
@@ -179,6 +180,7 @@ import {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'LOANS.CHARGE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'LOANS.CHARGE' | translate"
                   interface="popover"
                   id="account-action-charge"
                   data-testid="account-action-charge"
@@ -196,6 +198,7 @@ import {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'COMMON.AMOUNT' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   id="account-action-amount"
                   data-testid="account-action-amount"
                   type="number"
@@ -210,6 +213,7 @@ import {
             <ion-item fill="outline" class="form-item">
               <ion-label position="stacked">{{ dateLabel | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="dateLabel | translate"
                 id="account-action-date"
                 data-testid="account-action-date"
                 type="date"
@@ -227,6 +231,7 @@ import {
                   'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate"
                   id="account-action-disbursement-date"
                   data-testid="account-action-disbursement-date"
                   type="date"
@@ -242,6 +247,7 @@ import {
             <ion-item fill="outline" class="form-item">
               <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'COMMON.NOTE' | translate"
                 id="account-action-note"
                 data-testid="account-action-note"
                 name="note"

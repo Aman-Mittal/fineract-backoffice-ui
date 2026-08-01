@@ -81,6 +81,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'USERS.USERNAME' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'USERS.USERNAME' | translate"
                   name="username"
                   [(ngModel)]="user.username"
                   required
@@ -90,22 +91,39 @@ import {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
-                <ion-input name="firstname" [(ngModel)]="user.firstname" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
+                  name="firstname"
+                  [(ngModel)]="user.firstname"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
-                <ion-input name="lastname" [(ngModel)]="user.lastname" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
+                  name="lastname"
+                  [(ngModel)]="user.lastname"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
-                <ion-input type="email" name="email" [(ngModel)]="user.email" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.EMAIL' | translate"
+                  type="email"
+                  name="email"
+                  [(ngModel)]="user.email"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="user.officeId"
@@ -123,6 +141,7 @@ import {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'USERS.PASSWORD' | translate }}</ion-label>
                   <ion-input
+                    [attr.aria-label]="'USERS.PASSWORD' | translate"
                     type="password"
                     name="password"
                     [(ngModel)]="user.password"
@@ -135,6 +154,7 @@ import {
                     'USERS.REPEAT_PASSWORD' | translate
                   }}</ion-label>
                   <ion-input
+                    [attr.aria-label]="'USERS.REPEAT_PASSWORD' | translate"
                     type="password"
                     name="repeatPassword"
                     [(ngModel)]="user.repeatPassword"
@@ -146,6 +166,7 @@ import {
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'USERS.ROLES' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'USERS.ROLES' | translate"
                   interface="popover"
                   name="roles"
                   [(ngModel)]="user.roles"

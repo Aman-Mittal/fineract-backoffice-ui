@@ -88,6 +88,7 @@ import {
         <ion-item fill="outline" class="filter-field">
           <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
           <ion-select
+            [attr.aria-label]="'COMMON.STATUS' | translate"
             interface="popover"
             [(ngModel)]="activeFilters.status"
             (ionChange)="onFilterChange()"

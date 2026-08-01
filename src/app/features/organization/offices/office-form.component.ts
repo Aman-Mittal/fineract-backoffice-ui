@@ -87,12 +87,18 @@ import {
             <div class="form-grid">
               <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_NAME_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="office.name" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'OFFICES.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="office.name"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline" [appTooltip]="'HELP.PARENT_OFFICE_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'OFFICES.PARENT' | translate"
                   interface="popover"
                   name="parentId"
                   [(ngModel)]="office.parentId"
@@ -107,7 +113,11 @@ import {
 
               <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.EXTERNAL_ID' | translate }}</ion-label>
-                <ion-input name="externalId" [(ngModel)]="office.externalId"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'OFFICES.EXTERNAL_ID' | translate"
+                  name="externalId"
+                  [(ngModel)]="office.externalId"
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | translate">

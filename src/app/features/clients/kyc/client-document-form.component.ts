@@ -69,12 +69,18 @@ import {
           <form #docForm="ngForm" (ngSubmit)="onSubmit()" class="doc-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="document.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'COMMON.NAME' | translate"
+                name="name"
+                [(ngModel)]="document.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                 name="description"
                 [(ngModel)]="document.description"
                 rows="3"

@@ -72,6 +72,7 @@ import { ProductMixService, LoanProductData } from '../../../api';
                 'PRODUCT_MIX.RESTRICTED_PRODUCTS' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'PRODUCT_MIX.RESTRICTED_PRODUCTS' | translate"
                 interface="popover"
                 id="product-mix-restricted-products"
                 data-testid="product-mix-restricted-products"

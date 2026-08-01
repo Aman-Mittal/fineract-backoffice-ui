@@ -93,6 +93,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.RESCHEDULE_FROM_DESC' | translate">
                 <ion-label position="stacked">Reschedule From Date</ion-label>
                 <ion-select
+                  aria-label="Reschedule From Date"
                   interface="popover"
                   name="rescheduleFromDate"
                   [(ngModel)]="rescheduleFromDateString"
@@ -115,6 +116,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">Reason Name (Manual)</ion-label>
                     <ion-input
+                      aria-label="Reason Name (Manual)"
                       name="customReasonName"
                       [(ngModel)]="customReasonName"
                       required
@@ -124,6 +126,7 @@ import {
                   <ion-item fill="outline">
                     <ion-label position="stacked">Reason</ion-label>
                     <ion-select
+                      aria-label="Reason"
                       interface="popover"
                       name="rescheduleReasonId"
                       [(ngModel)]="request.rescheduleReasonId"
@@ -191,6 +194,7 @@ import {
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">Comment</ion-label>
                 <ion-textarea
+                  aria-label="Comment"
                   name="rescheduleReasonComment"
                   [(ngModel)]="request.rescheduleReasonComment"
                   rows="2"
@@ -201,6 +205,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Grace on Principal</ion-label>
                 <ion-input
+                  aria-label="Grace on Principal"
                   type="number"
                   name="graceOnPrincipal"
                   [(ngModel)]="request.graceOnPrincipal"
@@ -211,6 +216,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Grace on Interest</ion-label>
                 <ion-input
+                  aria-label="Grace on Interest"
                   type="number"
                   name="graceOnInterest"
                   [(ngModel)]="request.graceOnInterest"
@@ -221,6 +227,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">Extra Terms</ion-label>
                 <ion-input
+                  aria-label="Extra Terms"
                   type="number"
                   name="extraTerms"
                   [(ngModel)]="request.extraTerms"
@@ -231,6 +238,7 @@ import {
               <ion-item fill="outline">
                 <ion-label position="stacked">New Interest Rate</ion-label>
                 <ion-input
+                  aria-label="New Interest Rate"
                   type="number"
                   name="newInterestRate"
                   [(ngModel)]="request.newInterestRate"

@@ -104,6 +104,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.LEGAL_FORM_DESC' | translate">
                 <ion-label position="stacked">{{ 'CLIENTS.LEGAL_FORM' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'CLIENTS.LEGAL_FORM' | translate"
                   interface="popover"
                   name="legalFormId"
                   [(ngModel)]="client.legalFormId"
@@ -124,6 +125,7 @@ import {
                 <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'COMMON.OFFICE' | translate"
                     interface="popover"
                     name="officeId"
                     [(ngModel)]="client.officeId"
@@ -207,7 +209,12 @@ import {
                   class="full-width"
                 >
                   <ion-label position="stacked">{{ 'CLIENTS.COMPANY_NAME' | translate }}</ion-label>
-                  <ion-input name="fullname" [(ngModel)]="client.fullname" required></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'CLIENTS.COMPANY_NAME' | translate"
+                    name="fullname"
+                    [(ngModel)]="client.fullname"
+                    required
+                  ></ion-input>
                 </ion-item>
               }
 
@@ -215,17 +222,31 @@ import {
               @if (client.legalFormId === 1) {
                 <ion-item fill="outline" [appTooltip]="'HELP.FIRST_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
-                  <ion-input name="firstname" [(ngModel)]="client.firstname" required></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
+                    name="firstname"
+                    [(ngModel)]="client.firstname"
+                    required
+                  ></ion-input>
                 </ion-item>
 
                 <ion-item fill="outline" [appTooltip]="'HELP.MIDDLE_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.MIDDLE_NAME' | translate }}</ion-label>
-                  <ion-input name="middlename" [(ngModel)]="client.middlename"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'CLIENTS.MIDDLE_NAME' | translate"
+                    name="middlename"
+                    [(ngModel)]="client.middlename"
+                  ></ion-input>
                 </ion-item>
 
                 <ion-item fill="outline" [appTooltip]="'HELP.LAST_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
-                  <ion-input name="lastname" [(ngModel)]="client.lastname" required></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
+                    name="lastname"
+                    [(ngModel)]="client.lastname"
+                    required
+                  ></ion-input>
                 </ion-item>
 
                 <ion-item fill="outline" [appTooltip]="'HELP.DATE_OF_BIRTH_DESC' | translate">
@@ -250,17 +271,29 @@ import {
               <!-- Common fields -->
               <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
-                <ion-input name="externalId" [(ngModel)]="client.externalId"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
+                  name="externalId"
+                  [(ngModel)]="client.externalId"
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline" [appTooltip]="'HELP.MOBILE_NO_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.MOBILE_NO' | translate }}</ion-label>
-                <ion-input name="mobileNo" [(ngModel)]="client.mobileNo"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.MOBILE_NO' | translate"
+                  name="mobileNo"
+                  [(ngModel)]="client.mobileNo"
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline" [appTooltip]="'HELP.EMAIL_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
-                <ion-input name="emailAddress" [(ngModel)]="client.emailAddress"></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.EMAIL' | translate"
+                  name="emailAddress"
+                  [(ngModel)]="client.emailAddress"
+                ></ion-input>
               </ion-item>
             </div>
 

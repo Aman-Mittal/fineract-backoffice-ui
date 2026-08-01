@@ -71,7 +71,13 @@ import {
               <ion-label position="stacked">{{
                 'ENTITY_DATA_TABLE_CHECKS.ENTITY' | translate
               }}</ion-label>
-              <ion-select interface="popover" name="entity" [(ngModel)]="check.entity" required>
+              <ion-select
+                [attr.aria-label]="'ENTITY_DATA_TABLE_CHECKS.ENTITY' | translate"
+                interface="popover"
+                name="entity"
+                [(ngModel)]="check.entity"
+                required
+              >
                 @for (ent of entityOptions; track ent) {
                   <ion-select-option [value]="ent">{{ ent }}</ion-select-option>
                 }
@@ -83,6 +89,7 @@ import {
                 'ENTITY_DATA_TABLE_CHECKS.DATATABLE_NAME' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'ENTITY_DATA_TABLE_CHECKS.DATATABLE_NAME' | translate"
                 name="datatableName"
                 [(ngModel)]="check.datatableName"
                 required
@@ -94,6 +101,7 @@ import {
                 'ENTITY_DATA_TABLE_CHECKS.STATUS' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'ENTITY_DATA_TABLE_CHECKS.STATUS' | translate"
                 type="number"
                 name="status"
                 [(ngModel)]="check.status"
@@ -105,7 +113,12 @@ import {
               <ion-label position="stacked">{{
                 'ENTITY_DATA_TABLE_CHECKS.PRODUCT_ID' | translate
               }}</ion-label>
-              <ion-input type="number" name="productId" [(ngModel)]="check.productId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'ENTITY_DATA_TABLE_CHECKS.PRODUCT_ID' | translate"
+                type="number"
+                name="productId"
+                [(ngModel)]="check.productId"
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

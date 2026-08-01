@@ -79,6 +79,7 @@ import {
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">Repayments Rescheduling Rule</ion-label>
                 <ion-select
+                  aria-label="Repayments Rescheduling Rule"
                   interface="popover"
                   name="rescheduleStrategy"
                   [(ngModel)]="rescheduleId"

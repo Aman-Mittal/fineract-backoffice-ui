@@ -50,6 +50,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
       <ion-item fill="outline">
         <ion-label position="stacked">{{ label | translate }}</ion-label>
         <ion-input
+          [attr.aria-label]="label | translate"
           type="text"
           [formControl]="searchControl"
           [placeholder]="'COMMON.SEARCH_PLACEHOLDER' | translate"

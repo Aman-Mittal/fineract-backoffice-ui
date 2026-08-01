@@ -72,6 +72,7 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
             <ion-item fill="outline" class="form-item">
               <ion-label position="stacked">{{ 'TAX_GROUPS.NAME' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'TAX_GROUPS.NAME' | translate"
                 id="tax-group-name"
                 data-testid="tax-group-name"
                 name="name"
@@ -83,6 +84,7 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
             <ion-item fill="outline" class="form-item">
               <ion-label position="stacked">{{ 'TAX_GROUPS.COMPONENTS' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'TAX_GROUPS.COMPONENTS' | translate"
                 interface="popover"
                 id="tax-group-components"
                 data-testid="tax-group-components"

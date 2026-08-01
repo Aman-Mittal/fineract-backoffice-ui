@@ -75,12 +75,18 @@ import {
           <form #breachForm="ngForm" (ngSubmit)="onSubmit()" class="wc-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_BREACH.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="breach.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'WC_BREACH.NAME' | translate"
+                name="name"
+                [(ngModel)]="breach.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_BREACH.BREACH_AMOUNT' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_BREACH.BREACH_AMOUNT' | translate"
                 type="number"
                 name="breachAmount"
                 [(ngModel)]="breach.breachAmount"
@@ -92,6 +98,7 @@ import {
                 'WC_BREACH.CALCULATION_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'WC_BREACH.CALCULATION_TYPE' | translate"
                 interface="popover"
                 name="calcType"
                 [(ngModel)]="breach.breachAmountCalculationType"
@@ -105,6 +112,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_BREACH.FREQUENCY' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_BREACH.FREQUENCY' | translate"
                 type="number"
                 name="breachFrequency"
                 [(ngModel)]="breach.breachFrequency"
@@ -114,6 +122,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_BREACH.FREQUENCY_TYPE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'WC_BREACH.FREQUENCY_TYPE' | translate"
                 interface="popover"
                 name="freqType"
                 [(ngModel)]="breach.breachFrequencyType"

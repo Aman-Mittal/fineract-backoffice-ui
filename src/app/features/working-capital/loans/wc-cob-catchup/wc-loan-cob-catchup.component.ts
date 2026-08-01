@@ -75,7 +75,11 @@ import {
             <ion-label position="stacked">{{
               'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate
             }}</ion-label>
-            <ion-input type="number" [(ngModel)]="loanId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="loanId"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="secondary" [disabled]="!loanId" (click)="getOldestDate()">
@@ -97,7 +101,11 @@ import {
             <ion-label position="stacked">{{
               'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate
             }}</ion-label>
-            <ion-input type="number" [(ngModel)]="catchupLoanId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'WC_LOAN_COB_CATCHUP.LOAN_ID' | translate"
+              type="number"
+              [(ngModel)]="catchupLoanId"
+            ></ion-input>
           </ion-item>
 
           <ion-button color="danger" [disabled]="!catchupLoanId" (click)="runCatchup()">

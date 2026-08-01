@@ -91,6 +91,7 @@ export interface AuditFilters {
               <ion-item fill="outline">
                 <ion-label position="stacked">Action Name</ion-label>
                 <ion-input
+                  aria-label="Action Name"
                   [(ngModel)]="activeFilters.actionName"
                   (keyup.enter)="onApplyFilters()"
                 ></ion-input>
@@ -99,6 +100,7 @@ export interface AuditFilters {
               <ion-item fill="outline">
                 <ion-label position="stacked">Entity Name</ion-label>
                 <ion-input
+                  aria-label="Entity Name"
                   [(ngModel)]="activeFilters.entityName"
                   (keyup.enter)="onApplyFilters()"
                 ></ion-input>
@@ -107,6 +109,7 @@ export interface AuditFilters {
               <ion-item fill="outline">
                 <ion-label position="stacked">Resource ID</ion-label>
                 <ion-input
+                  aria-label="Resource ID"
                   type="number"
                   [(ngModel)]="activeFilters.resourceId"
                   (keyup.enter)="onApplyFilters()"
@@ -116,6 +119,7 @@ export interface AuditFilters {
               <ion-item fill="outline">
                 <ion-label position="stacked">Maker ID</ion-label>
                 <ion-input
+                  aria-label="Maker ID"
                   type="number"
                   [(ngModel)]="activeFilters.makerId"
                   (keyup.enter)="onApplyFilters()"
@@ -160,7 +164,11 @@ export interface AuditFilters {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">Processing Result</ion-label>
-                <ion-select interface="popover" [(ngModel)]="activeFilters.processingResult">
+                <ion-select
+                  aria-label="Processing Result"
+                  interface="popover"
+                  [(ngModel)]="activeFilters.processingResult"
+                >
                   <ion-select-option value="">All</ion-select-option>
                   <ion-select-option value="success">Success</ion-select-option>
                   <ion-select-option value="failure">Failure</ion-select-option>

@@ -96,6 +96,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.NAME' | translate"
                       id="loan-product-name"
                       data-testid="loan-product-name"
                       name="name"
@@ -112,6 +113,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.SHORT_NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                       id="loan-product-short-name"
                       data-testid="loan-product-short-name"
                       name="shortName"
@@ -129,6 +131,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DESCRIPTION' | translate
                     }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                       id="loan-product-description"
                       data-testid="loan-product-description"
                       name="description"
@@ -143,6 +146,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
                       id="loan-product-external-id"
                       data-testid="loan-product-external-id"
                       name="externalId"
@@ -156,6 +160,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.FUND' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.FUND' | translate"
                       interface="popover"
                       id="loan-product-fund-id"
                       data-testid="loan-product-fund-id"
@@ -176,6 +181,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DELINQUENCY_BUCKET' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.DELINQUENCY_BUCKET' | translate"
                       interface="popover"
                       id="loan-product-delinquency-bucket-id"
                       data-testid="loan-product-delinquency-bucket-id"
@@ -194,6 +200,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                       interface="popover"
                       id="loan-product-currency-code"
                       data-testid="loan-product-currency-code"
@@ -215,6 +222,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.DECIMAL_PLACES' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                       id="loan-product-digits-after-decimal"
                       data-testid="loan-product-digits-after-decimal"
                       type="number"
@@ -229,6 +237,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.PRINCIPAL' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.PRINCIPAL' | translate"
                       id="loan-product-principal"
                       data-testid="loan-product-principal"
                       type="number"
@@ -245,6 +254,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.INTEREST_RATE' | translate"
                       id="loan-product-interest-rate"
                       data-testid="loan-product-interest-rate"
                       type="number"
@@ -261,6 +271,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'LOANS.REPAYMENTS_COUNT' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | translate"
                       id="loan-product-repayments-count"
                       data-testid="loan-product-repayments-count"
                       type="number"
@@ -277,6 +288,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'LOANS.REPAYMENT_EVERY' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | translate"
                       id="loan-product-repayment-every"
                       data-testid="loan-product-repayment-every"
                       type="number"
@@ -292,6 +304,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.FREQUENCY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                       interface="popover"
                       id="loan-product-repayment-frequency"
                       data-testid="loan-product-repayment-frequency"
@@ -322,6 +335,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.INTEREST_RATE_FREQUENCY_TYPE' | translate"
                       interface="popover"
                       id="loan-product-interest-frequency"
                       data-testid="loan-product-interest-frequency"
@@ -346,6 +360,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.AMORTIZATION_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.AMORTIZATION_TYPE' | translate"
                       interface="popover"
                       id="loan-product-amortization-type"
                       data-testid="loan-product-amortization-type"
@@ -370,6 +385,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.INTEREST_TYPE' | translate"
                       interface="popover"
                       id="loan-product-interest-type"
                       data-testid="loan-product-interest-type"
@@ -394,6 +410,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate"
                       interface="popover"
                       id="loan-product-interest-calc-period"
                       data-testid="loan-product-interest-calc-period"
@@ -418,6 +435,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate"
                       interface="popover"
                       id="loan-product-schedule-type"
                       data-testid="loan-product-schedule-type"
@@ -442,6 +460,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate
                     }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate"
                       interface="popover"
                       id="loan-product-transaction-strategy"
                       data-testid="loan-product-transaction-strategy"
@@ -467,6 +486,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                         'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate"
                         interface="popover"
                         id="loan-product-schedule-processing-type"
                         data-testid="loan-product-schedule-processing-type"

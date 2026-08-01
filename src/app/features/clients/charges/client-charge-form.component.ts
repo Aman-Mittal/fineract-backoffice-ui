@@ -76,6 +76,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CLIENT_CHARGES.CHARGE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'CLIENT_CHARGES.CHARGE' | translate"
                 interface="popover"
                 name="chargeId"
                 [(ngModel)]="charge.chargeId"
@@ -90,6 +91,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CLIENT_CHARGES.AMOUNT' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'CLIENT_CHARGES.AMOUNT' | translate"
                 type="number"
                 name="amount"
                 [(ngModel)]="charge.amount"
@@ -99,7 +101,13 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CLIENT_CHARGES.DUE_DATE' | translate }}</ion-label>
-              <ion-input type="date" name="dueDate" [(ngModel)]="dueDate" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'CLIENT_CHARGES.DUE_DATE' | translate"
+                type="date"
+                name="dueDate"
+                [(ngModel)]="dueDate"
+                required
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

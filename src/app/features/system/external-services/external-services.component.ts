@@ -72,7 +72,12 @@ interface ServiceProperty {
         <ion-card-content>
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'EXTERNAL_SERVICES.SERVICE' | translate }}</ion-label>
-            <ion-select interface="popover" [(ngModel)]="selectedService" (ionChange)="load()">
+            <ion-select
+              [attr.aria-label]="'EXTERNAL_SERVICES.SERVICE' | translate"
+              interface="popover"
+              [(ngModel)]="selectedService"
+              (ionChange)="load()"
+            >
               @for (name of serviceNames; track name) {
                 <ion-select-option [value]="name">{{ name }}</ion-select-option>
               }
@@ -82,7 +87,11 @@ interface ServiceProperty {
           @for (prop of properties; track prop.name) {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ prop.name }}</ion-label>
-              <ion-input [name]="prop.name" [(ngModel)]="prop.value"></ion-input>
+              <ion-input
+                [attr.aria-label]="prop.name"
+                [name]="prop.name"
+                [(ngModel)]="prop.value"
+              ></ion-input>
             </ion-item>
           }
 

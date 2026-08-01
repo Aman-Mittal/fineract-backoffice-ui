@@ -71,6 +71,7 @@ import {
                   'TWO_FACTOR_CONFIG.CONFIG_JSON' | translate
                 }}</ion-label>
                 <ion-textarea
+                  [attr.aria-label]="'TWO_FACTOR_CONFIG.CONFIG_JSON' | translate"
                   name="configJson"
                   [(ngModel)]="configJson"
                   rows="14"

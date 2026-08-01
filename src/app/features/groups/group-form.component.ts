@@ -98,13 +98,19 @@ import {
               <!-- Name -->
               <ion-item fill="outline" [appTooltip]="'HELP.GROUP_NAME_DESC' | translate">
                 <ion-label position="stacked">{{ 'GROUPS.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="group.name" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'GROUPS.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="group.name"
+                  required
+                ></ion-input>
               </ion-item>
 
               <!-- Office -->
               <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="group.officeId"

@@ -112,6 +112,7 @@ import {
                   'COMMON.TRANSACTION_AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
                   type="number"
                   name="transactionAmount"
                   [(ngModel)]="transaction.transactionAmount"
@@ -123,6 +124,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.PAYMENT_TYPE' | translate"
                   interface="popover"
                   name="paymentTypeId"
                   [(ngModel)]="transaction.paymentTypeId"
@@ -140,7 +142,12 @@ import {
                 class="full-width"
               >
                 <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-                <ion-textarea name="note" [(ngModel)]="note" rows="3"></ion-textarea>
+                <ion-textarea
+                  [attr.aria-label]="'COMMON.NOTE' | translate"
+                  name="note"
+                  [(ngModel)]="note"
+                  rows="3"
+                ></ion-textarea>
               </ion-item>
             </div>
 

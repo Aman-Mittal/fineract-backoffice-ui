@@ -79,12 +79,18 @@ import {
           <form #nbForm="ngForm" (ngSubmit)="onSubmit()" class="wc-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_NEAR_BREACH.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="item.nearBreachName" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'WC_NEAR_BREACH.NAME' | translate"
+                name="name"
+                [(ngModel)]="item.nearBreachName"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_NEAR_BREACH.THRESHOLD' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_NEAR_BREACH.THRESHOLD' | translate"
                 type="number"
                 name="threshold"
                 [(ngModel)]="item.nearBreachThreshold"
@@ -94,6 +100,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'WC_NEAR_BREACH.FREQUENCY' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'WC_NEAR_BREACH.FREQUENCY' | translate"
                 type="number"
                 name="frequency"
                 [(ngModel)]="item.nearBreachFrequency"
@@ -105,6 +112,7 @@ import {
                 'WC_NEAR_BREACH.FREQUENCY_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'WC_NEAR_BREACH.FREQUENCY_TYPE' | translate"
                 interface="popover"
                 name="frequencyType"
                 [(ngModel)]="item.nearBreachFrequencyType"

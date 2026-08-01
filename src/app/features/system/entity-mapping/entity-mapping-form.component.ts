@@ -83,6 +83,7 @@ interface EntityMappingPayload {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'ENTITY_MAPPING.REL_ID' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'ENTITY_MAPPING.REL_ID' | translate"
                 type="number"
                 name="relId"
                 [(ngModel)]="relId"
@@ -94,6 +95,7 @@ interface EntityMappingPayload {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'ENTITY_MAPPING.FROM_ID' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'ENTITY_MAPPING.FROM_ID' | translate"
                 type="number"
                 name="fromId"
                 [(ngModel)]="payload.fromId"
@@ -103,7 +105,13 @@ interface EntityMappingPayload {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'ENTITY_MAPPING.TO_ID' | translate }}</ion-label>
-              <ion-input type="number" name="toId" [(ngModel)]="payload.toId" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'ENTITY_MAPPING.TO_ID' | translate"
+                type="number"
+                name="toId"
+                [(ngModel)]="payload.toId"
+                required
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

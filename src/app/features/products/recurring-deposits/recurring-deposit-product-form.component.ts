@@ -84,12 +84,18 @@ const REDIRECT_URL = '/products/recurring';
             <div class="form-grid">
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
-                <ion-input name="name" [(ngModel)]="product['name']" required></ion-input>
+                <ion-input
+                  [attr.aria-label]="'COMMON.NAME' | translate"
+                  name="name"
+                  [(ngModel)]="product['name']"
+                  required
+                ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                   name="shortName"
                   [(ngModel)]="product['shortName']"
                   required
@@ -100,6 +106,7 @@ const REDIRECT_URL = '/products/recurring';
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'PRODUCTS.DESCRIPTION' | translate }}</ion-label>
                 <ion-textarea
+                  [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                   name="description"
                   [(ngModel)]="product['description']"
                   rows="2"
@@ -109,6 +116,7 @@ const REDIRECT_URL = '/products/recurring';
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                   interface="popover"
                   name="currencyCode"
                   [(ngModel)]="product['currencyCode']"
@@ -127,6 +135,7 @@ const REDIRECT_URL = '/products/recurring';
                   'PRODUCTS.DECIMAL_PLACES' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                   type="number"
                   name="digitsAfterDecimal"
                   [(ngModel)]="product['digitsAfterDecimal']"
@@ -139,6 +148,7 @@ const REDIRECT_URL = '/products/recurring';
                   'PRODUCTS.RECURRING_FREQUENCY' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'PRODUCTS.RECURRING_FREQUENCY' | translate"
                   type="number"
                   name="recurringEvery"
                   [(ngModel)]="product['recurringEvery']"
@@ -151,6 +161,7 @@ const REDIRECT_URL = '/products/recurring';
                   'PRODUCTS.FREQUENCY_TYPE' | translate
                 }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'PRODUCTS.FREQUENCY_TYPE' | translate"
                   interface="popover"
                   name="recurringFrequencyType"
                   [(ngModel)]="product['recurringFrequencyType']"

@@ -102,6 +102,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'COMMON.OFFICE' | translate"
                         interface="popover"
                         name="fromOfficeId"
                         [(ngModel)]="request.fromOfficeId"
@@ -121,6 +122,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'COMMON.CLIENT' | translate"
                         interface="popover"
                         name="fromClientId"
                         [(ngModel)]="request.fromClientId"
@@ -142,6 +144,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'CLIENTS.ACCOUNT_TYPE' | translate"
                         interface="popover"
                         name="fromAccountType"
                         [(ngModel)]="request.fromAccountType"
@@ -164,6 +167,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_NO' | translate
                       }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'CLIENTS.ACCOUNT_NO' | translate"
                         interface="popover"
                         name="fromAccountId"
                         [(ngModel)]="request.fromAccountId"
@@ -188,6 +192,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'COMMON.OFFICE' | translate"
                         interface="popover"
                         name="toOfficeId"
                         [(ngModel)]="request.toOfficeId"
@@ -207,6 +212,7 @@ export interface MiniAccount {
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'COMMON.CLIENT' | translate"
                         interface="popover"
                         name="toClientId"
                         [(ngModel)]="request.toClientId"
@@ -228,6 +234,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_TYPE' | translate
                       }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'CLIENTS.ACCOUNT_TYPE' | translate"
                         interface="popover"
                         name="toAccountType"
                         [(ngModel)]="request.toAccountType"
@@ -250,6 +257,7 @@ export interface MiniAccount {
                         'CLIENTS.ACCOUNT_NO' | translate
                       }}</ion-label>
                       <ion-select
+                        [attr.aria-label]="'CLIENTS.ACCOUNT_NO' | translate"
                         interface="popover"
                         name="toAccountId"
                         [(ngModel)]="request.toAccountId"
@@ -275,6 +283,7 @@ export interface MiniAccount {
                   'CLIENTS.TRANSFER_AMOUNT' | translate
                 }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'CLIENTS.TRANSFER_AMOUNT' | translate"
                   type="number"
                   name="transferAmount"
                   [(ngModel)]="request.transferAmount"
@@ -302,6 +311,7 @@ export interface MiniAccount {
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
                 <ion-textarea
+                  [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                   name="transferDescription"
                   [(ngModel)]="request.transferDescription"
                   rows="2"

@@ -157,6 +157,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                     'COMMON.TRANSACTION_AMOUNT' | translate
                   }}</ion-label>
                   <ion-input
+                    [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
                     type="number"
                     name="transactionAmount"
                     [(ngModel)]="transaction.transactionAmount"
@@ -168,6 +169,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
                   <ion-select
+                    [attr.aria-label]="'COMMON.PAYMENT_TYPE' | translate"
                     interface="popover"
                     name="paymentTypeId"
                     [(ngModel)]="transaction.paymentTypeId"
@@ -184,6 +186,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.RECEIPT_NUMBER' | translate }}</ion-label>
                   <ion-input
+                    [attr.aria-label]="'LOANS.RECEIPT_NUMBER' | translate"
                     name="receiptNumber"
                     [(ngModel)]="transaction.receiptNumber"
                   ></ion-input>
@@ -192,19 +195,31 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 <!-- Bank Number -->
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.BANK_NUMBER' | translate }}</ion-label>
-                  <ion-input name="bankNumber" [(ngModel)]="transaction.bankNumber"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'LOANS.BANK_NUMBER' | translate"
+                    name="bankNumber"
+                    [(ngModel)]="transaction.bankNumber"
+                  ></ion-input>
                 </ion-item>
 
                 <!-- Check Number -->
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.CHECK_NUMBER' | translate }}</ion-label>
-                  <ion-input name="checkNumber" [(ngModel)]="transaction.checkNumber"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'LOANS.CHECK_NUMBER' | translate"
+                    name="checkNumber"
+                    [(ngModel)]="transaction.checkNumber"
+                  ></ion-input>
                 </ion-item>
 
                 <!-- Routing Code -->
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'LOANS.ROUTING_CODE' | translate }}</ion-label>
-                  <ion-input name="routingCode" [(ngModel)]="transaction.routingCode"></ion-input>
+                  <ion-input
+                    [attr.aria-label]="'LOANS.ROUTING_CODE' | translate"
+                    name="routingCode"
+                    [(ngModel)]="transaction.routingCode"
+                  ></ion-input>
                 </ion-item>
               }
 
@@ -215,7 +230,12 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 class="full-width"
               >
                 <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-                <ion-textarea name="note" [(ngModel)]="transaction.note" rows="3"></ion-textarea>
+                <ion-textarea
+                  [attr.aria-label]="'COMMON.NOTE' | translate"
+                  name="note"
+                  [(ngModel)]="transaction.note"
+                  rows="3"
+                ></ion-textarea>
               </ion-item>
             </div>
 

@@ -81,21 +81,36 @@ import {
               <ion-label position="stacked">{{
                 'COLLATERAL_MANAGEMENT.NAME' | translate
               }}</ion-label>
-              <ion-input name="name" [(ngModel)]="collateral.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'COLLATERAL_MANAGEMENT.NAME' | translate"
+                name="name"
+                [(ngModel)]="collateral.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'COLLATERAL_MANAGEMENT.QUALITY' | translate
               }}</ion-label>
-              <ion-input name="quality" [(ngModel)]="collateral.quality" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'COLLATERAL_MANAGEMENT.QUALITY' | translate"
+                name="quality"
+                [(ngModel)]="collateral.quality"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'COLLATERAL_MANAGEMENT.UNIT_TYPE' | translate
               }}</ion-label>
-              <ion-input name="unitType" [(ngModel)]="collateral.unitType" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'COLLATERAL_MANAGEMENT.UNIT_TYPE' | translate"
+                name="unitType"
+                [(ngModel)]="collateral.unitType"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -103,6 +118,7 @@ import {
                 'COLLATERAL_MANAGEMENT.BASE_PRICE' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'COLLATERAL_MANAGEMENT.BASE_PRICE' | translate"
                 type="number"
                 name="basePrice"
                 [(ngModel)]="collateral.basePrice"
@@ -115,6 +131,7 @@ import {
                 'COLLATERAL_MANAGEMENT.PCT_TO_BASE' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'COLLATERAL_MANAGEMENT.PCT_TO_BASE' | translate"
                 type="number"
                 name="pctToBase"
                 [(ngModel)]="collateral.pctToBase"
@@ -127,6 +144,7 @@ import {
                 'COLLATERAL_MANAGEMENT.CURRENCY' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'COLLATERAL_MANAGEMENT.CURRENCY' | translate"
                 interface="popover"
                 name="currency"
                 [(ngModel)]="collateral.currency"

@@ -66,6 +66,7 @@ import {
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'FORGOT_PASSWORD.EMAIL' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'FORGOT_PASSWORD.EMAIL' | translate"
                   type="email"
                   name="email"
                   [(ngModel)]="email"

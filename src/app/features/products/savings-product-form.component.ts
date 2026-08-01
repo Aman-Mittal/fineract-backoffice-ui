@@ -88,6 +88,7 @@ import {
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'COMMON.NAME' | translate"
                       id="savings-product-name"
                       data-testid="savings-product-name"
                       name="name"
@@ -103,6 +104,7 @@ import {
                       'PRODUCTS.SHORT_NAME' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                       id="savings-product-short-name"
                       data-testid="savings-product-short-name"
                       name="shortName"
@@ -119,6 +121,7 @@ import {
                       'PRODUCTS.DESCRIPTION' | translate
                     }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                       id="savings-product-description"
                       data-testid="savings-product-description"
                       name="description"
@@ -132,6 +135,7 @@ import {
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{ 'PRODUCTS.CURRENCY' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                       interface="popover"
                       id="savings-product-currency-code"
                       data-testid="savings-product-currency-code"
@@ -152,6 +156,7 @@ import {
                       'PRODUCTS.DECIMAL_PLACES' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                       id="savings-product-decimal-places"
                       data-testid="savings-product-decimal-places"
                       type="number"
@@ -168,6 +173,7 @@ import {
                       'PRODUCTS.NOMINAL_ANNUAL_INTEREST_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'PRODUCTS.NOMINAL_ANNUAL_INTEREST_RATE' | translate"
                       id="savings-product-interest-rate"
                       data-testid="savings-product-interest-rate"
                       type="number"

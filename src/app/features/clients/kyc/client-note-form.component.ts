@@ -62,6 +62,7 @@ import { NotesService, NoteCreateRequest } from '../../../api';
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
               <ion-textarea
+                [attr.aria-label]="'COMMON.NOTE' | translate"
                 name="note"
                 [(ngModel)]="note.note"
                 required

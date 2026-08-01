@@ -100,6 +100,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.COLLATERAL_TYPE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.TYPE' | translate }}</ion-label>
                 <ion-select
+                  [attr.aria-label]="'COMMON.TYPE' | translate"
                   interface="popover"
                   name="collateralTypeId"
                   [(ngModel)]="selectedCollateralTypeId"
@@ -116,6 +117,7 @@ import {
               <ion-item fill="outline" [appTooltip]="'HELP.COLLATERAL_VALUE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.VALUE' | translate }}</ion-label>
                 <ion-input
+                  [attr.aria-label]="'COMMON.VALUE' | translate"
                   type="number"
                   name="value"
                   [(ngModel)]="collateralValue"
@@ -131,6 +133,7 @@ import {
               >
                 <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
                 <ion-textarea
+                  [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                   name="description"
                   [(ngModel)]="collateralDescription"
                   rows="3"

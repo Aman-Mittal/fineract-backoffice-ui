@@ -87,12 +87,18 @@ const ERROR_OCCURRED = 'Error occurred';
           <div class="tab-content">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.TRANSACTION_CODE' | translate }}</ion-label>
-              <ion-input [(ngModel)]="transactionCode"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEROP.TRANSACTION_CODE' | translate"
+                [(ngModel)]="transactionCode"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.TRANSFER_CODE' | translate }}</ion-label>
-              <ion-input [(ngModel)]="transferCode"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEROP.TRANSFER_CODE' | translate"
+                [(ngModel)]="transferCode"
+              ></ion-input>
             </ion-item>
 
             <ion-button
@@ -112,12 +118,20 @@ const ERROR_OCCURRED = 'Error occurred';
           <div class="tab-content">
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'INTEROP.TRANSFER_BODY' | translate }}</ion-label>
-              <ion-textarea rows="10" [(ngModel)]="transferBodyJson"></ion-textarea>
+              <ion-textarea
+                [attr.aria-label]="'INTEROP.TRANSFER_BODY' | translate"
+                rows="10"
+                [(ngModel)]="transferBodyJson"
+              ></ion-textarea>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.ACTION' | translate }}</ion-label>
-              <ion-select interface="popover" [(ngModel)]="transferAction">
+              <ion-select
+                [attr.aria-label]="'INTEROP.ACTION' | translate"
+                interface="popover"
+                [(ngModel)]="transferAction"
+              >
                 <ion-select-option value="prepare">prepare</ion-select-option>
                 <ion-select-option value="create">create</ion-select-option>
               </ion-select>
@@ -136,7 +150,10 @@ const ERROR_OCCURRED = 'Error occurred';
           <div class="tab-content">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.ACCOUNT_ID' | translate }}</ion-label>
-              <ion-input [(ngModel)]="disburseAccountId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEROP.ACCOUNT_ID' | translate"
+                [(ngModel)]="disburseAccountId"
+              ></ion-input>
             </ion-item>
 
             <div class="button-row">

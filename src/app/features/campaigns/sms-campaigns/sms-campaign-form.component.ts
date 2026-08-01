@@ -68,14 +68,24 @@ import {
         <form #campaignForm="ngForm" (ngSubmit)="onSubmit(campaignForm)">
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.NAME' | translate }}</ion-label>
-            <ion-input name="campaignName" [(ngModel)]="model.campaignName" required></ion-input>
+            <ion-input
+              [attr.aria-label]="'SMS_CAMPAIGNS.NAME' | translate"
+              name="campaignName"
+              [(ngModel)]="model.campaignName"
+              required
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{
               'SMS_CAMPAIGNS.CAMPAIGN_TYPE' | translate
             }}</ion-label>
-            <ion-select interface="popover" name="campaignType" [(ngModel)]="model.campaignType">
+            <ion-select
+              [attr.aria-label]="'SMS_CAMPAIGNS.CAMPAIGN_TYPE' | translate"
+              interface="popover"
+              name="campaignType"
+              [(ngModel)]="model.campaignType"
+            >
               @for (opt of campaignTypeOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
@@ -84,7 +94,12 @@ import {
 
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.TRIGGER_TYPE' | translate }}</ion-label>
-            <ion-select interface="popover" name="triggerType" [(ngModel)]="model.triggerType">
+            <ion-select
+              [attr.aria-label]="'SMS_CAMPAIGNS.TRIGGER_TYPE' | translate"
+              interface="popover"
+              name="triggerType"
+              [(ngModel)]="model.triggerType"
+            >
               @for (opt of triggerTypeOptions; track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
@@ -94,6 +109,7 @@ import {
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.RUN_DAY' | translate }}</ion-label>
             <ion-input
+              [attr.aria-label]="'SMS_CAMPAIGNS.RUN_DAY' | translate"
               type="number"
               name="runOnDayOfMonth"
               [(ngModel)]="model.runOnDayOfMonth"
@@ -105,6 +121,7 @@ import {
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'SMS_CAMPAIGNS.MESSAGE' | translate }}</ion-label>
             <ion-textarea
+              [attr.aria-label]="'SMS_CAMPAIGNS.MESSAGE' | translate"
               name="message"
               [(ngModel)]="model.message"
               required
@@ -115,6 +132,7 @@ import {
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">Parameterized Message</ion-label>
             <ion-input
+              aria-label="Parameterized Message"
               name="parameterizedMessage"
               [(ngModel)]="model.parameterizedMessage"
             ></ion-input>

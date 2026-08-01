@@ -75,6 +75,7 @@ interface StaffMember {
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BULK_LOANS.OFFICE' | translate }}</ion-label>
             <ion-select
+              [attr.aria-label]="'BULK_LOANS.OFFICE' | translate"
               interface="popover"
               [(ngModel)]="selectedOfficeId"
               (ngModelChange)="onOfficeChange()"
@@ -88,6 +89,7 @@ interface StaffMember {
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BULK_LOANS.FROM_OFFICER' | translate }}</ion-label>
             <ion-select
+              [attr.aria-label]="'BULK_LOANS.FROM_OFFICER' | translate"
               interface="popover"
               [(ngModel)]="selectedFromOfficerId"
               [disabled]="!selectedOfficeId"
@@ -103,6 +105,7 @@ interface StaffMember {
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'BULK_LOANS.TO_OFFICER' | translate }}</ion-label>
             <ion-select
+              [attr.aria-label]="'BULK_LOANS.TO_OFFICER' | translate"
               interface="popover"
               [(ngModel)]="selectedToOfficerId"
               [disabled]="!selectedFromOfficerId"

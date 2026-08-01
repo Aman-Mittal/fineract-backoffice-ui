@@ -92,7 +92,12 @@ interface RatePeriodRow {
           <form #frForm="ngForm" (ngSubmit)="onSubmit()" class="fr-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'FLOATING_RATES.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="rate.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'FLOATING_RATES.NAME' | translate"
+                name="name"
+                [(ngModel)]="rate.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <div class="checkboxes">
@@ -139,6 +144,7 @@ interface RatePeriodRow {
                       'FLOATING_RATES.INTEREST_RATE' | translate
                     }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'FLOATING_RATES.INTEREST_RATE' | translate"
                       type="number"
                       [name]="'interestRate' + $index"
                       [(ngModel)]="period.interestRate"

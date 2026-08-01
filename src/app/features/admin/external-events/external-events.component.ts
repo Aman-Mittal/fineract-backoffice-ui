@@ -65,24 +65,36 @@ import {
             <ion-label position="stacked">{{
               'EXTERNAL_EVENTS.IDEMPOTENCY_KEY' | translate
             }}</ion-label>
-            <ion-input [(ngModel)]="filters.idempotencyKey"></ion-input>
+            <ion-input
+              [attr.aria-label]="'EXTERNAL_EVENTS.IDEMPOTENCY_KEY' | translate"
+              [(ngModel)]="filters.idempotencyKey"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'EXTERNAL_EVENTS.TYPE' | translate }}</ion-label>
-            <ion-input [(ngModel)]="filters.type"></ion-input>
+            <ion-input
+              [attr.aria-label]="'EXTERNAL_EVENTS.TYPE' | translate"
+              [(ngModel)]="filters.type"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'EXTERNAL_EVENTS.CATEGORY' | translate }}</ion-label>
-            <ion-input [(ngModel)]="filters.category"></ion-input>
+            <ion-input
+              [attr.aria-label]="'EXTERNAL_EVENTS.CATEGORY' | translate"
+              [(ngModel)]="filters.category"
+            ></ion-input>
           </ion-item>
 
           <ion-item fill="outline">
             <ion-label position="stacked">{{
               'EXTERNAL_EVENTS.AGGREGATE_ROOT_ID' | translate
             }}</ion-label>
-            <ion-input [(ngModel)]="filters.aggregateRootId"></ion-input>
+            <ion-input
+              [attr.aria-label]="'EXTERNAL_EVENTS.AGGREGATE_ROOT_ID' | translate"
+              [(ngModel)]="filters.aggregateRootId"
+            ></ion-input>
           </ion-item>
         </div>
 

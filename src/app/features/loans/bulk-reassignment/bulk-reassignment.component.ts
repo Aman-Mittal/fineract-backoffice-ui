@@ -100,6 +100,7 @@ interface ReassignmentTemplate {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'BULK_REASSIGNMENT.OFFICE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'BULK_REASSIGNMENT.OFFICE' | translate"
                 interface="popover"
                 name="officeId"
                 [(ngModel)]="officeId"
@@ -117,6 +118,7 @@ interface ReassignmentTemplate {
                 'BULK_REASSIGNMENT.FROM_OFFICER' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'BULK_REASSIGNMENT.FROM_OFFICER' | translate"
                 interface="popover"
                 name="fromLoanOfficerId"
                 [(ngModel)]="fromLoanOfficerId"
@@ -133,6 +135,7 @@ interface ReassignmentTemplate {
                 'BULK_REASSIGNMENT.TO_OFFICER' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'BULK_REASSIGNMENT.TO_OFFICER' | translate"
                 interface="popover"
                 name="toLoanOfficerId"
                 [(ngModel)]="toLoanOfficerId"

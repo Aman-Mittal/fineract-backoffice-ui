@@ -109,6 +109,7 @@ import {
                   <ion-item fill="outline" [appTooltip]="'HELP.TELLER_NAME_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.NAME' | translate }}</ion-label>
                     <ion-input
+                      [attr.aria-label]="'TELLERS.NAME' | translate"
                       type="text"
                       name="name"
                       [(ngModel)]="teller.name"
@@ -124,6 +125,7 @@ import {
                   <ion-item fill="outline" [appTooltip]="'HELP.TELLER_OFFICE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.OFFICE' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'TELLERS.OFFICE' | translate"
                       interface="popover"
                       name="officeId"
                       [(ngModel)]="teller.officeId"
@@ -150,6 +152,7 @@ import {
                       'TELLERS.DESCRIPTION' | translate
                     }}</ion-label>
                     <ion-textarea
+                      [attr.aria-label]="'TELLERS.DESCRIPTION' | translate"
                       name="description"
                       [(ngModel)]="teller.description"
                       rows="3"
@@ -182,6 +185,7 @@ import {
                   <ion-item fill="outline" [appTooltip]="'HELP.TELLER_STATUS_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.STATUS' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'TELLERS.STATUS' | translate"
                       interface="popover"
                       name="status"
                       [(ngModel)]="teller.status"
@@ -204,6 +208,7 @@ import {
                   <ion-item fill="outline" [appTooltip]="'HELP.TELLER_USAGE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.USAGE' | translate }}</ion-label>
                     <ion-select
+                      [attr.aria-label]="'TELLERS.USAGE' | translate"
                       interface="popover"
                       name="usage"
                       [(ngModel)]="usage"

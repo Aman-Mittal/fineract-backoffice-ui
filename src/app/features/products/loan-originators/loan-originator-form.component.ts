@@ -79,14 +79,23 @@ import {
           <form #originatorForm="ngForm" (ngSubmit)="onSubmit()" class="originator-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'LOAN_ORIGINATORS.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="originator.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'LOAN_ORIGINATORS.NAME' | translate"
+                name="name"
+                [(ngModel)]="originator.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{
                 'LOAN_ORIGINATORS.EXTERNAL_ID' | translate
               }}</ion-label>
-              <ion-input name="externalId" [(ngModel)]="originator.externalId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'LOAN_ORIGINATORS.EXTERNAL_ID' | translate"
+                name="externalId"
+                [(ngModel)]="originator.externalId"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
@@ -94,6 +103,7 @@ import {
                 'LOAN_ORIGINATORS.ORIGINATOR_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'LOAN_ORIGINATORS.ORIGINATOR_TYPE' | translate"
                 interface="popover"
                 name="originatorTypeId"
                 [(ngModel)]="originator.originatorTypeId"
@@ -109,6 +119,7 @@ import {
                 'LOAN_ORIGINATORS.CHANNEL_TYPE' | translate
               }}</ion-label>
               <ion-select
+                [attr.aria-label]="'LOAN_ORIGINATORS.CHANNEL_TYPE' | translate"
                 interface="popover"
                 name="channelTypeId"
                 [(ngModel)]="originator.channelTypeId"
@@ -121,7 +132,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'LOAN_ORIGINATORS.STATUS' | translate }}</ion-label>
-              <ion-select interface="popover" name="status" [(ngModel)]="originator.status">
+              <ion-select
+                [attr.aria-label]="'LOAN_ORIGINATORS.STATUS' | translate"
+                interface="popover"
+                name="status"
+                [(ngModel)]="originator.status"
+              >
                 @for (opt of statusOptions; track opt) {
                   <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                 }

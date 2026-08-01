@@ -69,12 +69,18 @@ const ERROR_OCCURRED = 'Error occurred';
           <div class="form-row">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.TX_CODE' | translate }}</ion-label>
-              <ion-input [(ngModel)]="transactionCode"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEROP.TX_CODE' | translate"
+                [(ngModel)]="transactionCode"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEROP.QUOTE_CODE' | translate }}</ion-label>
-              <ion-input [(ngModel)]="quoteCode"></ion-input>
+              <ion-input
+                [attr.aria-label]="'INTEROP.QUOTE_CODE' | translate"
+                [(ngModel)]="quoteCode"
+              ></ion-input>
             </ion-item>
           </div>
 
@@ -94,7 +100,11 @@ const ERROR_OCCURRED = 'Error occurred';
           <h3>{{ 'INTEROP.CREATE_QUOTE' | translate }}</h3>
           <ion-item fill="outline" class="full-width">
             <ion-label position="stacked">{{ 'INTEROP.QUOTE_BODY' | translate }}</ion-label>
-            <ion-textarea rows="10" [(ngModel)]="quoteBodyJson"></ion-textarea>
+            <ion-textarea
+              [attr.aria-label]="'INTEROP.QUOTE_BODY' | translate"
+              rows="10"
+              [(ngModel)]="quoteBodyJson"
+            ></ion-textarea>
           </ion-item>
 
           <ion-button color="secondary" (click)="createQuote()">

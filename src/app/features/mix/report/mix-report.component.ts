@@ -65,6 +65,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MIX_REPORT.START_DATE' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'MIX_REPORT.START_DATE' | translate"
                 name="startDate"
                 [(ngModel)]="startDate"
                 placeholder="yyyy-MM-dd"
@@ -73,12 +74,21 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MIX_REPORT.END_DATE' | translate }}</ion-label>
-              <ion-input name="endDate" [(ngModel)]="endDate" placeholder="yyyy-MM-dd"></ion-input>
+              <ion-input
+                [attr.aria-label]="'MIX_REPORT.END_DATE' | translate"
+                name="endDate"
+                [(ngModel)]="endDate"
+                placeholder="yyyy-MM-dd"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MIX_REPORT.CURRENCY' | translate }}</ion-label>
-              <ion-input name="currency" [(ngModel)]="currency"></ion-input>
+              <ion-input
+                [attr.aria-label]="'MIX_REPORT.CURRENCY' | translate"
+                name="currency"
+                [(ngModel)]="currency"
+              ></ion-input>
             </ion-item>
 
             <div class="form-actions">

@@ -76,6 +76,7 @@ import {
             <ion-item fill="outline" class="form-item">
               <ion-label position="stacked">{{ 'TAX_COMPONENTS.NAME' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'TAX_COMPONENTS.NAME' | translate"
                 id="tax-component-name"
                 data-testid="tax-component-name"
                 name="name"
@@ -89,6 +90,7 @@ import {
                 'TAX_COMPONENTS.PERCENTAGE' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'TAX_COMPONENTS.PERCENTAGE' | translate"
                 id="tax-component-percentage"
                 data-testid="tax-component-percentage"
                 type="number"

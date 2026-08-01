@@ -85,6 +85,7 @@ import {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.TYPE' | translate }}</ion-label>
               <ion-select
+                [attr.aria-label]="'GUARANTORS.TYPE' | translate"
                 interface="popover"
                 name="guarantorTypeId"
                 [(ngModel)]="guarantor.guarantorTypeId"
@@ -98,32 +99,54 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.ENTITY_ID' | translate }}</ion-label>
-              <ion-input type="number" name="entityId" [(ngModel)]="guarantor.entityId"></ion-input>
+              <ion-input
+                [attr.aria-label]="'GUARANTORS.ENTITY_ID' | translate"
+                type="number"
+                name="entityId"
+                [(ngModel)]="guarantor.entityId"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.FIRST_NAME' | translate }}</ion-label>
-              <ion-input name="firstname" [(ngModel)]="guarantor.firstname"></ion-input>
+              <ion-input
+                [attr.aria-label]="'GUARANTORS.FIRST_NAME' | translate"
+                name="firstname"
+                [(ngModel)]="guarantor.firstname"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.LAST_NAME' | translate }}</ion-label>
-              <ion-input name="lastname" [(ngModel)]="guarantor.lastname"></ion-input>
+              <ion-input
+                [attr.aria-label]="'GUARANTORS.LAST_NAME' | translate"
+                name="lastname"
+                [(ngModel)]="guarantor.lastname"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.ADDRESS_LINE1' | translate }}</ion-label>
-              <ion-input name="addressLine1" [(ngModel)]="guarantor.addressLine1"></ion-input>
+              <ion-input
+                [attr.aria-label]="'GUARANTORS.ADDRESS_LINE1' | translate"
+                name="addressLine1"
+                [(ngModel)]="guarantor.addressLine1"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.MOBILE_NUMBER' | translate }}</ion-label>
-              <ion-input name="mobileNumber" [(ngModel)]="guarantor.mobileNumber"></ion-input>
+              <ion-input
+                [attr.aria-label]="'GUARANTORS.MOBILE_NUMBER' | translate"
+                name="mobileNumber"
+                [(ngModel)]="guarantor.mobileNumber"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.SAVINGS_ID' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'GUARANTORS.SAVINGS_ID' | translate"
                 type="number"
                 name="savingsId"
                 [(ngModel)]="guarantor.savingsId"
@@ -135,6 +158,7 @@ import {
                 'GUARANTORS.CLIENT_RELATIONSHIP_TYPE_ID' | translate
               }}</ion-label>
               <ion-input
+                [attr.aria-label]="'GUARANTORS.CLIENT_RELATIONSHIP_TYPE_ID' | translate"
                 type="number"
                 name="clientRelationshipTypeId"
                 [(ngModel)]="guarantor.clientRelationshipTypeId"
@@ -143,7 +167,12 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.AMOUNT' | translate }}</ion-label>
-              <ion-input type="number" name="amount" [(ngModel)]="guarantor.amount"></ion-input>
+              <ion-input
+                [attr.aria-label]="'GUARANTORS.AMOUNT' | translate"
+                type="number"
+                name="amount"
+                [(ngModel)]="guarantor.amount"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">

@@ -70,17 +70,27 @@ import {
           <form #ptForm="ngForm" (ngSubmit)="onSubmit()" class="pt-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'PAYMENT_TYPES.NAME' | translate }}</ion-label>
-              <ion-input name="name" [(ngModel)]="paymentType.name" required></ion-input>
+              <ion-input
+                [attr.aria-label]="'PAYMENT_TYPES.NAME' | translate"
+                name="name"
+                [(ngModel)]="paymentType.name"
+                required
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
-              <ion-input name="description" [(ngModel)]="paymentType.description"></ion-input>
+              <ion-input
+                [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
+                name="description"
+                [(ngModel)]="paymentType.description"
+              ></ion-input>
             </ion-item>
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'PAYMENT_TYPES.POSITION' | translate }}</ion-label>
               <ion-input
+                [attr.aria-label]="'PAYMENT_TYPES.POSITION' | translate"
                 type="number"
                 name="position"
                 [(ngModel)]="paymentType.position"
