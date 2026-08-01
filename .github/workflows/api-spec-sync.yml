@@ -1,0 +1,261 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Fineract API Spec Sync
+
+on:
+  schedule:
+    # Mondays, off the hour to avoid the top-of-hour scheduler crowd. Weekly
+    # matches dependabot's cadence in .github/dependabot.yml.
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      image_ref:
+        description: 'Fineract image to read the spec from (tag, digest, or a commit-SHA tag).'
+        required: false
+        default: 'apache/fineract:latest'
+      base_branch:
+        description: 'Base branch for the pull request.'
+        required: false
+        default: 'develop'
+      dry_run:
+        description: 'Do everything except open the PR; upload the result instead.'
+        type: boolean
+        required: false
+        default: false
+      force:
+        description: 'Ignore the provenance short-circuit and regenerate regardless.'
+        type: boolean
+        required: false
+        default: false
+
+# Nothing at workflow level; the single job takes only what it needs.
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  # Never abandon a run that may have already pushed the sync branch.
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Fetch spec, regenerate client, open PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write # push the sync branch
+      pull-requests: write # open or update the PR
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.base_branch || 'develop' }}
+          # create-pull-request pushes with its own token input, not the
+          # credential helper, so nothing here needs persisted credentials.
+          persist-credentials: false
+
+      # A manifest-only registry lookup: no layers are pulled, so the common
+      # "nothing changed" run costs seconds rather than a 371 MB image.
+      - name: Resolve image digest
+        id: img
+        env:
+          IMAGE_REF: ${{ inputs.image_ref || 'apache/fineract:latest' }}
+        run: |
+          set -euo pipefail
+          DIGEST="$(docker buildx imagetools inspect "$IMAGE_REF" --format '{{.Manifest.Digest}}')"
+          REPO="${IMAGE_REF%%@*}"; REPO="${REPO%%:*}"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "pinned=${REPO}@${DIGEST}" >> "$GITHUB_OUTPUT"
+          echo "Resolved $IMAGE_REF to $DIGEST"
+
+      # Same digest means a bit-identical image, so the spec inside cannot have
+      # changed. This is the cheap exit for the usual weekly run.
+      - name: Short-circuit if the image has not moved
+        id: gate
+        env:
+          DIGEST: ${{ steps.img.outputs.digest }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          set -euo pipefail
+          PREV="$(node -p "try{require('./public/api/fineract.provenance.json').source.image.digest}catch(e){''}")"
+          if [ "$FORCE" != "true" ] && [ -n "$PREV" ] && [ "$PREV" = "$DIGEST" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Image digest unchanged ($DIGEST) — nothing to do." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The spec is a static file baked into the image, so it can be read
+      # without booting Fineract or standing up a database at all. The HTTP
+      # endpoint serves the identical bytes (verified), but only after
+      # migrations and a Spring boot — several minutes for the same result.
+      - name: Extract the spec from the image
+        if: steps.gate.outputs.changed == 'true'
+        env:
+          IMAGE: ${{ steps.img.outputs.pinned }}
+        run: |
+          set -euo pipefail
+          CID="$(docker create "$IMAGE")"
+          trap 'docker rm -f "$CID" >/dev/null 2>&1 || true' EXIT
+          if ! docker cp "$CID:/app/resources/static/fineract.json" /tmp/upstream.json; then
+            echo "::error::/app/resources/static/fineract.json is not in the image. Layout may have changed:"
+            docker cp "$CID:/app/resources" /tmp/probe || true
+            find /tmp/probe -name 'fineract.*' || true
+            exit 1
+          fi
+          node -e '
+            const spec = require("/tmp/upstream.json");
+            if (!spec.openapi || spec.info?.title !== "Apache Fineract REST API" || !Object.keys(spec.paths || {}).length) {
+              throw new Error("Extracted file is not a Fineract OpenAPI document");
+            }
+            console.log(`Extracted ${spec.info.version}: ${Object.keys(spec.paths).length} paths`);
+          '
+
+      # Byte comparison against what was last synced, before spending anything
+      # on Java, npm or generation.
+      - name: Short-circuit if the spec bytes are unchanged
+        id: spec
+        if: steps.gate.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          NEW="$(sha256sum /tmp/upstream.json | cut -d' ' -f1)"
+          PREV="$(node -p "try{require('./public/api/fineract.provenance.json').spec.upstreamSha256}catch(e){''}")"
+          echo "sha256=$NEW" >> "$GITHUB_OUTPUT"
+          if [ "$PREV" = "$NEW" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Image moved but the spec is byte-identical — nothing to regenerate." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js
+        if: steps.spec.outputs.changed == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 'lts/*'
+          # Deliberately no `cache: npm`: this job has contents: write, and a
+          # cache in a write-capable workflow is what zizmor's cache-poisoning
+          # audit is about. A weekly job does not need the 20s.
+
+      # The generator is a jar.
+      - name: Set up Java
+        if: steps.spec.outputs.changed == 'true'
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install dependencies
+        if: steps.spec.outputs.changed == 'true'
+        run: npm ci
+
+      # Computed before the spec is overwritten, so the old one is still around
+      # to compare against. This is the part a human actually reads.
+      - name: Summarize the API surface diff
+        if: steps.spec.outputs.changed == 'true'
+        run: |
+          node scripts/spec-diff-summary.mjs public/api/fineract.json /tmp/upstream.json > /tmp/spec-diff.md
+          cat /tmp/spec-diff.md >> "$GITHUB_STEP_SUMMARY"
+
+      # Upstream serves the spec minified; the committed copy is Prettier
+      # formatted and `public/` is not in .prettierignore, so skipping this
+      # would fail CI's format job with a single 1.4 MB line.
+      - name: Install the spec and normalise formatting
+        if: steps.spec.outputs.changed == 'true'
+        run: |
+          cp /tmp/upstream.json public/api/fineract.json
+          npx --no-install prettier --write public/api/fineract.json
+
+      # No FINERACT_SWAGGER_PATH here on purpose: the invariant ci.yml's
+      # api-client-drift job enforces is that generate-api reproduces
+      # src/app/api from the *committed* spec.
+      - name: Regenerate the API client
+        if: steps.spec.outputs.changed == 'true'
+        run: npm run generate-api
+
+      # Expected to fail when upstream removes or renames an endpoint, and that
+      # is the point — the errors are the call sites needing attention. A red
+      # build must not stop the PR being opened; only infrastructure failures
+      # should fail this job.
+      - name: Compile check
+        id: build
+        if: steps.spec.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee /tmp/build.log
+
+      - name: Write provenance
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          FETCH_METHOD: 'image'
+          FETCH_URL: '/app/resources/static/fineract.json'
+          IMAGE_REQUESTED: ${{ inputs.image_ref || 'apache/fineract:latest' }}
+          IMAGE_REF: ${{ steps.img.outputs.pinned }}
+          IMAGE_DIGEST: ${{ steps.img.outputs.digest }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node scripts/write-provenance.mjs public/api/fineract.json /tmp/upstream.json
+          npx --no-install prettier --write public/api/fineract.provenance.json
+
+      - name: Compose the pull request body
+        if: steps.spec.outputs.changed == 'true'
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          # Whether CI will actually run on the resulting PR; see the note the
+          # body prints when this is false.
+          SPEC_SYNC_TOKEN_PRESENT: ${{ secrets.SPEC_SYNC_TOKEN != '' }}
+          IMAGE_REF: ${{ steps.img.outputs.pinned }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node .github/scripts/spec-sync-pr-body.js > /tmp/pr-body.md
+
+      - name: Upload the result
+        if: always() && steps.spec.outputs.changed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: spec-sync
+          path: |
+            /tmp/spec-diff.md
+            /tmp/pr-body.md
+            /tmp/build.log
+            public/api/fineract.provenance.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Create or update the pull request
+        if: steps.spec.outputs.changed == 'true' && inputs.dry_run != true
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          # SPEC_SYNC_TOKEN, when present, lets CI actually run on the resulting
+          # PR — the default GITHUB_TOKEN cannot trigger workflows, so
+          # api-client-drift and the rest would stay silent. Falls back so the
+          # workflow still works with no configuration at all.
+          token: ${{ secrets.SPEC_SYNC_TOKEN || github.token }}
+          base: ${{ inputs.base_branch || 'develop' }}
+          # Fixed branch: a re-run updates the same PR instead of opening another.
+          branch: chore/fineract-spec-sync
+          delete-branch: false
+          sign-commits: true
+          add-paths: |
+            public/api/fineract.json
+            public/api/fineract.provenance.json
+            src/app/api
+          commit-message: 'chore(api): sync the Fineract OpenAPI spec and regenerate the client'
+          title: 'chore(api): sync the Fineract OpenAPI spec'
+          body-path: /tmp/pr-body.md
+          labels: |
+            dependencies
+            automated

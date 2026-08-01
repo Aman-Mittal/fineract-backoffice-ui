@@ -74,10 +74,35 @@ This command will:
 
 ### Update the Swagger Spec
 
-If the Fineract API changes, replace `public/api/fineract.json` with the new spec and run
-`npm run generate-api`. You can also point at a spec elsewhere via the `FINERACT_SWAGGER_PATH`
-environment variable. Because method names are stable (see above), most call sites continue to compile;
-only genuinely added/removed/renamed endpoints need attention.
+**This is automated.** `.github/workflows/api-spec-sync.yml` runs weekly, and opens a pull
+request whenever Apache Fineract's spec changes — with the removed operations and their call
+sites listed in the body. See
+[ADR 0002](adr/0002-automated-fineract-spec-sync.md). To run it on demand, use the workflow's
+`workflow_dispatch` trigger; `dry_run: true` does everything except open the PR.
+
+To do it by hand, replace `public/api/fineract.json` and run `npm run generate-api`. You can
+also point at a spec elsewhere via the `FINERACT_SWAGGER_PATH` environment variable. Because
+method names are stable (see above), most call sites continue to compile; only genuinely
+added/removed/renamed endpoints need attention.
+
+> **Upstream serves the spec minified; the committed copy is Prettier-formatted**, and
+> `public/` is not in `.prettierignore`. Run `npm run format` after replacing the file or CI's
+> `format` job fails on a single 1.4 MB line.
+
+The spec can be read straight out of the published image without booting anything:
+
+```bash
+CID=$(docker create apache/fineract:latest)
+docker cp "$CID:/app/resources/static/fineract.json" ./fineract.json
+docker rm -f "$CID"
+```
+
+### Provenance
+
+`public/api/fineract.provenance.json` records where the committed spec came from: the image
+reference and digest, the upstream commit, `info.version`, path/operation/schema counts, and
+hashes of both the raw upstream bytes and the committed file. It is written by the sync
+workflow — do not edit it by hand.
 
 ## Maintenance
 
