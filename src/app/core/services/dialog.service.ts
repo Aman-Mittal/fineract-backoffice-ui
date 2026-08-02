@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { Injectable, inject } from '@angular/core';
-import { ModalController } from '@ionic/angular/standalone';
-import { TranslateService } from '@ngx-translate/core';
+import { Injectable, Type, inject } from '@angular/core';
+import { I18N, ModalHandle, OVERLAY } from '../adapters';
 import type { ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 export type { ConfirmDialogData };
@@ -27,42 +26,71 @@ export type { ConfirmDialogData };
 /** Component constructor accepted by {@link DialogService.open}. */
 type ComponentRef = new (...args: never[]) => unknown;
 
+/** Presentation options for {@link DialogService.open}. */
+export interface DialogOptions {
+  cssClass?: string | string[];
+  /**
+   * Whether the backdrop and Escape dismiss the dialog. Defaults to `true`.
+   *
+   * `IdleService` passes `false`: a session-expiry countdown a stray click can cancel is
+   * not a countdown.
+   */
+  dismissible?: boolean;
+}
+
 /**
  * Application-wide modal dialogs.
  *
- * Wraps Ionic's `ModalController` so call sites deal in promises of results rather than
+ * Goes through {@link OVERLAY} so call sites deal in promises of results rather than
  * controller lifecycles, and so confirmations share one implementation.
  */
 @Injectable({ providedIn: 'root' })
 export class DialogService {
-  private readonly modalController = inject(ModalController);
-  private readonly translate = inject(TranslateService);
+  private readonly overlay = inject(OVERLAY);
+  private readonly i18n = inject(I18N);
 
   /**
    * Opens a component as a modal and resolves with the value it was dismissed with,
    * or `undefined` if it was dismissed without one (backdrop click, escape).
    */
-  async open<T>(
+  open<T>(
     component: ComponentRef,
     data?: Record<string, unknown>,
-    cssClass?: string | string[],
+    options: DialogOptions = {},
   ): Promise<T | undefined> {
-    // `[x].flat()` normalises both accepted shapes — a single class or an array.
-    const callerClasses = cssClass ? [cssClass].flat() : [];
+    return this.overlay.modal<T>(this.request(component, data, options));
+  }
 
-    const modal = await this.modalController.create({
-      component,
-      componentProps: data,
+  /**
+   * Opens a dialog and resolves once it is on screen, with a handle for dismissing it.
+   *
+   * Use {@link open} unless the caller has to take the dialog down itself.
+   */
+  present<T>(
+    component: ComponentRef,
+    data?: Record<string, unknown>,
+    options: DialogOptions = {},
+  ): Promise<ModalHandle<T>> {
+    return this.overlay.presentModal<T>(this.request(component, data, options));
+  }
+
+  private request(
+    component: ComponentRef,
+    data?: Record<string, unknown>,
+    options: DialogOptions = {},
+  ) {
+    // `[x].flat()` normalises both accepted shapes — a single class or an array.
+    const callerClasses = options.cssClass ? [options.cssClass].flat() : [];
+
+    return {
+      component: component as Type<unknown>,
+      inputs: data,
       // Every dialog gets `app-dialog`, which is what gives its body a scroll
       // container — see src/styles/_dialogs.scss. Without it a dialog taller than
       // the viewport puts its own action buttons out of reach.
       cssClass: ['app-dialog', ...callerClasses],
-    });
-
-    await modal.present();
-
-    const { data: result } = await modal.onWillDismiss<T>();
-    return result;
+      dismissible: options.dismissible,
+    };
   }
 
   /**
@@ -77,8 +105,8 @@ export class DialogService {
 
     const result = await this.open<boolean>(ConfirmDialogComponent as ComponentRef, {
       data: {
-        confirmText: this.translate.instant('COMMON.CONFIRM'),
-        cancelText: this.translate.instant('COMMON.CANCEL'),
+        confirmText: this.i18n.translate('COMMON.CONFIRM'),
+        cancelText: this.i18n.translate('COMMON.CANCEL'),
         ...data,
       },
     });

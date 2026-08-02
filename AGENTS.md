@@ -67,6 +67,29 @@ _ModalController`.
 - Theming flows through `src/styles/_ionic-theme.scss`, which maps `--ion-color-*` onto the design
   tokens in `_common.scss`. Dark mode is the `[data-theme='dark']` attribute set by `ThemeService`.
 
+## Adapter boundary
+
+Third-party surfaces the application must be able to replace are reached through
+`src/app/core/adapters/` — never directly. See `DOCS/adr/0003-adapter-boundary.md`.
+
+| Token      | Use instead of                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------ |
+| `I18N`     | `TranslateService`; in templates, `\| appTranslate`                                                                |
+| `OVERLAY`  | `ToastController` / `ModalController` — but prefer `NotificationService` / `DialogService`, which sit on top of it |
+| `STORAGE`  | `localStorage` / `sessionStorage`                                                                                  |
+| `DOWNLOAD` | `URL.createObjectURL` plus a download anchor                                                                       |
+
+- Tokens resolve to their default implementation with no provider needed; override in
+  `app.config.ts` to swap one.
+- `<ion-*>` components are **not** restricted — they are the UI layer. Only Ionic's imperative
+  controllers are.
+- New keys must be added to `STORAGE_KEYS` (`core/adapters/storage/storage-keys.ts`); the type
+  admits nothing else.
+- `npm run lint` fails on a new violation. The existing backlog is recorded in
+  `eslint-suppressions.json` and may only shrink.
+- In specs, use `provideFakeAdapters()` from `src/app/testing/adapters.ts` rather than mocking
+  the library.
+
 ## RBAC and feature flags
 
 ### `environment.rbacEnabled`

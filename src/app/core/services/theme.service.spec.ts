@@ -18,18 +18,22 @@
  */
 
 import { TestBed } from '@angular/core/testing';
+import { FakeStorageAdapter, provideFakeAdapters } from '../../testing/adapters';
 import { ThemeService } from './theme.service';
 
 describe('ThemeService', () => {
   const DARK_THEME = 'dark';
-  const THEME_KEY = 'theme';
   const DATA_THEME = 'data-theme';
 
   let service: ThemeService;
+  let storage: FakeStorageAdapter;
+  let providers: ReturnType<typeof provideFakeAdapters>['providers'];
 
   beforeEach(() => {
-    spyOn(localStorage, 'getItem').and.returnValue(null);
-    spyOn(localStorage, 'setItem');
+    const fakes = provideFakeAdapters();
+    storage = fakes.storage;
+    providers = fakes.providers;
+
     spyOn(document.documentElement, 'setAttribute');
     spyOn(document.documentElement, 'removeAttribute');
     // With no saved theme the service falls back to the OS preference, so
@@ -40,9 +44,7 @@ describe('ThemeService', () => {
 
   const createService = () => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [ThemeService],
-    });
+    TestBed.configureTestingModule({ providers: [ThemeService, ...providers] });
     service = TestBed.inject(ThemeService);
   };
 
@@ -50,7 +52,7 @@ describe('ThemeService', () => {
     createService();
     expect(service.isDarkMode()).toBeFalse();
     expect(document.documentElement.removeAttribute).toHaveBeenCalledWith(DATA_THEME);
-    expect(localStorage.setItem).toHaveBeenCalledWith(THEME_KEY, 'light');
+    expect(storage.readRaw('theme')).toBe('light');
   });
 
   it('should follow the OS preference when no theme is saved', () => {
@@ -61,27 +63,24 @@ describe('ThemeService', () => {
   });
 
   it('should initialize to dark mode when savedTheme is dark', () => {
-    (localStorage.getItem as jasmine.Spy).and.returnValue(DARK_THEME);
+    storage.writeRaw('theme', DARK_THEME);
     createService();
     expect(service.isDarkMode()).toBeTrue();
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith(DATA_THEME, DARK_THEME);
-    expect(localStorage.setItem).toHaveBeenCalledWith(THEME_KEY, DARK_THEME);
+    expect(storage.readRaw('theme')).toBe(DARK_THEME);
   });
 
   it('should toggle dark mode state', () => {
     createService();
     expect(service.isDarkMode()).toBeFalse();
 
-    // Toggle to Dark
     service.toggleDarkMode();
     expect(service.isDarkMode()).toBeTrue();
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith(DATA_THEME, DARK_THEME);
-    expect(localStorage.setItem).toHaveBeenCalledWith(THEME_KEY, DARK_THEME);
+    expect(storage.readRaw('theme')).toBe(DARK_THEME);
 
-    // Toggle back to Light
     service.toggleDarkMode();
     expect(service.isDarkMode()).toBeFalse();
-    expect(document.documentElement.removeAttribute).toHaveBeenCalledWith(DATA_THEME);
-    expect(localStorage.setItem).toHaveBeenCalledWith(THEME_KEY, 'light');
+    expect(storage.readRaw('theme')).toBe('light');
   });
 });

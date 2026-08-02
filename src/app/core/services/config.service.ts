@@ -22,6 +22,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { skipErrorToast, skipLoading } from '../http/http-context';
+import { STORAGE } from '../adapters';
 import type { InstitutionFeature, InstitutionType } from './institution-config.service';
 
 /**
@@ -97,7 +98,7 @@ const DEFAULT_CONFIG: AppConfig = {
 })
 export class ConfigService {
   private readonly http = inject(HttpClient);
-  private readonly storageKey = 'fineract_runtime_config';
+  private readonly storage = inject(STORAGE);
 
   private readonly _config = signal<AppConfig>({
     ...DEFAULT_CONFIG,
@@ -143,7 +144,7 @@ export class ConfigService {
    */
   setApiUrl(url: string): void {
     this._config.update((config) => ({ ...config, fineractApiUrl: url }));
-    localStorage.setItem(this.storageKey, JSON.stringify({ fineractApiUrl: url }));
+    this.storage.write('runtimeConfig', { fineractApiUrl: url });
   }
 
   /**
@@ -162,17 +163,9 @@ export class ConfigService {
    * endpoints.
    */
   private getStoredOverride(): Partial<AppConfig> {
-    const stored = localStorage.getItem(this.storageKey);
-    if (!stored) {
-      return {};
-    }
-
-    try {
-      const { fineractApiUrl } = JSON.parse(stored) as Partial<AppConfig>;
-      return fineractApiUrl ? { fineractApiUrl } : {};
-    } catch (e) {
-      console.error('Error parsing stored config', e);
-      return {};
-    }
+    // `read` already absorbs an unparseable value, so there is no catch here: a corrupted
+    // override reads as no override, and the deployment's own `config.json` decides.
+    const { fineractApiUrl } = this.storage.read<Partial<AppConfig>>('runtimeConfig', {});
+    return fineractApiUrl ? { fineractApiUrl } : {};
   }
 }

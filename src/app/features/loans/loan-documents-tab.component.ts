@@ -26,6 +26,7 @@ import { DialogService } from '../../core/services/dialog.service';
 import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { DOWNLOAD } from '../../core/adapters';
 
 // Loan-level documents are the evidentiary record for underwriting/servicing
 // decisions (signed application, ID proof, collateral photos) — staff need
@@ -155,6 +156,7 @@ export class LoanDocumentsTabComponent implements OnInit {
   readonly loanId = input.required<number>();
 
   private readonly documentsService = inject(DocumentsService);
+  private readonly download = inject(DOWNLOAD);
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
   private readonly httpClient = inject(HttpClient);
@@ -239,13 +241,8 @@ export class LoanDocumentsTabComponent implements OnInit {
       .getEntityTypeEntityIdDocumentsDocumentIdAttachment('loans', this.loanId(), id)
       .subscribe({
         next: (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
           const doc = this.documents().find((d) => d.id === id);
-          a.download = doc?.fileName || 'document';
-          a.click();
-          window.URL.revokeObjectURL(url);
+          this.download.save(blob, doc?.fileName || 'document');
         },
         error: (err) => console.error('Failed to download loan document', err),
       });

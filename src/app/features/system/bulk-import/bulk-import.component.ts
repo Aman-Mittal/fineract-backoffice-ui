@@ -31,6 +31,7 @@ import {
 } from '../../../api';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { DOWNLOAD } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -160,6 +161,7 @@ import {
 })
 export class BulkImportComponent implements OnInit {
   private readonly bulkImportService = inject(BulkImportService);
+  private readonly download = inject(DOWNLOAD);
   private readonly clientService = inject(ClientService);
   private readonly loansService = inject(LoansService);
   private readonly savingsService = inject(SavingsAccountService);
@@ -248,12 +250,7 @@ export class BulkImportComponent implements OnInit {
 
     template$?.subscribe({
       next: (blob: unknown) => {
-        const url = window.URL.createObjectURL(blob as Blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${this.selectedEntity}_template.xls`;
-        a.click();
-        window.URL.revokeObjectURL(url);
+        this.download.save(blob as Blob, `${this.selectedEntity}_template.xls`);
       },
       error: (err: unknown) => console.error('Failed to download template', err),
     });
@@ -316,12 +313,7 @@ export class BulkImportComponent implements OnInit {
     this.bulkImportService
       .getImportsDownloadOutputTemplate(Number(id))
       .subscribe((blob: unknown) => {
-        const url = window.URL.createObjectURL(blob as Blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `import_result_${id}.xlsx`;
-        a.click();
-        window.URL.revokeObjectURL(url);
+        this.download.save(blob as Blob, `import_result_${id}.xlsx`);
       });
   }
 }

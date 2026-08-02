@@ -21,7 +21,8 @@ import { Injectable, inject, NgZone, OnDestroy, effect } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
 import { fromEvent, merge, Subscription, throttleTime } from 'rxjs';
-import { ModalController } from '@ionic/angular/standalone';
+import { ModalHandle } from '../adapters';
+import { DialogService } from './dialog.service';
 import { InactivityDialogComponent } from '../../layout/inactivity-dialog.component';
 
 /**
@@ -38,11 +39,11 @@ export class IdleService implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
-  private readonly modalController = inject(ModalController);
+  private readonly dialogService = inject(DialogService);
 
   private idleSubscription?: Subscription;
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
-  private dialogRef: HTMLIonModalElement | null = null;
+  private dialogRef: ModalHandle<boolean> | null = null;
 
   // Configuration
   /** Total time of inactivity allowed before forced logout (15 minutes) */
@@ -131,17 +132,15 @@ export class IdleService implements OnDestroy {
 
       // The warning must not be dismissable by backdrop or escape — ignoring it has to
       // fall through to the logout timer below, not silently cancel the countdown.
-      this.modalController
-        .create({
-          component: InactivityDialogComponent,
-          backdropDismiss: false,
+      this.dialogService
+        .present<boolean>(InactivityDialogComponent, undefined, {
+          dismissible: false,
           cssClass: 'inactivity-dialog',
         })
-        .then((modal) => {
-          this.dialogRef = modal;
-          modal.present();
+        .then((handle) => {
+          this.dialogRef = handle;
 
-          return modal.onWillDismiss<boolean>().then(({ data: shouldExtend }) => {
+          return handle.result.then((shouldExtend) => {
             this.dialogRef = null;
             if (shouldExtend) {
               this.resetTimer();
@@ -177,7 +176,7 @@ export class IdleService implements OnDestroy {
    */
   private closeDialog(): void {
     if (this.dialogRef) {
-      this.dialogRef.dismiss();
+      void this.dialogRef.dismiss();
       this.dialogRef = null;
     }
   }

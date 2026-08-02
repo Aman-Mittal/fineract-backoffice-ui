@@ -18,8 +18,7 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { ToastController } from '@ionic/angular/standalone';
-import { TranslateService } from '@ngx-translate/core';
+import { I18N, OVERLAY } from '../adapters';
 
 export interface NotificationOptions {
   /** Milliseconds before the toast auto-dismisses. */
@@ -36,13 +35,13 @@ const ERROR_DURATION = 10000;
 /**
  * Application-wide toast notifications.
  *
- * Wraps Ionic's `ToastController` so call sites never depend on the presentation layer
- * directly, and so the duration/placement conventions stay consistent.
+ * Goes through {@link OVERLAY} rather than a component library directly, so call sites never
+ * depend on the presentation layer and the duration/placement conventions stay consistent.
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private readonly toastController = inject(ToastController);
-  private readonly translate = inject(TranslateService);
+  private readonly overlay = inject(OVERLAY);
+  private readonly i18n = inject(I18N);
 
   /** Shows a confirmation toast for a completed action. */
   success(message: string, options: NotificationOptions = {}): Promise<void> {
@@ -66,18 +65,15 @@ export class NotificationService {
   }
 
   /** Shows a toast with no implied severity. */
-  async show(message: string, options: NotificationOptions = {}): Promise<void> {
+  show(message: string, options: NotificationOptions = {}): Promise<void> {
     const { duration = SUCCESS_DURATION, dismissLabel, cssClass } = options;
-    const label = dismissLabel ?? this.translate.instant('COMMON.CLOSE');
 
-    const toast = await this.toastController.create({
+    return this.overlay.toast({
       message,
       duration,
       position: 'bottom',
       cssClass,
-      buttons: label ? [{ text: label, role: 'cancel' }] : [],
+      dismissLabel: dismissLabel ?? this.i18n.translate('COMMON.CLOSE'),
     });
-
-    await toast.present();
   }
 }

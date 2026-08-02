@@ -103,14 +103,26 @@ export const appConfig: ApplicationConfig = {
       },
       deps: [ConfigService],
     },
-    importProvidersFrom(
-      TranslateModule.forRoot({
-        defaultLanguage: 'en',
-      }),
-    ),
+    // No language options here, deliberately. `defaultLanguage` was deprecated in
+    // ngx-translate 17 and, without `useDefaultLang: true`, did nothing but print a warning
+    // on every startup — the language has always been set by `AppComponent`, which calls
+    // `addLangs`, `setFallbackLang('en')` and `use(...)`.
+    //
+    // Passing `fallbackLang: 'en'` here instead is NOT equivalent, and must not be
+    // reintroduced as a way of clearing that warning. It makes `TranslateService`'s
+    // constructor load the `en` catalogue immediately, and that constructor runs from
+    // `errorInterceptor`'s `inject(I18N)` — that is, while the interceptor chain is being
+    // built for the application's first request. The catalogue fetch re-enters the
+    // half-built chain and never resolves, so every key renders as its own name and the
+    // login button reads `login.submit`. Caught by e2e/all-functions-read-shortcut.spec.ts.
+    importProvidersFrom(TranslateModule.forRoot()),
     provideTranslateHttpLoader({
       prefix: 'assets/i18n/',
       suffix: '.json',
     }),
+    // The adapter tokens (`OVERLAY`, `I18N`) resolve to their default implementations
+    // without a provider here — see `core/adapters/`. A deployment swapping the component
+    // library or the i18n library overrides them at this point in the list.
+    // See DOCS/adr/0003-adapter-boundary.md.
   ],
 };
