@@ -87,7 +87,7 @@ export interface SavingsBlockResult {
               [attr.aria-label]="'SAVINGS.HOLD_AMOUNT_LABEL' | appTranslate"
               type="number"
               min="0"
-              data-testid="savings-hold-amount"
+              data-testid="savings-hold-amount-input"
               name="transactionAmount"
               [(ngModel)]="amount"
             ></ion-input>

@@ -1336,7 +1336,9 @@
     "ADD_VALUE": "Add Value",
     "ACTIONS": "Actions",
     "BACK": "Back to Codes",
-    "DELETE_CONFIRM": "Are you sure you want to delete this code value?"
+    "DELETE_CONFIRM": "Are you sure you want to delete this code value?",
+    "CONFIRM_DELETE": "Delete the value “{{name}}”?",
+    "ADD": "Add Value"
   },
   "CODES": {
     "TITLE": "Codes",
@@ -1351,7 +1353,7 @@
     "CODE_VALUES": "Code Values",
     "SAVE": "Save",
     "CANCEL": "Cancel",
-    "CONFIRM_DELETE": "Are you sure you want to delete this code?"
+    "CONFIRM_DELETE": "Delete the code “{{name}}”? Any values under it go with it."
   },
   "COLLECTION_SHEET": {
     "TITLE": "Collection Sheet",

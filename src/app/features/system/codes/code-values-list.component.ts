@@ -20,169 +20,98 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+
 import {
-  CodeValuesService,
   CodesService,
-  GetCodeValuesDataResponse,
+  CodeValuesService,
   GetCodesResponse,
+  GetCodeValuesDataResponse,
 } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { CdkTableModule } from '@angular/cdk/table';
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonIcon,
-  IonSpinner,
-} from '@ionic/angular/standalone';
+import { CellTemplateDirective, ColumnDef } from '../../../shared';
+import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-code-values-list',
   standalone: true,
   imports: [
     TranslateModule,
-    CdkTableModule,
     StatusBadgeComponent,
+    DataTableComponent,
+    CellTemplateDirective,
     IonIcon,
     IonButton,
-    IonSpinner,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonCard,
   ],
   template: `
-    <div class="list-container">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>
-            {{ 'CODE_VALUES.FOR_CODE' | translate }}
-            @if (codeName()) {
-              : {{ codeName() }}
-            }
-          </ion-card-title>
-          <div class="header-actions">
-            <ion-button fill="clear" (click)="onBack()">
-              <ion-icon name="arrow-back-outline"></ion-icon>
-              {{ 'CODE_VALUES.BACK' | translate }}
-            </ion-button>
-            <ion-button color="primary" (click)="onAddValue()">
-              <ion-icon name="add-outline"></ion-icon>
-              {{ 'CODE_VALUES.ADD_VALUE' | translate }}
-            </ion-button>
-          </div>
-        </ion-card-header>
+    <app-data-table
+      [title]="codeName()"
+      createButtonLabel="CODE_VALUES.ADD"
+      [columns]="columns"
+      [data]="codeValues()"
+      [totalRecords]="codeValues().length"
+      [showSearch]="true"
+      [localLogic]="true"
+      [isLoading]="loading()"
+      [hasError]="hasError()"
+      (retry)="load()"
+      (create)="onAddValue()"
+    >
+      <ng-template appCellTemplate="isActive" let-row>
+        @if (row.isActive === true) {
+          <app-status-badge status="Active"></app-status-badge>
+        }
+      </ng-template>
 
-        <ion-card-content>
-          @if (loading()) {
-            <div class="spinner-container">
-              <ion-spinner name="crescent"></ion-spinner>
-            </div>
-          } @else {
-            <table cdk-table [dataSource]="codeValues()" class="full-width-table">
-              <!-- Name Column -->
-              <ng-container cdkColumnDef="name">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.NAME' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
-              </ng-container>
-
-              <!-- Description Column -->
-              <ng-container cdkColumnDef="description">
-                <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'CODE_VALUES.DESCRIPTION' | translate }}
-                </th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
-              </ng-container>
-
-              <!-- Position Column -->
-              <ng-container cdkColumnDef="position">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.POSITION' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.position }}</td>
-              </ng-container>
-
-              <!-- Active Column -->
-              <ng-container cdkColumnDef="isActive">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.ACTIVE' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">
-                  @if (row.isActive === true) {
-                    <app-status-badge status="Active"></app-status-badge>
-                  } @else {
-                    <app-status-badge status="Inactive"></app-status-badge>
-                  }
-                </td>
-              </ng-container>
-
-              <!-- Actions Column -->
-              <ng-container cdkColumnDef="actions">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODE_VALUES.ACTIONS' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">
-                  <ion-button fill="clear" color="primary" (click)="onEdit(row)">
-                    <ion-icon name="create-outline"></ion-icon>
-                    {{ 'CODE_VALUES.EDIT' | translate }}
-                  </ion-button>
-                  @if (row.isSystemDefined !== true) {
-                    <ion-button fill="clear" color="danger" (click)="onDelete(row)">
-                      <ion-icon name="trash-outline"></ion-icon>
-                      {{ 'CODE_VALUES.DELETE' | translate }}
-                    </ion-button>
-                  }
-                </td>
-              </ng-container>
-
-              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-          }
-        </ion-card-content>
-      </ion-card>
-    </div>
+      <ng-template appCellTemplate="actions" let-row>
+        <ion-button
+          fill="clear"
+          color="primary"
+          [attr.aria-label]="'COMMON.EDIT' | translate"
+          (click)="onEdit(row)"
+        >
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="danger"
+          [attr.aria-label]="'COMMON.DELETE' | translate"
+          (click)="onDelete(row)"
+        >
+          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-template>
+    </app-data-table>
   `,
-  styles: [
-    `
-      .list-container {
-        padding: 24px;
-      }
-      mat-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-      }
-      .header-actions {
-        margin-left: auto;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-      .full-width-table {
-        width: 100%;
-      }
-      .spinner-container {
-        display: flex;
-        justify-content: center;
-        padding: 32px;
-      }
-    `,
-  ],
 })
 export class CodeValuesListComponent implements OnInit {
   private readonly codeValuesService = inject(CodeValuesService);
   private readonly codesService = inject(CodesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   private readonly CODES_BASE = '/system/codes';
 
   readonly codeValues = signal<GetCodeValuesDataResponse[]>([]);
   readonly codeName = signal<string>('');
   readonly loading = signal(false);
+  readonly hasError = signal(false);
 
   codeId = 0;
 
-  readonly displayedColumns = ['name', 'description', 'position', 'isActive', 'actions'];
+  readonly columns: ColumnDef[] = [
+    { key: 'name', label: 'CODE_VALUES.NAME', sortable: true },
+    { key: 'description', label: 'COMMON.DESCRIPTION', sortable: false },
+    { key: 'position', label: 'CODE_VALUES.POSITION', sortable: true },
+    { key: 'isActive', label: 'COMMON.STATUS', sortable: false },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
+  ];
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -197,27 +126,26 @@ export class CodeValuesListComponent implements OnInit {
 
   loadCodeName(): void {
     this.codesService.getCodesCodeId(this.codeId).subscribe({
-      next: (data: GetCodesResponse) => {
-        this.codeName.set(data.name ?? '');
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load code name', err);
-      },
+      next: (data: GetCodesResponse) => this.codeName.set(data.name ?? ''),
+      error: () => this.codeName.set(''),
     });
   }
 
   load(): void {
     this.loading.set(true);
-    this.codeValuesService.getCodesCodeIdCodevalues(this.codeId).subscribe({
-      next: (data: GetCodeValuesDataResponse[]) => {
+    this.codeValuesService
+      .getCodesCodeIdCodevalues(this.codeId)
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([] as GetCodeValuesDataResponse[]);
+        }),
+      )
+      .subscribe((data: GetCodeValuesDataResponse[]) => {
         this.codeValues.set(data || []);
         this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load code values', err);
-        this.loading.set(false);
-      },
-    });
+      });
   }
 
   onBack(): void {
@@ -233,12 +161,24 @@ export class CodeValuesListComponent implements OnInit {
   }
 
   onDelete(row: GetCodeValuesDataResponse): void {
-    // isSystemDefined not available in GetCodeValuesDataResponse; deletion is guarded by API
-    const confirmed = window.confirm(`${'CODE_VALUES.CONFIRM_DELETE'}: ${row.name}`);
-    if (!confirmed || row.id === undefined) return;
-    this.codeValuesService.deleteCodesCodeIdCodevaluesCodeValueId(this.codeId, row.id).subscribe({
-      next: () => this.load(),
-      error: (err: unknown) => console.error('Failed to delete code value', err),
-    });
+    if (row.id === undefined) return;
+
+    // Was `window.confirm` with the raw key interpolated, so the dialog read
+    // "CODE_VALUES.CONFIRM_DELETE: <name>". Whether the value may be deleted is the API's call.
+    void this.dialogService
+      .confirm({
+        title: this.translate.instant('COMMON.DELETE'),
+        message: this.translate.instant('CODE_VALUES.CONFIRM_DELETE', { name: row.name }),
+        destructive: true,
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.codeValuesService
+          .deleteCodesCodeIdCodevaluesCodeValueId(this.codeId, row.id!)
+          .subscribe({
+            next: () => this.load(),
+            error: () => this.hasError.set(true),
+          });
+      });
   }
 }
