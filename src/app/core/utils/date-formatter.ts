@@ -34,7 +34,13 @@ const MONTHS = [
 
 /**
  * Formats a Date object (or date-like string/array) into the Fineract-preferred
- * 'D Month YYYY' format (e.g., '15 January 2026').
+ * 'dd Month yyyy' format (e.g., '15 January 2026', '02 August 2026').
+ *
+ * The day is zero-padded to two digits because every caller sends this alongside
+ * `FINERACT_DATE_FORMAT`, which declares `dd`. Fineract parses the value strictly against the
+ * format it is told to use, so an unpadded '2 August 2026' does not merely fail validation — it
+ * fails to parse at all and the request comes back 500. That made every dated submission in the
+ * application fail on the 1st through the 9th of any month, and succeed for the rest of it.
  *
  * @param date - The date to format.
  * @returns The formatted date string, or empty string if invalid.
@@ -57,7 +63,7 @@ export function formatDateToFineract(date: Date | string | number[] | null | und
 
   if (isNaN(d.getTime())) return '';
 
-  const day = d.getDate();
+  const day = String(d.getDate()).padStart(2, '0');
   const month = MONTHS[d.getMonth()];
   const year = d.getFullYear();
 

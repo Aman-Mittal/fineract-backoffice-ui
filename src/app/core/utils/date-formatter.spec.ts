@@ -17,7 +17,12 @@
  * under the License.
  */
 
-import { formatArrayDate, formatDateToFineract, toIsoDate } from './date-formatter';
+import {
+  FINERACT_DATE_FORMAT,
+  formatArrayDate,
+  formatDateToFineract,
+  toIsoDate,
+} from './date-formatter';
 
 const JAN_5_2026 = '2026-01-05';
 
@@ -67,6 +72,32 @@ describe('date-formatter', () => {
 
     it('accepts a Fineract array date', () => {
       expect(formatDateToFineract([2026, 1, 15])).toBe('15 January 2026');
+    });
+
+    it('pads a single-digit day to two digits', () => {
+      // Callers send this alongside FINERACT_DATE_FORMAT ('dd MMMM yyyy'). Fineract parses the
+      // value strictly against that format, so '2 August 2026' fails to parse and the request
+      // comes back 500 — every dated submission in the application broke on the 1st to the 9th.
+      expect(formatDateToFineract(new Date(2026, 7, 2))).toBe('02 August 2026');
+      expect(formatDateToFineract(new Date(2026, 0, 1))).toBe('01 January 2026');
+      expect(formatDateToFineract(new Date(2026, 0, 9))).toBe('09 January 2026');
+    });
+
+    it('pads a single-digit day from an array date too', () => {
+      expect(formatDateToFineract([2026, 8, 2])).toBe('02 August 2026');
+    });
+
+    it('leaves a two-digit day alone', () => {
+      expect(formatDateToFineract(new Date(2026, 0, 10))).toBe('10 January 2026');
+      expect(formatDateToFineract(new Date(2026, 11, 31))).toBe('31 December 2026');
+    });
+
+    it('agrees with the format string it is always sent with', () => {
+      // The guarantee that actually matters: day and month are fixed-width, matching 'dd'.
+      expect(FINERACT_DATE_FORMAT).toBe('dd MMMM yyyy');
+      for (let day = 1; day <= 28; day++) {
+        expect(formatDateToFineract(new Date(2026, 0, day)).split(' ')[0]).toHaveSize(2);
+      }
     });
 
     it('returns empty string for invalid input', () => {

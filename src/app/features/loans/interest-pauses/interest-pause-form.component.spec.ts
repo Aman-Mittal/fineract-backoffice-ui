@@ -72,8 +72,8 @@ describe('InterestPauseFormComponent', () => {
     expect(serviceSpy.postLoansLoanIdInterestPauses).toHaveBeenCalledWith(
       1,
       jasmine.objectContaining({
-        startDate: '1 January 2026',
-        endDate: '1 February 2026',
+        startDate: '01 January 2026',
+        endDate: '01 February 2026',
         dateFormat: 'dd MMMM yyyy',
         locale: 'en',
       }),
