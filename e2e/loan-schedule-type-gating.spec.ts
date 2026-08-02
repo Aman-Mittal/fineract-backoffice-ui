@@ -42,6 +42,7 @@ interface LoanOverrides {
   loanScheduleType?: { code: string; value: string };
   enableBuyDownFee?: boolean;
   enableIncomeCapitalization?: boolean;
+  chargedOff?: boolean;
 }
 
 function loan(overrides: LoanOverrides) {
@@ -176,5 +177,35 @@ test.describe('Loan schedule type gating', () => {
 
     await tab(page, CAPITALIZED_TAB).click();
     await expect(page.locator('.tab-content')).toBeVisible();
+  });
+
+  /**
+   * Fineract keeps a charged-off loan `Active`, so the status badge cannot distinguish it. The
+   * marker and the action swap are the only signals the officer gets. Covered here as well as in
+   * the backend spec so the gating runs in the fast project.
+   */
+  test('a charged-off loan says so and offers the reversal instead', async ({ page }) => {
+    await loginWithLoan(page, {
+      loanScheduleType: { code: 'CUMULATIVE', value: 'Cumulative' },
+      chargedOff: true,
+    });
+
+    await page.goto('/loans/view/456');
+    await expect(page.getByTestId('loan-charged-off-chip')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Actions' }).click();
+    await expect(page.getByTestId('loan-undo-charge-off-action')).toBeVisible();
+    await expect(page.getByTestId('loan-charge-off-action')).toHaveCount(0);
+  });
+
+  test('a healthy loan offers charge-off and no marker', async ({ page }) => {
+    await loginWithLoan(page, { loanScheduleType: { code: 'CUMULATIVE', value: 'Cumulative' } });
+
+    await page.goto('/loans/view/456');
+    await expect(page.getByTestId('loan-charged-off-chip')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Actions' }).click();
+    await expect(page.getByTestId('loan-charge-off-action')).toBeVisible();
+    await expect(page.getByTestId('loan-undo-charge-off-action')).toHaveCount(0);
   });
 });

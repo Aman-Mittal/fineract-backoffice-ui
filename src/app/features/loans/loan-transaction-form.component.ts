@@ -65,21 +65,58 @@ const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   foreclosure: 'LOANS.ACTIONS.FORECLOSURE',
   close: 'LOANS.ACTIONS.CLOSE',
   writeoff: 'LOANS.ACTIONS.WRITE_OFF',
+  'charge-off': 'LOANS.ACTIONS.CHARGE_OFF',
+  merchantIssuedRefund: 'LOANS.ACTIONS.MERCHANT_ISSUED_REFUND',
+  payoutRefund: 'LOANS.ACTIONS.PAYOUT_REFUND',
+  goodwillCredit: 'LOANS.ACTIONS.GOODWILL_CREDIT',
+  downPayment: 'LOANS.ACTIONS.DOWN_PAYMENT',
+  interestPaymentWaiver: 'LOANS.ACTIONS.INTEREST_PAYMENT_WAIVER',
+  creditBalanceRefund: 'LOANS.ACTIONS.CREDIT_BALANCE_REFUND',
+  recoverypayment: 'LOANS.ACTIONS.RECOVERY_PAYMENT',
+  undowriteoff: 'LOANS.ACTIONS.UNDO_WRITE_OFF',
+  reAge: 'LOANS.ACTIONS.RE_AGE',
+  reAmortize: 'LOANS.ACTIONS.RE_AMORTIZE',
 };
 
-const DESTRUCTIVE_TYPES = new Set(['writeoff', 'foreclosure', 'close', 'undoDisbursal']);
+/** Commands the template endpoint rejects; verified against a running Fineract. */
+const NO_TEMPLATE_TYPES = new Set(['approve', 'undoDisbursal', 'reAmortize', 'undowriteoff']);
+
+const DESTRUCTIVE_TYPES = new Set([
+  'writeoff',
+  'foreclosure',
+  'close',
+  'undoDisbursal',
+  'charge-off',
+  'undowriteoff',
+  'reAge',
+  'reAmortize',
+]);
 
 // Only these commands accept a transaction amount / payment type — the
 // others (writeoff, foreclosure, close, waiveinterest) compute their amount
 // on the backend from the outstanding balance and reject an explicit
 // transactionAmount with a 400.
-const AMOUNT_VISIBLE_TYPES = new Set(['repayment', 'prepayLoan']);
+const AMOUNT_VISIBLE_TYPES = new Set([
+  'repayment',
+  'prepayLoan',
+  'merchantIssuedRefund',
+  'payoutRefund',
+  'goodwillCredit',
+  'downPayment',
+  'interestPaymentWaiver',
+  'creditBalanceRefund',
+  'recoverypayment',
+]);
 
 const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   writeoff: 'LOANS.CONFIRM_WRITE_OFF',
   foreclosure: 'LOANS.CONFIRM_FORECLOSURE',
   close: 'LOANS.CONFIRM_CLOSE',
   undoDisbursal: 'LOANS.CONFIRM_UNDO_DISBURSAL',
+  'charge-off': 'LOANS.CONFIRM_CHARGE_OFF',
+  undowriteoff: 'LOANS.CONFIRM_UNDO_WRITE_OFF',
+  reAge: 'LOANS.CONFIRM_RE_AGE',
+  reAmortize: 'LOANS.CONFIRM_RE_AMORTIZE',
 };
 
 @Component({
@@ -225,6 +262,31 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                 </ion-item>
               }
 
+              <!-- Charge-off reason. Optional, and only present when the deployment has
+                   configured code values for it — the template returns an empty list otherwise. -->
+              @if (chargeOffReasonOptions().length) {
+                <ion-item
+                  fill="outline"
+                  [appTooltip]="'HELP.CHARGE_OFF_REASON_DESC' | translate"
+                  class="full-width"
+                >
+                  <ion-label position="stacked">{{
+                    'LOANS.CHARGE_OFF_REASON' | translate
+                  }}</ion-label>
+                  <ion-select
+                    [attr.aria-label]="'LOANS.CHARGE_OFF_REASON' | translate"
+                    interface="popover"
+                    data-testid="charge-off-reason"
+                    name="chargeOffReasonId"
+                    [(ngModel)]="chargeOffReasonId"
+                  >
+                    @for (reason of chargeOffReasonOptions(); track reason.id) {
+                      <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+              }
+
               <!-- Note -->
               <ion-item
                 fill="outline"
@@ -302,6 +364,8 @@ export class LoanTransactionFormComponent implements OnInit {
   readonly transactionDate = signal(toIsoDate(new Date()));
   readonly paymentTypeOptions = signal<GetPaymentTypeOptions[]>([]);
   readonly loanSummary = signal<LoanSummary | null>(null);
+  readonly chargeOffReasonOptions = signal<{ id?: number; name?: string }[]>([]);
+  chargeOffReasonId: number | null = null;
 
   get transactionTitleKey(): string {
     return TRANSACTION_TITLE_KEYS[this.transactionType()] || this.transactionType();
@@ -336,7 +400,10 @@ export class LoanTransactionFormComponent implements OnInit {
   }
 
   private loadTemplate(): void {
-    if (this.transactionType() === 'approve' || this.transactionType() === 'undoDisbursal') {
+    // The transaction *template* endpoint accepts fewer commands than the transaction endpoint
+    // itself — reAmortize, chargeRefund and undowriteoff are rejected there with "unsupported
+    // value" even though the POST works. Asking anyway would only produce a failed request.
+    if (NO_TEMPLATE_TYPES.has(this.transactionType())) {
       return;
     }
     this.transactionService
@@ -356,6 +423,11 @@ export class LoanTransactionFormComponent implements OnInit {
             this.transactionDate.set(toIsoDate(templateDate > today ? today : templateDate));
           }
           this.paymentTypeOptions.set(template.paymentTypeOptions || []);
+          // Only charge-off returns these, and only when the deployment has configured them.
+          this.chargeOffReasonOptions.set(
+            (template as unknown as { chargeOffReasonOptions?: { id?: number; name?: string }[] })
+              .chargeOffReasonOptions ?? [],
+          );
         },
         error: () => {
           this.notifications.error('Operation failed. Please try again.');
@@ -432,6 +504,10 @@ export class LoanTransactionFormComponent implements OnInit {
         // transactionAmount/paymentTypeId with a 400.
         delete this.transaction.transactionAmount;
         delete this.transaction.paymentTypeId;
+      }
+
+      if (this.transactionType() === 'charge-off' && this.chargeOffReasonId !== null) {
+        (this.transaction as Record<string, unknown>)['chargeOffReasonId'] = this.chargeOffReasonId;
       }
 
       this.transactionService
