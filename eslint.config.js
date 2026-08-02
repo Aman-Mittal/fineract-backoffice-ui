@@ -101,9 +101,79 @@ module.exports = tseslint.config(
               message:
                 'Angular Material has been removed. Use Ionic (@ionic/angular/standalone) — see STYLE.md for the component mapping. @angular/cdk is still allowed.',
             },
+            // Adapter boundary — DOCS/adr/0003-adapter-boundary.md.
+            //
+            // `<ion-*>` components are deliberately NOT restricted: they are the UI layer
+            // (AGENTS.md) and migrate one component at a time. What is restricted is Ionic's
+            // *imperative* surface, which services reach for and which has lifecycle
+            // semantics worth testing without a component library present.
+            {
+              group: ['@ionic/angular', '@ionic/angular/*'],
+              importNames: [
+                'ModalController',
+                'ToastController',
+                'AlertController',
+                'LoadingController',
+                'ActionSheetController',
+                'PopoverController',
+              ],
+              message:
+                "Use the OVERLAY adapter from 'app/core/adapters' instead of Ionic's controllers. Ion* components are unaffected. See DOCS/adr/0003-adapter-boundary.md.",
+            },
+            {
+              group: ['@ngx-translate/*'],
+              message:
+                "Use the I18N adapter (or the | appTranslate pipe) from 'app/core/adapters'. See DOCS/adr/0003-adapter-boundary.md.",
+            },
           ],
         },
       ],
+      // Web Storage is a trust boundary (security.md §4) and reached through globals rather
+      // than imports, so the boundary needs a second rule to hold. `STORAGE_KEYS` is the
+      // reviewable inventory of what this origin persists; a direct `localStorage.setItem`
+      // silently leaves it.
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'localStorage',
+          message:
+            "Use the STORAGE adapter from 'app/core/adapters'. See DOCS/adr/0003-adapter-boundary.md.",
+        },
+        {
+          name: 'sessionStorage',
+          message:
+            "Use the STORAGE adapter from 'app/core/adapters'. See DOCS/adr/0003-adapter-boundary.md.",
+        },
+      ],
+      // Object URLs leak when the revoke is skipped on a throw, which every hand-rolled
+      // download in this repo did. The DOWNLOAD adapter revokes in a `finally`.
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'URL',
+          property: 'createObjectURL',
+          message:
+            "Use the DOWNLOAD adapter from 'app/core/adapters', which revokes the object URL even on failure. See DOCS/adr/0003-adapter-boundary.md.",
+        },
+      ],
+    },
+  },
+  {
+    // The adapter implementations are the one place each restricted dependency is allowed —
+    // that is what makes them adapters. Nothing else may reach past the boundary.
+    files: [
+      'src/app/core/adapters/**/*.ts',
+      // `TranslateModule.forRoot()` and `provideTranslateHttpLoader()` configure the library
+      // itself, which is composition-root work rather than a call site.
+      'src/app/app.config.ts',
+      // The fakes must implement the same contracts, and the storage spec asserts against
+      // real Web Storage to prove the adapter writes where its scope says it does.
+      'src/app/testing/adapters.ts',
+    ],
+    rules: {
+      'no-restricted-imports': 'off',
+      'no-restricted-globals': 'off',
+      'no-restricted-properties': 'off',
     },
   },
   {

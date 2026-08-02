@@ -112,5 +112,9 @@ export const appConfig: ApplicationConfig = {
       prefix: 'assets/i18n/',
       suffix: '.json',
     }),
+    // The adapter tokens (`OVERLAY`, `I18N`) resolve to their default implementations
+    // without a provider here — see `core/adapters/`. A deployment swapping the component
+    // library or the i18n library overrides them at this point in the list.
+    // See DOCS/adr/0003-adapter-boundary.md.
   ],
 };

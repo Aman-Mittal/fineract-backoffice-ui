@@ -19,8 +19,7 @@
 
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular/standalone';
-import { TranslateService } from '@ngx-translate/core';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 import { DialogService } from './dialog.service';
 
 @Component({ selector: 'app-stub-dialog', standalone: true, template: '' })
@@ -33,47 +32,31 @@ const WIDE_CLASS = 'wide';
 
 describe('DialogService', () => {
   let service: DialogService;
-  let modalController: jasmine.SpyObj<ModalController>;
-  let present: jasmine.Spy;
-  let onWillDismiss: jasmine.Spy;
+  let overlay: FakeOverlayAdapter;
 
   beforeEach(() => {
-    present = jasmine.createSpy('present').and.resolveTo();
-    onWillDismiss = jasmine.createSpy('onWillDismiss').and.resolveTo({ data: undefined });
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
 
-    modalController = jasmine.createSpyObj<ModalController>('ModalController', ['create']);
-    modalController.create.and.resolveTo({
-      present,
-      onWillDismiss,
-    } as unknown as HTMLIonModalElement);
-
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: ModalController, useValue: modalController },
-        { provide: TranslateService, useValue: { instant: (key: string) => key } },
-      ],
-    });
+    TestBed.configureTestingModule({ providers: fakes.providers });
 
     service = TestBed.inject(DialogService);
   });
 
   describe('open', () => {
-    it('presents the modal and resolves with the dismiss payload', async () => {
-      onWillDismiss.and.resolveTo({ data: { id: 7 } });
+    it('requests the modal and resolves with the dismiss payload', async () => {
+      overlay.nextModalResult = { id: 7 };
 
       const result = await service.open(StubDialogComponent, { foo: 'bar' });
 
-      expect(modalController.create).toHaveBeenCalledWith(
+      expect(overlay.lastModal).toEqual(
         jasmine.objectContaining({
           component: StubDialogComponent,
-          componentProps: { foo: 'bar' },
+          inputs: { foo: 'bar' },
         }),
       );
-      expect(present).toHaveBeenCalled();
       expect(result).toEqual({ id: 7 });
     });
-
-    const cssClassOfLastModal = () => modalController.create.calls.mostRecent().args[0]!.cssClass;
 
     /*
      * `app-dialog` is what gives a dialog's body its scroll container
@@ -85,21 +68,37 @@ describe('DialogService', () => {
     it('always applies the app-dialog class', async () => {
       await service.open(StubDialogComponent);
 
-      expect(cssClassOfLastModal()).toEqual([APP_DIALOG_CLASS]);
+      expect(overlay.lastModal!.cssClass).toEqual([APP_DIALOG_CLASS]);
     });
 
     it('keeps a caller-supplied class, as a string or an array', async () => {
-      await service.open(StubDialogComponent, undefined, WIDE_CLASS);
-      expect(cssClassOfLastModal()).toEqual([APP_DIALOG_CLASS, WIDE_CLASS]);
+      await service.open(StubDialogComponent, undefined, { cssClass: WIDE_CLASS });
+      expect(overlay.lastModal!.cssClass).toEqual([APP_DIALOG_CLASS, WIDE_CLASS]);
 
-      await service.open(StubDialogComponent, undefined, [WIDE_CLASS, 'tall']);
-      expect(cssClassOfLastModal()).toEqual([APP_DIALOG_CLASS, WIDE_CLASS, 'tall']);
+      await service.open(StubDialogComponent, undefined, { cssClass: [WIDE_CLASS, 'tall'] });
+      expect(overlay.lastModal!.cssClass).toEqual([APP_DIALOG_CLASS, WIDE_CLASS, 'tall']);
     });
 
     it('resolves undefined when dismissed without a payload', async () => {
       const result = await service.open(StubDialogComponent);
 
       expect(result).toBeUndefined();
+    });
+
+    it('passes dismissibility through to the overlay', async () => {
+      await service.open(StubDialogComponent, undefined, { dismissible: false });
+
+      expect(overlay.lastModal!.dismissible).toBe(false);
+    });
+  });
+
+  describe('present', () => {
+    it('returns a handle that dismisses the modal', async () => {
+      const handle = await service.present(StubDialogComponent);
+
+      await handle.dismiss();
+
+      expect(overlay.dismissed).toBe(true);
     });
   });
 
@@ -108,28 +107,28 @@ describe('DialogService', () => {
      recognise as an assertion. Rewriting them would only satisfy the check. */
   describe('confirm', () => {
     it('resolves true only when the dialog reports confirmation', async () => {
-      onWillDismiss.and.resolveTo({ data: true });
+      overlay.nextModalResult = true;
 
       await expectAsync(service.confirm({ title: 'T', message: 'M' })).toBeResolvedTo(true);
     });
 
     it('resolves false when cancelled', async () => {
-      onWillDismiss.and.resolveTo({ data: false });
+      overlay.nextModalResult = false;
 
       await expectAsync(service.confirm({ title: 'T', message: 'M' })).toBeResolvedTo(false);
     });
 
     it('resolves false when dismissed via backdrop with no result', async () => {
-      onWillDismiss.and.resolveTo({ data: undefined });
+      overlay.nextModalResult = undefined;
 
       await expectAsync(service.confirm({ title: 'T', message: 'M' })).toBeResolvedTo(false);
     });
+    /* eslint-enable sonarjs/assertions-in-tests */
 
     it('supplies translated default button labels that callers can override', async () => {
       await service.confirm({ title: 'T', message: 'M', confirmText: 'Delete it' });
 
-      const props = modalController.create.calls.mostRecent().args[0]!.componentProps!;
-      expect(props['data']).toEqual(
+      expect(overlay.lastModal!.inputs!['data']).toEqual(
         jasmine.objectContaining({
           title: 'T',
           message: 'M',

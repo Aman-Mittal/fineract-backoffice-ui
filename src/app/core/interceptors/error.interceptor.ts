@@ -20,7 +20,7 @@
 import { HttpInterceptorFn, HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { I18N, I18nAdapter } from '../adapters';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
@@ -50,7 +50,7 @@ function isExpiredSession(req: HttpRequest<unknown>, error: HttpErrorResponse): 
  * it rejected; those are stacked into one message so the user sees every problem at once
  * rather than fixing them one round-trip at a time.
  */
-function messageFor(error: HttpErrorResponse, translate: TranslateService): string {
+function messageFor(error: HttpErrorResponse, i18n: I18nAdapter): string {
   if (error.error instanceof ErrorEvent) {
     return `Error: ${error.error.message}`;
   }
@@ -59,7 +59,7 @@ function messageFor(error: HttpErrorResponse, translate: TranslateService): stri
   // a permission code) which means nothing to the user. What they can act on is that this
   // account lacks the right, not which internal code was checked.
   if (error.status === 403) {
-    return translate.instant('COMMON.ERRORS.FORBIDDEN');
+    return i18n.translate('COMMON.ERRORS.FORBIDDEN');
   }
 
   if (error.error?.errors && Array.isArray(error.error.errors) && error.error.errors.length > 0) {
@@ -84,7 +84,7 @@ function messageFor(error: HttpErrorResponse, translate: TranslateService): stri
     return error.error.defaultUserMessage;
   }
   if (error.status === 0) {
-    return translate.instant('COMMON.ERRORS.NETWORK');
+    return i18n.translate('COMMON.ERRORS.NETWORK');
   }
   return `Error Code: ${error.status}\nMessage: ${error.message}`;
 }
@@ -99,7 +99,7 @@ function messageFor(error: HttpErrorResponse, translate: TranslateService): stri
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notifications = inject(NotificationService);
-  const translate = inject(TranslateService);
+  const i18n = inject(I18N);
   const auth = inject(AuthService);
   const router = inject(Router);
 
@@ -120,7 +120,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       // The caller renders this failure itself. Still rethrown, so its catchError runs.
       if (!req.context.get(SKIP_ERROR_TOAST)) {
-        notifications.error(messageFor(error, translate));
+        notifications.error(messageFor(error, i18n));
       }
 
       return throwError(() => error);

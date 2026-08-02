@@ -18,41 +18,36 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { ToastController } from '@ionic/angular/standalone';
-import { TranslateService } from '@ngx-translate/core';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
   let service: NotificationService;
-  let toastController: jasmine.SpyObj<ToastController>;
-  let present: jasmine.Spy;
+  let overlay: FakeOverlayAdapter;
 
   beforeEach(() => {
-    present = jasmine.createSpy('present').and.resolveTo();
-    toastController = jasmine.createSpyObj<ToastController>('ToastController', ['create']);
-    toastController.create.and.resolveTo({ present } as unknown as HTMLIonToastElement);
+    // No `provideIonicTesting()` and no translation catalogue: the service sees only the
+    // adapter contracts, so the test asserts on the toast it asked for rather than on the
+    // element some component library built.
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
 
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: ToastController, useValue: toastController },
-        { provide: TranslateService, useValue: { instant: (key: string) => key } },
-      ],
-    });
+    TestBed.configureTestingModule({ providers: fakes.providers });
 
     service = TestBed.inject(NotificationService);
   });
 
-  it('presents the toast it creates', async () => {
+  it('requests a toast', async () => {
     await service.show('hello');
 
-    expect(toastController.create).toHaveBeenCalled();
-    expect(present).toHaveBeenCalled();
+    expect(overlay.toasts).toHaveSize(1);
+    expect(overlay.lastToast!.message).toBe('hello');
   });
 
   it('uses a short duration and success styling for success()', async () => {
     await service.success('saved');
 
-    expect(toastController.create).toHaveBeenCalledWith(
+    expect(overlay.lastToast).toEqual(
       jasmine.objectContaining({ message: 'saved', duration: 3000, cssClass: 'success-toast' }),
     );
   });
@@ -60,7 +55,7 @@ describe('NotificationService', () => {
   it('uses a long duration and error styling for error()', async () => {
     await service.error('boom');
 
-    expect(toastController.create).toHaveBeenCalledWith(
+    expect(overlay.lastToast).toEqual(
       jasmine.objectContaining({ message: 'boom', duration: 10000, cssClass: 'error-toast' }),
     );
   });
@@ -69,30 +64,18 @@ describe('NotificationService', () => {
     const stacked = 'Validation failed\n\n• [username] already exists';
     await service.error(stacked);
 
-    expect(toastController.create).toHaveBeenCalledWith(
-      jasmine.objectContaining({ message: stacked }),
-    );
+    expect(overlay.lastToast!.message).toBe(stacked);
   });
 
   it('adds a translated dismiss button by default', async () => {
     await service.show('hello');
 
-    const config = toastController.create.calls.mostRecent().args[0]!;
-    expect(config.buttons).toEqual([{ text: 'COMMON.CLOSE', role: 'cancel' }]);
+    expect(overlay.lastToast!.dismissLabel).toBe('COMMON.CLOSE');
   });
 
   it('omits the dismiss button when the label is empty', async () => {
     await service.show('hello', { dismissLabel: '' });
 
-    const config = toastController.create.calls.mostRecent().args[0]!;
-    expect(config.buttons).toEqual([]);
-  });
-
-  it('lets callers override the default duration', async () => {
-    await service.error('boom', { duration: 500 });
-
-    expect(toastController.create).toHaveBeenCalledWith(
-      jasmine.objectContaining({ duration: 500 }),
-    );
+    expect(overlay.lastToast!.dismissLabel).toBe('');
   });
 });

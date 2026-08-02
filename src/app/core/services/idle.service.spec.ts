@@ -21,35 +21,28 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { IdleService } from './idle.service';
 import { AuthService } from './auth.service';
-import { ModalController } from '@ionic/angular/standalone';
+import { DialogService } from './dialog.service';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 
 describe('IdleService', () => {
   let service: IdleService;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
-  let modalControllerSpy: jasmine.SpyObj<ModalController>;
-  let modalSpy: jasmine.SpyObj<HTMLIonModalElement>;
+  let overlay: FakeOverlayAdapter;
 
   beforeEach(() => {
     authServiceSpy = jasmine.createSpyObj('AuthService', ['logout', 'isAuthenticated']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    modalControllerSpy = jasmine.createSpyObj<ModalController>('ModalController', ['create']);
-    modalSpy = jasmine.createSpyObj<HTMLIonModalElement>('IonModal', [
-      'present',
-      'dismiss',
-      'onWillDismiss',
-    ]);
-    modalSpy.present.and.resolveTo();
-    modalSpy.dismiss.and.resolveTo(true);
-    modalSpy.onWillDismiss.and.resolveTo({ data: undefined } as never);
-    modalControllerSpy.create.and.resolveTo(modalSpy);
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
 
     TestBed.configureTestingModule({
       providers: [
         IdleService,
+        DialogService,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: ModalController, useValue: modalControllerSpy },
+        ...fakes.providers,
       ],
     });
 
@@ -63,27 +56,33 @@ describe('IdleService', () => {
 
   it('should show warning dialog before timeout', fakeAsync(() => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
-    modalSpy.onWillDismiss.and.resolveTo({ data: true } as never);
+    overlay.nextModalResult = true;
 
     service = TestBed.inject(IdleService);
 
     // Total 15m, Warning at 13m. Advance to 13m
     tick(13 * 60 * 1000 + 1000);
 
-    expect(modalControllerSpy.create).toHaveBeenCalled();
+    expect(overlay.modals).toHaveSize(1);
+    // Ignoring the warning has to fall through to the logout timer, so neither the backdrop
+    // nor Escape may take it down.
+    expect(overlay.lastModal!.dismissible).toBe(false);
     service.ngOnDestroy();
   }));
 
   it('should logout if user does not respond to warning', fakeAsync(() => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
     // The user never answers the warning, so the hard logout timer must fire.
-    modalSpy.onWillDismiss.and.returnValue(new Promise(() => undefined) as never);
+    spyOn(overlay, 'presentModal').and.resolveTo({
+      result: new Promise(() => undefined),
+      dismiss: () => Promise.resolve(),
+    });
 
     service = TestBed.inject(IdleService);
 
     // Advance to 13m (warning shows)
     tick(13 * 60 * 1000 + 1000);
-    expect(modalControllerSpy.create).toHaveBeenCalled();
+    expect(overlay.presentModal).toHaveBeenCalled();
 
     // Advance remaining 2m
     tick(2 * 60 * 1000 + 1000);
