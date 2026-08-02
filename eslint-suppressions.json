@@ -1109,11 +1109,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/savings-block-dialog.component.ts": {
-    "no-restricted-imports": {
-      "count": 2
-    }
-  },
   "src/app/features/products/savings-charges/savings-charge-form.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1

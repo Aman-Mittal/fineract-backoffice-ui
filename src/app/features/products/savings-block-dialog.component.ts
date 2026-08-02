@@ -19,19 +19,26 @@
 
 import { Component, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
+  IonInput,
   IonItem,
   IonLabel,
   IonSelect,
   IonSelectOption,
-  ModalController,
 } from '@ionic/angular/standalone';
 
 import { CodeValuesService, GetCodeValuesDataResponse } from '../../api';
+import { OVERLAY, TranslatePipe } from '../../core/adapters';
 
 export interface SavingsBlockDialogData {
+  /**
+   * Collect an amount as well as a reason.
+   *
+   * Holding funds and blocking an account both name a reason from the same code list; a hold
+   * additionally ring-fences a sum. Keeping them in one dialog keeps that lookup in one place.
+   */
+  withAmount?: boolean;
   /** Title key for the action being confirmed. */
   titleKey: string;
   /** Plain-language description of what the block does. */
@@ -48,22 +55,49 @@ export interface SavingsBlockDialogData {
 
 export interface SavingsBlockResult {
   reasonForBlock: number;
+  /** Present only when the dialog was opened with `withAmount`. */
+  transactionAmount?: number;
 }
 
 @Component({
   selector: 'app-savings-block-dialog',
   standalone: true,
-  imports: [FormsModule, TranslateModule, IonItem, IonLabel, IonSelect, IonSelectOption, IonButton],
+  imports: [
+    FormsModule,
+    TranslatePipe,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+  ],
   template: `
     <div class="dialog">
-      <h2 class="dialog-title">{{ data().titleKey | translate }}</h2>
+      <h2 class="dialog-title">{{ data().titleKey | appTranslate }}</h2>
       <div class="dialog-content">
-        <p>{{ data().messageKey | translate }}</p>
+        <p>{{ data().messageKey | appTranslate }}</p>
+
+        @if (data().withAmount) {
+          <ion-item fill="outline">
+            <ion-label position="stacked">{{
+              'SAVINGS.HOLD_AMOUNT_LABEL' | appTranslate
+            }}</ion-label>
+            <ion-input
+              [attr.aria-label]="'SAVINGS.HOLD_AMOUNT_LABEL' | appTranslate"
+              type="number"
+              min="0"
+              data-testid="savings-hold-amount"
+              name="transactionAmount"
+              [(ngModel)]="amount"
+            ></ion-input>
+          </ion-item>
+        }
 
         <ion-item fill="outline">
-          <ion-label position="stacked">{{ 'SAVINGS.BLOCK_REASON' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'SAVINGS.BLOCK_REASON' | appTranslate }}</ion-label>
           <ion-select
-            [attr.aria-label]="'SAVINGS.BLOCK_REASON' | translate"
+            [attr.aria-label]="'SAVINGS.BLOCK_REASON' | appTranslate"
             interface="popover"
             data-testid="savings-block-reason"
             name="reasonForBlock"
@@ -77,21 +111,21 @@ export interface SavingsBlockResult {
 
         @if (!reasons().length) {
           <p class="field-note" data-testid="savings-block-no-reasons">
-            {{ 'SAVINGS.NO_BLOCK_REASONS' | translate }}
+            {{ 'SAVINGS.NO_BLOCK_REASONS' | appTranslate }}
           </p>
         }
       </div>
       <div class="dialog-actions">
         <ion-button fill="clear" color="medium" (click)="dismiss()">
-          {{ 'COMMON.CANCEL' | translate }}
+          {{ 'COMMON.CANCEL' | appTranslate }}
         </ion-button>
         <ion-button
           color="danger"
           data-testid="savings-block-confirm"
-          [disabled]="reasonId === null"
+          [disabled]="!canConfirm()"
           (click)="confirm()"
         >
-          {{ 'COMMON.CONFIRM' | translate }}
+          {{ 'COMMON.CONFIRM' | appTranslate }}
         </ion-button>
       </div>
     </div>
@@ -123,13 +157,14 @@ export interface SavingsBlockResult {
   ],
 })
 export class SavingsBlockDialogComponent {
-  private readonly modalController = inject(ModalController);
+  private readonly overlay = inject(OVERLAY);
   private readonly codeValuesService = inject(CodeValuesService);
 
   readonly data = input.required<SavingsBlockDialogData>();
 
   readonly reasons = signal<GetCodeValuesDataResponse[]>([]);
   reasonId: number | null = null;
+  amount: number | null = null;
 
   constructor() {
     // Resolved by code *name*: the ids differ per deployment, and Fineract exposes a by-name
@@ -142,12 +177,24 @@ export class SavingsBlockDialogComponent {
     });
   }
 
+  /** An amount is required only when this dialog was asked to collect one. */
+  canConfirm(): boolean {
+    if (this.reasonId === null) return false;
+    return !this.data().withAmount || (this.amount !== null && this.amount > 0);
+  }
+
   confirm(): void {
-    if (this.reasonId === null) return;
-    this.modalController.dismiss({ reasonForBlock: this.reasonId } satisfies SavingsBlockResult);
+    if (!this.canConfirm() || this.reasonId === null) return;
+    const result: SavingsBlockResult = { reasonForBlock: this.reasonId };
+    if (this.data().withAmount && this.amount !== null) {
+      // Fineract names this `transactionAmount` on the hold endpoint and rejects `amount`
+      // outright, so the field is spelled the way the server expects it here.
+      result.transactionAmount = this.amount;
+    }
+    void this.overlay.dismissModal(result);
   }
 
   dismiss(): void {
-    this.modalController.dismiss();
+    void this.overlay.dismissModal();
   }
 }

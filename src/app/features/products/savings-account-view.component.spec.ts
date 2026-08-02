@@ -145,4 +145,33 @@ describe('SavingsAccountViewComponent', () => {
       expect(component.blockLabelKey()).toBe('SAVINGS.BLOCKED');
     });
   });
+
+  /**
+   * Each command is offered only in the state that permits it. Fineract enforces these too, but a
+   * menu that offers an action only to have it rejected is a worse experience than one that does
+   * not offer it.
+   */
+  describe('officer assignment', () => {
+    it('reports no officer when Fineract returns the zero sentinel', () => {
+      component.account.set({
+        ...(component.account() ?? {}),
+        status: { active: true },
+        fieldOfficerId: 0,
+      } as never);
+
+      // Fineract reports "unassigned" as 0 rather than omitting the field, so a plain
+      // truthiness check on the id would be right by accident and a `!= null` check wrong.
+      expect(component.hasOfficer()).toBeFalse();
+    });
+
+    it('reports an officer once one is assigned', () => {
+      component.account.set({
+        ...(component.account() ?? {}),
+        status: { active: true },
+        fieldOfficerId: 7,
+      } as never);
+
+      expect(component.hasOfficer()).toBeTrue();
+    });
+  });
 });

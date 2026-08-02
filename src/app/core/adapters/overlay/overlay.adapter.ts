@@ -93,6 +93,18 @@ export interface OverlayAdapter {
    * Use {@link modal} unless the caller needs to dismiss the modal itself.
    */
   presentModal<T>(request: ModalRequest): Promise<ModalHandle<T>>;
+
+  /**
+   * Dismisses the modal the caller is rendered inside, returning a result to whoever opened it.
+   *
+   * The counterpart to {@link modal}: that resolves with a value, and this is how the content
+   * supplies one. Without it a dialog component has no way to answer its opener except by
+   * reaching for the component library directly, which is the boundary this adapter exists to
+   * hold — every existing dialog does exactly that, and each is a recorded violation.
+   *
+   * Distinct from {@link ModalHandle.dismiss}, which is the *opener* closing a modal it holds.
+   */
+  dismissModal<T>(result?: T): Promise<void>;
 }
 
 /**
