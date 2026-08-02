@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { Component, computed, inject, signal, DestroyRef } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -81,19 +81,17 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
               <option [value]="configService.apiUrl">
                 {{ 'login.defaultOption' | translate }} ({{ configService.apiUrl }})
               </option>
-              <option value="https://demo.mifos.io/fineract-provider/api/v1">
-                Mifos Sandbox (https://demo.mifos.io/fineract-provider/api/v1)
-              </option>
+              <!-- Endpoints this deployment permits, from config.json. Third-party hosts used
+                   to be hard-coded here, which offered a teller a one-click path to type real
+                   credentials into someone else's server. What is offered is now the operator's
+                   decision, and anything typed is checked against the same allow-list. -->
               <option value="/fineract-provider/api/v1">
-                Local Proxy Server (Bypass CORS/SSL)
+                {{ 'login.proxyOption' | translate }}
               </option>
-              <option value="https://localhost:8443/fineract-provider/api/v1">
-                Local Server (Direct https://localhost:8443/fineract-provider/api/v1)
-              </option>
-              <option value="https://apis.mifos.community/1.0/core/api/v1">
-                Mifos Community API (https://apis.mifos.community/1.0/core/api/v1)
-              </option>
-              <option value="custom">Custom URL...</option>
+              @for (origin of allowedOrigins(); track origin) {
+                <option [value]="origin">{{ origin }}</option>
+              }
+              <option value="custom">{{ 'login.customOption' | translate }}</option>
             </select>
           </div>
 
@@ -313,6 +311,11 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   protected readonly configService = inject(ConfigService);
+
+  /** Absolute endpoints this deployment permits, offered alongside the default and the proxy. */
+  protected readonly allowedOrigins = computed(
+    () => this.configService.config().allowedApiOrigins ?? [],
+  );
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -365,8 +368,12 @@ export class LoginComponent {
       // CRITICAL: Check previous URL before updating it
       const previousUrl = this.configService.apiUrl;
 
-      if (finalUrl) {
-        this.configService.setApiUrl(finalUrl);
+      // Refuse before authenticating, not after: the point of the allow-list is that the
+      // password below never reaches a host the deployment did not sanction.
+      if (finalUrl && !this.configService.setApiUrl(finalUrl)) {
+        this.error.set(this.translate.instant('login.errors.endpointNotAllowed'));
+        this.isLoading.set(false);
+        return;
       }
 
       this.authService

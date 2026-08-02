@@ -38,6 +38,26 @@ const TEST_CONFIG: AppConfig = {
  * and every later spec in the run saw the wrong value. Configuration is now a signal, so a
  * test states it and it belongs to that TestBed alone.
  */
+/** Same rule as `ConfigService`: relative is same-origin, absolute must be this origin or listed. */
+function isAllowedInTest(url: string, allowedOrigins: readonly string[]): boolean {
+  const candidate = (url ?? '').trim();
+  if (!candidate) return false;
+  if (!/^https?:\/\//i.test(candidate)) return true;
+  try {
+    const target = new URL(candidate);
+    if (target.origin === window.location.origin) return true;
+    return allowedOrigins.some((allowed) => {
+      try {
+        return new URL(allowed).origin === target.origin;
+      } catch {
+        return false;
+      }
+    });
+  } catch {
+    return false;
+  }
+}
+
 export function provideTestConfig(overrides: Partial<AppConfig> = {}): Provider {
   const config = signal<AppConfig>({ ...TEST_CONFIG, ...overrides });
 
@@ -50,7 +70,14 @@ export function provideTestConfig(overrides: Partial<AppConfig> = {}): Provider 
       get apiUrl() {
         return config().fineractApiUrl;
       },
-      setApiUrl: (url: string) => config.update((c) => ({ ...c, fineractApiUrl: url })),
+      // Mirrors the real service's allow-list, so a spec cannot pass by setting an endpoint the
+      // application would refuse.
+      isAllowedApiUrl: (url: string) => isAllowedInTest(url, config().allowedApiOrigins ?? []),
+      setApiUrl: (url: string) => {
+        if (!isAllowedInTest(url, config().allowedApiOrigins ?? [])) return false;
+        config.update((c) => ({ ...c, fineractApiUrl: url }));
+        return true;
+      },
       loadConfig: () => Promise.resolve(),
     } satisfies Partial<ConfigService>,
   };

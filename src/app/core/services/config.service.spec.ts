@@ -24,6 +24,19 @@ import { ConfigService, AppConfig } from './config.service';
 import { SKIP_ERROR_TOAST, SKIP_LOADING } from '../http/http-context';
 
 const STORAGE_KEY = 'fineract_runtime_config';
+
+/**
+ * Raw storage access, in one place.
+ *
+ * These specs assert what is *persisted*, so they have to look at the real store rather than the
+ * STORAGE adapter the application uses. Funnelling every access through these three helpers keeps
+ * that to a single boundary crossing instead of one per assertion.
+ */
+/* eslint-disable no-restricted-globals */
+const storedRaw = (): string | null => localStorage.getItem(STORAGE_KEY);
+const storeRaw = (value: unknown): void => localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+const clearStore = (): void => localStorage.clear();
+/* eslint-enable no-restricted-globals */
 const TEST_TENANT = 'test-tenant';
 const CONFIG_FILE = 'config.json';
 
@@ -56,13 +69,13 @@ describe('ConfigService', () => {
   }
 
   beforeEach(() => {
-    localStorage.clear();
+    clearStore();
     create();
   });
 
   afterEach(() => {
     httpMock.verify();
-    localStorage.clear();
+    clearStore();
   });
 
   it('should be created', () => {
@@ -107,22 +120,44 @@ describe('ConfigService', () => {
     req.flush(mockConfig);
   });
 
-  it('should set and persist API URL', () => {
-    const newUrl = 'https://new-api.com';
-    service.setApiUrl(newUrl);
+  it('should set and persist a same-origin API URL', () => {
+    const newUrl = '/some-other-fineract/api/v1';
+    expect(service.setApiUrl(newUrl)).toBeTrue();
 
     expect(service.apiUrl).toBe(newUrl);
-    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).fineractApiUrl).toBe(newUrl);
+    expect(JSON.parse(storedRaw()!).fineractApiUrl).toBe(newUrl);
+  });
+
+  /**
+   * The endpoint override exists so an operator can point the app at their own Fineract. It is
+   * not a general redirect: whatever it names receives the user's credentials on the next
+   * request, so an origin the deployment did not sanction must be refused outright.
+   */
+  it('refuses an endpoint the deployment did not allow-list', () => {
+    const before = service.apiUrl;
+
+    expect(service.setApiUrl('https://attacker.example/api/v1')).toBeFalse();
+
+    expect(service.apiUrl).toBe(before);
+    expect(storedRaw()).toBeNull();
+  });
+
+  it('accepts an absolute endpoint the deployment allow-listed', async () => {
+    create();
+    await load({ ...mockConfig, allowedApiOrigins: ['https://fineract.example'] });
+
+    expect(service.setApiUrl('https://fineract.example/fineract-provider/api/v1')).toBeTrue();
+    expect(service.apiUrl).toBe('https://fineract.example/fineract-provider/api/v1');
   });
 
   it("should apply the user's stored endpoint on top of the loaded config", async () => {
-    service.setApiUrl('https://my-server.example');
+    service.setApiUrl('/my-server/api/v1');
     create();
 
     await load(mockConfig);
 
     // The user's choice wins for the endpoint...
-    expect(service.apiUrl).toBe('https://my-server.example');
+    expect(service.apiUrl).toBe('/my-server/api/v1');
     // ...and for nothing else. An endpoint override that froze the whole object would mean a
     // deployment turning RBAC off never reached anyone who had ever changed their endpoint.
     expect(service.config().defaultTenant).toBe(TEST_TENANT);
@@ -130,16 +165,27 @@ describe('ConfigService', () => {
 
   it('should ignore stale deployment settings left in local storage by earlier versions', async () => {
     // Older builds wrote the entire config object under this key.
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ fineractApiUrl: 'https://old.example', rbacEnabled: false }),
-    );
+    storeRaw({ fineractApiUrl: '/old/api/v1', rbacEnabled: false });
     create();
 
     await load({ rbacEnabled: true });
 
-    expect(service.apiUrl).toBe('https://old.example');
+    expect(service.apiUrl).toBe('/old/api/v1');
     expect(service.rbacEnabled()).toBeTrue();
+  });
+
+  /**
+   * Local storage is writable by anything running as the page, so a stored override is not more
+   * trusted than a fresh one — otherwise the allow-list could be bypassed by writing the key
+   * directly and reloading.
+   */
+  it('ignores a stored endpoint that is not allow-listed', async () => {
+    storeRaw({ fineractApiUrl: 'https://attacker.example' });
+    create();
+
+    await load(mockConfig);
+
+    expect(service.apiUrl).toBe(mockConfig.fineractApiUrl);
   });
 
   it('should expose the navigation entries a deployment hides', async () => {

@@ -65,6 +65,14 @@ export interface AppConfig {
   /** Institution type to assume when the user has not selected one. */
   institutionType: InstitutionType;
   /**
+   * Absolute API origins this deployment permits, beyond its own.
+   *
+   * The endpoint override exists so an operator can point the app at their own Fineract. It is
+   * not a general redirect: whatever it names receives the user's credentials on the next
+   * request. Omit it, and only same-origin endpoints are accepted.
+   */
+  allowedApiOrigins?: string[];
+  /**
    * Which group-lending features each institution type exposes. Omit to use the built-in
    * matrix; supply it to change what a type means for this deployment.
    */
@@ -93,6 +101,41 @@ const DEFAULT_CONFIG: AppConfig = {
  * by fetching a `config.json` file at startup. The user's own API-endpoint
  * choice is persisted in local storage and applied on top.
  */
+/**
+ * Whether an endpoint may be used.
+ *
+ * A relative URL is same-origin by construction. An absolute one must match this document's
+ * origin or an origin the deployment allow-listed. Anything else is refused: whatever this
+ * names receives the user's credentials on the next request, so accepting an arbitrary string
+ * turns a stored-XSS or a social-engineered link into credential theft.
+ *
+ * Takes the allow-list as an argument rather than reading the service's own signal, because it
+ * is called while that signal is still being built — including from a field initialiser, where
+ * reading it would throw.
+ */
+function isOriginAllowed(url: string, allowedOrigins: readonly string[]): boolean {
+  const candidate = (url ?? '').trim();
+  if (!candidate) return false;
+  if (!/^https?:\/\//i.test(candidate)) return true;
+
+  let target: URL;
+  try {
+    target = new URL(candidate);
+  } catch {
+    return false;
+  }
+
+  if (target.origin === window.location.origin) return true;
+
+  return allowedOrigins.some((allowed) => {
+    try {
+      return new URL(allowed).origin === target.origin;
+    } catch {
+      return false;
+    }
+  });
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -102,7 +145,7 @@ export class ConfigService {
 
   private readonly _config = signal<AppConfig>({
     ...DEFAULT_CONFIG,
-    ...this.getStoredOverride(),
+    ...this.getStoredOverride(DEFAULT_CONFIG.allowedApiOrigins ?? []),
   });
 
   /** Readonly access to the current application configuration signal */
@@ -132,19 +175,45 @@ export class ConfigService {
       );
       // Merged, not assigned: a config.json listing only the keys a deployment cares about
       // must not blank out the rest.
-      this._config.set({ ...DEFAULT_CONFIG, ...loaded, ...this.getStoredOverride() });
+      // The allow-list comes from the config just loaded, not from the signal: this runs before
+      // the merge lands, so reading it back would apply the previous deployment's rules.
+      const allowedOrigins = loaded.allowedApiOrigins ?? DEFAULT_CONFIG.allowedApiOrigins ?? [];
+      this._config.set({
+        ...DEFAULT_CONFIG,
+        ...loaded,
+        ...this.getStoredOverride(allowedOrigins),
+      });
     } catch (error) {
       console.error('❌ Could not load config.json, using environment defaults.', error);
     }
   }
 
   /**
-   * Updates the runtime API URL and persists it to local storage.
-   * @param url - The new API base URL
+   * Whether an endpoint may be used.
+   *
+   * A relative URL is same-origin by construction. An absolute one must match this document's
+   * origin or an origin the deployment allow-listed in `config.json`. Anything else is refused:
+   * the credentials the user is about to type would go wherever this points, so accepting an
+   * arbitrary string here turns a stored-XSS or a social-engineered link into credential theft.
    */
-  setApiUrl(url: string): void {
+  isAllowedApiUrl(url: string): boolean {
+    return isOriginAllowed(url, this.config().allowedApiOrigins ?? []);
+  }
+
+  /**
+   * Updates the runtime API URL and persists it to local storage.
+   *
+   * @param url - The new API base URL
+   * @returns `true` when the endpoint was accepted; `false` when it is not allow-listed.
+   */
+  setApiUrl(url: string): boolean {
+    if (!this.isAllowedApiUrl(url)) {
+      console.error('Refused an API endpoint that is not allow-listed for this deployment:', url);
+      return false;
+    }
     this._config.update((config) => ({ ...config, fineractApiUrl: url }));
     this.storage.write('runtimeConfig', { fineractApiUrl: url });
+    return true;
   }
 
   /**
@@ -162,10 +231,13 @@ export class ConfigService {
    * and belong to `config.json`, not to whatever was current when the user last switched
    * endpoints.
    */
-  private getStoredOverride(): Partial<AppConfig> {
+  private getStoredOverride(allowedOrigins: readonly string[]): Partial<AppConfig> {
     // `read` already absorbs an unparseable value, so there is no catch here: a corrupted
     // override reads as no override, and the deployment's own `config.json` decides.
     const { fineractApiUrl } = this.storage.read<Partial<AppConfig>>('runtimeConfig', {});
-    return fineractApiUrl ? { fineractApiUrl } : {};
+    // Local storage is writable by anything running as the page, so a stored override is not
+    // more trusted than a fresh one — it clears the same bar or it is ignored.
+    if (!fineractApiUrl || !isOriginAllowed(fineractApiUrl, allowedOrigins)) return {};
+    return { fineractApiUrl };
   }
 }
