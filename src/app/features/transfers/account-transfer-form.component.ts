@@ -393,11 +393,11 @@ export class AccountTransferFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  offices = signal<GetOfficesResponse[]>([]);
-  fromClients = signal<GetClientsPageItemsResponse[]>([]);
-  toClients = signal<GetClientsPageItemsResponse[]>([]);
-  fromAccounts = signal<MiniAccount[]>([]);
-  toAccounts = signal<MiniAccount[]>([]);
+  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly fromClients = signal<GetClientsPageItemsResponse[]>([]);
+  readonly toClients = signal<GetClientsPageItemsResponse[]>([]);
+  readonly fromAccounts = signal<MiniAccount[]>([]);
+  readonly toAccounts = signal<MiniAccount[]>([]);
 
   transferDate = new Date();
   request: AccountTransferRequest = {

@@ -78,8 +78,13 @@ describe('StaffFormComponent', () => {
     staffServiceSpy.postStaff.and.returnValue(
       of({}) as unknown as ReturnType<StaffService['postStaff']>,
     );
-    component.staff = { officeId: 1, firstname: 'Ada', lastname: 'Lovelace', isLoanOfficer: true };
-    component.joiningDate = '2026-01-15';
+    component.staff.set({
+      officeId: 1,
+      firstname: 'Ada',
+      lastname: 'Lovelace',
+      isLoanOfficer: true,
+    });
+    component.joiningDate.set('2026-01-15');
 
     component.onSubmit();
 

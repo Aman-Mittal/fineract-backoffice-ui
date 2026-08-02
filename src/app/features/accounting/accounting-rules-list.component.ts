@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
@@ -37,7 +37,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     <div class="container">
       <app-data-table
         title="nav.accountingRules"
-        [data]="rules"
+        [data]="rules()"
         [columns]="columns"
         [localLogic]="true"
         createButtonLabel="ACCOUNTING_RULES.CREATE"
@@ -72,7 +72,7 @@ export class AccountingRulesListComponent implements OnInit {
   private readonly accountingRulesService = inject(AccountingRulesService);
   private readonly router = inject(Router);
 
-  rules: AccountingRuleData[] = [];
+  readonly rules = signal<AccountingRuleData[]>([]);
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
     { key: 'officeName', label: 'COMMON.OFFICE', sortable: true },
@@ -87,7 +87,7 @@ export class AccountingRulesListComponent implements OnInit {
 
   loadRules() {
     this.accountingRulesService.getAccountingrules().subscribe((rules) => {
-      this.rules = rules;
+      this.rules.set(rules);
     });
   }
 

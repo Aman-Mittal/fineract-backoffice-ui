@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CellTemplateDirective } from './cell-template.directive';
 
@@ -31,7 +31,7 @@ import { CellTemplateDirective } from './cell-template.directive';
   standalone: true,
 })
 class TestHostComponent {
-  @ViewChild(CellTemplateDirective) cellTemplateDirective!: CellTemplateDirective;
+  readonly cellTemplateDirective = viewChild.required(CellTemplateDirective);
 }
 
 describe('CellTemplateDirective', () => {
@@ -49,8 +49,8 @@ describe('CellTemplateDirective', () => {
   });
 
   it('should create the directive and capture the template and columnName', () => {
-    expect(component.cellTemplateDirective).toBeTruthy();
-    expect(component.cellTemplateDirective.columnName()).toBe('testColumn');
-    expect(component.cellTemplateDirective.template).toBeInstanceOf(TemplateRef);
+    expect(component.cellTemplateDirective()).toBeTruthy();
+    expect(component.cellTemplateDirective().columnName()).toBe('testColumn');
+    expect(component.cellTemplateDirective().template).toBeInstanceOf(TemplateRef);
   });
 });

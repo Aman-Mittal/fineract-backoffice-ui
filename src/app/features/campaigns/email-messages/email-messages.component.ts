@@ -94,18 +94,19 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
 
           @if (activeTab() === '0') {
             <div class="tab-content">
-              <ion-button color="primary" (click)="showCreateForm = !showCreateForm">
+              <ion-button color="primary" (click)="showCreateForm.set(!showCreateForm())">
                 {{ 'EMAIL_MESSAGES.CREATE' | translate }}
               </ion-button>
 
-              @if (showCreateForm) {
+              @if (showCreateForm()) {
                 <div class="create-form">
                   <ion-item fill="outline" class="full-width">
                     <ion-label position="stacked">{{ 'EMAIL_MESSAGES.TO' | translate }}</ion-label>
                     <ion-input
                       [attr.aria-label]="'EMAIL_MESSAGES.TO' | translate"
                       type="email"
-                      [(ngModel)]="newTo"
+                      [ngModel]="newTo()"
+                      (ngModelChange)="newTo.set($event)"
                     ></ion-input>
                   </ion-item>
                   <ion-item fill="outline" class="full-width">
@@ -114,7 +115,8 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                     }}</ion-label>
                     <ion-input
                       [attr.aria-label]="'EMAIL_MESSAGES.SUBJECT' | translate"
-                      [(ngModel)]="newSubject"
+                      [ngModel]="newSubject()"
+                      (ngModelChange)="newSubject.set($event)"
                     ></ion-input>
                   </ion-item>
                   <ion-item fill="outline" class="full-width">
@@ -124,7 +126,8 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                     <ion-textarea
                       [attr.aria-label]="'EMAIL_MESSAGES.BODY' | translate"
                       rows="4"
-                      [(ngModel)]="newBody"
+                      [ngModel]="newBody()"
+                      (ngModelChange)="newBody.set($event)"
                     ></ion-textarea>
                   </ion-item>
                   <ion-button color="secondary" (click)="createMessage()">
@@ -269,7 +272,8 @@ const SUCCESS_MSG = 'EMAIL_MESSAGES.SUCCESS';
                 <ion-textarea
                   aria-label="Configuration JSON"
                   rows="10"
-                  [(ngModel)]="configJson"
+                  [ngModel]="configJson()"
+                  (ngModelChange)="configJson.set($event)"
                 ></ion-textarea>
               </ion-item>
               <ion-button color="primary" (click)="saveConfig()">
@@ -312,16 +316,16 @@ export class EmailMessagesComponent implements OnInit {
   private defaultService = inject(DefaultService);
   private notifications = inject(NotificationService);
 
-  messages = signal<EmailMessage[]>([]);
-  pending = signal<EmailMessage[]>([]);
-  sent = signal<EmailMessage[]>([]);
-  failed = signal<EmailMessage[]>([]);
-  configJson = '';
+  readonly messages = signal<EmailMessage[]>([]);
+  readonly pending = signal<EmailMessage[]>([]);
+  readonly sent = signal<EmailMessage[]>([]);
+  readonly failed = signal<EmailMessage[]>([]);
+  readonly configJson = signal('');
 
-  showCreateForm = false;
-  newTo = '';
-  newSubject = '';
-  newBody = '';
+  readonly showCreateForm = signal(false);
+  readonly newTo = signal('');
+  readonly newSubject = signal('');
+  readonly newBody = signal('');
 
   msgColumns = ['id', 'to', 'subject', 'status', 'actions'];
   queueColumns = ['id', 'to', 'subject', 'sentDate'];
@@ -391,23 +395,23 @@ export class EmailMessagesComponent implements OnInit {
   loadConfig(): void {
     this.defaultService.getEmailConfiguration().subscribe({
       next: (raw) => {
-        this.configJson = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
+        this.configJson.set(typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2));
       },
       error: () => {
-        this.configJson = '';
+        this.configJson.set('');
       },
     });
   }
 
   createMessage(): void {
-    const body = { to: this.newTo, subject: this.newSubject, body: this.newBody };
+    const body = { to: this.newTo(), subject: this.newSubject(), body: this.newBody() };
     this.defaultService.postEmail(JSON.stringify(body)).subscribe({
       next: () => {
         this.notifications.success(SUCCESS_MSG);
-        this.newTo = '';
-        this.newSubject = '';
-        this.newBody = '';
-        this.showCreateForm = false;
+        this.newTo.set('');
+        this.newSubject.set('');
+        this.newBody.set('');
+        this.showCreateForm.set(false);
         this.loadMessages();
       },
     });
@@ -425,7 +429,7 @@ export class EmailMessagesComponent implements OnInit {
   saveConfig(): void {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(this.configJson);
+      parsed = JSON.parse(this.configJson());
     } catch {
       this.notifications.error('Invalid JSON');
       return;

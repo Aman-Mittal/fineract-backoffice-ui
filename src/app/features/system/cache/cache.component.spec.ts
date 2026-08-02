@@ -49,15 +49,15 @@ describe('CacheComponent', () => {
   });
 
   it('should select the enabled cache on load', () => {
-    expect(component.caches).toHaveSize(2);
-    expect(component.selectedCacheType).toBe(2);
+    expect(component.caches()).toHaveSize(2);
+    expect(component.selectedCacheType()).toBe(2);
   });
 
   it('should put the selected cache type on save', () => {
     serviceSpy.putCaches.and.returnValue(
       of({}) as unknown as ReturnType<CacheService['putCaches']>,
     );
-    component.selectedCacheType = 1;
+    component.selectedCacheType.set(1);
     component.onSave();
     expect(serviceSpy.putCaches).toHaveBeenCalledWith({ cacheType: 1 });
   });

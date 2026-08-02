@@ -60,7 +60,7 @@ describe('EntityDataTableChecksFormComponent', () => {
   it('should load template entities on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityDatatableChecksTemplate).toHaveBeenCalled();
-    expect(component.entityOptions).toHaveSize(2);
+    expect(component.entityOptions()).toHaveSize(2);
   });
 
   it('should post on create and navigate to the list', () => {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -71,7 +71,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('USERS.EDIT_USER' | translate) : ('USERS.CREATE_USER' | translate) }}
+            {{ isEditMode() ? ('USERS.EDIT_USER' | translate) : ('USERS.CREATE_USER' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -83,9 +83,9 @@ import {
                 <ion-input
                   [attr.aria-label]="'USERS.USERNAME' | translate"
                   name="username"
-                  [(ngModel)]="user.username"
+                  [(ngModel)]="user().username"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 ></ion-input>
               </ion-item>
 
@@ -94,7 +94,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
                   name="firstname"
-                  [(ngModel)]="user.firstname"
+                  [(ngModel)]="user().firstname"
                   required
                 ></ion-input>
               </ion-item>
@@ -104,7 +104,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
                   name="lastname"
-                  [(ngModel)]="user.lastname"
+                  [(ngModel)]="user().lastname"
                   required
                 ></ion-input>
               </ion-item>
@@ -115,7 +115,7 @@ import {
                   [attr.aria-label]="'COMMON.EMAIL' | translate"
                   type="email"
                   name="email"
-                  [(ngModel)]="user.email"
+                  [(ngModel)]="user().email"
                   required
                 ></ion-input>
               </ion-item>
@@ -126,10 +126,10 @@ import {
                   [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
-                  [(ngModel)]="user.officeId"
+                  [(ngModel)]="user().officeId"
                   required
                 >
-                  @for (office of offices; track office['id']) {
+                  @for (office of offices(); track office['id']) {
                     <ion-select-option [value]="office['id']">{{
                       office['name']
                     }}</ion-select-option>
@@ -137,14 +137,14 @@ import {
                 </ion-select>
               </ion-item>
 
-              @if (!isEditMode) {
+              @if (!isEditMode()) {
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'USERS.PASSWORD' | translate }}</ion-label>
                   <ion-input
                     [attr.aria-label]="'USERS.PASSWORD' | translate"
                     type="password"
                     name="password"
-                    [(ngModel)]="user.password"
+                    [(ngModel)]="user().password"
                     required
                   ></ion-input>
                 </ion-item>
@@ -157,7 +157,7 @@ import {
                     [attr.aria-label]="'USERS.REPEAT_PASSWORD' | translate"
                     type="password"
                     name="repeatPassword"
-                    [(ngModel)]="user.repeatPassword"
+                    [(ngModel)]="user().repeatPassword"
                     required
                   ></ion-input>
                 </ion-item>
@@ -169,11 +169,11 @@ import {
                   [attr.aria-label]="'USERS.ROLES' | translate"
                   interface="popover"
                   name="roles"
-                  [(ngModel)]="user.roles"
+                  [(ngModel)]="user().roles"
                   multiple
                   required
                 >
-                  @for (role of availableRoles; track role.id) {
+                  @for (role of availableRoles(); track role.id) {
                     <ion-select-option [value]="role.id">{{ role.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -181,21 +181,21 @@ import {
             </div>
 
             <div class="checkbox-container" style="display: flex; gap: 16px; flex-wrap: wrap;">
-              <ion-checkbox name="passwordNeverExpires" [(ngModel)]="user.passwordNeverExpires">
+              <ion-checkbox name="passwordNeverExpires" [(ngModel)]="user().passwordNeverExpires">
                 {{ 'USERS.PASSWORD_NEVER_EXPIRES' | translate }}
               </ion-checkbox>
 
-              <ion-checkbox name="sendPasswordToEmail" [(ngModel)]="user.sendPasswordToEmail">
+              <ion-checkbox name="sendPasswordToEmail" [(ngModel)]="user().sendPasswordToEmail">
                 {{ 'USERS.SEND_PASSWORD_TO_EMAIL' | translate }}
               </ion-checkbox>
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="userForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="userForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -239,17 +239,17 @@ export class UserFormComponent implements OnInit {
   private readonly LIST_PATH = '/security/users';
 
   userId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  user: PostUsersRequest = {
+  readonly user = signal<PostUsersRequest>({
     passwordNeverExpires: false,
     sendPasswordToEmail: false,
     roles: [],
-  };
+  });
 
-  offices: Record<string, unknown>[] = [];
-  availableRoles: RoleData[] = [];
+  readonly offices = signal<Record<string, unknown>[]>([]);
+  readonly availableRoles = signal<RoleData[]>([]);
 
   ngOnInit(): void {
     this.loadMetadata();
@@ -257,7 +257,7 @@ export class UserFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.userId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadUserData();
       }
     });
@@ -265,15 +265,15 @@ export class UserFormComponent implements OnInit {
 
   private loadMetadata(): void {
     this.usersService.getUsersTemplate().subscribe((template: GetUsersTemplateResponse) => {
-      this.offices = (template.allowedOffices as unknown as Record<string, unknown>[]) || [];
-      this.availableRoles = template.availableRoles || [];
+      this.offices.set((template.allowedOffices as unknown as Record<string, unknown>[]) || []);
+      this.availableRoles.set(template.availableRoles || []);
     });
   }
 
   private loadUserData(): void {
     if (!this.userId) return;
     this.usersService.getUsersUserId(this.userId).subscribe((data) => {
-      this.user = {
+      this.user.set({
         username: data.username,
         firstname: data.firstname,
         lastname: data.lastname,
@@ -282,31 +282,31 @@ export class UserFormComponent implements OnInit {
         passwordNeverExpires: data.passwordNeverExpires,
         sendPasswordToEmail: false,
         roles: data.selectedRoles?.map((r) => r.id!) || [],
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.userId) {
+    if (this.isEditMode() && this.userId) {
       const putRequest: PutUsersUserIdRequest = {
-        firstname: this.user.firstname,
-        lastname: this.user.lastname,
-        email: this.user.email,
-        officeId: this.user.officeId,
-        roles: this.user.roles,
-        sendPasswordToEmail: this.user.sendPasswordToEmail,
+        firstname: this.user().firstname,
+        lastname: this.user().lastname,
+        email: this.user().email,
+        officeId: this.user().officeId,
+        roles: this.user().roles,
+        sendPasswordToEmail: this.user().sendPasswordToEmail,
       };
 
       this.usersService.putUsersUserId(this.userId, putRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
-      this.usersService.postUsers(this.user).subscribe({
+      this.usersService.postUsers(this.user()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

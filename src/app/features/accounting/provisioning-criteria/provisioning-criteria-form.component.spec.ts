@@ -57,14 +57,14 @@ describe('ProvisioningCriteriaFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postProvisioningcriteria.and.returnValue(
       of({}) as unknown as ReturnType<ProvisioningCriteriaService['postProvisioningcriteria']>,
     );
-    component.criteria = { criteriaName: 'New' };
+    component.criteria.set({ criteriaName: 'New' });
     component.onSubmit();
     expect(serviceSpy.postProvisioningcriteria).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/accounting/provisioning-criteria']);

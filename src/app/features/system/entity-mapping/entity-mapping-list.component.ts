@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -59,8 +59,8 @@ interface EntityToEntityMapping {
       helpTextKey="HELP.ENTITY_MAPPING_DESC"
       createButtonLabel="ENTITY_MAPPING.CREATE"
       [columns]="columns"
-      [data]="mappings"
-      [totalRecords]="mappings.length"
+      [data]="mappings()"
+      [totalRecords]="mappings().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -98,7 +98,7 @@ export class EntityMappingListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  mappings: EntityToEntityMapping[] = [];
+  readonly mappings = signal<EntityToEntityMapping[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -107,7 +107,7 @@ export class EntityMappingListComponent implements OnInit {
   load(): void {
     this.entityService.getEntitytoentitymapping().subscribe({
       next: (body: string) => {
-        this.mappings = body ? (JSON.parse(body) as EntityToEntityMapping[]) : [];
+        this.mappings.set(body ? (JSON.parse(body) as EntityToEntityMapping[]) : []);
       },
       error: (err: unknown) => {
         console.error('Failed to load entity mappings', err);

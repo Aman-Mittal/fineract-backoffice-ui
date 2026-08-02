@@ -56,26 +56,26 @@ describe('FloatingRateFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should add and remove rate periods', () => {
-    expect(component.periods).toHaveSize(0);
+    expect(component.periods()).toHaveSize(0);
     component.addPeriod();
     component.addPeriod();
-    expect(component.periods).toHaveSize(2);
+    expect(component.periods()).toHaveSize(2);
     component.removePeriod(0);
-    expect(component.periods).toHaveSize(1);
+    expect(component.periods()).toHaveSize(1);
   });
 
   it('should post a floating rate with mapped rate periods', () => {
     serviceSpy.postFloatingrates.and.returnValue(
       of({}) as unknown as ReturnType<FloatingRatesService['postFloatingrates']>,
     );
-    component.rate = { name: 'BLR', isBaseLendingRate: true, isActive: true };
-    component.periods = [
+    component.rate.set({ name: 'BLR', isBaseLendingRate: true, isActive: true });
+    component.periods.set([
       { fromDate: new Date(2026, 0, 1), interestRate: 9.5, isDifferentialToBaseLendingRate: false },
-    ];
+    ]);
 
     component.onSubmit();
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { inject, input, Component } from '@angular/core';
+import { inject, input, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
@@ -157,7 +157,7 @@ const AUDIT_COLUMN_NAMES = new Set(['created_at', 'updated_at']);
           data-testid="datatable-entry-cancel"
           fill="clear"
           color="medium"
-          [disabled]="isSaving"
+          [disabled]="isSaving()"
           (click)="onCancel()"
         >
           {{ 'COMMON.CANCEL' | translate }}
@@ -165,10 +165,10 @@ const AUDIT_COLUMN_NAMES = new Set(['created_at', 'updated_at']);
         <ion-button
           data-testid="datatable-entry-submit"
           color="primary"
-          [disabled]="entryForm.invalid || isSaving"
+          [disabled]="entryForm.invalid || isSaving()"
           (click)="onSubmit()"
         >
-          {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+          {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </ion-button>
       </div>
     </div>
@@ -209,7 +209,7 @@ export class DatatableEntryDialogComponent {
   readonly data = input.required<DatatableEntryDialogData>();
 
   values: Record<string, unknown> = {};
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   get dataColumns(): ResultsetColumnHeaderData[] {
     return this.data().columns.filter(
@@ -240,7 +240,7 @@ export class DatatableEntryDialogComponent {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const body: Record<string, unknown> = { ...this.values };
     const columns = this.dataColumns;
@@ -265,7 +265,7 @@ export class DatatableEntryDialogComponent {
       .subscribe({
         next: () => this.modalController.dismiss(true),
         error: () => {
-          this.isSaving = false;
+          this.isSaving.set(false);
           this.notifications.error(this.translate.instant('COMMON.ERROR'));
         },
       });

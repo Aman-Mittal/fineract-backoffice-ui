@@ -107,8 +107,8 @@ export class ClientAddressesListComponent implements OnInit {
 
   private readonly addressService = inject(ClientsAddressService);
 
-  addresses = signal<AddressData[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly addresses = signal<AddressData[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

@@ -73,8 +73,8 @@ describe('GroupFormComponent', () => {
   });
 
   it('should format activationDate correctly on submit in create mode', () => {
-    component.isEditMode = false;
-    component.group = { name: 'Test Group', officeId: 1, active: true };
+    component.isEditMode.set(false);
+    component.group.set({ name: 'Test Group', officeId: 1, active: true });
     const testDate = '2026-05-09'; // May 9, 2026
     component.activationDate = testDate;
 
@@ -98,12 +98,12 @@ describe('GroupFormComponent', () => {
   });
 
   it('should handle error on submit', () => {
-    component.isEditMode = false;
+    component.isEditMode.set(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     groupsServiceSpy.postGroups.and.returnValue(throwError(() => new Error('API Error')) as any);
 
     component.onSubmit();
 
-    expect(component.isSaving).toBeFalse();
+    expect(component.isSaving()).toBeFalse();
   });
 });

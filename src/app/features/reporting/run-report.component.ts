@@ -73,7 +73,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ 'REPORTS.RUN_TITLE' | translate }}: {{ reportName }}
+            {{ 'REPORTS.RUN_TITLE' | translate }}: {{ reportName() }}
             <app-help-icon [helpTextKey]="'HELP.REPORTS_DESC'"></app-help-icon>
           </ion-card-title>
         </ion-card-header>
@@ -213,7 +213,7 @@ export class RunReportComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
 
-  reportName = '';
+  readonly reportName = signal('');
   reportType = '';
   readonly isLoading = signal(false);
 
@@ -242,7 +242,7 @@ export class RunReportComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.reportName = params.get('reportName') || '';
+      this.reportName.set(params.get('reportName') || '');
     });
     this.route.queryParamMap.subscribe((params) => {
       this.reportType = params.get('type') || '';
@@ -263,7 +263,7 @@ export class RunReportComponent implements OnInit {
 
     this.runReportsService
       .getRunreportsReportName(
-        this.reportName,
+        this.reportName(),
         true, // exportCSV
         undefined, // parameterType
         'CSV', // outputType
@@ -283,7 +283,7 @@ export class RunReportComponent implements OnInit {
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.setAttribute('href', url);
-          link.setAttribute('download', `${this.reportName.replace(/\s+/g, '_')}_Report.csv`);
+          link.setAttribute('download', `${this.reportName().replace(/\s+/g, '_')}_Report.csv`);
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -304,7 +304,7 @@ export class RunReportComponent implements OnInit {
 
     this.runReportsService
       .getRunreportsReportName(
-        this.reportName,
+        this.reportName(),
         false, // exportCSV
         undefined, // parameterType
         'HTML', // outputType
@@ -353,7 +353,7 @@ export class RunReportComponent implements OnInit {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `${this.reportName.replace(/\s+/g, '_')}_Report.csv`);
+    link.setAttribute('download', `${this.reportName().replace(/\s+/g, '_')}_Report.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

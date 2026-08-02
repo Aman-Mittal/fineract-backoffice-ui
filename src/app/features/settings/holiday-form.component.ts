@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -113,7 +113,7 @@ import {
                   multiple
                   required
                 >
-                  @for (office of offices; track office.id) {
+                  @for (office of offices(); track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -176,7 +176,7 @@ import {
                   [(ngModel)]="reschedulingType"
                   required
                 >
-                  @for (option of reschedulingTypeOptions; track option.id) {
+                  @for (option of reschedulingTypeOptions(); track option.id) {
                     <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }
                 </ion-select>
@@ -225,15 +225,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="holidayForm.invalid || isSaving || selectedOfficeIds.length === 0"
+                [disabled]="holidayForm.invalid || isSaving() || selectedOfficeIds.length === 0"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -277,18 +277,17 @@ export class HolidayFormComponent implements OnInit {
 
   private readonly LIST_PATH = '/settings/holidays';
 
-  isSaving = false;
+  readonly isSaving = signal(false);
   holiday: PostHolidaysRequest = {};
   fromDate: string | null = null;
   toDate: string | null = null;
   repaymentsRescheduledTo: string | null = null;
 
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
   selectedOfficeIds: number[] = [];
 
   reschedulingType = 2; // Default to 'Reschedule to specified date'
-  reschedulingTypeOptions: { id: number; value: string }[] = [];
-
+  readonly reschedulingTypeOptions = signal<{ id: number; value: string }[]>([]);
   ngOnInit(): void {
     this.loadOffices();
     this.loadReschedulingOptions();
@@ -297,7 +296,7 @@ export class HolidayFormComponent implements OnInit {
   private loadOffices(): void {
     this.officesService.getOffices(true).subscribe({
       next: (data) => {
-        this.offices = data || [];
+        this.offices.set(data || []);
       },
       error: (err) => {
         console.error('Failed to load offices', err);
@@ -311,19 +310,19 @@ export class HolidayFormComponent implements OnInit {
       next: (data) => {
         try {
           const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-          this.reschedulingTypeOptions = parsed || [];
+          this.reschedulingTypeOptions.set(parsed || []);
         } catch {
-          this.reschedulingTypeOptions = [
+          this.reschedulingTypeOptions.set([
             { id: 1, value: 'Reschedule to next repayment date' },
             { id: 2, value: 'Reschedule to specified date' },
-          ];
+          ]);
         }
       },
       error: () => {
-        this.reschedulingTypeOptions = [
+        this.reschedulingTypeOptions.set([
           { id: 1, value: 'Reschedule to next repayment date' },
           { id: 2, value: 'Reschedule to specified date' },
-        ];
+        ]);
       },
     });
   }
@@ -337,7 +336,7 @@ export class HolidayFormComponent implements OnInit {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const payload: Record<string, unknown> = {
       name: this.holiday.name,
@@ -360,7 +359,7 @@ export class HolidayFormComponent implements OnInit {
         this.router.navigate([this.LIST_PATH]);
       },
       error: (err) => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         console.error('Failed to create holiday', err);
       },
     });

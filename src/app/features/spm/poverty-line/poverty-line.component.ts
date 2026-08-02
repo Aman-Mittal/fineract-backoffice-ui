@@ -91,8 +91,8 @@ interface PovertyLineRow {
 
           @if (isLoading()) {
             <ion-spinner name="crescent"></ion-spinner>
-          } @else if (rows.length) {
-            <table cdk-table [dataSource]="rows" class="pl-table">
+          } @else if (rows().length) {
+            <table cdk-table [dataSource]="rows()" class="pl-table">
               <ng-container cdkColumnDef="scoreFrom">
                 <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'POVERTY_LINE.SCORE_FROM' | translate }}
@@ -144,7 +144,7 @@ export class PovertyLineComponent {
   readonly columns = ['scoreFrom', 'scoreTo', 'povertyLine', 'enabled'];
 
   ppiName = '';
-  rows: PovertyLineRow[] = [];
+  readonly rows = signal<PovertyLineRow[]>([]);
   readonly isLoading = signal(false);
 
   load(): void {
@@ -152,12 +152,12 @@ export class PovertyLineComponent {
     this.isLoading.set(true);
     this.povertyLineService.getPovertyLinePpiName(this.ppiName).subscribe({
       next: (raw: string) => {
-        this.rows = this.parseList(raw);
+        this.rows.set(this.parseList(raw));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load poverty line', err);
-        this.rows = [];
+        this.rows.set([]);
         this.isLoading.set(false);
       },
     });

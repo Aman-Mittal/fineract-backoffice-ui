@@ -57,14 +57,14 @@ describe('SpmSurveysFormComponent', () => {
 
   it('should create in non-edit mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postSurveys.and.returnValue(
       of({}) as unknown as ReturnType<SpmSurveysService['postSurveys']>,
     );
-    component.survey = { key: 'PPI', name: 'New Survey' };
+    component.survey.set({ key: 'PPI', name: 'New Survey' });
     component.onSubmit();
     expect(serviceSpy.postSurveys).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/spm/surveys']);

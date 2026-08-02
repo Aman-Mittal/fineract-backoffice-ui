@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -126,15 +126,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="dividendForm.invalid || isSaving"
+                [disabled]="dividendForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -168,7 +168,7 @@ export class ShareDividendFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   productId!: number;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   dividendAmount: number | null = null;
   dividendPeriodStartDate: string | null = null;
@@ -179,7 +179,7 @@ export class ShareDividendFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const body = JSON.stringify({
       dividendAmount: this.dividendAmount ?? undefined,
       dividendPeriodStartDate: this.dividendPeriodStartDate
@@ -194,7 +194,7 @@ export class ShareDividendFormComponent implements OnInit {
 
     this.selfDividendService.postShareproductProductIdDividend(this.productId, body).subscribe({
       next: () => this.router.navigate(['/products/shares', this.productId, 'dividends']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

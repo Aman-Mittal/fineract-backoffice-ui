@@ -70,7 +70,7 @@ describe('OnHoldTransactionsListComponent', () => {
   it('should load and parse on-hold transactions on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions).toHaveBeenCalledWith(1);
-    expect(component.transactions).toHaveSize(1);
-    expect(component.transactions[0].loanClientName).toBe('John Doe');
+    expect(component.transactions()).toHaveSize(1);
+    expect(component.transactions()[0].loanClientName).toBe('John Doe');
   });
 });

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef } from '../../../shared';
@@ -39,8 +39,8 @@ import { IonButton } from '@ionic/angular/standalone';
     <app-data-table
       title="SCHEDULER_JOBS.RUN_HISTORY"
       [columns]="columns"
-      [data]="history"
-      [totalRecords]="history.length"
+      [data]="history()"
+      [totalRecords]="history().length"
       [localLogic]="true"
     ></app-data-table>
   `,
@@ -66,7 +66,7 @@ export class SchedulerJobHistoryComponent implements OnInit {
   ];
 
   jobId: number | null = null;
-  history: JobDetailHistoryDataSwagger[] = [];
+  readonly history = signal<JobDetailHistoryDataSwagger[]>([]);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -80,7 +80,7 @@ export class SchedulerJobHistoryComponent implements OnInit {
     if (!this.jobId) return;
     this.jobService.getJobsJobIdRunhistory(this.jobId).subscribe({
       next: (data) => {
-        this.history = data?.pageItems ?? [];
+        this.history.set(data?.pageItems ?? []);
       },
       error: (err: unknown) => console.error('Failed to load job run history', err),
     });

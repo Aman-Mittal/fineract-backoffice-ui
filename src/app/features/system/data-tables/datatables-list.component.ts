@@ -97,8 +97,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class DatatablesListComponent implements OnInit {
   private readonly datatablesService = inject(DataTablesService);
 
-  datatables = signal<GetDataTablesResponse[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly datatables = signal<GetDataTablesResponse[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

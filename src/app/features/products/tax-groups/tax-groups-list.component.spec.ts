@@ -57,7 +57,7 @@ describe('TaxGroupsListComponent', () => {
   it('should load tax groups on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getTaxesGroup).toHaveBeenCalled();
-    expect(component.groups).toHaveSize(1);
+    expect(component.groups()).toHaveSize(1);
   });
 
   it('should join component names for display', () => {

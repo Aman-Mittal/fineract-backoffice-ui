@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -53,8 +53,8 @@ import { PageEvent } from '../../../shared/models/table.model';
       helpTextKey="HELP.SHARE_ACCOUNTS_DESC"
       createButtonLabel="SHARE_ACCOUNTS.CREATE"
       [columns]="columns"
-      [data]="accounts"
-      [totalRecords]="totalRecords"
+      [data]="accounts()"
+      [totalRecords]="totalRecords()"
       [showSearch]="false"
       (create)="onCreateAccount()"
       (pageChange)="onPageChange($event)"
@@ -92,9 +92,9 @@ export class ShareAccountsListComponent implements OnInit {
   ];
 
   /** List of retrieved accounts */
-  accounts: GetAccountsPageItems[] = [];
+  readonly accounts = signal<GetAccountsPageItems[]>([]);
   /** Total number of records for pagination */
-  totalRecords = 0;
+  readonly totalRecords = signal(0);
 
   /**
    * Component initialization.
@@ -112,8 +112,8 @@ export class ShareAccountsListComponent implements OnInit {
   private loadAccounts(offset: number, limit: number): void {
     this.shareService.getAccountsType('share', offset, limit).subscribe({
       next: (response: GetAccountsTypeResponse) => {
-        this.accounts = Array.from(response.pageItems || []);
-        this.totalRecords = response.totalFilteredRecords || 0;
+        this.accounts.set(Array.from(response.pageItems || []));
+        this.totalRecords.set(response.totalFilteredRecords || 0);
       },
       error: (err: unknown) => {
         console.error('Failed to load share accounts', err);

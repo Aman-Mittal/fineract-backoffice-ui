@@ -504,17 +504,17 @@ export class SystemStatusComponent implements OnInit {
   protected readonly environmentUrl = environment.fineractApiUrl;
   protected readonly isProd = environment.production;
   protected readonly currentTenant = signal('default');
-  isLoading = signal(true);
+  readonly isLoading = signal(true);
 
-  clientCount = signal(0);
-  activeLoans = signal(0);
-  savingsCount = signal(0);
+  readonly clientCount = signal(0);
+  readonly activeLoans = signal(0);
+  readonly savingsCount = signal(0);
 
-  pendingLoans = signal<Record<string, unknown>[]>([]);
-  pendingSavings = signal<Record<string, unknown>[]>([]);
+  readonly pendingLoans = signal<Record<string, unknown>[]>([]);
+  readonly pendingSavings = signal<Record<string, unknown>[]>([]);
 
-  loanChartData = signal<ChartData[]>([]);
-  savingsChartData = signal<ChartData[]>([]);
+  readonly loanChartData = signal<ChartData[]>([]);
+  readonly savingsChartData = signal<ChartData[]>([]);
 
   ngOnInit(): void {
     this.loadMetrics();

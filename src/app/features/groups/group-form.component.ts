@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -87,7 +87,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode ? ('GROUPS.EDIT_GROUP' | translate) : ('GROUPS.CREATE_GROUP' | translate)
+              isEditMode() ? ('GROUPS.EDIT_GROUP' | translate) : ('GROUPS.CREATE_GROUP' | translate)
             }}
           </ion-card-title>
         </ion-card-header>
@@ -101,7 +101,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'GROUPS.NAME' | translate"
                   name="name"
-                  [(ngModel)]="group.name"
+                  [(ngModel)]="group().name"
                   required
                 ></ion-input>
               </ion-item>
@@ -113,18 +113,18 @@ import {
                   [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
-                  [(ngModel)]="group.officeId"
+                  [(ngModel)]="group().officeId"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
-                  @for (office of offices; track office.id) {
+                  @for (office of offices(); track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
 
               <!-- Activation Date -->
-              @if (!isEditMode) {
+              @if (!isEditMode()) {
                 <ion-item fill="outline" [appTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate">
                   <ion-label position="stacked">{{
                     'COMMON.ACTIVATION_DATE' | translate
@@ -147,7 +147,7 @@ import {
 
               <!-- Active -->
               <div class="checkbox-container">
-                <ion-checkbox name="active" [(ngModel)]="group.active" [disabled]="isEditMode">
+                <ion-checkbox name="active" [(ngModel)]="group().active" [disabled]="isEditMode()">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
                 <ion-icon
@@ -159,17 +159,17 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              @if (isEditMode && !originalActive) {
+              @if (isEditMode() && !originalActive()) {
                 <ion-button
                   color="secondary"
                   type="button"
                   (click)="onActivate()"
-                  [disabled]="isSaving || !activationDate"
+                  [disabled]="isSaving() || !activationDate"
                 >
-                  @if (isSaving) {
+                  @if (isSaving()) {
                     <ion-spinner name="crescent"></ion-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
@@ -177,8 +177,12 @@ import {
                   }
                 </ion-button>
               }
-              <ion-button color="primary" type="submit" [disabled]="groupForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="groupForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -234,16 +238,16 @@ export class GroupFormComponent implements OnInit {
   private readonly LIST_PATH = '/groups';
 
   groupId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
-  originalActive = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
+  readonly originalActive = signal(false);
 
-  group: PostGroupsRequest = {
+  readonly group = signal<PostGroupsRequest>({
     active: true,
-  };
+  });
 
   activationDate = toIsoDate(new Date());
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit(): void {
     this.loadOffices();
@@ -251,7 +255,7 @@ export class GroupFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.groupId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadGroupData();
       }
     });
@@ -259,25 +263,25 @@ export class GroupFormComponent implements OnInit {
 
   private loadOffices(): void {
     this.officesService.getOffices(true).subscribe((offices) => {
-      this.offices = offices;
+      this.offices.set(offices);
     });
   }
 
   private loadGroupData(): void {
     if (!this.groupId) return;
     this.groupsService.getGroupsGroupId(this.groupId).subscribe((data) => {
-      this.originalActive = !!(data as Record<string, unknown>)['active'];
-      this.group = {
+      this.originalActive.set(!!(data as Record<string, unknown>)['active']);
+      this.group.set({
         name: data.name,
         officeId: data.officeId,
-        active: this.originalActive,
-      };
+        active: this.originalActive(),
+      });
     });
   }
 
   onActivate(): void {
     if (!this.groupId || !this.activationDate) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const formattedDate = toIsoDate(this.activationDate);
 
@@ -291,11 +295,11 @@ export class GroupFormComponent implements OnInit {
       .postGroupsGroupId(this.groupId, payload as PostGroupsGroupIdRequest, 'activate')
       .subscribe({
         next: () => {
-          this.isSaving = false;
-          this.originalActive = true;
-          this.group.active = true;
+          this.isSaving.set(false);
+          this.originalActive.set(true);
+          this.group().active = true;
         },
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 
@@ -303,22 +307,22 @@ export class GroupFormComponent implements OnInit {
    * Submits the form, ensuring mandatory activationDate is formatted correctly.
    */
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.groupId) {
+    if (this.isEditMode() && this.groupId) {
       const payload: PutGroupsGroupIdRequest = {
-        name: this.group.name,
+        name: this.group().name,
       };
       this.groupsService.putGroupsGroupId(this.groupId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       const formattedDate = toIsoDate(this.activationDate);
 
       // Assert as Record to include mandatory undocumented fields for activation
       const payload: Record<string, unknown> = {
-        ...this.group,
+        ...this.group(),
         activationDate: formattedDate,
         dateFormat: this.DATE_FORMAT,
         locale: 'en',
@@ -326,7 +330,7 @@ export class GroupFormComponent implements OnInit {
 
       this.groupsService.postGroups(payload as PostGroupsRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

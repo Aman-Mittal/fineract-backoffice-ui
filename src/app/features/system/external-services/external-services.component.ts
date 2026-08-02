@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExternalServicesService, PutExternalServiceRequest } from '../../../api';
@@ -84,7 +84,7 @@ interface ServiceProperty {
             </ion-select>
           </ion-item>
 
-          @for (prop of properties; track prop.name) {
+          @for (prop of properties(); track prop.name) {
             <ion-item fill="outline">
               <ion-label position="stacked">{{ prop.name }}</ion-label>
               <ion-input
@@ -99,10 +99,10 @@ interface ServiceProperty {
             <ion-button
               color="primary"
               type="button"
-              [disabled]="!properties.length || isSaving"
+              [disabled]="!properties().length || isSaving()"
               (click)="onSave()"
             >
-              @if (isSaving) {
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -129,8 +129,8 @@ export class ExternalServicesComponent implements OnInit {
 
   readonly serviceNames = ['S3', 'SMTP', 'NOTIFICATION'];
   selectedService = '';
-  properties: ServiceProperty[] = [];
-  isSaving = false;
+  readonly properties = signal<ServiceProperty[]>([]);
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.selectedService = this.serviceNames[0];
@@ -141,15 +141,15 @@ export class ExternalServicesComponent implements OnInit {
     if (!this.selectedService) return;
     this.service.getExternalserviceServicename(this.selectedService).subscribe((data) => {
       const list = (data as unknown as ServiceProperty[]) ?? [];
-      this.properties = list.map((p) => ({ name: p.name ?? '', value: p.value ?? '' }));
+      this.properties.set(list.map((p) => ({ name: p.name ?? '', value: p.value ?? '' })));
     });
   }
 
   onSave(): void {
     if (!this.selectedService) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: Record<string, string> = {};
-    for (const prop of this.properties) {
+    for (const prop of this.properties()) {
       request[prop.name] = prop.value;
     }
     this.service
@@ -158,8 +158,8 @@ export class ExternalServicesComponent implements OnInit {
         request as unknown as PutExternalServiceRequest,
       )
       .subscribe({
-        next: () => (this.isSaving = false),
-        error: () => (this.isSaving = false),
+        next: () => this.isSaving.set(false),
+        error: () => this.isSaving.set(false),
       });
   }
 }

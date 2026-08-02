@@ -56,14 +56,14 @@ describe('TaxComponentFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post a tax component with a start date on create', () => {
     serviceSpy.postTaxesComponent.and.returnValue(
       of({}) as unknown as ReturnType<TaxComponentsService['postTaxesComponent']>,
     );
-    component.component = { name: 'GST', percentage: 18 };
+    component.component.set({ name: 'GST', percentage: 18 });
     component.startDate = new Date(2026, 0, 1);
 
     component.onSubmit();

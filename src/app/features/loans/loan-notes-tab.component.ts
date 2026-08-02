@@ -48,13 +48,14 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
         <ion-textarea
           [attr.aria-label]="'LOANS.ADD_NOTE' | translate"
           rows="2"
-          [(ngModel)]="newNoteText"
+          [ngModel]="newNoteText()"
+          (ngModelChange)="newNoteText.set($event)"
           name="newNote"
         ></ion-textarea>
       </ion-item>
       <ion-button
         color="primary"
-        [disabled]="!newNoteText.trim() || isSaving()"
+        [disabled]="!newNoteText().trim() || isSaving()"
         (click)="onAddNote()"
       >
         <ion-icon name="add-outline"></ion-icon>
@@ -141,10 +142,10 @@ export class LoanNotesTabComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  notes = signal<NoteData[]>([]);
-  isLoading = signal(false);
-  isSaving = signal(false);
-  newNoteText = '';
+  readonly notes = signal<NoteData[]>([]);
+  readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
+  readonly newNoteText = signal('');
 
   ngOnInit(): void {
     this.loadNotes();
@@ -165,12 +166,12 @@ export class LoanNotesTabComponent implements OnInit {
   }
 
   onAddNote(): void {
-    const note = this.newNoteText.trim();
+    const note = this.newNoteText().trim();
     if (!note) return;
     this.isSaving.set(true);
     this.notesService.postResourceTypeResourceIdNotes('loans', this.loanId(), { note }).subscribe({
       next: () => {
-        this.newNoteText = '';
+        this.newNoteText.set('');
         this.isSaving.set(false);
         this.loadNotes();
       },

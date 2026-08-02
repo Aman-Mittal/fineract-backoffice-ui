@@ -100,7 +100,7 @@ describe('ClientFormComponent', () => {
     it('should create and load offices', () => {
       expect(component).toBeTruthy();
       expect(officesServiceSpy.getOffices).toHaveBeenCalled();
-      expect(component.isEditMode).toBeFalse();
+      expect(component.isEditMode()).toBeFalse();
     });
 
     it('should open create office dialog and add new office', async () => {
@@ -120,22 +120,22 @@ describe('ClientFormComponent', () => {
 
       expect(dialogSpy.open).toHaveBeenCalled();
       expect(component.offices()).toHaveSize(2);
-      expect(component.client.officeId).toBe(2);
+      expect(component.client().officeId).toBe(2);
     });
 
     it('should submit client create request successfully', () => {
       clientServiceSpy.postClients.and.returnValue(
         of({ clientId: 10 }) as unknown as Observable<never>,
       );
-      component.client = {
+      component.client.set({
         firstname: 'John',
         lastname: 'Doe',
         officeId: 1,
         legalFormId: 1,
         active: true,
-      };
-      component.submittedOnDate = '2026-06-16';
-      component.activationDate = '2026-06-17';
+      });
+      component.submittedOnDate.set('2026-06-16');
+      component.activationDate.set('2026-06-17');
 
       component.onSubmit();
 
@@ -181,7 +181,7 @@ describe('ClientFormComponent', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.isEditMode).toBeTrue();
+      expect(component.isEditMode()).toBeTrue();
       expect(component.clientId).toBe(10);
       expect(clientServiceSpy.getClientsClientId).toHaveBeenCalledWith(10);
 

@@ -93,7 +93,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('TELLERS.EDIT_TELLER' | translate)
                 : ('TELLERS.CREATE_TELLER' | translate)
             }}
@@ -112,7 +112,7 @@ import {
                       [attr.aria-label]="'TELLERS.NAME' | translate"
                       type="text"
                       name="name"
-                      [(ngModel)]="teller.name"
+                      [(ngModel)]="teller().name"
                       required
                       id="teller-name-input"
                       data-testid="teller-name-input"
@@ -128,9 +128,9 @@ import {
                       [attr.aria-label]="'TELLERS.OFFICE' | translate"
                       interface="popover"
                       name="officeId"
-                      [(ngModel)]="teller.officeId"
+                      [(ngModel)]="teller().officeId"
                       required
-                      [disabled]="isEditMode"
+                      [disabled]="isEditMode()"
                       id="teller-office-select"
                       data-testid="teller-office-select"
                     >
@@ -154,7 +154,7 @@ import {
                     <ion-textarea
                       [attr.aria-label]="'TELLERS.DESCRIPTION' | translate"
                       name="description"
-                      [(ngModel)]="teller.description"
+                      [(ngModel)]="teller().description"
                       rows="3"
                       id="teller-description-textarea"
                       data-testid="teller-description-textarea"
@@ -188,7 +188,7 @@ import {
                       [attr.aria-label]="'TELLERS.STATUS' | translate"
                       interface="popover"
                       name="status"
-                      [(ngModel)]="teller.status"
+                      [(ngModel)]="teller().status"
                       required
                       id="teller-status-select"
                       data-testid="teller-status-select"
@@ -229,7 +229,7 @@ import {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
                 id="teller-cancel-btn"
                 data-testid="teller-cancel-btn"
               >
@@ -238,11 +238,11 @@ import {
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="tellerForm.invalid || isSaving"
+                [disabled]="tellerForm.invalid || isSaving()"
                 id="teller-submit-btn"
                 data-testid="teller-submit-btn"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -291,14 +291,14 @@ export class TellerFormComponent implements OnInit {
   /** The unique identifier for the teller being edited */
   tellerId: number | null = null;
   /** Indicates if the component is in edit mode */
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   /** State of the save operation */
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   /** Post request model instance for template data binding */
-  teller: PostTellersRequest = {
+  readonly teller = signal<PostTellersRequest>({
     status: 'ACTIVE',
-  };
+  });
 
   /** Usage value, not in PostTellersRequest but needed for form */
   usage = 1;
@@ -318,7 +318,7 @@ export class TellerFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.tellerId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadTellerData();
       }
     });
@@ -343,12 +343,12 @@ export class TellerFormComponent implements OnInit {
       if (dateArray) {
         this.startDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
       }
-      this.teller = {
+      this.teller.set({
         name: data.name,
         officeId: data.officeId,
         description: (data as Record<string, unknown>)['description'] as string,
         status: data.status as PostTellersRequest.StatusEnum,
-      };
+      });
     });
   }
 
@@ -363,34 +363,34 @@ export class TellerFormComponent implements OnInit {
    * Dispatches create or update requests based on the current mode.
    */
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const formattedDate = toIsoDate(this.startDate);
 
-    if (this.isEditMode && this.tellerId) {
+    if (this.isEditMode() && this.tellerId) {
       const payload: Record<string, unknown> = {
-        name: this.teller.name,
-        description: this.teller.description,
+        name: this.teller().name,
+        description: this.teller().description,
         startDate: formattedDate,
-        status: this.teller.status === 'ACTIVE' ? 300 : 400,
+        status: this.teller().status === 'ACTIVE' ? 300 : 400,
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
       this.tellerService.putTellersTellerId(this.tellerId, payload as PutTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       const payload: Record<string, unknown> = {
-        ...this.teller,
+        ...this.teller(),
         startDate: formattedDate,
-        status: this.teller.status === 'ACTIVE' ? 300 : 400,
+        status: this.teller().status === 'ACTIVE' ? 300 : 400,
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
 
       this.tellerService.postTellers(payload as PostTellersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

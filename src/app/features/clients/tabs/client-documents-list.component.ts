@@ -104,8 +104,8 @@ export class ClientDocumentsListComponent implements OnInit {
 
   private readonly documentService = inject(DocumentsService);
 
-  documents = signal<DocumentData[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly documents = signal<DocumentData[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

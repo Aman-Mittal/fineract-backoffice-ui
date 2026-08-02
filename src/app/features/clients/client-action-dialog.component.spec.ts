@@ -97,7 +97,7 @@ describe('ClientActionDialogComponent', () => {
     });
 
     it('should be invalid if actionDate is null/falsy', () => {
-      component.actionDate = null as unknown as string;
+      component.actionDate.set(null as unknown as string);
       expect(component.isValid).toBeFalse();
     });
   });
@@ -126,7 +126,7 @@ describe('ClientActionDialogComponent', () => {
     it('should fetch and populate reject reason options', () => {
       expect(codesServiceSpy.getCodesNameCodeName).toHaveBeenCalledWith('ClientRejectReason');
       expect(codeValuesServiceSpy.getCodesCodeIdCodevalues).toHaveBeenCalledWith(10);
-      expect(component.reasonOptions).toHaveSize(2);
+      expect(component.reasonOptions()).toHaveSize(2);
       expect(component.showReasonDropdown).toBeTrue();
       expect(component.reasonLabel).toBe('ACTIONS.REJECTION_REASON');
     });

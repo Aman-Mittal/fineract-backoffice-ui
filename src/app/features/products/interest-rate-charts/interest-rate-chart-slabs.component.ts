@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -98,7 +98,7 @@ interface SlabRow {
               </tr>
             </thead>
             <tbody>
-              @for (slab of slabs; track slab.id) {
+              @for (slab of slabs(); track slab.id) {
                 <tr>
                   <td>{{ slab.periodType?.value }}</td>
                   <td>{{ slab.fromPeriod }}</td>
@@ -132,9 +132,9 @@ interface SlabRow {
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.PERIOD_TYPE' | translate"
                 interface="popover"
                 name="periodType"
-                [(ngModel)]="newSlab.periodType"
+                [(ngModel)]="newSlab().periodType"
               >
-                @for (opt of periodTypeOptions; track opt.id) {
+                @for (opt of periodTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
@@ -148,7 +148,7 @@ interface SlabRow {
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.FROM_PERIOD' | translate"
                 type="number"
                 name="fromPeriod"
-                [(ngModel)]="newSlab.fromPeriod"
+                [(ngModel)]="newSlab().fromPeriod"
               ></ion-input>
             </ion-item>
 
@@ -160,7 +160,7 @@ interface SlabRow {
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.TO_PERIOD' | translate"
                 type="number"
                 name="toPeriod"
-                [(ngModel)]="newSlab.toPeriod"
+                [(ngModel)]="newSlab().toPeriod"
               ></ion-input>
             </ion-item>
 
@@ -172,7 +172,7 @@ interface SlabRow {
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.AMOUNT_RANGE_FROM' | translate"
                 type="number"
                 name="amountRangeFrom"
-                [(ngModel)]="newSlab.amountRangeFrom"
+                [(ngModel)]="newSlab().amountRangeFrom"
               ></ion-input>
             </ion-item>
 
@@ -184,7 +184,7 @@ interface SlabRow {
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.AMOUNT_RANGE_TO' | translate"
                 type="number"
                 name="amountRangeTo"
-                [(ngModel)]="newSlab.amountRangeTo"
+                [(ngModel)]="newSlab().amountRangeTo"
               ></ion-input>
             </ion-item>
 
@@ -196,7 +196,7 @@ interface SlabRow {
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.ANNUAL_INTEREST_RATE' | translate"
                 type="number"
                 name="annualInterestRate"
-                [(ngModel)]="newSlab.annualInterestRate"
+                [(ngModel)]="newSlab().annualInterestRate"
                 required
               ></ion-input>
             </ion-item>
@@ -205,7 +205,7 @@ interface SlabRow {
               fill="outline"
               color="primary"
               type="submit"
-              [disabled]="slabForm.invalid || isSaving"
+              [disabled]="slabForm.invalid || isSaving()"
             >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'INTEREST_RATE_CHARTS.ADD_SLAB' | translate }}
@@ -262,18 +262,18 @@ export class InterestRateChartSlabsComponent implements OnInit {
   private readonly LIST_PATH = '/products/interest-rate-charts';
 
   chartId: number | null = null;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  slabs: InterestRateChartSlabData[] = [];
-  periodTypeOptions: EnumOptionData[] = [];
-  newSlab: SlabRow = {
+  readonly slabs = signal<InterestRateChartSlabData[]>([]);
+  readonly periodTypeOptions = signal<EnumOptionData[]>([]);
+  readonly newSlab = signal<SlabRow>({
     periodType: null,
     fromPeriod: null,
     toPeriod: null,
     amountRangeFrom: null,
     amountRangeTo: null,
     annualInterestRate: null,
-  };
+  });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -291,7 +291,7 @@ export class InterestRateChartSlabsComponent implements OnInit {
     this.slabService
       .getInterestratechartsChartIdChartslabsTemplate(this.chartId)
       .subscribe((tpl) => {
-        this.periodTypeOptions = tpl.periodTypes ?? [];
+        this.periodTypeOptions.set(tpl.periodTypes ?? []);
       });
   }
 
@@ -299,7 +299,7 @@ export class InterestRateChartSlabsComponent implements OnInit {
     if (!this.chartId) return;
     this.slabService.getInterestratechartsChartIdChartslabs(this.chartId).subscribe({
       next: (data: InterestRateChartSlabData[]) => {
-        this.slabs = data || [];
+        this.slabs.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load chart slabs', err),
     });
@@ -307,30 +307,30 @@ export class InterestRateChartSlabsComponent implements OnInit {
 
   onAdd(): void {
     if (!this.chartId) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
     const payload: InterestRateChartSlabsCreateRequest = {
-      periodType: this.newSlab.periodType ?? undefined,
-      fromPeriod: this.newSlab.fromPeriod ?? undefined,
-      toPeriod: this.newSlab.toPeriod ?? undefined,
-      amountRangeFrom: this.newSlab.amountRangeFrom ?? undefined,
-      amountRangeTo: this.newSlab.amountRangeTo ?? undefined,
-      annualInterestRate: this.newSlab.annualInterestRate ?? undefined,
+      periodType: this.newSlab().periodType ?? undefined,
+      fromPeriod: this.newSlab().fromPeriod ?? undefined,
+      toPeriod: this.newSlab().toPeriod ?? undefined,
+      amountRangeFrom: this.newSlab().amountRangeFrom ?? undefined,
+      amountRangeTo: this.newSlab().amountRangeTo ?? undefined,
+      annualInterestRate: this.newSlab().annualInterestRate ?? undefined,
       locale: FINERACT_LOCALE,
     };
     this.slabService.postInterestratechartsChartIdChartslabs(this.chartId, payload).subscribe({
       next: () => {
-        this.isSaving = false;
-        this.newSlab = {
+        this.isSaving.set(false);
+        this.newSlab.set({
           periodType: null,
           fromPeriod: null,
           toPeriod: null,
           amountRangeFrom: null,
           amountRangeTo: null,
           annualInterestRate: null,
-        };
+        });
         this.load();
       },
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

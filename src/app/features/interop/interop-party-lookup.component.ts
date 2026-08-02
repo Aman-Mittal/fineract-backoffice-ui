@@ -150,7 +150,7 @@ export class InteropPartyLookupComponent {
   private interopService = inject(InterOperationService);
   private notifications = inject(NotificationService);
 
-  result = signal<InteropIdentifierAccountResponseData | null>(null);
+  readonly result = signal<InteropIdentifierAccountResponseData | null>(null);
   readonly isLoading = signal(false);
   idType = '';
   idValue = '';

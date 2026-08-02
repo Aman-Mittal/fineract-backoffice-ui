@@ -55,15 +55,15 @@ describe('PasswordPreferencesComponent', () => {
   });
 
   it('should select the active policy on load', () => {
-    expect(component.policies).toHaveSize(2);
-    expect(component.selectedPolicyId).toBe(2);
+    expect(component.policies()).toHaveSize(2);
+    expect(component.selectedPolicyId()).toBe(2);
   });
 
   it('should put the selected policy on save', () => {
     serviceSpy.putPasswordpreferences.and.returnValue(
       of({}) as unknown as ReturnType<PasswordPreferencesService['putPasswordpreferences']>,
     );
-    component.selectedPolicyId = 1;
+    component.selectedPolicyId.set(1);
     component.onSave();
     expect(serviceSpy.putPasswordpreferences).toHaveBeenCalledWith({ validationPolicyId: 1 });
   });

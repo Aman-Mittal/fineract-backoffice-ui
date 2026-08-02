@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -107,7 +107,7 @@ interface ReassignmentTemplate {
                 (ionChange)="onOfficeChange()"
                 required
               >
-                @for (opt of officeOptions; track opt.id) {
+                @for (opt of officeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -124,7 +124,7 @@ interface ReassignmentTemplate {
                 [(ngModel)]="fromLoanOfficerId"
                 required
               >
-                @for (opt of loanOfficerOptions; track opt.id) {
+                @for (opt of loanOfficerOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.displayName }}</ion-select-option>
                 }
               </ion-select>
@@ -141,7 +141,7 @@ interface ReassignmentTemplate {
                 [(ngModel)]="toLoanOfficerId"
                 required
               >
-                @for (opt of loanOfficerOptions; track opt.id) {
+                @for (opt of loanOfficerOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.displayName }}</ion-select-option>
                 }
               </ion-select>
@@ -167,15 +167,15 @@ interface ReassignmentTemplate {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="reassignForm.invalid || isSaving"
+                [disabled]="reassignForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -210,15 +210,15 @@ export class BulkReassignmentComponent implements OnInit {
 
   private readonly LIST_PATH = '/loans';
 
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   officeId: number | null = null;
   fromLoanOfficerId: number | null = null;
   toLoanOfficerId: number | null = null;
   assignmentDate: string | null = null;
 
-  officeOptions: ReassignmentOption[] = [];
-  loanOfficerOptions: ReassignmentOption[] = [];
+  readonly officeOptions = signal<ReassignmentOption[]>([]);
+  readonly loanOfficerOptions = signal<ReassignmentOption[]>([]);
 
   ngOnInit(): void {
     this.loadTemplate();
@@ -227,8 +227,8 @@ export class BulkReassignmentComponent implements OnInit {
   loadTemplate(officeId?: number): void {
     this.bulkLoansService.getLoansLoanreassignmentTemplate(officeId).subscribe((tpl) => {
       const template = tpl as unknown as ReassignmentTemplate;
-      this.officeOptions = template.officeOptions ?? [];
-      this.loanOfficerOptions = template.loanOfficerOptions ?? [];
+      this.officeOptions.set(template.officeOptions ?? []);
+      this.loanOfficerOptions.set(template.loanOfficerOptions ?? []);
     });
   }
 
@@ -239,7 +239,7 @@ export class BulkReassignmentComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const body = JSON.stringify({
       officeId: this.officeId,
       fromLoanOfficerId: this.fromLoanOfficerId,
@@ -254,7 +254,7 @@ export class BulkReassignmentComponent implements OnInit {
         this.notifications.success('Loans reassigned successfully');
         this.router.navigate([this.LIST_PATH]);
       },
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

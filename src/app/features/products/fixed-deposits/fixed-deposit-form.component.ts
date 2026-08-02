@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -92,7 +92,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('FIXED_DEPOSITS.EDIT' | translate)
                 : ('FIXED_DEPOSITS.CREATE' | translate)
             }}
@@ -135,12 +135,12 @@ import {
                     [attr.aria-label]="'COMMON.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
-                    [(ngModel)]="account['productId']"
+                    [(ngModel)]="account()['productId']"
                     (ngModelChange)="onProductSelected($event)"
                     required
-                    [disabled]="isEditMode"
+                    [disabled]="isEditMode()"
                   >
-                    @for (product of products; track product['id']) {
+                    @for (product of products(); track product['id']) {
                       <ion-select-option [value]="product['id']">{{
                         product['name']
                       }}</ion-select-option>
@@ -153,7 +153,7 @@ import {
                   [appTooltip]="'PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   <ion-icon color="primary" name="add-circle-outline"></ion-icon>
                 </ion-button>
@@ -166,7 +166,7 @@ import {
                   [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="depositAmount"
-                  [(ngModel)]="account['depositAmount']"
+                  [(ngModel)]="account()['depositAmount']"
                   required
                 ></ion-input>
               </ion-item>
@@ -182,7 +182,8 @@ import {
                       data-testid="submittedOnDate-picker"
                       presentation="date"
                       name="submittedOnDate"
-                      [(ngModel)]="submittedOnDate"
+                      [ngModel]="submittedOnDate()"
+                      (ngModelChange)="submittedOnDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -196,7 +197,7 @@ import {
                   [attr.aria-label]="'COMMON.PERIOD' | translate"
                   type="number"
                   name="depositPeriod"
-                  [(ngModel)]="account['depositPeriod']"
+                  [(ngModel)]="account()['depositPeriod']"
                   required
                 ></ion-input>
               </ion-item>
@@ -208,7 +209,7 @@ import {
                   [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                   interface="popover"
                   name="depositPeriodFrequencyId"
-                  [(ngModel)]="account['depositPeriodFrequencyId']"
+                  [(ngModel)]="account()['depositPeriodFrequencyId']"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
@@ -234,22 +235,22 @@ import {
                   [attr.aria-label]="'COMMON.INTEREST_RATE' | translate"
                   type="number"
                   name="nominalAnnualInterestRate"
-                  [(ngModel)]="account['nominalAnnualInterestRate']"
+                  [(ngModel)]="account()['nominalAnnualInterestRate']"
                 ></ion-input>
                 <span slot="end">%</span>
               </ion-item>
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="accountForm.invalid || isSaving"
+                [disabled]="accountForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -304,18 +305,18 @@ export class FixedDepositAccountFormComponent implements OnInit {
   /** Account identifier */
   accountId: number | null = null;
   /** Edit mode flag */
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   /** Save state */
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   /** Post request model */
-  account: Record<string, unknown> = {
+  readonly account = signal<Record<string, unknown>>({
     depositPeriodFrequencyId: 2, // Default to Months
-  };
+  });
   /** Submitted date for template binding */
-  submittedOnDate = toIsoDate(new Date());
+  readonly submittedOnDate = signal(toIsoDate(new Date()));
   /** Available products list */
-  products: GetFixedDepositAccountsProductOptions[] = [];
+  readonly products = signal<GetFixedDepositAccountsProductOptions[]>([]);
 
   /**
    * Component initialization.
@@ -324,8 +325,8 @@ export class FixedDepositAccountFormComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const clientId = params['clientId'];
       if (clientId) {
-        this.account['clientId'] = +clientId;
-        this.loadProducts(this.account['clientId'] as number);
+        this.account()['clientId'] = +clientId;
+        this.loadProducts(this.account()['clientId'] as number);
       } else {
         this.loadProducts();
       }
@@ -335,14 +336,14 @@ export class FixedDepositAccountFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.accountId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadAccountData();
       }
     });
   }
 
   getClientId(): number | null {
-    return (this.account['clientId'] as number) || null;
+    return (this.account()['clientId'] as number) || null;
   }
 
   /**
@@ -353,37 +354,37 @@ export class FixedDepositAccountFormComponent implements OnInit {
       next: (template: GetFixedDepositAccountsTemplateResponse) => {
         if (template && template.productOptions) {
           // Explicitly convert from Set or Array to ensure dropdown rendering
-          this.products = Array.from(template.productOptions);
+          this.products.set(Array.from(template.productOptions));
         } else {
-          this.products = [];
+          this.products.set([]);
         }
       },
       error: (err: unknown) => {
         console.error('Failed to load eligible products', err);
-        this.products = [];
+        this.products.set([]);
       },
     });
   }
 
   onClientSelected(clientId: number): void {
-    this.account['clientId'] = clientId;
+    this.account()['clientId'] = clientId;
     this.loadProducts(clientId);
   }
 
   onProductSelected(productId: number): void {
     if (productId) {
       this.fixedDepositService
-        .getFixeddepositaccountsTemplate(this.account['clientId'] as number, undefined, productId)
+        .getFixeddepositaccountsTemplate(this.account()['clientId'] as number, undefined, productId)
         .subscribe({
           next: (template: GetFixedDepositAccountsTemplateResponse) => {
             if (template) {
               const templateData = template as unknown as Record<string, unknown>;
-              this.account['depositAmount'] = templateData['depositAmount'];
-              this.account['depositPeriod'] = templateData['depositPeriod'];
-              this.account['depositPeriodFrequencyId'] = (
+              this.account()['depositAmount'] = templateData['depositAmount'];
+              this.account()['depositPeriod'] = templateData['depositPeriod'];
+              this.account()['depositPeriodFrequencyId'] = (
                 templateData['depositPeriodFrequency'] as Record<string, unknown>
               )?.['id'];
-              this.account['nominalAnnualInterestRate'] =
+              this.account()['nominalAnnualInterestRate'] =
                 templateData['nominalAnnualInterestRate'] || undefined;
             }
           },
@@ -409,9 +410,11 @@ export class FixedDepositAccountFormComponent implements OnInit {
       next: (data: GetFixedDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
-          this.submittedOnDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
+          this.submittedOnDate.set(
+            toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2])),
+          );
         }
-        this.account = {
+        this.account.set({
           clientId: data.clientId,
           productId: data.savingsProductId,
           depositAmount: data.depositAmount,
@@ -420,7 +423,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
           nominalAnnualInterestRate: (data as unknown as Record<string, unknown>)[
             'nominalAnnualInterestRate'
           ],
-        };
+        });
       },
       error: (err: unknown) => console.error('Failed to load account', err),
     });
@@ -430,36 +433,36 @@ export class FixedDepositAccountFormComponent implements OnInit {
    * Handles form submission.
    */
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    const formattedDate = formatDateToFineract(this.submittedOnDate);
+    const formattedDate = formatDateToFineract(this.submittedOnDate());
 
-    this.account['submittedOnDate'] = formattedDate;
-    this.account['dateFormat'] = FINERACT_DATE_FORMAT;
-    this.account['locale'] = FINERACT_LOCALE;
+    this.account()['submittedOnDate'] = formattedDate;
+    this.account()['dateFormat'] = FINERACT_DATE_FORMAT;
+    this.account()['locale'] = FINERACT_LOCALE;
 
-    if (this.isEditMode && this.accountId) {
+    if (this.isEditMode() && this.accountId) {
       const payload: PutFixedDepositAccountsAccountIdRequest & Record<string, unknown> = {
-        depositAmount: this.account['depositAmount'] as number,
+        depositAmount: this.account()['depositAmount'] as number,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
-        depositPeriod: this.account['depositPeriod'] as number,
-        depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'] as number,
+        depositPeriod: this.account()['depositPeriod'] as number,
+        depositPeriodFrequencyId: this.account()['depositPeriodFrequencyId'] as number,
         nominalAnnualInterestRate:
-          this.account['nominalAnnualInterestRate'] != null
-            ? (this.account['nominalAnnualInterestRate'] as number)
+          this.account()['nominalAnnualInterestRate'] != null
+            ? (this.account()['nominalAnnualInterestRate'] as number)
             : undefined,
       };
       this.fixedDepositService.putFixeddepositaccountsAccountId(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       this.fixedDepositService
-        .postFixeddepositaccounts(this.account as PostFixedDepositAccountsRequest)
+        .postFixeddepositaccounts(this.account() as PostFixedDepositAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }

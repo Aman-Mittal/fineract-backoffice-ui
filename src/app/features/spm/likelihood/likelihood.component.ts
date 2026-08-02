@@ -95,8 +95,8 @@ interface LikelihoodRow {
 
           @if (isLoading()) {
             <ion-spinner name="crescent"></ion-spinner>
-          } @else if (rows.length) {
-            <table cdk-table [dataSource]="rows" class="lk-table">
+          } @else if (rows().length) {
+            <table cdk-table [dataSource]="rows()" class="lk-table">
               <ng-container cdkColumnDef="name">
                 <th cdk-header-cell *cdkHeaderCellDef>{{ 'LIKELIHOOD.NAME' | translate }}</th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
@@ -132,7 +132,7 @@ interface LikelihoodRow {
                     fill="clear"
                     color="primary"
                     type="button"
-                    [disabled]="isSaving"
+                    [disabled]="isSaving()"
                     (click)="onSave(row)"
                   >
                     {{ 'COMMON.SAVE' | translate }}
@@ -173,21 +173,21 @@ export class LikelihoodComponent {
   readonly columns = ['name', 'likelihood', 'enabled', 'actions'];
 
   ppiName = '';
-  rows: LikelihoodRow[] = [];
+  readonly rows = signal<LikelihoodRow[]>([]);
   readonly isLoading = signal(false);
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   load(): void {
     if (!this.ppiName) return;
     this.isLoading.set(true);
     this.likelihoodService.getLikelihoodPpiName(this.ppiName).subscribe({
       next: (raw: string) => {
-        this.rows = this.parseList(raw);
+        this.rows.set(this.parseList(raw));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load likelihoods', err);
-        this.rows = [];
+        this.rows.set([]);
         this.isLoading.set(false);
       },
     });
@@ -195,15 +195,15 @@ export class LikelihoodComponent {
 
   onSave(row: LikelihoodRow): void {
     if (!row.id) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
     const body = JSON.stringify({ likelihood: row.likelihood, enabled: row.enabled });
     this.likelihoodService.putLikelihoodPpiNameLikelihoodId(row.id, this.ppiName, body).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to update likelihood', err);
-        this.isSaving = false;
+        this.isSaving.set(false);
       },
     });
   }

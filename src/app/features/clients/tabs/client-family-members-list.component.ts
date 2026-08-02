@@ -108,8 +108,8 @@ export class ClientFamilyMembersListComponent implements OnInit {
 
   private readonly familyMemberService = inject(ClientFamilyMemberService);
 
-  familyMembers = signal<ClientFamilyMembersData[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly familyMembers = signal<ClientFamilyMembersData[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

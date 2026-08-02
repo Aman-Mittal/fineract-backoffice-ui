@@ -78,7 +78,7 @@ describe('CreateOfficeDialogComponent', () => {
 
     component.onSubmit();
 
-    expect(component.isSaving).toBe(true);
+    expect(component.isSaving()).toBe(true);
     expect(mockOfficesService.postOffices).toHaveBeenCalled();
     const args = mockOfficesService.postOffices.calls.mostRecent().args[0];
     expect(args.name).toBe('Test Office');
@@ -92,7 +92,7 @@ describe('CreateOfficeDialogComponent', () => {
 
     component.onSubmit();
 
-    expect(component.isSaving).toBe(false);
+    expect(component.isSaving()).toBe(false);
     expect(mockModalController.dismiss).not.toHaveBeenCalled();
   });
 });

@@ -173,8 +173,8 @@ export class BulkImportComponent implements OnInit {
   ];
 
   selectedEntity = 'clients';
-  importHistory = signal<Record<string, unknown>[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly importHistory = signal<Record<string, unknown>[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   private readonly dateFormat = 'dd MMMM yyyy';
 

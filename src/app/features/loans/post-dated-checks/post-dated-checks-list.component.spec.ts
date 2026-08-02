@@ -67,7 +67,7 @@ describe('PostDatedChecksListComponent', () => {
     expect(component).toBeTruthy();
     expect(component.loanId).toBe(1);
     expect(serviceSpy.getLoansLoanIdPostdatedchecks).toHaveBeenCalledWith(1);
-    expect(component.checks).toHaveSize(1);
+    expect(component.checks()).toHaveSize(1);
   });
 
   it('should navigate to edit with the check id', () => {

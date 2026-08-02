@@ -139,7 +139,7 @@ import {
           ></app-paginator>
         }
 
-        @if (searched && results().length === 0 && !isLoading()) {
+        @if (searched() && results().length === 0 && !isLoading()) {
           <p class="no-results">{{ 'CLIENT_SEARCH_V2.NO_RESULTS' | translate }}</p>
         }
       </ion-card-content>
@@ -187,10 +187,10 @@ export class ClientSearchV2Component {
   pageIndex = 0;
   pageNumber = 0;
   readonly isLoading = signal(false);
-  searched = false;
+  readonly searched = signal(false);
 
-  results = signal<ClientSearchData[]>([]);
-  totalElements = signal(0);
+  readonly results = signal<ClientSearchData[]>([]);
+  readonly totalElements = signal(0);
 
   displayedColumns = ['displayName', 'accountNo', 'status', 'officeName', 'actions'];
 
@@ -210,11 +210,11 @@ export class ClientSearchV2Component {
           this.results.set(data?.content ?? []);
           this.totalElements.set(data?.totalElements ?? 0);
           this.isLoading.set(false);
-          this.searched = true;
+          this.searched.set(true);
         },
         error: () => {
           this.isLoading.set(false);
-          this.searched = true;
+          this.searched.set(true);
         },
       });
   }

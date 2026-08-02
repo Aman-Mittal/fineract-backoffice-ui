@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -59,7 +59,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('FUNDS.EDIT_FUND' | translate) : ('FUNDS.CREATE_FUND' | translate) }}
+            {{ isEditMode() ? ('FUNDS.EDIT_FUND' | translate) : ('FUNDS.CREATE_FUND' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -70,7 +70,7 @@ import {
               <ion-input
                 [attr.aria-label]="'FUNDS.NAME' | translate"
                 name="name"
-                [(ngModel)]="fund.name"
+                [(ngModel)]="fund().name"
                 required
               ></ion-input>
             </ion-item>
@@ -80,16 +80,16 @@ import {
               <ion-input
                 [attr.aria-label]="'FUNDS.EXTERNAL_ID' | translate"
                 name="externalId"
-                [(ngModel)]="fund.externalId"
+                [(ngModel)]="fund().externalId"
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="fundForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="fundForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -125,17 +125,17 @@ export class FundFormComponent implements OnInit {
   private readonly LIST_PATH = '/organization/funds';
 
   fundId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  fund: FundRequest = { name: '', externalId: '' };
+  readonly fund = signal<FundRequest>({ name: '', externalId: '' });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.fundId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadFund();
       }
     });
@@ -144,20 +144,20 @@ export class FundFormComponent implements OnInit {
   loadFund(): void {
     if (!this.fundId) return;
     this.fundsService.getFundsFundId(this.fundId).subscribe((data) => {
-      this.fund = { name: data.name, externalId: data.externalId };
+      this.fund.set({ name: data.name, externalId: data.externalId });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.fundId
-        ? this.fundsService.putFundsFundId(this.fundId, this.fund)
-        : this.fundsService.postFunds(this.fund);
+      this.isEditMode() && this.fundId
+        ? this.fundsService.putFundsFundId(this.fundId, this.fund())
+        : this.fundsService.postFunds(this.fund());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

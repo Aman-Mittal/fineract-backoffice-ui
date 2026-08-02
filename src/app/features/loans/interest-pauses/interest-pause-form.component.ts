@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -109,11 +109,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="pauseForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="pauseForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -147,7 +151,7 @@ export class InterestPauseFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   loanId: number | null = null;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   startDate: string | null = null;
   endDate: string | null = null;
@@ -161,7 +165,7 @@ export class InterestPauseFormComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.loanId) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const request: InterestPauseRequestDto = {
       startDate: formatDateToFineract(this.startDate),
@@ -172,7 +176,7 @@ export class InterestPauseFormComponent implements OnInit {
 
     this.pauseService.postLoansLoanIdInterestPauses(this.loanId, request).subscribe({
       next: () => this.router.navigate(['/loans', this.loanId, 'interest-pauses']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

@@ -105,8 +105,8 @@ export class ClientIdentifiersListComponent implements OnInit {
   private readonly identifierService = inject(ClientIdentifierService);
   private readonly router = inject(Router);
 
-  identifiers = signal<ClientIdentifierData[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly identifiers = signal<ClientIdentifierData[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

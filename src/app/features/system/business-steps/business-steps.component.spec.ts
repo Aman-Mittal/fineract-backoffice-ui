@@ -64,13 +64,13 @@ describe('BusinessStepsComponent', () => {
   });
 
   it('should load job names on init', () => {
-    expect(component.jobNames).toHaveSize(1);
+    expect(component.jobNames()).toHaveSize(1);
   });
 
   it('should load and sort steps by order', () => {
     component.selectedJob = 'LOAN_CLOSE_OF_BUSINESS';
     component.loadSteps();
-    expect(component.steps[0].stepName).toBe('a');
+    expect(component.steps()[0].stepName).toBe('a');
   });
 
   it('should save reordered steps', () => {

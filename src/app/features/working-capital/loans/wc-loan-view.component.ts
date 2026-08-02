@@ -561,12 +561,12 @@ export class WcLoanViewComponent implements OnInit {
   private readonly router = inject(Router);
 
   loanId = 0;
-  loan = signal<GetWorkingCapitalLoansLoanIdResponse | null>(null);
-  charges = signal<WorkingCapitalLoanChargeData[]>([]);
-  transactions = signal<GetWorkingCapitalLoanTransactionIdResponse[]>([]);
-  delinquencyActions = signal<WorkingCapitalLoanDelinquencyActionData[]>([]);
-  delinquencyRangeSchedule = signal<WorkingCapitalLoanDelinquencyRangeScheduleData[]>([]);
-  breachSchedule = signal<WorkingCapitalLoanBreachScheduleData[]>([]);
+  readonly loan = signal<GetWorkingCapitalLoansLoanIdResponse | null>(null);
+  readonly charges = signal<WorkingCapitalLoanChargeData[]>([]);
+  readonly transactions = signal<GetWorkingCapitalLoanTransactionIdResponse[]>([]);
+  readonly delinquencyActions = signal<WorkingCapitalLoanDelinquencyActionData[]>([]);
+  readonly delinquencyRangeSchedule = signal<WorkingCapitalLoanDelinquencyRangeScheduleData[]>([]);
+  readonly breachSchedule = signal<WorkingCapitalLoanBreachScheduleData[]>([]);
 
   chargeColumns = ['name', 'amount', 'paid', 'outstanding'];
   transactionColumns = ['id', 'date', 'type', 'amount'];

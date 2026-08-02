@@ -132,7 +132,7 @@ export class NotificationsListComponent implements OnInit {
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
 
-  notifications = signal<GetNotification[]>([]);
+  readonly notifications = signal<GetNotification[]>([]);
   showUnreadOnly = false;
   readonly isLoading = signal(false);
 

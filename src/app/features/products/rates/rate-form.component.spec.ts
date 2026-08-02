@@ -57,12 +57,12 @@ describe('RateFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postRates.and.returnValue(of({}) as unknown as ReturnType<RateService['postRates']>);
-    component.rate = { name: 'New', percentage: 7, active: true };
+    component.rate.set({ name: 'New', percentage: 7, active: true });
     component.onSubmit();
     expect(serviceSpy.postRates).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/rates']);
@@ -73,10 +73,10 @@ describe('RateFormComponent', () => {
       of({}) as unknown as ReturnType<RateService['putRatesRateId']>,
     );
     component.rateId = 9;
-    component.isEditMode = true;
-    component.rate = { name: 'Edited', percentage: 3 };
+    component.isEditMode.set(true);
+    component.rate.set({ name: 'Edited', percentage: 3 });
     component.onSubmit();
-    expect(serviceSpy.putRatesRateId).toHaveBeenCalledWith(9, component.rate);
+    expect(serviceSpy.putRatesRateId).toHaveBeenCalledWith(9, component.rate());
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/rates']);
   });
 });

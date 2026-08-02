@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -54,8 +54,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       helpTextKey="HELP.TELLERS_DESC"
       createButtonLabel="TELLERS.CREATE_TELLER"
       [columns]="columns"
-      [data]="tellers"
-      [totalRecords]="tellers.length"
+      [data]="tellers()"
+      [totalRecords]="tellers().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateTeller()"
@@ -107,7 +107,7 @@ export class TellersListComponent implements OnInit {
   ];
 
   /** List of tellers retrieved from the API */
-  tellers: GetTellersResponse[] = [];
+  readonly tellers = signal<GetTellersResponse[]>([]);
 
   /**
    * Initializes the component by loading teller data.
@@ -122,7 +122,7 @@ export class TellersListComponent implements OnInit {
   private loadTellers(): void {
     this.tellerService.getTellers().subscribe({
       next: (data: GetTellersResponse[]) => {
-        this.tellers = data || [];
+        this.tellers.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load tellers', err);

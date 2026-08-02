@@ -64,14 +64,14 @@ describe('CollateralManagementFormComponent', () => {
   it('should load currency options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getCollateralManagementTemplate).toHaveBeenCalled();
-    expect(component.currencyOptions).toHaveSize(1);
+    expect(component.currencyOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postCollateralManagement.and.returnValue(
       of({}) as unknown as ReturnType<CollateralManagementService['postCollateralManagement']>,
     );
-    component.collateral = {
+    component.collateral.set({
       name: 'Gold',
       quality: 'High',
       unitType: 'Gram',
@@ -79,7 +79,7 @@ describe('CollateralManagementFormComponent', () => {
       pctToBase: 80,
       currency: 'USD',
       locale: 'en',
-    };
+    });
     component.onSubmit();
     expect(serviceSpy.postCollateralManagement).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/collateral-management']);

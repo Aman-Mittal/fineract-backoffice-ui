@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -252,11 +252,15 @@ import {
             }
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="actionForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="actionForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -292,7 +296,7 @@ export class WcLoanActionFormComponent implements OnInit {
 
   loanId = 0;
   command = '';
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   lifecycle: PostWorkingCapitalLoansLoanIdRequest = {
     dateFormat: FINERACT_DATE_FORMAT,
@@ -329,7 +333,7 @@ export class WcLoanActionFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     if (this.command === 'repayment') {
       if (this.transactionDate) {
@@ -339,7 +343,7 @@ export class WcLoanActionFormComponent implements OnInit {
         .postWorkingCapitalLoansLoanIdTransactions(this.loanId, 'repayment', this.repayment)
         .subscribe({
           next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
       return;
     }
@@ -365,7 +369,7 @@ export class WcLoanActionFormComponent implements OnInit {
       .postWorkingCapitalLoansLoanId(this.loanId, this.command, this.lifecycle)
       .subscribe({
         next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 

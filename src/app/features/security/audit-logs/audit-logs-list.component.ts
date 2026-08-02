@@ -270,11 +270,11 @@ export class AuditLogsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS' },
   ];
 
-  auditLogs = signal<Record<string, unknown>[]>([]);
-  totalRecords = signal<number>(0);
-  isLoading = signal<boolean>(false);
-  pageSize = signal<number>(10);
-  pageIndex = signal<number>(0);
+  readonly auditLogs = signal<Record<string, unknown>[]>([]);
+  readonly totalRecords = signal<number>(0);
+  readonly isLoading = signal<boolean>(false);
+  readonly pageSize = signal<number>(10);
+  readonly pageIndex = signal<number>(0);
 
   activeFilters: AuditFilters = {
     actionName: '',

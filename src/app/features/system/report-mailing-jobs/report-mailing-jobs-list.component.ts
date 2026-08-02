@@ -76,8 +76,8 @@ import {
         helpTextKey="HELP.REPORT_MAILING_JOBS_DESC"
         createButtonLabel="REPORT_MAILING_JOBS.CREATE"
         [columns]="columns"
-        [data]="jobs"
-        [totalRecords]="jobs.length"
+        [data]="jobs()"
+        [totalRecords]="jobs().length"
         [localLogic]="true"
         (create)="onCreate()"
       >
@@ -108,7 +108,7 @@ import {
     }
     @if (activeTab() === '1') {
       <div class="history-container">
-        @if (historyLoading) {
+        @if (historyLoading()) {
           <div class="spinner-wrap">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
@@ -197,10 +197,10 @@ export class ReportMailingJobsListComponent implements OnInit {
 
   readonly historyColumns = ['id', 'jobName', 'scheduledFireTime', 'triggerType', 'status'];
 
-  jobs: GetReportMailingJobsResponse[] = [];
+  readonly jobs = signal<GetReportMailingJobsResponse[]>([]);
 
-  runHistory = signal<ReportMailingJobRunHistoryData[]>([]);
-  historyLoading = false;
+  readonly runHistory = signal<ReportMailingJobRunHistoryData[]>([]);
+  readonly historyLoading = signal(false);
   private historyLoaded = false;
 
   ngOnInit(): void {
@@ -210,7 +210,7 @@ export class ReportMailingJobsListComponent implements OnInit {
   load(): void {
     this.jobsService.getReportmailingjobs().subscribe({
       next: (data: GetReportMailingJobsResponse[]) => {
-        this.jobs = data || [];
+        this.jobs.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load report-mailing jobs', err);
@@ -225,7 +225,7 @@ export class ReportMailingJobsListComponent implements OnInit {
   }
 
   loadRunHistory(): void {
-    this.historyLoading = true;
+    this.historyLoading.set(true);
     this.historyService.getReportmailingjobrunhistory(undefined, 0, 20).subscribe({
       next: (data) => {
         const historyList = Array.isArray(data)
@@ -234,11 +234,11 @@ export class ReportMailingJobsListComponent implements OnInit {
               ReportMailingJobRunHistoryData[] | undefined) ?? []);
         this.runHistory.set(historyList);
         this.historyLoaded = true;
-        this.historyLoading = false;
+        this.historyLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load run history', err);
-        this.historyLoading = false;
+        this.historyLoading.set(false);
       },
     });
   }

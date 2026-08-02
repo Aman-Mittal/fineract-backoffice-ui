@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -61,7 +61,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('SMS.EDIT' | translate) : ('SMS.CREATE' | translate) }}
+            {{ isEditMode() ? ('SMS.EDIT' | translate) : ('SMS.CREATE' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -72,7 +72,8 @@ import {
               <ion-textarea
                 [attr.aria-label]="'SMS.MESSAGE' | translate"
                 name="message"
-                [(ngModel)]="message"
+                [ngModel]="message()"
+                (ngModelChange)="message.set($event)"
                 required
               ></ion-textarea>
             </ion-item>
@@ -82,8 +83,9 @@ import {
               <ion-input
                 [attr.aria-label]="'SMS.MOBILE_NO' | translate"
                 name="mobileNo"
-                [(ngModel)]="mobileNo"
-                [disabled]="isEditMode"
+                [ngModel]="mobileNo()"
+                (ngModelChange)="mobileNo.set($event)"
+                [disabled]="isEditMode()"
               ></ion-input>
             </ion-item>
 
@@ -93,17 +95,18 @@ import {
                 [attr.aria-label]="'SMS.CLIENT_ID' | translate"
                 type="number"
                 name="clientId"
-                [(ngModel)]="clientId"
-                [disabled]="isEditMode"
+                [ngModel]="clientId()"
+                (ngModelChange)="clientId.set($event)"
+                [disabled]="isEditMode()"
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="smsForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="smsForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -139,19 +142,18 @@ export class SmsFormComponent implements OnInit {
   private readonly LIST_PATH = '/system/sms';
 
   smsId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  message = '';
-  mobileNo: string | undefined;
-  clientId: number | undefined;
-
+  readonly message = signal('');
+  readonly mobileNo = signal<string | undefined>(undefined);
+  readonly clientId = signal<number | undefined>(undefined);
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.smsId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -160,26 +162,26 @@ export class SmsFormComponent implements OnInit {
   load(): void {
     if (!this.smsId) return;
     this.smsService.getSmsResourceId(this.smsId).subscribe((data) => {
-      this.message = data.message ?? '';
-      this.mobileNo = data.mobileNo;
-      this.clientId = data.clientId;
+      this.message.set(data.message ?? '');
+      this.mobileNo.set(data.mobileNo);
+      this.clientId.set(data.clientId);
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     let request$;
-    if (this.isEditMode && this.smsId) {
-      const update: SmsUpdateRequest = { message: this.message };
+    if (this.isEditMode() && this.smsId) {
+      const update: SmsUpdateRequest = { message: this.message() };
       request$ = this.smsService.putSmsResourceId(this.smsId, update);
     } else {
-      const create: SmsCreationRequest = { message: this.message, clientId: this.clientId };
+      const create: SmsCreationRequest = { message: this.message(), clientId: this.clientId() };
       request$ = this.smsService.postSms(create);
     }
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

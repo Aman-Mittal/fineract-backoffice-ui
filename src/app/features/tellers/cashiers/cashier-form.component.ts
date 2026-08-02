@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -101,7 +101,7 @@ import {
                       id="cashier-staff-select"
                       data-testid="cashier-staff-select"
                     >
-                      @for (member of staff; track member.id) {
+                      @for (member of staff(); track member.id) {
                         <ion-select-option [value]="member.id">{{
                           member.displayName
                         }}</ion-select-option>
@@ -183,7 +183,7 @@ import {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
                 id="cashier-cancel-btn"
                 data-testid="cashier-cancel-btn"
               >
@@ -192,11 +192,11 @@ import {
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="cashierForm.invalid || isSaving"
+                [disabled]="cashierForm.invalid || isSaving()"
                 id="cashier-submit-btn"
                 data-testid="cashier-submit-btn"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -217,7 +217,7 @@ export class CashierFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   tellerId = 0;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   cashier: PostTellersTellerIdCashiersRequest = {
     isFullDay: true,
@@ -225,7 +225,7 @@ export class CashierFormComponent implements OnInit {
 
   startDate: Date = new Date();
   endDate: Date = new Date();
-  staff: StaffData[] = [];
+  readonly staff = signal<StaffData[]>([]);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -249,7 +249,7 @@ export class CashierFormComponent implements OnInit {
   private loadStaff(): void {
     this.staffService.getStaff().subscribe({
       next: (data: StaffData[]) => {
-        this.staff = data || [];
+        this.staff.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load staff', err);
@@ -258,7 +258,7 @@ export class CashierFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const formattedStartDate = toIsoDate(this.startDate);
     const formattedEndDate = toIsoDate(this.endDate);
@@ -270,7 +270,7 @@ export class CashierFormComponent implements OnInit {
 
     this.tellerService.postTellersTellerIdCashiers(this.tellerId, this.cashier).subscribe({
       next: () => this.router.navigate(['/tellers', this.tellerId, 'cashiers']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

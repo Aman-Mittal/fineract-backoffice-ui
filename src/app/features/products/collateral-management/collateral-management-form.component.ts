@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -68,7 +68,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('COLLATERAL_MANAGEMENT.EDIT' | translate)
                 : ('COLLATERAL_MANAGEMENT.CREATE' | translate)
             }}
@@ -84,7 +84,7 @@ import {
               <ion-input
                 [attr.aria-label]="'COLLATERAL_MANAGEMENT.NAME' | translate"
                 name="name"
-                [(ngModel)]="collateral.name"
+                [(ngModel)]="collateral().name"
                 required
               ></ion-input>
             </ion-item>
@@ -96,7 +96,7 @@ import {
               <ion-input
                 [attr.aria-label]="'COLLATERAL_MANAGEMENT.QUALITY' | translate"
                 name="quality"
-                [(ngModel)]="collateral.quality"
+                [(ngModel)]="collateral().quality"
                 required
               ></ion-input>
             </ion-item>
@@ -108,7 +108,7 @@ import {
               <ion-input
                 [attr.aria-label]="'COLLATERAL_MANAGEMENT.UNIT_TYPE' | translate"
                 name="unitType"
-                [(ngModel)]="collateral.unitType"
+                [(ngModel)]="collateral().unitType"
                 required
               ></ion-input>
             </ion-item>
@@ -121,7 +121,7 @@ import {
                 [attr.aria-label]="'COLLATERAL_MANAGEMENT.BASE_PRICE' | translate"
                 type="number"
                 name="basePrice"
-                [(ngModel)]="collateral.basePrice"
+                [(ngModel)]="collateral().basePrice"
                 required
               ></ion-input>
             </ion-item>
@@ -134,7 +134,7 @@ import {
                 [attr.aria-label]="'COLLATERAL_MANAGEMENT.PCT_TO_BASE' | translate"
                 type="number"
                 name="pctToBase"
-                [(ngModel)]="collateral.pctToBase"
+                [(ngModel)]="collateral().pctToBase"
                 required
               ></ion-input>
             </ion-item>
@@ -147,10 +147,10 @@ import {
                 [attr.aria-label]="'COLLATERAL_MANAGEMENT.CURRENCY' | translate"
                 interface="popover"
                 name="currency"
-                [(ngModel)]="collateral.currency"
+                [(ngModel)]="collateral().currency"
                 required
               >
-                @for (opt of currencyOptions; track opt.code) {
+                @for (opt of currencyOptions(); track opt.code) {
                   <ion-select-option [value]="opt.code"
                     >{{ opt.name }} ({{ opt.code }})</ion-select-option
                   >
@@ -159,15 +159,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="collateralForm.invalid || isSaving"
+                [disabled]="collateralForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -203,10 +203,10 @@ export class CollateralManagementFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/collateral-management';
 
   collateralId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  collateral: CollateralProductCreateRequest = {
+  readonly collateral = signal<CollateralProductCreateRequest>({
     name: '',
     quality: '',
     unitType: '',
@@ -214,19 +214,19 @@ export class CollateralManagementFormComponent implements OnInit {
     pctToBase: 0,
     currency: '',
     locale: 'en',
-  };
-  currencyOptions: CurrencyData[] = [];
+  });
+  readonly currencyOptions = signal<CurrencyData[]>([]);
 
   ngOnInit(): void {
     this.collateralService.getCollateralManagementTemplate().subscribe((currencies) => {
-      this.currencyOptions = currencies ?? [];
+      this.currencyOptions.set(currencies ?? []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.collateralId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -237,7 +237,7 @@ export class CollateralManagementFormComponent implements OnInit {
     this.collateralService
       .getCollateralManagementCollateralId(this.collateralId)
       .subscribe((data) => {
-        this.collateral = {
+        this.collateral.set({
           name: data.name ?? '',
           quality: data.quality ?? '',
           unitType: data.unitType ?? '',
@@ -245,23 +245,23 @@ export class CollateralManagementFormComponent implements OnInit {
           pctToBase: data.pctToBase ?? 0,
           currency: data.currency ?? '',
           locale: 'en',
-        };
+        });
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.collateralId
+      this.isEditMode() && this.collateralId
         ? this.collateralService.putCollateralManagementCollateralId(
             this.collateralId,
-            this.collateral,
+            this.collateral(),
           )
-        : this.collateralService.postCollateralManagement(this.collateral);
+        : this.collateralService.postCollateralManagement(this.collateral());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

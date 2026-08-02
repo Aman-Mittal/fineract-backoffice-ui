@@ -68,9 +68,9 @@ describe('WcLoanProductFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getWorkingCapitalLoanProductsTemplate).toHaveBeenCalled();
-    expect(component.currencyOptions).toHaveSize(1);
-    expect(component.amortizationTypeOptions).toHaveSize(1);
-    expect(component.repaymentFrequencyTypeOptions).toHaveSize(1);
+    expect(component.currencyOptions()).toHaveSize(1);
+    expect(component.amortizationTypeOptions()).toHaveSize(1);
+    expect(component.repaymentFrequencyTypeOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {
@@ -79,7 +79,7 @@ describe('WcLoanProductFormComponent', () => {
         WorkingCapitalLoanProductsService['postWorkingCapitalLoanProducts']
       >,
     );
-    component.product = {
+    component.product.set({
       name: 'New Product',
       shortName: 'NP',
       currencyCode: 'USD',
@@ -88,7 +88,7 @@ describe('WcLoanProductFormComponent', () => {
       periodPaymentRate: 5,
       repaymentEvery: 1,
       npvDayCount: 365,
-    };
+    });
     component.onSubmit();
     expect(serviceSpy.postWorkingCapitalLoanProducts).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loan-products']);

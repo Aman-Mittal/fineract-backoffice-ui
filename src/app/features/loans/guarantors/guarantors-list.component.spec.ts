@@ -64,7 +64,7 @@ describe('GuarantorsListComponent', () => {
   it('should load guarantors on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoansLoanIdGuarantors).toHaveBeenCalledWith(1);
-    expect(component.guarantors).toHaveSize(1);
+    expect(component.guarantors()).toHaveSize(1);
   });
 
   it('should delete after confirmation and reload', () => {

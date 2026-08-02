@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -67,7 +67,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('WC_BREACH.EDIT' | translate) : ('WC_BREACH.CREATE' | translate) }}
+            {{ isEditMode() ? ('WC_BREACH.EDIT' | translate) : ('WC_BREACH.CREATE' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -78,7 +78,7 @@ import {
               <ion-input
                 [attr.aria-label]="'WC_BREACH.NAME' | translate"
                 name="name"
-                [(ngModel)]="breach.name"
+                [(ngModel)]="breach().name"
                 required
               ></ion-input>
             </ion-item>
@@ -89,7 +89,7 @@ import {
                 [attr.aria-label]="'WC_BREACH.BREACH_AMOUNT' | translate"
                 type="number"
                 name="breachAmount"
-                [(ngModel)]="breach.breachAmount"
+                [(ngModel)]="breach().breachAmount"
               ></ion-input>
             </ion-item>
 
@@ -101,9 +101,9 @@ import {
                 [attr.aria-label]="'WC_BREACH.CALCULATION_TYPE' | translate"
                 interface="popover"
                 name="calcType"
-                [(ngModel)]="breach.breachAmountCalculationType"
+                [(ngModel)]="breach().breachAmountCalculationType"
               >
-                @for (opt of calculationTypeOptions; track opt.id) {
+                @for (opt of calculationTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
@@ -115,7 +115,7 @@ import {
                 [attr.aria-label]="'WC_BREACH.FREQUENCY' | translate"
                 type="number"
                 name="breachFrequency"
-                [(ngModel)]="breach.breachFrequency"
+                [(ngModel)]="breach().breachFrequency"
               ></ion-input>
             </ion-item>
 
@@ -125,20 +125,24 @@ import {
                 [attr.aria-label]="'WC_BREACH.FREQUENCY_TYPE' | translate"
                 interface="popover"
                 name="freqType"
-                [(ngModel)]="breach.breachFrequencyType"
+                [(ngModel)]="breach().breachFrequencyType"
               >
-                @for (opt of frequencyTypeOptions; track opt.id) {
+                @for (opt of frequencyTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="breachForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="breachForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -174,24 +178,24 @@ export class WcBreachFormComponent implements OnInit {
   private readonly LIST_PATH = '/working-capital/breach';
 
   breachId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  breach: WorkingCapitalBreachRequest = { name: '' };
-  calculationTypeOptions: StringEnumOptionData[] = [];
-  frequencyTypeOptions: StringEnumOptionData[] = [];
+  readonly breach = signal<WorkingCapitalBreachRequest>({ name: '' });
+  readonly calculationTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly frequencyTypeOptions = signal<StringEnumOptionData[]>([]);
 
   ngOnInit(): void {
     this.breachService.getWorkingCapitalBreachTemplate().subscribe((tpl) => {
-      this.calculationTypeOptions = tpl.breachAmountCalculationTypeOptions ?? [];
-      this.frequencyTypeOptions = tpl.breachFrequencyTypeOptions ?? [];
+      this.calculationTypeOptions.set(tpl.breachAmountCalculationTypeOptions ?? []);
+      this.frequencyTypeOptions.set(tpl.breachFrequencyTypeOptions ?? []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.breachId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -200,26 +204,26 @@ export class WcBreachFormComponent implements OnInit {
   load(): void {
     if (!this.breachId) return;
     this.breachService.getWorkingCapitalBreachBreachesBreachId(this.breachId).subscribe((data) => {
-      this.breach = {
+      this.breach.set({
         name: data.name,
         breachAmount: data.breachAmount,
         breachAmountCalculationType: data.breachAmountCalculationType?.code,
         breachFrequency: data.breachFrequency,
         breachFrequencyType: data.breachFrequencyType?.code,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.breachId
-        ? this.breachService.putWorkingCapitalBreachBreachesBreachId(this.breachId, this.breach)
-        : this.breachService.postWorkingCapitalBreachBreaches(this.breach);
+      this.isEditMode() && this.breachId
+        ? this.breachService.putWorkingCapitalBreachBreachesBreachId(this.breachId, this.breach())
+        : this.breachService.postWorkingCapitalBreachBreaches(this.breach());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

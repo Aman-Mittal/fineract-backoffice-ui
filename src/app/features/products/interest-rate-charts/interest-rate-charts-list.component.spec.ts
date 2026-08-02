@@ -60,7 +60,7 @@ describe('InterestRateChartsListComponent', () => {
   it('should load charts on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getInterestratecharts).toHaveBeenCalled();
-    expect(component.charts).toHaveSize(1);
+    expect(component.charts()).toHaveSize(1);
   });
 
   it('should navigate to a chart slabs view', () => {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -56,7 +56,9 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('CODES.EDIT_TITLE' | translate) : ('CODES.CREATE_TITLE' | translate) }}
+            {{
+              isEditMode() ? ('CODES.EDIT_TITLE' | translate) : ('CODES.CREATE_TITLE' | translate)
+            }}
           </ion-card-title>
         </ion-card-header>
 
@@ -67,17 +69,17 @@ import {
               <ion-input
                 [attr.aria-label]="'CODES.NAME' | translate"
                 name="name"
-                [(ngModel)]="code.name"
+                [(ngModel)]="code().name"
                 required
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'CODES.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="codeForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="codeForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -121,17 +123,17 @@ export class CodeFormComponent implements OnInit {
   private readonly LIST_PATH = '/system/codes';
 
   codeId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  code: PostCodesRequest = { name: '' };
+  readonly code = signal<PostCodesRequest>({ name: '' });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.codeId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadCodeData();
       }
     });
@@ -141,7 +143,7 @@ export class CodeFormComponent implements OnInit {
     if (!this.codeId) return;
     this.codesService.getCodesCodeId(this.codeId).subscribe({
       next: (data: GetCodesResponse) => {
-        this.code = { name: data.name };
+        this.code.set({ name: data.name });
       },
       error: (err: unknown) => {
         console.error('Failed to load code', err);
@@ -150,23 +152,23 @@ export class CodeFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.codeId) {
-      const payload: PutCodesRequest = { name: this.code.name };
+    if (this.isEditMode() && this.codeId) {
+      const payload: PutCodesRequest = { name: this.code().name };
       this.codesService.putCodesCodeId(this.codeId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: (err: unknown) => {
           console.error('Failed to update code', err);
-          this.isSaving = false;
+          this.isSaving.set(false);
         },
       });
     } else {
-      this.codesService.postCodes(this.code).subscribe({
+      this.codesService.postCodes(this.code()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: (err: unknown) => {
           console.error('Failed to create code', err);
-          this.isSaving = false;
+          this.isSaving.set(false);
         },
       });
     }

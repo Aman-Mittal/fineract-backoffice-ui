@@ -141,8 +141,8 @@ export class WcLoanCobCatchupComponent {
   private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
-  isRunning = signal<boolean | null>(null);
-  oldestDate = signal<OldestCOBProcessedLoanDTO | null>(null);
+  readonly isRunning = signal<boolean | null>(null);
+  readonly oldestDate = signal<OldestCOBProcessedLoanDTO | null>(null);
   loanId = 0;
   catchupLoanId = 0;
 

@@ -60,8 +60,8 @@ describe('EntityMappingListComponent', () => {
   it('should parse and load mappings on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntitytoentitymapping).toHaveBeenCalled();
-    expect(component.mappings).toHaveSize(1);
-    expect(component.mappings[0].fromId).toBe(10);
+    expect(component.mappings()).toHaveSize(1);
+    expect(component.mappings()[0].fromId).toBe(10);
   });
 
   it('should navigate to edit with the mapping id', () => {

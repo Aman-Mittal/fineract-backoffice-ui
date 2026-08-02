@@ -67,15 +67,15 @@ describe('ProductMixComponent', () => {
   it('should load product mix options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanproductsProductIdProductmix).toHaveBeenCalledWith(1);
-    expect(component.productOptions).toHaveSize(1);
-    expect(component.hasMix).toBeFalse();
+    expect(component.productOptions()).toHaveSize(1);
+    expect(component.hasMix()).toBeFalse();
   });
 
   it('should post when no mix exists and navigate to the list', () => {
     serviceSpy.postLoanproductsProductIdProductmix.and.returnValue(
       of({}) as unknown as ReturnType<ProductMixService['postLoanproductsProductIdProductmix']>,
     );
-    component.restrictedProducts = [2];
+    component.restrictedProducts.set([2]);
     component.onSubmit();
     expect(serviceSpy.postLoanproductsProductIdProductmix).toHaveBeenCalledWith(1, {
       productId: 1,
@@ -85,11 +85,11 @@ describe('ProductMixComponent', () => {
   });
 
   it('should put when a mix already exists', () => {
-    component.hasMix = true;
+    component.hasMix.set(true);
     serviceSpy.putLoanproductsProductIdProductmix.and.returnValue(
       of({}) as unknown as ReturnType<ProductMixService['putLoanproductsProductIdProductmix']>,
     );
-    component.restrictedProducts = [2];
+    component.restrictedProducts.set([2]);
     component.onSubmit();
     expect(serviceSpy.putLoanproductsProductIdProductmix).toHaveBeenCalledWith(1, {
       productId: 1,

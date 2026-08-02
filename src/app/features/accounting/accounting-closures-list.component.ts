@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
@@ -48,7 +48,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.ACCOUNTING_CLOSURES_DESC"
       createButtonLabel="Close Period"
       [columns]="columns"
-      [data]="closures"
+      [data]="closures()"
       [localLogic]="true"
       [showSearch]="false"
       (create)="onCreateClosure()"
@@ -106,7 +106,7 @@ export class AccountingClosuresListComponent implements OnInit {
     { key: 'actions', label: 'Actions', sortable: false },
   ];
 
-  closures: GetGlClosureResponse[] = [];
+  readonly closures = signal<GetGlClosureResponse[]>([]);
 
   ngOnInit() {
     this.loadClosures();
@@ -114,7 +114,7 @@ export class AccountingClosuresListComponent implements OnInit {
 
   private loadClosures() {
     this.closureService.getGlclosures().subscribe({
-      next: (data) => (this.closures = data),
+      next: (data) => this.closures.set(data),
       error: (err) => console.error('Failed to load closures', err),
     });
   }

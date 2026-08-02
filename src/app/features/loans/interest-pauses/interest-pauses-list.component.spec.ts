@@ -65,7 +65,7 @@ describe('InterestPausesListComponent', () => {
     expect(component).toBeTruthy();
     expect(component.loanId).toBe(1);
     expect(serviceSpy.getLoansLoanIdInterestPauses).toHaveBeenCalledWith(1);
-    expect(component.pauses).toHaveSize(1);
+    expect(component.pauses()).toHaveSize(1);
   });
 
   it('should navigate to create', () => {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -50,8 +50,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.WC_BREACH_DESC"
       createButtonLabel="WC_BREACH.CREATE"
       [columns]="columns"
-      [data]="breaches"
-      [totalRecords]="breaches.length"
+      [data]="breaches()"
+      [totalRecords]="breaches().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -91,7 +91,7 @@ export class WcBreachListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  breaches: WorkingCapitalBreachData[] = [];
+  readonly breaches = signal<WorkingCapitalBreachData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -100,7 +100,7 @@ export class WcBreachListComponent implements OnInit {
   load(): void {
     this.breachService.getWorkingCapitalBreachBreaches().subscribe({
       next: (data: WorkingCapitalBreachData[]) => {
-        this.breaches = data || [];
+        this.breaches.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load working-capital breaches', err);

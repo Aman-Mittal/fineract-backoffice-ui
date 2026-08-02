@@ -150,7 +150,7 @@ export class InteropQuotesComponent {
   private interopService = inject(InterOperationService);
   private notifications = inject(NotificationService);
 
-  result = signal<InteropQuoteResponseData | null>(null);
+  readonly result = signal<InteropQuoteResponseData | null>(null);
 
   transactionCode = '';
   quoteCode = '';

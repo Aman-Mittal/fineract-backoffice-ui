@@ -40,7 +40,7 @@ import { DialogService } from '../../../core/services/dialog.service';
       title="nav.checker_inbox"
       helpTextKey="HELP.TASKS_DESC"
       [columns]="columns"
-      [data]="tasks"
+      [data]="tasks()"
       [showSearch]="false"
       (sortChange)="onSort()"
     >
@@ -97,7 +97,7 @@ export class CheckerInboxComponent {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  tasks: Record<string, unknown>[] = [];
+  readonly tasks = signal<Record<string, unknown>[]>([]);
   private refreshSubject = new Subject<void>();
 
   constructor() {
@@ -125,7 +125,7 @@ export class CheckerInboxComponent {
         }),
       )
       .subscribe((data) => {
-        this.tasks = data;
+        this.tasks.set(data);
       });
   }
 

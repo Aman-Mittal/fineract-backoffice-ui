@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.LOAN_ORIGINATORS_DESC"
       createButtonLabel="LOAN_ORIGINATORS.CREATE"
       [columns]="columns"
-      [data]="originators"
-      [totalRecords]="originators.length"
+      [data]="originators()"
+      [totalRecords]="originators().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -94,7 +94,7 @@ export class LoanOriginatorsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  originators: GetLoanOriginatorsResponse[] = [];
+  readonly originators = signal<GetLoanOriginatorsResponse[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -103,7 +103,7 @@ export class LoanOriginatorsListComponent implements OnInit {
   load(): void {
     this.originatorsService.getLoanOriginators().subscribe({
       next: (data: GetLoanOriginatorsResponse[]) => {
-        this.originators = data || [];
+        this.originators.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load loan originators', err);

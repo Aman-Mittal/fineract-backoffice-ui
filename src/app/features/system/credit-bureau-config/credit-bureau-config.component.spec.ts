@@ -63,13 +63,13 @@ describe('CreditBureauConfigComponent', () => {
   it('should load and parse credit bureaus on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getCreditBureauConfiguration).toHaveBeenCalled();
-    expect(component.bureaus).toHaveSize(1);
-    expect(component.bureaus[0].name).toBe('Equifax');
+    expect(component.bureaus()).toHaveSize(1);
+    expect(component.bureaus()[0].name).toBe('Equifax');
   });
 
   it('should load and parse loan-product mappings on init', () => {
     expect(serviceSpy.getCreditBureauConfigurationLoanProduct).toHaveBeenCalled();
-    expect(component.mappings).toHaveSize(1);
-    expect(component.mappings[0].organisationCreditBureauId).toBe(5);
+    expect(component.mappings()).toHaveSize(1);
+    expect(component.mappings()[0].organisationCreditBureauId).toBe(5);
   });
 });

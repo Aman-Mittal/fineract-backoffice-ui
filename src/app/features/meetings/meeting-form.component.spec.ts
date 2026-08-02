@@ -68,15 +68,15 @@ describe('MeetingFormComponent', () => {
   it('should default the calendar id from the template', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityTypeEntityIdMeetingsTemplate).toHaveBeenCalledWith('groups', 1);
-    expect(component.calendarId).toBe(7);
+    expect(component.calendarId()).toBe(7);
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postEntityTypeEntityIdMeetings.and.returnValue(
       of({}) as unknown as ReturnType<MeetingsService['postEntityTypeEntityIdMeetings']>,
     );
-    component.meetingDate = '2026-01-15';
-    component.calendarId = 7;
+    component.meetingDate.set('2026-01-15');
+    component.calendarId.set(7);
     component.onSubmit();
     expect(serviceSpy.postEntityTypeEntityIdMeetings).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/meetings', 'groups', 1]);

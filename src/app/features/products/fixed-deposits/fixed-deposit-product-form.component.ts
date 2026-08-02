@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -72,7 +72,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('PRODUCTS.EDIT_FIXED_DEPOSIT_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT' | translate)
             }}
@@ -87,7 +87,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                 <ion-input
                   [attr.aria-label]="'COMMON.NAME' | translate"
                   name="name"
-                  [(ngModel)]="product['name']"
+                  [(ngModel)]="product()['name']"
                   required
                 ></ion-input>
               </ion-item>
@@ -97,7 +97,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                 <ion-input
                   [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                   name="shortName"
-                  [(ngModel)]="product['shortName']"
+                  [(ngModel)]="product()['shortName']"
                   required
                   maxlength="4"
                 ></ion-input>
@@ -108,7 +108,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                 <ion-textarea
                   [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                   name="description"
-                  [(ngModel)]="product['description']"
+                  [(ngModel)]="product()['description']"
                   rows="2"
                 ></ion-textarea>
               </ion-item>
@@ -119,7 +119,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                   interface="popover"
                   name="currencyCode"
-                  [(ngModel)]="product['currencyCode']"
+                  [(ngModel)]="product()['currencyCode']"
                   required
                 >
                   <ion-select-option [value]="DEFAULT_CURRENCY">{{
@@ -138,7 +138,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                   type="number"
                   name="digitsAfterDecimal"
-                  [(ngModel)]="product['digitsAfterDecimal']"
+                  [(ngModel)]="product()['digitsAfterDecimal']"
                   required
                 ></ion-input>
               </ion-item>
@@ -149,7 +149,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="depositAmount"
-                  [(ngModel)]="product['depositAmount']"
+                  [(ngModel)]="product()['depositAmount']"
                   required
                 ></ion-input>
               </ion-item>
@@ -162,7 +162,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   [attr.aria-label]="'PRODUCTS.MIN_DEPOSIT_TERM' | translate"
                   type="number"
                   name="minDepositTerm"
-                  [(ngModel)]="product['minDepositTerm']"
+                  [(ngModel)]="product()['minDepositTerm']"
                   required
                 ></ion-input>
               </ion-item>
@@ -173,7 +173,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   [attr.aria-label]="'PRODUCTS.MIN_TERM_TYPE' | translate"
                   interface="popover"
                   name="minDepositTermTypeId"
-                  [(ngModel)]="product['minDepositTermTypeId']"
+                  [(ngModel)]="product()['minDepositTermTypeId']"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
@@ -191,15 +191,15 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="productForm.invalid || isSaving"
+                [disabled]="productForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -240,10 +240,10 @@ export class FixedDepositProductFormComponent implements OnInit {
   protected readonly DEFAULT_CURRENCY = DEFAULT_CURRENCY;
 
   productId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  product: Record<string, unknown> = {
+  readonly product = signal<Record<string, unknown>>({
     currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
     inMultiplesOf: 0,
@@ -255,14 +255,14 @@ export class FixedDepositProductFormComponent implements OnInit {
     minDepositTerm: 1,
     minDepositTermTypeId: 2, // Months
     depositAmount: 1000,
-  };
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadProductData();
       }
     });
@@ -273,7 +273,7 @@ export class FixedDepositProductFormComponent implements OnInit {
     this.productService
       .getFixeddepositproductsProductId(this.productId)
       .subscribe((data: GetFixedDepositProductsProductIdResponse) => {
-        this.product = {
+        this.product.set({
           name: data.name,
           shortName: data.shortName,
           description: data.description,
@@ -283,17 +283,17 @@ export class FixedDepositProductFormComponent implements OnInit {
           minDepositTermTypeId: data.minDepositTermType?.id,
           depositAmount: 1000, // Fallback
           accountingRule: 1,
-        };
+        });
       });
   }
 
   onSubmit() {
-    this.isSaving = true;
-    this.product['locale'] = DEFAULT_LOCALE;
+    this.isSaving.set(true);
+    this.product()['locale'] = DEFAULT_LOCALE;
 
     // Add a default chart as it is mandatory
     const payload = {
-      ...this.product,
+      ...this.product(),
       charts: [
         {
           fromDate: new Date().toISOString().split('T')[0],
@@ -310,7 +310,7 @@ export class FixedDepositProductFormComponent implements OnInit {
       ],
     };
 
-    if (this.isEditMode && this.productId) {
+    if (this.isEditMode() && this.productId) {
       this.productService
         .putFixeddepositproductsProductId(
           this.productId,
@@ -318,14 +318,14 @@ export class FixedDepositProductFormComponent implements OnInit {
         )
         .subscribe({
           next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
       this.productService
         .postFixeddepositproducts(payload as unknown as PostFixedDepositProductsRequest)
         .subscribe({
           next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }

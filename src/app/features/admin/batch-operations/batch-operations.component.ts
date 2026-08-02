@@ -77,8 +77,8 @@ import {
         }
       </ion-card-content>
       <div class="card-actions">
-        <ion-button color="primary" (click)="submit()" [disabled]="isSubmitting">
-          @if (isSubmitting) {
+        <ion-button color="primary" (click)="submit()" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else {
             {{ 'BATCH_OPERATIONS.SUBMIT' | translate }}
@@ -128,9 +128,9 @@ export class BatchOperationsComponent {
 
   batchInput = '';
   enclosingTransaction = false;
-  results = signal<BatchResponse[]>([]);
-  error = signal<string | null>(null);
-  isSubmitting = false;
+  readonly results = signal<BatchResponse[]>([]);
+  readonly error = signal<string | null>(null);
+  readonly isSubmitting = signal(false);
 
   submit(): void {
     this.error.set(null);
@@ -147,17 +147,17 @@ export class BatchOperationsComponent {
       return;
     }
 
-    this.isSubmitting = true;
+    this.isSubmitting.set(true);
     this.batchApiService.postBatches(parsed, this.enclosingTransaction).subscribe({
       next: (response: BatchResponse[]) => {
         this.results.set(Array.isArray(response) ? response : [response]);
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
       },
       error: (err: unknown) => {
         this.error.set(
           ((err as Record<string, unknown>)?.[`message`] as string) ?? 'Request failed',
         );
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
       },
     });
   }

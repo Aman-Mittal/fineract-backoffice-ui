@@ -67,8 +67,8 @@ describe('FixedDepositProductsListComponent', () => {
     fixture.detectChanges();
 
     expect(productServiceSpy.getFixeddepositproducts).toHaveBeenCalled();
-    expect(component.products).toHaveSize(1);
-    expect(component.isLoading).toBeFalse();
+    expect(component.products()).toHaveSize(1);
+    expect(component.isLoading()).toBeFalse();
   });
 
   it('should handle error when loading products', () => {
@@ -78,8 +78,8 @@ describe('FixedDepositProductsListComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.products).toEqual([]);
-    expect(component.isLoading).toBeFalse();
+    expect(component.products()).toEqual([]);
+    expect(component.isLoading()).toBeFalse();
   });
 
   it('should navigate to create product form', () => {

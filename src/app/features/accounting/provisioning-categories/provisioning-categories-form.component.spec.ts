@@ -57,14 +57,14 @@ describe('ProvisioningCategoriesFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postProvisioningcategory.and.returnValue(
       of({}) as unknown as ReturnType<ProvisioningCategoryService['postProvisioningcategory']>,
     );
-    component.category = { categoryName: 'New', categoryDescription: 'Desc' };
+    component.category.set({ categoryName: 'New', categoryDescription: 'Desc' });
     component.onSubmit();
     expect(serviceSpy.postProvisioningcategory).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/accounting/provisioning-categories']);

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -65,7 +65,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('ACCOUNT_NUMBER_FORMATS.EDIT_TITLE' | translate)
                 : ('ACCOUNT_NUMBER_FORMATS.CREATE_TITLE' | translate)
             }}
@@ -86,9 +86,9 @@ import {
                   [(ngModel)]="format.accountType"
                   (ngModelChange)="onAccountTypeChange($event)"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
-                  @for (option of accountTypeOptions; track option.id) {
+                  @for (option of accountTypeOptions(); track option.id) {
                     <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }
                 </ion-select>
@@ -103,9 +103,9 @@ import {
                   interface="popover"
                   name="prefixType"
                   [(ngModel)]="format.prefixType"
-                  [disabled]="prefixTypeOptions.length === 0"
+                  [disabled]="prefixTypeOptions().length === 0"
                 >
-                  @for (option of prefixTypeOptions; track option.id) {
+                  @for (option of prefixTypeOptions(); track option.id) {
                     <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
                   }
                 </ion-select>
@@ -113,11 +113,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'ACCOUNT_NUMBER_FORMATS.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="formatForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="formatForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -162,12 +166,12 @@ export class AccountNumberFormatFormComponent implements OnInit {
 
   private readonly LIST_PATH = '/organization/account-number-formats';
 
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   formatId?: number;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  accountTypeOptions: EnumOptionData[] = [];
-  prefixTypeOptions: EnumOptionData[] = [];
+  readonly accountTypeOptions = signal<EnumOptionData[]>([]);
+  readonly prefixTypeOptions = signal<EnumOptionData[]>([]);
   allPrefixTypeOptions: Record<string, EnumOptionData[]> = {};
 
   format: { accountType: number | undefined; prefixType: number | undefined } = {
@@ -180,7 +184,7 @@ export class AccountNumberFormatFormComponent implements OnInit {
   ngOnInit(): void {
     this.accountNumberFormatService.getAccountnumberformatsTemplate().subscribe({
       next: (template: GetAccountNumberFormatsResponseTemplate) => {
-        this.accountTypeOptions = template.accountTypeOptions ?? [];
+        this.accountTypeOptions.set(template.accountTypeOptions ?? []);
         this.allPrefixTypeOptions = template.prefixTypeOptions ?? {};
       },
       error: (err: unknown) => {
@@ -192,7 +196,7 @@ export class AccountNumberFormatFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.formatId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadExistingFormat(this.formatId);
       }
     });
@@ -204,7 +208,7 @@ export class AccountNumberFormatFormComponent implements OnInit {
         this.format.accountType = data.accountType?.id;
         this.format.prefixType = data.prefixType?.id;
         this.selectedAccountTypeCode = data.accountType?.code ?? '';
-        this.prefixTypeOptions = this.allPrefixTypeOptions[this.selectedAccountTypeCode] ?? [];
+        this.prefixTypeOptions.set(this.allPrefixTypeOptions[this.selectedAccountTypeCode] ?? []);
       },
       error: (err: unknown) => {
         console.error('Failed to load account number format', err);
@@ -214,20 +218,20 @@ export class AccountNumberFormatFormComponent implements OnInit {
 
   onAccountTypeChange(selectedId: number | undefined): void {
     if (selectedId == null) {
-      this.prefixTypeOptions = [];
+      this.prefixTypeOptions.set([]);
       this.selectedAccountTypeCode = '';
       this.format.prefixType = undefined;
       return;
     }
-    const matched = this.accountTypeOptions.find((o) => o.id === selectedId);
+    const matched = this.accountTypeOptions().find((o) => o.id === selectedId);
     this.selectedAccountTypeCode = matched?.code ?? '';
-    this.prefixTypeOptions = this.allPrefixTypeOptions[this.selectedAccountTypeCode] ?? [];
+    this.prefixTypeOptions.set(this.allPrefixTypeOptions[this.selectedAccountTypeCode] ?? []);
     this.format.prefixType = undefined;
   }
 
   onSubmit(): void {
-    this.isSaving = true;
-    if (this.isEditMode && this.formatId != null) {
+    this.isSaving.set(true);
+    if (this.isEditMode() && this.formatId != null) {
       const payload: PutAccountNumberFormatsRequest = {
         prefixType: this.format.prefixType,
       };
@@ -235,7 +239,7 @@ export class AccountNumberFormatFormComponent implements OnInit {
         .putAccountnumberformatsAccountNumberFormatId(this.formatId, payload)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
       const payload: PostAccountNumberFormatsRequest = {
@@ -244,7 +248,7 @@ export class AccountNumberFormatFormComponent implements OnInit {
       };
       this.accountNumberFormatService.postAccountnumberformats(payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

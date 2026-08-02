@@ -110,8 +110,8 @@ export class ClientNotesListComponent implements OnInit {
 
   private readonly noteService = inject(NotesService);
 
-  notes = signal<NoteData[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly notes = signal<NoteData[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

@@ -50,7 +50,7 @@ describe('MixMappingComponent', () => {
   it('should load the mapping on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getMixmapping).toHaveBeenCalled();
-    expect(component.mapping.identifier).toBe('GL');
+    expect(component.mapping().identifier).toBe('GL');
   });
 
   it('should save the mapping on submit', () => {
@@ -59,6 +59,6 @@ describe('MixMappingComponent', () => {
     );
     component.onSubmit();
     expect(serviceSpy.putMixmapping).toHaveBeenCalled();
-    expect(component.isSaving).toBeFalse();
+    expect(component.isSaving()).toBeFalse();
   });
 });

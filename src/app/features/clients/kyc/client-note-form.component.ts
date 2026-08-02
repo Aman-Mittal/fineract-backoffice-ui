@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -64,7 +64,7 @@ import { NotesService, NoteCreateRequest } from '../../../api';
               <ion-textarea
                 [attr.aria-label]="'COMMON.NOTE' | translate"
                 name="note"
-                [(ngModel)]="note.note"
+                [(ngModel)]="note().note"
                 required
                 rows="6"
                 id="client-note-textarea"
@@ -128,9 +128,9 @@ export class ClientNoteFormComponent implements OnInit {
   noteId?: number;
   isEditMode = false;
 
-  note: NoteCreateRequest = {
+  readonly note = signal<NoteCreateRequest>({
     note: '',
-  };
+  });
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -146,23 +146,23 @@ export class ClientNoteFormComponent implements OnInit {
     this.noteService
       .getResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!)
       .subscribe((data) => {
-        this.note = {
+        this.note.set({
           note: data.note ?? '',
-        };
+        });
       });
   }
 
   onSubmit(): void {
     if (this.isEditMode) {
       this.noteService
-        .putResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!, this.note)
+        .putResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!, this.note())
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to update note', err),
         });
     } else {
       this.noteService
-        .postResourceTypeResourceIdNotes('clients', this.clientId, this.note)
+        .postResourceTypeResourceIdNotes('clients', this.clientId, this.note())
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to add note', err),

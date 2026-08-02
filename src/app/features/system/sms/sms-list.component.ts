@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -46,8 +46,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.SMS_DESC"
       createButtonLabel="SMS.CREATE"
       [columns]="columns"
-      [data]="messages"
-      [totalRecords]="messages.length"
+      [data]="messages()"
+      [totalRecords]="messages().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -84,7 +84,7 @@ export class SmsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  messages: SmsData[] = [];
+  readonly messages = signal<SmsData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -93,7 +93,7 @@ export class SmsListComponent implements OnInit {
   load(): void {
     this.smsService.getSms().subscribe({
       next: (data: SmsData[]) => {
-        this.messages = data || [];
+        this.messages.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load SMS messages', err);

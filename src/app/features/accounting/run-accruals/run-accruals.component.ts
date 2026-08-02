@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PeriodicAccrualAccountingService, PostRunaccrualsRequest } from '../../../api';
@@ -72,8 +72,8 @@ import {
         <ion-card-content>
           <p class="hint">{{ 'HELP.RUN_ACCRUALS_DESC' | translate }}</p>
 
-          @if (successMessage) {
-            <div class="success-message">{{ successMessage }}</div>
+          @if (successMessage()) {
+            <div class="success-message">{{ successMessage() }}</div>
           }
 
           <form #accrualForm="ngForm" (ngSubmit)="onSubmit()" class="accrual-form">
@@ -98,9 +98,9 @@ import {
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="accrualForm.invalid || isSubmitting"
+                [disabled]="accrualForm.invalid || isSubmitting()"
               >
-                @if (isSubmitting) {
+                @if (isSubmitting()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'RUN_ACCRUALS.RUNNING' | translate }}
                 } @else {
@@ -143,13 +143,13 @@ export class RunAccrualsComponent {
   private readonly accrualService = inject(PeriodicAccrualAccountingService);
 
   tillDate: string | null = null;
-  isSubmitting = false;
-  successMessage = '';
+  readonly isSubmitting = signal(false);
+  readonly successMessage = signal('');
 
   onSubmit(): void {
     if (!this.tillDate) return;
-    this.isSubmitting = true;
-    this.successMessage = '';
+    this.isSubmitting.set(true);
+    this.successMessage.set('');
 
     const request: PostRunaccrualsRequest = {
       tillDate: formatDateToFineract(this.tillDate),
@@ -159,10 +159,10 @@ export class RunAccrualsComponent {
 
     this.accrualService.postRunaccruals(request).subscribe({
       next: () => {
-        this.isSubmitting = false;
-        this.successMessage = 'Periodic accruals executed successfully.';
+        this.isSubmitting.set(false);
+        this.successMessage.set('Periodic accruals executed successfully.');
       },
-      error: () => (this.isSubmitting = false),
+      error: () => this.isSubmitting.set(false),
     });
   }
 }

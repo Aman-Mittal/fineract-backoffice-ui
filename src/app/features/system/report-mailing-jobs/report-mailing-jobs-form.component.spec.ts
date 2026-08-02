@@ -63,13 +63,13 @@ describe('ReportMailingJobsFormComponent', () => {
     serviceSpy.postReportmailingjobs.and.returnValue(
       of({}) as unknown as ReturnType<ReportMailingJobsService['postReportmailingjobs']>,
     );
-    component.job = {
+    component.job.set({
       name: 'New',
       emailRecipients: 'a@b.c',
       emailSubject: 'Sub',
       stretchyReportId: 1,
       isActive: true,
-    };
+    });
     component.onSubmit();
     expect(serviceSpy.postReportmailingjobs).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/report-mailing-jobs']);

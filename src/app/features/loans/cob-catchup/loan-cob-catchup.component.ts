@@ -60,7 +60,7 @@ import {
             {{ 'LOAN_COB_CATCHUP.CHECK_STATUS' | translate }}
           </ion-button>
 
-          @if (statusChecked) {
+          @if (statusChecked()) {
             <p>
               {{ 'LOAN_COB_CATCHUP.IS_RUNNING' | translate }}:
               <strong>{{ isRunning() }}</strong>
@@ -137,9 +137,9 @@ export class LoanCobCatchupComponent {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
-  isRunning = signal<boolean | null>(null);
-  oldestDate = signal<OldestCOBProcessedLoanDTO | null>(null);
-  statusChecked = false;
+  readonly isRunning = signal<boolean | null>(null);
+  readonly oldestDate = signal<OldestCOBProcessedLoanDTO | null>(null);
+  readonly statusChecked = signal(false);
   loanId = 0;
   catchupLoanId = 0;
 
@@ -147,10 +147,10 @@ export class LoanCobCatchupComponent {
     this.loanCOBCatchUpService.getLoansIsCatchUpRunning().subscribe({
       next: (data) => {
         this.isRunning.set(data?.catchUpRunning ?? false);
-        this.statusChecked = true;
+        this.statusChecked.set(true);
       },
       error: () => {
-        this.statusChecked = true;
+        this.statusChecked.set(true);
       },
     });
   }

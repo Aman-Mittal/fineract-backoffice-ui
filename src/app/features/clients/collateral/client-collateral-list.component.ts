@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.CLIENT_COLLATERAL_DESC"
       createButtonLabel="CLIENT_COLLATERAL.CREATE"
       [columns]="columns"
-      [data]="collaterals"
-      [totalRecords]="collaterals.length"
+      [data]="collaterals()"
+      [totalRecords]="collaterals().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -89,7 +89,7 @@ export class ClientCollateralListComponent implements OnInit {
   ];
 
   clientId!: number;
-  collaterals: ClientCollateralManagementData[] = [];
+  readonly collaterals = signal<ClientCollateralManagementData[]>([]);
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -99,7 +99,7 @@ export class ClientCollateralListComponent implements OnInit {
   load(): void {
     this.collateralService.getClientsClientIdCollaterals(this.clientId).subscribe({
       next: (data: ClientCollateralManagementData[]) => {
-        this.collaterals = data || [];
+        this.collaterals.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load client collaterals', err);

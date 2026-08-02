@@ -113,10 +113,10 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
         <ion-button
           data-testid="office-submit"
           color="primary"
-          [disabled]="officeForm.invalid || isSaving"
+          [disabled]="officeForm.invalid || isSaving()"
           (click)="onSubmit()"
         >
-          {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+          {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
         </ion-button>
       </div>
     </div>
@@ -157,7 +157,7 @@ export class CreateOfficeDialogComponent implements OnInit {
   };
   openingDate = toIsoDate(new Date());
   readonly offices = signal<GetOfficesResponse[]>([]);
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit() {
     this.officesService.getOffices(true).subscribe((offices) => {
@@ -173,14 +173,14 @@ export class CreateOfficeDialogComponent implements OnInit {
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.office.openingDate = this.openingDate;
     this.office.dateFormat = 'yyyy-MM-dd';
     this.office.locale = 'en';
 
     this.officesService.postOffices(this.office).subscribe({
       next: (response) => this.modalController.dismiss(response.resourceId),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

@@ -62,7 +62,7 @@ import {
       title="nav.savingsAccounts"
       helpTextKey="HELP.SAVINGS_ACCOUNTS_DESC"
       [columns]="columns"
-      [data]="accounts"
+      [data]="accounts()"
       [totalRecords]="totalRecords"
       [showSearch]="true"
       [isLoading]="isLoading"
@@ -162,7 +162,7 @@ export class SavingsAccountsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  accounts: GetSavingsPageItems[] = [];
+  readonly accounts = signal<GetSavingsPageItems[]>([]);
   totalRecords = 0;
   isLoading = false;
 
@@ -226,7 +226,7 @@ export class SavingsAccountsListComponent implements OnInit {
         }),
       )
       .subscribe((data) => {
-        this.accounts = data;
+        this.accounts.set(data);
       });
   }
 

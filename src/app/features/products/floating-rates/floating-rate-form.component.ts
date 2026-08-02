@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -81,7 +81,7 @@ interface RatePeriodRow {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('FLOATING_RATES.EDIT' | translate)
                 : ('FLOATING_RATES.CREATE' | translate)
             }}
@@ -95,16 +95,16 @@ interface RatePeriodRow {
               <ion-input
                 [attr.aria-label]="'FLOATING_RATES.NAME' | translate"
                 name="name"
-                [(ngModel)]="rate.name"
+                [(ngModel)]="rate().name"
                 required
               ></ion-input>
             </ion-item>
 
             <div class="checkboxes">
-              <ion-checkbox name="isBaseLendingRate" [(ngModel)]="rate.isBaseLendingRate">
+              <ion-checkbox name="isBaseLendingRate" [(ngModel)]="rate().isBaseLendingRate">
                 {{ 'FLOATING_RATES.IS_BASE_LENDING_RATE' | translate }}
               </ion-checkbox>
-              <ion-checkbox name="isActive" [(ngModel)]="rate.isActive">
+              <ion-checkbox name="isActive" [(ngModel)]="rate().isActive">
                 {{ 'COMMON.ACTIVE' | translate }}
               </ion-checkbox>
             </div>
@@ -118,7 +118,7 @@ interface RatePeriodRow {
                 </ion-button>
               </div>
 
-              @for (period of periods; track $index) {
+              @for (period of periods(); track $index) {
                 <div class="period-row">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{
@@ -173,11 +173,11 @@ interface RatePeriodRow {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="frForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="frForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -228,18 +228,22 @@ export class FloatingRateFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/floating-rates';
 
   rateId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  rate: FloatingRateRequest = { name: '', isBaseLendingRate: false, isActive: true };
-  periods: RatePeriodRow[] = [];
+  readonly rate = signal<FloatingRateRequest>({
+    name: '',
+    isBaseLendingRate: false,
+    isActive: true,
+  });
+  readonly periods = signal<RatePeriodRow[]>([]);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.rateId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -248,27 +252,29 @@ export class FloatingRateFormComponent implements OnInit {
   load(): void {
     if (!this.rateId) return;
     this.floatingRatesService.getFloatingratesFloatingRateId(this.rateId).subscribe((data) => {
-      this.rate = {
+      this.rate.set({
         name: data.name,
         isBaseLendingRate: data.isBaseLendingRate,
         isActive: data.isActive,
-      };
-      this.periods = (data.ratePeriods || []).map((p) => {
-        const arr = p.fromDate as unknown as number[];
-        return {
-          fromDate:
-            Array.isArray(arr) && arr.length >= 3
-              ? new Date(arr[0], arr[1] - 1, arr[2])
-              : new Date(),
-          interestRate: p.interestRate ?? null,
-          isDifferentialToBaseLendingRate: !!p.isDifferentialToBaseLendingRate,
-        };
       });
+      this.periods.set(
+        (data.ratePeriods || []).map((p) => {
+          const arr = p.fromDate as unknown as number[];
+          return {
+            fromDate:
+              Array.isArray(arr) && arr.length >= 3
+                ? new Date(arr[0], arr[1] - 1, arr[2])
+                : new Date(),
+            interestRate: p.interestRate ?? null,
+            isDifferentialToBaseLendingRate: !!p.isDifferentialToBaseLendingRate,
+          };
+        }),
+      );
     });
   }
 
   addPeriod(): void {
-    this.periods.push({
+    this.periods().push({
       fromDate: new Date(),
       interestRate: null,
       isDifferentialToBaseLendingRate: false,
@@ -276,16 +282,16 @@ export class FloatingRateFormComponent implements OnInit {
   }
 
   removePeriod(index: number): void {
-    this.periods.splice(index, 1);
+    this.periods().splice(index, 1);
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const payload: FloatingRateRequest = {
-      name: this.rate.name,
-      isBaseLendingRate: this.rate.isBaseLendingRate,
-      isActive: this.rate.isActive,
-      ratePeriods: this.periods.map((p) => ({
+      name: this.rate().name,
+      isBaseLendingRate: this.rate().isBaseLendingRate,
+      isActive: this.rate().isActive,
+      ratePeriods: this.periods().map((p) => ({
         fromDate: formatDateToFineract(p.fromDate),
         interestRate: p.interestRate ?? undefined,
         isDifferentialToBaseLendingRate: p.isDifferentialToBaseLendingRate,
@@ -295,13 +301,13 @@ export class FloatingRateFormComponent implements OnInit {
     };
 
     const request$ =
-      this.isEditMode && this.rateId
+      this.isEditMode() && this.rateId
         ? this.floatingRatesService.putFloatingratesFloatingRateId(this.rateId, payload)
         : this.floatingRatesService.postFloatingrates(payload);
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

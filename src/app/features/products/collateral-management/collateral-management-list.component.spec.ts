@@ -60,7 +60,7 @@ describe('CollateralManagementListComponent', () => {
   it('should load collaterals on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getCollateralManagement).toHaveBeenCalled();
-    expect(component.collaterals).toHaveSize(1);
+    expect(component.collaterals()).toHaveSize(1);
   });
 
   it('should navigate to edit with the collateral id', () => {

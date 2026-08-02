@@ -493,9 +493,9 @@ export class SavingsAccountViewComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
 
   accountId = 0;
-  account = signal<SavingsAccountData | null>(null);
-  transactions = signal<SavingsAccountTransactionData[]>([]);
-  charges = signal<SavingsAccountChargeData[]>([]);
+  readonly account = signal<SavingsAccountData | null>(null);
+  readonly transactions = signal<SavingsAccountTransactionData[]>([]);
+  readonly charges = signal<SavingsAccountChargeData[]>([]);
 
   transactionColumns = ['id', 'date', 'type', 'amount', 'runningBalance'];
   chargeColumns = ['name', 'amount', 'outstanding'];

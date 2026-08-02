@@ -64,8 +64,8 @@ describe('ShareDividendsListComponent', () => {
   it('should load and parse dividends on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getShareproductProductIdDividend).toHaveBeenCalledWith(1);
-    expect(component.dividends).toHaveSize(1);
-    expect(component.dividends[0].amount).toBe(100);
+    expect(component.dividends()).toHaveSize(1);
+    expect(component.dividends()[0].amount).toBe(100);
   });
 
   it('should delete after confirmation and reload', () => {

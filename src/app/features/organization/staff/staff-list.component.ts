@@ -102,8 +102,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class StaffListComponent implements OnInit {
   private readonly staffService = inject(StaffService);
 
-  staff = signal<StaffData[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly staff = signal<StaffData[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     {

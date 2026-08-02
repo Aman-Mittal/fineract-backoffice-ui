@@ -95,7 +95,7 @@ import {
                       [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
                       type="text"
                       name="firstName"
-                      [(ngModel)]="member.firstName"
+                      [(ngModel)]="member().firstName"
                       required
                       id="family-first-name-input"
                       data-testid="family-first-name-input"
@@ -111,7 +111,7 @@ import {
                       [attr.aria-label]="'CLIENTS.MIDDLE_NAME' | translate"
                       type="text"
                       name="middleName"
-                      [(ngModel)]="member.middleName"
+                      [(ngModel)]="member().middleName"
                       id="family-middle-name-input"
                       data-testid="family-middle-name-input"
                     ></ion-input>
@@ -124,7 +124,7 @@ import {
                       [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
                       type="text"
                       name="lastName"
-                      [(ngModel)]="member.lastName"
+                      [(ngModel)]="member().lastName"
                       required
                       id="family-last-name-input"
                       data-testid="family-last-name-input"
@@ -140,7 +140,7 @@ import {
                       [attr.aria-label]="'CLIENTS.RELATIONSHIP' | translate"
                       interface="popover"
                       name="relationshipId"
-                      [(ngModel)]="member.relationshipId"
+                      [(ngModel)]="member().relationshipId"
                       required
                       id="family-relationship-select"
                       data-testid="family-relationship-select"
@@ -158,7 +158,7 @@ import {
                       [attr.aria-label]="'CLIENTS.GENDER' | translate"
                       interface="popover"
                       name="genderId"
-                      [(ngModel)]="member.genderId"
+                      [(ngModel)]="member().genderId"
                       id="family-gender-select"
                       data-testid="family-gender-select"
                     >
@@ -177,7 +177,7 @@ import {
                       [attr.aria-label]="'CLIENTS.MARITAL_STATUS' | translate"
                       interface="popover"
                       name="maritalStatusId"
-                      [(ngModel)]="member.maritalStatusId"
+                      [(ngModel)]="member().maritalStatusId"
                       id="family-marital-status-select"
                       data-testid="family-marital-status-select"
                     >
@@ -194,7 +194,7 @@ import {
                       [attr.aria-label]="'CLIENTS.PROFESSION' | translate"
                       interface="popover"
                       name="professionId"
-                      [(ngModel)]="member.professionId"
+                      [(ngModel)]="member().professionId"
                       id="family-profession-select"
                       data-testid="family-profession-select"
                     >
@@ -213,7 +213,7 @@ import {
                       [attr.aria-label]="'CLIENTS.QUALIFICATION' | translate"
                       type="text"
                       name="qualification"
-                      [(ngModel)]="member.qualification"
+                      [(ngModel)]="member().qualification"
                       id="family-qualification-input"
                       data-testid="family-qualification-input"
                     ></ion-input>
@@ -226,7 +226,7 @@ import {
                       [attr.aria-label]="'CLIENTS.MOBILE_NO' | translate"
                       type="text"
                       name="mobileNumber"
-                      [(ngModel)]="member.mobileNumber"
+                      [(ngModel)]="member().mobileNumber"
                       id="family-mobile-input"
                       data-testid="family-mobile-input"
                     ></ion-input>
@@ -257,7 +257,7 @@ import {
                       [attr.aria-label]="'CLIENTS.AGE' | translate"
                       type="number"
                       name="age"
-                      [(ngModel)]="member.age"
+                      [(ngModel)]="member().age"
                       id="family-age-input"
                       data-testid="family-age-input"
                     ></ion-input>
@@ -268,7 +268,7 @@ import {
                     <ion-label>{{ 'CLIENTS.IS_DEPENDENT' | translate }}</ion-label>
                     <ion-toggle
                       name="isDependent"
-                      [(ngModel)]="member.isDependent"
+                      [(ngModel)]="member().isDependent"
                       id="family-dependent-toggle"
                       data-testid="family-dependent-toggle"
                       slot="end"
@@ -316,10 +316,10 @@ export class ClientFamilyMemberFormComponent implements OnInit {
   memberId?: number;
   isEditMode = false;
 
-  relationshipOptions = signal<CodeValueData[]>([]);
-  genderOptions = signal<CodeValueData[]>([]);
-  maritalStatusOptions = signal<CodeValueData[]>([]);
-  professionOptions = signal<CodeValueData[]>([]);
+  readonly relationshipOptions = signal<CodeValueData[]>([]);
+  readonly genderOptions = signal<CodeValueData[]>([]);
+  readonly maritalStatusOptions = signal<CodeValueData[]>([]);
+  readonly professionOptions = signal<CodeValueData[]>([]);
 
   dateOfBirth?: Date;
 
@@ -329,7 +329,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
     }
   }
 
-  member: ClientFamilyMemberRequest = {
+  readonly member = signal<ClientFamilyMemberRequest>({
     firstName: '',
     middleName: '',
     lastName: '',
@@ -341,7 +341,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
     mobileNumber: '',
     age: undefined,
     isDependent: false,
-  };
+  });
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -368,7 +368,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
     this.familyService
       .getClientsClientIdFamilymembersFamilyMemberId(this.memberId!, this.clientId)
       .subscribe((data) => {
-        this.member = {
+        this.member.set({
           firstName: data.firstName,
           middleName: data.middleName,
           lastName: data.lastName,
@@ -380,7 +380,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
           mobileNumber: data.mobileNumber,
           age: data.age,
           isDependent: data.isDependent,
-        };
+        });
         if (data.dateOfBirth) {
           const dob = data.dateOfBirth as unknown as number[];
           this.dateOfBirth = new Date(dob[0], dob[1] - 1, dob[2]);
@@ -390,7 +390,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
 
   onSubmit(): void {
     const payload: ClientFamilyMemberRequest = {
-      ...this.member,
+      ...this.member(),
       dateOfBirth: this.dateOfBirth ? formatDateToFineract(this.dateOfBirth) : undefined,
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,

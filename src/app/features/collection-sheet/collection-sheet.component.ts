@@ -84,7 +84,7 @@ import {
           </div>
         }
 
-        @if (!generated && !isLoading()) {
+        @if (!generated() && !isLoading()) {
           <form #filterForm="ngForm" (ngSubmit)="generate()">
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.OFFICE' | translate }}</ion-label>
@@ -95,7 +95,7 @@ import {
                 [(ngModel)]="request.officeId"
                 required
               >
-                @for (office of offices; track office.id) {
+                @for (office of offices(); track office.id) {
                   <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                 }
               </ion-select>
@@ -136,9 +136,9 @@ import {
           </form>
         }
 
-        @if (generated && !isLoading()) {
+        @if (generated() && !isLoading()) {
           <h3>{{ 'COLLECTION_SHEET.RESULTS' | translate }}</h3>
-          <pre class="json-output">{{ collectionData | json }}</pre>
+          <pre class="json-output">{{ collectionData() | json }}</pre>
           <div class="actions">
             <ion-button fill="clear" (click)="back()">
               {{ 'COLLECTION_SHEET.BACK' | translate }}
@@ -189,19 +189,18 @@ export class CollectionSheetComponent implements OnInit {
   private officesService = inject(OfficesService);
   private notifications = inject(NotificationService);
 
-  generated = false;
+  readonly generated = signal(false);
   readonly isLoading = signal(false);
-  collectionData: PostCollectionSheetResponse | null = null;
+  readonly collectionData = signal<PostCollectionSheetResponse | null>(null);
   transactionDate = toIsoDate(new Date());
   staffId: number | null = null;
   request: CollectionSheetRequest = { locale: 'en' };
 
-  offices: { id?: number; name?: string }[] = [];
-
+  readonly offices = signal<{ id?: number; name?: string }[]>([]);
   ngOnInit(): void {
     this.officesService.getOffices().subscribe({
       next: (res: unknown) => {
-        this.offices = Array.isArray(res) ? (res as { id?: number; name?: string }[]) : [];
+        this.offices.set(Array.isArray(res) ? (res as { id?: number; name?: string }[]) : []);
       },
       error: () => {
         this.notifications.error('Failed to load offices');
@@ -222,8 +221,8 @@ export class CollectionSheetComponent implements OnInit {
     const body = this.buildBody();
     this.collectionSheetService.postCollectionsheet(body, 'generate').subscribe({
       next: (res: PostCollectionSheetResponse) => {
-        this.collectionData = res;
-        this.generated = true;
+        this.collectionData.set(res);
+        this.generated.set(true);
         this.isLoading.set(false);
       },
       error: () => {
@@ -250,7 +249,7 @@ export class CollectionSheetComponent implements OnInit {
   }
 
   back(): void {
-    this.generated = false;
-    this.collectionData = null;
+    this.generated.set(false);
+    this.collectionData.set(null);
   }
 }

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -48,8 +48,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.SPM_SURVEYS_DESC"
       createButtonLabel="SPM_SURVEYS.CREATE"
       [columns]="columns"
-      [data]="surveys"
-      [totalRecords]="surveys.length"
+      [data]="surveys()"
+      [totalRecords]="surveys().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -88,7 +88,7 @@ export class SpmSurveysListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  surveys: SurveyData[] = [];
+  readonly surveys = signal<SurveyData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -97,7 +97,7 @@ export class SpmSurveysListComponent implements OnInit {
   load(): void {
     this.surveysService.getSurveys().subscribe({
       next: (data: SurveyData[]) => {
-        this.surveys = data || [];
+        this.surveys.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load SPM surveys', err);

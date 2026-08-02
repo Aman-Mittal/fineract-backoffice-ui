@@ -84,12 +84,12 @@ import {
             <ion-card-title>{{ 'BUSINESS_DATES.BUSINESS_DATE_LABEL' | translate }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            @if (businessDateEntry?.description) {
-              <p>{{ businessDateEntry.description }}</p>
+            @if (businessDateEntry()?.description; as description) {
+              <p>{{ description }}</p>
             }
             <p>
               <strong>{{ 'BUSINESS_DATES.CURRENT_DATE' | translate }}:</strong>
-              {{ businessDateEntry?.date }}
+              {{ businessDateEntry()?.date }}
             </p>
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</ion-label>
@@ -101,7 +101,8 @@ import {
                     data-testid="businessDate-picker"
                     presentation="date"
                     name="businessDate"
-                    [(ngModel)]="businessDate"
+                    [ngModel]="businessDate()"
+                    (ngModelChange)="businessDate.set($event)"
                   ></ion-datetime>
                 </ng-template>
               </ion-modal>
@@ -111,7 +112,7 @@ import {
             <ion-button
               color="primary"
               (click)="updateDate('BUSINESS_DATE')"
-              [disabled]="!businessDate"
+              [disabled]="!businessDate()"
             >
               {{ 'BUSINESS_DATES.UPDATE' | translate }}
             </ion-button>
@@ -124,12 +125,12 @@ import {
             <ion-card-title>{{ 'BUSINESS_DATES.COB_DATE_LABEL' | translate }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            @if (cobDateEntry?.description) {
-              <p>{{ cobDateEntry.description }}</p>
+            @if (cobDateEntry()?.description; as description) {
+              <p>{{ description }}</p>
             }
             <p>
               <strong>{{ 'BUSINESS_DATES.CURRENT_DATE' | translate }}:</strong>
-              {{ cobDateEntry?.date }}
+              {{ cobDateEntry()?.date }}
             </p>
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</ion-label>
@@ -141,14 +142,15 @@ import {
                     data-testid="cobDate-picker"
                     presentation="date"
                     name="cobDate"
-                    [(ngModel)]="cobDate"
+                    [ngModel]="cobDate()"
+                    (ngModelChange)="cobDate.set($event)"
                   ></ion-datetime>
                 </ng-template>
               </ion-modal>
             </ion-item>
           </ion-card-content>
           <div class="card-actions">
-            <ion-button color="primary" (click)="updateDate('COB_DATE')" [disabled]="!cobDate">
+            <ion-button color="primary" (click)="updateDate('COB_DATE')" [disabled]="!cobDate()">
               {{ 'BUSINESS_DATES.UPDATE' | translate }}
             </ion-button>
           </div>
@@ -194,11 +196,11 @@ export class BusinessDatesComponent implements OnInit {
 
   readonly isLoading = signal(false);
 
-  businessDateEntry: BusinessDateResponse | null = null;
-  cobDateEntry: BusinessDateResponse | null = null;
+  readonly businessDateEntry = signal<BusinessDateResponse | null>(null);
+  readonly cobDateEntry = signal<BusinessDateResponse | null>(null);
 
-  businessDate: string | null = null;
-  cobDate: string | null = null;
+  readonly businessDate = signal<string | null>(null);
+  readonly cobDate = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadBusinessDates();
@@ -208,14 +210,18 @@ export class BusinessDatesComponent implements OnInit {
     this.isLoading.set(true);
     this.businessDateService.getBusinessdate().subscribe({
       next: (dates: BusinessDateResponse[]) => {
-        this.businessDateEntry = dates.find((d) => d.type === 'BUSINESS_DATE') ?? null;
-        this.cobDateEntry = dates.find((d) => d.type === 'COB_DATE') ?? null;
+        this.businessDateEntry.set(dates.find((d) => d.type === 'BUSINESS_DATE') ?? null);
+        this.cobDateEntry.set(dates.find((d) => d.type === 'COB_DATE') ?? null);
 
-        if (this.businessDateEntry?.date) {
-          this.businessDate = toIsoDate(new Date(this.businessDateEntry.date));
+        // Read once into a local so the `?.date` guard actually narrows — a second signal call
+        // is a separate expression to the compiler and carries none of the first one's checks.
+        const businessDate = this.businessDateEntry()?.date;
+        if (businessDate) {
+          this.businessDate.set(toIsoDate(new Date(businessDate)));
         }
-        if (this.cobDateEntry?.date) {
-          this.cobDate = toIsoDate(new Date(this.cobDateEntry.date));
+        const cobDate = this.cobDateEntry()?.date;
+        if (cobDate) {
+          this.cobDate.set(toIsoDate(new Date(cobDate)));
         }
         this.isLoading.set(false);
       },
@@ -227,7 +233,7 @@ export class BusinessDatesComponent implements OnInit {
   }
 
   updateDate(type: string): void {
-    const dateValue = type === 'BUSINESS_DATE' ? this.businessDate : this.cobDate;
+    const dateValue = type === 'BUSINESS_DATE' ? this.businessDate() : this.cobDate();
     if (!dateValue) return;
 
     const body: BusinessDateUpdateRequest = {

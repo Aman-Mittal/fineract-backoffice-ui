@@ -64,7 +64,7 @@ describe('ClientCollateralListComponent', () => {
   it('should load client collaterals on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdCollaterals).toHaveBeenCalledWith(1);
-    expect(component.collaterals).toHaveSize(1);
+    expect(component.collaterals()).toHaveSize(1);
   });
 
   it('should delete after confirmation and reload', () => {

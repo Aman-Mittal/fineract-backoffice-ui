@@ -152,10 +152,11 @@ interface SurveyResponse {
           <ion-textarea
             [attr.aria-label]="'SURVEY_RESPONSES.RESPONSE_BODY' | translate"
             rows="6"
-            [(ngModel)]="responseBody"
+            [ngModel]="responseBody()"
+            (ngModelChange)="responseBody.set($event)"
           ></ion-textarea>
         </ion-item>
-        <ion-button color="secondary" (click)="submitResponse()" [disabled]="submitting">
+        <ion-button color="secondary" (click)="submitResponse()" [disabled]="submitting()">
           {{ 'SURVEY_RESPONSES.SUBMIT' | translate }}
         </ion-button>
       </ion-card-content>
@@ -186,13 +187,13 @@ export class SurveyResponsesComponent implements OnInit {
   private surveyService = inject(SurveyService);
   private notifications = inject(NotificationService);
 
-  surveys = signal<{ name: string; enabled?: boolean }[]>([]);
-  responses = signal<SurveyResponse[]>([]);
+  readonly surveys = signal<{ name: string; enabled?: boolean }[]>([]);
+  readonly responses = signal<SurveyResponse[]>([]);
   selectedSurveyName = '';
   clientId = 0;
-  responseBody = '';
+  readonly responseBody = signal('');
   readonly loading = signal(false);
-  submitting = false;
+  readonly submitting = signal(false);
 
   displayedColumns = ['id', 'score', 'date', 'actions'];
 
@@ -247,26 +248,26 @@ export class SurveyResponsesComponent implements OnInit {
   }
 
   submitResponse(): void {
-    if (!this.selectedSurveyName || !this.clientId || !this.responseBody) return;
+    if (!this.selectedSurveyName || !this.clientId || !this.responseBody()) return;
     let body: PostSurveySurveyNameApptableIdRequest;
     try {
-      body = JSON.parse(this.responseBody);
+      body = JSON.parse(this.responseBody());
     } catch {
       this.notifications.error('Invalid JSON');
       return;
     }
-    this.submitting = true;
+    this.submitting.set(true);
     this.surveyService
       .postSurveySurveyNameApptableId(this.selectedSurveyName, this.clientId, body)
       .subscribe({
         next: () => {
           this.notifications.success('SURVEY_RESPONSES.SUCCESS');
-          this.responseBody = '';
-          this.submitting = false;
+          this.responseBody.set('');
+          this.submitting.set(false);
           this.loadResponses();
         },
         error: () => {
-          this.submitting = false;
+          this.submitting.set(false);
         },
       });
   }

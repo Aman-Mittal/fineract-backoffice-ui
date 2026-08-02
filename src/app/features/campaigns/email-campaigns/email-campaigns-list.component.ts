@@ -198,8 +198,8 @@ export class EmailCampaignsListComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
-  campaigns = signal<EmailCampaign[]>([]);
-  isLoading = signal(false);
+  readonly campaigns = signal<EmailCampaign[]>([]);
+  readonly isLoading = signal(false);
 
   displayedColumns: string[] = ['id', 'campaignName', 'campaignType', 'status', 'actions'];
 

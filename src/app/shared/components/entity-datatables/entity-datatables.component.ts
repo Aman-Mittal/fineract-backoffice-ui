@@ -123,11 +123,11 @@ export class EntityDatatablesComponent implements OnInit {
   private readonly datatablesService = inject(DataTablesService);
   private readonly dialogService = inject(DialogService);
 
-  datatables = signal<GetDataTablesResponse[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly datatables = signal<GetDataTablesResponse[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
-  tableData = signal<Record<string, unknown>[]>([]);
-  isTableLoading = signal<boolean>(false);
+  readonly tableData = signal<Record<string, unknown>[]>([]);
+  readonly isTableLoading = signal<boolean>(false);
   readonly activeTable = signal<GetDataTablesResponse | undefined>(undefined);
 
   ngOnInit(): void {

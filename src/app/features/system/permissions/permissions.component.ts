@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PermissionsService, GetPermissionsResponse, PutPermissionsRequest } from '../../../api';
@@ -57,9 +57,9 @@ import {
           <ion-card-title>{{ 'PERMISSIONS.TITLE' | translate }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          @for (group of groupNames; track group) {
+          @for (group of groupNames(); track group) {
             <h3 class="group-heading">{{ group }}</h3>
-            <table cdk-table [dataSource]="grouped[group]" class="permissions-table">
+            <table cdk-table [dataSource]="grouped()[group]" class="permissions-table">
               <ng-container cdkColumnDef="code">
                 <th cdk-header-cell *cdkHeaderCellDef>{{ 'PERMISSIONS.CODE' | translate }}</th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.code }}</td>
@@ -88,7 +88,7 @@ import {
             </table>
           }
           <div class="actions">
-            <ion-button color="primary" [disabled]="isSaving" (click)="onSave()">
+            <ion-button color="primary" [disabled]="isSaving()" (click)="onSave()">
               {{ 'COMMON.SAVE' | translate }}
             </ion-button>
           </div>
@@ -121,11 +121,11 @@ export class PermissionsListComponent implements OnInit {
 
   readonly displayedColumns = ['code', 'entityName', 'actionName', 'selected'];
 
-  permissions: GetPermissionsResponse[] = [];
-  grouped: Record<string, GetPermissionsResponse[]> = {};
-  groupNames: string[] = [];
+  readonly permissions = signal<GetPermissionsResponse[]>([]);
+  readonly grouped = signal<Record<string, GetPermissionsResponse[]>>({});
+  readonly groupNames = signal<string[]>([]);
   changed: Record<string, boolean> = {};
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -134,14 +134,14 @@ export class PermissionsListComponent implements OnInit {
   load(): void {
     this.permissionsService.getPermissions().subscribe({
       next: (data: GetPermissionsResponse[]) => {
-        this.permissions = data || [];
-        this.grouped = {};
-        for (const p of this.permissions) {
+        this.permissions.set(data || []);
+        this.grouped.set({});
+        for (const p of this.permissions()) {
           const key = p.grouping || 'other';
-          if (!this.grouped[key]) this.grouped[key] = [];
-          this.grouped[key].push(p);
+          if (!this.grouped()[key]) this.grouped()[key] = [];
+          this.grouped()[key].push(p);
         }
-        this.groupNames = Object.keys(this.grouped);
+        this.groupNames.set(Object.keys(this.grouped()));
         this.changed = {};
       },
       error: (err: unknown) => console.error('Failed to load permissions', err),
@@ -155,15 +155,15 @@ export class PermissionsListComponent implements OnInit {
   }
 
   onSave(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: PutPermissionsRequest = { permissions: this.changed };
     this.permissionsService.putPermissions(request).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.load();
       },
       error: (err: unknown) => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         console.error('Failed to save permissions', err);
       },
     });

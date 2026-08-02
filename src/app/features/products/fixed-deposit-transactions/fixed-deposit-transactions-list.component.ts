@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -41,8 +41,8 @@ import {
       title="FIXED_DEPOSIT_TRANSACTIONS.TITLE"
       helpTextKey="HELP.FIXED_DEPOSIT_TRANSACTIONS_DESC"
       [columns]="columns"
-      [data]="transactions"
-      [totalRecords]="transactions.length"
+      [data]="transactions()"
+      [totalRecords]="transactions().length"
       [localLogic]="true"
     >
       <ng-template appCellTemplate="date" let-row>
@@ -68,7 +68,7 @@ export class FixedDepositTransactionsListComponent implements OnInit {
   ];
 
   accountId!: number;
-  transactions: GetFixedDepositAccountsAccountIdTransactionsResponse[] = [];
+  readonly transactions = signal<GetFixedDepositAccountsAccountIdTransactionsResponse[]>([]);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('accountId'));
@@ -80,7 +80,7 @@ export class FixedDepositTransactionsListComponent implements OnInit {
       .getFixeddepositaccountsFixedDepositAccountIdTransactions(this.accountId)
       .subscribe({
         next: (data: GetFixedDepositAccountsAccountIdTransactionsResponse[]) => {
-          this.transactions = data || [];
+          this.transactions.set(data || []);
         },
         error: (err: unknown) => {
           console.error('Failed to load fixed deposit transactions', err);

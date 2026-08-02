@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -48,8 +48,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.INTEREST_RATE_CHARTS_DESC"
       createButtonLabel="INTEREST_RATE_CHARTS.CREATE"
       [columns]="columns"
-      [data]="charts"
-      [totalRecords]="charts.length"
+      [data]="charts()"
+      [totalRecords]="charts().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -96,7 +96,7 @@ export class InterestRateChartsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  charts: GetInterestRateChartsResponse[] = [];
+  readonly charts = signal<GetInterestRateChartsResponse[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -105,7 +105,7 @@ export class InterestRateChartsListComponent implements OnInit {
   load(): void {
     this.chartService.getInterestratecharts().subscribe({
       next: (data: GetInterestRateChartsResponse[]) => {
-        this.charts = data || [];
+        this.charts.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load interest rate charts', err);

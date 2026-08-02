@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -91,7 +91,7 @@ import {
                 [(ngModel)]="charge.chargeId"
                 required
               >
-                @for (opt of chargeOptions; track opt.id) {
+                @for (opt of chargeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -125,11 +125,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'LOAN_CHARGES.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="chargeForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="chargeForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -163,22 +167,22 @@ export class LoanChargeFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   loanId!: number;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   charge: PostLoansLoanIdChargesRequest = {};
   dueDate: string | null = null;
-  chargeOptions: GetLoanChargeTemplateChargeOptions[] = [];
+  readonly chargeOptions = signal<GetLoanChargeTemplateChargeOptions[]>([]);
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
 
     this.loanChargesService.getLoansLoanIdChargesTemplate(this.loanId).subscribe((tpl) => {
-      this.chargeOptions = tpl.chargeOptions ? Array.from(tpl.chargeOptions) : [];
+      this.chargeOptions.set(tpl.chargeOptions ? Array.from(tpl.chargeOptions) : []);
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: PostLoansLoanIdChargesRequest = {
       chargeId: this.charge.chargeId,
       amount: this.charge.amount,
@@ -189,7 +193,7 @@ export class LoanChargeFormComponent implements OnInit {
 
     this.loanChargesService.postLoansLoanIdCharges(this.loanId, request).subscribe({
       next: () => this.router.navigate(['/loans', this.loanId, 'charges']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

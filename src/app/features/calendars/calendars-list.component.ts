@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
@@ -49,8 +49,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       helpTextKey="HELP.CALENDARS_DESC"
       createButtonLabel="CALENDARS.CREATE"
       [columns]="columns"
-      [data]="calendars"
-      [totalRecords]="calendars.length"
+      [data]="calendars()"
+      [totalRecords]="calendars().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -93,7 +93,7 @@ export class CalendarsListComponent implements OnInit {
 
   entityType!: string;
   entityId!: number;
-  calendars: CalendarData[] = [];
+  readonly calendars = signal<CalendarData[]>([]);
 
   ngOnInit(): void {
     this.entityType = this.route.snapshot.paramMap.get('entityType') ?? '';
@@ -104,7 +104,7 @@ export class CalendarsListComponent implements OnInit {
   load(): void {
     this.calendarService.getEntityTypeEntityIdCalendars(this.entityType, this.entityId).subscribe({
       next: (data: CalendarData[]) => {
-        this.calendars = data || [];
+        this.calendars.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load calendars', err);

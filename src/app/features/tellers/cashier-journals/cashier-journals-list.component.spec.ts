@@ -71,6 +71,6 @@ describe('CashierJournalsListComponent', () => {
     component.cashierId = 2;
     component.load();
     expect(serviceSpy.getCashiersjournal).toHaveBeenCalledWith(undefined, 1, 2);
-    expect(component.journals).toHaveSize(1);
+    expect(component.journals()).toHaveSize(1);
   });
 });

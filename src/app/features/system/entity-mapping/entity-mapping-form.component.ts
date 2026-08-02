@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -71,7 +71,7 @@ interface EntityMappingPayload {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('ENTITY_MAPPING.EDIT' | translate)
                 : ('ENTITY_MAPPING.CREATE' | translate)
             }}
@@ -86,9 +86,10 @@ interface EntityMappingPayload {
                 [attr.aria-label]="'ENTITY_MAPPING.REL_ID' | translate"
                 type="number"
                 name="relId"
-                [(ngModel)]="relId"
+                [ngModel]="relId()"
+                (ngModelChange)="relId.set($event)"
                 required
-                [disabled]="isEditMode"
+                [disabled]="isEditMode()"
               ></ion-input>
             </ion-item>
 
@@ -98,7 +99,7 @@ interface EntityMappingPayload {
                 [attr.aria-label]="'ENTITY_MAPPING.FROM_ID' | translate"
                 type="number"
                 name="fromId"
-                [(ngModel)]="payload.fromId"
+                [(ngModel)]="payload().fromId"
                 required
               ></ion-input>
             </ion-item>
@@ -109,21 +110,21 @@ interface EntityMappingPayload {
                 [attr.aria-label]="'ENTITY_MAPPING.TO_ID' | translate"
                 type="number"
                 name="toId"
-                [(ngModel)]="payload.toId"
+                [(ngModel)]="payload().toId"
                 required
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="mappingForm.invalid || isSaving"
+                [disabled]="mappingForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -159,18 +160,18 @@ export class EntityMappingFormComponent implements OnInit {
   private readonly LIST_PATH = '/system/entity-mapping';
 
   mapId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  relId: number | undefined;
-  payload: EntityMappingPayload = {};
+  readonly relId = signal<number | undefined>(undefined);
+  readonly payload = signal<EntityMappingPayload>({});
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.mapId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -180,22 +181,22 @@ export class EntityMappingFormComponent implements OnInit {
     if (!this.mapId) return;
     this.entityService.getEntitytoentitymappingMapId(this.mapId).subscribe((body: string) => {
       const data = body ? (JSON.parse(body) as EntityMappingPayload) : {};
-      this.payload = { fromId: data.fromId, toId: data.toId };
-      this.relId = data.relId;
+      this.payload.set({ fromId: data.fromId, toId: data.toId });
+      this.relId.set(data.relId);
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
-    const body = JSON.stringify({ fromId: this.payload.fromId, toId: this.payload.toId });
+    this.isSaving.set(true);
+    const body = JSON.stringify({ fromId: this.payload().fromId, toId: this.payload().toId });
     const request$ =
-      this.isEditMode && this.mapId
+      this.isEditMode() && this.mapId
         ? this.entityService.putEntitytoentitymappingMapId(this.mapId, body)
-        : this.entityService.postEntitytoentitymappingRelId(this.relId ?? 0, body);
+        : this.entityService.postEntitytoentitymappingRelId(this.relId() ?? 0, body);
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -51,8 +51,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.FIXED_DEPOSITS_DESC"
       createButtonLabel="FIXED_DEPOSITS.CREATE"
       [columns]="columns"
-      [data]="accounts"
-      [totalRecords]="accounts.length"
+      [data]="accounts()"
+      [totalRecords]="accounts().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateAccount()"
@@ -106,7 +106,7 @@ export class FixedDepositAccountsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  accounts: GetFixedDepositAccountsResponse[] = [];
+  readonly accounts = signal<GetFixedDepositAccountsResponse[]>([]);
 
   ngOnInit(): void {
     this.loadAccounts();
@@ -115,7 +115,7 @@ export class FixedDepositAccountsListComponent implements OnInit {
   private loadAccounts(): void {
     this.fixedDepositService.getFixeddepositaccounts().subscribe({
       next: (data: GetFixedDepositAccountsResponse[]) => {
-        this.accounts = data || [];
+        this.accounts.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load fixed deposit accounts', err);

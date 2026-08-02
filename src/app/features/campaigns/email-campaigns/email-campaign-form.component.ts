@@ -83,7 +83,8 @@ import {
               <ion-input
                 [attr.aria-label]="'EMAIL_CAMPAIGNS.NAME' | translate"
                 name="campaignName"
-                [(ngModel)]="campaignName"
+                [ngModel]="campaignName()"
+                (ngModelChange)="campaignName.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -94,7 +95,8 @@ import {
                 [attr.aria-label]="'EMAIL_CAMPAIGNS.TYPE' | translate"
                 interface="popover"
                 name="campaignType"
-                [(ngModel)]="campaignType"
+                [ngModel]="campaignType()"
+                (ngModelChange)="campaignType.set($event)"
               >
                 @for (option of campaignTypeOptions(); track option.id) {
                   <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
@@ -107,7 +109,8 @@ import {
               <ion-input
                 [attr.aria-label]="'EMAIL_CAMPAIGNS.SUBJECT' | translate"
                 name="emailSubject"
-                [(ngModel)]="emailSubject"
+                [ngModel]="emailSubject()"
+                (ngModelChange)="emailSubject.set($event)"
               ></ion-input>
             </ion-item>
 
@@ -116,7 +119,8 @@ import {
               <ion-textarea
                 [attr.aria-label]="'EMAIL_CAMPAIGNS.MESSAGE' | translate"
                 name="emailMessage"
-                [(ngModel)]="emailMessage"
+                [ngModel]="emailMessage()"
+                (ngModelChange)="emailMessage.set($event)"
                 rows="5"
               ></ion-textarea>
             </ion-item>
@@ -131,7 +135,8 @@ import {
                     data-testid="scheduledStartDate-picker"
                     presentation="date"
                     name="scheduledStartDate"
-                    [(ngModel)]="scheduledStartDate"
+                    [ngModel]="scheduledStartDate()"
+                    (ngModelChange)="scheduledStartDate.set($event)"
                   ></ion-datetime>
                 </ng-template>
               </ion-modal>
@@ -187,17 +192,17 @@ export class EmailCampaignFormComponent implements OnInit {
 
   private readonly LIST_PATH = '/campaigns/email';
 
-  isEditMode = signal(false);
-  isSaving = signal(false);
-  campaignTypeOptions = signal<{ id: number; value: string }[]>([]);
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
+  readonly campaignTypeOptions = signal<{ id: number; value: string }[]>([]);
 
   private campaignId: number | null = null;
 
-  campaignName = '';
-  campaignType: number | null = null;
-  emailSubject = '';
-  emailMessage = '';
-  scheduledStartDate: string | null = null;
+  readonly campaignName = signal('');
+  readonly campaignType = signal<number | null>(null);
+  readonly emailSubject = signal('');
+  readonly emailMessage = signal('');
+  readonly scheduledStartDate = signal<string | null>(null);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -238,12 +243,12 @@ export class EmailCampaignFormComponent implements OnInit {
       next: (raw) => {
         try {
           const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-          this.campaignName = parsed?.campaignName ?? '';
-          this.campaignType = parsed?.campaignType?.id ?? parsed?.campaignType ?? null;
-          this.emailSubject = parsed?.emailSubject ?? '';
-          this.emailMessage = parsed?.emailMessage ?? '';
+          this.campaignName.set(parsed?.campaignName ?? '');
+          this.campaignType.set(parsed?.campaignType?.id ?? parsed?.campaignType ?? null);
+          this.emailSubject.set(parsed?.emailSubject ?? '');
+          this.emailMessage.set(parsed?.emailMessage ?? '');
           if (parsed?.recurrenceStartDate) {
-            this.scheduledStartDate = toIsoDate(new Date(parsed.recurrenceStartDate));
+            this.scheduledStartDate.set(toIsoDate(new Date(parsed.recurrenceStartDate)));
           }
         } catch {
           console.error('Failed to parse email campaign data');
@@ -260,16 +265,16 @@ export class EmailCampaignFormComponent implements OnInit {
     this.isSaving.set(true);
 
     const payload: Record<string, unknown> = {
-      campaignName: this.campaignName,
-      campaignType: this.campaignType,
-      emailSubject: this.emailSubject,
-      emailMessage: this.emailMessage,
+      campaignName: this.campaignName(),
+      campaignType: this.campaignType(),
+      emailSubject: this.emailSubject(),
+      emailMessage: this.emailMessage(),
       dateFormat: 'dd MMMM yyyy',
       locale: 'en',
     };
 
-    if (this.scheduledStartDate) {
-      payload['recurrenceStartDate'] = formatDateToFineract(this.scheduledStartDate);
+    if (this.scheduledStartDate()) {
+      payload['recurrenceStartDate'] = formatDateToFineract(this.scheduledStartDate());
     }
 
     const body = JSON.stringify(payload);

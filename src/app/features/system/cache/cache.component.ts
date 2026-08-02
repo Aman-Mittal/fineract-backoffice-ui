@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CacheService, CacheData } from '../../../api';
@@ -59,8 +59,12 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          <ion-radio-group class="cache-group" [(ngModel)]="selectedCacheType">
-            @for (cache of caches; track cache.cacheType?.id) {
+          <ion-radio-group
+            class="cache-group"
+            [ngModel]="selectedCacheType()"
+            (ngModelChange)="selectedCacheType.set($event)"
+          >
+            @for (cache of caches(); track cache.cacheType?.id) {
               <ion-radio [value]="cache.cacheType?.id">
                 {{ cache.cacheType?.value }}
               </ion-radio>
@@ -71,10 +75,10 @@ import {
             <ion-button
               color="primary"
               type="button"
-              [disabled]="selectedCacheType === null || isSaving"
+              [disabled]="selectedCacheType() === null || isSaving()"
               (click)="onSave()"
             >
-              @if (isSaving) {
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -104,9 +108,9 @@ import {
 export class CacheComponent implements OnInit {
   private readonly service = inject(CacheService);
 
-  caches: CacheData[] = [];
-  selectedCacheType: number | null = null;
-  isSaving = false;
+  readonly caches = signal<CacheData[]>([]);
+  readonly selectedCacheType = signal<number | null>(null);
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -114,21 +118,22 @@ export class CacheComponent implements OnInit {
 
   load(): void {
     this.service.getCaches().subscribe((data) => {
-      this.caches = data ?? [];
-      const enabled = this.caches.find((c) => c.enabled);
-      this.selectedCacheType = enabled?.cacheType?.id ?? null;
+      this.caches.set(data ?? []);
+      const enabled = this.caches().find((c) => c.enabled);
+      this.selectedCacheType.set(enabled?.cacheType?.id ?? null);
     });
   }
 
   onSave(): void {
-    if (this.selectedCacheType === null) return;
-    this.isSaving = true;
-    this.service.putCaches({ cacheType: this.selectedCacheType }).subscribe({
+    const cacheType = this.selectedCacheType();
+    if (cacheType === null) return;
+    this.isSaving.set(true);
+    this.service.putCaches({ cacheType }).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.load();
       },
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

@@ -103,8 +103,8 @@ import {
             </div>
           </form>
 
-          @if (report) {
-            <pre class="mix-report-output">{{ report }}</pre>
+          @if (report()) {
+            <pre class="mix-report-output">{{ report() }}</pre>
           }
         </ion-card-content>
       </ion-card>
@@ -146,13 +146,13 @@ export class MixReportComponent {
   endDate?: string;
   currency?: string;
   readonly isLoading = signal(false);
-  report = '';
+  readonly report = signal('');
 
   onGenerate(): void {
     this.isLoading.set(true);
     this.reportService.getMixreport(this.startDate, this.endDate, this.currency).subscribe({
       next: (data: string) => {
-        this.report = data || '';
+        this.report.set(data || '');
         this.isLoading.set(false);
       },
       error: (err: unknown) => {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -56,10 +56,10 @@ import {
       <div class="status-row">
         <span class="status-label">{{ 'SCHEDULER_JOBS.GLOBAL_STATUS' | translate }}:</span>
         <span>{{
-          (schedulerActive ? 'SCHEDULER_JOBS.RUNNING' : 'SCHEDULER_JOBS.STOPPED') | translate
+          (schedulerActive() ? 'SCHEDULER_JOBS.RUNNING' : 'SCHEDULER_JOBS.STOPPED') | translate
         }}</span>
         <ion-toggle
-          [checked]="schedulerActive"
+          [checked]="schedulerActive()"
           (ionChange)="onToggleScheduler($event.detail.checked)"
         >
           {{ 'SCHEDULER_JOBS.TOGGLE_SCHEDULER' | translate }}
@@ -71,8 +71,8 @@ import {
       title="nav.schedulerJobs"
       helpTextKey="HELP.SCHEDULER_JOBS_DESC"
       [columns]="columns"
-      [data]="jobs"
-      [totalRecords]="jobs.length"
+      [data]="jobs()"
+      [totalRecords]="jobs().length"
       [localLogic]="true"
     >
       <ng-template appCellTemplate="active" let-row>
@@ -128,8 +128,8 @@ export class SchedulerJobsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  jobs: GetJobsResponse[] = [];
-  schedulerActive = false;
+  readonly jobs = signal<GetJobsResponse[]>([]);
+  readonly schedulerActive = signal(false);
 
   ngOnInit(): void {
     this.loadJobs();
@@ -139,7 +139,7 @@ export class SchedulerJobsListComponent implements OnInit {
   loadJobs(): void {
     this.jobService.getJobs().subscribe({
       next: (data: GetJobsResponse[]) => {
-        this.jobs = data || [];
+        this.jobs.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load scheduler jobs', err),
     });
@@ -148,7 +148,7 @@ export class SchedulerJobsListComponent implements OnInit {
   loadSchedulerStatus(): void {
     this.schedulerService.getScheduler().subscribe({
       next: (data: GetSchedulerResponse) => {
-        this.schedulerActive = !!data?.active;
+        this.schedulerActive.set(!!data?.active);
       },
       error: (err: unknown) => console.error('Failed to load scheduler status', err),
     });

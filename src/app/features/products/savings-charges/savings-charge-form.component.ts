@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -92,7 +92,7 @@ import {
                 [(ngModel)]="charge.chargeId"
                 required
               >
-                @for (opt of chargeOptions; track opt.id) {
+                @for (opt of chargeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -126,11 +126,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="chargeForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="chargeForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -164,11 +168,11 @@ export class SavingsChargeFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   savingsAccountId!: number;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   charge: PostSavingsAccountsSavingsAccountIdChargesRequest = {};
   dueDate: string | null = null;
-  chargeOptions: GetSavingsChargesOptions[] = [];
+  readonly chargeOptions = signal<GetSavingsChargesOptions[]>([]);
 
   ngOnInit(): void {
     this.savingsAccountId = Number(this.route.snapshot.paramMap.get('savingsAccountId'));
@@ -176,12 +180,12 @@ export class SavingsChargeFormComponent implements OnInit {
     this.savingsChargesService
       .getSavingsaccountsSavingsAccountIdChargesTemplate(this.savingsAccountId)
       .subscribe((tpl) => {
-        this.chargeOptions = tpl.chargeOptions ? Array.from(tpl.chargeOptions) : [];
+        this.chargeOptions.set(tpl.chargeOptions ? Array.from(tpl.chargeOptions) : []);
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: PostSavingsAccountsSavingsAccountIdChargesRequest = {
       chargeId: this.charge.chargeId,
       amount: this.charge.amount,
@@ -195,7 +199,7 @@ export class SavingsChargeFormComponent implements OnInit {
       .subscribe({
         next: () =>
           this.router.navigate(['/products/savings-accounts', this.savingsAccountId, 'charges']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 

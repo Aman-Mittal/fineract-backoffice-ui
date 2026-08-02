@@ -164,7 +164,7 @@ export class CobToolsComponent {
   private translate = inject(TranslateService);
 
   partitionSize = 10;
-  partitions = signal<COBPartition[]>([]);
+  readonly partitions = signal<COBPartition[]>([]);
   fastForwardLoanId = 0;
   reprocessLoanId = 0;
   readonly isLoading = signal(false);

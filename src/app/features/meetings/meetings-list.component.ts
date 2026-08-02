@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
@@ -49,8 +49,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       helpTextKey="HELP.MEETINGS_DESC"
       createButtonLabel="MEETINGS.CREATE"
       [columns]="columns"
-      [data]="meetings"
-      [totalRecords]="meetings.length"
+      [data]="meetings()"
+      [totalRecords]="meetings().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -96,7 +96,7 @@ export class MeetingsListComponent implements OnInit {
 
   entityType!: string;
   entityId!: number;
-  meetings: MeetingData[] = [];
+  readonly meetings = signal<MeetingData[]>([]);
 
   ngOnInit(): void {
     this.entityType = this.route.snapshot.paramMap.get('entityType') ?? '';
@@ -107,7 +107,7 @@ export class MeetingsListComponent implements OnInit {
   load(): void {
     this.meetingsService.getEntityTypeEntityIdMeetings(this.entityType, this.entityId).subscribe({
       next: (data: MeetingData[]) => {
-        this.meetings = data || [];
+        this.meetings.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load meetings', err);

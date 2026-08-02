@@ -146,10 +146,10 @@ export class InteropAccountViewComponent {
   debitFilter = true;
   creditFilter = true;
 
-  accountData = signal<InteropAccountData | null>(null);
-  identifiers = signal<InteropIdentifiersResponseData | null>(null);
-  kyc = signal<InteropKycResponseData | null>(null);
-  transactions = signal<InteropTransactionsData | null>(null);
+  readonly accountData = signal<InteropAccountData | null>(null);
+  readonly identifiers = signal<InteropIdentifiersResponseData | null>(null);
+  readonly kyc = signal<InteropKycResponseData | null>(null);
+  readonly transactions = signal<InteropTransactionsData | null>(null);
 
   loadAccount(): void {
     this.interopService.getInteroperationAccountsAccountId(this.accountId).subscribe({

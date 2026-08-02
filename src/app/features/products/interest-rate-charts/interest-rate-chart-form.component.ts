@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -78,7 +78,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('INTEREST_RATE_CHARTS.EDIT' | translate)
                 : ('INTEREST_RATE_CHARTS.CREATE' | translate)
             }}
@@ -94,7 +94,8 @@ import {
               <ion-input
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.NAME' | translate"
                 name="name"
-                [(ngModel)]="name"
+                [ngModel]="name()"
+                (ngModelChange)="name.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -106,11 +107,12 @@ import {
               <ion-input
                 [attr.aria-label]="'INTEREST_RATE_CHARTS.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="description"
+                [ngModel]="description()"
+                (ngModelChange)="description.set($event)"
               ></ion-input>
             </ion-item>
 
-            @if (!isEditMode) {
+            @if (!isEditMode()) {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
                   'INTEREST_RATE_CHARTS.FROM_DATE' | translate
@@ -123,7 +125,8 @@ import {
                       data-testid="fromDate-picker"
                       presentation="date"
                       name="fromDate"
-                      [(ngModel)]="fromDate"
+                      [ngModel]="fromDate()"
+                      (ngModelChange)="fromDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -132,11 +135,15 @@ import {
             }
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="chartForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="chartForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -172,19 +179,19 @@ export class InterestRateChartFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/interest-rate-charts';
 
   chartId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  name = '';
-  description = '';
-  fromDate = toIsoDate(new Date());
+  readonly name = signal('');
+  readonly description = signal('');
+  readonly fromDate = signal(toIsoDate(new Date()));
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.chartId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -194,36 +201,38 @@ export class InterestRateChartFormComponent implements OnInit {
     if (!this.chartId) return;
     this.chartService.getInterestratechartsChartId(this.chartId).subscribe((raw) => {
       const data = raw as unknown as Record<string, unknown>;
-      this.name = (data['name'] as string | undefined) ?? '';
-      this.description = (data['description'] as string | undefined) ?? '';
-      this.fromDate = data['fromDate']
-        ? toIsoDate(new Date(formatArrayDate(data['fromDate'] as string)))
-        : toIsoDate(new Date());
+      this.name.set((data['name'] as string | undefined) ?? '');
+      this.description.set((data['description'] as string | undefined) ?? '');
+      this.fromDate.set(
+        data['fromDate']
+          ? toIsoDate(new Date(formatArrayDate(data['fromDate'] as string)))
+          : toIsoDate(new Date()),
+      );
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
-    if (this.isEditMode && this.chartId) {
+    this.isSaving.set(true);
+    if (this.isEditMode() && this.chartId) {
       const payload: InterestRateChartUpdateRequest = {
-        name: this.name,
-        description: this.description,
+        name: this.name(),
+        description: this.description(),
       };
       this.chartService.putInterestratechartsChartId(this.chartId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       const payload: InterestRateChartCreateRequest = {
-        name: this.name,
-        description: this.description,
-        fromDate: formatDateToFineract(this.fromDate),
+        name: this.name(),
+        description: this.description(),
+        fromDate: formatDateToFineract(this.fromDate()),
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
       };
       this.chartService.postInterestratecharts(payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

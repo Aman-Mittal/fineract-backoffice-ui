@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -89,10 +89,10 @@ import {
       title="nav.cashierJournals"
       helpTextKey="HELP.CASHIER_JOURNALS_DESC"
       [columns]="columns"
-      [data]="journals"
-      [totalRecords]="journals.length"
+      [data]="journals()"
+      [totalRecords]="journals().length"
       [localLogic]="true"
-      [isLoading]="isLoading"
+      [isLoading]="isLoading()"
     ></app-data-table>
   `,
   styles: [
@@ -126,8 +126,8 @@ export class CashierJournalsListComponent implements OnInit {
 
   tellerId: number | null = null;
   cashierId: number | null = null;
-  journals: TellerJournalData[] = [];
-  isLoading = false;
+  readonly journals = signal<TellerJournalData[]>([]);
+  readonly isLoading = signal(false);
 
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
@@ -142,15 +142,15 @@ export class CashierJournalsListComponent implements OnInit {
 
   load(): void {
     if (this.tellerId == null || this.cashierId == null) return;
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.journalsService.getCashiersjournal(undefined, this.tellerId, this.cashierId).subscribe({
       next: (data: TellerJournalData[]) => {
-        this.journals = data || [];
-        this.isLoading = false;
+        this.journals.set(data || []);
+        this.isLoading.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load cashier journals', err);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

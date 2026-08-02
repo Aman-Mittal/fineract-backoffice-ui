@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { TemplatesService, TemplateData } from '../../../api';
@@ -55,7 +55,7 @@ import {
         </ion-button>
       </ion-card-header>
       <ion-card-content>
-        <table cdk-table [dataSource]="templates" class="full-width">
+        <table cdk-table [dataSource]="templates()" class="full-width">
           <ng-container cdkColumnDef="name">
             <th cdk-header-cell *cdkHeaderCellDef>{{ 'TEMPLATES.NAME' | translate }}</th>
             <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
@@ -108,7 +108,7 @@ export class TemplatesListComponent implements OnInit {
   private readonly templatesService = inject(TemplatesService);
   private readonly router = inject(Router);
 
-  templates: TemplateData[] = [];
+  readonly templates = signal<TemplateData[]>([]);
   displayedColumns = ['name', 'entity', 'type', 'actions'];
 
   ngOnInit(): void {
@@ -117,7 +117,7 @@ export class TemplatesListComponent implements OnInit {
 
   loadTemplates(): void {
     this.templatesService.getTemplates().subscribe((data) => {
-      this.templates = data;
+      this.templates.set(data);
     });
   }
 

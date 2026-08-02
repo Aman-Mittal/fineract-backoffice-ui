@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -57,8 +57,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.RECURRING_DEPOSITS_DESC"
       createButtonLabel="RECURRING_DEPOSITS.CREATE"
       [columns]="columns"
-      [data]="accounts"
-      [totalRecords]="accounts.length"
+      [data]="accounts()"
+      [totalRecords]="accounts().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateAccount()"
@@ -111,7 +111,7 @@ export class RecurringDepositsListComponent implements OnInit {
   ];
 
   /** List of retrieved accounts */
-  accounts: GetRecurringDepositAccountsResponse[] = [];
+  readonly accounts = signal<GetRecurringDepositAccountsResponse[]>([]);
 
   /**
    * Component initialization.
@@ -126,7 +126,7 @@ export class RecurringDepositsListComponent implements OnInit {
   private loadAccounts(): void {
     this.rdService.getRecurringdepositaccounts().subscribe({
       next: (data: GetRecurringDepositAccountsResponse[]) => {
-        this.accounts = data || [];
+        this.accounts.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load recurring deposit accounts', err);

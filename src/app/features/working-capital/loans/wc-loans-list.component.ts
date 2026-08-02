@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -60,8 +60,8 @@ interface WcLoanRow {
       helpTextKey="HELP.WC_LOANS_DESC"
       createButtonLabel="WC_LOANS.CREATE"
       [columns]="columns"
-      [data]="loans"
-      [totalRecords]="loans.length"
+      [data]="loans()"
+      [totalRecords]="loans().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -91,7 +91,7 @@ export class WcLoansListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  loans: WcLoanRow[] = [];
+  readonly loans = signal<WcLoanRow[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -100,14 +100,16 @@ export class WcLoansListComponent implements OnInit {
   load(): void {
     this.loansService.getWorkingCapitalLoans().subscribe({
       next: (data) => {
-        this.loans = (data.content ?? []).map((loan: GetWorkingCapitalLoansLoanIdResponse) => ({
-          id: loan.id,
-          accountNo: loan.accountNo,
-          clientName: loan.client?.displayName,
-          clientId: loan.client?.id,
-          principal: loan.proposedPrincipal ?? loan.approvedPrincipal,
-          status: loan.status?.value,
-        }));
+        this.loans.set(
+          (data.content ?? []).map((loan: GetWorkingCapitalLoansLoanIdResponse) => ({
+            id: loan.id,
+            accountNo: loan.accountNo,
+            clientName: loan.client?.displayName,
+            clientId: loan.client?.id,
+            principal: loan.proposedPrincipal ?? loan.approvedPrincipal,
+            status: loan.status?.value,
+          })),
+        );
       },
       error: (err: unknown) => {
         console.error('Failed to load working-capital loans', err);

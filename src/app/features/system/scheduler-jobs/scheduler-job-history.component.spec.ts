@@ -62,7 +62,7 @@ describe('SchedulerJobHistoryComponent', () => {
     expect(component).toBeTruthy();
     expect(component.jobId).toBe(5);
     expect(jobSpy.getJobsJobIdRunhistory).toHaveBeenCalledWith(5);
-    expect(component.history).toHaveSize(1);
+    expect(component.history()).toHaveSize(1);
   });
 
   it('should navigate back to the jobs list', () => {

@@ -77,10 +77,10 @@ interface StaffMember {
             <ion-select
               [attr.aria-label]="'BULK_LOANS.OFFICE' | translate"
               interface="popover"
-              [(ngModel)]="selectedOfficeId"
-              (ngModelChange)="onOfficeChange()"
+              [ngModel]="selectedOfficeId()"
+              (ngModelChange)="selectedOfficeId.set($event); onOfficeChange()"
             >
-              @for (office of offices; track office.id) {
+              @for (office of offices(); track office.id) {
                 <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
               }
             </ion-select>
@@ -91,10 +91,11 @@ interface StaffMember {
             <ion-select
               [attr.aria-label]="'BULK_LOANS.FROM_OFFICER' | translate"
               interface="popover"
-              [(ngModel)]="selectedFromOfficerId"
-              [disabled]="!selectedOfficeId"
+              [ngModel]="selectedFromOfficerId()"
+              (ngModelChange)="selectedFromOfficerId.set($event)"
+              [disabled]="!selectedOfficeId()"
             >
-              @for (officer of filteredStaff; track officer.id) {
+              @for (officer of filteredStaff(); track officer.id) {
                 <ion-select-option [value]="officer.id">{{
                   officer.displayName
                 }}</ion-select-option>
@@ -107,8 +108,9 @@ interface StaffMember {
             <ion-select
               [attr.aria-label]="'BULK_LOANS.TO_OFFICER' | translate"
               interface="popover"
-              [(ngModel)]="selectedToOfficerId"
-              [disabled]="!selectedFromOfficerId"
+              [ngModel]="selectedToOfficerId()"
+              (ngModelChange)="selectedToOfficerId.set($event)"
+              [disabled]="!selectedFromOfficerId()"
             >
               @for (officer of toOfficerList; track officer.id) {
                 <ion-select-option [value]="officer.id">{{
@@ -126,7 +128,7 @@ interface StaffMember {
         <ion-button
           color="primary"
           [disabled]="
-            !selectedOfficeId || !selectedFromOfficerId || !selectedToOfficerId || isLoading()
+            !selectedOfficeId() || !selectedFromOfficerId() || !selectedToOfficerId() || isLoading()
           "
           (click)="onReassign()"
         >
@@ -142,17 +144,17 @@ export class BulkLoanReassignmentComponent implements OnInit {
   private staffService = inject(StaffService);
   private notifications = inject(NotificationService);
 
-  offices: Office[] = [];
+  readonly offices = signal<Office[]>([]);
   allStaff: StaffMember[] = [];
-  filteredStaff: StaffMember[] = [];
+  readonly filteredStaff = signal<StaffMember[]>([]);
 
-  selectedOfficeId: number | null = null;
-  selectedFromOfficerId: number | null = null;
-  selectedToOfficerId: number | null = null;
+  readonly selectedOfficeId = signal<number | null>(null);
+  readonly selectedFromOfficerId = signal<number | null>(null);
+  readonly selectedToOfficerId = signal<number | null>(null);
   readonly isLoading = signal(false);
 
   get toOfficerList(): StaffMember[] {
-    return this.filteredStaff.filter((officer) => officer.id !== this.selectedFromOfficerId);
+    return this.filteredStaff().filter((officer) => officer.id !== this.selectedFromOfficerId());
   }
 
   ngOnInit(): void {
@@ -161,33 +163,33 @@ export class BulkLoanReassignmentComponent implements OnInit {
       staff: this.staffService.getStaff(),
     }).subscribe({
       next: ({ offices, staff }) => {
-        this.offices = offices as Office[];
+        this.offices.set(offices as Office[]);
         const staffResponse = staff as { staffMembers?: StaffMember[] };
         this.allStaff =
           staffResponse.staffMembers ?? (Array.isArray(staff) ? (staff as StaffMember[]) : []);
-        this.filteredStaff = [...this.allStaff];
+        this.filteredStaff.set([...this.allStaff]);
       },
     });
   }
 
   onOfficeChange(): void {
-    this.selectedFromOfficerId = null;
-    this.selectedToOfficerId = null;
-    if (this.selectedOfficeId) {
-      const byOffice = this.allStaff.filter((s) => s.officeId === this.selectedOfficeId);
-      this.filteredStaff = byOffice.length > 0 ? byOffice : [...this.allStaff];
+    this.selectedFromOfficerId.set(null);
+    this.selectedToOfficerId.set(null);
+    if (this.selectedOfficeId()) {
+      const byOffice = this.allStaff.filter((s) => s.officeId === this.selectedOfficeId());
+      this.filteredStaff.set(byOffice.length > 0 ? byOffice : [...this.allStaff]);
     } else {
-      this.filteredStaff = [...this.allStaff];
+      this.filteredStaff.set([...this.allStaff]);
     }
   }
 
   onReassign(): void {
-    if (!this.selectedFromOfficerId || !this.selectedToOfficerId) return;
+    if (!this.selectedFromOfficerId() || !this.selectedToOfficerId()) return;
 
     this.isLoading.set(true);
     const body = JSON.stringify({
-      fromLoanOfficerId: this.selectedFromOfficerId,
-      toLoanOfficerId: this.selectedToOfficerId,
+      fromLoanOfficerId: this.selectedFromOfficerId(),
+      toLoanOfficerId: this.selectedToOfficerId(),
       locale: 'en',
     });
 
@@ -195,10 +197,10 @@ export class BulkLoanReassignmentComponent implements OnInit {
       next: () => {
         this.isLoading.set(false);
         this.notifications.success('BULK_LOANS.SUCCESS');
-        this.selectedOfficeId = null;
-        this.selectedFromOfficerId = null;
-        this.selectedToOfficerId = null;
-        this.filteredStaff = [...this.allStaff];
+        this.selectedOfficeId.set(null);
+        this.selectedFromOfficerId.set(null);
+        this.selectedToOfficerId.set(null);
+        this.filteredStaff.set([...this.allStaff]);
       },
       error: () => {
         this.isLoading.set(false);

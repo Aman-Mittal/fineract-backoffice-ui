@@ -68,16 +68,16 @@ describe('CalendarFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityTypeEntityIdCalendarsTemplate).toHaveBeenCalledWith('centers', 2);
-    expect(component.typeOptions).toHaveSize(1);
+    expect(component.typeOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postEntityTypeEntityIdCalendars.and.returnValue(
       of({}) as unknown as ReturnType<CalendarService['postEntityTypeEntityIdCalendars']>,
     );
-    component.title = 'Weekly';
-    component.startDate = '2026-01-15';
-    component.typeId = '1';
+    component.title.set('Weekly');
+    component.startDate.set('2026-01-15');
+    component.typeId.set('1');
     component.onSubmit();
     expect(serviceSpy.postEntityTypeEntityIdCalendars).toHaveBeenCalledWith(
       'centers',

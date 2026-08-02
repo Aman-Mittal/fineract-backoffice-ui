@@ -89,7 +89,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('CLIENTS.EDIT_CLIENT' | translate)
                 : ('CLIENTS.CREATE_CLIENT' | translate)
             }}
@@ -107,9 +107,9 @@ import {
                   [attr.aria-label]="'CLIENTS.LEGAL_FORM' | translate"
                   interface="popover"
                   name="legalFormId"
-                  [(ngModel)]="client.legalFormId"
+                  [(ngModel)]="client().legalFormId"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   <ion-select-option [value]="1">{{
                     'CLIENTS.PERSON' | translate
@@ -128,16 +128,16 @@ import {
                     [attr.aria-label]="'COMMON.OFFICE' | translate"
                     interface="popover"
                     name="officeId"
-                    [(ngModel)]="client.officeId"
+                    [(ngModel)]="client().officeId"
                     required
-                    [disabled]="isEditMode"
+                    [disabled]="isEditMode()"
                   >
                     @for (office of offices(); track office.id) {
                       <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                     }
                   </ion-select>
                 </ion-item>
-                @if (!isEditMode) {
+                @if (!isEditMode()) {
                   <ion-button
                     fill="clear"
                     type="button"
@@ -162,9 +162,10 @@ import {
                       data-testid="submittedOnDate-picker"
                       presentation="date"
                       name="submittedOnDate"
-                      [(ngModel)]="submittedOnDate"
+                      [ngModel]="submittedOnDate()"
+                      (ngModelChange)="submittedOnDate.set($event)"
                       required
-                      [disabled]="isEditMode"
+                      [disabled]="isEditMode()"
                     ></ion-datetime>
                   </ng-template>
                 </ion-modal>
@@ -181,9 +182,10 @@ import {
                       data-testid="activationDate-picker"
                       presentation="date"
                       name="activationDate"
-                      [(ngModel)]="activationDate"
+                      [ngModel]="activationDate()"
+                      (ngModelChange)="activationDate.set($event)"
                       required
-                      [disabled]="isEditMode"
+                      [disabled]="isEditMode()"
                     ></ion-datetime>
                   </ng-template>
                 </ion-modal>
@@ -191,7 +193,7 @@ import {
 
               <!-- Active -->
               <div class="checkbox-container">
-                <ion-checkbox name="active" [(ngModel)]="client.active" [disabled]="isEditMode">
+                <ion-checkbox name="active" [(ngModel)]="client().active" [disabled]="isEditMode()">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
                 <ion-icon
@@ -202,7 +204,7 @@ import {
               </div>
 
               <!-- Entity fields -->
-              @if (client.legalFormId === 2) {
+              @if (client().legalFormId === 2) {
                 <ion-item
                   fill="outline"
                   [appTooltip]="'HELP.FULL_NAME_DESC' | translate"
@@ -212,20 +214,20 @@ import {
                   <ion-input
                     [attr.aria-label]="'CLIENTS.COMPANY_NAME' | translate"
                     name="fullname"
-                    [(ngModel)]="client.fullname"
+                    [(ngModel)]="client().fullname"
                     required
                   ></ion-input>
                 </ion-item>
               }
 
               <!-- Person fields -->
-              @if (client.legalFormId === 1) {
+              @if (client().legalFormId === 1) {
                 <ion-item fill="outline" [appTooltip]="'HELP.FIRST_NAME_DESC' | translate">
                   <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
                   <ion-input
                     [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
                     name="firstname"
-                    [(ngModel)]="client.firstname"
+                    [(ngModel)]="client().firstname"
                     required
                   ></ion-input>
                 </ion-item>
@@ -235,7 +237,7 @@ import {
                   <ion-input
                     [attr.aria-label]="'CLIENTS.MIDDLE_NAME' | translate"
                     name="middlename"
-                    [(ngModel)]="client.middlename"
+                    [(ngModel)]="client().middlename"
                   ></ion-input>
                 </ion-item>
 
@@ -244,7 +246,7 @@ import {
                   <ion-input
                     [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
                     name="lastname"
-                    [(ngModel)]="client.lastname"
+                    [(ngModel)]="client().lastname"
                     required
                   ></ion-input>
                 </ion-item>
@@ -261,7 +263,8 @@ import {
                         data-testid="dateOfBirth-picker"
                         presentation="date"
                         name="dateOfBirth"
-                        [(ngModel)]="dateOfBirth"
+                        [ngModel]="dateOfBirth()"
+                        (ngModelChange)="dateOfBirth.set($event)"
                       ></ion-datetime>
                     </ng-template>
                   </ion-modal>
@@ -274,7 +277,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
                   name="externalId"
-                  [(ngModel)]="client.externalId"
+                  [(ngModel)]="client().externalId"
                 ></ion-input>
               </ion-item>
 
@@ -283,7 +286,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'COMMON.MOBILE_NO' | translate"
                   name="mobileNo"
-                  [(ngModel)]="client.mobileNo"
+                  [(ngModel)]="client().mobileNo"
                 ></ion-input>
               </ion-item>
 
@@ -292,23 +295,23 @@ import {
                 <ion-input
                   [attr.aria-label]="'COMMON.EMAIL' | translate"
                   name="emailAddress"
-                  [(ngModel)]="client.emailAddress"
+                  [(ngModel)]="client().emailAddress"
                 ></ion-input>
               </ion-item>
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              @if (isEditMode && !originalActive) {
+              @if (isEditMode() && !originalActive()) {
                 <ion-button
                   color="secondary"
                   type="button"
                   (click)="onActivate()"
-                  [disabled]="isSaving || !activationDate"
+                  [disabled]="isSaving() || !activationDate()"
                 >
-                  @if (isSaving) {
+                  @if (isSaving()) {
                     <ion-spinner name="crescent"></ion-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
@@ -316,8 +319,12 @@ import {
                   }
                 </ion-button>
               }
-              <ion-button color="primary" type="submit" [disabled]="clientForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="clientForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -380,19 +387,19 @@ export class ClientFormComponent implements OnInit {
   private readonly LOCALE_EN = 'en';
 
   clientId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
-  originalActive = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
+  readonly originalActive = signal(false);
 
   // Use strictly typed OpenAPI models
-  client: PostClientsRequest = {
+  readonly client = signal<PostClientsRequest>({
     legalFormId: 1,
     active: true,
-  };
+  });
 
-  submittedOnDate = toIsoDate(new Date());
-  activationDate = toIsoDate(new Date());
-  dateOfBirth: string | null = null;
+  readonly submittedOnDate = signal(toIsoDate(new Date()));
+  readonly activationDate = signal(toIsoDate(new Date()));
+  readonly dateOfBirth = signal<string | null>(null);
   readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit() {
@@ -401,7 +408,7 @@ export class ClientFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.clientId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadClientData();
       }
     });
@@ -419,7 +426,7 @@ export class ClientFormComponent implements OnInit {
       // Reload offices and select the new one
       this.officesService.getOffices(true).subscribe((offices) => {
         this.offices.set(offices);
-        this.client.officeId = newOfficeId;
+        this.client().officeId = newOfficeId;
       });
     });
   }
@@ -431,32 +438,32 @@ export class ClientFormComponent implements OnInit {
       const clientData = data as any;
       const actDateArray = clientData.activationDate as unknown as number[];
       if (actDateArray) {
-        this.activationDate = toIsoDate(
-          new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]),
+        this.activationDate.set(
+          toIsoDate(new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2])),
         );
       }
 
       const subDateArray = clientData.submittedOnDate as unknown as number[];
       if (subDateArray) {
-        this.submittedOnDate = toIsoDate(
-          new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]),
+        this.submittedOnDate.set(
+          toIsoDate(new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2])),
         );
       } else if (actDateArray) {
-        this.submittedOnDate = toIsoDate(
-          new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]),
+        this.submittedOnDate.set(
+          toIsoDate(new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2])),
         );
       }
 
       const dobArray = clientData.dateOfBirth as unknown as number[];
       if (dobArray) {
-        this.dateOfBirth = toIsoDate(new Date(dobArray[0], dobArray[1] - 1, dobArray[2]));
+        this.dateOfBirth.set(toIsoDate(new Date(dobArray[0], dobArray[1] - 1, dobArray[2])));
       }
 
-      this.originalActive = !!clientData.active;
+      this.originalActive.set(!!clientData.active);
 
       const legalFormId = clientData.legalForm?.id || 1;
 
-      this.client = {
+      this.client.set({
         firstname: clientData.firstname,
         lastname: clientData.lastname,
         middlename: clientData.middlename,
@@ -467,49 +474,49 @@ export class ClientFormComponent implements OnInit {
         officeId: clientData.officeId,
         active: clientData.active,
         legalFormId: legalFormId,
-      };
+      });
     });
   }
 
   onActivate() {
-    if (!this.clientId || !this.activationDate) return;
-    this.isSaving = true;
+    if (!this.clientId || !this.activationDate()) return;
+    this.isSaving.set(true);
 
     const activationPayload = {
-      activationDate: formatDateToFineract(this.activationDate),
+      activationDate: formatDateToFineract(this.activationDate()),
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     };
 
     this.clientService.postClientsClientId(this.clientId, activationPayload, 'activate').subscribe({
       next: () => {
-        this.isSaving = false;
-        this.originalActive = true;
-        this.client.active = true;
+        this.isSaving.set(false);
+        this.originalActive.set(true);
+        this.client().active = true;
       },
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.clientId) {
+    if (this.isEditMode() && this.clientId) {
       // Use Record<string, unknown> to bypass OpenAPI schema restrictions on update
       const payload: Record<string, unknown> = {
-        externalId: this.client.externalId,
-        mobileNo: this.client.mobileNo,
-        emailAddress: this.client.emailAddress,
+        externalId: this.client().externalId,
+        mobileNo: this.client().mobileNo,
+        emailAddress: this.client().emailAddress,
       };
 
-      if (this.client.legalFormId === 2) {
-        payload['fullname'] = this.client.fullname;
+      if (this.client().legalFormId === 2) {
+        payload['fullname'] = this.client().fullname;
       } else {
-        payload['firstname'] = this.client.firstname;
-        payload['lastname'] = this.client.lastname;
-        payload['middlename'] = this.client.middlename;
-        if (this.dateOfBirth) {
-          payload['dateOfBirth'] = formatDateToFineract(this.dateOfBirth);
+        payload['firstname'] = this.client().firstname;
+        payload['lastname'] = this.client().lastname;
+        payload['middlename'] = this.client().middlename;
+        if (this.dateOfBirth()) {
+          payload['dateOfBirth'] = formatDateToFineract(this.dateOfBirth());
           payload['locale'] = FINERACT_LOCALE;
           payload['dateFormat'] = FINERACT_DATE_FORMAT;
         }
@@ -519,34 +526,34 @@ export class ClientFormComponent implements OnInit {
         .putClientsClientId(this.clientId, payload as PutClientsClientIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
       // Post mode
-      this.client.activationDate = formatDateToFineract(this.activationDate);
+      this.client().activationDate = formatDateToFineract(this.activationDate());
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.client as any).submittedOnDate = formatDateToFineract(this.submittedOnDate);
-      this.client.dateFormat = FINERACT_DATE_FORMAT;
-      this.client.locale = FINERACT_LOCALE;
+      (this.client() as any).submittedOnDate = formatDateToFineract(this.submittedOnDate());
+      this.client().dateFormat = FINERACT_DATE_FORMAT;
+      this.client().locale = FINERACT_LOCALE;
 
-      if (this.dateOfBirth) {
-        this.client.dateOfBirth = formatDateToFineract(this.dateOfBirth);
+      if (this.dateOfBirth()) {
+        this.client().dateOfBirth = formatDateToFineract(this.dateOfBirth());
       }
 
-      if (this.client.legalFormId === 2) {
+      if (this.client().legalFormId === 2) {
         // Entity: omit person name fields
-        delete this.client.firstname;
-        delete this.client.lastname;
-        delete this.client.middlename;
-        delete this.client.dateOfBirth;
+        delete this.client().firstname;
+        delete this.client().lastname;
+        delete this.client().middlename;
+        delete this.client().dateOfBirth;
       } else {
         // Person: omit entity name field
-        delete this.client.fullname;
+        delete this.client().fullname;
       }
 
-      this.clientService.postClients(this.client).subscribe({
+      this.clientService.postClients(this.client()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

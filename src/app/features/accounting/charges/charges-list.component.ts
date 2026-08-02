@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,8 +49,8 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.CHARGES_DESC"
       createButtonLabel="CHARGES.CREATE"
       [columns]="columns"
-      [data]="charges"
-      [totalRecords]="charges.length"
+      [data]="charges()"
+      [totalRecords]="charges().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateCharge()"
@@ -100,7 +100,7 @@ export class ChargesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  charges: ChargeData[] = [];
+  readonly charges = signal<ChargeData[]>([]);
 
   ngOnInit(): void {
     this.loadCharges();
@@ -109,7 +109,7 @@ export class ChargesListComponent implements OnInit {
   private loadCharges(): void {
     this.chargesService.getCharges().subscribe({
       next: (data) => {
-        this.charges = data || [];
+        this.charges.set(data || []);
       },
       error: (err) => console.error('Failed to load charges', err),
     });

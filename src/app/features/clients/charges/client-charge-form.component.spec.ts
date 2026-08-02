@@ -64,7 +64,7 @@ describe('ClientChargeFormComponent', () => {
   it('should load charge options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdChargesTemplate).toHaveBeenCalledWith(1);
-    expect(component.chargeOptions).toHaveSize(1);
+    expect(component.chargeOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {

@@ -81,7 +81,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('PRODUCTS.EDIT_LOAN_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_LOAN_PRODUCT' | translate)
             }}
@@ -100,7 +100,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-name"
                       data-testid="loan-product-name"
                       name="name"
-                      [(ngModel)]="product.name"
+                      [(ngModel)]="product().name"
                       required
                       placeholder="{{ 'COMMON.NAME' | translate }}"
                     ></ion-input>
@@ -117,7 +117,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-short-name"
                       data-testid="loan-product-short-name"
                       name="shortName"
-                      [(ngModel)]="product.shortName"
+                      [(ngModel)]="product().shortName"
                       required
                       maxlength="4"
                       placeholder="{{ 'PRODUCTS.SHORT_NAME' | translate }}"
@@ -135,7 +135,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-description"
                       data-testid="loan-product-description"
                       name="description"
-                      [(ngModel)]="product.description"
+                      [(ngModel)]="product().description"
                       rows="3"
                       placeholder="{{ 'PRODUCTS.DESCRIPTION' | translate }}"
                     ></ion-textarea>
@@ -150,7 +150,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-external-id"
                       data-testid="loan-product-external-id"
                       name="externalId"
-                      [(ngModel)]="product.externalId"
+                      [(ngModel)]="product().externalId"
                       placeholder="{{ 'COMMON.EXTERNAL_ID' | translate }}"
                     ></ion-input>
                   </ion-item>
@@ -165,7 +165,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-fund-id"
                       data-testid="loan-product-fund-id"
                       name="fundId"
-                      [(ngModel)]="product.fundId"
+                      [(ngModel)]="product().fundId"
                       placeholder="{{ 'PRODUCTS.FUND' | translate }}"
                     >
                       @for (fund of fundOptions(); track fund.id) {
@@ -186,7 +186,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-delinquency-bucket-id"
                       data-testid="loan-product-delinquency-bucket-id"
                       name="delinquencyBucketId"
-                      [(ngModel)]="product.delinquencyBucketId"
+                      [(ngModel)]="product().delinquencyBucketId"
                       placeholder="{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}"
                     >
                       @for (bucket of delinquencyBucketOptions(); track bucket.id) {
@@ -205,7 +205,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-currency-code"
                       data-testid="loan-product-currency-code"
                       name="currencyCode"
-                      [(ngModel)]="product.currencyCode"
+                      [(ngModel)]="product().currencyCode"
                       required
                       placeholder="{{ 'PRODUCTS.CURRENCY' | translate }}"
                     >
@@ -227,7 +227,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       data-testid="loan-product-digits-after-decimal"
                       type="number"
                       name="digitsAfterDecimal"
-                      [(ngModel)]="product.digitsAfterDecimal"
+                      [(ngModel)]="product().digitsAfterDecimal"
                       required
                     ></ion-input>
                   </ion-item>
@@ -242,7 +242,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       data-testid="loan-product-principal"
                       type="number"
                       name="principal"
-                      [(ngModel)]="product.principal"
+                      [(ngModel)]="product().principal"
                       required
                     ></ion-input>
                   </ion-item>
@@ -259,7 +259,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       data-testid="loan-product-interest-rate"
                       type="number"
                       name="interestRatePerPeriod"
-                      [(ngModel)]="product.interestRatePerPeriod"
+                      [(ngModel)]="product().interestRatePerPeriod"
                       required
                     ></ion-input>
                   </ion-item>
@@ -276,7 +276,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       data-testid="loan-product-repayments-count"
                       type="number"
                       name="numberOfRepayments"
-                      [(ngModel)]="product.numberOfRepayments"
+                      [(ngModel)]="product().numberOfRepayments"
                       required
                     ></ion-input>
                   </ion-item>
@@ -293,7 +293,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       data-testid="loan-product-repayment-every"
                       type="number"
                       name="repaymentEvery"
-                      [(ngModel)]="product.repaymentEvery"
+                      [(ngModel)]="product().repaymentEvery"
                       required
                     ></ion-input>
                   </ion-item>
@@ -309,7 +309,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-repayment-frequency"
                       data-testid="loan-product-repayment-frequency"
                       name="repaymentFrequencyType"
-                      [(ngModel)]="product.repaymentFrequencyType"
+                      [(ngModel)]="product().repaymentFrequencyType"
                       required
                     >
                       <ion-select-option [value]="0">{{
@@ -340,7 +340,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-interest-frequency"
                       data-testid="loan-product-interest-frequency"
                       name="interestRateFrequencyType"
-                      [(ngModel)]="product.interestRateFrequencyType"
+                      [(ngModel)]="product().interestRateFrequencyType"
                       required
                     >
                       <ion-select-option [value]="2">{{
@@ -365,7 +365,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-amortization-type"
                       data-testid="loan-product-amortization-type"
                       name="amortizationType"
-                      [(ngModel)]="product.amortizationType"
+                      [(ngModel)]="product().amortizationType"
                       required
                     >
                       <ion-select-option [value]="1">{{
@@ -390,7 +390,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-interest-type"
                       data-testid="loan-product-interest-type"
                       name="interestType"
-                      [(ngModel)]="product.interestType"
+                      [(ngModel)]="product().interestType"
                       required
                     >
                       <ion-select-option [value]="0">{{
@@ -415,7 +415,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-interest-calc-period"
                       data-testid="loan-product-interest-calc-period"
                       name="interestCalculationPeriodType"
-                      [(ngModel)]="product.interestCalculationPeriodType"
+                      [(ngModel)]="product().interestCalculationPeriodType"
                       required
                     >
                       <ion-select-option [value]="0">{{
@@ -440,7 +440,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-schedule-type"
                       data-testid="loan-product-schedule-type"
                       name="loanScheduleType"
-                      [(ngModel)]="product.loanScheduleType"
+                      [(ngModel)]="product().loanScheduleType"
                       (ngModelChange)="onLoanScheduleTypeChange($event)"
                       required
                     >
@@ -465,7 +465,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       id="loan-product-transaction-strategy"
                       data-testid="loan-product-transaction-strategy"
                       name="transactionProcessingStrategyCode"
-                      [(ngModel)]="product.transactionProcessingStrategyCode"
+                      [(ngModel)]="product().transactionProcessingStrategyCode"
                       [disabled]="isProgressive()"
                       required
                     >
@@ -491,7 +491,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                         id="loan-product-schedule-processing-type"
                         data-testid="loan-product-schedule-processing-type"
                         name="loanScheduleProcessingType"
-                        [(ngModel)]="product.loanScheduleProcessingType"
+                        [(ngModel)]="product().loanScheduleProcessingType"
                         required
                       >
                         @for (option of loanScheduleProcessingTypeOptions(); track option.code) {
@@ -515,10 +515,10 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                 "
                 [creditTransactionTypeOptions]="creditAllocationTransactionTypes()"
                 [creditAllocationRuleOptions]="creditAllocationAllocationTypes()"
-                [paymentAllocation]="product.paymentAllocation ?? []"
-                (paymentAllocationChange)="product.paymentAllocation = $event"
-                [creditAllocation]="product.creditAllocation ?? []"
-                (creditAllocationChange)="product.creditAllocation = $event"
+                [paymentAllocation]="product().paymentAllocation ?? []"
+                (paymentAllocationChange)="product().paymentAllocation = $event"
+                [creditAllocation]="product().creditAllocation ?? []"
+                (creditAllocationChange)="product().creditAllocation = $event"
               ></app-payment-credit-allocation-editor>
             }
 
@@ -590,7 +590,7 @@ export class LoanProductFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/loan';
 
   productId: number | null = null;
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
   readonly fundOptions = signal<FundData[]>([]);
@@ -610,7 +610,7 @@ export class LoanProductFormComponent implements OnInit {
   >([]);
   readonly isProgressive = signal(false);
 
-  product: PostLoanProductsRequest = {
+  readonly product = signal<PostLoanProductsRequest>({
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
     inMultiplesOf: 0,
@@ -625,7 +625,7 @@ export class LoanProductFormComponent implements OnInit {
     daysInYearType: 1,
     daysInMonthType: 1,
     isInterestRecalculationEnabled: false,
-  };
+  });
 
   ngOnInit() {
     this.fundsService.getFunds().subscribe((data) => this.fundOptions.set(data));
@@ -655,7 +655,7 @@ export class LoanProductFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadProductData();
       }
     });
@@ -666,12 +666,12 @@ export class LoanProductFormComponent implements OnInit {
     this.applyTransactionProcessingStrategyFilter();
 
     if (this.isProgressive()) {
-      this.product.loanScheduleProcessingType = 'HORIZONTAL';
-      this.product.paymentAllocation = this.buildDefaultPaymentAllocation();
+      this.product().loanScheduleProcessingType = 'HORIZONTAL';
+      this.product().paymentAllocation = this.buildDefaultPaymentAllocation();
     } else {
-      this.product.loanScheduleProcessingType = undefined;
-      this.product.paymentAllocation = undefined;
-      this.product.creditAllocation = undefined;
+      this.product().loanScheduleProcessingType = undefined;
+      this.product().paymentAllocation = undefined;
+      this.product().creditAllocation = undefined;
     }
   }
 
@@ -683,7 +683,7 @@ export class LoanProductFormComponent implements OnInit {
         ),
       );
       if (this.transactionProcessingStrategyOptions().length) {
-        this.product.transactionProcessingStrategyCode =
+        this.product().transactionProcessingStrategyCode =
           this.transactionProcessingStrategyOptions()[0].code;
       }
     } else {
@@ -693,10 +693,10 @@ export class LoanProductFormComponent implements OnInit {
         ),
       );
       if (
-        isAdvancedPaymentAllocationStrategy(this.product.transactionProcessingStrategyCode) &&
+        isAdvancedPaymentAllocationStrategy(this.product().transactionProcessingStrategyCode) &&
         this.transactionProcessingStrategyOptions().length
       ) {
-        this.product.transactionProcessingStrategyCode =
+        this.product().transactionProcessingStrategyCode =
           this.transactionProcessingStrategyOptions()[0].code;
       }
     }
@@ -718,7 +718,7 @@ export class LoanProductFormComponent implements OnInit {
   loadProductData() {
     if (!this.productId) return;
     this.productService.getLoanproductsProductId(this.productId).subscribe((data) => {
-      this.product = {
+      this.product.set({
         name: data.name,
         shortName: data.shortName,
         description: data.description,
@@ -744,25 +744,25 @@ export class LoanProductFormComponent implements OnInit {
         loanScheduleProcessingType: data.loanScheduleProcessingType?.code,
         paymentAllocation: data.paymentAllocation,
         creditAllocation: data.creditAllocation,
-      };
-      this.isProgressive.set(this.product.loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      });
+      this.isProgressive.set(this.product().loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
       this.applyTransactionProcessingStrategyFilter();
     });
   }
 
   onSubmit() {
     this.isSaving.set(true);
-    this.product.locale = 'en';
+    this.product().locale = 'en';
 
-    if (this.isEditMode && this.productId) {
+    if (this.isEditMode() && this.productId) {
       this.productService
-        .putLoanproductsProductId(this.productId, this.product as PutLoanProductsProductIdRequest)
+        .putLoanproductsProductId(this.productId, this.product() as PutLoanProductsProductIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => this.isSaving.set(false),
         });
     } else {
-      this.productService.postLoanproducts(this.product).subscribe({
+      this.productService.postLoanproducts(this.product()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => this.isSaving.set(false),
       });

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -73,7 +73,7 @@ const PRODUCT_TYPE = 'share';
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('PRODUCTS.EDIT_SHARE_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_SHARE_PRODUCT' | translate)
             }}
@@ -92,7 +92,7 @@ const PRODUCT_TYPE = 'share';
                       id="share-product-name"
                       data-testid="share-product-name"
                       name="name"
-                      [(ngModel)]="product.name"
+                      [(ngModel)]="product().name"
                       required
                     ></ion-input>
                   </ion-item>
@@ -108,7 +108,7 @@ const PRODUCT_TYPE = 'share';
                       id="share-product-short-name"
                       data-testid="share-product-short-name"
                       name="shortName"
-                      [(ngModel)]="product.shortName"
+                      [(ngModel)]="product().shortName"
                       required
                       maxlength="4"
                     ></ion-input>
@@ -125,7 +125,7 @@ const PRODUCT_TYPE = 'share';
                       id="share-product-description"
                       data-testid="share-product-description"
                       name="description"
-                      [(ngModel)]="product.description"
+                      [(ngModel)]="product().description"
                       rows="2"
                     ></ion-textarea>
                   </ion-item>
@@ -140,7 +140,7 @@ const PRODUCT_TYPE = 'share';
                       id="share-product-currency-code"
                       data-testid="share-product-currency-code"
                       name="currencyCode"
-                      [(ngModel)]="product.currencyCode"
+                      [(ngModel)]="product().currencyCode"
                       required
                     >
                       <ion-select-option [value]="DEFAULT_CURRENCY">{{
@@ -163,7 +163,7 @@ const PRODUCT_TYPE = 'share';
                       data-testid="share-product-total-shares"
                       type="number"
                       name="totalShares"
-                      [(ngModel)]="product.totalShares"
+                      [(ngModel)]="product().totalShares"
                       required
                     ></ion-input>
                   </ion-item>
@@ -180,7 +180,7 @@ const PRODUCT_TYPE = 'share';
                       data-testid="share-product-unit-price"
                       type="number"
                       name="unitPrice"
-                      [(ngModel)]="product.unitPrice"
+                      [(ngModel)]="product().unitPrice"
                       required
                     ></ion-input>
                   </ion-item>
@@ -197,7 +197,7 @@ const PRODUCT_TYPE = 'share';
                       data-testid="share-product-nominal-shares"
                       type="number"
                       name="nominalShares"
-                      [(ngModel)]="product.nominalShares"
+                      [(ngModel)]="product().nominalShares"
                       required
                     ></ion-input>
                   </ion-item>
@@ -213,7 +213,7 @@ const PRODUCT_TYPE = 'share';
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -222,9 +222,9 @@ const PRODUCT_TYPE = 'share';
                 data-testid="share-product-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="productForm.invalid || isSaving"
+                [disabled]="productForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -269,10 +269,10 @@ export class ShareProductFormComponent implements OnInit {
   protected readonly DEFAULT_CURRENCY = DEFAULT_CURRENCY;
 
   productId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  product: PostProductsTypeRequest = {
+  readonly product = signal<PostProductsTypeRequest>({
     currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
     inMultiplesOf: 1,
@@ -281,14 +281,14 @@ export class ShareProductFormComponent implements OnInit {
     nominalShares: 1,
     accountingRule: 1,
     allowDividendCalculationForInactiveClients: false,
-  };
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadProductData();
       }
     });
@@ -297,7 +297,7 @@ export class ShareProductFormComponent implements OnInit {
   loadProductData() {
     if (!this.productId) return;
     this.productService.getProductsTypeProductId(this.productId, PRODUCT_TYPE).subscribe((data) => {
-      this.product = {
+      this.product.set({
         name: data.name,
         shortName: data.shortName,
         description: data.description,
@@ -307,25 +307,25 @@ export class ShareProductFormComponent implements OnInit {
         unitPrice: data.unitPrice,
         nominalShares: data.nominalShares,
         accountingRule: 1,
-      };
+      });
     });
   }
 
   onSubmit() {
-    this.isSaving = true;
-    this.product.locale = DEFAULT_LOCALE;
+    this.isSaving.set(true);
+    this.product().locale = DEFAULT_LOCALE;
 
-    if (this.isEditMode && this.productId) {
+    if (this.isEditMode() && this.productId) {
       this.productService
-        .putProductsTypeProductId(PRODUCT_TYPE, this.productId, this.product)
+        .putProductsTypeProductId(PRODUCT_TYPE, this.productId, this.product())
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
-      this.productService.postProductsType(PRODUCT_TYPE, this.product).subscribe({
+      this.productService.postProductsType(PRODUCT_TYPE, this.product()).subscribe({
         next: () => this.router.navigate([REDIRECT_URL]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

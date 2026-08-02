@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { InstanceModeService, ChangeInstanceModeRequest } from '../../../api';
@@ -70,8 +70,8 @@ import {
           </div>
 
           <div class="form-actions">
-            <ion-button color="primary" type="button" [disabled]="isSaving" (click)="onSave()">
-              @if (isSaving) {
+            <ion-button color="primary" type="button" [disabled]="isSaving()" (click)="onSave()">
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -107,13 +107,13 @@ export class InstanceModeComponent {
     batchWorkerEnabled: true,
     batchManagerEnabled: true,
   };
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   onSave(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.service.putInstanceMode(this.mode).subscribe({
-      next: () => (this.isSaving = false),
-      error: () => (this.isSaving = false),
+      next: () => this.isSaving.set(false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

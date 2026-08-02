@@ -60,7 +60,7 @@ describe('RunAccrualsComponent', () => {
     expect(serviceSpy.postRunaccruals).toHaveBeenCalled();
     const arg = serviceSpy.postRunaccruals.calls.mostRecent().args[0];
     expect(arg.tillDate).toBe('15 January 2026');
-    expect(component.successMessage).toBeTruthy();
+    expect(component.successMessage()).toBeTruthy();
   });
 
   it('should not call postRunaccruals when no date is selected', () => {

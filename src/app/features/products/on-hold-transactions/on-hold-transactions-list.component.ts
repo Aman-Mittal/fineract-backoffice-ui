@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -41,8 +41,8 @@ import {
       title="ON_HOLD_TRANSACTIONS.TITLE"
       helpTextKey="HELP.ON_HOLD_TRANSACTIONS_DESC"
       [columns]="columns"
-      [data]="transactions"
-      [totalRecords]="transactions.length"
+      [data]="transactions()"
+      [totalRecords]="transactions().length"
       [localLogic]="true"
     >
       <ng-template appCellTemplate="transactionDate" let-row>
@@ -72,7 +72,7 @@ export class OnHoldTransactionsListComponent implements OnInit {
   ];
 
   savingsId!: number;
-  transactions: DepositAccountOnHoldTransactionData[] = [];
+  readonly transactions = signal<DepositAccountOnHoldTransactionData[]>([]);
 
   ngOnInit(): void {
     this.savingsId = Number(this.route.snapshot.paramMap.get('savingsId'));
@@ -88,7 +88,7 @@ export class OnHoldTransactionsListComponent implements OnInit {
             typeof data === 'string'
               ? (JSON.parse(data || '[]') as DepositAccountOnHoldTransactionData[])
               : ((data ?? []) as unknown as DepositAccountOnHoldTransactionData[]);
-          this.transactions = parsed || [];
+          this.transactions.set(parsed || []);
         },
         error: (err: unknown) => {
           console.error('Failed to load on-hold transactions', err);

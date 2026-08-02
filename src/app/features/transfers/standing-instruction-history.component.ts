@@ -51,8 +51,8 @@ import {
 export class StandingInstructionHistoryComponent implements OnInit {
   private readonly historyService = inject(StandingInstructionsHistoryService);
 
-  history = signal<GetStandingInstructionHistoryPageItemsResponse[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly history = signal<GetStandingInstructionHistoryPageItemsResponse[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME' },

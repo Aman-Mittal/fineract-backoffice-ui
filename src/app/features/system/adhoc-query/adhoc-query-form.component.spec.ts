@@ -64,14 +64,14 @@ describe('AdhocQueryFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getAdhocqueryTemplate).toHaveBeenCalled();
-    expect(component.frequencyOptions).toHaveSize(1);
+    expect(component.frequencyOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postAdhocquery.and.returnValue(
       of({}) as unknown as ReturnType<AdhocQueryApiService['postAdhocquery']>,
     );
-    component.query = { name: 'New', query: 'select 1', tableName: 't' };
+    component.query.set({ name: 'New', query: 'select 1', tableName: 't' });
     component.onSubmit();
     expect(serviceSpy.postAdhocquery).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/adhoc-query']);

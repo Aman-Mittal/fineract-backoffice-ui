@@ -63,8 +63,8 @@ describe('EntityMappingFormComponent', () => {
     serviceSpy.postEntitytoentitymappingRelId.and.returnValue(
       of('{}') as unknown as ReturnType<FineractEntityService['postEntitytoentitymappingRelId']>,
     );
-    component.relId = 1;
-    component.payload = { fromId: 10, toId: 20 };
+    component.relId.set(1);
+    component.payload.set({ fromId: 10, toId: 20 });
     component.onSubmit();
     expect(serviceSpy.postEntitytoentitymappingRelId).toHaveBeenCalledWith(
       1,

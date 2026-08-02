@@ -66,7 +66,7 @@ describe('CalendarsListComponent', () => {
   it('should load calendars on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityTypeEntityIdCalendars).toHaveBeenCalledWith('centers', 2);
-    expect(component.calendars).toHaveSize(1);
+    expect(component.calendars()).toHaveSize(1);
   });
 
   it('should navigate to edit with the entity and calendar ids', () => {

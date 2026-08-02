@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -64,7 +64,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('TAX_COMPONENTS.EDIT' | translate)
                 : ('TAX_COMPONENTS.CREATE' | translate)
             }}
@@ -80,7 +80,7 @@ import {
                 id="tax-component-name"
                 data-testid="tax-component-name"
                 name="name"
-                [(ngModel)]="component.name"
+                [(ngModel)]="component().name"
                 required
               ></ion-input>
             </ion-item>
@@ -95,7 +95,7 @@ import {
                 data-testid="tax-component-percentage"
                 type="number"
                 name="percentage"
-                [(ngModel)]="component.percentage"
+                [(ngModel)]="component().percentage"
                 required
               ></ion-input>
             </ion-item>
@@ -108,7 +108,7 @@ import {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -117,9 +117,9 @@ import {
                 data-testid="tax-component-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="tcForm.invalid || isSaving"
+                [disabled]="tcForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -164,10 +164,10 @@ export class TaxComponentFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/tax-components';
 
   componentId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  component: PostTaxesComponentsRequest = { name: '', percentage: undefined };
+  readonly component = signal<PostTaxesComponentsRequest>({ name: '', percentage: undefined });
   startDate: Date = new Date();
 
   ngOnInit(): void {
@@ -175,7 +175,7 @@ export class TaxComponentFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.componentId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -186,7 +186,7 @@ export class TaxComponentFormComponent implements OnInit {
     this.taxComponentsService
       .getTaxesComponentTaxComponentId(this.componentId)
       .subscribe((data) => {
-        this.component = { name: data.name, percentage: data.percentage };
+        this.component.set({ name: data.name, percentage: data.percentage });
         const arr = data.startDate as unknown as number[];
         if (Array.isArray(arr) && arr.length >= 3) {
           this.startDate = new Date(arr[0], arr[1] - 1, arr[2]);
@@ -195,25 +195,25 @@ export class TaxComponentFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     // Start date is immutable once set on the server, so only send it on create.
     const payload: PostTaxesComponentsRequest = {
-      ...this.component,
+      ...this.component(),
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     };
-    if (!this.isEditMode) {
+    if (!this.isEditMode()) {
       payload.startDate = formatDateToFineract(this.startDate);
     }
 
     const request$ =
-      this.isEditMode && this.componentId
+      this.isEditMode() && this.componentId
         ? this.taxComponentsService.putTaxesComponentTaxComponentId(this.componentId, payload)
         : this.taxComponentsService.postTaxesComponent(payload);
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

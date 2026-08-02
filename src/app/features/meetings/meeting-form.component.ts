@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -88,7 +88,8 @@ import {
                     data-testid="meetingDate-picker"
                     presentation="date"
                     name="meetingDate"
-                    [(ngModel)]="meetingDate"
+                    [ngModel]="meetingDate()"
+                    (ngModelChange)="meetingDate.set($event)"
                     required
                   ></ion-datetime>
                 </ng-template>
@@ -101,21 +102,22 @@ import {
                 [attr.aria-label]="'MEETINGS.CALENDAR_ID' | translate"
                 type="number"
                 name="calendarId"
-                [(ngModel)]="calendarId"
+                [ngModel]="calendarId()"
+                (ngModelChange)="calendarId.set($event)"
                 required
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="meetingForm.invalid || isSaving"
+                [disabled]="meetingForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -152,10 +154,10 @@ export class MeetingFormComponent implements OnInit {
   entityId!: number;
   meetingId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  meetingDate: string | null = null;
-  calendarId: number | null = null;
+  readonly meetingDate = signal<string | null>(null);
+  readonly calendarId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.entityType = this.route.snapshot.paramMap.get('entityType') ?? '';
@@ -164,8 +166,8 @@ export class MeetingFormComponent implements OnInit {
     this.meetingsService
       .getEntityTypeEntityIdMeetingsTemplate(this.entityType, this.entityId)
       .subscribe((tpl) => {
-        if (this.calendarId == null) {
-          this.calendarId = tpl.calendarData?.id ?? null;
+        if (this.calendarId() == null) {
+          this.calendarId.set(tpl.calendarData?.id ?? null);
         }
       });
 
@@ -182,16 +184,16 @@ export class MeetingFormComponent implements OnInit {
     this.meetingsService
       .getEntityTypeEntityIdMeetingsMeetingId(this.meetingId, this.entityType, this.entityId)
       .subscribe((data) => {
-        this.meetingDate = data.meetingDate ? toIsoDate(new Date(data.meetingDate)) : null;
-        this.calendarId = data.calendarData?.id ?? this.calendarId;
+        this.meetingDate.set(data.meetingDate ? toIsoDate(new Date(data.meetingDate)) : null);
+        this.calendarId.set(data.calendarData?.id ?? this.calendarId());
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: MeetingCreateRequest = {
-      calendarId: Number(this.calendarId),
-      meetingDate: formatDateToFineract(this.meetingDate),
+      calendarId: Number(this.calendarId()),
+      meetingDate: formatDateToFineract(this.meetingDate()),
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     };
@@ -212,7 +214,7 @@ export class MeetingFormComponent implements OnInit {
 
     request$.subscribe({
       next: () => this.router.navigate(['/meetings', this.entityType, this.entityId]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

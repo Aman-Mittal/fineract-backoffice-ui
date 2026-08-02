@@ -86,21 +86,21 @@ describe('OfficeFormComponent', () => {
     it('should create and load offices', () => {
       expect(component).toBeTruthy();
       expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
-      expect(component.isEditMode).toBeFalse();
+      expect(component.isEditMode()).toBeFalse();
     });
 
     it('should submit form in create mode', () => {
       officesServiceSpy.postOffices.and.returnValue(of({}) as unknown as Observable<never>);
-      component.office = {
+      component.office.set({
         name: NEW_OFFICE,
         parentId: 1,
         externalId: 'extNew',
-      };
-      component.openingDate = '2026-06-15';
+      });
+      component.openingDate.set('2026-06-15');
 
       component.onSubmit();
 
-      expect(component.isSaving).toBeTrue();
+      expect(component.isSaving()).toBeTrue();
       expect(officesServiceSpy.postOffices).toHaveBeenCalledWith({
         name: NEW_OFFICE,
         parentId: 1,
@@ -116,11 +116,11 @@ describe('OfficeFormComponent', () => {
       officesServiceSpy.postOffices.and.returnValue(
         throwError(() => new Error('Error')) as unknown as Observable<never>,
       );
-      component.office = {
+      component.office.set({
         name: NEW_OFFICE,
-      };
+      });
       component.onSubmit();
-      expect(component.isSaving).toBeFalse();
+      expect(component.isSaving()).toBeFalse();
     });
 
     it('should navigate away on cancel', () => {
@@ -193,13 +193,13 @@ describe('OfficeFormComponent', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.isEditMode).toBeTrue();
+      expect(component.isEditMode()).toBeTrue();
       expect(component.officeId).toBe(12);
       expect(officesServiceSpy.getOfficesOfficeId).toHaveBeenCalledWith(12);
-      expect(component.office.name).toBe(TEST_OFFICE);
+      expect(component.office().name).toBe(TEST_OFFICE);
 
       officesServiceSpy.putOfficesOfficeId.and.returnValue(of({}) as unknown as Observable<never>);
-      component.openingDate = '2026-06-16';
+      component.openingDate.set('2026-06-16');
       component.onSubmit();
 
       expect(officesServiceSpy.putOfficesOfficeId).toHaveBeenCalledWith(

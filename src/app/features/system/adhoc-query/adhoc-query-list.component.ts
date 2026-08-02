@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -46,8 +46,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.ADHOC_QUERY_DESC"
       createButtonLabel="ADHOC_QUERY.CREATE"
       [columns]="columns"
-      [data]="queries"
-      [totalRecords]="queries.length"
+      [data]="queries()"
+      [totalRecords]="queries().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -88,7 +88,7 @@ export class AdhocQueryListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  queries: AdHocData[] = [];
+  readonly queries = signal<AdHocData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -97,7 +97,7 @@ export class AdhocQueryListComponent implements OnInit {
   load(): void {
     this.adhocService.getAdhocquery().subscribe({
       next: (data: AdHocData[]) => {
-        this.queries = data || [];
+        this.queries.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load ad-hoc queries', err);

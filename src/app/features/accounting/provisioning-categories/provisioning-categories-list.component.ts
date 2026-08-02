@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.PROVISIONING_CATEGORIES_DESC"
       createButtonLabel="PROVISIONING_CATEGORIES.CREATE"
       [columns]="columns"
-      [data]="categories"
-      [totalRecords]="categories.length"
+      [data]="categories()"
+      [totalRecords]="categories().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -85,7 +85,7 @@ export class ProvisioningCategoriesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  categories: ProvisioningCategoryData[] = [];
+  readonly categories = signal<ProvisioningCategoryData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -94,7 +94,7 @@ export class ProvisioningCategoriesListComponent implements OnInit {
   load(): void {
     this.categoryService.getProvisioningcategory().subscribe({
       next: (data: ProvisioningCategoryData[]) => {
-        this.categories = data || [];
+        this.categories.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load provisioning categories', err);

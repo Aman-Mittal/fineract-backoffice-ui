@@ -57,7 +57,7 @@ describe('FloatingRatesListComponent', () => {
   it('should load floating rates on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getFloatingrates).toHaveBeenCalled();
-    expect(component.rates).toHaveSize(1);
+    expect(component.rates()).toHaveSize(1);
   });
 
   it('should navigate to edit with the rate id', () => {

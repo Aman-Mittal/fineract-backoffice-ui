@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { MappingFinancialActivitiesToAccountsService } from '../../api/api/mappingFinancialActivitiesToAccounts.service';
@@ -37,7 +37,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     <div class="container">
       <app-data-table
         title="Financial Activity Mappings"
-        [data]="mappings"
+        [data]="mappings()"
         [columns]="columns"
         [localLogic]="true"
         createButtonLabel="Define Mapping"
@@ -75,7 +75,7 @@ export class FinancialActivityMappingsListComponent implements OnInit {
   private financialActivityService = inject(MappingFinancialActivitiesToAccountsService);
   private router = inject(Router);
 
-  mappings: GetFinancialActivityAccountsResponse[] = [];
+  readonly mappings = signal<GetFinancialActivityAccountsResponse[]>([]);
   columns: ColumnDef[] = [
     { key: 'financialActivity', label: 'Financial Activity', sortable: true },
     { key: 'glAccountName', label: 'GL Account', sortable: true },
@@ -89,7 +89,7 @@ export class FinancialActivityMappingsListComponent implements OnInit {
 
   loadMappings() {
     this.financialActivityService.getFinancialactivityaccounts().subscribe((mappings) => {
-      this.mappings = mappings;
+      this.mappings.set(mappings);
     });
   }
 

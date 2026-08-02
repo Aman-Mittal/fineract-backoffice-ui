@@ -152,7 +152,8 @@ const DATE_FORMAT = 'yyyy-MM-dd';
                       data-testid="adjustDate-picker"
                       presentation="date"
                       name="adjustDate"
-                      [(ngModel)]="adjustDate"
+                      [ngModel]="adjustDate()"
+                      (ngModelChange)="adjustDate.set($event)"
                     ></ion-datetime>
                   </ng-template>
                 </ion-modal>
@@ -164,7 +165,8 @@ const DATE_FORMAT = 'yyyy-MM-dd';
                 <ion-input
                   [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
                   type="number"
-                  [(ngModel)]="adjustAmount"
+                  [ngModel]="adjustAmount()"
+                  (ngModelChange)="adjustAmount.set($event)"
                   name="adjustAmount"
                 ></ion-input>
               </ion-item>
@@ -239,12 +241,12 @@ export class TransactionDetailDialogComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  detail = signal<GetLoansLoanIdTransactionsTransactionIdResponse | null>(null);
-  showAdjustForm = signal(false);
-  isSaving = signal(false);
+  readonly detail = signal<GetLoansLoanIdTransactionsTransactionIdResponse | null>(null);
+  readonly showAdjustForm = signal(false);
+  readonly isSaving = signal(false);
 
-  adjustDate = toIsoDate(new Date());
-  adjustAmount = 0;
+  readonly adjustDate = signal(toIsoDate(new Date()));
+  readonly adjustAmount = signal(0);
   adjustNote = '';
 
   readonly data = input.required<TransactionDetailDialogData>();
@@ -255,10 +257,10 @@ export class TransactionDetailDialogComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.detail.set(data);
-          this.adjustAmount = data.amount ?? 0;
+          this.adjustAmount.set(data.amount ?? 0);
           const dateArray = data.date as unknown as number[];
           if (Array.isArray(dateArray)) {
-            this.adjustDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
+            this.adjustDate.set(toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2])));
           }
         },
         error: (err) => console.error('Failed to load transaction detail', err),
@@ -296,11 +298,11 @@ export class TransactionDetailDialogComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         this.isSaving.set(true);
-        const formattedDate = toIsoDate(this.adjustDate);
+        const formattedDate = toIsoDate(this.adjustDate());
         this.transactionsService
           .postLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId, {
             transactionDate: formattedDate,
-            transactionAmount: this.adjustAmount,
+            transactionAmount: this.adjustAmount(),
             note: this.adjustNote,
             dateFormat: DATE_FORMAT,
             locale: 'en',

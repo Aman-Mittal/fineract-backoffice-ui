@@ -61,7 +61,7 @@ describe('RolesListComponent', () => {
 
     expect(component).toBeTruthy();
     expect(rolesServiceSpy.getRoles).toHaveBeenCalled();
-    expect(component.roles).toEqual(mockRoles as unknown as GetRolesResponse[]);
+    expect(component.roles()).toEqual(mockRoles as unknown as GetRolesResponse[]);
   });
 
   it('should handle error when loading roles', () => {
@@ -72,7 +72,7 @@ describe('RolesListComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.roles).toEqual([]);
+    expect(component.roles()).toEqual([]);
     expect(console.error).toHaveBeenCalledWith('Failed to load roles', jasmine.any(Error));
   });
 

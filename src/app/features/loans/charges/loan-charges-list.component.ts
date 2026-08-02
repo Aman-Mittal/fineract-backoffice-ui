@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -48,8 +48,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.LOAN_CHARGES_DESC"
       createButtonLabel="LOAN_CHARGES.ADD_TITLE"
       [columns]="columns"
-      [data]="charges"
-      [totalRecords]="charges.length"
+      [data]="charges()"
+      [totalRecords]="charges().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -91,7 +91,7 @@ export class LoanChargesListComponent implements OnInit {
   ];
 
   loanId!: number;
-  charges: GetLoansLoanIdChargesChargeIdResponse[] = [];
+  readonly charges = signal<GetLoansLoanIdChargesChargeIdResponse[]>([]);
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
@@ -101,7 +101,7 @@ export class LoanChargesListComponent implements OnInit {
   load(): void {
     this.loanChargesService.getLoansLoanIdCharges(this.loanId).subscribe({
       next: (data: GetLoansLoanIdChargesChargeIdResponse[]) => {
-        this.charges = data || [];
+        this.charges.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load loan charges', err),
     });

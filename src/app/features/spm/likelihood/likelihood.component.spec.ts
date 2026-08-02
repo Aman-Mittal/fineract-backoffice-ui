@@ -54,8 +54,8 @@ describe('LikelihoodComponent', () => {
     component.ppiName = 'PPI_INDIA';
     component.load();
     expect(serviceSpy.getLikelihoodPpiName).toHaveBeenCalledWith('PPI_INDIA');
-    expect(component.rows).toHaveSize(1);
-    expect(component.rows[0].name).toBe('Likely');
+    expect(component.rows()).toHaveSize(1);
+    expect(component.rows()[0].name).toBe('Likely');
   });
 
   it('should put the updated likelihood with a JSON string body', () => {

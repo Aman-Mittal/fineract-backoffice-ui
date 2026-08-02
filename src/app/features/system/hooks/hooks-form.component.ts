@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -65,7 +65,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('HOOKS.EDIT' | translate) : ('HOOKS.CREATE' | translate) }}
+            {{ isEditMode() ? ('HOOKS.EDIT' | translate) : ('HOOKS.CREATE' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -77,11 +77,11 @@ import {
                 [attr.aria-label]="'HOOKS.NAME' | translate"
                 interface="popover"
                 name="name"
-                [(ngModel)]="hook.name"
+                [(ngModel)]="hook().name"
                 required
-                [disabled]="isEditMode"
+                [disabled]="isEditMode()"
               >
-                @for (tpl of templateOptions; track tpl.id) {
+                @for (tpl of templateOptions(); track tpl.id) {
                   <ion-select-option [value]="tpl.name">{{ tpl.name }}</ion-select-option>
                 }
               </ion-select>
@@ -92,21 +92,21 @@ import {
               <ion-input
                 [attr.aria-label]="'HOOKS.DISPLAY_NAME' | translate"
                 name="displayName"
-                [(ngModel)]="hook.displayName"
+                [(ngModel)]="hook().displayName"
                 required
               ></ion-input>
             </ion-item>
 
-            <ion-checkbox name="isActive" [(ngModel)]="hook.isActive">
+            <ion-checkbox name="isActive" [(ngModel)]="hook().isActive">
               {{ 'HOOKS.IS_ACTIVE' | translate }}
             </ion-checkbox>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="hookForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="hookForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -142,22 +142,22 @@ export class HooksFormComponent implements OnInit {
   private readonly LIST_PATH = '/system/hooks';
 
   hookId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  hook: HookCreateRequest = { name: '', displayName: '', isActive: true };
-  templateOptions: HookTemplateData[] = [];
+  readonly hook = signal<HookCreateRequest>({ name: '', displayName: '', isActive: true });
+  readonly templateOptions = signal<HookTemplateData[]>([]);
 
   ngOnInit(): void {
     this.hooksService.getHooksTemplate().subscribe((tpl) => {
-      this.templateOptions = tpl.templates ?? [];
+      this.templateOptions.set(tpl.templates ?? []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.hookId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -166,25 +166,25 @@ export class HooksFormComponent implements OnInit {
   load(): void {
     if (!this.hookId) return;
     this.hooksService.getHooksHookId(this.hookId).subscribe((data) => {
-      this.hook = {
+      this.hook.set({
         name: data.name,
         displayName: data.displayName,
         isActive: data.isActive,
         templateId: data.templateId,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.hookId
-        ? this.hooksService.putHooksHookId(this.hookId, this.hook)
-        : this.hooksService.postHooks(this.hook);
+      this.isEditMode() && this.hookId
+        ? this.hooksService.putHooksHookId(this.hookId, this.hook())
+        : this.hooksService.postHooks(this.hook());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

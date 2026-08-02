@@ -52,7 +52,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.GROUPS_DESC"
       createButtonLabel="Create Group"
       [columns]="columns"
-      [data]="groups"
+      [data]="groups()"
       [totalRecords]="totalRecords"
       (create)="onCreateGroup()"
       (searchChange)="onSearch($event)"
@@ -96,7 +96,7 @@ export class GroupsListComponent {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  groups: GetGroupsPageItems[] = [];
+  readonly groups = signal<GetGroupsPageItems[]>([]);
   totalRecords = 0;
 
   private searchSubject = new Subject<string>();
@@ -153,7 +153,7 @@ export class GroupsListComponent {
         }),
       )
       .subscribe((data) => {
-        this.groups = data;
+        this.groups.set(data);
       });
   }
 

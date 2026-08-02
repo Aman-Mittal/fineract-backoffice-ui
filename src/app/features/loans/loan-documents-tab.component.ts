@@ -51,7 +51,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
         <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
         <ion-input
           [attr.aria-label]="'COMMON.NAME' | translate"
-          [(ngModel)]="newDocName"
+          [ngModel]="newDocName()"
+          (ngModelChange)="newDocName.set($event)"
           name="docName"
         ></ion-input>
       </ion-item>
@@ -59,7 +60,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
         <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
         <ion-input
           [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
-          [(ngModel)]="newDocDescription"
+          [ngModel]="newDocDescription()"
+          (ngModelChange)="newDocDescription.set($event)"
           name="docDescription"
         ></ion-input>
       </ion-item>
@@ -69,9 +71,9 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       </ion-button>
       <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" />
       <span class="file-name">{{
-        selectedFile?.name || ('LOANS.NO_FILE_SELECTED' | translate)
+        selectedFile()?.name || ('LOANS.NO_FILE_SELECTED' | translate)
       }}</span>
-      <ion-button color="primary" [disabled]="!selectedFile || isSaving()" (click)="onUpload()">
+      <ion-button color="primary" [disabled]="!selectedFile() || isSaving()" (click)="onUpload()">
         <ion-icon name="cloud-upload-outline"></ion-icon>
         {{ 'LOANS.UPLOAD' | translate }}
       </ion-button>
@@ -158,12 +160,12 @@ export class LoanDocumentsTabComponent implements OnInit {
   private readonly httpClient = inject(HttpClient);
   private readonly basePath = inject(BASE_PATH);
 
-  documents = signal<DocumentData[]>([]);
-  isLoading = signal(false);
-  isSaving = signal(false);
-  selectedFile?: File;
-  newDocName = '';
-  newDocDescription = '';
+  readonly documents = signal<DocumentData[]>([]);
+  readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
+  readonly selectedFile = signal<File | undefined>(undefined);
+  readonly newDocName = signal('');
+  readonly newDocDescription = signal('');
 
   columns = ['name', 'fileName', 'type', 'actions'];
 
@@ -188,15 +190,19 @@ export class LoanDocumentsTabComponent implements OnInit {
   onFileSelected(event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-      this.selectedFile = target.files[0];
-      if (!this.newDocName) {
-        this.newDocName = this.selectedFile.name;
+      const file = target.files[0];
+      this.selectedFile.set(file);
+      if (!this.newDocName()) {
+        this.newDocName.set(file.name);
       }
     }
   }
 
   onUpload(): void {
-    if (!this.selectedFile) return;
+    // Held in a local because a signal call cannot be narrowed — the guard below would not
+    // convince the compiler that the later reads are non-undefined.
+    const file = this.selectedFile();
+    if (!file) return;
     this.isSaving.set(true);
 
     // The OpenAPI-generated postEntityTypeEntityIdDocuments() has a codegen
@@ -205,19 +211,19 @@ export class LoanDocumentsTabComponent implements OnInit {
     // rejects that with 415. Post the FormData directly instead; the global
     // authInterceptor still attaches the tenant/auth headers for us.
     const formData = new FormData();
-    formData.append('file', this.selectedFile, this.selectedFile.name);
-    formData.append('name', this.newDocName || this.selectedFile.name);
-    if (this.newDocDescription) {
-      formData.append('description', this.newDocDescription);
+    formData.append('file', file, file.name);
+    formData.append('name', this.newDocName() || file.name);
+    if (this.newDocDescription()) {
+      formData.append('description', this.newDocDescription());
     }
 
     this.httpClient
       .post(`${this.basePath}/v1/loans/${this.loanId()}/documents`, formData)
       .subscribe({
         next: () => {
-          this.selectedFile = undefined;
-          this.newDocName = '';
-          this.newDocDescription = '';
+          this.selectedFile.set(undefined);
+          this.newDocName.set('');
+          this.newDocDescription.set('');
           this.isSaving.set(false);
           this.loadDocuments();
         },

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -87,7 +87,8 @@ import {
               <ion-input
                 [attr.aria-label]="'CALENDARS.TITLE_FIELD' | translate"
                 name="title"
-                [(ngModel)]="title"
+                [ngModel]="title()"
+                (ngModelChange)="title.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -102,7 +103,8 @@ import {
                     data-testid="startDate-picker"
                     presentation="date"
                     name="startDate"
-                    [(ngModel)]="startDate"
+                    [ngModel]="startDate()"
+                    (ngModelChange)="startDate.set($event)"
                     required
                   ></ion-datetime>
                 </ng-template>
@@ -115,25 +117,26 @@ import {
                 [attr.aria-label]="'CALENDARS.TYPE' | translate"
                 interface="popover"
                 name="typeId"
-                [(ngModel)]="typeId"
+                [ngModel]="typeId()"
+                (ngModelChange)="typeId.set($event)"
                 required
               >
-                @for (opt of typeOptions; track opt.id) {
+                @for (opt of typeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="calendarForm.invalid || isSaving"
+                [disabled]="calendarForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -170,12 +173,12 @@ export class CalendarFormComponent implements OnInit {
   entityId!: number;
   calendarId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  title = '';
-  startDate: string | null = null;
-  typeId: string | null = null;
-  typeOptions: EnumOptionData[] = [];
+  readonly title = signal('');
+  readonly startDate = signal<string | null>(null);
+  readonly typeId = signal<string | null>(null);
+  readonly typeOptions = signal<EnumOptionData[]>([]);
 
   ngOnInit(): void {
     this.entityType = this.route.snapshot.paramMap.get('entityType') ?? '';
@@ -184,7 +187,7 @@ export class CalendarFormComponent implements OnInit {
     this.calendarService
       .getEntityTypeEntityIdCalendarsTemplate(this.entityType, this.entityId)
       .subscribe((tpl) => {
-        this.typeOptions = tpl.calendarTypeOptions ?? [];
+        this.typeOptions.set(tpl.calendarTypeOptions ?? []);
       });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -200,18 +203,18 @@ export class CalendarFormComponent implements OnInit {
     this.calendarService
       .getEntityTypeEntityIdCalendarsCalendarId(this.calendarId, this.entityType, this.entityId)
       .subscribe((data) => {
-        this.title = data.title ?? '';
-        this.startDate = data.startDate ? toIsoDate(new Date(data.startDate)) : null;
-        this.typeId = data.typeId ?? (data.type?.id != null ? String(data.type.id) : null);
+        this.title.set(data.title ?? '');
+        this.startDate.set(data.startDate ? toIsoDate(new Date(data.startDate)) : null);
+        this.typeId.set(data.typeId ?? (data.type?.id != null ? String(data.type.id) : null));
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: CalendarRequest = {
-      title: this.title,
-      startDate: formatDateToFineract(this.startDate),
-      typeId: this.typeId ?? undefined,
+      title: this.title(),
+      startDate: formatDateToFineract(this.startDate()),
+      typeId: this.typeId() ?? undefined,
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     };
@@ -232,7 +235,7 @@ export class CalendarFormComponent implements OnInit {
 
     request$.subscribe({
       next: () => this.router.navigate(['/calendars', this.entityType, this.entityId]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

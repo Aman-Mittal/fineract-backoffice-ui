@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
@@ -36,8 +36,8 @@ import { LoanProductsDetailsService, LoanProductBasicDetailsData } from '../../.
       title="LOAN_PRODUCT_DETAILS.TITLE"
       helpTextKey="HELP.LOAN_PRODUCT_DETAILS_DESC"
       [columns]="columns"
-      [data]="details"
-      [totalRecords]="details.length"
+      [data]="details()"
+      [totalRecords]="details().length"
       [localLogic]="true"
     >
       <ng-template appCellTemplate="currency" let-row>
@@ -58,7 +58,7 @@ export class LoanProductDetailsComponent implements OnInit {
     { key: 'description', label: 'LOAN_PRODUCT_DETAILS.DESCRIPTION', sortable: false },
   ];
 
-  details: LoanProductBasicDetailsData[] = [];
+  readonly details = signal<LoanProductBasicDetailsData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -67,7 +67,7 @@ export class LoanProductDetailsComponent implements OnInit {
   load(): void {
     this.detailsService.getLoanproductsBasicDetails().subscribe({
       next: (data: LoanProductBasicDetailsData[]) => {
-        this.details = data || [];
+        this.details.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load loan product details', err),
     });
