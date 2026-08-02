@@ -26,7 +26,9 @@
     "clean-api": "node -e \"fs.rmSync('src/app/api/api',{recursive:true,force:true});fs.rmSync('src/app/api/model',{recursive:true,force:true})\"",
     "verify-api-client": "npm run generate-api && git diff --exit-code src/app/api",
     "i18n:check": "node scripts/check-translations.mjs",
-    "check:icons": "node scripts/check-icons.mjs"
+    "check:icons": "node scripts/check-icons.mjs",
+    "api:surface": "node scripts/check-api-surface.mjs",
+    "ga:check": "node scripts/ga-check.mjs"
   },
   "prettier": {
     "printWidth": 100,

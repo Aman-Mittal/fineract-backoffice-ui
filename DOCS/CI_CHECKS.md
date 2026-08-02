@@ -12,9 +12,11 @@ npm run lint
 npm run format:check
 npm run i18n:check
 npm run check:icons
+npm run api:surface
 npm test -- --watch=false --browsers=ChromeHeadless
 npm run build
 bash scripts/check-license.sh
+npm run ga:check       # advisory today — see "GA readiness" below
 ```
 
 ---
@@ -42,7 +44,7 @@ npm run lint
 ESLint over `src/**/*.ts` and `src/**/*.html`, for both projects in the workspace.
 `src/app/api/**` is excluded — it is generated.
 
-Two rules here are deliberate and worth knowing before you fight them:
+Three rules here are deliberate and worth knowing before you fight them:
 
 - **`no-restricted-imports` bans `@angular/material`.** The app migrated to Ionic;
   this is what stops it creeping back. Use `@ionic/angular/standalone` and see
@@ -50,6 +52,27 @@ Two rules here are deliberate and worth knowing before you fight them:
 - **`sonarjs/*` is on**, and is stricter than most setups — it will reject nested
   ternaries and string literals repeated three times or more. Extracting a named
   constant is usually the right response, not a disable comment.
+- **The adapter boundary is enforced by three rules.** `no-restricted-imports`
+  (ngx-translate, and Ionic's overlay controllers by name), `no-restricted-globals`
+  (`localStorage`, `sessionStorage`) and `no-restricted-properties`
+  (`URL.createObjectURL`) all point at `src/app/core/adapters/`. See
+  `DOCS/adr/0003-adapter-boundary.md`, and the section below for what to do when
+  one fires.
+
+#### The suppressions baseline
+
+```bash
+npm run lint          # fails on any violation not already recorded
+npm run lint:prune    # drops entries for violations you have fixed
+```
+
+`eslint-suppressions.json` records the violations that existed when a rule was
+turned on — currently 435, almost all `| translate` in components awaiting the
+`| appTranslate` migration. **It only ever shrinks.** A new violation is not in the
+file, so it fails immediately; a fixed one must be pruned, so it cannot come back.
+
+Do not add to it by hand. If a rule fires on code you are writing, the answer is
+the adapter, not an entry in the baseline.
 
 ### `html-lint`
 
@@ -113,6 +136,32 @@ jar.
 If this fails, do not edit `src/app/api/` — change `public/api/fineract.json` (or
 the generator options) and regenerate. See `DOCS/OPENAPI_GENERATOR.md`.
 
+### `api-surface`
+
+```bash
+npm run api:surface                                  # verify
+node scripts/check-api-surface.mjs --write           # accept a deliberate change
+```
+
+`api-client-drift` proves the client matches the spec. This proves the
+**application** still matches the client, which is a different question and fails
+at a different time.
+
+`src/app/core/adapters/api/api-surface.json` records the 413 operations across 127
+generated services that the app calls. Two ways it fails:
+
+- **An operation vanished from the generated client.** Fineract removed or renamed
+  the endpoint. Without this check you would learn it as compile errors scattered
+  across every feature that called it; here it is one line naming the operation and
+  its callers.
+- **A call is not recorded.** You adopted a new endpoint. Run `--write` and commit
+  the manifest — the diff is then a reviewable statement of what the app newly
+  depends on.
+
+This is deliberately not a facade over the generated client. ADR 0001 considered
+one and rejected it; see `DOCS/adr/0003-adapter-boundary.md` for why this is the
+complement rather than a reversal.
+
 ### `build`
 
 ```bash
@@ -164,6 +213,49 @@ vite) do not ship to users and would otherwise block every PR.
 
 Writes the pass/fail table to the run summary. Always runs. Note it does **not**
 depend on the e2e workflow, so a green CI summary says nothing about e2e.
+
+---
+
+## GA readiness
+
+```bash
+npm run ga:check              # human-readable
+npm run ga:check -- --json    # for CI annotation
+```
+
+Not wired into `ci.yml` yet, and deliberately so: four of its eight gates fail
+today, and a check that is red on every PR from the day it lands is a check people
+learn to scroll past. Run it when you want to know where the project stands
+against release, and wire it in once the blockers are closed.
+
+`security.md` opens with "This project is currently **not release-ready**." These
+gates are the machine-checkable part of what would have to change for that line to
+come out. Each is documented at its definition in `scripts/ga-check.mjs`, against the
+trust boundaries in `security.md`.
+
+| Gate                 | Status today | What it wants                                                                |
+| -------------------- | ------------ | ---------------------------------------------------------------------------- |
+| `headers`            | **fail**     | `deploy/nginx.conf` sets CSP (or `X-Frame-Options`), HSTS, nosniff, referrer |
+| `api-url-validation` | **fail**     | `ConfigService.setApiUrl()` validates against an allow-list                  |
+| `auth-header-scope`  | **fail**     | `authInterceptor` does not send `Authorization` to a foreign origin          |
+| `xss-sinks`          | pass         | no `bypassSecurityTrust*`, `[innerHTML]`, `document.write`                   |
+| `login-hosts`        | **fail**     | the server picker offers no third-party hosts                                |
+| `adapter-boundary`   | advisory     | the suppressions backlog only falls                                          |
+| `api-surface`        | pass         | as `api-surface` above                                                       |
+| `deps`               | pass         | no high/critical advisories in the **production** tree                       |
+
+Two conventions worth knowing:
+
+- **Advisory gates never fail the run.** The adapter backlog shrinks per component;
+  gating GA on reaching zero would block a release on cosmetics while `lint`
+  already stops it from growing.
+- **A gate that cannot be decided reports `unknown`, not `pass`.** Reporting a
+  security control as satisfied because nothing in the repo contradicted it is
+  worse than reporting nothing at all.
+
+The `deps` gate is `--omit=dev` for the same reason the `security` job is: the dev
+tree currently carries four high advisories, all in build tooling that never
+reaches a browser.
 
 ---
 
