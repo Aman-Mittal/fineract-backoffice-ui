@@ -200,6 +200,28 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('spinbutton', { name: INTEREST_RATE_LABEL }).fill('10');
     await page.getByRole('spinbutton', { name: NUMBER_OF_REPAYMENTS_LABEL }).fill('3');
     await page.getByRole('spinbutton', { name: REPAYMENT_EVERY_LABEL }).fill('1');
+
+    // Interest recalculation charges interest on what the borrower actually owes rather than on
+    // the planned balance. It applies to both engines, and its dependent fields follow the chain
+    // the API documents: the mandatory three appear with the toggle, and each interval appears
+    // only when its frequency is something other than the repayment period.
+    await page.getByTestId('loan-product-interest-recalculation').click();
+    await expect(page.getByTestId('loan-product-compounding-method')).toBeVisible();
+    await expect(page.getByTestId('loan-product-reschedule-strategy')).toBeVisible();
+    // No interval: the seeded rest frequency is the repayment period, which needs none.
+    await expect(page.getByTestId('loan-product-rest-interval')).toHaveCount(0);
+    // Fineract only supports recalculation with daily interest calculation, so the form fixes
+    // that field and says why rather than letting the server reject the product.
+    await expect(page.getByTestId('interest-calc-period-locked-note')).toBeVisible();
+    await beat(page);
+
+    // Turned back off before saving. This product is the one the rest of the walkthrough lends
+    // against, and a recalculating product constrains every loan created from it — the demo is
+    // here to show the controls, not to change the product ten later steps depend on.
+    await page.getByTestId('loan-product-interest-recalculation').click();
+    await expect(page.getByTestId('interest-calc-period-locked-note')).toHaveCount(0);
+    await beat(page);
+
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/products\/loan$/, { timeout: 15000 });
 
