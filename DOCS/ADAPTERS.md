@@ -24,12 +24,12 @@ the boundary exists; this is what to do at a keyboard.
 
 ## The four adapters
 
-| Token      | Import instead of                              | Usually reached through          |
-| ---------- | ---------------------------------------------- | -------------------------------- |
-| `I18N`     | `TranslateService`, `\| translate`             | directly, or `\| appTranslate`   |
-| `OVERLAY`  | `ToastController`, `ModalController`           | `NotificationService`, `DialogService` |
-| `STORAGE`  | `localStorage`, `sessionStorage`               | directly                         |
-| `DOWNLOAD` | `URL.createObjectURL` + a download anchor      | directly                         |
+| Token      | Import instead of                         | Usually reached through                |
+| ---------- | ----------------------------------------- | -------------------------------------- |
+| `I18N`     | `TranslateService`, `\| translate`        | directly, or `\| appTranslate`         |
+| `OVERLAY`  | `ToastController`, `ModalController`      | `NotificationService`, `DialogService` |
+| `STORAGE`  | `localStorage`, `sessionStorage`          | directly                               |
+| `DOWNLOAD` | `URL.createObjectURL` + a download anchor | directly                               |
 
 All four resolve without a provider. You inject the token and it works, in the app and in a
 TestBed alike.
@@ -95,10 +95,10 @@ else, so **adding a key means editing that file** — which is the point: it is 
 inventory of what this origin persists (`security.md` §4).
 
 ```ts
-this.storage.write('session', normalized);            // JSON
+this.storage.write('session', normalized); // JSON
 this.storage.read<UserSession | null>('session', null);
-this.storage.writeRaw('tenant', tenantId);            // plain string
-this.storage.clearScope('session');                   // everything tab-scoped
+this.storage.writeRaw('tenant', tenantId); // plain string
+this.storage.clearScope('session'); // everything tab-scoped
 ```
 
 Two behaviours worth relying on:
