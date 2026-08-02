@@ -3,6 +3,26 @@ notifications:
   pullrequests: issues@fineract.apache.org
   issues: issues@fineract.apache.org
 github:
+  description: 'Angular back-office UI for Apache Fineract, the open-source core banking platform'
+  homepage: https://fineract.apache.org
+  labels:
+    - angular
+    - apache
+    - backoffice
+    - banking
+    - core-banking
+    - fintech
+    - group-lending
+    - group-savings
+    - ionic
+    - lending
+    - loans
+    - microfinance
+    - savings
+    - social-impact
+    - tech4good
+    - typescript
+    - ui
   features:
     wiki: true
     issues: true
