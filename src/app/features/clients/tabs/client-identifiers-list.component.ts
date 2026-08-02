@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -47,7 +47,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     <div class="tab-actions">
       <ion-button
         color="primary"
-        [routerLink]="['/clients', clientId, 'identifiers', 'create']"
+        [routerLink]="['/clients', clientId(), 'identifiers', 'create']"
         *appHasPermission="'CREATE_CLIENTIDENTIFIER'"
       >
         <ion-icon name="add-outline"></ion-icon>
@@ -66,7 +66,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
           <ion-button
             fill="clear"
             color="primary"
-            [routerLink]="['/clients', clientId, 'identifiers', 'edit', row.id]"
+            [routerLink]="['/clients', clientId(), 'identifiers', 'edit', row.id]"
             *appHasPermission="'UPDATE_CLIENTIDENTIFIER'"
             [appTooltip]="'COMMON.EDIT' | translate"
           >
@@ -100,7 +100,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
 })
 export class ClientIdentifiersListComponent implements OnInit {
-  @Input({ required: true }) clientId!: number;
+  readonly clientId = input.required<number>();
 
   private readonly identifierService = inject(ClientIdentifierService);
   private readonly router = inject(Router);
@@ -137,7 +137,7 @@ export class ClientIdentifiersListComponent implements OnInit {
 
   loadIdentifiers(): void {
     this.isLoading.set(true);
-    this.identifierService.getClientsClientIdIdentifiers(this.clientId).subscribe({
+    this.identifierService.getClientsClientIdIdentifiers(this.clientId()).subscribe({
       next: (data) => {
         this.identifiers.set(data);
         this.isLoading.set(false);
@@ -152,7 +152,7 @@ export class ClientIdentifiersListComponent implements OnInit {
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this identifier?')) {
       this.identifierService
-        .deleteClientsClientIdIdentifiersIdentifierId(this.clientId, id)
+        .deleteClientsClientIdIdentifiersIdentifierId(this.clientId(), id)
         .subscribe({
           next: () => this.loadIdentifiers(),
           error: (err) => console.error('Failed to delete identifier', err),

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, Input } from '@angular/core';
+import { inject, input, Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -64,7 +64,7 @@ export interface ClientActionDialogData {
     IonModal,
   ],
   template: `
-    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <h2 class="dialog-title">{{ data().title | translate }}</h2>
     <div class="dialog-content">
       <div class="dialog-form">
         <ion-item fill="outline" class="full-width">
@@ -138,7 +138,7 @@ export class ClientActionDialogComponent implements OnInit {
   private readonly codeValuesService = inject(CodeValuesService);
   private readonly businessDateService = inject(BusinessDateManagementService);
   public readonly modalController = inject(ModalController);
-  @Input({ required: true }) data!: ClientActionDialogData;
+  readonly data = input.required<ClientActionDialogData>();
 
   actionDate = toIsoDate(new Date());
   maxDate?: string;
@@ -195,7 +195,7 @@ export class ClientActionDialogComponent implements OnInit {
       undoWithdraw: { date: activationDateLabel },
     };
 
-    const c = config[this.data.command];
+    const c = config[this.data().command];
     if (c) {
       this.dateLabel = c.date;
       if (c.reason && c.codeName) {

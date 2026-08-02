@@ -45,7 +45,7 @@ describe('HelpIconComponent', () => {
   });
 
   it('should have helpTextKey as input', () => {
-    expect(component.helpTextKey).toBe(HELP_KEY);
+    expect(component.helpTextKey()).toBe(HELP_KEY);
   });
 
   it('renders the ionicon help glyph', () => {

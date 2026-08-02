@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../core/services/notification.service';
@@ -53,9 +53,9 @@ import {
   standalone: true,
   imports: [TranslateModule, IonButton],
   template: `
-    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <h2 class="dialog-title">{{ data().title | translate }}</h2>
     <div class="dialog-content">
-      <p>{{ data.message | translate: data.params }}</p>
+      <p>{{ data().message | translate: data().params }}</p>
     </div>
     <div class="dialog-actions">
       <ion-button fill="clear" (click)="dismiss(false)">
@@ -70,11 +70,11 @@ import {
 export class ConfirmDialogComponent {
   private readonly modalController = inject(ModalController);
 
-  @Input({ required: true }) data!: {
+  readonly data = input.required<{
     title: string;
     message: string;
     params?: Record<string, unknown>;
-  };
+  }>();
 
   dismiss(confirmed: boolean): void {
     this.modalController.dismiss(confirmed);

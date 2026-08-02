@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -47,7 +47,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     <div class="tab-actions">
       <ion-button
         color="primary"
-        [routerLink]="['/clients', clientId, 'documents', 'create']"
+        [routerLink]="['/clients', clientId(), 'documents', 'create']"
         *appHasPermission="'CREATE_DOCUMENT'"
       >
         <ion-icon name="cloud-upload-outline"></ion-icon>
@@ -100,7 +100,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
 })
 export class ClientDocumentsListComponent implements OnInit {
-  @Input({ required: true }) clientId!: number;
+  readonly clientId = input.required<number>();
 
   private readonly documentService = inject(DocumentsService);
 
@@ -132,7 +132,7 @@ export class ClientDocumentsListComponent implements OnInit {
 
   loadDocuments(): void {
     this.isLoading.set(true);
-    this.documentService.getEntityTypeEntityIdDocuments('clients', this.clientId).subscribe({
+    this.documentService.getEntityTypeEntityIdDocuments('clients', this.clientId()).subscribe({
       next: (data) => {
         this.documents.set(data);
         this.isLoading.set(false);
@@ -146,7 +146,7 @@ export class ClientDocumentsListComponent implements OnInit {
 
   onDownload(id: number): void {
     this.documentService
-      .getEntityTypeEntityIdDocumentsDocumentIdAttachment('clients', this.clientId, id)
+      .getEntityTypeEntityIdDocumentsDocumentIdAttachment('clients', this.clientId(), id)
       .subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
@@ -164,7 +164,7 @@ export class ClientDocumentsListComponent implements OnInit {
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this document?')) {
       this.documentService
-        .deleteEntityTypeEntityIdDocumentsDocumentId('clients', this.clientId, id)
+        .deleteEntityTypeEntityIdDocumentsDocumentId('clients', this.clientId(), id)
         .subscribe({
           next: () => this.loadDocuments(),
           error: (err) => console.error('Failed to delete document', err),

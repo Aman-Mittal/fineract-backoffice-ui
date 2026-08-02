@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
@@ -117,8 +117,8 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
   ],
 })
 export class EntityDatatablesComponent implements OnInit {
-  @Input({ required: true }) apptableName!: string;
-  @Input({ required: true }) entityId!: number;
+  readonly apptableName = input.required<string>();
+  readonly entityId = input.required<number>();
 
   private readonly datatablesService = inject(DataTablesService);
   private readonly dialogService = inject(DialogService);
@@ -136,7 +136,7 @@ export class EntityDatatablesComponent implements OnInit {
 
   loadDatatables(): void {
     this.isLoading.set(true);
-    this.datatablesService.getDatatables(this.apptableName).subscribe({
+    this.datatablesService.getDatatables(this.apptableName()).subscribe({
       next: (data) => {
         this.datatables.set(data);
         this.isLoading.set(false);
@@ -154,7 +154,7 @@ export class EntityDatatablesComponent implements OnInit {
 
   loadTableData(tableName: string): void {
     this.isTableLoading.set(true);
-    this.datatablesService.getDatatablesDatatableApptableId(tableName, this.entityId).subscribe({
+    this.datatablesService.getDatatablesDatatableApptableId(tableName, this.entityId()).subscribe({
       next: (data: unknown) => {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
@@ -216,7 +216,7 @@ export class EntityDatatablesComponent implements OnInit {
       .open<boolean>(DatatableEntryDialogComponent, {
         data: {
           datatableName: dt.registeredTableName!,
-          apptableId: this.entityId,
+          apptableId: this.entityId(),
           columns: dt.columnHeaderData || [],
         },
       })

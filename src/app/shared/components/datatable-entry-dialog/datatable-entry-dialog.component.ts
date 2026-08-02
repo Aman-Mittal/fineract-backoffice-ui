@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, inject } from '@angular/core';
+import { inject, input, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
@@ -206,13 +206,13 @@ export class DatatableEntryDialogComponent {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
-  @Input({ required: true }) data!: DatatableEntryDialogData;
+  readonly data = input.required<DatatableEntryDialogData>();
 
   values: Record<string, unknown> = {};
   isSaving = false;
 
   get dataColumns(): ResultsetColumnHeaderData[] {
-    return this.data.columns.filter(
+    return this.data().columns.filter(
       (col) => !col.isColumnPrimaryKey && !AUDIT_COLUMN_NAMES.has(col.columnName ?? ''),
     );
   }
@@ -258,8 +258,8 @@ export class DatatableEntryDialogComponent {
 
     this.datatablesService
       .postDatatablesDatatableApptableId(
-        this.data.datatableName,
-        this.data.apptableId,
+        this.data().datatableName,
+        this.data().apptableId,
         JSON.stringify(body),
       )
       .subscribe({

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal, Input } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
@@ -84,32 +84,32 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           </tr>
           <tr>
             <td class="label">{{ 'COMMON.AMOUNT' | translate }}</td>
-            <td class="value">{{ data.currencySymbol }}{{ tx.amount | number: '1.2-2' }}</td>
+            <td class="value">{{ data().currencySymbol }}{{ tx.amount | number: '1.2-2' }}</td>
           </tr>
           <tr>
             <td class="label">
               {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
             </td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.principalPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.principalPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
             <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}</td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.interestPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.interestPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
             <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}</td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.feeChargesPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.feeChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
             <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}</td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.penaltyChargesPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.penaltyChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
           @if (tx.paymentDetailData?.receiptNumber) {
@@ -126,7 +126,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           }
         </table>
 
-        @if (data.adjustable && !tx.manuallyReversed) {
+        @if (data().adjustable && !tx.manuallyReversed) {
           @if (!showAdjustForm()) {
             <ion-button
               fill="outline"
@@ -247,11 +247,11 @@ export class TransactionDetailDialogComponent implements OnInit {
   adjustAmount = 0;
   adjustNote = '';
 
-  @Input({ required: true }) data!: TransactionDetailDialogData;
+  readonly data = input.required<TransactionDetailDialogData>();
 
   ngOnInit(): void {
     this.transactionsService
-      .getLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId)
+      .getLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId)
       .subscribe({
         next: (data) => {
           this.detail.set(data);
@@ -298,7 +298,7 @@ export class TransactionDetailDialogComponent implements OnInit {
         this.isSaving.set(true);
         const formattedDate = toIsoDate(this.adjustDate);
         this.transactionsService
-          .postLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId, {
+          .postLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId, {
             transactionDate: formattedDate,
             transactionAmount: this.adjustAmount,
             note: this.adjustNote,

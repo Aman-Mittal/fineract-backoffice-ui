@@ -17,16 +17,35 @@
  * under the License.
  */
 
-import { Component, Input } from '@angular/core';
+import { computed, input, Component } from '@angular/core';
 import { NgClass } from '@angular/common';
+
+/**
+ * What Fineract hands back for a status.
+ *
+ * Most endpoints return an `EnumOptionData`-shaped object, a few return the bare code string,
+ * and the generated client types several of them only as `Record<string, unknown>` — so the
+ * badge accepts all three rather than forcing every caller to narrow.
+ */
+export type StatusLike =
+  | string
+  | {
+      code?: string;
+      value?: string;
+      id?: number;
+      active?: boolean;
+      closed?: boolean;
+      pending?: boolean;
+    }
+  | Record<string, unknown>;
 
 @Component({
   selector: 'app-status-badge',
   standalone: true,
   imports: [NgClass],
   template: `
-    <span class="status-badge" [ngClass]="colorClass">
-      {{ statusName }}
+    <span class="status-badge" [ngClass]="colorClass()">
+      {{ statusName() }}
     </span>
   `,
   styles: [
@@ -99,38 +118,29 @@ import { NgClass } from '@angular/common';
   ],
 })
 export class StatusBadgeComponent {
-  /** The full status object or just the code string from Fineract */
-  @Input() status:
-    | string
-    | {
-        code?: string;
-        value?: string;
-        id?: number;
-        active?: boolean;
-        closed?: boolean;
-        pending?: boolean;
-      }
-    | Record<string, unknown>
-    | undefined;
+  /** The full status object or just the code string from Fineract. */
+  readonly status = input<StatusLike | undefined>(undefined);
 
-  get statusName(): string {
-    if (!this.status) return 'UNKNOWN';
-    if (typeof this.status === 'string') return this.status;
-    const statusObj = this.status as Record<string, unknown>;
+  readonly statusName = computed<string>(() => {
+    const status = this.status();
+    if (!status) return 'UNKNOWN';
+    if (typeof status === 'string') return status;
+    const statusObj = status as Record<string, unknown>;
     return (statusObj['value'] as string) || (statusObj['code'] as string) || 'UNKNOWN';
-  }
+  });
 
-  get colorClass(): string {
-    if (!this.status) return 'status-default';
+  readonly colorClass = computed<string>(() => {
+    const status = this.status();
+    if (!status) return 'status-default';
 
-    const statusObj = this.status as Record<string, unknown>;
+    const statusObj = status as Record<string, unknown>;
     const code =
-      typeof this.status === 'string'
-        ? this.status.toLowerCase()
+      typeof status === 'string'
+        ? status.toLowerCase()
         : (statusObj['code'] as string)?.toLowerCase() || '';
     const value =
-      typeof this.status === 'string'
-        ? this.status.toLowerCase()
+      typeof status === 'string'
+        ? status.toLowerCase()
         : (statusObj['value'] as string)?.toLowerCase() || '';
 
     if (code.includes('active') || value.includes('active') || value.includes('approved')) {
@@ -150,5 +160,5 @@ export class StatusBadgeComponent {
     }
 
     return 'status-default';
-  }
+  });
 }

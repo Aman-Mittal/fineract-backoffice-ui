@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, inject } from '@angular/core';
+import { inject, input, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 
@@ -41,17 +41,17 @@ export interface ConfirmDialogData {
   template: `
     <div class="dialog">
       <h2 class="dialog-title">
-        @if (data.destructive) {
+        @if (data().destructive) {
           <ion-icon name="warning-outline" color="danger"></ion-icon>
         }
-        {{ data.title }}
+        {{ data().title }}
       </h2>
 
       <div class="dialog-content">
-        <p>{{ data.message }}</p>
-        @if (data.details?.length) {
+        <p>{{ data().message }}</p>
+        @if (data().details?.length) {
           <table class="details-table">
-            @for (item of data.details; track item.label) {
+            @for (item of data().details; track item.label) {
               <tr>
                 <td class="label">{{ item.label }}</td>
                 <td class="value">{{ item.value }}</td>
@@ -68,14 +68,14 @@ export interface ConfirmDialogData {
           color="medium"
           (click)="dismiss(false)"
         >
-          {{ data.cancelText || ('COMMON.CANCEL' | translate) }}
+          {{ data().cancelText || ('COMMON.CANCEL' | translate) }}
         </ion-button>
         <ion-button
           data-testid="confirm-dialog-confirm"
-          [color]="data.destructive ? 'danger' : 'primary'"
+          [color]="data().destructive ? 'danger' : 'primary'"
           (click)="dismiss(true)"
         >
-          {{ data.confirmText || ('COMMON.CONFIRM' | translate) }}
+          {{ data().confirmText || ('COMMON.CONFIRM' | translate) }}
         </ion-button>
       </div>
     </div>
@@ -126,7 +126,7 @@ export interface ConfirmDialogData {
 export class ConfirmDialogComponent {
   private readonly modalController = inject(ModalController);
 
-  @Input({ required: true }) data!: ConfirmDialogData;
+  readonly data = input.required<ConfirmDialogData>();
 
   dismiss(confirmed: boolean): void {
     this.modalController.dismiss(confirmed);

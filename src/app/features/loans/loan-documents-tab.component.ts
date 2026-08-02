@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -150,7 +150,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
   ],
 })
 export class LoanDocumentsTabComponent implements OnInit {
-  @Input({ required: true }) loanId!: number;
+  readonly loanId = input.required<number>();
 
   private readonly documentsService = inject(DocumentsService);
   private readonly dialogService = inject(DialogService);
@@ -173,7 +173,7 @@ export class LoanDocumentsTabComponent implements OnInit {
 
   loadDocuments(): void {
     this.isLoading.set(true);
-    this.documentsService.getEntityTypeEntityIdDocuments('loans', this.loanId).subscribe({
+    this.documentsService.getEntityTypeEntityIdDocuments('loans', this.loanId()).subscribe({
       next: (data) => {
         this.documents.set(data);
         this.isLoading.set(false);
@@ -211,24 +211,26 @@ export class LoanDocumentsTabComponent implements OnInit {
       formData.append('description', this.newDocDescription);
     }
 
-    this.httpClient.post(`${this.basePath}/v1/loans/${this.loanId}/documents`, formData).subscribe({
-      next: () => {
-        this.selectedFile = undefined;
-        this.newDocName = '';
-        this.newDocDescription = '';
-        this.isSaving.set(false);
-        this.loadDocuments();
-      },
-      error: (err) => {
-        console.error('Failed to upload loan document', err);
-        this.isSaving.set(false);
-      },
-    });
+    this.httpClient
+      .post(`${this.basePath}/v1/loans/${this.loanId()}/documents`, formData)
+      .subscribe({
+        next: () => {
+          this.selectedFile = undefined;
+          this.newDocName = '';
+          this.newDocDescription = '';
+          this.isSaving.set(false);
+          this.loadDocuments();
+        },
+        error: (err) => {
+          console.error('Failed to upload loan document', err);
+          this.isSaving.set(false);
+        },
+      });
   }
 
   onDownload(id: number): void {
     this.documentsService
-      .getEntityTypeEntityIdDocumentsDocumentIdAttachment('loans', this.loanId, id)
+      .getEntityTypeEntityIdDocumentsDocumentIdAttachment('loans', this.loanId(), id)
       .subscribe({
         next: (blob: Blob) => {
           const url = window.URL.createObjectURL(blob);
@@ -253,7 +255,7 @@ export class LoanDocumentsTabComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         this.documentsService
-          .deleteEntityTypeEntityIdDocumentsDocumentId('loans', this.loanId, id)
+          .deleteEntityTypeEntityIdDocumentsDocumentId('loans', this.loanId(), id)
           .subscribe({
             next: () => this.loadDocuments(),
             error: (err) => console.error('Failed to delete loan document', err),

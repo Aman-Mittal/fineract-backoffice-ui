@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, computed, signal } from '@angular/core';
+import { computed, input, Component } from '@angular/core';
 
 export interface ChartData {
   label: string;
@@ -60,7 +60,7 @@ export interface ChartData {
         </text>
       </svg>
       <div class="legend">
-        @for (item of _data(); track item.label) {
+        @for (item of data(); track item.label) {
           <div class="legend-item">
             <span class="dot" [style.background-color]="item.color"></span>
             <span class="label">{{ item.label }}</span>
@@ -120,23 +120,27 @@ export interface ChartData {
   ],
 })
 export class DonutChartComponent {
-  _data = signal<ChartData[]>([]);
-  @Input() set data(val: ChartData[]) {
-    this._data.set(val || []);
-  }
+  /**
+   * `transform` replaces the setter-into-private-signal pair this used to carry: callers still
+   * pass a possibly-null array, and the null-coalescing that used to live in the setter body now
+   * runs as part of the input itself.
+   */
+  readonly data = input<ChartData[], ChartData[] | null | undefined>([], {
+    transform: (value) => value ?? [],
+  });
 
-  total = computed(() =>
-    this._data().reduce((acc: number, item: ChartData) => acc + item.value, 0),
+  readonly total = computed(() =>
+    this.data().reduce((acc: number, item: ChartData) => acc + item.value, 0),
   );
 
-  segments = computed(() => {
+  readonly segments = computed(() => {
     let cumulativeValue = 0;
     const total = this.total();
     if (total === 0) return [];
 
     const circumference = 2 * Math.PI * 40;
 
-    return this._data().map((item: ChartData) => {
+    return this.data().map((item: ChartData) => {
       const percentage = (item.value / total) * 100;
       const dashArray = `${(percentage * circumference) / 100} ${circumference}`;
       const dashOffset = `${(-cumulativeValue * circumference) / 100}`;

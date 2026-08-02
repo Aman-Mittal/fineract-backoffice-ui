@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -47,7 +47,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     <div class="tab-actions">
       <ion-button
         color="primary"
-        [routerLink]="['/clients', clientId, 'addresses', 'create']"
+        [routerLink]="['/clients', clientId(), 'addresses', 'create']"
         *appHasPermission="'CREATE_ADDRESS'"
       >
         <ion-icon name="add-outline"></ion-icon>
@@ -78,7 +78,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
           <ion-button
             fill="clear"
             color="primary"
-            [routerLink]="['/clients', clientId, 'addresses', 'edit', row.addressId]"
+            [routerLink]="['/clients', clientId(), 'addresses', 'edit', row.addressId]"
             *appHasPermission="'UPDATE_ADDRESS'"
             [appTooltip]="'COMMON.EDIT' | translate"
           >
@@ -103,7 +103,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
 })
 export class ClientAddressesListComponent implements OnInit {
-  @Input({ required: true }) clientId!: number;
+  readonly clientId = input.required<number>();
 
   private readonly addressService = inject(ClientsAddressService);
 
@@ -147,7 +147,7 @@ export class ClientAddressesListComponent implements OnInit {
 
   loadAddresses(): void {
     this.isLoading.set(true);
-    this.addressService.getClientClientidAddresses(this.clientId).subscribe({
+    this.addressService.getClientClientidAddresses(this.clientId()).subscribe({
       next: (data) => {
         this.addresses.set(data);
         this.isLoading.set(false);

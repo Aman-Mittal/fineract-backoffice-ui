@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
@@ -135,7 +135,7 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
   ],
 })
 export class LoanNotesTabComponent implements OnInit {
-  @Input({ required: true }) loanId!: number;
+  readonly loanId = input.required<number>();
 
   private readonly notesService = inject(NotesService);
   private readonly dialogService = inject(DialogService);
@@ -152,7 +152,7 @@ export class LoanNotesTabComponent implements OnInit {
 
   loadNotes(): void {
     this.isLoading.set(true);
-    this.notesService.getResourceTypeResourceIdNotes('loans', this.loanId).subscribe({
+    this.notesService.getResourceTypeResourceIdNotes('loans', this.loanId()).subscribe({
       next: (data) => {
         this.notes.set(data);
         this.isLoading.set(false);
@@ -168,7 +168,7 @@ export class LoanNotesTabComponent implements OnInit {
     const note = this.newNoteText.trim();
     if (!note) return;
     this.isSaving.set(true);
-    this.notesService.postResourceTypeResourceIdNotes('loans', this.loanId, { note }).subscribe({
+    this.notesService.postResourceTypeResourceIdNotes('loans', this.loanId(), { note }).subscribe({
       next: () => {
         this.newNoteText = '';
         this.isSaving.set(false);
@@ -191,7 +191,7 @@ export class LoanNotesTabComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         this.notesService
-          .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId, noteId)
+          .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId(), noteId)
           .subscribe({
             next: () => this.loadNotes(),
             error: (err) => console.error('Failed to delete loan note', err),

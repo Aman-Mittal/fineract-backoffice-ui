@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
@@ -49,7 +49,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     <div class="tab-actions">
       <ion-button
         color="primary"
-        [routerLink]="['/clients', clientId, 'notes', 'create']"
+        [routerLink]="['/clients', clientId(), 'notes', 'create']"
         *appHasPermission="'CREATE_NOTE'"
       >
         <ion-icon name="add-outline"></ion-icon>
@@ -72,7 +72,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
           <ion-button
             fill="clear"
             color="primary"
-            [routerLink]="['/clients', clientId, 'notes', 'edit', row.id]"
+            [routerLink]="['/clients', clientId(), 'notes', 'edit', row.id]"
             *appHasPermission="'UPDATE_NOTE'"
             [appTooltip]="'COMMON.EDIT' | translate"
           >
@@ -106,7 +106,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
 })
 export class ClientNotesListComponent implements OnInit {
-  @Input({ required: true }) clientId!: number;
+  readonly clientId = input.required<number>();
 
   private readonly noteService = inject(NotesService);
 
@@ -138,7 +138,7 @@ export class ClientNotesListComponent implements OnInit {
 
   loadNotes(): void {
     this.isLoading.set(true);
-    this.noteService.getResourceTypeResourceIdNotes('clients', this.clientId).subscribe({
+    this.noteService.getResourceTypeResourceIdNotes('clients', this.clientId()).subscribe({
       next: (data: NoteData[]) => {
         this.notes.set(data);
         this.isLoading.set(false);
@@ -153,7 +153,7 @@ export class ClientNotesListComponent implements OnInit {
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this note?')) {
       this.noteService
-        .deleteResourceTypeResourceIdNotesNoteId('clients', this.clientId, id)
+        .deleteResourceTypeResourceIdNotesNoteId('clients', this.clientId(), id)
         .subscribe({
           next: () => this.loadNotes(),
           error: (err) => console.error('Failed to delete note', err),

@@ -26,8 +26,10 @@ import { provideIonicAngular } from '@ionic/angular/standalone';
  * `NotificationService` / `DialogService`.
  *
  * Without these the component fails to construct with `NG0201: No provider found for
- * _ModalController`. Mirrors the `mode: 'md'` configuration used in `app.config.ts`.
+ * _ModalController`. Mirrors the configuration used in `app.config.ts` — including
+ * `useSetInputAPI`, without which a test would deliver `componentProps` differently from
+ * production and a broken signal input on a dialog would pass here and fail in the app.
  */
 export function provideIonicTesting(): (Provider | EnvironmentProviders)[] {
-  return [provideIonicAngular({ mode: 'md' })];
+  return [provideIonicAngular({ mode: 'md', useSetInputAPI: true })];
 }

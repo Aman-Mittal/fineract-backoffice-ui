@@ -81,8 +81,8 @@ describe('EntityDatatablesComponent', () => {
 
     fixture = TestBed.createComponent(EntityDatatablesComponent);
     component = fixture.componentInstance;
-    component.apptableName = 'client';
-    component.entityId = 123;
+    fixture.componentRef.setInput('apptableName', 'client');
+    fixture.componentRef.setInput('entityId', 123);
 
     dialogSpy = dialogServiceSpy.open;
   });

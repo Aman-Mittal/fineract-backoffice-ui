@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { inject, input, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../../api';
@@ -84,10 +84,10 @@ import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/
 export class EditConfigurationDialogComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
   private readonly modalController = inject(ModalController);
-  @Input({ required: true }) data!: { config: Record<string, unknown> };
+  readonly data = input.required<{ config: Record<string, unknown> }>();
 
   get config(): Record<string, unknown> {
-    return this.data.config;
+    return this.data().config;
   }
   value = 0;
   isSaving = false;

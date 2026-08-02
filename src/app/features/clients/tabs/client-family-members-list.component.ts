@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -47,7 +47,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     <div class="tab-actions">
       <ion-button
         color="primary"
-        [routerLink]="['/clients', clientId, 'family-members', 'create']"
+        [routerLink]="['/clients', clientId(), 'family-members', 'create']"
         *appHasPermission="'CREATE_CLIENTFAMILYMEMBER'"
       >
         <ion-icon name="add-outline"></ion-icon>
@@ -70,7 +70,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
           <ion-button
             fill="clear"
             color="primary"
-            [routerLink]="['/clients', clientId, 'family-members', 'edit', row.id]"
+            [routerLink]="['/clients', clientId(), 'family-members', 'edit', row.id]"
             *appHasPermission="'UPDATE_CLIENTFAMILYMEMBER'"
             [appTooltip]="'COMMON.EDIT' | translate"
           >
@@ -104,7 +104,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
 })
 export class ClientFamilyMembersListComponent implements OnInit {
-  @Input({ required: true }) clientId!: number;
+  readonly clientId = input.required<number>();
 
   private readonly familyMemberService = inject(ClientFamilyMemberService);
 
@@ -144,7 +144,7 @@ export class ClientFamilyMembersListComponent implements OnInit {
 
   loadFamilyMembers(): void {
     this.isLoading.set(true);
-    this.familyMemberService.getClientsClientIdFamilymembers(this.clientId).subscribe({
+    this.familyMemberService.getClientsClientIdFamilymembers(this.clientId()).subscribe({
       next: (data) => {
         this.familyMembers.set(data);
         this.isLoading.set(false);
@@ -159,7 +159,7 @@ export class ClientFamilyMembersListComponent implements OnInit {
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this family member?')) {
       this.familyMemberService
-        .deleteClientsClientIdFamilymembersFamilyMemberId(id, this.clientId)
+        .deleteClientsClientIdFamilymembersFamilyMemberId(id, this.clientId())
         .subscribe({
           next: () => this.loadFamilyMembers(),
           error: (err) => console.error('Failed to delete family member', err),
