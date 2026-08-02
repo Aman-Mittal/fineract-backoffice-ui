@@ -100,4 +100,34 @@ describe('StaffFormComponent', () => {
     );
     expect(staffServiceSpy.putStaffStaffId).not.toHaveBeenCalled();
   });
+
+  it('omits optional fields the user left blank', () => {
+    staffServiceSpy.postStaff.and.returnValue(
+      of({}) as unknown as ReturnType<StaffService['postStaff']>,
+    );
+    // The form seeds these to '' so the inputs bind. Sending the empty string made Fineract
+    // reject the whole submission with "mobileNo must contain only digits", naming a field the
+    // user had deliberately left blank — so a staff member could not be created without one.
+    component.staff.set({
+      officeId: 1,
+      firstname: 'Ada',
+      lastname: 'Lovelace',
+      mobileNo: '',
+      externalId: '',
+      isLoanOfficer: false,
+    });
+    component.joiningDate.set('2026-01-15');
+
+    component.onSubmit();
+
+    const payload = staffServiceSpy.postStaff.calls.mostRecent().args[0] as unknown as Record<
+      string,
+      unknown
+    >;
+    expect('mobileNo' in payload).toBe(false);
+    expect('externalId' in payload).toBe(false);
+    expect(payload['firstname']).toBe('Ada');
+    // false is a real value, not a blank — it must survive.
+    expect(payload['isLoanOfficer']).toBe(false);
+  });
 });

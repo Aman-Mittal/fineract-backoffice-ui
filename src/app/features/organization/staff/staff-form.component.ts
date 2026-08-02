@@ -52,6 +52,21 @@ import {
   toIsoDate,
 } from '../../../core/utils/date-formatter';
 
+/**
+ * Drops optional fields the user left empty.
+ *
+ * The form seeds `mobileNo`, `externalId` and `emailAddress` to `''` so the inputs bind cleanly,
+ * but an empty string is a *value* on the wire, not an omission — and Fineract validates it as
+ * one. Leaving the mobile number blank produced "must contain only digits with an optional
+ * leading '+'", which named a field the user had deliberately not filled in and left the form
+ * unsaveable until they typed something into it.
+ */
+function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== '' && value !== null),
+  ) as T;
+}
+
 @Component({
   selector: 'app-staff-form',
   standalone: true,
@@ -304,7 +319,7 @@ export class StaffFormComponent implements OnInit {
       });
     } else {
       const payload = {
-        ...this.staff(),
+        ...withoutBlanks(this.staff()),
         joiningDate: formatDateToFineract(this.joiningDate()),
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
