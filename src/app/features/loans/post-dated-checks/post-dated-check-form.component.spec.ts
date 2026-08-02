@@ -94,7 +94,7 @@ describe('PostDatedCheckFormComponent', () => {
         name: 'Updated',
         amount: 2000,
         accountNo: 34,
-        date: '1 January 2026',
+        date: '01 January 2026',
         dateFormat: 'dd MMMM yyyy',
         locale: 'en',
       }),
