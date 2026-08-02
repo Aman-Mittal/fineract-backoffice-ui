@@ -18,7 +18,8 @@
  */
 
 /**
- * Down payment and multi-tranche disbursement on the loan product form. See issue #188.
+ * The progressive-only settings on the loan product form: down payment and multi-tranche
+ * disbursement (#188), capitalised income and buy-down fees (#190).
  *
  * Neither could be configured here before, so a product created in this application could never
  * use either, and `allowFullTermForTranche` on the loan application form was unreachable.
@@ -37,6 +38,8 @@ const PASSWORD = 'password';
 const SCHEDULE_TYPE_LABEL = 'Loan Schedule Type';
 const DOWN_PAYMENT_TESTID = 'loan-product-enable-down-payment';
 const TRANCHE_COUNT_TESTID = 'loan-product-max-tranche-count';
+const CAPITALIZATION_TESTID = 'loan-product-enable-income-capitalization';
+const BUY_DOWN_TESTID = 'loan-product-enable-buy-down-fee';
 
 /** The POST body the form submits, captured in Node so a navigation cannot discard it. */
 interface Captured {
@@ -224,5 +227,76 @@ test.describe('Loan product down payment and tranches', () => {
     expect(body['loanScheduleType']).toBe('CUMULATIVE');
     expect(body['enableDownPayment']).toBeUndefined();
     expect(body['disbursedAmountPercentageForDownPayment']).toBeUndefined();
+  });
+
+  test('income recognition is offered only for a progressive product', async ({ page }) => {
+    await login(page);
+    await page.goto('/products/loan/create');
+    await expect(page.getByTestId('loan-product-schedule-type')).toBeVisible();
+
+    await expect(page.getByTestId(CAPITALIZATION_TESTID)).toHaveCount(0);
+    await expect(page.getByTestId(BUY_DOWN_TESTID)).toHaveCount(0);
+
+    await selectOption(page, SCHEDULE_TYPE_LABEL, 'Progressive');
+
+    await expect(page.getByTestId(CAPITALIZATION_TESTID)).toBeVisible();
+    await expect(page.getByTestId(BUY_DOWN_TESTID)).toBeVisible();
+  });
+
+  test('the capitalisation details appear only once it is on', async ({ page }) => {
+    await login(page);
+    await page.goto('/products/loan/create');
+    await selectOption(page, SCHEDULE_TYPE_LABEL, 'Progressive');
+
+    await expect(page.getByTestId('loan-product-capitalized-income-type')).toHaveCount(0);
+
+    await page.getByTestId(CAPITALIZATION_TESTID).click();
+
+    await expect(page.getByTestId('loan-product-capitalized-income-type')).toBeVisible();
+    await expect(page.getByTestId('loan-product-capitalized-income-calculation')).toBeVisible();
+    await expect(page.getByTestId('loan-product-capitalized-income-strategy')).toBeVisible();
+  });
+
+  test('submits the income recognition settings it was given', async ({ page }) => {
+    const captured = await login(page);
+    await page.goto('/products/loan/create');
+    await fillRequiredFields(page, 'E2E Capitalised Income Product');
+
+    await selectOption(page, SCHEDULE_TYPE_LABEL, 'Progressive');
+    await page.getByTestId(CAPITALIZATION_TESTID).click();
+    await page.getByTestId(BUY_DOWN_TESTID).click();
+
+    await page.getByTestId('loan-product-submit-btn').click();
+
+    await expect.poll(() => captured.body).not.toBeNull();
+    expect(captured.body).toMatchObject({
+      enableIncomeCapitalization: true,
+      capitalizedIncomeType: 'FEE',
+      capitalizedIncomeCalculationType: 'FLAT',
+      capitalizedIncomeStrategy: 'EQUAL_AMORTIZATION',
+      enableBuyDownFee: true,
+      buyDownFeeIncomeType: 'FEE',
+      buyDownFeeStrategy: 'EQUAL_AMORTIZATION',
+    });
+  });
+
+  test('does not send income recognition on a cumulative product', async ({ page }) => {
+    const captured = await login(page);
+    await page.goto('/products/loan/create');
+    await fillRequiredFields(page, 'E2E Cumulative No Capitalisation');
+
+    await selectOption(page, SCHEDULE_TYPE_LABEL, 'Progressive');
+    await page.getByTestId(CAPITALIZATION_TESTID).click();
+    await page.getByTestId(BUY_DOWN_TESTID).click();
+    await selectOption(page, SCHEDULE_TYPE_LABEL, 'Cumulative');
+
+    await page.getByTestId('loan-product-submit-btn').click();
+
+    await expect.poll(() => captured.body).not.toBeNull();
+    const body = captured.body as Record<string, unknown>;
+    expect(body['enableIncomeCapitalization']).toBeUndefined();
+    expect(body['capitalizedIncomeType']).toBeUndefined();
+    expect(body['enableBuyDownFee']).toBeUndefined();
+    expect(body['buyDownFeeStrategy']).toBeUndefined();
   });
 });

@@ -360,7 +360,18 @@
     "ENABLE_DOWN_PAYMENT": "Collect a down payment at disbursement",
     "DOWN_PAYMENT_PERCENTAGE": "Down payment (% of the amount disbursed)",
     "ENABLE_AUTO_REPAYMENT_FOR_DOWN_PAYMENT": "Post the down payment automatically",
-    "DOWN_PAYMENT_PROGRESSIVE_ONLY_NOTE": "Down payments are available on Progressive products only. Change the loan schedule type above to configure one."
+    "DOWN_PAYMENT_PROGRESSIVE_ONLY_NOTE": "Down payments are available on Progressive products only. Change the loan schedule type above to configure one.",
+    "INCOME_RECOGNITION": "Income Recognition",
+    "ENABLE_INCOME_CAPITALIZATION": "Spread income over the life of the loan",
+    "CAPITALIZED_INCOME_TYPE": "Income being spread",
+    "ENABLE_BUY_DOWN_FEE": "Allow a third party to buy down the rate",
+    "BUY_DOWN_FEE_INCOME_TYPE": "Buy-down treated as",
+    "INCOME_CALCULATION_TYPE": "How the amount is worked out",
+    "INCOME_STRATEGY": "How it is spread",
+    "INCOME_TYPE_FEE": "Fee",
+    "INCOME_TYPE_INTEREST": "Interest",
+    "INCOME_CALCULATION_FLAT": "A flat amount",
+    "INCOME_STRATEGY_EQUAL_AMORTIZATION": "In equal parts across the term"
   },
   "CHARGES": {
     "CREATE": "Create Charge",
@@ -873,7 +884,13 @@
     "MAX_TRANCHE_COUNT_DESC": "The largest number of separate releases allowed on one loan. Officers cannot add more tranches than this.",
     "DISALLOW_EXPECTED_DISBURSEMENTS_DESC": "Leave unticked to require the full tranche plan — how much, and when — to be entered when the loan is created. Tick it to let tranches be added as they are actually needed.",
     "DOWN_PAYMENT_PERCENTAGE_DESC": "How much of the disbursed amount the borrower pays upfront, as a percentage. 20 on a 1,000 disbursement means a 200 down payment and 800 repaid over the schedule.",
-    "AUTO_REPAYMENT_FOR_DOWN_PAYMENT_DESC": "Record the down payment for the borrower as soon as the loan is disbursed. Leave unticked if it is collected separately and should be entered by hand."
+    "AUTO_REPAYMENT_FOR_DOWN_PAYMENT_DESC": "Record the down payment for the borrower as soon as the loan is disbursed. Leave unticked if it is collected separately and should be entered by hand.",
+    "ENABLE_INCOME_CAPITALIZATION_DESC": "Recognise income gradually over the loan's term instead of all at once when it is charged. The borrower pays the same either way — this changes when the institution books the income. Progressive products only.",
+    "CAPITALIZED_INCOME_TYPE_DESC": "Whether the amount being spread is treated as a fee or as interest. This decides which income account it lands in and how it appears on the loan.",
+    "ENABLE_BUY_DOWN_FEE_DESC": "Let someone other than the borrower — typically a dealer or supplier — pay an amount upfront to reduce the borrower's effective rate. The cost is spread over the term rather than taken in full at disbursement. Progressive products only.",
+    "BUY_DOWN_FEE_INCOME_TYPE_DESC": "Whether the amount the third party paid is booked as a fee or as interest.",
+    "INCOME_CALCULATION_TYPE_DESC": "How the amount to recognise in each period is worked out. Flat divides the total evenly rather than varying it with the outstanding balance.",
+    "INCOME_STRATEGY_DESC": "How the total is distributed across the loan's periods. Equal parts gives every period the same share."
   },
   "REPORTS": {
     "NAME": "Report Name",

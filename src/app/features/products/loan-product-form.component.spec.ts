@@ -199,6 +199,93 @@ describe('LoanProductFormComponent', () => {
     });
   });
 
+  describe('income recognition', () => {
+    /**
+     * Capitalised income and buy-down fees are progressive-engine capabilities. #187 gated the
+     * matching account tabs on these flags, so until they were settable the tabs could only ever
+     * appear for products created outside this application.
+     */
+    it('is offered only on a progressive product', () => {
+      expect(
+        fixture.nativeElement.querySelector(
+          '[data-testid="loan-product-enable-income-capitalization"]',
+        ),
+      ).toBeNull();
+
+      component.onLoanScheduleTypeChange(LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector(
+          '[data-testid="loan-product-enable-income-capitalization"]',
+        ),
+      ).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="loan-product-enable-buy-down-fee"]'),
+      ).not.toBeNull();
+    });
+
+    it('seeds the detail fields when capitalisation is switched on', () => {
+      component.onLoanScheduleTypeChange(LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      component.onEnableIncomeCapitalizationChange(true);
+
+      const product = component.product();
+      expect(product.enableIncomeCapitalization).toBeTrue();
+      expect(product.capitalizedIncomeType).toBe('FEE');
+      expect(product.capitalizedIncomeCalculationType).toBe('FLAT');
+      expect(product.capitalizedIncomeStrategy).toBe('EQUAL_AMORTIZATION');
+    });
+
+    it('keeps a choice the user already made rather than resetting it', () => {
+      component.onLoanScheduleTypeChange(LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      component.onEnableIncomeCapitalizationChange(true);
+      component.product().capitalizedIncomeType = 'INTEREST';
+
+      component.onEnableIncomeCapitalizationChange(false);
+      component.onEnableIncomeCapitalizationChange(true);
+
+      // Cleared on the way out, so re-enabling starts from the default again.
+      expect(component.product().capitalizedIncomeType).toBe('FEE');
+    });
+
+    it('clears both groups when the product returns to cumulative', () => {
+      component.onLoanScheduleTypeChange(LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      component.onEnableIncomeCapitalizationChange(true);
+      component.onEnableBuyDownFeeChange(true);
+
+      component.onLoanScheduleTypeChange(LOAN_SCHEDULE_TYPE.CUMULATIVE);
+
+      const product = component.product();
+      expect(product.enableIncomeCapitalization).toBeUndefined();
+      expect(product.capitalizedIncomeType).toBeUndefined();
+      expect(product.capitalizedIncomeStrategy).toBeUndefined();
+      expect(product.enableBuyDownFee).toBeUndefined();
+      expect(product.buyDownFeeIncomeType).toBeUndefined();
+      expect(product.buyDownFeeStrategy).toBeUndefined();
+      expect(component.incomeCapitalizationEnabled()).toBeFalse();
+      expect(component.buyDownFeeEnabled()).toBeFalse();
+    });
+
+    it('reveals the buy-down detail fields only once it is on', () => {
+      component.onLoanScheduleTypeChange(LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      fixture.detectChanges();
+      expect(
+        fixture.nativeElement.querySelector(
+          '[data-testid="loan-product-buy-down-fee-income-type"]',
+        ),
+      ).toBeNull();
+
+      component.onEnableBuyDownFeeChange(true);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector(
+          '[data-testid="loan-product-buy-down-fee-income-type"]',
+        ),
+      ).not.toBeNull();
+    });
+  });
+
   describe('editing an existing product', () => {
     /**
      * The payload is rebuilt field by field, so anything the form does not name is dropped on
@@ -221,6 +308,14 @@ describe('LoanProductFormComponent', () => {
           enableDownPayment: true,
           disbursedAmountPercentageForDownPayment: 20,
           enableAutoRepaymentForDownPayment: true,
+          enableIncomeCapitalization: true,
+          capitalizedIncomeType: { code: 'INTEREST', value: 'Interest' },
+          capitalizedIncomeCalculationType: { code: 'FLAT', value: 'Flat' },
+          capitalizedIncomeStrategy: { code: 'EQUAL_AMORTIZATION', value: 'Equal amortization' },
+          enableBuyDownFee: true,
+          buyDownFeeIncomeType: { code: 'FEE', value: 'Fee' },
+          buyDownFeeCalculationType: { code: 'FLAT', value: 'Flat' },
+          buyDownFeeStrategy: { code: 'EQUAL_AMORTIZATION', value: 'Equal amortization' },
         }) as any,
       );
 
@@ -234,6 +329,14 @@ describe('LoanProductFormComponent', () => {
       expect(product.enableDownPayment).toBeTrue();
       expect(product.disbursedAmountPercentageForDownPayment).toBe(20);
       expect(product.enableAutoRepaymentForDownPayment).toBeTrue();
+      // The response wraps these as `{ code, value }`; the request takes the bare code.
+      expect(product.enableIncomeCapitalization).toBeTrue();
+      expect(product.capitalizedIncomeType).toBe('INTEREST');
+      expect(product.capitalizedIncomeStrategy).toBe('EQUAL_AMORTIZATION');
+      expect(product.enableBuyDownFee).toBeTrue();
+      expect(product.buyDownFeeIncomeType).toBe('FEE');
+      expect(component.incomeCapitalizationEnabled()).toBeTrue();
+      expect(component.buyDownFeeEnabled()).toBeTrue();
     });
   });
 });
