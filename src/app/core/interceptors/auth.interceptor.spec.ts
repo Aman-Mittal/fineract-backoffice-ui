@@ -23,11 +23,14 @@ import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
+import { provideTestConfig } from '../../testing/config';
 
 describe('authInterceptor', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   const testUrl = '/test';
   const testTenant = 'test-tenant';
+  const foreignUrl = 'https://vendor.example.com/collect';
+  const TENANT_HEADER = 'Fineract-Platform-TenantId';
 
   beforeEach(() => {
     authServiceSpy = jasmine.createSpyObj('AuthService', ['getAuthToken'], {
@@ -35,7 +38,7 @@ describe('authInterceptor', () => {
     });
 
     TestBed.configureTestingModule({
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [{ provide: AuthService, useValue: authServiceSpy }, provideTestConfig()],
     });
   });
 
@@ -43,7 +46,7 @@ describe('authInterceptor', () => {
     authServiceSpy.getAuthToken.and.returnValue(null);
     const request = new HttpRequest('GET', testUrl);
     const next: HttpHandlerFn = (req) => {
-      expect(req.headers.get('Fineract-Platform-TenantId')).toBe(testTenant);
+      expect(req.headers.get(TENANT_HEADER)).toBe(testTenant);
       expect(req.headers.get('X-Mifos-Platform-TenantId')).toBe(testTenant);
       return of(new HttpResponse({ status: 200 }));
     };
@@ -81,13 +84,62 @@ describe('authInterceptor', () => {
       },
     );
     const next: HttpHandlerFn = (req) => {
-      expect(req.headers.get('Fineract-Platform-TenantId')).toBe(loginTenant);
+      expect(req.headers.get(TENANT_HEADER)).toBe(loginTenant);
       expect(req.headers.get('X-Mifos-Platform-TenantId')).toBe(loginTenant);
       return of(new HttpResponse({ status: 200 }));
     };
 
     TestBed.runInInjectionContext(() => {
       authInterceptor(request, next).subscribe(() => done());
+    });
+  });
+
+  /**
+   * Credentials must not leave the API's origin. Nothing in the application calls a third party
+   * today, which is why this is cheap now: the first analytics pixel or vendor SDK sharing this
+   * `HttpClient` would otherwise ship a Basic header carrying banking credentials to it.
+   */
+  describe('destination scoping', () => {
+    // Deliberately not base64-shaped. A realistic-looking encoded credential here trips secret
+    // scanners, and the assertions only care that the header echoes whatever the service returned.
+    const token = 'fake-token-for-tests';
+
+    function headersFor(url: string): Promise<HttpHeaders> {
+      authServiceSpy.getAuthToken.and.returnValue(token);
+      const request = new HttpRequest('GET', url);
+      return new Promise((resolve) => {
+        const next: HttpHandlerFn = (req) => {
+          resolve(req.headers);
+          return of(new HttpResponse({ status: 200 }));
+        };
+        TestBed.runInInjectionContext(() => authInterceptor(request, next)).subscribe();
+      });
+    }
+
+    it('sends no credentials to a foreign origin', async () => {
+      const headers = await headersFor(foreignUrl);
+
+      expect(headers.get('Authorization')).toBeNull();
+    });
+
+    it('sends no tenant header to a foreign origin either', async () => {
+      const headers = await headersFor(foreignUrl);
+
+      // The tenant names the institution; leaking it discloses who the deployment belongs to.
+      expect(headers.get(TENANT_HEADER)).toBeNull();
+    });
+
+    it('still authenticates a relative request', async () => {
+      const headers = await headersFor('/api/v1/loans');
+
+      expect(headers.get('Authorization')).toBe(`Basic ${token}`);
+      expect(headers.get(TENANT_HEADER)).toBe(testTenant);
+    });
+
+    it('still authenticates an absolute request to this origin', async () => {
+      const headers = await headersFor(`${window.location.origin}/api/v1/loans`);
+
+      expect(headers.get('Authorization')).toBe(`Basic ${token}`);
     });
   });
 });

@@ -24,11 +24,6 @@
       "count": 4
     }
   },
-  "src/app/core/services/config.service.spec.ts": {
-    "no-restricted-globals": {
-      "count": 4
-    }
-  },
   "src/app/core/services/institution-config.service.spec.ts": {
     "no-restricted-globals": {
       "count": 5

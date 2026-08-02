@@ -1146,7 +1146,12 @@
       "serverUrl": "The Fineract server address. Use 'Mifos Sandbox' for testing or 'Local' for your own instance.",
       "tenantId": "A unique ID for the financial institution. Default is 'default'. This is passed via the Fineract-Platform-TenantId header."
     },
-    "sessionExpired": "Your session has expired. Please sign in again."
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "proxyOption": "Local proxy (same origin)",
+    "customOption": "Custom URL…",
+    "errors": {
+      "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list."
+    }
   },
   "idle": {
     "warning": {

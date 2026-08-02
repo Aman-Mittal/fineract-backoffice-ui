@@ -25,7 +25,7 @@ import { LoginComponent } from './login.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { WritableSignal } from '@angular/core';
+import { WritableSignal, signal } from '@angular/core';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -40,9 +40,13 @@ describe('LoginComponent', () => {
     authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'currentTenantId']);
     authServiceSpy.currentTenantId.and.returnValue('default');
 
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['setApiUrl'], {
+    configServiceSpy = jasmine.createSpyObj('ConfigService', ['setApiUrl', 'isAllowedApiUrl'], {
       apiUrl: mockApiUrl,
+      // The component reads the allow-list to build the endpoint picker.
+      config: signal({ allowedApiOrigins: [] }),
     });
+    configServiceSpy.setApiUrl.and.returnValue(true);
+    configServiceSpy.isAllowedApiUrl.and.returnValue(true);
 
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
