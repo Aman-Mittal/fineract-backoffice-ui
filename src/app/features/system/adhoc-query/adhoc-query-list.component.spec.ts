@@ -60,7 +60,7 @@ describe('AdhocQueryListComponent', () => {
   it('should load queries on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getAdhocquery).toHaveBeenCalled();
-    expect(component.queries).toHaveSize(1);
+    expect(component.queries()).toHaveSize(1);
   });
 
   it('should navigate to edit with the query id', () => {

@@ -27,7 +27,7 @@ import { Injectable, signal } from '@angular/core';
 })
 export class LoadingService {
   /** Signal representing whether any process is currently loading */
-  isLoading = signal(false);
+  readonly isLoading = signal(false);
 
   /** Set to track multiple concurrent loading processes */
   private loadingMap = new Map<string, boolean>();

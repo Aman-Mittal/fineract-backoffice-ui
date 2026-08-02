@@ -91,7 +91,7 @@ import {
                       [attr.aria-label]="'CLIENTS.ADDRESS_TYPE' | translate"
                       interface="popover"
                       name="addressTypeId"
-                      [(ngModel)]="address.addressTypeId"
+                      [(ngModel)]="address().addressTypeId"
                       required
                       id="address-type-select"
                       data-testid="address-type-select"
@@ -112,7 +112,7 @@ import {
                       [attr.aria-label]="'CLIENTS.ADDRESS_LINE_1' | translate"
                       type="text"
                       name="addressLine1"
-                      [(ngModel)]="address.addressLine1"
+                      [(ngModel)]="address().addressLine1"
                       required
                       id="address-line1-input"
                       data-testid="address-line1-input"
@@ -129,7 +129,7 @@ import {
                       [attr.aria-label]="'CLIENTS.ADDRESS_LINE_2' | translate"
                       type="text"
                       name="addressLine2"
-                      [(ngModel)]="address.addressLine2"
+                      [(ngModel)]="address().addressLine2"
                       id="address-line2-input"
                       data-testid="address-line2-input"
                     ></ion-input>
@@ -145,7 +145,7 @@ import {
                       [attr.aria-label]="'CLIENTS.ADDRESS_LINE_3' | translate"
                       type="text"
                       name="addressLine3"
-                      [(ngModel)]="address.addressLine3"
+                      [(ngModel)]="address().addressLine3"
                       id="address-line3-input"
                       data-testid="address-line3-input"
                     ></ion-input>
@@ -159,7 +159,7 @@ import {
                       [attr.aria-label]="'CLIENTS.CITY' | translate"
                       type="text"
                       name="city"
-                      [(ngModel)]="address.city"
+                      [(ngModel)]="address().city"
                       id="address-city-input"
                       data-testid="address-city-input"
                     ></ion-input>
@@ -175,7 +175,7 @@ import {
                       [attr.aria-label]="'CLIENTS.TOWN_VILLAGE' | translate"
                       type="text"
                       name="townVillage"
-                      [(ngModel)]="address.townVillage"
+                      [(ngModel)]="address().townVillage"
                       id="address-town-input"
                       data-testid="address-town-input"
                     ></ion-input>
@@ -191,7 +191,7 @@ import {
                       [attr.aria-label]="'CLIENTS.COUNTY_DISTRICT' | translate"
                       type="text"
                       name="countyDistrict"
-                      [(ngModel)]="address.countyDistrict"
+                      [(ngModel)]="address().countyDistrict"
                       id="address-county-input"
                       data-testid="address-county-input"
                     ></ion-input>
@@ -205,7 +205,7 @@ import {
                       [attr.aria-label]="'CLIENTS.STATE' | translate"
                       interface="popover"
                       name="stateProvinceId"
-                      [(ngModel)]="address.stateProvinceId"
+                      [(ngModel)]="address().stateProvinceId"
                       id="address-state-select"
                       data-testid="address-state-select"
                     >
@@ -223,7 +223,7 @@ import {
                       [attr.aria-label]="'CLIENTS.COUNTRY' | translate"
                       interface="popover"
                       name="countryId"
-                      [(ngModel)]="address.countryId"
+                      [(ngModel)]="address().countryId"
                       id="address-country-select"
                       data-testid="address-country-select"
                     >
@@ -245,7 +245,7 @@ import {
                       [attr.aria-label]="'CLIENTS.POSTAL_CODE' | translate"
                       type="text"
                       name="postalCode"
-                      [(ngModel)]="address.postalCode"
+                      [(ngModel)]="address().postalCode"
                       id="address-postal-input"
                       data-testid="address-postal-input"
                     ></ion-input>
@@ -259,7 +259,7 @@ import {
                       [attr.aria-label]="'CLIENTS.LATITUDE' | translate"
                       type="number"
                       name="latitude"
-                      [(ngModel)]="address.latitude"
+                      [(ngModel)]="address().latitude"
                       id="address-latitude-input"
                       data-testid="address-latitude-input"
                     ></ion-input>
@@ -273,7 +273,7 @@ import {
                       [attr.aria-label]="'CLIENTS.LONGITUDE' | translate"
                       type="number"
                       name="longitude"
-                      [(ngModel)]="address.longitude"
+                      [(ngModel)]="address().longitude"
                       id="address-longitude-input"
                       data-testid="address-longitude-input"
                     ></ion-input>
@@ -285,7 +285,7 @@ import {
                     <ion-label>{{ 'COMMON.ACTIVE' | translate }}</ion-label>
                     <ion-toggle
                       name="isActive"
-                      [(ngModel)]="address.isActive"
+                      [(ngModel)]="address().isActive"
                       id="address-active-toggle"
                       data-testid="address-active-toggle"
                       slot="end"
@@ -333,11 +333,11 @@ export class ClientAddressFormComponent implements OnInit {
   addressId?: number;
   isEditMode = false;
 
-  addressTypes = signal<CodeValueData[]>([]);
-  states = signal<CodeValueData[]>([]);
-  countries = signal<CodeValueData[]>([]);
+  readonly addressTypes = signal<CodeValueData[]>([]);
+  readonly states = signal<CodeValueData[]>([]);
+  readonly countries = signal<CodeValueData[]>([]);
 
-  address: ClientAddressRequest = {
+  readonly address = signal<ClientAddressRequest>({
     addressTypeId: undefined,
     addressLine1: '',
     addressLine2: '',
@@ -351,7 +351,7 @@ export class ClientAddressFormComponent implements OnInit {
     latitude: undefined,
     longitude: undefined,
     isActive: true,
-  };
+  });
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -377,7 +377,7 @@ export class ClientAddressFormComponent implements OnInit {
     this.addressService.getClientClientidAddresses(this.clientId).subscribe((data) => {
       const addr = data.find((a) => a.addressId === this.addressId);
       if (addr) {
-        this.address = {
+        this.address.set({
           addressId: addr.addressId,
           addressTypeId: addr.addressTypeId,
           addressLine1: addr.addressLine1,
@@ -392,21 +392,21 @@ export class ClientAddressFormComponent implements OnInit {
           latitude: addr.latitude,
           longitude: addr.longitude,
           isActive: addr.isActive,
-        };
+        });
       }
     });
   }
 
   onSubmit(): void {
     if (this.isEditMode) {
-      this.addressService.putClientClientidAddresses(this.clientId, this.address).subscribe({
+      this.addressService.putClientClientidAddresses(this.clientId, this.address()).subscribe({
         next: () => this.router.navigate([this.clientViewPath, this.clientId]),
         error: (err) => console.error('Failed to update address', err),
       });
     } else {
       // For creation, Fineract uses a 'type' query param in addClientAddress
       this.addressService
-        .postClientClientidAddresses(this.clientId, this.address, this.address.addressTypeId)
+        .postClientClientidAddresses(this.clientId, this.address(), this.address().addressTypeId)
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to add address', err),

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,8 +38,8 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.USERS_DESC"
       createButtonLabel="USERS.CREATE"
       [columns]="columns"
-      [data]="users"
-      [totalRecords]="users.length"
+      [data]="users()"
+      [totalRecords]="users().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateUser()"
@@ -71,7 +71,7 @@ export class UsersListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  users: GetUsersResponse[] = [];
+  readonly users = signal<GetUsersResponse[]>([]);
 
   ngOnInit(): void {
     this.loadUsers();
@@ -80,7 +80,7 @@ export class UsersListComponent implements OnInit {
   private loadUsers(): void {
     this.usersService.getUsers().subscribe({
       next: (data) => {
-        this.users = data || [];
+        this.users.set(data || []);
       },
       error: (err) => console.error('Failed to load users', err),
     });

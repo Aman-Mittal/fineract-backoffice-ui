@@ -73,9 +73,9 @@ describe('ShareAccountFormComponent', () => {
   });
 
   it('should format payload with dd MMMM yyyy date on submission', () => {
-    component.isEditMode = false;
-    component.account = { clientId: 1, productId: 1, requestedShares: 100 };
-    component.applicationDate = new Date(2026, 4, 15);
+    component.isEditMode.set(false);
+    component.account.set({ clientId: 1, productId: 1, requestedShares: 100 });
+    component.applicationDate.set(new Date(2026, 4, 15));
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     shareServiceSpy.postAccountsType.and.returnValue(of({}) as any);

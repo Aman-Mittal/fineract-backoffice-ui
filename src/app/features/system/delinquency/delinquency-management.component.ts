@@ -183,10 +183,10 @@ export class DelinquencyManagementComponent implements OnInit {
   readonly activeTab = signal('0');
   private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
 
-  ranges = signal<DelinquencyRangeData[]>([]);
-  buckets = signal<DelinquencyBucketResponse[]>([]);
-  isLoadingRanges = signal<boolean>(false);
-  isLoadingBuckets = signal<boolean>(false);
+  readonly ranges = signal<DelinquencyRangeData[]>([]);
+  readonly buckets = signal<DelinquencyBucketResponse[]>([]);
+  readonly isLoadingRanges = signal<boolean>(false);
+  readonly isLoadingBuckets = signal<boolean>(false);
 
   rangeColumns: ColumnDef[] = [
     { key: 'classification', label: 'COMMON.NAME', sortable: true },

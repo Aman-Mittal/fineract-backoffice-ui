@@ -60,7 +60,7 @@ describe('WcNearBreachFormComponent', () => {
         WorkingCapitalNearBreachService['postWorkingCapitalNearBreach']
       >,
     );
-    component.item = { nearBreachName: 'Warn', nearBreachThreshold: 75 };
+    component.item.set({ nearBreachName: 'Warn', nearBreachThreshold: 75 });
     component.onSubmit();
     expect(serviceSpy.postWorkingCapitalNearBreach).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach']);

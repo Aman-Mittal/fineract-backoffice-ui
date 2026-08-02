@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -68,7 +68,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('WC_NEAR_BREACH.EDIT' | translate)
                 : ('WC_NEAR_BREACH.CREATE' | translate)
             }}
@@ -82,7 +82,7 @@ import {
               <ion-input
                 [attr.aria-label]="'WC_NEAR_BREACH.NAME' | translate"
                 name="name"
-                [(ngModel)]="item.nearBreachName"
+                [(ngModel)]="item().nearBreachName"
                 required
               ></ion-input>
             </ion-item>
@@ -93,7 +93,7 @@ import {
                 [attr.aria-label]="'WC_NEAR_BREACH.THRESHOLD' | translate"
                 type="number"
                 name="threshold"
-                [(ngModel)]="item.nearBreachThreshold"
+                [(ngModel)]="item().nearBreachThreshold"
               ></ion-input>
             </ion-item>
 
@@ -103,7 +103,7 @@ import {
                 [attr.aria-label]="'WC_NEAR_BREACH.FREQUENCY' | translate"
                 type="number"
                 name="frequency"
-                [(ngModel)]="item.nearBreachFrequency"
+                [(ngModel)]="item().nearBreachFrequency"
               ></ion-input>
             </ion-item>
 
@@ -115,20 +115,20 @@ import {
                 [attr.aria-label]="'WC_NEAR_BREACH.FREQUENCY_TYPE' | translate"
                 interface="popover"
                 name="frequencyType"
-                [(ngModel)]="item.nearBreachFrequencyType"
+                [(ngModel)]="item().nearBreachFrequencyType"
               >
-                @for (opt of frequencyTypeOptions; track opt.id) {
+                @for (opt of frequencyTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="nbForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="nbForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -165,22 +165,22 @@ export class WcNearBreachFormComponent implements OnInit {
   private readonly LIST_PATH = '/working-capital/near-breach';
 
   itemId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  item: WorkingCapitalNearBreachRequest = { nearBreachName: '' };
-  frequencyTypeOptions: StringEnumOptionData[] = [];
+  readonly item = signal<WorkingCapitalNearBreachRequest>({ nearBreachName: '' });
+  readonly frequencyTypeOptions = signal<StringEnumOptionData[]>([]);
 
   ngOnInit(): void {
     this.breachService.getWorkingCapitalBreachTemplate().subscribe((tpl) => {
-      this.frequencyTypeOptions = tpl.breachFrequencyTypeOptions ?? [];
+      this.frequencyTypeOptions.set(tpl.breachFrequencyTypeOptions ?? []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.itemId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -189,25 +189,25 @@ export class WcNearBreachFormComponent implements OnInit {
   load(): void {
     if (!this.itemId) return;
     this.service.getWorkingCapitalNearBreachBreachId(this.itemId).subscribe((data) => {
-      this.item = {
+      this.item.set({
         nearBreachName: data.name,
         nearBreachThreshold: data.threshold,
         nearBreachFrequency: data.frequency,
         nearBreachFrequencyType: data.frequencyType?.code,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.itemId
-        ? this.service.putWorkingCapitalNearBreachBreachId(this.itemId, this.item)
-        : this.service.postWorkingCapitalNearBreach(this.item);
+      this.isEditMode() && this.itemId
+        ? this.service.putWorkingCapitalNearBreachBreachId(this.itemId, this.item())
+        : this.service.postWorkingCapitalNearBreach(this.item());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

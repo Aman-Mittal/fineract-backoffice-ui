@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.INTEREST_PAUSES_DESC"
       createButtonLabel="INTEREST_PAUSES.CREATE"
       [columns]="columns"
-      [data]="pauses"
-      [totalRecords]="pauses.length"
+      [data]="pauses()"
+      [totalRecords]="pauses().length"
       [showSearch]="false"
       [localLogic]="true"
       (create)="onCreate()"
@@ -80,7 +80,7 @@ export class InterestPausesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  pauses: InterestPauseResponseDto[] = [];
+  readonly pauses = signal<InterestPauseResponseDto[]>([]);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('loanId');
@@ -94,7 +94,7 @@ export class InterestPausesListComponent implements OnInit {
     if (!this.loanId) return;
     this.pauseService.getLoansLoanIdInterestPauses(this.loanId).subscribe({
       next: (data: InterestPauseResponseDto[]) => {
-        this.pauses = data || [];
+        this.pauses.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load interest pauses', err);

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -73,7 +73,7 @@ import {
               <ion-input
                 [attr.aria-label]="'MIX_MAPPING.IDENTIFIER' | translate"
                 name="identifier"
-                [(ngModel)]="mapping.identifier"
+                [(ngModel)]="mapping().identifier"
               ></ion-input>
             </ion-item>
 
@@ -82,7 +82,7 @@ import {
               <ion-input
                 [attr.aria-label]="'MIX_MAPPING.CURRENCY' | translate"
                 name="currency"
-                [(ngModel)]="mapping.currency"
+                [(ngModel)]="mapping().currency"
               ></ion-input>
             </ion-item>
 
@@ -92,7 +92,7 @@ import {
                 [attr.aria-label]="'MIX_MAPPING.CONFIG' | translate"
                 rows="10"
                 name="config"
-                [(ngModel)]="mapping.config"
+                [(ngModel)]="mapping().config"
               ></ion-textarea>
             </ion-item>
 
@@ -100,9 +100,9 @@ import {
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="mappingForm.invalid || isSaving"
+                [disabled]="mappingForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -133,8 +133,8 @@ import {
 export class MixMappingComponent implements OnInit {
   private readonly mappingService = inject(MixMappingService);
 
-  isSaving = false;
-  mapping: MixTaxonomyMappingData = {};
+  readonly isSaving = signal(false);
+  readonly mapping = signal<MixTaxonomyMappingData>({});
 
   ngOnInit(): void {
     this.load();
@@ -143,22 +143,22 @@ export class MixMappingComponent implements OnInit {
   load(): void {
     this.mappingService.getMixmapping().subscribe({
       next: (data: MixTaxonomyMappingData) => {
-        this.mapping = data || {};
+        this.mapping.set(data || {});
       },
       error: (err: unknown) => console.error('Failed to load MIX mapping', err),
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: MixTaxonomyMappingUpdateRequest = {
-      identifier: this.mapping.identifier,
-      currency: this.mapping.currency,
-      config: this.mapping.config,
+      identifier: this.mapping().identifier,
+      currency: this.mapping().currency,
+      config: this.mapping().config,
     };
     this.mappingService.putMixmapping(request).subscribe({
-      next: () => (this.isSaving = false),
-      error: () => (this.isSaving = false),
+      next: () => this.isSaving.set(false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

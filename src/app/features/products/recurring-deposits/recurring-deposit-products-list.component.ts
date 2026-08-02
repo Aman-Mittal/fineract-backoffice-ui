@@ -47,10 +47,10 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="nav.recurringDeposits"
       createButtonLabel="PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT"
       [columns]="columns"
-      [data]="products"
+      [data]="products()"
       [showSearch]="true"
       [localLogic]="true"
-      [isLoading]="isLoading"
+      [isLoading]="isLoading()"
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="nominalAnnualInterestRate" let-product>
@@ -89,15 +89,15 @@ export class RecurringDepositProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: GetRecurringDepositProductsResponse[] = [];
-  isLoading = true;
+  readonly products = signal<GetRecurringDepositProductsResponse[]>([]);
+  readonly isLoading = signal(true);
 
   ngOnInit() {
     this.loadProducts();
   }
 
   loadProducts() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.productService
       .getRecurringdepositproducts()
       .pipe(
@@ -108,8 +108,8 @@ export class RecurringDepositProductsListComponent implements OnInit {
         }),
       )
       .subscribe((data) => {
-        this.products = data;
-        this.isLoading = false;
+        this.products.set(data);
+        this.isLoading.set(false);
       });
   }
 

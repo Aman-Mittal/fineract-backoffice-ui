@@ -45,65 +45,65 @@ describe('StatusBadgeComponent', () => {
 
   describe('statusName', () => {
     it('should return UNKNOWN if status is undefined', () => {
-      component.status = undefined;
-      expect(component.statusName).toBe('UNKNOWN');
+      fixture.componentRef.setInput('status', undefined);
+      expect(component.statusName()).toBe('UNKNOWN');
     });
 
     it('should return status if status is a string', () => {
-      component.status = ACTIVE;
-      expect(component.statusName).toBe(ACTIVE);
+      fixture.componentRef.setInput('status', ACTIVE);
+      expect(component.statusName()).toBe(ACTIVE);
     });
 
     it('should return value from object if value is present', () => {
-      component.status = { value: APPROVED, code: 'approved' };
-      expect(component.statusName).toBe(APPROVED);
+      fixture.componentRef.setInput('status', { value: APPROVED, code: 'approved' });
+      expect(component.statusName()).toBe(APPROVED);
     });
 
     it('should return code from object if value is absent', () => {
-      component.status = { code: 'pending.approval' };
-      expect(component.statusName).toBe('pending.approval');
+      fixture.componentRef.setInput('status', { code: 'pending.approval' });
+      expect(component.statusName()).toBe('pending.approval');
     });
   });
 
   describe('colorClass', () => {
     it('should return status-default for unknown status', () => {
-      component.status = undefined;
-      expect(component.colorClass).toBe('status-default');
+      fixture.componentRef.setInput('status', undefined);
+      expect(component.colorClass()).toBe('status-default');
     });
 
     it('should return status-active for active status', () => {
-      component.status = ACTIVE;
-      expect(component.colorClass).toBe(STATUS_ACTIVE);
+      fixture.componentRef.setInput('status', ACTIVE);
+      expect(component.colorClass()).toBe(STATUS_ACTIVE);
 
-      component.status = { code: 'clientStatusType.active' };
-      expect(component.colorClass).toBe(STATUS_ACTIVE);
+      fixture.componentRef.setInput('status', { code: 'clientStatusType.active' });
+      expect(component.colorClass()).toBe(STATUS_ACTIVE);
 
-      component.status = { value: APPROVED };
-      expect(component.colorClass).toBe(STATUS_ACTIVE);
+      fixture.componentRef.setInput('status', { value: APPROVED });
+      expect(component.colorClass()).toBe(STATUS_ACTIVE);
     });
 
     it('should return status-pending for pending status', () => {
-      component.status = 'Pending';
-      expect(component.colorClass).toBe('status-pending');
+      fixture.componentRef.setInput('status', 'Pending');
+      expect(component.colorClass()).toBe('status-pending');
 
-      component.status = { value: 'Submitted and pending approval' };
-      expect(component.colorClass).toBe('status-pending');
+      fixture.componentRef.setInput('status', { value: 'Submitted and pending approval' });
+      expect(component.colorClass()).toBe('status-pending');
     });
 
     it('should return status-closed for closed/rejected/deleted status', () => {
-      component.status = 'Closed';
-      expect(component.colorClass).toBe(STATUS_CLOSED);
+      fixture.componentRef.setInput('status', 'Closed');
+      expect(component.colorClass()).toBe(STATUS_CLOSED);
 
-      component.status = { value: 'Rejected' };
-      expect(component.colorClass).toBe(STATUS_CLOSED);
+      fixture.componentRef.setInput('status', { value: 'Rejected' });
+      expect(component.colorClass()).toBe(STATUS_CLOSED);
 
-      component.status = { code: 'deleted' };
-      expect(component.colorClass).toBe(STATUS_CLOSED);
+      fixture.componentRef.setInput('status', { code: 'deleted' });
+      expect(component.colorClass()).toBe(STATUS_CLOSED);
     });
 
     it('should return status-default for unmapped status', () => {
-      component.status = 'SomeRandomStatus';
-      expect(component.colorClass).toBe('status-default');
+      fixture.componentRef.setInput('status', 'SomeRandomStatus');
+      expect(component.colorClass()).toBe('status-default');
     });
   });
 });

@@ -161,7 +161,7 @@ import {
 
           <form #actionForm="ngForm" (ngSubmit)="onSubmit()" class="action-form">
             <!-- Staff selection (only for assignloanofficer) -->
-            @if (command === 'assignloanofficer') {
+            @if (command() === 'assignloanofficer') {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'LOANS.LOAN_OFFICER' | translate }}</ion-label>
                 <ion-select
@@ -183,7 +183,7 @@ import {
             }
 
             <!-- Charge selection (only for applycharges) -->
-            @if (command === 'applycharges') {
+            @if (command() === 'applycharges') {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{ 'LOANS.CHARGE' | translate }}</ion-label>
                 <ion-select
@@ -232,7 +232,7 @@ import {
             </ion-item>
 
             <!-- Expected Disbursement Date (Only for Loan Approval) -->
-            @if (command === 'approve' && accountType === 'loan') {
+            @if (command() === 'approve' && accountType() === 'loan') {
               <ion-item fill="outline" class="form-item">
                 <ion-label position="stacked">{{
                   'ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate
@@ -354,8 +354,8 @@ export class AccountActionFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   accountId = 0;
-  accountType = ''; // 'savings', 'fixed', 'recurring', 'loan'
-  command = ''; // 'approve', 'activate', 'close', 'disburse', 'assignloanofficer', 'unassignloanofficer', 'applycharges'
+  readonly accountType = signal(''); // 'savings', 'fixed', 'recurring', 'loan'
+  readonly command = signal(''); // 'approve', 'activate', 'close', 'disburse', 'assignloanofficer', 'unassignloanofficer', 'applycharges'
   readonly isSaving = signal(false);
 
   actionDate: Date = new Date();
@@ -384,13 +384,13 @@ export class AccountActionFormComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.accountId = +params['accountId'];
-      this.accountType = params['accountType'];
-      this.command = params['command'] || 'approve';
+      this.accountType.set(params['accountType']);
+      this.command.set(params['command'] || 'approve');
       this.setupLabels();
 
-      if (this.command === 'assignloanofficer') {
+      if (this.command() === 'assignloanofficer') {
         this.loadStaffOptions();
-      } else if (this.command === 'applycharges') {
+      } else if (this.command() === 'applycharges') {
         this.loadChargeOptions();
       }
 
@@ -422,11 +422,11 @@ export class AccountActionFormComponent implements OnInit {
   }
 
   private loadAccountDetails(): void {
-    if (this.accountType === 'loan') {
+    if (this.accountType() === 'loan') {
       this.loansService.getLoansLoanId(this.accountId).subscribe({
         next: (data) => {
           this.accountDetails.set(data as unknown as Record<string, unknown>);
-          if (this.command === 'approve') {
+          if (this.command() === 'approve') {
             const timeline = data.timeline as Record<string, unknown> | undefined;
             if (timeline?.['expectedDisbursementDate']) {
               this.expectedDisbursementDate.set(
@@ -437,17 +437,17 @@ export class AccountActionFormComponent implements OnInit {
         },
         error: (err) => console.error('Failed to load loan details', err),
       });
-    } else if (this.accountType === 'savings') {
+    } else if (this.accountType() === 'savings') {
       this.savingsService.getSavingsaccountsAccountId(this.accountId).subscribe({
         next: (data) => this.accountDetails.set(data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load savings details', err),
       });
-    } else if (this.accountType === 'fixed') {
+    } else if (this.accountType() === 'fixed') {
       this.fixedDepositService.getFixeddepositaccountsAccountId(this.accountId).subscribe({
         next: (data) => this.accountDetails.set(data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load fixed deposit details', err),
       });
-    } else if (this.accountType === 'recurring') {
+    } else if (this.accountType() === 'recurring') {
       this.recurringDepositService.getRecurringdepositaccountsAccountId(this.accountId).subscribe({
         next: (data) => this.accountDetails.set(data as unknown as Record<string, unknown>),
         error: (err) => console.error('Failed to load recurring deposit details', err),
@@ -469,7 +469,7 @@ export class AccountActionFormComponent implements OnInit {
       applycharges: { title: 'ACTIONS.APPLY_CHARGES', date: 'ACTIONS.DUE_DATE' },
     };
 
-    const entry = config[this.command] || config['approve'];
+    const entry = config[this.command()] || config['approve'];
     this.title = entry.title;
     this.dateLabel = entry.date;
   }
@@ -510,7 +510,7 @@ export class AccountActionFormComponent implements OnInit {
     let obs$: Observable<unknown> | null = null;
     let redirectPath = '';
 
-    if (this.accountType === 'loan') {
+    if (this.accountType() === 'loan') {
       const res = this.handleLoanAction(formattedDate);
       obs$ = res.obs$;
       redirectPath = res.redirectPath;
@@ -557,9 +557,9 @@ export class AccountActionFormComponent implements OnInit {
       locale: FINERACT_LOCALE,
       note: this.note,
     };
-    if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
-    if (this.command === 'close') payload['closedOnDate'] = formattedDate;
-    if (this.command === 'disburse') payload['actualDisbursementDate'] = formattedDate;
+    if (this.command() === 'activate') payload['activatedOnDate'] = formattedDate;
+    if (this.command() === 'close') payload['closedOnDate'] = formattedDate;
+    if (this.command() === 'disburse') payload['actualDisbursementDate'] = formattedDate;
     return payload;
   }
 
@@ -570,7 +570,7 @@ export class AccountActionFormComponent implements OnInit {
     const redirectPath = `/loans/view/${this.accountId}`;
     let obs$: Observable<unknown> | null = null;
 
-    if (this.command === 'applycharges') {
+    if (this.command() === 'applycharges') {
       const chargePayload: PostLoansLoanIdChargesRequest = {
         chargeId: this.chargeId,
         amount: this.amount,
@@ -579,30 +579,30 @@ export class AccountActionFormComponent implements OnInit {
         locale: FINERACT_LOCALE,
       };
       obs$ = this.loanChargesService.postLoansLoanIdCharges(this.accountId, chargePayload);
-    } else if (this.command === 'assignloanofficer') {
+    } else if (this.command() === 'assignloanofficer') {
       const payload: PostLoansLoanIdRequest = {
         toLoanOfficerId: this.toLoanOfficerId,
         assignmentDate: formattedDate,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
-      obs$ = this.loansService.postLoansLoanId(this.accountId, payload, this.command);
-    } else if (this.command === 'unassignloanofficer') {
+      obs$ = this.loansService.postLoansLoanId(this.accountId, payload, this.command());
+    } else if (this.command() === 'unassignloanofficer') {
       const payload: PostLoansLoanIdRequest = {
         unassignedDate: formattedDate,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
-      obs$ = this.loansService.postLoansLoanId(this.accountId, payload, this.command);
+      obs$ = this.loansService.postLoansLoanId(this.accountId, payload, this.command());
     } else {
       const raw =
-        this.command === 'approve'
+        this.command() === 'approve'
           ? this.buildLoanApprovePayload(formattedDate)
           : this.buildLoanStatePayload(formattedDate);
       obs$ = this.loansService.postLoansLoanId(
         this.accountId,
         raw as PostLoansLoanIdRequest,
-        this.command,
+        this.command(),
       );
     }
 
@@ -620,32 +620,32 @@ export class AccountActionFormComponent implements OnInit {
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     };
-    if (this.note && this.command !== 'activate') {
+    if (this.note && this.command() !== 'activate') {
       payload['note'] = this.note;
     }
-    if (this.command === 'approve') payload['approvedOnDate'] = formattedDate;
-    if (this.command === 'activate') payload['activatedOnDate'] = formattedDate;
-    if (this.command === 'close') payload['closedOnDate'] = formattedDate;
+    if (this.command() === 'approve') payload['approvedOnDate'] = formattedDate;
+    if (this.command() === 'activate') payload['activatedOnDate'] = formattedDate;
+    if (this.command() === 'close') payload['closedOnDate'] = formattedDate;
 
-    if (this.accountType === 'savings') {
+    if (this.accountType() === 'savings') {
       obs$ = this.savingsService.postSavingsaccountsAccountId(
         this.accountId,
         payload,
-        this.command,
+        this.command(),
       );
       redirectPath = '/products/savings-accounts';
-    } else if (this.accountType === 'fixed') {
+    } else if (this.accountType() === 'fixed') {
       obs$ = this.fixedDepositService.postFixeddepositaccountsAccountId(
         this.accountId,
         payload,
-        this.command,
+        this.command(),
       );
       redirectPath = '/products/fixed-deposits';
-    } else if (this.accountType === 'recurring') {
+    } else if (this.accountType() === 'recurring') {
       obs$ = this.recurringDepositService.postRecurringdepositaccountsAccountId(
         this.accountId,
         payload,
-        this.command,
+        this.command(),
       );
       redirectPath = '/products/recurring-deposits';
     }
@@ -660,6 +660,6 @@ export class AccountActionFormComponent implements OnInit {
       recurring: '/products/recurring-deposits',
       loan: `/loans/view/${this.accountId}`,
     };
-    this.router.navigate([paths[this.accountType] || '/dashboard']);
+    this.router.navigate([paths[this.accountType()] || '/dashboard']);
   }
 }

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -61,7 +61,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('PROVISIONING_CRITERIA.EDIT' | translate)
                 : ('PROVISIONING_CRITERIA.CREATE' | translate)
             }}
@@ -77,7 +77,7 @@ import {
               <ion-input
                 [attr.aria-label]="'PROVISIONING_CRITERIA.NAME' | translate"
                 name="criteriaName"
-                [(ngModel)]="criteria.criteriaName"
+                [(ngModel)]="criteria().criteriaName"
                 required
               ></ion-input>
             </ion-item>
@@ -85,15 +85,15 @@ import {
             <p class="form-note">{{ 'PROVISIONING_CRITERIA.DEFINITIONS_NOTE' | translate }}</p>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="criteriaForm.invalid || isSaving"
+                [disabled]="criteriaForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -133,17 +133,17 @@ export class ProvisioningCriteriaFormComponent implements OnInit {
   private readonly LIST_PATH = '/accounting/provisioning-criteria';
 
   criteriaId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  criteria: PostProvisioningCriteriaRequest = { criteriaName: '' };
+  readonly criteria = signal<PostProvisioningCriteriaRequest>({ criteriaName: '' });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.criteriaId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -152,24 +152,24 @@ export class ProvisioningCriteriaFormComponent implements OnInit {
   load(): void {
     if (!this.criteriaId) return;
     this.criteriaService.getProvisioningcriteriaCriteriaId(this.criteriaId).subscribe((data) => {
-      this.criteria = {
+      this.criteria.set({
         criteriaName: data.criteriaName,
         loanProducts: data.loanProducts,
         provisioningcriteria: data.provisioningcriteria,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.criteriaId
-        ? this.criteriaService.putProvisioningcriteriaCriteriaId(this.criteriaId, this.criteria)
-        : this.criteriaService.postProvisioningcriteria(this.criteria);
+      this.isEditMode() && this.criteriaId
+        ? this.criteriaService.putProvisioningcriteriaCriteriaId(this.criteriaId, this.criteria())
+        : this.criteriaService.postProvisioningcriteria(this.criteria());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

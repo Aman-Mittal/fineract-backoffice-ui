@@ -86,7 +86,7 @@ import {
               name="resource"
             >
               <ion-select-option value="">{{ 'SEARCH.ALL_TYPES' | translate }}</ion-select-option>
-              @for (type of allowedSearchTypes; track type) {
+              @for (type of allowedSearchTypes(); track type) {
                 <ion-select-option [value]="type">{{ type }}</ion-select-option>
               }
             </ion-select>
@@ -107,7 +107,7 @@ import {
           </div>
         }
 
-        @if (!isLoading() && searched && results().length === 0) {
+        @if (!isLoading() && searched() && results().length === 0) {
           <p class="no-results">{{ 'SEARCH.NO_RESULTS' | translate }}</p>
         }
 
@@ -192,9 +192,9 @@ export class GlobalSearchComponent implements OnInit {
   selectedResource = '';
   exactMatch = false;
   readonly isLoading = signal(false);
-  searched = false;
-  allowedSearchTypes: string[] = [];
-  results = signal<GetSearchResponse[]>([]);
+  readonly searched = signal(false);
+  readonly allowedSearchTypes = signal<string[]>([]);
+  readonly results = signal<GetSearchResponse[]>([]);
   displayedColumns = [
     'entityType',
     'entityName',
@@ -206,8 +206,9 @@ export class GlobalSearchComponent implements OnInit {
   ngOnInit(): void {
     this.searchApiService.getSearchTemplate().subscribe({
       next: (template) => {
-        this.allowedSearchTypes =
-          ((template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[]) ?? [];
+        this.allowedSearchTypes.set(
+          ((template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[]) ?? [],
+        );
       },
     });
   }
@@ -215,18 +216,18 @@ export class GlobalSearchComponent implements OnInit {
   onSearch(): void {
     if (!this.query) return;
     this.isLoading.set(true);
-    this.searched = false;
+    this.searched.set(false);
     const resource = this.selectedResource || undefined;
     this.searchApiService.getSearch(this.query, resource, this.exactMatch).subscribe({
       next: (data) => {
         this.results.set(data ?? []);
         this.isLoading.set(false);
-        this.searched = true;
+        this.searched.set(true);
       },
       error: () => {
         this.results.set([]);
         this.isLoading.set(false);
-        this.searched = true;
+        this.searched.set(true);
       },
     });
   }

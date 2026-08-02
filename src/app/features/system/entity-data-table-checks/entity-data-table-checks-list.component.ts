@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.ENTITY_DATA_TABLE_CHECKS_DESC"
       createButtonLabel="ENTITY_DATA_TABLE_CHECKS.CREATE"
       [columns]="columns"
-      [data]="checks"
-      [totalRecords]="checks.length"
+      [data]="checks()"
+      [totalRecords]="checks().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -81,7 +81,7 @@ export class EntityDataTableChecksListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  checks: GetEntityDatatableChecksResponse[] = [];
+  readonly checks = signal<GetEntityDatatableChecksResponse[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -90,7 +90,7 @@ export class EntityDataTableChecksListComponent implements OnInit {
   load(): void {
     this.checksService.getEntityDatatableChecks().subscribe({
       next: (data) => {
-        this.checks = data.pageItems || [];
+        this.checks.set(data.pageItems || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load entity data-table checks', err);

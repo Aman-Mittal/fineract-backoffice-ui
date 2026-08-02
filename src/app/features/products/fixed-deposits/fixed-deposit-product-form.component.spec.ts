@@ -83,25 +83,25 @@ describe('FixedDepositProductFormComponent', () => {
       of(mockProduct),
     );
     component.productId = 1;
-    component.isEditMode = true;
+    component.isEditMode.set(true);
 
     component.loadProductData();
 
     expect(productServiceSpy.getFixeddepositproductsProductId).toHaveBeenCalledWith(1);
-    expect(component.product['name']).toBe('Fixed Deposit A');
-    expect(component.product['minDepositTerm']).toBe(6);
+    expect(component.product()['name']).toBe('Fixed Deposit A');
+    expect(component.product()['minDepositTerm']).toBe(6);
   });
 
   it('should create product on submit', () => {
     (productServiceSpy.postFixeddepositproducts as jasmine.Spy).and.returnValue(
       of({} as PostFixedDepositProductsResponse),
     );
-    component.product = {
+    component.product.set({
       name: 'New Product',
       shortName: 'NP',
       currencyCode: 'USD',
       digitsAfterDecimal: 2,
-    };
+    });
 
     component.onSubmit();
 
@@ -114,11 +114,11 @@ describe('FixedDepositProductFormComponent', () => {
       of({} as PostFixedDepositProductsResponse),
     );
     component.productId = 123;
-    component.isEditMode = true;
-    component.product = {
+    component.isEditMode.set(true);
+    component.product.set({
       name: 'Updated Product',
       shortName: 'UP',
-    };
+    });
 
     component.onSubmit();
 
@@ -131,7 +131,7 @@ describe('FixedDepositProductFormComponent', () => {
       throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositProductsResponse>,
     );
     component.onSubmit();
-    expect(component.isSaving).toBeFalse();
+    expect(component.isSaving()).toBeFalse();
   });
 
   it('should navigate on cancel', () => {

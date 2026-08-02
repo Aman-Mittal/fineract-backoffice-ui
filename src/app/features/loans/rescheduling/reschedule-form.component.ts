@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -99,7 +99,7 @@ import {
                   [(ngModel)]="rescheduleFromDateString"
                   required
                 >
-                  @for (installment of unpaidInstallments; track installment.period) {
+                  @for (installment of unpaidInstallments(); track installment.period) {
                     <ion-select-option [value]="formatInstallmentDate(installment)">
                       Period {{ installment.period }}: Due on
                       {{ formatPeriodDate(installment.dueDate) }} (Principal Due:
@@ -112,7 +112,7 @@ import {
 
               <!-- Reason Container (Dropdown or Custom entry) -->
               <div class="reason-container">
-                @if (isAddingCustomReason) {
+                @if (isAddingCustomReason()) {
                   <ion-item fill="outline">
                     <ion-label position="stacked">Reason Name (Manual)</ion-label>
                     <ion-input
@@ -132,7 +132,7 @@ import {
                       [(ngModel)]="request.rescheduleReasonId"
                       required
                     >
-                      @for (reason of reasons; track reason['id']) {
+                      @for (reason of reasons(); track reason['id']) {
                         <ion-select-option [value]="reason['id']">{{
                           reason['name']
                         }}</ion-select-option>
@@ -141,7 +141,7 @@ import {
                   </ion-item>
                 }
 
-                @if (reasons.length > 0) {
+                @if (reasons().length > 0) {
                   <div class="reason-toggle">
                     <ion-button
                       fill="clear"
@@ -149,7 +149,7 @@ import {
                       type="button"
                       (click)="toggleCustomReason()"
                     >
-                      {{ isAddingCustomReason ? 'Select existing reason' : 'Add custom reason' }}
+                      {{ isAddingCustomReason() ? 'Select existing reason' : 'Add custom reason' }}
                     </ion-button>
                   </div>
                 }
@@ -247,15 +247,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="rescheduleForm.invalid || isSaving"
+                [disabled]="rescheduleForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -306,7 +306,7 @@ export class RescheduleFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   loanId: number | null = null;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   request: PostCreateRescheduleLoansRequest = {
     graceOnPrincipal: 0,
@@ -316,10 +316,10 @@ export class RescheduleFormComponent implements OnInit {
   rescheduleFromDateString = '';
   submittedOnDate = toIsoDate(new Date());
   adjustedDueDate: string | null = null;
-  reasons: Record<string, unknown>[] = [];
-  unpaidInstallments: GetLoansLoanIdRepaymentPeriod[] = [];
+  readonly reasons = signal<Record<string, unknown>[]>([]);
+  readonly unpaidInstallments = signal<GetLoansLoanIdRepaymentPeriod[]>([]);
 
-  isAddingCustomReason = false;
+  readonly isAddingCustomReason = signal(false);
   customReasonName = '';
 
   ngOnInit(): void {
@@ -335,8 +335,8 @@ export class RescheduleFormComponent implements OnInit {
   }
 
   toggleCustomReason(): void {
-    this.isAddingCustomReason = !this.isAddingCustomReason;
-    if (!this.isAddingCustomReason) {
+    this.isAddingCustomReason.set(!this.isAddingCustomReason());
+    if (!this.isAddingCustomReason()) {
       this.customReasonName = '';
       this.request.rescheduleReasonId = undefined;
     }
@@ -345,9 +345,11 @@ export class RescheduleFormComponent implements OnInit {
   private loadTemplate(): void {
     this.rescheduleService.getRescheduleloansTemplate().subscribe({
       next: (template: GetRescheduleReasonsTemplateResponse) => {
-        this.reasons = (template.rescheduleReasons as unknown as Record<string, unknown>[]) || [];
-        if (this.reasons.length === 0) {
-          this.isAddingCustomReason = true;
+        this.reasons.set(
+          (template.rescheduleReasons as unknown as Record<string, unknown>[]) || [],
+        );
+        if (this.reasons().length === 0) {
+          this.isAddingCustomReason.set(true);
         }
       },
     });
@@ -358,8 +360,10 @@ export class RescheduleFormComponent implements OnInit {
     this.loansService.getLoansLoanId(this.loanId, undefined, 'repaymentSchedule').subscribe({
       next: (loan) => {
         const periods = loan.repaymentSchedule?.periods || [];
-        this.unpaidInstallments = periods.filter(
-          (period) => period.period !== undefined && period.period !== null && !period.complete,
+        this.unpaidInstallments.set(
+          periods.filter(
+            (period) => period.period !== undefined && period.period !== null && !period.complete,
+          ),
         );
       },
       error: (err) => console.error('Failed to load repayment schedule', err),
@@ -388,7 +392,7 @@ export class RescheduleFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     this.request.rescheduleFromDate = this.rescheduleFromDateString;
 
@@ -414,7 +418,7 @@ export class RescheduleFormComponent implements OnInit {
     this.request.dateFormat = 'yyyy-MM-dd';
     this.request.locale = 'en';
 
-    if (this.isAddingCustomReason && this.customReasonName.trim()) {
+    if (this.isAddingCustomReason() && this.customReasonName.trim()) {
       this.codesService.getCodes().subscribe({
         next: (codes) => {
           const targetCode = codes.find((c) => c.name === 'LoanRescheduleReason');
@@ -432,22 +436,22 @@ export class RescheduleFormComponent implements OnInit {
                     this.submitRescheduleRequest();
                   } else {
                     console.error('Failed to get reason ID from response');
-                    this.isSaving = false;
+                    this.isSaving.set(false);
                   }
                 },
                 error: (err) => {
                   console.error('Failed to create code value', err);
-                  this.isSaving = false;
+                  this.isSaving.set(false);
                 },
               });
           } else {
             console.error('Could not find LoanRescheduleReason code category');
-            this.isSaving = false;
+            this.isSaving.set(false);
           }
         },
         error: (err) => {
           console.error('Failed to retrieve codes', err);
-          this.isSaving = false;
+          this.isSaving.set(false);
         },
       });
     } else {
@@ -458,7 +462,7 @@ export class RescheduleFormComponent implements OnInit {
   private submitRescheduleRequest(): void {
     this.rescheduleService.postRescheduleloans(this.request).subscribe({
       next: () => this.router.navigate(['/loans', this.loanId, 'rescheduling']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

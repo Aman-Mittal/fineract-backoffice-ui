@@ -236,7 +236,7 @@ export class AssetOwnerViewComponent implements OnInit {
   private readonly assetOwnersService = inject(ExternalAssetOwnersService);
   private readonly attributesService = inject(ExternalAssetOwnerLoanProductAttributesService);
 
-  attributes = signal<Record<string, unknown>[]>([]);
+  readonly attributes = signal<Record<string, unknown>[]>([]);
   attributeColumns = ['attributeKey', 'attributeValue', 'actions'];
 
   transfer$!: Observable<ExternalTransferData>;

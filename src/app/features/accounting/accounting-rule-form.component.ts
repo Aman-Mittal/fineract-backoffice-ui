@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -66,7 +66,7 @@ import {
         <ion-item fill="outline" class="full-width">
           <ion-label position="stacked">Office</ion-label>
           <ion-select aria-label="Office" interface="popover" formControlName="officeId" required>
-            @for (office of offices; track office['id']) {
+            @for (office of offices(); track office['id']) {
               <ion-select-option [value]="office['id']">
                 {{ office['name'] }}
               </ion-select-option>
@@ -89,7 +89,7 @@ import {
                 interface="popover"
                 formControlName="accountToDebit"
               >
-                @for (account of accounts; track account['id']) {
+                @for (account of accounts(); track account['id']) {
                   <ion-select-option [value]="account['id']">
                     {{ account['name'] }} ({{ account['glCode'] }})
                   </ion-select-option>
@@ -107,7 +107,7 @@ import {
                 formControlName="debitTags"
                 multiple
               >
-                @for (tag of debitTags; track tag['id']) {
+                @for (tag of debitTags(); track tag['id']) {
                   <ion-select-option [value]="tag['id']">
                     {{ tag['name'] }}
                   </ion-select-option>
@@ -136,7 +136,7 @@ import {
                 interface="popover"
                 formControlName="accountToCredit"
               >
-                @for (account of accounts; track account['id']) {
+                @for (account of accounts(); track account['id']) {
                   <ion-select-option [value]="account['id']">
                     {{ account['name'] }} ({{ account['glCode'] }})
                   </ion-select-option>
@@ -154,7 +154,7 @@ import {
                 formControlName="creditTags"
                 multiple
               >
-                @for (tag of creditTags; track tag['id']) {
+                @for (tag of creditTags(); track tag['id']) {
                   <ion-select-option [value]="tag['id']">
                     {{ tag['name'] }}
                   </ion-select-option>
@@ -227,10 +227,10 @@ export class AccountingRuleFormComponent implements OnInit {
   isEdit = false;
   ruleId?: number;
 
-  offices: Record<string, unknown>[] = [];
-  accounts: Record<string, unknown>[] = [];
-  debitTags: Record<string, unknown>[] = [];
-  creditTags: Record<string, unknown>[] = [];
+  readonly offices = signal<Record<string, unknown>[]>([]);
+  readonly accounts = signal<Record<string, unknown>[]>([]);
+  readonly debitTags = signal<Record<string, unknown>[]>([]);
+  readonly creditTags = signal<Record<string, unknown>[]>([]);
 
   constructor() {
     this.ruleForm = this.fb.group({
@@ -262,11 +262,14 @@ export class AccountingRuleFormComponent implements OnInit {
   loadTemplate() {
     this.accountingRulesService.getAccountingrulesTemplate().subscribe((template) => {
       const templateData = template as Record<string, unknown>;
-      this.offices = (templateData['allowedOffices'] as Record<string, unknown>[]) || [];
-      this.accounts = (templateData['allowedAccounts'] as Record<string, unknown>[]) || [];
-      this.debitTags = (templateData['allowedDebitTagOptions'] as Record<string, unknown>[]) || [];
-      this.creditTags =
-        (templateData['allowedCreditTagOptions'] as Record<string, unknown>[]) || [];
+      this.offices.set((templateData['allowedOffices'] as Record<string, unknown>[]) || []);
+      this.accounts.set((templateData['allowedAccounts'] as Record<string, unknown>[]) || []);
+      this.debitTags.set(
+        (templateData['allowedDebitTagOptions'] as Record<string, unknown>[]) || [],
+      );
+      this.creditTags.set(
+        (templateData['allowedCreditTagOptions'] as Record<string, unknown>[]) || [],
+      );
     });
   }
 

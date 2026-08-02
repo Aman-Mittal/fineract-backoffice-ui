@@ -46,7 +46,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.CHART_OF_ACCOUNTS_DESC"
       createButtonLabel="Add Ledger Account"
       [columns]="columns"
-      [data]="accounts"
+      [data]="accounts()"
       [localLogic]="true"
       (create)="onCreateAccount()"
     >
@@ -114,7 +114,7 @@ export class ChartOfAccountsComponent {
     { key: 'actions', label: 'Actions', sortable: false },
   ];
 
-  accounts: GetGLAccountsResponse[] = [];
+  readonly accounts = signal<GetGLAccountsResponse[]>([]);
 
   constructor() {
     this.loadAccounts();
@@ -136,7 +136,7 @@ export class ChartOfAccountsComponent {
         }),
       )
       .subscribe((data) => {
-        this.accounts = data;
+        this.accounts.set(data);
       });
   }
 

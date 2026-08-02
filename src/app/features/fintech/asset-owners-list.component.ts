@@ -46,7 +46,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       title="External Asset Owners"
       helpTextKey="HELP.ASSET_OWNERS_DESC"
       [columns]="columns"
-      [data]="transfers"
+      [data]="transfers()"
       [totalRecords]="totalRecords"
       (searchChange)="onSearch($event)"
       [pageIndex]="pageIndex()"
@@ -109,7 +109,7 @@ export class ExternalAssetOwnersListComponent {
     { key: 'actions', label: 'Actions', sortable: false },
   ];
 
-  transfers: ExternalTransferData[] = [];
+  readonly transfers = signal<ExternalTransferData[]>([]);
   totalRecords = 0;
 
   private searchSubject = new Subject<string>();
@@ -150,7 +150,7 @@ export class ExternalAssetOwnersListComponent {
         }),
       )
       .subscribe((data) => {
-        this.transfers = data;
+        this.transfers.set(data);
       });
   }
 

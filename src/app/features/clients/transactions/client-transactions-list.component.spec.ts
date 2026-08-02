@@ -61,7 +61,7 @@ describe('ClientTransactionsListComponent', () => {
   it('should load client transactions on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdTransactions).toHaveBeenCalledWith(1);
-    expect(component.transactions).toHaveSize(1);
+    expect(component.transactions()).toHaveSize(1);
   });
 
   it('should undo a transaction after confirmation and reload', () => {

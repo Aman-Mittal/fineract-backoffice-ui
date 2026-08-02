@@ -67,7 +67,7 @@ describe('ClientNoteFormComponent', () => {
     noteServiceSpy.postResourceTypeResourceIdNotes.and.returnValue(
       of({}) as unknown as ReturnType<NotesService['postResourceTypeResourceIdNotes']>,
     );
-    component.note = { note: 'Follow up next week' };
+    component.note.set({ note: 'Follow up next week' });
 
     component.onSubmit();
 

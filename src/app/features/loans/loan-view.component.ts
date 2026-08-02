@@ -777,18 +777,18 @@ import {
           <div class="tab-content">
             <app-entity-datatables
               apptableName="m_loan"
-              [entityId]="loanId"
+              [entityId]="loanId()"
             ></app-entity-datatables>
           </div>
         }
         @if (activeTab() === '5') {
           <div class="tab-content">
-            <app-loan-notes-tab [loanId]="loanId"></app-loan-notes-tab>
+            <app-loan-notes-tab [loanId]="loanId()"></app-loan-notes-tab>
           </div>
         }
         @if (activeTab() === '6') {
           <div class="tab-content">
-            <app-loan-documents-tab [loanId]="loanId"></app-loan-documents-tab>
+            <app-loan-documents-tab [loanId]="loanId()"></app-loan-documents-tab>
           </div>
         }
         @if (activeTab() === '7') {
@@ -977,7 +977,8 @@ import {
                     <ion-input
                       [attr.aria-label]="'LOANS.COLLATERAL_ID' | translate"
                       type="number"
-                      [(ngModel)]="deleteCollateralId"
+                      [ngModel]="deleteCollateralId()"
+                      (ngModelChange)="deleteCollateralId.set($event)"
                     ></ion-input>
                   </ion-item>
                   <ion-button color="danger" (click)="deleteCollateral()">
@@ -1167,16 +1168,16 @@ export class LoanViewComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  loanId = 0;
-  loan = signal<GetLoansLoanIdResponse | null>(null);
-  periods = signal<GetLoansLoanIdRepaymentPeriod[]>([]);
-  transactions = signal<GetLoansLoanIdTransactions[]>([]);
-  charges = signal<GetLoansLoanIdLoanChargeData[]>([]);
-  buyDownFees = signal<BuyDownFeeAmortizationDetails[]>([]);
-  capitalizedIncomes = signal<CapitalizedIncomeDetails[]>([]);
+  readonly loanId = signal(0);
+  readonly loan = signal<GetLoansLoanIdResponse | null>(null);
+  readonly periods = signal<GetLoansLoanIdRepaymentPeriod[]>([]);
+  readonly transactions = signal<GetLoansLoanIdTransactions[]>([]);
+  readonly charges = signal<GetLoansLoanIdLoanChargeData[]>([]);
+  readonly buyDownFees = signal<BuyDownFeeAmortizationDetails[]>([]);
+  readonly capitalizedIncomes = signal<CapitalizedIncomeDetails[]>([]);
 
   // Disbursement Details
-  disbursementDetail = signal<GetLoansLoanIdDisbursementDetails | null>(null);
+  readonly disbursementDetail = signal<GetLoansLoanIdDisbursementDetails | null>(null);
   editDisbId = 0;
   disbursementEditForm = {
     expectedDisbursementDate: '',
@@ -1185,9 +1186,9 @@ export class LoanViewComponent implements OnInit {
   };
 
   // Collateral Management
-  collateralDetail = signal<LoanCollateralResponseData | null>(null);
+  readonly collateralDetail = signal<LoanCollateralResponseData | null>(null);
   collateralDetailId = 0;
-  deleteCollateralId = 0;
+  readonly deleteCollateralId = signal(0);
 
   isProgressiveLoan(): boolean {
     return this.loan()?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
@@ -1297,7 +1298,7 @@ export class LoanViewComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
-        this.loanId = +id;
+        this.loanId.set(+id);
         this.loadLoanData();
       }
     });
@@ -1305,7 +1306,7 @@ export class LoanViewComponent implements OnInit {
 
   loadLoanData() {
     // Request associations so repayment schedule, charges, and transactions are returned
-    this.loansService.getLoansLoanId(this.loanId, false, 'all').subscribe({
+    this.loansService.getLoansLoanId(this.loanId(), false, 'all').subscribe({
       next: (data) => {
         this.loan.set(data);
         this.periods.set(data.repaymentSchedule?.periods || []);
@@ -1337,7 +1338,7 @@ export class LoanViewComponent implements OnInit {
   loadDisbursementDetail() {
     if (!this.editDisbId) return;
     this.disbursementDetailsService
-      .getLoansLoanIdDisbursementsDisbursementId(this.loanId, this.editDisbId)
+      .getLoansLoanIdDisbursementsDisbursementId(this.loanId(), this.editDisbId)
       .subscribe({
         next: (data) => {
           let parsed: GetLoansLoanIdDisbursementDetails | null = null;
@@ -1369,7 +1370,7 @@ export class LoanViewComponent implements OnInit {
     if (!this.editDisbId) return;
     this.disbursementDetailsService
       .putLoansLoanIdDisbursementsDisbursementId(
-        this.loanId,
+        this.loanId(),
         this.editDisbId,
         JSON.stringify(this.disbursementEditForm),
       )
@@ -1393,16 +1394,16 @@ export class LoanViewComponent implements OnInit {
   }
 
   deleteCollateral() {
-    if (!this.deleteCollateralId) return;
+    if (!this.deleteCollateralId()) return;
     this.confirm('LOANS.DELETE_COLLATERAL', 'LOANS.CONFIRM_DELETE_COLLATERAL', true).subscribe(
       (confirmed) => {
         if (!confirmed) return;
         this.collateralManagementService
-          .deleteLoanCollateralManagementId(this.loanId, this.deleteCollateralId)
+          .deleteLoanCollateralManagementId(this.loanId(), this.deleteCollateralId())
           .subscribe({
             next: () => {
               this.notifications.success('Collateral deleted successfully.');
-              this.deleteCollateralId = 0;
+              this.deleteCollateralId.set(0);
             },
             error: (err) => console.error('Failed to delete collateral', err),
           });
@@ -1411,37 +1412,37 @@ export class LoanViewComponent implements OnInit {
   }
 
   onRepayment() {
-    this.router.navigate([`/loans/${this.loanId}/transactions/repayment`]);
+    this.router.navigate([`/loans/${this.loanId()}/transactions/repayment`]);
   }
 
   onDisburse() {
-    this.router.navigate([`/loans/${this.loanId}/transactions/disburse`]);
+    this.router.navigate([`/loans/${this.loanId()}/transactions/disburse`]);
   }
 
   onLoanAction(command: string) {
-    this.router.navigate([`/products/loan/${this.loanId}/action/${command}`]);
+    this.router.navigate([`/products/loan/${this.loanId()}/action/${command}`]);
   }
 
   onAddCharge() {
-    this.router.navigate([`/products/loan/${this.loanId}/action/applycharges`]);
+    this.router.navigate([`/products/loan/${this.loanId()}/action/applycharges`]);
   }
 
   onAddCollateral() {
-    this.router.navigate([`/loans/${this.loanId}/collateral/create`]);
+    this.router.navigate([`/loans/${this.loanId()}/collateral/create`]);
   }
 
   onAssignLoanOfficer() {
-    this.router.navigate([`/products/loan/${this.loanId}/action/assignloanofficer`]);
+    this.router.navigate([`/products/loan/${this.loanId()}/action/assignloanofficer`]);
   }
 
   onModifyLoan() {
-    this.router.navigate([`/loans/edit/${this.loanId}`]);
+    this.router.navigate([`/loans/edit/${this.loanId()}`]);
   }
 
   onDeleteLoan() {
     this.confirm('COMMON.DELETE', 'LOANS.CONFIRM_DELETE_LOAN', true).subscribe((confirmed) => {
       if (!confirmed) return;
-      this.loansService.deleteLoansLoanId(this.loanId).subscribe({
+      this.loansService.deleteLoansLoanId(this.loanId()).subscribe({
         next: () => this.router.navigate(['/loans']),
         error: (err) => console.error('Failed to delete loan', err),
       });
@@ -1452,7 +1453,7 @@ export class LoanViewComponent implements OnInit {
     this.confirm('LOANS.ACTIONS.UNDO_DISBURSAL', 'LOANS.CONFIRM_UNDO_DISBURSAL', true).subscribe(
       (confirmed) => {
         if (!confirmed) return;
-        this.loansService.postLoansLoanId(this.loanId, {}, 'undoDisbursal').subscribe({
+        this.loansService.postLoansLoanId(this.loanId(), {}, 'undoDisbursal').subscribe({
           next: () => this.loadLoanData(),
           error: (err) => console.error('Failed to undo disbursal', err),
         });
@@ -1461,14 +1462,14 @@ export class LoanViewComponent implements OnInit {
   }
 
   onLoanTransactionAction(type: string) {
-    this.router.navigate([`/loans/${this.loanId}/transactions/${type}`]);
+    this.router.navigate([`/loans/${this.loanId()}/transactions/${type}`]);
   }
 
   onViewTransaction(tx: GetLoansLoanIdTransactions): void {
     this.dialogService
       .open(TransactionDetailDialogComponent, {
         data: {
-          loanId: this.loanId,
+          loanId: this.loanId(),
           transactionId: tx.id,
           currencySymbol: this.loan()?.currency?.displaySymbol,
           adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,

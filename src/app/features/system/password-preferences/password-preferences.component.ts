@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PasswordPreferencesService, GetPasswordPreferencesTemplateResponse } from '../../../api';
@@ -59,8 +59,12 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          <ion-radio-group class="policy-group" [(ngModel)]="selectedPolicyId">
-            @for (policy of policies; track policy.id) {
+          <ion-radio-group
+            class="policy-group"
+            [ngModel]="selectedPolicyId()"
+            (ngModelChange)="selectedPolicyId.set($event)"
+          >
+            @for (policy of policies(); track policy.id) {
               <ion-radio [value]="policy.id">
                 {{ policy.description || policy.key }}
               </ion-radio>
@@ -71,10 +75,10 @@ import {
             <ion-button
               color="primary"
               type="button"
-              [disabled]="selectedPolicyId === null || isSaving"
+              [disabled]="selectedPolicyId() === null || isSaving()"
               (click)="onSave()"
             >
-              @if (isSaving) {
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -104,9 +108,9 @@ import {
 export class PasswordPreferencesComponent implements OnInit {
   private readonly service = inject(PasswordPreferencesService);
 
-  policies: GetPasswordPreferencesTemplateResponse[] = [];
-  selectedPolicyId: number | null = null;
-  isSaving = false;
+  readonly policies = signal<GetPasswordPreferencesTemplateResponse[]>([]);
+  readonly selectedPolicyId = signal<number | null>(null);
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -117,18 +121,19 @@ export class PasswordPreferencesComponent implements OnInit {
       const list = Array.isArray(data)
         ? (data as GetPasswordPreferencesTemplateResponse[])
         : [data];
-      this.policies = list;
-      const active = this.policies.find((p) => p.active);
-      this.selectedPolicyId = active?.id ?? this.policies[0]?.id ?? null;
+      this.policies.set(list);
+      const active = this.policies().find((p) => p.active);
+      this.selectedPolicyId.set(active?.id ?? this.policies()[0]?.id ?? null);
     });
   }
 
   onSave(): void {
-    if (this.selectedPolicyId === null) return;
-    this.isSaving = true;
-    this.service.putPasswordpreferences({ validationPolicyId: this.selectedPolicyId }).subscribe({
-      next: () => (this.isSaving = false),
-      error: () => (this.isSaving = false),
+    const validationPolicyId = this.selectedPolicyId();
+    if (validationPolicyId === null) return;
+    this.isSaving.set(true);
+    this.service.putPasswordpreferences({ validationPolicyId }).subscribe({
+      next: () => this.isSaving.set(false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

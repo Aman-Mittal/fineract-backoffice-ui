@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -112,7 +112,7 @@ import {
                 [(ngModel)]="loan.productId"
                 required
               >
-                @for (opt of productOptions; track opt.id) {
+                @for (opt of productOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -185,7 +185,7 @@ import {
                 name="repaymentFrequencyType"
                 [(ngModel)]="loan.repaymentFrequencyType"
               >
-                @for (opt of repaymentFrequencyTypeOptions; track opt.id) {
+                @for (opt of repaymentFrequencyTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
@@ -199,7 +199,7 @@ import {
                 name="breachId"
                 [(ngModel)]="loan.breachId"
               >
-                @for (opt of breachOptions; track opt.id) {
+                @for (opt of breachOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -213,7 +213,7 @@ import {
                 name="nearBreachId"
                 [(ngModel)]="loan.nearBreachId"
               >
-                @for (opt of nearBreachOptions; track opt.id) {
+                @for (opt of nearBreachOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -229,7 +229,7 @@ import {
                 name="delinquencyBucketId"
                 [(ngModel)]="loan.delinquencyBucketId"
               >
-                @for (opt of delinquencyBucketOptions; track opt.id) {
+                @for (opt of delinquencyBucketOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -243,7 +243,7 @@ import {
                 name="fundId"
                 [(ngModel)]="loan.fundId"
               >
-                @for (opt of fundOptions; track opt.id) {
+                @for (opt of fundOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -294,11 +294,11 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="loanForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -333,34 +333,34 @@ export class WcLoanFormComponent implements OnInit {
 
   private readonly LIST_PATH = '/working-capital/loans';
 
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   loan: Partial<PostWorkingCapitalLoansRequest> = {};
   submittedOnDate: string | null = null;
   expectedDisbursementDate: string | null = null;
 
-  productOptions: GetWorkingCapitalLoanProductsResponse[] = [];
-  breachOptions: GetWorkingCapitalLoanBreach[] = [];
-  nearBreachOptions: WorkingCapitalNearBreachData[] = [];
-  repaymentFrequencyTypeOptions: StringEnumOptionData[] = [];
-  delinquencyBucketOptions: GetDelinquencyBucket[] = [];
-  fundOptions: FundData[] = [];
+  readonly productOptions = signal<GetWorkingCapitalLoanProductsResponse[]>([]);
+  readonly breachOptions = signal<GetWorkingCapitalLoanBreach[]>([]);
+  readonly nearBreachOptions = signal<WorkingCapitalNearBreachData[]>([]);
+  readonly repaymentFrequencyTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly delinquencyBucketOptions = signal<GetDelinquencyBucket[]>([]);
+  readonly fundOptions = signal<FundData[]>([]);
 
   ngOnInit(): void {
     this.nearBreachService.getWorkingCapitalNearBreach().subscribe((data) => {
-      this.nearBreachOptions = data;
+      this.nearBreachOptions.set(data);
     });
     this.loansService.getWorkingCapitalLoansTemplate().subscribe((tpl) => {
-      this.productOptions = tpl.productOptions ?? [];
-      this.breachOptions = tpl.breachOptions ?? [];
-      this.repaymentFrequencyTypeOptions = tpl.periodFrequencyTypeOptions ?? [];
-      this.delinquencyBucketOptions = tpl.delinquencyBucketOptions ?? [];
-      this.fundOptions = tpl.fundOptions ?? [];
+      this.productOptions.set(tpl.productOptions ?? []);
+      this.breachOptions.set(tpl.breachOptions ?? []);
+      this.repaymentFrequencyTypeOptions.set(tpl.periodFrequencyTypeOptions ?? []);
+      this.delinquencyBucketOptions.set(tpl.delinquencyBucketOptions ?? []);
+      this.fundOptions.set(tpl.fundOptions ?? []);
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const request: Partial<PostWorkingCapitalLoansRequest> = {
       ...this.loan,
@@ -377,7 +377,7 @@ export class WcLoanFormComponent implements OnInit {
 
     this.loansService.postWorkingCapitalLoans(request as PostWorkingCapitalLoansRequest).subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

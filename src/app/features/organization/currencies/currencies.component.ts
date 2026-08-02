@@ -64,7 +64,7 @@ import {
             <div style="flex:1;">
               <h3>{{ 'CURRENCIES.AVAILABLE' | translate }}</h3>
               <ion-list>
-                @for (currency of availableCurrencies; track currency.code) {
+                @for (currency of availableCurrencies(); track currency.code) {
                   <ion-item>
                     <ion-checkbox
                       justify="start"
@@ -93,7 +93,7 @@ import {
             <div style="flex:1;">
               <h3>{{ 'CURRENCIES.SELECTED' | translate }}</h3>
               <ion-list>
-                @for (currency of selectedCurrencies; track currency.code) {
+                @for (currency of selectedCurrencies(); track currency.code) {
                   <ion-item>
                     <ion-checkbox
                       justify="start"
@@ -126,16 +126,16 @@ export class CurrenciesComponent implements OnInit {
   private translate = inject(TranslateService);
 
   readonly isLoading = signal(true);
-  availableCurrencies: CurrencyData[] = [];
-  selectedCurrencies: CurrencyData[] = [];
+  readonly availableCurrencies = signal<CurrencyData[]>([]);
+  readonly selectedCurrencies = signal<CurrencyData[]>([]);
 
   ngOnInit(): void {
     this.currencyService.getCurrencies().subscribe({
       next: (data: CurrencyConfigurationData) => {
         const selectedCodes = new Set((data.selectedCurrencyOptions ?? []).map((c) => c.code));
-        this.selectedCurrencies = data.selectedCurrencyOptions ?? [];
-        this.availableCurrencies = (data.currencyOptions ?? []).filter(
-          (c) => !selectedCodes.has(c.code),
+        this.selectedCurrencies.set(data.selectedCurrencyOptions ?? []);
+        this.availableCurrencies.set(
+          (data.currencyOptions ?? []).filter((c) => !selectedCodes.has(c.code)),
         );
         this.isLoading.set(false);
       },
@@ -159,24 +159,24 @@ export class CurrenciesComponent implements OnInit {
   }
 
   addSelected(): void {
-    const toAdd = this.availableCurrencies.filter((c) => this.availableSelection.has(c.code!));
+    const toAdd = this.availableCurrencies().filter((c) => this.availableSelection.has(c.code!));
     const addCodes = new Set(toAdd.map((c) => c.code));
-    this.selectedCurrencies = [...this.selectedCurrencies, ...toAdd];
-    this.availableCurrencies = this.availableCurrencies.filter((c) => !addCodes.has(c.code));
+    this.selectedCurrencies.set([...this.selectedCurrencies(), ...toAdd]);
+    this.availableCurrencies.set(this.availableCurrencies().filter((c) => !addCodes.has(c.code)));
     this.availableSelection.clear();
   }
 
   removeSelected(): void {
-    const toRemove = this.selectedCurrencies.filter((c) => this.selectedSelection.has(c.code!));
+    const toRemove = this.selectedCurrencies().filter((c) => this.selectedSelection.has(c.code!));
     const removeCodes = new Set(toRemove.map((c) => c.code));
-    this.availableCurrencies = [...this.availableCurrencies, ...toRemove];
-    this.selectedCurrencies = this.selectedCurrencies.filter((c) => !removeCodes.has(c.code));
+    this.availableCurrencies.set([...this.availableCurrencies(), ...toRemove]);
+    this.selectedCurrencies.set(this.selectedCurrencies().filter((c) => !removeCodes.has(c.code)));
     this.selectedSelection.clear();
   }
 
   save(): void {
     const body: CurrencyUpdateRequest = {
-      currencies: this.selectedCurrencies.map((c) => c.code as string),
+      currencies: this.selectedCurrencies().map((c) => c.code as string),
     };
     this.currencyService.putCurrencies(body).subscribe({
       next: () => {

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -73,7 +73,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('PRODUCTS.EDIT_SAVINGS_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_SAVINGS_PRODUCT' | translate)
             }}
@@ -92,7 +92,7 @@ import {
                       id="savings-product-name"
                       data-testid="savings-product-name"
                       name="name"
-                      [(ngModel)]="product.name"
+                      [(ngModel)]="product().name"
                       required
                     ></ion-input>
                   </ion-item>
@@ -108,7 +108,7 @@ import {
                       id="savings-product-short-name"
                       data-testid="savings-product-short-name"
                       name="shortName"
-                      [(ngModel)]="product.shortName"
+                      [(ngModel)]="product().shortName"
                       required
                       maxlength="4"
                     ></ion-input>
@@ -125,7 +125,7 @@ import {
                       id="savings-product-description"
                       data-testid="savings-product-description"
                       name="description"
-                      [(ngModel)]="product.description"
+                      [(ngModel)]="product().description"
                       rows="3"
                     ></ion-textarea>
                   </ion-item>
@@ -140,7 +140,7 @@ import {
                       id="savings-product-currency-code"
                       data-testid="savings-product-currency-code"
                       name="currencyCode"
-                      [(ngModel)]="product.currencyCode"
+                      [(ngModel)]="product().currencyCode"
                       required
                     >
                       <ion-select-option value="USD">USD</ion-select-option>
@@ -161,7 +161,7 @@ import {
                       data-testid="savings-product-decimal-places"
                       type="number"
                       name="digitsAfterDecimal"
-                      [(ngModel)]="product.digitsAfterDecimal"
+                      [(ngModel)]="product().digitsAfterDecimal"
                       required
                     ></ion-input>
                   </ion-item>
@@ -178,7 +178,7 @@ import {
                       data-testid="savings-product-interest-rate"
                       type="number"
                       name="nominalAnnualInterestRate"
-                      [(ngModel)]="product.nominalAnnualInterestRate"
+                      [(ngModel)]="product().nominalAnnualInterestRate"
                       required
                     ></ion-input>
                   </ion-item>
@@ -194,7 +194,7 @@ import {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -203,9 +203,9 @@ import {
                 data-testid="savings-product-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="productForm.invalid || isSaving"
+                [disabled]="productForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -250,10 +250,10 @@ export class SavingsProductFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/savings';
 
   productId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  product: PostSavingsProductsRequest = {
+  readonly product = signal<PostSavingsProductsRequest>({
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
     interestCompoundingPeriodType: 1,
@@ -261,14 +261,14 @@ export class SavingsProductFormComponent implements OnInit {
     interestCalculationType: 1,
     interestCalculationDaysInYearType: 365,
     accountingRule: 1,
-  };
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadProductData();
       }
     });
@@ -277,7 +277,7 @@ export class SavingsProductFormComponent implements OnInit {
   loadProductData() {
     if (!this.productId) return;
     this.productService.getSavingsproductsProductId(this.productId).subscribe((data) => {
-      this.product = {
+      this.product.set({
         name: data.name,
         shortName: data.shortName,
         description: data.description,
@@ -289,28 +289,28 @@ export class SavingsProductFormComponent implements OnInit {
         interestCalculationType: 1,
         interestCalculationDaysInYearType: 365,
         accountingRule: 1,
-      };
+      });
     });
   }
 
   onSubmit() {
-    this.isSaving = true;
-    this.product.locale = 'en';
+    this.isSaving.set(true);
+    this.product().locale = 'en';
 
-    if (this.isEditMode && this.productId) {
+    if (this.isEditMode() && this.productId) {
       this.productService
         .putSavingsproductsProductId(
           this.productId,
-          this.product as PutSavingsProductsProductIdRequest,
+          this.product() as PutSavingsProductsProductIdRequest,
         )
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
-      this.productService.postSavingsproducts(this.product).subscribe({
+      this.productService.postSavingsproducts(this.product()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

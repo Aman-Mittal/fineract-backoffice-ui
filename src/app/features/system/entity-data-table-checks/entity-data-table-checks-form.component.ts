@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -78,7 +78,7 @@ import {
                 [(ngModel)]="check.entity"
                 required
               >
-                @for (ent of entityOptions; track ent) {
+                @for (ent of entityOptions(); track ent) {
                   <ion-select-option [value]="ent">{{ ent }}</ion-select-option>
                 }
               </ion-select>
@@ -122,11 +122,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="checkForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="checkForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -160,25 +164,25 @@ export class EntityDataTableChecksFormComponent implements OnInit {
 
   private readonly LIST_PATH = '/system/entity-data-table-checks';
 
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   check: PostEntityDatatableChecksTemplateRequest = {
     entity: '',
     datatableName: '',
   };
-  entityOptions: string[] = [];
+  readonly entityOptions = signal<string[]>([]);
 
   ngOnInit(): void {
     this.checksService.getEntityDatatableChecksTemplate().subscribe((tpl) => {
-      this.entityOptions = tpl.entities ?? [];
+      this.entityOptions.set(tpl.entities ?? []);
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.checksService.postEntityDatatableChecks(this.check).subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

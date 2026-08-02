@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.COLLATERAL_MANAGEMENT_DESC"
       createButtonLabel="COLLATERAL_MANAGEMENT.CREATE"
       [columns]="columns"
-      [data]="collaterals"
-      [totalRecords]="collaterals.length"
+      [data]="collaterals()"
+      [totalRecords]="collaterals().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -89,7 +89,7 @@ export class CollateralManagementListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  collaterals: CollateralManagementData[] = [];
+  readonly collaterals = signal<CollateralManagementData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -98,7 +98,7 @@ export class CollateralManagementListComponent implements OnInit {
   load(): void {
     this.collateralService.getCollateralManagement().subscribe({
       next: (data: CollateralManagementData[]) => {
-        this.collaterals = data || [];
+        this.collaterals.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load collateral products', err);

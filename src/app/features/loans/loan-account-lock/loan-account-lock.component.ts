@@ -141,8 +141,8 @@ export class LoanAccountLockComponent {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
-  lockInfo = signal<LoanAccountLockResponseDTO | null>(null);
-  lockChecked = signal(false);
+  readonly lockInfo = signal<LoanAccountLockResponseDTO | null>(null);
+  readonly lockChecked = signal(false);
   readonly isLoading = signal(false);
   loanId = 0;
   lockOwner = '';

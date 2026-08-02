@@ -56,20 +56,20 @@ describe('PaymentTypeFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post a new payment type on submit', () => {
     paymentTypeServiceSpy.postPaymenttypes.and.returnValue(
       of({}) as unknown as ReturnType<PaymentTypeService['postPaymenttypes']>,
     );
-    component.paymentType = {
+    component.paymentType.set({
       name: 'Mobile Money',
       description: 'MoMo',
       position: 3,
       isCashPayment: false,
       isSystemDefined: false,
-    };
+    });
 
     component.onSubmit();
 

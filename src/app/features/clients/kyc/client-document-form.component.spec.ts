@@ -67,7 +67,7 @@ describe('ClientDocumentFormComponent', () => {
     );
     const file = new File(['hello'], 'passport.pdf', { type: 'application/pdf' });
     component.selectedFile = file;
-    component.document = { name: 'Passport', description: 'ID proof' };
+    component.document.set({ name: 'Passport', description: 'ID proof' });
 
     component.onSubmit();
 

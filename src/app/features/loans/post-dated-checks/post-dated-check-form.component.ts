@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -85,7 +85,8 @@ import {
               <ion-input
                 [attr.aria-label]="'POST_DATED_CHECKS.NAME' | translate"
                 name="name"
-                [(ngModel)]="name"
+                [ngModel]="name()"
+                (ngModelChange)="name.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -96,7 +97,8 @@ import {
                 [attr.aria-label]="'POST_DATED_CHECKS.AMOUNT' | translate"
                 type="number"
                 name="amount"
-                [(ngModel)]="amount"
+                [ngModel]="amount()"
+                (ngModelChange)="amount.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -109,7 +111,8 @@ import {
                 [attr.aria-label]="'POST_DATED_CHECKS.ACCOUNT_NO' | translate"
                 type="number"
                 name="accountNo"
-                [(ngModel)]="accountNo"
+                [ngModel]="accountNo()"
+                (ngModelChange)="accountNo.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -124,7 +127,8 @@ import {
                     data-testid="date-picker"
                     presentation="date"
                     name="date"
-                    [(ngModel)]="date"
+                    [ngModel]="date()"
+                    (ngModelChange)="date.set($event)"
                     required
                   ></ion-datetime>
                 </ng-template>
@@ -132,11 +136,15 @@ import {
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="checkForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="checkForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -171,12 +179,12 @@ export class PostDatedCheckFormComponent implements OnInit {
 
   loanId: number | null = null;
   checkId: number | null = null;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  name = '';
-  amount: number | null = null;
-  accountNo: number | null = null;
-  date: string | null = null;
+  readonly name = signal('');
+  readonly amount = signal<number | null>(null);
+  readonly accountNo = signal<number | null>(null);
+  readonly date = signal<string | null>(null);
 
   ngOnInit(): void {
     const loanIdParam = this.route.snapshot.paramMap.get('loanId');
@@ -196,10 +204,10 @@ export class PostDatedCheckFormComponent implements OnInit {
       next: (data: GetPostDatedChecks[]) => {
         const check = (data || []).find((c) => c.id === this.checkId);
         if (check) {
-          this.name = check.name ?? '';
-          this.amount = check.amount ?? null;
-          this.accountNo = check.accountNo ?? null;
-          this.date = check.date ? toIsoDate(new Date(check.date)) : null;
+          this.name.set(check.name ?? '');
+          this.amount.set(check.amount ?? null);
+          this.accountNo.set(check.accountNo ?? null);
+          this.date.set(check.date ? toIsoDate(new Date(check.date)) : null);
         }
       },
       error: (err: unknown) => console.error('Failed to load post-dated check', err),
@@ -208,13 +216,13 @@ export class PostDatedCheckFormComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.loanId || !this.checkId) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const request: UpdatePostDatedCheckRequest = {
-      name: this.name,
-      amount: this.amount ?? undefined,
-      accountNo: this.accountNo ?? undefined,
-      date: formatDateToFineract(this.date),
+      name: this.name(),
+      amount: this.amount() ?? undefined,
+      accountNo: this.accountNo() ?? undefined,
+      date: formatDateToFineract(this.date()),
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     };
@@ -223,7 +231,7 @@ export class PostDatedCheckFormComponent implements OnInit {
       .putLoansLoanIdPostdatedchecksPostDatedCheckId(this.checkId, this.loanId, request)
       .subscribe({
         next: () => this.router.navigate(['/loans', this.loanId, 'post-dated-checks']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 

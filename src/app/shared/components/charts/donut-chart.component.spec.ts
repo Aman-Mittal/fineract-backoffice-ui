@@ -45,7 +45,7 @@ describe('DonutChartComponent', () => {
       { label: 'Active', value: 30, color: 'green' },
       { label: 'Inactive', value: 10, color: 'red' },
     ];
-    component.data = mockData;
+    fixture.componentRef.setInput('data', mockData);
     fixture.detectChanges();
 
     expect(component.total()).toBe(40);
@@ -70,7 +70,7 @@ describe('DonutChartComponent', () => {
       { label: 'Active', value: 30, color: 'green' },
       { label: 'Inactive', value: 10, color: 'red' },
     ];
-    component.data = mockData;
+    fixture.componentRef.setInput('data', mockData);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;

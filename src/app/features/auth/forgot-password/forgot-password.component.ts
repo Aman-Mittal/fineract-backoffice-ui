@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PasswordManagementService, ForgotPasswordRequest } from '../../../api';
@@ -57,7 +57,7 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          @if (sent) {
+          @if (sent()) {
             <div class="success-message">
               {{ 'FORGOT_PASSWORD.SUCCESS_MSG' | translate }}
             </div>
@@ -72,7 +72,7 @@ import {
                   [(ngModel)]="email"
                   required
                   email
-                  [disabled]="isSending"
+                  [disabled]="isSending()"
                 ></ion-input>
               </ion-item>
 
@@ -80,9 +80,9 @@ import {
                 <ion-button
                   color="primary"
                   type="submit"
-                  [disabled]="forgotForm.invalid || isSending"
+                  [disabled]="forgotForm.invalid || isSending()"
                 >
-                  @if (isSending) {
+                  @if (isSending()) {
                     <ion-spinner name="crescent"></ion-spinner>
                   }
                   {{ 'FORGOT_PASSWORD.SEND' | translate }}
@@ -134,23 +134,23 @@ export class ForgotPasswordComponent {
   private translate = inject(TranslateService);
 
   email = '';
-  isSending = false;
-  sent = false;
+  readonly isSending = signal(false);
+  readonly sent = signal(false);
 
   onSubmit(): void {
     if (!this.email) {
       return;
     }
-    this.isSending = true;
+    this.isSending.set(true);
     this.passwordManagementService
       .postPasswordForgot({ email: this.email } as ForgotPasswordRequest)
       .subscribe({
         next: () => {
-          this.isSending = false;
-          this.sent = true;
+          this.isSending.set(false);
+          this.sent.set(true);
         },
         error: () => {
-          this.isSending = false;
+          this.isSending.set(false);
           this.translate.get('FORGOT_PASSWORD.ERROR').subscribe((msg: string) => {
             this.notifications.success(msg);
           });

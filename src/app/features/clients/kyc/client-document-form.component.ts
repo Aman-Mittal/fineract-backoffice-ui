@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -72,7 +72,7 @@ import {
               <ion-input
                 [attr.aria-label]="'COMMON.NAME' | translate"
                 name="name"
-                [(ngModel)]="document.name"
+                [(ngModel)]="document().name"
                 required
               ></ion-input>
             </ion-item>
@@ -82,7 +82,7 @@ import {
               <ion-textarea
                 [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="document.description"
+                [(ngModel)]="document().description"
                 rows="3"
               ></ion-textarea>
             </ion-item>
@@ -161,10 +161,10 @@ export class ClientDocumentFormComponent implements OnInit {
   isEditMode = false;
   selectedFile?: File;
 
-  document = {
+  readonly document = signal({
     name: '',
     description: '',
-  };
+  });
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -180,10 +180,10 @@ export class ClientDocumentFormComponent implements OnInit {
     this.documentService
       .getEntityTypeEntityIdDocumentsDocumentId('clients', this.clientId, this.docId!)
       .subscribe((data) => {
-        this.document = {
+        this.document.set({
           name: data.name || '',
           description: data.description || '',
-        };
+        });
       });
   }
 
@@ -202,9 +202,9 @@ export class ClientDocumentFormComponent implements OnInit {
           this.clientId,
           this.docId!,
           undefined, // contentLength
-          this.document.description,
+          this.document().description,
           undefined, // file
-          this.document.name,
+          this.document().name,
         )
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
@@ -216,9 +216,9 @@ export class ClientDocumentFormComponent implements OnInit {
           'clients',
           this.clientId,
           this.selectedFile!.size,
-          this.document.description,
+          this.document().description,
           this.selectedFile!,
-          this.document.name,
+          this.document().name,
         )
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),

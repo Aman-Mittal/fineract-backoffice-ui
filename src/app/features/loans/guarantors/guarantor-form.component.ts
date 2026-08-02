@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -88,10 +88,10 @@ import {
                 [attr.aria-label]="'GUARANTORS.TYPE' | translate"
                 interface="popover"
                 name="guarantorTypeId"
-                [(ngModel)]="guarantor.guarantorTypeId"
+                [(ngModel)]="guarantor().guarantorTypeId"
                 required
               >
-                @for (opt of guarantorTypeOptions; track opt.id) {
+                @for (opt of guarantorTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
@@ -103,7 +103,7 @@ import {
                 [attr.aria-label]="'GUARANTORS.ENTITY_ID' | translate"
                 type="number"
                 name="entityId"
-                [(ngModel)]="guarantor.entityId"
+                [(ngModel)]="guarantor().entityId"
               ></ion-input>
             </ion-item>
 
@@ -112,7 +112,7 @@ import {
               <ion-input
                 [attr.aria-label]="'GUARANTORS.FIRST_NAME' | translate"
                 name="firstname"
-                [(ngModel)]="guarantor.firstname"
+                [(ngModel)]="guarantor().firstname"
               ></ion-input>
             </ion-item>
 
@@ -121,7 +121,7 @@ import {
               <ion-input
                 [attr.aria-label]="'GUARANTORS.LAST_NAME' | translate"
                 name="lastname"
-                [(ngModel)]="guarantor.lastname"
+                [(ngModel)]="guarantor().lastname"
               ></ion-input>
             </ion-item>
 
@@ -130,7 +130,7 @@ import {
               <ion-input
                 [attr.aria-label]="'GUARANTORS.ADDRESS_LINE1' | translate"
                 name="addressLine1"
-                [(ngModel)]="guarantor.addressLine1"
+                [(ngModel)]="guarantor().addressLine1"
               ></ion-input>
             </ion-item>
 
@@ -139,7 +139,7 @@ import {
               <ion-input
                 [attr.aria-label]="'GUARANTORS.MOBILE_NUMBER' | translate"
                 name="mobileNumber"
-                [(ngModel)]="guarantor.mobileNumber"
+                [(ngModel)]="guarantor().mobileNumber"
               ></ion-input>
             </ion-item>
 
@@ -149,7 +149,7 @@ import {
                 [attr.aria-label]="'GUARANTORS.SAVINGS_ID' | translate"
                 type="number"
                 name="savingsId"
-                [(ngModel)]="guarantor.savingsId"
+                [(ngModel)]="guarantor().savingsId"
               ></ion-input>
             </ion-item>
 
@@ -161,7 +161,7 @@ import {
                 [attr.aria-label]="'GUARANTORS.CLIENT_RELATIONSHIP_TYPE_ID' | translate"
                 type="number"
                 name="clientRelationshipTypeId"
-                [(ngModel)]="guarantor.clientRelationshipTypeId"
+                [(ngModel)]="guarantor().clientRelationshipTypeId"
               ></ion-input>
             </ion-item>
 
@@ -171,7 +171,7 @@ import {
                 [attr.aria-label]="'GUARANTORS.AMOUNT' | translate"
                 type="number"
                 name="amount"
-                [(ngModel)]="guarantor.amount"
+                [(ngModel)]="guarantor().amount"
               ></ion-input>
             </ion-item>
 
@@ -185,22 +185,23 @@ import {
                     data-testid="dobDate-picker"
                     presentation="date"
                     name="dobDate"
-                    [(ngModel)]="dobDate"
+                    [ngModel]="dobDate()"
+                    (ngModelChange)="dobDate.set($event)"
                   ></ion-datetime>
                 </ng-template>
               </ion-modal>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="guarantorForm.invalid || isSaving"
+                [disabled]="guarantorForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -236,17 +237,17 @@ export class GuarantorFormComponent implements OnInit {
   loanId!: number;
   guarantorId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  guarantor: GuarantorsRequest = {};
-  guarantorTypeOptions: EnumOptionData[] = [];
-  dobDate: string | null = null;
+  readonly guarantor = signal<GuarantorsRequest>({});
+  readonly guarantorTypeOptions = signal<EnumOptionData[]>([]);
+  readonly dobDate = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
 
     this.guarantorsService.getLoansLoanIdGuarantorsTemplate(this.loanId).subscribe((tpl) => {
-      this.guarantorTypeOptions = tpl.guarantorTypeOptions ?? [];
+      this.guarantorTypeOptions.set(tpl.guarantorTypeOptions ?? []);
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -262,7 +263,7 @@ export class GuarantorFormComponent implements OnInit {
     this.guarantorsService
       .getLoansLoanIdGuarantorsGuarantorId(this.loanId, this.guarantorId)
       .subscribe((data) => {
-        this.guarantor = {
+        this.guarantor.set({
           guarantorTypeId: data.guarantorTypeId,
           entityId: data.entityId,
           firstname: data.firstname,
@@ -272,25 +273,27 @@ export class GuarantorFormComponent implements OnInit {
           savingsId: data.savingsId,
           clientRelationshipTypeId: data.clientRelationshipTypeId,
           amount: data.amount,
-        };
+        });
         if (data.dob) {
           const dob = data.dob as unknown as number[];
-          this.dobDate = Array.isArray(dob)
-            ? toIsoDate(new Date(dob[0], dob[1] - 1, dob[2]))
-            : toIsoDate(new Date(data.dob));
+          this.dobDate.set(
+            Array.isArray(dob)
+              ? toIsoDate(new Date(dob[0], dob[1] - 1, dob[2]))
+              : toIsoDate(new Date(data.dob)),
+          );
         }
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const payload: GuarantorsRequest = {
-      ...this.guarantor,
+      ...this.guarantor(),
       locale: FINERACT_LOCALE,
       dateFormat: FINERACT_DATE_FORMAT,
     };
-    if (this.dobDate) {
-      payload.dob = formatDateToFineract(this.dobDate);
+    if (this.dobDate()) {
+      payload.dob = formatDateToFineract(this.dobDate());
     }
     const request$ =
       this.isEditMode && this.guarantorId
@@ -303,7 +306,7 @@ export class GuarantorFormComponent implements OnInit {
 
     request$.subscribe({
       next: () => this.router.navigate(['/loans', this.loanId, 'guarantors']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

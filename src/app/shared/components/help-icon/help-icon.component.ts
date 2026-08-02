@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input } from '@angular/core';
+import { input, Component } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { TranslateModule } from '@ngx-translate/core';
@@ -37,8 +37,8 @@ import { TranslateModule } from '@ngx-translate/core';
       class="help-icon"
       name="help-circle-outline"
       data-testid="help-icon"
-      [appTooltip]="helpTextKey | translate"
-      [attr.aria-label]="helpTextKey | translate"
+      [appTooltip]="helpTextKey() | translate"
+      [attr.aria-label]="helpTextKey() | translate"
       role="img"
     ></ion-icon>
   `,
@@ -60,5 +60,5 @@ import { TranslateModule } from '@ngx-translate/core';
   ],
 })
 export class HelpIconComponent {
-  @Input({ required: true }) helpTextKey!: string;
+  readonly helpTextKey = input.required<string>();
 }

@@ -63,15 +63,15 @@ describe('TaxGroupFormComponent', () => {
   it('should load the component template on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getTaxesGroupTemplate).toHaveBeenCalled();
-    expect(component.availableComponents).toHaveSize(1);
+    expect(component.availableComponents()).toHaveSize(1);
   });
 
   it('should post a tax group with selected components as an array', () => {
     serviceSpy.postTaxesGroup.and.returnValue(
       of({}) as unknown as ReturnType<TaxGroupService['postTaxesGroup']>,
     );
-    component.name = 'Standard';
-    component.selectedComponentIds = [1, 2];
+    component.name.set('Standard');
+    component.selectedComponentIds.set([1, 2]);
 
     component.onSubmit();
 

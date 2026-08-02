@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -77,10 +77,11 @@ import { ProductMixService, LoanProductData } from '../../../api';
                 id="product-mix-restricted-products"
                 data-testid="product-mix-restricted-products"
                 name="restrictedProducts"
-                [(ngModel)]="restrictedProducts"
+                [ngModel]="restrictedProducts()"
+                (ngModelChange)="restrictedProducts.set($event)"
                 multiple="true"
               >
-                @for (opt of productOptions; track opt.id) {
+                @for (opt of productOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -94,7 +95,7 @@ import { ProductMixService, LoanProductData } from '../../../api';
                 color="danger"
                 type="button"
                 (click)="onDelete()"
-                [disabled]="!hasMix || isSaving"
+                [disabled]="!hasMix() || isSaving()"
               >
                 {{ 'PRODUCT_MIX.CLEAR' | translate }}
               </ion-button>
@@ -105,7 +106,7 @@ import { ProductMixService, LoanProductData } from '../../../api';
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -114,9 +115,9 @@ import { ProductMixService, LoanProductData } from '../../../api';
                 data-testid="product-mix-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -161,11 +162,11 @@ export class ProductMixComponent implements OnInit {
   private readonly LIST_PATH = '/products/loan';
 
   productId!: number;
-  hasMix = false;
-  isSaving = false;
+  readonly hasMix = signal(false);
+  readonly isSaving = signal(false);
 
-  restrictedProducts: number[] = [];
-  productOptions: LoanProductData[] = [];
+  readonly restrictedProducts = signal<number[]>([]);
+  readonly productOptions = signal<LoanProductData[]>([]);
 
   ngOnInit(): void {
     this.productId = Number(this.route.snapshot.paramMap.get('productId'));
@@ -175,36 +176,36 @@ export class ProductMixComponent implements OnInit {
   load(): void {
     this.productMixService.getLoanproductsProductIdProductmix(this.productId).subscribe({
       next: (data) => {
-        this.productOptions = data.productOptions ?? [];
+        this.productOptions.set(data.productOptions ?? []);
         const restricted = data.restrictedProducts ?? [];
-        this.restrictedProducts = restricted
-          .map((p) => p.id)
-          .filter((id): id is number => id !== undefined);
-        this.hasMix = restricted.length > 0;
+        this.restrictedProducts.set(
+          restricted.map((p) => p.id).filter((id): id is number => id !== undefined),
+        );
+        this.hasMix.set(restricted.length > 0);
       },
       error: (err) => console.error('Failed to load product mix', err),
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
-    const request = { productId: this.productId, restrictedProducts: this.restrictedProducts };
-    const request$ = this.hasMix
+    this.isSaving.set(true);
+    const request = { productId: this.productId, restrictedProducts: this.restrictedProducts() };
+    const request$ = this.hasMix()
       ? this.productMixService.putLoanproductsProductIdProductmix(this.productId, request)
       : this.productMixService.postLoanproductsProductIdProductmix(this.productId, request);
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 
   onDelete(): void {
     if (!window.confirm('Clear this product mix?')) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.productMixService.deleteLoanproductsProductIdProductmix(this.productId).subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

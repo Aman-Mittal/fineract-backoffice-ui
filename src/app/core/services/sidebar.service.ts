@@ -24,7 +24,7 @@ import { Injectable, signal } from '@angular/core';
 })
 export class SidebarService {
   /** Signal representing whether the sidebar is collapsed */
-  isCollapsed = signal(false);
+  readonly isCollapsed = signal(false);
 
   /** Toggles the sidebar collapsed state */
   toggle(): void {

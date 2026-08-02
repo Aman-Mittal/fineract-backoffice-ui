@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.WC_NEAR_BREACH_DESC"
       createButtonLabel="WC_NEAR_BREACH.CREATE"
       [columns]="columns"
-      [data]="items"
-      [totalRecords]="items.length"
+      [data]="items()"
+      [totalRecords]="items().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -87,7 +87,7 @@ export class WcNearBreachListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  items: WorkingCapitalNearBreachData[] = [];
+  readonly items = signal<WorkingCapitalNearBreachData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -96,7 +96,7 @@ export class WcNearBreachListComponent implements OnInit {
   load(): void {
     this.service.getWorkingCapitalNearBreach().subscribe({
       next: (data: WorkingCapitalNearBreachData[]) => {
-        this.items = data || [];
+        this.items.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load near-breach definitions', err);

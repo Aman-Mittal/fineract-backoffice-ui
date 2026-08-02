@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -64,7 +64,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('CODE_VALUES.EDIT_TITLE' | translate)
                 : ('CODE_VALUES.CREATE_TITLE' | translate)
             }}
@@ -78,7 +78,7 @@ import {
               <ion-input
                 [attr.aria-label]="'CODE_VALUES.NAME' | translate"
                 name="name"
-                [(ngModel)]="codeValue.name"
+                [(ngModel)]="codeValue().name"
                 required
               ></ion-input>
             </ion-item>
@@ -88,7 +88,7 @@ import {
               <ion-input
                 [attr.aria-label]="'CODE_VALUES.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="codeValue.description"
+                [(ngModel)]="codeValue().description"
               ></ion-input>
             </ion-item>
 
@@ -98,26 +98,26 @@ import {
                 [attr.aria-label]="'CODE_VALUES.POSITION' | translate"
                 type="number"
                 name="position"
-                [(ngModel)]="codeValue.position"
+                [(ngModel)]="codeValue().position"
               ></ion-input>
             </ion-item>
 
             <div class="checkbox-field">
-              <ion-checkbox name="isActive" [(ngModel)]="codeValue.isActive">
+              <ion-checkbox name="isActive" [(ngModel)]="codeValue().isActive">
                 {{ 'CODE_VALUES.ACTIVE' | translate }}
               </ion-checkbox>
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'CODE_VALUES.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="codeValueForm.invalid || isSaving"
+                [disabled]="codeValueForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -163,15 +163,15 @@ export class CodeValueFormComponent implements OnInit {
 
   codeId = 0;
   codeValueId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  codeValue: PostCodeValuesDataRequest = {
+  readonly codeValue = signal<PostCodeValuesDataRequest>({
     name: '',
     description: '',
     position: undefined,
     isActive: true,
-  };
+  });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -184,7 +184,7 @@ export class CodeValueFormComponent implements OnInit {
 
       if (codeValueIdParam) {
         this.codeValueId = +codeValueIdParam;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadCodeValueData();
       }
     });
@@ -201,12 +201,12 @@ export class CodeValueFormComponent implements OnInit {
       .getCodesCodeIdCodevaluesCodeValueId(this.codeValueId, this.codeId)
       .subscribe({
         next: (data: GetCodeValuesDataResponse) => {
-          this.codeValue = {
+          this.codeValue.set({
             name: data.name,
             description: data.description,
             position: data.position,
             isActive: data.active,
-          };
+          });
         },
         error: (err: unknown) => {
           console.error('Failed to load code value', err);
@@ -215,14 +215,14 @@ export class CodeValueFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.codeValueId) {
+    if (this.isEditMode() && this.codeValueId) {
       const payload: PutCodeValuesDataRequest = {
-        name: this.codeValue.name,
-        description: this.codeValue.description,
-        position: this.codeValue.position,
-        isActive: this.codeValue.isActive,
+        name: this.codeValue().name,
+        description: this.codeValue().description,
+        position: this.codeValue().position,
+        isActive: this.codeValue().isActive,
       };
       this.codeValuesService
         .putCodesCodeIdCodevaluesCodeValueId(this.codeId, this.codeValueId, payload)
@@ -230,15 +230,15 @@ export class CodeValueFormComponent implements OnInit {
           next: () => this.router.navigate(this.listPath),
           error: (err: unknown) => {
             console.error('Failed to update code value', err);
-            this.isSaving = false;
+            this.isSaving.set(false);
           },
         });
     } else {
-      this.codeValuesService.postCodesCodeIdCodevalues(this.codeId, this.codeValue).subscribe({
+      this.codeValuesService.postCodesCodeIdCodevalues(this.codeId, this.codeValue()).subscribe({
         next: () => this.router.navigate(this.listPath),
         error: (err: unknown) => {
           console.error('Failed to create code value', err);
-          this.isSaving = false;
+          this.isSaving.set(false);
         },
       });
     }

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -51,10 +51,10 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     <app-data-table
       title="Loan Reschedule Requests"
       helpTextKey="HELP.RESCHEDULING_DESC"
-      [createButtonLabel]="loanId ? 'LOANS.REQUEST_RESCHEDULE' : ''"
+      [createButtonLabel]="loanId() ? 'LOANS.REQUEST_RESCHEDULE' : ''"
       [columns]="columns"
-      [data]="requests"
-      [totalRecords]="requests.length"
+      [data]="requests()"
+      [totalRecords]="requests().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateRequest()"
@@ -92,7 +92,7 @@ export class RescheduleRequestsListComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  loanId: number | null = null;
+  readonly loanId = signal<number | null>(null);
 
   readonly columns: ColumnDef[] = [
     { key: 'loanAccountNumber', label: 'LOANS.ACCOUNT_NO', sortable: true },
@@ -102,30 +102,30 @@ export class RescheduleRequestsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  requests: GetLoanRescheduleRequestResponse[] = [];
+  readonly requests = signal<GetLoanRescheduleRequestResponse[]>([]);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('loanId');
       if (id) {
-        this.loanId = +id;
+        this.loanId.set(+id);
       }
       this.loadRequests();
     });
   }
 
   private loadRequests(): void {
-    this.rescheduleService.getRescheduleloans(undefined, this.loanId || undefined).subscribe({
+    this.rescheduleService.getRescheduleloans(undefined, this.loanId() || undefined).subscribe({
       next: (data) => {
-        this.requests = data || [];
+        this.requests.set(data || []);
       },
       error: (err) => console.error('Failed to load reschedule requests', err),
     });
   }
 
   onCreateRequest(): void {
-    if (this.loanId) {
-      this.router.navigate(['/loans', this.loanId, 'rescheduling', 'create']);
+    if (this.loanId()) {
+      this.router.navigate(['/loans', this.loanId(), 'rescheduling', 'create']);
     }
   }
 

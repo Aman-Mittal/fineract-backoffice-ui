@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
@@ -35,8 +35,8 @@ import { MixTaxonomyService, MixTaxonomyData } from '../../../api';
       title="nav.mixTaxonomy"
       helpTextKey="HELP.MIX_TAXONOMY_DESC"
       [columns]="columns"
-      [data]="taxonomy"
-      [totalRecords]="taxonomy.length"
+      [data]="taxonomy()"
+      [totalRecords]="taxonomy().length"
       [localLogic]="true"
     ></app-data-table>
   `,
@@ -52,7 +52,7 @@ export class MixTaxonomyComponent implements OnInit {
     { key: 'type', label: 'MIX_TAXONOMY.TYPE', sortable: true },
   ];
 
-  taxonomy: MixTaxonomyData[] = [];
+  readonly taxonomy = signal<MixTaxonomyData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -61,7 +61,7 @@ export class MixTaxonomyComponent implements OnInit {
   load(): void {
     this.taxonomyService.getMixtaxonomy().subscribe({
       next: (data: MixTaxonomyData[]) => {
-        this.taxonomy = data || [];
+        this.taxonomy.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load MIX taxonomy', err),
     });

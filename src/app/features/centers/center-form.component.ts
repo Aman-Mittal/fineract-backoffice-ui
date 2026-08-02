@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -88,7 +88,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('CENTERS.EDIT_CENTER' | translate)
                 : ('CENTERS.CREATE_CENTER' | translate)
             }}
@@ -104,7 +104,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'CENTERS.NAME' | translate"
                   name="name"
-                  [(ngModel)]="center.name"
+                  [(ngModel)]="center().name"
                   required
                 ></ion-input>
               </ion-item>
@@ -116,18 +116,18 @@ import {
                   [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
-                  [(ngModel)]="center.officeId"
+                  [(ngModel)]="center().officeId"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
-                  @for (office of offices; track office.id) {
+                  @for (office of offices(); track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
 
               <!-- Activation Date -->
-              @if (!isEditMode) {
+              @if (!isEditMode()) {
                 <ion-item fill="outline" [appTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate">
                   <ion-label position="stacked">{{
                     'COMMON.ACTIVATION_DATE' | translate
@@ -150,7 +150,7 @@ import {
 
               <!-- Active -->
               <div class="checkbox-container">
-                <ion-checkbox name="active" [(ngModel)]="center.active" [disabled]="isEditMode">
+                <ion-checkbox name="active" [(ngModel)]="center().active" [disabled]="isEditMode()">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
                 <ion-icon
@@ -162,17 +162,17 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              @if (isEditMode && !originalActive) {
+              @if (isEditMode() && !originalActive()) {
                 <ion-button
                   color="secondary"
                   type="button"
                   (click)="onActivate()"
-                  [disabled]="isSaving || !activationDate"
+                  [disabled]="isSaving() || !activationDate"
                 >
-                  @if (isSaving) {
+                  @if (isSaving()) {
                     <ion-spinner name="crescent"></ion-spinner>
                     {{ 'COMMON.SAVING' | translate }}
                   } @else {
@@ -180,8 +180,12 @@ import {
                   }
                 </ion-button>
               }
-              <ion-button color="primary" type="submit" [disabled]="centerForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="centerForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -237,16 +241,16 @@ export class CenterFormComponent implements OnInit {
   private readonly LIST_PATH = '/centers';
 
   centerId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
-  originalActive = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
+  readonly originalActive = signal(false);
 
-  center: PostCentersRequest = {
+  readonly center = signal<PostCentersRequest>({
     active: true,
-  };
+  });
 
   activationDate = toIsoDate(new Date());
-  offices: GetOfficesResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit(): void {
     this.loadOffices();
@@ -254,7 +258,7 @@ export class CenterFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.centerId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadCenterData();
       }
     });
@@ -262,25 +266,25 @@ export class CenterFormComponent implements OnInit {
 
   private loadOffices(): void {
     this.officesService.getOffices(true).subscribe((offices) => {
-      this.offices = offices;
+      this.offices.set(offices);
     });
   }
 
   private loadCenterData(): void {
     if (!this.centerId) return;
     this.centersService.getCentersCenterId(this.centerId).subscribe((data) => {
-      this.originalActive = !!(data as Record<string, unknown>)['active'];
-      this.center = {
+      this.originalActive.set(!!(data as Record<string, unknown>)['active']);
+      this.center.set({
         name: data.name,
         officeId: data.officeId,
-        active: this.originalActive,
-      };
+        active: this.originalActive(),
+      });
     });
   }
 
   onActivate(): void {
     if (!this.centerId || !this.activationDate) return;
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const formattedDate = toIsoDate(this.activationDate);
 
@@ -294,31 +298,31 @@ export class CenterFormComponent implements OnInit {
       .postCentersCenterId(this.centerId, payload as PostCentersCenterIdRequest, 'activate')
       .subscribe({
         next: () => {
-          this.isSaving = false;
-          this.originalActive = true;
-          this.center.active = true;
+          this.isSaving.set(false);
+          this.originalActive.set(true);
+          this.center().active = true;
         },
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.centerId) {
+    if (this.isEditMode() && this.centerId) {
       const payload: PutCentersCenterIdRequest = {
-        name: this.center.name,
+        name: this.center().name,
       };
       this.centersService.putCentersCenterId(this.centerId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       const formattedDate = toIsoDate(this.activationDate);
 
       // Assert as Record to include mandatory undocumented fields for activation
       const payload: Record<string, unknown> = {
-        ...this.center,
+        ...this.center(),
         activationDate: formattedDate,
         dateFormat: this.DATE_FORMAT,
         locale: 'en',
@@ -326,7 +330,7 @@ export class CenterFormComponent implements OnInit {
 
       this.centersService.postCenters(payload as PostCentersRequest).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

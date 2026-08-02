@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService, GetNotification } from '../../../api';
 import {
@@ -59,9 +59,9 @@ import {
         </ion-card-header>
 
         <ion-card-content>
-          @if (notifications.length) {
+          @if (notifications().length) {
             <ion-list>
-              @for (note of notifications; track note.id) {
+              @for (note of notifications(); track note.id) {
                 <ion-item>
                   <ion-icon
                     slot="start"
@@ -80,10 +80,10 @@ import {
             <ion-button
               color="primary"
               type="button"
-              [disabled]="isSaving"
+              [disabled]="isSaving()"
               (click)="onMarkAllRead()"
             >
-              @if (isSaving) {
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -108,8 +108,8 @@ import {
 export class NotificationsConfigComponent implements OnInit {
   private readonly service = inject(NotificationService);
 
-  notifications: GetNotification[] = [];
-  isSaving = false;
+  readonly notifications = signal<GetNotification[]>([]);
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -117,18 +117,18 @@ export class NotificationsConfigComponent implements OnInit {
 
   load(): void {
     this.service.getNotifications().subscribe((data) => {
-      this.notifications = data.pageItems ?? [];
+      this.notifications.set(data.pageItems ?? []);
     });
   }
 
   onMarkAllRead(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.service.putNotifications().subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.load();
       },
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

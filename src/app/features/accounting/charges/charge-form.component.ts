@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -75,7 +75,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('CHARGES.EDIT' | translate) : ('CHARGES.CREATE' | translate) }}
+            {{ isEditMode() ? ('CHARGES.EDIT' | translate) : ('CHARGES.CREATE' | translate) }}
             <app-help-icon [helpTextKey]="'HELP.CHARGES_DESC'"></app-help-icon>
           </ion-card-title>
         </ion-card-header>
@@ -89,7 +89,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'COMMON.NAME' | translate"
                   name="name"
-                  [(ngModel)]="charge.name"
+                  [(ngModel)]="charge().name"
                   required
                 ></ion-input>
               </ion-item>
@@ -101,9 +101,9 @@ import {
                   aria-label="Applies To"
                   interface="popover"
                   name="chargeAppliesTo"
-                  [(ngModel)]="charge.chargeAppliesTo"
+                  [(ngModel)]="charge().chargeAppliesTo"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   <ion-select-option [value]="1">Client</ion-select-option>
                   <ion-select-option [value]="2">Loan</ion-select-option>
@@ -119,10 +119,10 @@ import {
                   [attr.aria-label]="'COMMON.CURRENCY' | translate"
                   interface="popover"
                   name="currencyCode"
-                  [(ngModel)]="charge.currencyCode"
+                  [(ngModel)]="charge().currencyCode"
                   required
                 >
-                  @for (currency of currencies; track currency.code) {
+                  @for (currency of currencies(); track currency.code) {
                     <ion-select-option [value]="currency.code">{{
                       currency.name
                     }}</ion-select-option>
@@ -137,10 +137,10 @@ import {
                   aria-label="Charge Time Type"
                   interface="popover"
                   name="chargeTimeType"
-                  [(ngModel)]="charge.chargeTimeType"
+                  [(ngModel)]="charge().chargeTimeType"
                   required
                 >
-                  @for (option of timeTypeOptions; track option['id']) {
+                  @for (option of timeTypeOptions(); track option['id']) {
                     <ion-select-option [value]="option['id']">{{
                       option['value']
                     }}</ion-select-option>
@@ -155,10 +155,10 @@ import {
                   aria-label="Calculation Type"
                   interface="popover"
                   name="chargeCalculationType"
-                  [(ngModel)]="charge.chargeCalculationType"
+                  [(ngModel)]="charge().chargeCalculationType"
                   required
                 >
-                  @for (option of calculationTypeOptions; track option['id']) {
+                  @for (option of calculationTypeOptions(); track option['id']) {
                     <ion-select-option [value]="option['id']">{{
                       option['value']
                     }}</ion-select-option>
@@ -173,32 +173,36 @@ import {
                   [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="amount"
-                  [(ngModel)]="charge.amount"
+                  [(ngModel)]="charge().amount"
                   required
                 ></ion-input>
               </ion-item>
 
               <!-- Active -->
               <div class="checkbox-container">
-                <ion-checkbox name="active" [(ngModel)]="charge.active">
+                <ion-checkbox name="active" [(ngModel)]="charge().active">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
               </div>
 
               <!-- Penalty -->
               <div class="checkbox-container">
-                <ion-checkbox name="penalty" [(ngModel)]="charge.penalty">
+                <ion-checkbox name="penalty" [(ngModel)]="charge().penalty">
                   {{ 'COMMON.PENALTY' | translate }}
                 </ion-checkbox>
               </div>
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="chargeForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="chargeForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -245,18 +249,18 @@ export class ChargeFormComponent implements OnInit {
   private readonly LIST_PATH = '/accounting/charges';
 
   chargeId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  charge: ChargeRequest = {
+  readonly charge = signal<ChargeRequest>({
     active: true,
     penalty: false,
     chargeAppliesTo: 1, // Default to Client
-  };
+  });
 
-  currencies: CurrencyData[] = [];
-  timeTypeOptions: Record<string, unknown>[] = [];
-  calculationTypeOptions: Record<string, unknown>[] = [];
+  readonly currencies = signal<CurrencyData[]>([]);
+  readonly timeTypeOptions = signal<Record<string, unknown>[]>([]);
+  readonly calculationTypeOptions = signal<Record<string, unknown>[]>([]);
 
   ngOnInit(): void {
     this.loadMetadata();
@@ -264,7 +268,7 @@ export class ChargeFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.chargeId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadChargeData();
       }
     });
@@ -272,14 +276,17 @@ export class ChargeFormComponent implements OnInit {
 
   private loadMetadata(): void {
     this.currencyService.getCurrencies().subscribe((data: CurrencyConfigurationData) => {
-      this.currencies = Array.from(data.selectedCurrencyOptions || []);
+      this.currencies.set(Array.from(data.selectedCurrencyOptions || []));
     });
 
     this.chargesService.getChargesTemplate().subscribe((data: ChargeData) => {
       const record = data as unknown as Record<string, unknown>;
-      this.timeTypeOptions = (record['chargeTimeTypeOptions'] as Record<string, unknown>[]) || [];
-      this.calculationTypeOptions =
-        (record['chargeCalculationTypeOptions'] as Record<string, unknown>[]) || [];
+      this.timeTypeOptions.set(
+        (record['chargeTimeTypeOptions'] as Record<string, unknown>[]) || [],
+      );
+      this.calculationTypeOptions.set(
+        (record['chargeCalculationTypeOptions'] as Record<string, unknown>[]) || [],
+      );
     });
   }
 
@@ -287,7 +294,7 @@ export class ChargeFormComponent implements OnInit {
     if (!this.chargeId) return;
     this.chargesService.getChargesChargeId(this.chargeId).subscribe((data: GetChargesResponse) => {
       const record = data as unknown as Record<string, unknown>;
-      this.charge = {
+      this.charge.set({
         name: record['name'] as string,
         amount: record['amount'] as number,
         currencyCode: (record['currency'] as Record<string, unknown>)?.['code'] as string,
@@ -298,23 +305,23 @@ export class ChargeFormComponent implements OnInit {
         ] as number,
         active: record['active'] as boolean,
         penalty: record['penalty'] as boolean,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
-    this.charge.locale = 'en';
+    this.isSaving.set(true);
+    this.charge().locale = 'en';
 
-    if (this.isEditMode && this.chargeId) {
-      this.chargesService.putChargesChargeId(this.chargeId, this.charge).subscribe({
+    if (this.isEditMode() && this.chargeId) {
+      this.chargesService.putChargesChargeId(this.chargeId, this.charge()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
-      this.chargesService.postCharges(this.charge).subscribe({
+      this.chargesService.postCharges(this.charge()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

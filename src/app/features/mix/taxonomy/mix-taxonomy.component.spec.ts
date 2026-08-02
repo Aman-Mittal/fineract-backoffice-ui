@@ -50,6 +50,6 @@ describe('MixTaxonomyComponent', () => {
   it('should load taxonomy on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getMixtaxonomy).toHaveBeenCalled();
-    expect(component.taxonomy).toHaveSize(1);
+    expect(component.taxonomy()).toHaveSize(1);
   });
 });

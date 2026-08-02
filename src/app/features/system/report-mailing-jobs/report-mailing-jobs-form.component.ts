@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -78,7 +78,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('REPORT_MAILING_JOBS.EDIT' | translate)
                 : ('REPORT_MAILING_JOBS.CREATE' | translate)
             }}
@@ -92,7 +92,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
               <ion-input
                 [attr.aria-label]="'REPORT_MAILING_JOBS.NAME' | translate"
                 name="name"
-                [(ngModel)]="job.name"
+                [(ngModel)]="job().name"
                 required
               ></ion-input>
             </ion-item>
@@ -104,7 +104,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
               <ion-textarea
                 [attr.aria-label]="'REPORT_MAILING_JOBS.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="job.description"
+                [(ngModel)]="job().description"
               ></ion-textarea>
             </ion-item>
 
@@ -115,7 +115,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
               <ion-input
                 [attr.aria-label]="'REPORT_MAILING_JOBS.EMAIL_RECIPIENTS' | translate"
                 name="emailRecipients"
-                [(ngModel)]="job.emailRecipients"
+                [(ngModel)]="job().emailRecipients"
                 required
               ></ion-input>
             </ion-item>
@@ -127,7 +127,7 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
               <ion-input
                 [attr.aria-label]="'REPORT_MAILING_JOBS.EMAIL_SUBJECT' | translate"
                 name="emailSubject"
-                [(ngModel)]="job.emailSubject"
+                [(ngModel)]="job().emailSubject"
                 required
               ></ion-input>
             </ion-item>
@@ -140,21 +140,21 @@ type ReportMailingJobUpdate = PutReportMailingJobsRequest & {
                 [attr.aria-label]="'REPORT_MAILING_JOBS.STRETCHY_REPORT_ID' | translate"
                 type="number"
                 name="stretchyReportId"
-                [(ngModel)]="job.stretchyReportId"
+                [(ngModel)]="job().stretchyReportId"
                 required
               ></ion-input>
             </ion-item>
 
-            <ion-checkbox name="isActive" [(ngModel)]="job.isActive">
+            <ion-checkbox name="isActive" [(ngModel)]="job().isActive">
               {{ 'REPORT_MAILING_JOBS.IS_ACTIVE' | translate }}
             </ion-checkbox>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="jobForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="jobForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -190,22 +190,22 @@ export class ReportMailingJobsFormComponent implements OnInit {
   private readonly LIST_PATH = '/system/report-mailing-jobs';
 
   jobId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  job: PostReportMailingJobsRequest = {
+  readonly job = signal<PostReportMailingJobsRequest>({
     name: '',
     emailRecipients: '',
     emailSubject: '',
     isActive: true,
-  };
+  });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.jobId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -214,36 +214,36 @@ export class ReportMailingJobsFormComponent implements OnInit {
   load(): void {
     if (!this.jobId) return;
     this.jobsService.getReportmailingjobsEntityId(this.jobId).subscribe((data) => {
-      this.job = {
+      this.job.set({
         name: data.name,
         description: data.description,
         emailRecipients: data.emailRecipients,
         emailSubject: data.emailSubject,
         isActive: data.isActive,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     let request$;
-    if (this.isEditMode && this.jobId) {
+    if (this.isEditMode() && this.jobId) {
       const update: ReportMailingJobUpdate = {
-        name: this.job.name,
-        description: this.job.description,
-        emailRecipients: this.job.emailRecipients,
-        emailSubject: this.job.emailSubject,
-        stretchyReportId: this.job.stretchyReportId,
-        isActive: this.job.isActive,
+        name: this.job().name,
+        description: this.job().description,
+        emailRecipients: this.job().emailRecipients,
+        emailSubject: this.job().emailSubject,
+        stretchyReportId: this.job().stretchyReportId,
+        isActive: this.job().isActive,
       };
       request$ = this.jobsService.putReportmailingjobsEntityId(this.jobId, update);
     } else {
-      request$ = this.jobsService.postReportmailingjobs(this.job);
+      request$ = this.jobsService.postReportmailingjobs(this.job());
     }
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

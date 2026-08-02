@@ -18,16 +18,16 @@
  */
 
 import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  OnChanges,
-  SimpleChanges,
-  Output,
+  effect,
   inject,
+  input,
+  output,
   signal,
+  Component,
+  DestroyRef,
+  OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonItem, IonLabel, IonInput, IonList, IonSpinner } from '@ionic/angular/standalone';
@@ -48,13 +48,13 @@ import { ClientService, GetClientsResponse } from '../../../api';
   template: `
     <div class="client-search-wrapper">
       <ion-item fill="outline">
-        <ion-label position="stacked">{{ label | translate }}</ion-label>
+        <ion-label position="stacked">{{ label() | translate }}</ion-label>
         <ion-input
-          [attr.aria-label]="label | translate"
+          [attr.aria-label]="label() | translate"
           type="text"
           [formControl]="searchControl"
           [placeholder]="'COMMON.SEARCH_PLACEHOLDER' | translate"
-          [required]="required"
+          [required]="required()"
           id="client-search-input"
           data-testid="client-search-input"
           (ionInput)="onInputChange($event)"
@@ -122,20 +122,28 @@ import { ClientService, GetClientsResponse } from '../../../api';
     `,
   ],
 })
-export class ClientSearchComponent implements OnInit, OnChanges {
+export class ClientSearchComponent implements OnInit {
   private readonly clientService = inject(ClientService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  @Input() label = 'COMMON.CLIENT';
-  @Input() required = false;
-  @Input() initialClientId: number | null = null;
+  readonly label = input('COMMON.CLIENT');
+  readonly required = input(false);
+  readonly initialClientId = input<number | null>(null);
 
-  @Output() clientSelected = new EventEmitter<number>();
+  readonly clientSelected = output<number>();
 
   searchControl = new FormControl<string | Record<string, unknown>>('');
   readonly searchInputVal = signal('');
   readonly showDropdown = signal(false);
   readonly filteredClients = signal<Record<string, unknown>[]>([]);
   readonly isLoading = signal(false);
+
+  constructor() {
+    // Replaces `ngOnChanges`, which does not run for signal inputs. The effect covers both the
+    // initial value and every later change, so the one-shot `loadInitialClient()` that used to
+    // sit at the end of `ngOnInit` is gone too.
+    effect(() => this.loadInitialClient(this.initialClientId()));
+  }
 
   ngOnInit(): void {
     this.searchControl.valueChanges
@@ -165,6 +173,7 @@ export class ClientSearchComponent implements OnInit, OnChanges {
             20,
           );
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response: GetClientsResponse) => {
@@ -178,14 +187,6 @@ export class ClientSearchComponent implements OnInit, OnChanges {
           this.filteredClients.set([]);
         },
       });
-
-    this.loadInitialClient();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialClientId'] && !changes['initialClientId'].isFirstChange()) {
-      this.loadInitialClient();
-    }
   }
 
   onInputChange(event: CustomEvent): void {
@@ -193,14 +194,17 @@ export class ClientSearchComponent implements OnInit, OnChanges {
     this.searchControl.setValue(val);
   }
 
-  private loadInitialClient(): void {
-    if (this.initialClientId) {
-      this.clientService.getClientsClientId(this.initialClientId).subscribe((client) => {
+  private loadInitialClient(clientId: number | null): void {
+    if (!clientId) return;
+
+    this.clientService
+      .getClientsClientId(clientId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((client) => {
         const clientObj = client as Record<string, unknown>;
         const displayName = (clientObj['displayName'] as string) || '';
         this.searchControl.setValue(displayName, { emitEvent: false });
       });
-    }
   }
 
   displayFn(client: Record<string, unknown> | string | null): string {

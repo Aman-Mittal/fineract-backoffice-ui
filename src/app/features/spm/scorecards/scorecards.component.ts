@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef } from '../../../shared';
@@ -44,8 +44,8 @@ interface ScorecardRow {
       title="SCORECARDS.TITLE"
       helpTextKey="HELP.SCORECARDS_DESC"
       [columns]="columns"
-      [data]="rows"
-      [totalRecords]="rows.length"
+      [data]="rows()"
+      [totalRecords]="rows().length"
       [localLogic]="true"
     ></app-data-table>
   `,
@@ -62,7 +62,7 @@ export class ScorecardsComponent implements OnInit {
   ];
 
   surveyId: number | null = null;
-  rows: ScorecardRow[] = [];
+  readonly rows = signal<ScorecardRow[]>([]);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('surveyId');
@@ -76,12 +76,14 @@ export class ScorecardsComponent implements OnInit {
     if (!this.surveyId) return;
     this.scoreCardService.getSurveysScorecardsSurveyId(this.surveyId).subscribe({
       next: (data: Scorecard[]) => {
-        this.rows = (data || []).map((sc) => ({
-          client: sc.client?.displayName ?? '',
-          question: sc.question?.text ?? sc.question?.key ?? '',
-          value: sc.value,
-          createdOn: sc.createdOn,
-        }));
+        this.rows.set(
+          (data || []).map((sc) => ({
+            client: sc.client?.displayName ?? '',
+            question: sc.question?.text ?? sc.question?.key ?? '',
+            value: sc.value,
+            createdOn: sc.createdOn,
+          })),
+        );
       },
       error: (err: unknown) => {
         console.error('Failed to load scorecards', err);

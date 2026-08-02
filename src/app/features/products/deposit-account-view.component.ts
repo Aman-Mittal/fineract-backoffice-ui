@@ -305,8 +305,8 @@ export class DepositAccountViewComponent implements OnInit {
 
   accountId = 0;
   isRD = false;
-  account = signal<Record<string, unknown> | null>(null);
-  transactions = signal<Record<string, unknown>[]>([]);
+  readonly account = signal<Record<string, unknown> | null>(null);
+  readonly transactions = signal<Record<string, unknown>[]>([]);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('id'));

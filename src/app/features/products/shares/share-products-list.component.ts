@@ -45,10 +45,10 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
       title="nav.shares"
       createButtonLabel="PRODUCTS.CREATE_SHARE_PRODUCT"
       [columns]="columns"
-      [data]="products"
+      [data]="products()"
       [showSearch]="true"
       [localLogic]="true"
-      [isLoading]="isLoading"
+      [isLoading]="isLoading()"
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="unitPrice" let-product>
@@ -83,15 +83,15 @@ export class ShareProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: GetProductsPageItems[] = [];
-  isLoading = true;
+  readonly products = signal<GetProductsPageItems[]>([]);
+  readonly isLoading = signal(true);
 
   ngOnInit() {
     this.loadProducts();
   }
 
   loadProducts() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.productService
       .getProductsType('share')
       .pipe(
@@ -102,8 +102,8 @@ export class ShareProductsListComponent implements OnInit {
         }),
       )
       .subscribe((response: GetProductsTypeResponse) => {
-        this.products = Array.from(response.pageItems || []);
-        this.isLoading = false;
+        this.products.set(Array.from(response.pageItems || []));
+        this.isLoading.set(false);
       });
   }
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -107,7 +107,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   [(ngModel)]="command.officeId"
                   required
                 >
-                  @for (office of offices; track office.id) {
+                  @for (office of offices(); track office.id) {
                     <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -123,7 +123,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                   [(ngModel)]="command.currencyCode"
                   required
                 >
-                  @for (currency of currencies; track currency.code) {
+                  @for (currency of currencies(); track currency.code) {
                     <ion-select-option [value]="currency.code">{{
                       currency.name
                     }}</ion-select-option>
@@ -173,7 +173,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                       [(ngModel)]="debit.glAccountId"
                       required
                     >
-                      @for (account of glAccounts; track account.id) {
+                      @for (account of glAccounts(); track account.id) {
                         <ion-select-option [value]="account.id"
                           >{{ account.name }} ({{ account.glCode }})</ion-select-option
                         >
@@ -219,7 +219,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
                       [(ngModel)]="credit.glAccountId"
                       required
                     >
-                      @for (account of glAccounts; track account.id) {
+                      @for (account of glAccounts(); track account.id) {
                         <ion-select-option [value]="account.id"
                           >{{ account.name }} ({{ account.glCode }})</ion-select-option
                         >
@@ -264,15 +264,15 @@ import { toIsoDate } from '../../core/utils/date-formatter';
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 Cancel
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="entryForm.invalid || isSaving || !isBalanced()"
+                [disabled]="entryForm.invalid || isSaving() || !isBalanced()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   Saving...
                 } @else {
@@ -340,9 +340,9 @@ export class JournalEntryFormComponent implements OnInit {
   private readonly currencyService = inject(CurrencyService);
   private readonly router = inject(Router);
 
-  offices: GetOfficesResponse[] = [];
-  currencies: CurrencyData[] = [];
-  glAccounts: GetGLAccountsResponse[] = [];
+  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly currencies = signal<CurrencyData[]>([]);
+  readonly glAccounts = signal<GetGLAccountsResponse[]>([]);
 
   command: JournalEntryCommand = {
     officeId: undefined,
@@ -355,7 +355,7 @@ export class JournalEntryFormComponent implements OnInit {
   debits: SingleDebitOrCreditEntryCommand[] = [{ glAccountId: undefined, amount: 0 }];
   credits: SingleDebitOrCreditEntryCommand[] = [{ glAccountId: undefined, amount: 0 }];
 
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit() {
     this.loadData();
@@ -364,15 +364,15 @@ export class JournalEntryFormComponent implements OnInit {
   private loadData() {
     this.officeService
       .getOffices()
-      .subscribe((data: GetOfficesResponse[]) => (this.offices = data));
+      .subscribe((data: GetOfficesResponse[]) => this.offices.set(data));
     this.currencyService.getCurrencies().subscribe((data: CurrencyConfigurationData) => {
-      this.currencies = data.selectedCurrencyOptions
-        ? Array.from(data.selectedCurrencyOptions)
-        : [];
+      this.currencies.set(
+        data.selectedCurrencyOptions ? Array.from(data.selectedCurrencyOptions) : [],
+      );
     });
     this.glAccountService
       .getGlaccounts()
-      .subscribe((data: GetGLAccountsResponse[]) => (this.glAccounts = data));
+      .subscribe((data: GetGLAccountsResponse[]) => this.glAccounts.set(data));
   }
 
   addDebit() {
@@ -398,7 +398,7 @@ export class JournalEntryFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const formattedDate = toIsoDate(this.transactionDate);
 
@@ -410,7 +410,7 @@ export class JournalEntryFormComponent implements OnInit {
 
     this.journalService.postJournalentries(undefined, this.command).subscribe({
       next: () => this.router.navigate(['/accounting/journal-entries']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

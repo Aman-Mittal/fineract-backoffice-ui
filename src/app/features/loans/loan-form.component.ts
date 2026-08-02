@@ -94,7 +94,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('LOANS.EDIT_LOAN' | translate) : ('LOANS.CREATE_LOAN' | translate) }}
+            {{ isEditMode() ? ('LOANS.EDIT_LOAN' | translate) : ('LOANS.CREATE_LOAN' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -106,8 +106,8 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 <app-client-search
                   [label]="'COMMON.CLIENT_ID' | translate"
                   [required]="true"
-                  [initialClientId]="loan.clientId || null"
-                  (clientSelected)="loan.clientId = $event"
+                  [initialClientId]="loan().clientId || null"
+                  (clientSelected)="loan().clientId = $event"
                   class="flex-grow"
                 >
                 </app-client-search>
@@ -134,10 +134,10 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                     [attr.aria-label]="'LOANS.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
-                    [(ngModel)]="loan.productId"
+                    [(ngModel)]="loan().productId"
                     (ngModelChange)="onProductSelected($event)"
                     required
-                    [disabled]="isEditMode"
+                    [disabled]="isEditMode()"
                   >
                     @for (product of products(); track product.id) {
                       <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
@@ -150,7 +150,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [appTooltip]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   <ion-icon color="primary" name="add-circle-outline"></ion-icon>
                 </ion-button>
@@ -173,7 +173,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.PRINCIPAL' | translate"
                   type="number"
                   name="principal"
-                  [(ngModel)]="loan.principal"
+                  [(ngModel)]="loan().principal"
                   required
                 ></ion-input>
               </ion-item>
@@ -184,7 +184,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                 <ion-input
                   [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
                   name="externalId"
-                  [(ngModel)]="loan.externalId"
+                  [(ngModel)]="loan().externalId"
                 ></ion-input>
               </ion-item>
 
@@ -199,7 +199,8 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                       data-testid="submittedOnDate-picker"
                       presentation="date"
                       name="submittedOnDate"
-                      [(ngModel)]="submittedOnDate"
+                      [ngModel]="submittedOnDate()"
+                      (ngModelChange)="submittedOnDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -221,7 +222,8 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                       data-testid="expectedDisbursementDate-picker"
                       presentation="date"
                       name="expectedDisbursementDate"
-                      [(ngModel)]="expectedDisbursementDate"
+                      [ngModel]="expectedDisbursementDate()"
+                      (ngModelChange)="expectedDisbursementDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -235,7 +237,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.TERM_FREQUENCY' | translate"
                   type="number"
                   name="loanTermFrequency"
-                  [(ngModel)]="loan.loanTermFrequency"
+                  [(ngModel)]="loan().loanTermFrequency"
                   required
                 ></ion-input>
               </ion-item>
@@ -247,7 +249,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.TERM_TYPE' | translate"
                   interface="popover"
                   name="loanTermFrequencyType"
-                  [(ngModel)]="loan.loanTermFrequencyType"
+                  [(ngModel)]="loan().loanTermFrequencyType"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
@@ -270,7 +272,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | translate"
                   type="number"
                   name="numberOfRepayments"
-                  [(ngModel)]="loan.numberOfRepayments"
+                  [(ngModel)]="loan().numberOfRepayments"
                   required
                 ></ion-input>
               </ion-item>
@@ -282,7 +284,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | translate"
                   type="number"
                   name="repaymentEvery"
-                  [(ngModel)]="loan.repaymentEvery"
+                  [(ngModel)]="loan().repaymentEvery"
                   required
                 ></ion-input>
               </ion-item>
@@ -294,7 +296,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                   interface="popover"
                   name="repaymentFrequencyType"
-                  [(ngModel)]="loan.repaymentFrequencyType"
+                  [(ngModel)]="loan().repaymentFrequencyType"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
@@ -314,7 +316,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'COMMON.INTEREST_RATE' | translate"
                   type="number"
                   name="interestRatePerPeriod"
-                  [(ngModel)]="loan.interestRatePerPeriod"
+                  [(ngModel)]="loan().interestRatePerPeriod"
                   required
                 ></ion-input>
               </ion-item>
@@ -326,7 +328,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'PRODUCTS.INTEREST_TYPE' | translate"
                   interface="popover"
                   name="interestType"
-                  [(ngModel)]="loan.interestType"
+                  [(ngModel)]="loan().interestType"
                   required
                 >
                   <ion-select-option [value]="0">{{
@@ -345,7 +347,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'PRODUCTS.AMORTIZATION_TYPE' | translate"
                   interface="popover"
                   name="amortizationType"
-                  [(ngModel)]="loan.amortizationType"
+                  [(ngModel)]="loan().amortizationType"
                   required
                 >
                   <ion-select-option [value]="1">{{
@@ -366,7 +368,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'PRODUCTS.INTEREST_CALCULATION_PERIOD_TYPE' | translate"
                   interface="popover"
                   name="interestCalculationPeriodType"
-                  [(ngModel)]="loan.interestCalculationPeriodType"
+                  [(ngModel)]="loan().interestCalculationPeriodType"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'LOANS.DAILY' | translate }}</ion-select-option>
@@ -385,7 +387,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.GRACE_ON_PRINCIPAL_PAYMENT' | translate"
                   type="number"
                   name="graceOnPrincipalPayment"
-                  [(ngModel)]="loan.graceOnPrincipalPayment"
+                  [(ngModel)]="loan().graceOnPrincipalPayment"
                 ></ion-input>
               </ion-item>
 
@@ -398,7 +400,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.GRACE_ON_INTEREST_PAYMENT' | translate"
                   type="number"
                   name="graceOnInterestPayment"
-                  [(ngModel)]="loan.graceOnInterestPayment"
+                  [(ngModel)]="loan().graceOnInterestPayment"
                 ></ion-input>
               </ion-item>
 
@@ -411,7 +413,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.GRACE_ON_INTEREST_CHARGED' | translate"
                   type="number"
                   name="graceOnInterestCharged"
-                  [(ngModel)]="loan.graceOnInterestCharged"
+                  [(ngModel)]="loan().graceOnInterestCharged"
                 ></ion-input>
               </ion-item>
 
@@ -424,7 +426,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   [attr.aria-label]="'LOANS.IN_ARREARS_TOLERANCE' | translate"
                   type="number"
                   name="inArrearsTolerance"
-                  [(ngModel)]="loan.inArrearsTolerance"
+                  [(ngModel)]="loan().inArrearsTolerance"
                 ></ion-input>
               </ion-item>
 
@@ -452,7 +454,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               @if (isProgressive()) {
                 <ion-checkbox
                   name="interestRecognitionOnDisbursementDate"
-                  [(ngModel)]="loan.interestRecognitionOnDisbursementDate"
+                  [(ngModel)]="loan().interestRecognitionOnDisbursementDate"
                 >
                   {{ 'LOANS.INTEREST_RECOGNITION_ON_DISBURSEMENT_DATE' | translate }}
                 </ion-checkbox>
@@ -461,7 +463,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
               @if (isProgressive() && selectedProductDetails()?.multiDisburseLoan) {
                 <ion-checkbox
                   name="allowFullTermForTranche"
-                  [(ngModel)]="loan.allowFullTermForTranche"
+                  [(ngModel)]="loan().allowFullTermForTranche"
                 >
                   {{ 'LOANS.ALLOW_FULL_TERM_FOR_TRANCHE' | translate }}
                 </ion-checkbox>
@@ -524,14 +526,14 @@ export class LoanFormComponent implements OnInit {
   private readonly LIST_PATH = '/loans';
 
   loanId: number | null = null;
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
-  loan: PostLoansRequest = {
+  readonly loan = signal<PostLoansRequest>({
     loanType: 'individual',
-  };
-  submittedOnDate = toIsoDate(new Date());
-  expectedDisbursementDate = toIsoDate(new Date());
+  });
+  readonly submittedOnDate = signal(toIsoDate(new Date()));
+  readonly expectedDisbursementDate = signal(toIsoDate(new Date()));
   repaymentsStartingFromDate: string | null = null;
   readonly products = signal<GetLoanProductsResponse[]>([]);
   readonly selectedProductDetails = signal<GetLoanProductsProductIdResponse | null>(null);
@@ -542,7 +544,7 @@ export class LoanFormComponent implements OnInit {
     this.route.queryParams.subscribe((queryParams) => {
       const clientId = queryParams['clientId'];
       if (clientId) {
-        this.loan.clientId = +clientId;
+        this.loan().clientId = +clientId;
       }
     });
 
@@ -550,7 +552,7 @@ export class LoanFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.loanId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadLoanData();
       }
     });
@@ -574,8 +576,8 @@ export class LoanFormComponent implements OnInit {
   onProductSelected(productId: number, resetProgressiveFields = true) {
     this.selectedProductDetails.set(null);
     if (resetProgressiveFields) {
-      this.loan.interestRecognitionOnDisbursementDate = undefined;
-      this.loan.allowFullTermForTranche = undefined;
+      this.loan().interestRecognitionOnDisbursementDate = undefined;
+      this.loan().allowFullTermForTranche = undefined;
     }
     if (!productId) return;
     this.productService.getLoanproductsProductId(productId).subscribe({
@@ -594,18 +596,18 @@ export class LoanFormComponent implements OnInit {
       next: (data: GetLoansLoanIdResponse) => {
         const subDateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (subDateArray) {
-          this.submittedOnDate = toIsoDate(
-            new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2]),
+          this.submittedOnDate.set(
+            toIsoDate(new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2])),
           );
         }
         const expDisbDateArray = data.timeline?.expectedDisbursementDate as unknown as number[];
         if (expDisbDateArray) {
-          this.expectedDisbursementDate = toIsoDate(
-            new Date(expDisbDateArray[0], expDisbDateArray[1] - 1, expDisbDateArray[2]),
+          this.expectedDisbursementDate.set(
+            toIsoDate(new Date(expDisbDateArray[0], expDisbDateArray[1] - 1, expDisbDateArray[2])),
           );
         }
 
-        this.loan = {
+        this.loan.set({
           clientId: data.clientId,
           productId: data.loanProductId,
           principal: data.principal,
@@ -622,7 +624,7 @@ export class LoanFormComponent implements OnInit {
           transactionProcessingStrategyCode: data.transactionProcessingStrategyCode,
           interestRecognitionOnDisbursementDate: data.interestRecognitionOnDisbursementDate,
           allowFullTermForTranche: data.allowFullTermForTranche,
-        };
+        });
         if (data.loanProductId) {
           this.onProductSelected(data.loanProductId, false);
         }
@@ -634,36 +636,41 @@ export class LoanFormComponent implements OnInit {
   onSubmit() {
     this.isSaving.set(true);
 
-    this.loan.submittedOnDate = formatDateToFineract(this.submittedOnDate);
-    this.loan.expectedDisbursementDate = formatDateToFineract(this.expectedDisbursementDate);
+    this.loan().submittedOnDate = formatDateToFineract(this.submittedOnDate());
+    this.loan().expectedDisbursementDate = formatDateToFineract(this.expectedDisbursementDate());
     if (this.repaymentsStartingFromDate) {
-      this.loan.repaymentsStartingFromDate = formatDateToFineract(this.repaymentsStartingFromDate);
+      this.loan().repaymentsStartingFromDate = formatDateToFineract(
+        this.repaymentsStartingFromDate,
+      );
     }
-    this.loan.dateFormat = FINERACT_DATE_FORMAT;
-    this.loan.locale = FINERACT_LOCALE;
+    this.loan().dateFormat = FINERACT_DATE_FORMAT;
+    this.loan().locale = FINERACT_LOCALE;
 
     // Read the signal once: TypeScript cannot narrow a call expression, so the
     // guard above does not carry over to a second call.
     const productDetails = this.selectedProductDetails();
     if (productDetails?.transactionProcessingStrategyCode) {
-      this.loan.transactionProcessingStrategyCode =
+      this.loan().transactionProcessingStrategyCode =
         productDetails.transactionProcessingStrategyCode;
     } else {
-      const selectedProduct = this.products().find((p) => p.id === this.loan.productId);
+      const selectedProduct = this.products().find((p) => p.id === this.loan().productId);
       if (selectedProduct && selectedProduct.transactionProcessingStrategy) {
-        this.loan.transactionProcessingStrategyCode = selectedProduct.transactionProcessingStrategy;
-      } else if (!this.loan.transactionProcessingStrategyCode) {
-        this.loan.transactionProcessingStrategyCode = 'mifos-standard-strategy';
+        this.loan().transactionProcessingStrategyCode =
+          selectedProduct.transactionProcessingStrategy;
+      } else if (!this.loan().transactionProcessingStrategyCode) {
+        this.loan().transactionProcessingStrategyCode = 'mifos-standard-strategy';
       }
     }
 
-    if (this.isEditMode && this.loanId) {
-      this.loansService.putLoansLoanId(this.loanId, this.loan as PutLoansLoanIdRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving.set(false),
-      });
+    if (this.isEditMode() && this.loanId) {
+      this.loansService
+        .putLoansLoanId(this.loanId, this.loan() as PutLoansLoanIdRequest)
+        .subscribe({
+          next: () => this.router.navigate([this.LIST_PATH]),
+          error: () => this.isSaving.set(false),
+        });
     } else {
-      this.loansService.postLoans(this.loan).subscribe({
+      this.loansService.postLoans(this.loan()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => this.isSaving.set(false),
       });

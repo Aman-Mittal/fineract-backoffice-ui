@@ -17,10 +17,11 @@
  * under the License.
  */
 
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
+import { input, output, Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { IonSearchbar } from '@ionic/angular/standalone';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
@@ -31,11 +32,11 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
   template: `
     <ion-searchbar
       class="search-field"
-      [placeholder]="placeholder || label"
+      [placeholder]="placeholder() || label()"
       (ionInput)="onInput($event)"
       id="search-filter-input"
       data-testid="search-filter-input"
-      [appTooltip]="tooltipText"
+      [appTooltip]="tooltipText()"
     ></ion-searchbar>
   `,
   styles: [
@@ -50,21 +51,21 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
     `,
   ],
 })
-export class SearchFilterComponent implements OnInit, OnDestroy {
-  @Input() label = 'Search';
-  @Input() placeholder = 'Search...';
-  @Input() tooltipText = 'Filter list results';
-  @Output() searchChange = new EventEmitter<string>();
+export class SearchFilterComponent {
+  readonly label = input('Search');
+  readonly placeholder = input('Search...');
+  readonly tooltipText = input('Filter list results');
+  readonly searchChange = output<string>();
 
-  private searchSubject = new Subject<string>();
-  private subscription?: Subscription;
+  private readonly searchSubject = new Subject<string>();
 
-  ngOnInit() {
-    this.subscription = this.searchSubject
-      .pipe(debounceTime(400), distinctUntilChanged())
-      .subscribe((value) => {
-        this.searchChange.emit(value);
-      });
+  constructor() {
+    // Wired here rather than in `ngOnInit` because `takeUntilDestroyed` needs an injection
+    // context, and it replaces the hand-held `Subscription` this component used to unsubscribe
+    // in `ngOnDestroy`.
+    this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((value) => this.searchChange.emit(value));
   }
 
   onInput(event: Event | CustomEvent) {
@@ -72,9 +73,5 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     const value =
       (customEvt.detail?.value as string) || (event.target as HTMLInputElement)?.value || '';
     this.searchSubject.next(value.trim());
-  }
-
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
   }
 }

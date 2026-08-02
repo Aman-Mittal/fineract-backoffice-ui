@@ -64,14 +64,14 @@ describe('HooksFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getHooksTemplate).toHaveBeenCalled();
-    expect(component.templateOptions).toHaveSize(1);
+    expect(component.templateOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postHooks.and.returnValue(
       of({}) as unknown as ReturnType<HooksService['postHooks']>,
     );
-    component.hook = { name: 'Web', displayName: 'New', isActive: true };
+    component.hook.set({ name: 'Web', displayName: 'New', isActive: true });
     component.onSubmit();
     expect(serviceSpy.postHooks).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/hooks']);

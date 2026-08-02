@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef } from '../../../shared';
@@ -74,8 +74,8 @@ import {
     <app-data-table
       title="FIELD_CONFIG.TITLE"
       [columns]="columns"
-      [data]="fields"
-      [totalRecords]="fields.length"
+      [data]="fields()"
+      [totalRecords]="fields().length"
       [localLogic]="true"
     ></app-data-table>
   `,
@@ -104,7 +104,7 @@ export class FieldConfigurationComponent implements OnInit {
   ];
 
   entity = 'CLIENT';
-  fields: FieldConfigurationData[] = [];
+  readonly fields = signal<FieldConfigurationData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -113,7 +113,7 @@ export class FieldConfigurationComponent implements OnInit {
   load(): void {
     this.fieldService.getFieldconfigurationEntity(this.entity).subscribe({
       next: (data: FieldConfigurationData[]) => {
-        this.fields = data || [];
+        this.fields.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load field configuration', err),
     });

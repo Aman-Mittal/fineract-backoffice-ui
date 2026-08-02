@@ -73,8 +73,8 @@ describe('CenterFormComponent', () => {
   });
 
   it('should format activationDate correctly on submit in create mode', () => {
-    component.isEditMode = false;
-    component.center = { name: 'Test Center', officeId: 1, active: true };
+    component.isEditMode.set(false);
+    component.center.set({ name: 'Test Center', officeId: 1, active: true });
     const testDate = '2026-05-09'; // May 9, 2026
     component.activationDate = testDate;
 
@@ -98,13 +98,13 @@ describe('CenterFormComponent', () => {
   });
 
   it('should handle error on submit', () => {
-    component.isEditMode = false;
+    component.isEditMode.set(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     centersServiceSpy.postCenters.and.returnValue(throwError(() => new Error('API Error')) as any);
 
     component.onSubmit();
 
-    expect(component.isSaving).toBeFalse();
+    expect(component.isSaving()).toBeFalse();
   });
 
   it('should navigate to edit mode if id is present in route', () => {
@@ -136,7 +136,7 @@ describe('CenterFormComponent', () => {
     const editComponent = editFixture.componentInstance;
     editFixture.detectChanges();
 
-    expect(editComponent.isEditMode).toBeTrue();
+    expect(editComponent.isEditMode()).toBeTrue();
     expect(editComponent.centerId).toBe(123);
     expect(centersServiceSpy.getCentersCenterId).toHaveBeenCalledWith(123);
   });

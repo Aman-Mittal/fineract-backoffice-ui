@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,7 +66,9 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('ADHOC_QUERY.EDIT' | translate) : ('ADHOC_QUERY.CREATE' | translate) }}
+            {{
+              isEditMode() ? ('ADHOC_QUERY.EDIT' | translate) : ('ADHOC_QUERY.CREATE' | translate)
+            }}
           </ion-card-title>
         </ion-card-header>
 
@@ -77,7 +79,7 @@ import {
               <ion-input
                 [attr.aria-label]="'ADHOC_QUERY.NAME' | translate"
                 name="name"
-                [(ngModel)]="query.name"
+                [(ngModel)]="query().name"
                 required
               ></ion-input>
             </ion-item>
@@ -87,7 +89,7 @@ import {
               <ion-textarea
                 [attr.aria-label]="'ADHOC_QUERY.QUERY' | translate"
                 name="query"
-                [(ngModel)]="query.query"
+                [(ngModel)]="query().query"
                 required
               ></ion-textarea>
             </ion-item>
@@ -97,7 +99,7 @@ import {
               <ion-input
                 [attr.aria-label]="'ADHOC_QUERY.TABLE_NAME' | translate"
                 name="tableName"
-                [(ngModel)]="query.tableName"
+                [(ngModel)]="query().tableName"
                 required
               ></ion-input>
             </ion-item>
@@ -110,24 +112,28 @@ import {
                 [attr.aria-label]="'ADHOC_QUERY.REPORT_RUN_FREQUENCY' | translate"
                 interface="popover"
                 name="reportRunFrequency"
-                [(ngModel)]="query.reportRunFrequency"
+                [(ngModel)]="query().reportRunFrequency"
               >
-                @for (opt of frequencyOptions; track opt.id) {
+                @for (opt of frequencyOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
 
-            <ion-checkbox name="isActive" [(ngModel)]="query.isActive">
+            <ion-checkbox name="isActive" [(ngModel)]="query().isActive">
               {{ 'ADHOC_QUERY.IS_ACTIVE' | translate }}
             </ion-checkbox>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="adhocForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="adhocForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -163,22 +169,22 @@ export class AdhocQueryFormComponent implements OnInit {
   private readonly LIST_PATH = '/system/adhoc-query';
 
   queryId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  query: AdHocRequest = { name: '', query: '', tableName: '', isActive: true };
-  frequencyOptions: EnumOptionData[] = [];
+  readonly query = signal<AdHocRequest>({ name: '', query: '', tableName: '', isActive: true });
+  readonly frequencyOptions = signal<EnumOptionData[]>([]);
 
   ngOnInit(): void {
     this.adhocService.getAdhocqueryTemplate().subscribe((tpl) => {
-      this.frequencyOptions = tpl.reportRunFrequencies ?? [];
+      this.frequencyOptions.set(tpl.reportRunFrequencies ?? []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.queryId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -187,26 +193,26 @@ export class AdhocQueryFormComponent implements OnInit {
   load(): void {
     if (!this.queryId) return;
     this.adhocService.getAdhocqueryAdHocId(this.queryId).subscribe((data) => {
-      this.query = {
+      this.query.set({
         name: data.name,
         query: data.query,
         tableName: data.tableName,
         reportRunFrequency: data.reportRunFrequency,
         isActive: data.isActive,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.queryId
-        ? this.adhocService.putAdhocqueryAdHocId(this.queryId, this.query)
-        : this.adhocService.postAdhocquery(this.query);
+      this.isEditMode() && this.queryId
+        ? this.adhocService.putAdhocqueryAdHocId(this.queryId, this.query())
+        : this.adhocService.postAdhocquery(this.query());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
@@ -37,8 +37,8 @@ import { IonIcon } from '@ionic/angular/standalone';
       title="nav.groupLevels"
       helpTextKey="HELP.GROUP_LEVELS_DESC"
       [columns]="columns"
-      [data]="groupLevels"
-      [totalRecords]="groupLevels.length"
+      [data]="groupLevels()"
+      [totalRecords]="groupLevels().length"
       [localLogic]="true"
     >
       <ng-template appCellTemplate="canHaveClients" let-row>
@@ -59,12 +59,12 @@ export class GroupLevelsListComponent implements OnInit {
     { key: 'canHaveClients', label: 'GROUP_LEVELS.CAN_HAVE_CLIENTS', sortable: false },
   ];
 
-  groupLevels: GroupLevelData[] = [];
+  readonly groupLevels = signal<GroupLevelData[]>([]);
 
   ngOnInit(): void {
     this.groupsLevelService.getGrouplevels().subscribe({
       next: (data: GroupLevelData[]) => {
-        this.groupLevels = data || [];
+        this.groupLevels.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load group levels', err);

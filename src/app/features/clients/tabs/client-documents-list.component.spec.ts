@@ -54,7 +54,7 @@ describe('ClientDocumentsListComponent', () => {
 
     fixture = TestBed.createComponent(ClientDocumentsListComponent);
     component = fixture.componentInstance;
-    component.clientId = 12;
+    fixture.componentRef.setInput('clientId', 12);
   });
 
   it('should create and load client documents on init', () => {

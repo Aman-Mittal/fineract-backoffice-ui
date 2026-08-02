@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -90,7 +90,7 @@ interface ShareAccountTemplateResponse {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('SHARE_ACCOUNTS.EDIT' | translate)
                 : ('SHARE_ACCOUNTS.CREATE' | translate)
             }}
@@ -99,7 +99,7 @@ interface ShareAccountTemplateResponse {
         </ion-card-header>
 
         <ion-card-content>
-          @if (!isEditMode) {
+          @if (!isEditMode()) {
             <div class="info-banner">
               <ion-icon name="information-circle-outline" class="info-banner-icon"></ion-icon>
               <div class="info-banner-content">
@@ -122,7 +122,7 @@ interface ShareAccountTemplateResponse {
                     <app-client-search
                       [label]="'COMMON.CLIENT' | translate"
                       [required]="true"
-                      [initialClientId]="account.clientId || null"
+                      [initialClientId]="account().clientId || null"
                       (clientSelected)="onClientSelected($event)"
                       class="flex-grow"
                     >
@@ -151,12 +151,12 @@ interface ShareAccountTemplateResponse {
                         id="share-account-product-select"
                         data-testid="share-account-product-select"
                         name="productId"
-                        [(ngModel)]="account.productId"
+                        [(ngModel)]="account().productId"
                         (ionChange)="onProductSelected($event.detail.value)"
                         required
-                        [disabled]="isEditMode"
+                        [disabled]="isEditMode()"
                       >
-                        @for (product of products; track product.id) {
+                        @for (product of products(); track product.id) {
                           <ion-select-option [value]="product.id">{{
                             product.name
                           }}</ion-select-option>
@@ -170,7 +170,7 @@ interface ShareAccountTemplateResponse {
                       color="primary"
                       type="button"
                       (click)="onCreateProduct()"
-                      [disabled]="isEditMode"
+                      [disabled]="isEditMode()"
                     >
                       <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
                     </ion-button>
@@ -189,7 +189,7 @@ interface ShareAccountTemplateResponse {
                       data-testid="share-account-requested-shares"
                       type="number"
                       name="requestedShares"
-                      [(ngModel)]="account.requestedShares"
+                      [(ngModel)]="account().requestedShares"
                       required
                     ></ion-input>
                   </ion-item>
@@ -207,7 +207,7 @@ interface ShareAccountTemplateResponse {
                       data-testid="share-account-application-date"
                       type="date"
                       name="applicationDate"
-                      [ngModel]="applicationDate | date: 'yyyy-MM-dd'"
+                      [ngModel]="applicationDate() | date: 'yyyy-MM-dd'"
                       (ngModelChange)="onApplicationDateChange($event)"
                       required
                     ></ion-input>
@@ -226,11 +226,11 @@ interface ShareAccountTemplateResponse {
                       id="share-account-savings-select"
                       data-testid="share-account-savings-select"
                       name="savingsAccountId"
-                      [(ngModel)]="account.savingsAccountId"
-                      [disabled]="!account.clientId"
+                      [(ngModel)]="account().savingsAccountId"
+                      [disabled]="!account().clientId"
                     >
                       <ion-select-option [value]="null">-- None --</ion-select-option>
-                      @for (sa of savingsAccounts; track sa.id) {
+                      @for (sa of savingsAccounts(); track sa.id) {
                         <ion-select-option [value]="sa.id">
                           {{ sa.accountNo }} - {{ sa.savingsProductName }}
                         </ion-select-option>
@@ -249,7 +249,7 @@ interface ShareAccountTemplateResponse {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -258,9 +258,9 @@ interface ShareAccountTemplateResponse {
                 data-testid="share-account-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="shareForm.invalid || isSaving"
+                [disabled]="shareForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -355,27 +355,27 @@ export class ShareAccountFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/shares';
 
   accountId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  account: AccountRequest = {};
-  applicationDate: Date = new Date();
-  products: GetAccountsTypeProductOptions[] = [];
-  savingsAccounts: SavingsAccountData[] = [];
+  readonly account = signal<AccountRequest>({});
+  readonly applicationDate = signal<Date>(new Date());
+  readonly products = signal<GetAccountsTypeProductOptions[]>([]);
+  readonly savingsAccounts = signal<SavingsAccountData[]>([]);
   filteredSavingsAccounts: SavingsAccountData[] = [];
   savingsSearchVal = '';
 
   onApplicationDateChange(val: string): void {
-    this.applicationDate = val ? new Date(val) : new Date();
+    this.applicationDate.set(val ? new Date(val) : new Date());
   }
 
   ngOnInit(): void {
     // Check for clientId in query params for pre-population
     this.route.queryParams.subscribe((queryParams) => {
       const clientId = queryParams['clientId'];
-      if (clientId && !this.isEditMode) {
+      if (clientId && !this.isEditMode()) {
         const idNum = +clientId;
-        this.account.clientId = idNum;
+        this.account().clientId = idNum;
         this.loadProducts(idNum);
       }
     });
@@ -384,34 +384,34 @@ export class ShareAccountFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.accountId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadAccountData();
       }
     });
   }
 
   onClientSelected(clientId: number): void {
-    this.account.clientId = clientId;
-    this.account.productId = undefined;
-    this.account.savingsAccountId = undefined;
-    this.products = [];
-    this.savingsAccounts = [];
+    this.account().clientId = clientId;
+    this.account().productId = undefined;
+    this.account().savingsAccountId = undefined;
+    this.products.set([]);
+    this.savingsAccounts.set([]);
     this.filteredSavingsAccounts = [];
     this.loadProducts(clientId);
   }
 
   onProductSelected(productId: number): void {
-    this.account.productId = productId;
-    this.account.savingsAccountId = undefined;
-    if (this.account.clientId) {
-      this.loadProducts(this.account.clientId, productId);
+    this.account().productId = productId;
+    this.account().savingsAccountId = undefined;
+    if (this.account().clientId) {
+      this.loadProducts(this.account().clientId, productId);
     }
   }
 
   onSavingsSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.savingsSearchVal = input.value.toLowerCase();
-    this.filteredSavingsAccounts = this.savingsAccounts.filter(
+    this.filteredSavingsAccounts = this.savingsAccounts().filter(
       (sa) =>
         sa.accountNo?.toLowerCase().includes(this.savingsSearchVal) ||
         sa.savingsProductName?.toLowerCase().includes(this.savingsSearchVal),
@@ -419,9 +419,9 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   getSelectedSavingsAccountLabel(): string {
-    const selectedId = this.account.savingsAccountId;
+    const selectedId = this.account().savingsAccountId;
     if (!selectedId) return '';
-    const sa = this.savingsAccounts.find((a) => a.id === selectedId);
+    const sa = this.savingsAccounts().find((a) => a.id === selectedId);
     return sa ? `${sa.accountNo} - ${sa.savingsProductName}` : '';
   }
 
@@ -435,18 +435,18 @@ export class ShareAccountFormComponent implements OnInit {
 
   private loadProducts(clientId?: number, productId?: number): void {
     if (!clientId) {
-      this.products = [];
-      this.savingsAccounts = [];
+      this.products.set([]);
+      this.savingsAccounts.set([]);
       this.filteredSavingsAccounts = [];
       return;
     }
     this.shareService.getAccountsTypeTemplate('share', clientId, productId).subscribe({
       next: (template: ShareAccountTemplateResponse) => {
         if (template.productOptions) {
-          this.products = Array.from(template.productOptions);
+          this.products.set(Array.from(template.productOptions));
         }
-        this.savingsAccounts = Array.from(template.clientSavingsAccounts || []);
-        this.filteredSavingsAccounts = this.savingsAccounts;
+        this.savingsAccounts.set(Array.from(template.clientSavingsAccounts || []));
+        this.filteredSavingsAccounts = this.savingsAccounts();
       },
       error: (err: unknown) => console.error('Failed to load products', err),
     });
@@ -458,14 +458,14 @@ export class ShareAccountFormComponent implements OnInit {
       next: (data: GetAccountsTypeAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
-          this.applicationDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+          this.applicationDate.set(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
         }
-        this.account = {
+        this.account.set({
           clientId: data.clientId,
           productId: data.productId,
           requestedShares: data.summary?.totalApprovedShares,
           savingsAccountId: data.savingsAccountId,
-        };
+        });
         if (data.clientId) {
           this.loadProducts(data.clientId, data.productId);
         }
@@ -475,32 +475,32 @@ export class ShareAccountFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    const formattedDate = formatDateToFineract(this.applicationDate);
+    const formattedDate = formatDateToFineract(this.applicationDate());
 
-    this.account.applicationDate = formattedDate;
-    this.account.dateFormat = FINERACT_DATE_FORMAT;
-    this.account.locale = FINERACT_LOCALE;
-    this.account.submittedDate = formattedDate; // Often required by Fineract
+    this.account().applicationDate = formattedDate;
+    this.account().dateFormat = FINERACT_DATE_FORMAT;
+    this.account().locale = FINERACT_LOCALE;
+    this.account().submittedDate = formattedDate; // Often required by Fineract
 
-    if (this.isEditMode && this.accountId) {
+    if (this.isEditMode() && this.accountId) {
       const payload: PutAccountsTypeAccountIdRequest & { savingsAccountId?: number } = {
         applicationDate: formattedDate,
-        requestedShares: this.account.requestedShares,
+        requestedShares: this.account().requestedShares,
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
-        savingsAccountId: this.account.savingsAccountId,
+        savingsAccountId: this.account().savingsAccountId,
       };
 
       this.shareService.putAccountsTypeAccountId('share', this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
-      this.shareService.postAccountsType('share', this.account).subscribe({
+      this.shareService.postAccountsType('share', this.account()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

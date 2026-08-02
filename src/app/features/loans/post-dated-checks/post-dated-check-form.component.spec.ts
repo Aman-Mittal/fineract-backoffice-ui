@@ -69,9 +69,9 @@ describe('PostDatedCheckFormComponent', () => {
     expect(component).toBeTruthy();
     expect(component.loanId).toBe(1);
     expect(component.checkId).toBe(7);
-    expect(component.name).toBe('Check A');
-    expect(component.amount).toBe(1000);
-    expect(component.accountNo).toBe(12);
+    expect(component.name()).toBe('Check A');
+    expect(component.amount()).toBe(1000);
+    expect(component.accountNo()).toBe(12);
   });
 
   it('should put the updated check and navigate to the list', () => {
@@ -80,10 +80,10 @@ describe('PostDatedCheckFormComponent', () => {
         RepaymentWithPostDatedChecksService['putLoansLoanIdPostdatedchecksPostDatedCheckId']
       >,
     );
-    component.name = 'Updated';
-    component.amount = 2000;
-    component.accountNo = 34;
-    component.date = '2026-01-01';
+    component.name.set('Updated');
+    component.amount.set(2000);
+    component.accountNo.set(34);
+    component.date.set('2026-01-01');
 
     component.onSubmit();
 

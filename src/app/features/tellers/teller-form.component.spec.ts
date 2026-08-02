@@ -70,9 +70,9 @@ describe('TellerFormComponent', () => {
   });
 
   it('should format payload with numeric status and yyyy-MM-dd date', () => {
-    component.isEditMode = false;
+    component.isEditMode.set(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    component.teller = { name: 'Test Teller', officeId: 1, status: 'ACTIVE' as any };
+    component.teller.set({ name: 'Test Teller', officeId: 1, status: 'ACTIVE' as any });
     component.startDate = new Date(2026, 4, 9);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

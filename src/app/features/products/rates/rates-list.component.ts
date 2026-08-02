@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.RATES_DESC"
       createButtonLabel="RATES.CREATE"
       [columns]="columns"
-      [data]="rates"
-      [totalRecords]="rates.length"
+      [data]="rates()"
+      [totalRecords]="rates().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -80,7 +80,7 @@ export class RatesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  rates: RateData[] = [];
+  readonly rates = signal<RateData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -89,7 +89,7 @@ export class RatesListComponent implements OnInit {
   load(): void {
     this.rateService.getRates().subscribe({
       next: (data: RateData[]) => {
-        this.rates = data || [];
+        this.rates.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load rates', err);

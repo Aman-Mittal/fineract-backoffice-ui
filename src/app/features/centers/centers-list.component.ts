@@ -52,7 +52,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       helpTextKey="HELP.CENTERS_DESC"
       createButtonLabel="Create Center"
       [columns]="columns"
-      [data]="centers"
+      [data]="centers()"
       [totalRecords]="totalRecords"
       (create)="onCreateCenter()"
       (searchChange)="onSearch($event)"
@@ -96,7 +96,7 @@ export class CentersListComponent {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  centers: GetCentersPageItems[] = [];
+  readonly centers = signal<GetCentersPageItems[]>([]);
   totalRecords = 0;
 
   private readonly searchSubject = new Subject<string>();
@@ -153,7 +153,7 @@ export class CentersListComponent {
         }),
       )
       .subscribe((data) => {
-        this.centers = data;
+        this.centers.set(data);
       });
   }
 

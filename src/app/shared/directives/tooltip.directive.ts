@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Directive, ElementRef, Input, OnDestroy, Renderer2, inject } from '@angular/core';
+import { inject, input, Directive, ElementRef, OnDestroy, Renderer2 } from '@angular/core';
 
 /** Distance between the host and the tooltip, in pixels. */
 const OFFSET = 8;
@@ -60,10 +60,16 @@ export class TooltipDirective implements OnDestroy {
   private timer?: ReturnType<typeof setTimeout>;
   private id = '';
 
-  @Input('appTooltip') text = '';
+  /**
+   * Help text to show, named by the directive's own selector.
+   *
+   * A signal input so the text stays correct when it is bound to an expression — the common
+   * case here is `| translate`, which re-emits when the user switches language.
+   */
+  readonly text = input('', { alias: 'appTooltip' });
 
   show(): void {
-    if (!this.text || this.tooltip) return;
+    if (!this.text() || this.tooltip) return;
 
     this.timer = setTimeout(() => {
       const el = this.renderer.createElement('div') as HTMLElement;
@@ -72,7 +78,7 @@ export class TooltipDirective implements OnDestroy {
       el.className = 'app-tooltip';
       el.id = this.id;
       el.setAttribute('role', 'tooltip');
-      el.textContent = this.text;
+      el.textContent = this.text();
       this.renderer.appendChild(document.body, el);
 
       this.position(el);

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -38,8 +38,8 @@ import { TaxGroupService, GetTaxesGroupResponse } from '../../../api';
       helpTextKey="HELP.TAX_GROUPS_DESC"
       createButtonLabel="TAX_GROUPS.CREATE"
       [columns]="columns"
-      [data]="groups"
-      [totalRecords]="groups.length"
+      [data]="groups()"
+      [totalRecords]="groups().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -69,12 +69,12 @@ export class TaxGroupsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  groups: GetTaxesGroupResponse[] = [];
+  readonly groups = signal<GetTaxesGroupResponse[]>([]);
 
   ngOnInit(): void {
     this.taxGroupService.getTaxesGroup().subscribe({
       next: (data: GetTaxesGroupResponse[]) => {
-        this.groups = data || [];
+        this.groups.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load tax groups', err),
     });

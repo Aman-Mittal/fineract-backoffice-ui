@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -63,7 +63,7 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('TAX_GROUPS.EDIT' | translate) : ('TAX_GROUPS.CREATE' | translate) }}
+            {{ isEditMode() ? ('TAX_GROUPS.EDIT' | translate) : ('TAX_GROUPS.CREATE' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -76,7 +76,8 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
                 id="tax-group-name"
                 data-testid="tax-group-name"
                 name="name"
-                [(ngModel)]="name"
+                [ngModel]="name()"
+                (ngModelChange)="name.set($event)"
                 required
               ></ion-input>
             </ion-item>
@@ -89,11 +90,12 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
                 id="tax-group-components"
                 data-testid="tax-group-components"
                 name="components"
-                [(ngModel)]="selectedComponentIds"
+                [ngModel]="selectedComponentIds()"
+                (ngModelChange)="selectedComponentIds.set($event)"
                 multiple="true"
                 required
               >
-                @for (c of availableComponents; track c.id) {
+                @for (c of availableComponents(); track c.id) {
                   <ion-select-option [value]="c.id">{{ c.name }}</ion-select-option>
                 }
               </ion-select>
@@ -107,7 +109,7 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -116,9 +118,9 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
                 data-testid="tax-group-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="tgForm.invalid || isSaving"
+                [disabled]="tgForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -163,12 +165,12 @@ export class TaxGroupFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/tax-groups';
 
   groupId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  name = '';
-  selectedComponentIds: number[] = [];
-  availableComponents: TaxComponentData[] = [];
+  readonly name = signal('');
+  readonly selectedComponentIds = signal<number[]>([]);
+  readonly availableComponents = signal<TaxComponentData[]>([]);
 
   ngOnInit(): void {
     this.loadTemplate();
@@ -176,7 +178,7 @@ export class TaxGroupFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.groupId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -184,38 +186,40 @@ export class TaxGroupFormComponent implements OnInit {
 
   loadTemplate(): void {
     this.taxGroupService.getTaxesGroupTemplate().subscribe((template) => {
-      this.availableComponents = template.taxComponents || [];
+      this.availableComponents.set(template.taxComponents || []);
     });
   }
 
   load(): void {
     if (!this.groupId) return;
     this.taxGroupService.getTaxesGroupTaxGroupId(this.groupId).subscribe((data) => {
-      this.name = data.name ?? '';
-      this.selectedComponentIds = Array.from(data.taxAssociations ?? [])
-        .map((a) => a.taxComponent?.id)
-        .filter((id): id is number => id != null);
+      this.name.set(data.name ?? '');
+      this.selectedComponentIds.set(
+        Array.from(data.taxAssociations ?? [])
+          .map((a) => a.taxComponent?.id)
+          .filter((id): id is number => id != null),
+      );
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     // `taxComponents` is generated as a `Set` which would not JSON-serialize; pass an array and cast.
     const payload = {
-      name: this.name,
-      taxComponents: this.selectedComponentIds.map((id) => ({ taxComponentId: id })),
+      name: this.name(),
+      taxComponents: this.selectedComponentIds().map((id) => ({ taxComponentId: id })),
       dateFormat: FINERACT_DATE_FORMAT,
       locale: FINERACT_LOCALE,
     } as unknown as PostTaxesGroupRequest;
 
     const request$ =
-      this.isEditMode && this.groupId
+      this.isEditMode() && this.groupId
         ? this.taxGroupService.putTaxesGroupTaxGroupId(this.groupId, payload)
         : this.taxGroupService.postTaxesGroup(payload);
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

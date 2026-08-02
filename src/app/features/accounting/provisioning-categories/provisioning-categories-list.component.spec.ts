@@ -60,7 +60,7 @@ describe('ProvisioningCategoriesListComponent', () => {
   it('should load categories on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getProvisioningcategory).toHaveBeenCalled();
-    expect(component.categories).toHaveSize(1);
+    expect(component.categories()).toHaveSize(1);
   });
 
   it('should navigate to edit with the category id', () => {

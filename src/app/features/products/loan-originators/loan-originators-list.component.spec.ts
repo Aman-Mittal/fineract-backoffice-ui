@@ -60,7 +60,7 @@ describe('LoanOriginatorsListComponent', () => {
   it('should load originators on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanOriginators).toHaveBeenCalled();
-    expect(component.originators).toHaveSize(1);
+    expect(component.originators()).toHaveSize(1);
   });
 
   it('should navigate to edit with the originator id', () => {

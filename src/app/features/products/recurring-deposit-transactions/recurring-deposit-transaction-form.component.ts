@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -127,22 +127,22 @@ import {
                 name="paymentTypeId"
                 [(ngModel)]="paymentTypeId"
               >
-                @for (opt of paymentTypeOptions; track opt) {
+                @for (opt of paymentTypeOptions(); track opt) {
                   <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="transactionForm.invalid || isSaving"
+                [disabled]="transactionForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -176,24 +176,24 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   accountId!: number;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   transactionDate = toIsoDate(new Date());
   transactionAmount: number | null = null;
   paymentTypeId: number | null = null;
-  paymentTypeOptions: number[] = [];
+  readonly paymentTypeOptions = signal<number[]>([]);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('accountId'));
     this.transactionsService
       .getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(this.accountId)
       .subscribe((tpl) => {
-        this.paymentTypeOptions = tpl.paymentTypeOptions ?? [];
+        this.paymentTypeOptions.set(tpl.paymentTypeOptions ?? []);
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest = {
       transactionDate: formatDateToFineract(this.transactionDate),
       transactionAmount: this.transactionAmount ?? undefined,
@@ -207,7 +207,7 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
       .subscribe({
         next: () =>
           this.router.navigate(['/products/recurring-deposits', this.accountId, 'transactions']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 

@@ -83,8 +83,8 @@ describe('HolidayFormComponent', () => {
     expect(component).toBeTruthy();
     expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
     expect(holidaysServiceSpy.getHolidaysTemplate).toHaveBeenCalled();
-    expect(component.offices).toEqual([{ id: 1, name: 'Head Office' }]);
-    expect(component.reschedulingTypeOptions).toHaveSize(2);
+    expect(component.offices()).toEqual([{ id: 1, name: 'Head Office' }]);
+    expect(component.reschedulingTypeOptions()).toHaveSize(2);
   });
 
   it('should submit new holiday form successfully', () => {
@@ -101,7 +101,7 @@ describe('HolidayFormComponent', () => {
 
     component.onSubmit();
 
-    expect(component.isSaving).toBeTrue();
+    expect(component.isSaving()).toBeTrue();
     expect(holidaysServiceSpy.postHolidays).toHaveBeenCalledWith(
       jasmine.objectContaining({
         name: 'Christmas',

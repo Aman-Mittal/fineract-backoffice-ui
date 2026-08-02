@@ -161,23 +161,23 @@ describe('AccountActionFormComponent', () => {
 
   it('should handle cancel redirects correctly for each accountType', () => {
     createComponent();
-    component.accountType = 'savings';
+    component.accountType.set('savings');
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith([SAVINGS_PATH]);
 
-    component.accountType = 'fixed';
+    component.accountType.set('fixed');
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits']);
 
-    component.accountType = 'recurring';
+    component.accountType.set('recurring');
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/recurring-deposits']);
 
-    component.accountType = 'loan';
+    component.accountType.set('loan');
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith([`${LOAN_PATH_PREFIX}123`]);
 
-    component.accountType = 'unknown';
+    component.accountType.set('unknown');
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
   });

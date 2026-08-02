@@ -57,16 +57,16 @@ describe('InterestRateChartFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postInterestratecharts.and.returnValue(
       of({}) as unknown as ReturnType<InterestRateChartService['postInterestratecharts']>,
     );
-    component.name = 'New Chart';
-    component.description = 'desc';
-    component.fromDate = '2024-01-01';
+    component.name.set('New Chart');
+    component.description.set('desc');
+    component.fromDate.set('2024-01-01');
     component.onSubmit();
     expect(serviceSpy.postInterestratecharts).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/interest-rate-charts']);
@@ -77,9 +77,9 @@ describe('InterestRateChartFormComponent', () => {
       of({}) as unknown as ReturnType<InterestRateChartService['putInterestratechartsChartId']>,
     );
     component.chartId = 4;
-    component.isEditMode = true;
-    component.name = 'Edited';
-    component.description = 'd2';
+    component.isEditMode.set(true);
+    component.name.set('Edited');
+    component.description.set('d2');
     component.onSubmit();
     expect(serviceSpy.putInterestratechartsChartId).toHaveBeenCalledWith(4, {
       name: 'Edited',

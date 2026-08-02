@@ -56,7 +56,7 @@ describe('ExternalServicesComponent', () => {
 
   it('should load properties for the default service on init', () => {
     expect(component.selectedService).toBe('S3');
-    expect(component.properties).toHaveSize(2);
+    expect(component.properties()).toHaveSize(2);
   });
 
   it('should put a name/value map on save', () => {

@@ -172,7 +172,7 @@ export class LoanScheduleModifyComponent {
   bodyText = '';
   readonly isLoading = signal(false);
 
-  response = signal<unknown>(null);
+  readonly response = signal<unknown>(null);
 
   commands = [
     { value: 'calculateRepaymentSchedule', label: 'Calculate Repayment Schedule' },

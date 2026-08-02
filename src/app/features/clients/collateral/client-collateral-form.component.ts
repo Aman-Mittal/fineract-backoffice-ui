@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -87,11 +87,11 @@ import {
                 [attr.aria-label]="'CLIENT_COLLATERAL.PRODUCT' | translate"
                 interface="popover"
                 name="collateralId"
-                [(ngModel)]="collateral.collateralId"
+                [(ngModel)]="collateral().collateralId"
                 [disabled]="isEditMode"
                 required
               >
-                @for (opt of collateralProductOptions; track opt.collateralId) {
+                @for (opt of collateralProductOptions(); track opt.collateralId) {
                   <ion-select-option [value]="opt.collateralId">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -105,21 +105,21 @@ import {
                 [attr.aria-label]="'CLIENT_COLLATERAL.QUANTITY' | translate"
                 type="number"
                 name="quantity"
-                [(ngModel)]="collateral.quantity"
+                [(ngModel)]="collateral().quantity"
                 required
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="collateralForm.invalid || isSaving"
+                [disabled]="collateralForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -155,16 +155,16 @@ export class ClientCollateralFormComponent implements OnInit {
   clientId!: number;
   collateralId: number | null = null;
   isEditMode = false;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
-  collateral: ClientCollateralCreateRequest = {};
-  collateralProductOptions: LoanCollateralTemplateData[] = [];
+  readonly collateral = signal<ClientCollateralCreateRequest>({});
+  readonly collateralProductOptions = signal<LoanCollateralTemplateData[]>([]);
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
 
     this.collateralService.getClientsClientIdCollateralsTemplate(this.clientId).subscribe((tpl) => {
-      this.collateralProductOptions = tpl ?? [];
+      this.collateralProductOptions.set(tpl ?? []);
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -180,31 +180,31 @@ export class ClientCollateralFormComponent implements OnInit {
     this.collateralService
       .getClientsClientIdCollateralsClientCollateralId(this.clientId, this.collateralId)
       .subscribe((data) => {
-        this.collateral = {
+        this.collateral.set({
           collateralId: data.id,
           quantity: data.quantity,
-        };
+        });
       });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
       this.isEditMode && this.collateralId
         ? this.collateralService.putClientsClientIdCollateralsCollateralId(
             this.clientId,
             this.collateralId,
-            { quantity: this.collateral.quantity, locale: FINERACT_LOCALE },
+            { quantity: this.collateral().quantity, locale: FINERACT_LOCALE },
           )
         : this.collateralService.postClientsClientIdCollaterals(this.clientId, {
-            collateralId: this.collateral.collateralId,
-            quantity: this.collateral.quantity,
+            collateralId: this.collateral().collateralId,
+            quantity: this.collateral().quantity,
             locale: FINERACT_LOCALE,
           });
 
     request$.subscribe({
       next: () => this.router.navigate(['/clients', this.clientId, 'collaterals']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

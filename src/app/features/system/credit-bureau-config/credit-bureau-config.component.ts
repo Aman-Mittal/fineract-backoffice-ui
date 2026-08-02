@@ -90,7 +90,7 @@ interface LoanProductMappingRow {
             <ion-spinner name="crescent"></ion-spinner>
           } @else {
             <h3>{{ 'CREDIT_BUREAU_CONFIG.BUREAUS' | translate }}</h3>
-            <table cdk-table [dataSource]="bureaus" class="cbc-table">
+            <table cdk-table [dataSource]="bureaus()" class="cbc-table">
               <ng-container cdkColumnDef="id">
                 <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.ID' | translate }}
@@ -120,7 +120,7 @@ interface LoanProductMappingRow {
             </table>
 
             <h3 class="cbc-section">{{ 'CREDIT_BUREAU_CONFIG.MAPPINGS' | translate }}</h3>
-            <table cdk-table [dataSource]="mappings" class="cbc-table">
+            <table cdk-table [dataSource]="mappings()" class="cbc-table">
               <ng-container cdkColumnDef="loanProductName">
                 <th cdk-header-cell *cdkHeaderCellDef>
                   {{ 'CREDIT_BUREAU_CONFIG.LOAN_PRODUCT' | translate }}
@@ -163,7 +163,7 @@ interface LoanProductMappingRow {
                 ></ion-input>
               </ion-item>
 
-              @for (bureau of bureaus; track bureau.id) {
+              @for (bureau of bureaus(); track bureau.id) {
                 <div class="bureau-actions">
                   <span class="bureau-label">{{ bureau.name }}</span>
                   <ion-button
@@ -252,14 +252,14 @@ export class CreditBureauConfigComponent implements OnInit {
     'isCreditCheckMandatory',
   ];
 
-  bureaus: CreditBureauRow[] = [];
-  mappings: LoanProductMappingRow[] = [];
+  readonly bureaus = signal<CreditBureauRow[]>([]);
+  readonly mappings = signal<LoanProductMappingRow[]>([]);
   readonly isLoading = signal(false);
 
   nationalId = '';
-  creditReport = signal<unknown[]>([]);
-  integrationLoading = signal(false);
-  reportFetched = signal(false);
+  readonly creditReport = signal<unknown[]>([]);
+  readonly integrationLoading = signal(false);
+  readonly reportFetched = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -269,7 +269,7 @@ export class CreditBureauConfigComponent implements OnInit {
     this.isLoading.set(true);
     this.configService.getCreditBureauConfiguration().subscribe({
       next: (raw: string) => {
-        this.bureaus = this.parseList<CreditBureauRow>(raw);
+        this.bureaus.set(this.parseList<CreditBureauRow>(raw));
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
@@ -280,7 +280,7 @@ export class CreditBureauConfigComponent implements OnInit {
 
     this.configService.getCreditBureauConfigurationLoanProduct().subscribe({
       next: (raw: string) => {
-        this.mappings = this.parseList<LoanProductMappingRow>(raw);
+        this.mappings.set(this.parseList<LoanProductMappingRow>(raw));
       },
       error: (err: unknown) => {
         console.error('Failed to load loan-product mappings', err);

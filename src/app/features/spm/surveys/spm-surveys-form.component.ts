@@ -66,7 +66,9 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('SPM_SURVEYS.EDIT' | translate) : ('SPM_SURVEYS.CREATE' | translate) }}
+            {{
+              isEditMode() ? ('SPM_SURVEYS.EDIT' | translate) : ('SPM_SURVEYS.CREATE' | translate)
+            }}
           </ion-card-title>
         </ion-card-header>
 
@@ -77,7 +79,7 @@ import {
               <ion-input
                 [attr.aria-label]="'SPM_SURVEYS.KEY' | translate"
                 name="key"
-                [(ngModel)]="survey.key"
+                [(ngModel)]="survey().key"
                 required
               ></ion-input>
             </ion-item>
@@ -87,7 +89,7 @@ import {
               <ion-input
                 [attr.aria-label]="'SPM_SURVEYS.NAME' | translate"
                 name="name"
-                [(ngModel)]="survey.name"
+                [(ngModel)]="survey().name"
                 required
               ></ion-input>
             </ion-item>
@@ -97,7 +99,7 @@ import {
               <ion-input
                 [attr.aria-label]="'SPM_SURVEYS.COUNTRY_CODE' | translate"
                 name="countryCode"
-                [(ngModel)]="survey.countryCode"
+                [(ngModel)]="survey().countryCode"
               ></ion-input>
             </ion-item>
 
@@ -106,16 +108,20 @@ import {
               <ion-input
                 [attr.aria-label]="'SPM_SURVEYS.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="survey.description"
+                [(ngModel)]="survey().description"
               ></ion-input>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="surveyForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="surveyForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -125,7 +131,7 @@ import {
             </div>
           </form>
 
-          @if (isEditMode && surveyId) {
+          @if (isEditMode() && surveyId()) {
             <hr class="divider" />
             <h3>{{ 'SPM.LOOKUP_TABLES' | translate }}</h3>
             @if (lookupTables().length === 0) {
@@ -172,37 +178,40 @@ export class SpmSurveysFormComponent implements OnInit {
 
   private readonly LIST_PATH = '/spm/surveys';
 
-  surveyId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly surveyId = signal<number | null>(null);
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  survey: SurveyData = { key: '', name: '' };
+  readonly survey = signal<SurveyData>({ key: '', name: '' });
 
-  lookupTables = signal<LookupTableData[]>([]);
+  readonly lookupTables = signal<LookupTableData[]>([]);
   lookupTableColumns = ['key', 'description'];
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
-        this.surveyId = +id;
-        this.isEditMode = true;
+        this.surveyId.set(+id);
+        this.isEditMode.set(true);
         this.load();
       }
     });
   }
 
   load(): void {
-    if (!this.surveyId) return;
-    this.surveysService.getSurveysId(this.surveyId).subscribe((data) => {
-      this.survey = {
+    // Read once into a local: a signal call cannot be narrowed, so `if (this.surveyId())` no
+    // longer tells the compiler the later calls are non-null.
+    const surveyId = this.surveyId();
+    if (!surveyId) return;
+    this.surveysService.getSurveysId(surveyId).subscribe((data) => {
+      this.survey.set({
         key: data.key,
         name: data.name,
         countryCode: data.countryCode,
         description: data.description,
-      };
+      });
     });
-    this.lookupTableService.getSurveysSurveyIdLookuptables(this.surveyId).subscribe({
+    this.lookupTableService.getSurveysSurveyIdLookuptables(surveyId).subscribe({
       next: (data) => this.lookupTables.set(data ?? []),
       error: () => {
         /* ignored */
@@ -211,15 +220,16 @@ export class SpmSurveysFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
+    const surveyId = this.surveyId();
     const request$ =
-      this.isEditMode && this.surveyId
-        ? this.surveysService.putSurveysId(this.surveyId, this.survey)
-        : this.surveysService.postSurveys(this.survey);
+      this.isEditMode() && surveyId
+        ? this.surveysService.putSurveysId(surveyId, this.survey())
+        : this.surveysService.postSurveys(this.survey());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

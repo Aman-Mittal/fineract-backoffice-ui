@@ -185,8 +185,8 @@ export class SmsCampaignsListComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
 
-  campaigns = signal<SmsCampaign[]>([]);
-  loading = signal(false);
+  readonly campaigns = signal<SmsCampaign[]>([]);
+  readonly loading = signal(false);
 
   displayedColumns = ['id', 'campaignName', 'campaignType', 'status', 'actions'];
 

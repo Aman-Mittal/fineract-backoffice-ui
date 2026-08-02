@@ -58,7 +58,7 @@ describe('ProvisioningEntriesListComponent', () => {
   it('should load entries on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getProvisioningentries).toHaveBeenCalled();
-    expect(component.entries).toHaveSize(1);
+    expect(component.entries()).toHaveSize(1);
   });
 
   it('should navigate to create', () => {

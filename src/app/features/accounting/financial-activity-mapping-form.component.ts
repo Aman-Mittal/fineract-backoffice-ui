@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -56,7 +56,7 @@ import {
             formControlName="financialActivityId"
             required
           >
-            @for (activity of activities; track activity['id']) {
+            @for (activity of activities(); track activity['id']) {
               <ion-select-option [value]="activity['id']">
                 {{ activity['name'] }}
               </ion-select-option>
@@ -125,7 +125,7 @@ export class FinancialActivityMappingFormComponent implements OnInit {
   isEdit = false;
   mappingId?: number;
 
-  activities: Record<string, unknown>[] = [];
+  readonly activities = signal<Record<string, unknown>[]>([]);
   glAccountOptions: Record<string, unknown> = {};
   filteredAccounts: Record<string, unknown>[] = [];
 
@@ -154,8 +154,9 @@ export class FinancialActivityMappingFormComponent implements OnInit {
   loadTemplate() {
     this.financialActivityService.getFinancialactivityaccountsTemplate().subscribe((template) => {
       const templateData = template as Record<string, unknown>;
-      this.activities =
-        (templateData['financialActivityOptions'] as Record<string, unknown>[]) || [];
+      this.activities.set(
+        (templateData['financialActivityOptions'] as Record<string, unknown>[]) || [],
+      );
       this.glAccountOptions = (templateData['glAccountOptions'] as Record<string, unknown>) || {};
       const currentActivityId = this.mappingForm.get('financialActivityId')?.value;
       if (currentActivityId) {

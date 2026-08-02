@@ -23,7 +23,7 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class ThemeService {
-  isDarkMode = signal<boolean>(false);
+  readonly isDarkMode = signal<boolean>(false);
 
   constructor() {
     const savedTheme = localStorage.getItem('theme');

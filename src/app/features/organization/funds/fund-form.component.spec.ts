@@ -56,14 +56,14 @@ describe('FundFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode()).toBeFalse();
   });
 
   it('should post a new fund on submit', () => {
     fundsServiceSpy.postFunds.and.returnValue(
       of({}) as unknown as ReturnType<FundsService['postFunds']>,
     );
-    component.fund = { name: 'Relief Fund', externalId: 'RF-9' };
+    component.fund.set({ name: 'Relief Fund', externalId: 'RF-9' });
 
     component.onSubmit();
 

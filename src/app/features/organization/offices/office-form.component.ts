@@ -75,7 +75,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('OFFICES.EDIT_OFFICE' | translate)
                 : ('OFFICES.CREATE_OFFICE' | translate)
             }}
@@ -90,7 +90,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'OFFICES.NAME' | translate"
                   name="name"
-                  [(ngModel)]="office.name"
+                  [(ngModel)]="office().name"
                   required
                 ></ion-input>
               </ion-item>
@@ -101,9 +101,9 @@ import {
                   [attr.aria-label]="'OFFICES.PARENT' | translate"
                   interface="popover"
                   name="parentId"
-                  [(ngModel)]="office.parentId"
+                  [(ngModel)]="office().parentId"
                   required
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   @for (o of offices(); track o.id) {
                     <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
@@ -116,7 +116,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'OFFICES.EXTERNAL_ID' | translate"
                   name="externalId"
-                  [(ngModel)]="office.externalId"
+                  [(ngModel)]="office().externalId"
                 ></ion-input>
               </ion-item>
 
@@ -130,7 +130,8 @@ import {
                       data-testid="openingDate-picker"
                       presentation="date"
                       name="openingDate"
-                      [(ngModel)]="openingDate"
+                      [ngModel]="openingDate()"
+                      (ngModelChange)="openingDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -139,11 +140,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="officeForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button
+                color="primary"
+                type="submit"
+                [disabled]="officeForm.invalid || isSaving()"
+              >
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -184,11 +189,11 @@ export class OfficeFormComponent implements OnInit {
   private readonly LIST_PATH = '/organization/offices';
 
   officeId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  office: PostOfficesRequest = {};
-  openingDate = toIsoDate(new Date());
+  readonly office = signal<PostOfficesRequest>({});
+  readonly openingDate = signal(toIsoDate(new Date()));
   readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit() {
@@ -197,7 +202,7 @@ export class OfficeFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.officeId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadOfficeData();
       }
     });
@@ -214,39 +219,39 @@ export class OfficeFormComponent implements OnInit {
     this.officesService.getOfficesOfficeId(this.officeId).subscribe((data) => {
       const dateArray = data.openingDate as unknown as number[];
       if (dateArray) {
-        this.openingDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
+        this.openingDate.set(toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2])));
       }
-      this.office = {
+      this.office.set({
         name: data.name,
         externalId: data.externalId,
         parentId: (data as Record<string, unknown>)['parentId'] as number,
-      };
+      });
     });
   }
 
   onSubmit() {
-    this.isSaving = true;
-    const formattedDate = toIsoDate(this.openingDate);
+    this.isSaving.set(true);
+    const formattedDate = toIsoDate(this.openingDate());
 
-    if (this.isEditMode && this.officeId) {
+    if (this.isEditMode() && this.officeId) {
       const payload: PutOfficesOfficeIdRequest = {
-        name: this.office.name,
-        externalId: this.office.externalId,
+        name: this.office().name,
+        externalId: this.office().externalId,
         openingDate: formattedDate,
         dateFormat: 'yyyy-MM-dd',
         locale: 'en',
       };
       this.officesService.putOfficesOfficeId(this.officeId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
-      this.office.openingDate = formattedDate;
-      this.office.dateFormat = 'yyyy-MM-dd';
-      this.office.locale = 'en';
-      this.officesService.postOffices(this.office).subscribe({
+      this.office().openingDate = formattedDate;
+      this.office().dateFormat = 'yyyy-MM-dd';
+      this.office().locale = 'en';
+      this.officesService.postOffices(this.office()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

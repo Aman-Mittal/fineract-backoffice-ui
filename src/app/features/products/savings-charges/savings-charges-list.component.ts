@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -51,8 +51,8 @@ import {
       helpTextKey="HELP.SAVINGS_CHARGES_DESC"
       createButtonLabel="SAVINGS_CHARGES.CREATE"
       [columns]="columns"
-      [data]="charges"
-      [totalRecords]="charges.length"
+      [data]="charges()"
+      [totalRecords]="charges().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -83,7 +83,7 @@ export class SavingsChargesListComponent implements OnInit {
   ];
 
   savingsAccountId!: number;
-  charges: GetSavingsAccountsSavingsAccountIdChargesResponse[] = [];
+  readonly charges = signal<GetSavingsAccountsSavingsAccountIdChargesResponse[]>([]);
 
   ngOnInit(): void {
     this.savingsAccountId = Number(this.route.snapshot.paramMap.get('savingsAccountId'));
@@ -95,7 +95,7 @@ export class SavingsChargesListComponent implements OnInit {
       .getSavingsaccountsSavingsAccountIdCharges(this.savingsAccountId)
       .subscribe({
         next: (data: GetSavingsAccountsSavingsAccountIdChargesResponse[]) => {
-          this.charges = data || [];
+          this.charges.set(data || []);
         },
         error: (err: unknown) => console.error('Failed to load savings charges', err),
       });

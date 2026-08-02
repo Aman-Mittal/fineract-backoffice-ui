@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -76,7 +76,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              command === 'deposit'
+              command() === 'deposit'
                 ? ('SAVINGS.DEPOSIT' | translate)
                 : ('SAVINGS.WITHDRAWAL' | translate)
             }}
@@ -99,7 +99,8 @@ import {
                       data-testid="transactionDate-picker"
                       presentation="date"
                       name="transactionDate"
-                      [(ngModel)]="transactionDate"
+                      [ngModel]="transactionDate()"
+                      (ngModelChange)="transactionDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -129,7 +130,7 @@ import {
                   name="paymentTypeId"
                   [(ngModel)]="transaction.paymentTypeId"
                 >
-                  @for (type of paymentTypeOptions; track type['id']) {
+                  @for (type of paymentTypeOptions(); track type['id']) {
                     <ion-select-option [value]="type['id']">{{ type['name'] }}</ion-select-option>
                   }
                 </ion-select>
@@ -152,15 +153,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="transactionForm.invalid || isSaving"
+                [disabled]="transactionForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -200,19 +201,19 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
 
   accountId = 0;
-  command = '';
-  isSaving = false;
+  readonly command = signal('');
+  readonly isSaving = signal(false);
 
   transaction: PostSavingsAccountTransactionsRequest = {};
   /** Note bound separately as it might not be in the direct model */
   note = '';
-  transactionDate = toIsoDate(new Date());
-  paymentTypeOptions: Record<string, unknown>[] = [];
+  readonly transactionDate = signal(toIsoDate(new Date()));
+  readonly paymentTypeOptions = signal<Record<string, unknown>[]>([]);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.accountId = +params['accountId'];
-      this.command = params['command'];
+      this.command.set(params['command']);
       this.loadTemplate();
     });
   }
@@ -224,10 +225,10 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
         next: (template: string) => {
           // Handle template parsing if necessary (OpenAPI sometimes returns generic string/any)
           const data = typeof template === 'string' ? JSON.parse(template) : template;
-          this.paymentTypeOptions = data.paymentTypeOptions || [];
+          this.paymentTypeOptions.set(data.paymentTypeOptions || []);
           if (data.date) {
-            this.transactionDate = toIsoDate(
-              new Date(data.date[0], data.date[1] - 1, data.date[2]),
+            this.transactionDate.set(
+              toIsoDate(new Date(data.date[0], data.date[1] - 1, data.date[2])),
             );
           }
         },
@@ -238,9 +239,9 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    const formattedDate = toIsoDate(this.transactionDate);
+    const formattedDate = toIsoDate(this.transactionDate());
 
     this.transaction.transactionDate = formattedDate;
     this.transaction.dateFormat = 'yyyy-MM-dd';
@@ -256,11 +257,11 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
       .postSavingsaccountsSavingsIdTransactions(
         this.accountId,
         payload as PostSavingsAccountTransactionsRequest,
-        this.command,
+        this.command(),
       )
       .subscribe({
         next: () => this.router.navigate(['/products/savings-accounts']),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
   }
 

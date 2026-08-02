@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -42,8 +42,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       [title]="'ACCOUNT_NUMBER_FORMATS.TITLE' | translate"
       createButtonLabel="ACCOUNT_NUMBER_FORMATS.TITLE"
       [columns]="columns"
-      [data]="formats"
-      [totalRecords]="formats.length"
+      [data]="formats()"
+      [totalRecords]="formats().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -88,7 +88,7 @@ export class AccountNumberFormatsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  formats: GetAccountNumberFormatsIdResponse[] = [];
+  readonly formats = signal<GetAccountNumberFormatsIdResponse[]>([]);
 
   ngOnInit(): void {
     this.loadFormats();
@@ -97,7 +97,7 @@ export class AccountNumberFormatsListComponent implements OnInit {
   private loadFormats(): void {
     this.accountNumberFormatService.getAccountnumberformats().subscribe({
       next: (data: GetAccountNumberFormatsIdResponse[]) => {
-        this.formats = data || [];
+        this.formats.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load account number formats', err);
@@ -123,7 +123,7 @@ export class AccountNumberFormatsListComponent implements OnInit {
       .deleteAccountnumberformatsAccountNumberFormatId(row.id)
       .subscribe({
         next: () => {
-          this.formats = this.formats.filter((f) => f.id !== row.id);
+          this.formats.set(this.formats().filter((f) => f.id !== row.id));
         },
         error: (err: unknown) => {
           console.error('Failed to delete account number format', err);

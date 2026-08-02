@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -75,7 +75,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('ACCOUNTING.EDIT_GL_ACCOUNT' | translate)
                 : ('ACCOUNTING.CREATE_GL_ACCOUNT' | translate)
             }}
@@ -91,7 +91,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'COMMON.NAME' | translate"
                   name="name"
-                  [(ngModel)]="account.name"
+                  [(ngModel)]="account().name"
                   required
                 ></ion-input>
               </ion-item>
@@ -101,7 +101,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'ACCOUNTING.GL_CODE' | translate"
                   name="glCode"
-                  [(ngModel)]="account.glCode"
+                  [(ngModel)]="account().glCode"
                   required
                 ></ion-input>
               </ion-item>
@@ -114,7 +114,7 @@ import {
                   [attr.aria-label]="'ACCOUNTING.ACCOUNT_TYPE' | translate"
                   interface="popover"
                   name="type"
-                  [(ngModel)]="account.type"
+                  [(ngModel)]="account().type"
                   required
                 >
                   <ion-select-option [value]="1">{{
@@ -143,7 +143,7 @@ import {
                   [attr.aria-label]="'ACCOUNTING.ACCOUNT_USAGE' | translate"
                   interface="popover"
                   name="usage"
-                  [(ngModel)]="account.usage"
+                  [(ngModel)]="account().usage"
                   required
                 >
                   <ion-select-option [value]="1">{{
@@ -164,7 +164,7 @@ import {
                 <ion-textarea
                   [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                   name="description"
-                  [(ngModel)]="account.description"
+                  [(ngModel)]="account().description"
                   rows="3"
                 ></ion-textarea>
               </ion-item>
@@ -172,7 +172,7 @@ import {
               <div class="checkbox-container">
                 <ion-checkbox
                   name="manualEntriesAllowed"
-                  [(ngModel)]="account.manualEntriesAllowed"
+                  [(ngModel)]="account().manualEntriesAllowed"
                 >
                   {{ 'ACCOUNTING.ALLOW_MANUAL_ENTRIES' | translate }}
                 </ion-checkbox>
@@ -185,15 +185,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="accountForm.invalid || isSaving"
+                [disabled]="accountForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -247,19 +247,19 @@ export class GLAccountFormComponent implements OnInit {
   private readonly LIST_PATH = '/accounting/chart-of-accounts';
 
   accountId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  account: PostGLAccountsRequest = {
+  readonly account = signal<PostGLAccountsRequest>({
     manualEntriesAllowed: true,
-  };
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.accountId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadAccountData();
       }
     });
@@ -268,30 +268,30 @@ export class GLAccountFormComponent implements OnInit {
   loadAccountData() {
     if (!this.accountId) return;
     this.accountService.getGlaccountsGlAccountId(this.accountId).subscribe((data) => {
-      this.account = {
+      this.account.set({
         name: data.name,
         glCode: data.glCode,
         type: data.type?.id,
         usage: data.usage?.id,
         description: data.description,
         manualEntriesAllowed: data.manualEntriesAllowed,
-      };
+      });
     });
   }
 
   onSubmit() {
-    this.isSaving = true;
-    if (this.isEditMode && this.accountId) {
+    this.isSaving.set(true);
+    if (this.isEditMode() && this.accountId) {
       this.accountService
-        .putGlaccountsGlAccountId(this.accountId, this.account as PutGLAccountsRequest)
+        .putGlaccountsGlAccountId(this.accountId, this.account() as PutGLAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
-      this.accountService.postGlaccounts(this.account).subscribe({
+      this.accountService.postGlaccounts(this.account()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }

@@ -201,7 +201,7 @@ import {
 export class LoansPointInTimeComponent {
   searchDate = toIsoDate(new Date());
   loanIdsInput = '';
-  results = signal<LoanPointInTimeData[]>([]);
+  readonly results = signal<LoanPointInTimeData[]>([]);
   readonly isLoading = signal(false);
 
   readonly displayedColumns = [

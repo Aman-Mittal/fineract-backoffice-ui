@@ -55,7 +55,7 @@ describe('NotificationsConfigComponent', () => {
   });
 
   it('should load notifications on init', () => {
-    expect(component.notifications).toHaveSize(2);
+    expect(component.notifications()).toHaveSize(2);
   });
 
   it('should mark all read on action', () => {

@@ -54,8 +54,8 @@ describe('PermissionsListComponent', () => {
   it('should load and group permissions on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getPermissions).toHaveBeenCalled();
-    expect(component.groupNames).toEqual(['portfolio', 'transaction']);
-    expect(component.grouped['portfolio']).toHaveSize(1);
+    expect(component.groupNames()).toEqual(['portfolio', 'transaction']);
+    expect(component.grouped()['portfolio']).toHaveSize(1);
   });
 
   it('should track toggled permissions and save them', () => {

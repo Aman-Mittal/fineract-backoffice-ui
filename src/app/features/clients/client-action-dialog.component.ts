@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, Input } from '@angular/core';
+import { inject, input, Component, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -64,7 +64,7 @@ export interface ClientActionDialogData {
     IonModal,
   ],
   template: `
-    <h2 class="dialog-title">{{ data.title | translate }}</h2>
+    <h2 class="dialog-title">{{ data().title | translate }}</h2>
     <div class="dialog-content">
       <div class="dialog-form">
         <ion-item fill="outline" class="full-width">
@@ -77,9 +77,10 @@ export interface ClientActionDialogData {
                 data-testid="actionDate-picker"
                 presentation="date"
                 name="actionDate"
-                [(ngModel)]="actionDate"
+                [ngModel]="actionDate()"
+                (ngModelChange)="actionDate.set($event)"
                 required
-                [max]="maxDate"
+                [max]="maxDate()"
               ></ion-datetime>
             </ng-template>
           </ion-modal>
@@ -94,7 +95,7 @@ export interface ClientActionDialogData {
               [(ngModel)]="reasonId"
               required
             >
-              @for (reason of reasonOptions; track reason.id) {
+              @for (reason of reasonOptions(); track reason.id) {
                 <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
               }
             </ion-select>
@@ -138,14 +139,14 @@ export class ClientActionDialogComponent implements OnInit {
   private readonly codeValuesService = inject(CodeValuesService);
   private readonly businessDateService = inject(BusinessDateManagementService);
   public readonly modalController = inject(ModalController);
-  @Input({ required: true }) data!: ClientActionDialogData;
+  readonly data = input.required<ClientActionDialogData>();
 
-  actionDate = toIsoDate(new Date());
-  maxDate?: string;
+  readonly actionDate = signal(toIsoDate(new Date()));
+  readonly maxDate = signal<string | undefined>(undefined);
   reasonId?: number;
   note = '';
 
-  reasonOptions: GetCodeValuesDataResponse[] = [];
+  readonly reasonOptions = signal<GetCodeValuesDataResponse[]>([]);
 
   dateLabel = '';
   reasonLabel = '';
@@ -164,8 +165,8 @@ export class ClientActionDialogComponent implements OnInit {
           const d = bd.date as unknown as number[];
           // ion-datetime works in ISO strings, including its max bound.
           const bDate = toIsoDate(new Date(d[0], d[1] - 1, d[2]));
-          this.actionDate = bDate;
-          this.maxDate = bDate;
+          this.actionDate.set(bDate);
+          this.maxDate.set(bDate);
         }
       },
     });
@@ -195,7 +196,7 @@ export class ClientActionDialogComponent implements OnInit {
       undoWithdraw: { date: activationDateLabel },
     };
 
-    const c = config[this.data.command];
+    const c = config[this.data().command];
     if (c) {
       this.dateLabel = c.date;
       if (c.reason && c.codeName) {
@@ -211,7 +212,7 @@ export class ClientActionDialogComponent implements OnInit {
       next: (code) => {
         if (code.id) {
           this.codeValuesService.getCodesCodeIdCodevalues(code.id).subscribe({
-            next: (values) => (this.reasonOptions = values),
+            next: (values) => this.reasonOptions.set(values),
           });
         }
       },
@@ -219,7 +220,7 @@ export class ClientActionDialogComponent implements OnInit {
   }
 
   get isValid(): boolean {
-    if (!this.actionDate) return false;
+    if (!this.actionDate()) return false;
     if (this.showReasonDropdown && !this.reasonId) return false;
     return true;
   }
@@ -231,7 +232,7 @@ export class ClientActionDialogComponent implements OnInit {
   onConfirm(): void {
     if (this.isValid) {
       this.modalController.dismiss({
-        actionDate: this.actionDate,
+        actionDate: this.actionDate(),
         reasonId: this.reasonId,
         note: this.note,
       });

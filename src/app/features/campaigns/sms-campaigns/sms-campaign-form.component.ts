@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -86,7 +86,7 @@ import {
               name="campaignType"
               [(ngModel)]="model.campaignType"
             >
-              @for (opt of campaignTypeOptions; track opt.id) {
+              @for (opt of campaignTypeOptions(); track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
             </ion-select>
@@ -100,7 +100,7 @@ import {
               name="triggerType"
               [(ngModel)]="model.triggerType"
             >
-              @for (opt of triggerTypeOptions; track opt.id) {
+              @for (opt of triggerTypeOptions(); track opt.id) {
                 <ion-select-option [value]="opt.id">{{ opt.value }}</ion-select-option>
               }
             </ion-select>
@@ -175,9 +175,8 @@ export class SmsCampaignFormComponent implements OnInit {
   isEditMode = false;
   campaignId: number | null = null;
 
-  campaignTypeOptions: { id: number; value: string }[] = [];
-  triggerTypeOptions: { id: number; value: string }[] = [];
-
+  readonly campaignTypeOptions = signal<{ id: number; value: string }[]>([]);
+  readonly triggerTypeOptions = signal<{ id: number; value: string }[]>([]);
   model: {
     campaignName: string;
     campaignType: number | null;
@@ -203,14 +202,18 @@ export class SmsCampaignFormComponent implements OnInit {
 
     this.api.getSmscampaignsTemplate().subscribe({
       next: (template: SmsCampaignData) => {
-        this.campaignTypeOptions = (template?.campaignTypeOptions ?? []).map((opt) => ({
-          id: opt.id ?? 0,
-          value: opt.value ?? '',
-        }));
-        this.triggerTypeOptions = (template?.triggerTypeOptions ?? []).map((opt) => ({
-          id: opt.id ?? 0,
-          value: opt.value ?? '',
-        }));
+        this.campaignTypeOptions.set(
+          (template?.campaignTypeOptions ?? []).map((opt) => ({
+            id: opt.id ?? 0,
+            value: opt.value ?? '',
+          })),
+        );
+        this.triggerTypeOptions.set(
+          (template?.triggerTypeOptions ?? []).map((opt) => ({
+            id: opt.id ?? 0,
+            value: opt.value ?? '',
+          })),
+        );
 
         if (this.isEditMode && this.campaignId !== null) {
           this.loadCampaign(this.campaignId);

@@ -132,15 +132,15 @@ import { toIsoDate } from '../../core/utils/date-formatter';
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 Cancel
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="closureForm.invalid || isSaving"
+                [disabled]="closureForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   Saving...
                 } @else {
@@ -184,7 +184,7 @@ export class AccountingClosureFormComponent implements OnInit {
     comments: '',
   };
   closingDate = toIsoDate(new Date());
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit() {
     this.officeService
@@ -193,7 +193,7 @@ export class AccountingClosureFormComponent implements OnInit {
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const formattedDate = toIsoDate(this.closingDate);
 
     this.request.closingDate = formattedDate;
@@ -202,7 +202,7 @@ export class AccountingClosureFormComponent implements OnInit {
 
     this.closureService.postGlclosures(this.request).subscribe({
       next: () => this.router.navigate(['/accounting/closures']),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

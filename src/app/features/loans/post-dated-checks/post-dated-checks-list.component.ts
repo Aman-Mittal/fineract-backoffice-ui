@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -46,8 +46,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="POST_DATED_CHECKS.TITLE"
       helpTextKey="HELP.POST_DATED_CHECKS_DESC"
       [columns]="columns"
-      [data]="checks"
-      [totalRecords]="checks.length"
+      [data]="checks()"
+      [totalRecords]="checks().length"
       [showSearch]="false"
       [localLogic]="true"
     >
@@ -89,7 +89,7 @@ export class PostDatedChecksListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  checks: GetPostDatedChecks[] = [];
+  readonly checks = signal<GetPostDatedChecks[]>([]);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('loanId');
@@ -103,7 +103,7 @@ export class PostDatedChecksListComponent implements OnInit {
     if (!this.loanId) return;
     this.checkService.getLoansLoanIdPostdatedchecks(this.loanId).subscribe({
       next: (data: GetPostDatedChecks[]) => {
-        this.checks = data || [];
+        this.checks.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load post-dated checks', err);

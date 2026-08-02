@@ -18,14 +18,14 @@
  */
 
 import {
-  ApplicationConfig,
-  ErrorHandler,
   importProvidersFrom,
   isDevMode,
   provideBrowserGlobalErrorListeners,
   provideCheckNoChangesConfig,
   provideZoneChangeDetection,
   APP_INITIALIZER,
+  ApplicationConfig,
+  ErrorHandler,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -54,7 +54,12 @@ export function initializeApp(configService: ConfigService) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideIonicAngular({ mode: 'md' }),
+    // `useSetInputAPI` makes Ionic deliver `componentProps` through `ComponentRef.setInput`
+    // instead of `Object.assign`. Without it, assigning to a signal input would overwrite the
+    // `InputSignal` itself with the raw value, and the dialog's template would then call a
+    // plain object — so every modal component would be stuck on `@Input()` forever. It is safe
+    // here because `DialogService.open` only ever passes `data`, and every dialog declares it.
+    provideIonicAngular({ mode: 'md', useSetInputAPI: true }),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     // Surfaces the failure mode behind the empty API-fed dropdowns: a plain field assigned

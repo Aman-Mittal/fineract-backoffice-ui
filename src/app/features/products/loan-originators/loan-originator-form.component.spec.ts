@@ -66,16 +66,16 @@ describe('LoanOriginatorFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanOriginatorsTemplate).toHaveBeenCalled();
-    expect(component.originatorTypeOptions).toHaveSize(1);
-    expect(component.channelTypeOptions).toHaveSize(1);
-    expect(component.statusOptions).toHaveSize(2);
+    expect(component.originatorTypeOptions()).toHaveSize(1);
+    expect(component.channelTypeOptions()).toHaveSize(1);
+    expect(component.statusOptions()).toHaveSize(2);
   });
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postLoanOriginators.and.returnValue(
       of({}) as unknown as ReturnType<LoanOriginatorsService['postLoanOriginators']>,
     );
-    component.originator = { name: 'New', originatorTypeId: 1 };
+    component.originator.set({ name: 'New', originatorTypeId: 1 });
     component.onSubmit();
     expect(serviceSpy.postLoanOriginators).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/loan-originators']);

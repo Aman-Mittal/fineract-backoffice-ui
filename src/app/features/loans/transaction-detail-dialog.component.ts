@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal, Input } from '@angular/core';
+import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
@@ -84,32 +84,32 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           </tr>
           <tr>
             <td class="label">{{ 'COMMON.AMOUNT' | translate }}</td>
-            <td class="value">{{ data.currencySymbol }}{{ tx.amount | number: '1.2-2' }}</td>
+            <td class="value">{{ data().currencySymbol }}{{ tx.amount | number: '1.2-2' }}</td>
           </tr>
           <tr>
             <td class="label">
               {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
             </td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.principalPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.principalPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
             <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}</td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.interestPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.interestPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
             <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}</td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.feeChargesPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.feeChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
             <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}</td>
             <td class="value">
-              {{ data.currencySymbol }}{{ tx.penaltyChargesPortion | number: '1.2-2' }}
+              {{ data().currencySymbol }}{{ tx.penaltyChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
           @if (tx.paymentDetailData?.receiptNumber) {
@@ -126,7 +126,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
           }
         </table>
 
-        @if (data.adjustable && !tx.manuallyReversed) {
+        @if (data().adjustable && !tx.manuallyReversed) {
           @if (!showAdjustForm()) {
             <ion-button
               fill="outline"
@@ -152,7 +152,8 @@ const DATE_FORMAT = 'yyyy-MM-dd';
                       data-testid="adjustDate-picker"
                       presentation="date"
                       name="adjustDate"
-                      [(ngModel)]="adjustDate"
+                      [ngModel]="adjustDate()"
+                      (ngModelChange)="adjustDate.set($event)"
                     ></ion-datetime>
                   </ng-template>
                 </ion-modal>
@@ -164,7 +165,8 @@ const DATE_FORMAT = 'yyyy-MM-dd';
                 <ion-input
                   [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
                   type="number"
-                  [(ngModel)]="adjustAmount"
+                  [ngModel]="adjustAmount()"
+                  (ngModelChange)="adjustAmount.set($event)"
                   name="adjustAmount"
                 ></ion-input>
               </ion-item>
@@ -239,26 +241,26 @@ export class TransactionDetailDialogComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  detail = signal<GetLoansLoanIdTransactionsTransactionIdResponse | null>(null);
-  showAdjustForm = signal(false);
-  isSaving = signal(false);
+  readonly detail = signal<GetLoansLoanIdTransactionsTransactionIdResponse | null>(null);
+  readonly showAdjustForm = signal(false);
+  readonly isSaving = signal(false);
 
-  adjustDate = toIsoDate(new Date());
-  adjustAmount = 0;
+  readonly adjustDate = signal(toIsoDate(new Date()));
+  readonly adjustAmount = signal(0);
   adjustNote = '';
 
-  @Input({ required: true }) data!: TransactionDetailDialogData;
+  readonly data = input.required<TransactionDetailDialogData>();
 
   ngOnInit(): void {
     this.transactionsService
-      .getLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId)
+      .getLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId)
       .subscribe({
         next: (data) => {
           this.detail.set(data);
-          this.adjustAmount = data.amount ?? 0;
+          this.adjustAmount.set(data.amount ?? 0);
           const dateArray = data.date as unknown as number[];
           if (Array.isArray(dateArray)) {
-            this.adjustDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
+            this.adjustDate.set(toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2])));
           }
         },
         error: (err) => console.error('Failed to load transaction detail', err),
@@ -296,11 +298,11 @@ export class TransactionDetailDialogComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         this.isSaving.set(true);
-        const formattedDate = toIsoDate(this.adjustDate);
+        const formattedDate = toIsoDate(this.adjustDate());
         this.transactionsService
-          .postLoansLoanIdTransactionsTransactionId(this.data.loanId, this.data.transactionId, {
+          .postLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId, {
             transactionDate: formattedDate,
-            transactionAmount: this.adjustAmount,
+            transactionAmount: this.adjustAmount(),
             note: this.adjustNote,
             dateFormat: DATE_FORMAT,
             locale: 'en',

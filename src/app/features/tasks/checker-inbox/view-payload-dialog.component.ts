@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input } from '@angular/core';
+import { computed, input, Component } from '@angular/core';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton } from '@ionic/angular/standalone';
@@ -32,7 +32,7 @@ import { IonButton } from '@ionic/angular/standalone';
   template: `
     <h2 class="dialog-title">Command Payload</h2>
     <div class="dialog-content">
-      <pre class="payload-code">{{ formattedJson }}</pre>
+      <pre class="payload-code">{{ formattedJson() }}</pre>
     </div>
     <div class="dialog-actions">
       <ion-button fill="clear" color="primary">CLOSE</ion-button>
@@ -55,14 +55,22 @@ import { IonButton } from '@ionic/angular/standalone';
   ],
 })
 export class ViewPayloadDialogComponent {
-  @Input({ required: true }) data!: { payload: string };
-  formattedJson: string;
+  readonly data = input.required<{ payload: string }>();
 
-  constructor() {
+  /**
+   * Pretty-printed when the payload parses as JSON, verbatim when it does not — a few audit
+   * entries store a plain string.
+   *
+   * Derived rather than computed in the constructor. An input is not populated until after
+   * construction, so the old constructor body read `undefined`, threw, and then threw a second
+   * time inside its own `catch` — which escaped and stopped the dialog from opening at all.
+   */
+  readonly formattedJson = computed<string>(() => {
+    const { payload } = this.data();
     try {
-      this.formattedJson = JSON.stringify(JSON.parse(this.data.payload), null, 2);
+      return JSON.stringify(JSON.parse(payload), null, 2);
     } catch {
-      this.formattedJson = this.data.payload;
+      return payload;
     }
-  }
+  });
 }

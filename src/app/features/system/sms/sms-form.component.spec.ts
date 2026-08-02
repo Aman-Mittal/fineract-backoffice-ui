@@ -61,7 +61,7 @@ describe('SmsFormComponent', () => {
 
   it('should post on create and navigate to the list', () => {
     serviceSpy.postSms.and.returnValue(of({}) as unknown as ReturnType<SMSService['postSms']>);
-    component.message = 'Hello';
+    component.message.set('Hello');
     component.onSubmit();
     expect(serviceSpy.postSms).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/sms']);

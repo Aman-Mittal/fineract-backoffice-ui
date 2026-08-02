@@ -600,36 +600,36 @@ interface ClientActionResult {
           }
           @if (activeTab() === '3') {
             <div class="tab-content">
-              <app-client-identifiers-list [clientId]="clientId"></app-client-identifiers-list>
+              <app-client-identifiers-list [clientId]="clientId()"></app-client-identifiers-list>
             </div>
           }
           @if (activeTab() === '4') {
             <div class="tab-content">
-              <app-client-addresses-list [clientId]="clientId"></app-client-addresses-list>
+              <app-client-addresses-list [clientId]="clientId()"></app-client-addresses-list>
             </div>
           }
           @if (activeTab() === '5') {
             <div class="tab-content">
               <app-client-family-members-list
-                [clientId]="clientId"
+                [clientId]="clientId()"
               ></app-client-family-members-list>
             </div>
           }
           @if (activeTab() === '6') {
             <div class="tab-content">
-              <app-client-notes-list [clientId]="clientId"></app-client-notes-list>
+              <app-client-notes-list [clientId]="clientId()"></app-client-notes-list>
             </div>
           }
           @if (activeTab() === '7') {
             <div class="tab-content">
-              <app-client-documents-list [clientId]="clientId"></app-client-documents-list>
+              <app-client-documents-list [clientId]="clientId()"></app-client-documents-list>
             </div>
           }
           @if (activeTab() === '8') {
             <div class="tab-content">
               <app-entity-datatables
                 apptableName="m_client"
-                [entityId]="clientId"
+                [entityId]="clientId()"
               ></app-entity-datatables>
             </div>
           }
@@ -801,10 +801,10 @@ export class ClientViewComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
 
-  clientId = 0;
-  client = signal<GetClientsClientIdResponse | null>(null);
-  loanAccounts = signal<GetClientsLoanAccounts[]>([]);
-  savingsAccounts = signal<GetClientsSavingsAccounts[]>([]);
+  readonly clientId = signal(0);
+  readonly client = signal<GetClientsClientIdResponse | null>(null);
+  readonly loanAccounts = signal<GetClientsLoanAccounts[]>([]);
+  readonly savingsAccounts = signal<GetClientsSavingsAccounts[]>([]);
 
   savingsColumns = ['accountNo', 'productName', 'balance', 'status', 'actions'];
   loanColumns = ['accountNo', 'productName', 'principal', 'status', 'actions'];
@@ -833,7 +833,7 @@ export class ClientViewComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
-        this.clientId = +id;
+        this.clientId.set(+id);
         this.loadClientData();
         this.loadClientAccounts();
       }
@@ -841,14 +841,14 @@ export class ClientViewComponent implements OnInit {
   }
 
   loadClientData() {
-    this.clientService.getClientsClientId(this.clientId).subscribe({
+    this.clientService.getClientsClientId(this.clientId()).subscribe({
       next: (data) => this.client.set(data),
       error: (err) => console.error('Failed to load client details', err),
     });
   }
 
   loadClientAccounts() {
-    this.clientService.getClientsClientIdAccounts(this.clientId).subscribe({
+    this.clientService.getClientsClientIdAccounts(this.clientId()).subscribe({
       next: (accounts) => {
         this.loanAccounts.set(Array.from(accounts.loanAccounts || []));
         this.savingsAccounts.set(Array.from(accounts.savingsAccounts || []));
@@ -858,7 +858,7 @@ export class ClientViewComponent implements OnInit {
   }
 
   onEditClient() {
-    this.router.navigate(['/clients/edit', this.clientId]);
+    this.router.navigate(['/clients/edit', this.clientId()]);
   }
 
   private buildClientActionPayload(
@@ -907,7 +907,7 @@ export class ClientViewComponent implements OnInit {
         data: {
           title: `ACTIONS.${command.toUpperCase()}_CLIENT`,
           command: command,
-          clientId: this.clientId,
+          clientId: this.clientId(),
         },
       })
       .then((result) => {
@@ -917,7 +917,7 @@ export class ClientViewComponent implements OnInit {
         const payload = this.buildClientActionPayload(command, result, formattedDate);
 
         this.clientService
-          .postClientsClientId(this.clientId, payload as PostClientsClientIdRequest, command)
+          .postClientsClientId(this.clientId(), payload as PostClientsClientIdRequest, command)
           .subscribe({
             next: () => {
               const isNoteOnlyCommand =
@@ -928,7 +928,9 @@ export class ClientViewComponent implements OnInit {
 
               if (result.note && isNoteOnlyCommand) {
                 this.notesService
-                  .postResourceTypeResourceIdNotes('clients', this.clientId, { note: result.note })
+                  .postResourceTypeResourceIdNotes('clients', this.clientId(), {
+                    note: result.note,
+                  })
                   .subscribe({
                     next: () => this.loadClientData(),
                     error: (err) => {
@@ -947,7 +949,7 @@ export class ClientViewComponent implements OnInit {
 
   onDeleteClient() {
     if (confirm('Are you sure you want to delete this client? This action cannot be undone.')) {
-      this.clientService.deleteClientsClientId(this.clientId).subscribe({
+      this.clientService.deleteClientsClientId(this.clientId()).subscribe({
         next: () => {
           this.router.navigate(['/clients']);
         },
@@ -958,25 +960,25 @@ export class ClientViewComponent implements OnInit {
 
   onCreateLoan() {
     this.router.navigate(['/loans/create'], {
-      queryParams: { clientId: this.clientId },
+      queryParams: { clientId: this.clientId() },
     });
   }
 
   onCreateSavings() {
     this.router.navigate(['/products/savings-accounts/create'], {
-      queryParams: { clientId: this.clientId },
+      queryParams: { clientId: this.clientId() },
     });
   }
 
   onCreateFixed() {
     this.router.navigate(['/products/fixed-deposits/create'], {
-      queryParams: { clientId: this.clientId },
+      queryParams: { clientId: this.clientId() },
     });
   }
 
   onCreateRecurring() {
     this.router.navigate(['/products/recurring-deposits/create'], {
-      queryParams: { clientId: this.clientId },
+      queryParams: { clientId: this.clientId() },
     });
   }
 

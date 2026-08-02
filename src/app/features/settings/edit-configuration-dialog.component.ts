@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { inject, input, Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../../api';
@@ -53,8 +53,12 @@ import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/
     </div>
     <div class="dialog-actions">
       <ion-button fill="clear" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</ion-button>
-      <ion-button color="primary" [disabled]="configForm.invalid || isSaving" (click)="onSubmit()">
-        {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+      <ion-button
+        color="primary"
+        [disabled]="configForm.invalid || isSaving()"
+        (click)="onSubmit()"
+      >
+        {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
       </ion-button>
     </div>
   `,
@@ -84,20 +88,20 @@ import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/
 export class EditConfigurationDialogComponent implements OnInit {
   private readonly configService = inject(GlobalConfigurationService);
   private readonly modalController = inject(ModalController);
-  @Input({ required: true }) data!: { config: Record<string, unknown> };
+  readonly data = input.required<{ config: Record<string, unknown> }>();
 
   get config(): Record<string, unknown> {
-    return this.data.config;
+    return this.data().config;
   }
   value = 0;
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit() {
     this.value = this.config['value'] as number;
   }
 
   onSubmit() {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request: PutGlobalConfigurationsRequest = {
       value: this.value,
     };
@@ -105,7 +109,7 @@ export class EditConfigurationDialogComponent implements OnInit {
     const configId = this.config['id'] as number;
     this.configService.putConfigurationsConfigId(configId, request).subscribe({
       next: () => this.modalController.dismiss({ ...this.config, value: this.value }),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

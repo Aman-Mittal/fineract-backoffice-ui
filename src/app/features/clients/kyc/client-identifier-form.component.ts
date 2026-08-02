@@ -75,7 +75,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
                 [attr.aria-label]="'CLIENTS.DOCUMENT_TYPE' | translate"
                 interface="popover"
                 name="documentTypeId"
-                [(ngModel)]="identifier.documentTypeId"
+                [(ngModel)]="identifier().documentTypeId"
                 required
                 id="identifier-document-type-select"
                 data-testid="identifier-document-type-select"
@@ -92,7 +92,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
                 [attr.aria-label]="'CLIENTS.DOCUMENT_KEY' | translate"
                 type="text"
                 name="documentKey"
-                [(ngModel)]="identifier.documentKey"
+                [(ngModel)]="identifier().documentKey"
                 required
                 id="identifier-document-key-input"
                 data-testid="identifier-document-key-input"
@@ -105,7 +105,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
                 [attr.aria-label]="'COMMON.STATUS' | translate"
                 interface="popover"
                 name="status"
-                [(ngModel)]="identifier.status"
+                [(ngModel)]="identifier().status"
                 id="identifier-status-select"
                 data-testid="identifier-status-select"
               >
@@ -119,7 +119,7 @@ import { ClientIdentifierService, ClientIdentifierRequest, CodeValueData } from 
               <ion-textarea
                 [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="identifier.description"
+                [(ngModel)]="identifier().description"
                 rows="3"
                 id="identifier-description-textarea"
                 data-testid="identifier-description-textarea"
@@ -163,14 +163,14 @@ export class ClientIdentifierFormComponent implements OnInit {
   clientId!: number;
   identifierId?: number;
   isEditMode = false;
-  documentTypes = signal<CodeValueData[]>([]);
+  readonly documentTypes = signal<CodeValueData[]>([]);
 
-  identifier: ClientIdentifierRequest = {
+  readonly identifier = signal<ClientIdentifierRequest>({
     documentTypeId: undefined,
     documentKey: '',
     description: '',
     status: 'Active',
-  };
+  });
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -196,12 +196,12 @@ export class ClientIdentifierFormComponent implements OnInit {
     this.identifierService
       .getClientsClientIdIdentifiersIdentifierId(this.clientId, this.identifierId!)
       .subscribe((data) => {
-        this.identifier = {
+        this.identifier.set({
           documentTypeId: data.documentType?.id,
           documentKey: data.documentKey,
           description: data.description,
           status: (data as Record<string, unknown>)['status'] as string,
-        };
+        });
       });
   }
 
@@ -211,7 +211,7 @@ export class ClientIdentifierFormComponent implements OnInit {
         .putClientsClientIdIdentifiersIdentifierId(
           this.clientId,
           this.identifierId!,
-          this.identifier,
+          this.identifier(),
         )
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
@@ -219,7 +219,7 @@ export class ClientIdentifierFormComponent implements OnInit {
         });
     } else {
       this.identifierService
-        .postClientsClientIdIdentifiers(this.clientId, this.identifier)
+        .postClientsClientIdIdentifiers(this.clientId, this.identifier())
         .subscribe({
           next: () => this.router.navigate([this.clientViewPath, this.clientId]),
           error: (err) => console.error('Failed to create identifier', err),

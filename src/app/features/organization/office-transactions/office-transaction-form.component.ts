@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -87,7 +87,7 @@ import {
                   [(ngModel)]="fromOfficeId"
                   required
                 >
-                  @for (opt of fromOfficeOptions; track opt.id) {
+                  @for (opt of fromOfficeOptions(); track opt.id) {
                     <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -104,7 +104,7 @@ import {
                   [(ngModel)]="toOfficeId"
                   required
                 >
-                  @for (opt of toOfficeOptions; track opt.id) {
+                  @for (opt of toOfficeOptions(); track opt.id) {
                     <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                   }
                 </ion-select>
@@ -159,8 +159,8 @@ import {
               <ion-button fill="clear" type="button" routerLink="/organization/office-transactions">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="txForm.invalid || isSaving">
-                {{ isSaving ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+              <ion-button color="primary" type="submit" [disabled]="txForm.invalid || isSaving()">
+                {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
               </ion-button>
             </div>
           </form>
@@ -201,26 +201,25 @@ export class OfficeTransactionFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
 
-  fromOfficeOptions: { id: number; name: string }[] = [];
-  toOfficeOptions: { id: number; name: string }[] = [];
-
+  readonly fromOfficeOptions = signal<{ id: number; name: string }[]>([]);
+  readonly toOfficeOptions = signal<{ id: number; name: string }[]>([]);
   fromOfficeId: number | null = null;
   toOfficeId: number | null = null;
   amount: number | null = null;
   transactionDate = toIsoDate(new Date());
   description = '';
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.api.getOfficetransactionsTemplate().subscribe({
       next: (raw: string) => {
         try {
           const template = JSON.parse(raw);
-          this.fromOfficeOptions = template.fromOfficeOptions || template.officesToOptions || [];
-          this.toOfficeOptions = template.toOfficeOptions || template.officesToOptions || [];
+          this.fromOfficeOptions.set(template.fromOfficeOptions || template.officesToOptions || []);
+          this.toOfficeOptions.set(template.toOfficeOptions || template.officesToOptions || []);
         } catch {
-          this.fromOfficeOptions = [];
-          this.toOfficeOptions = [];
+          this.fromOfficeOptions.set([]);
+          this.toOfficeOptions.set([]);
         }
       },
       error: (err: unknown) => {
@@ -233,7 +232,7 @@ export class OfficeTransactionFormComponent implements OnInit {
     if (!this.fromOfficeId || !this.toOfficeId || !this.amount || !this.transactionDate) {
       return;
     }
-    this.isSaving = true;
+    this.isSaving.set(true);
 
     const body = {
       fromOfficeId: this.fromOfficeId,
@@ -253,7 +252,7 @@ export class OfficeTransactionFormComponent implements OnInit {
       error: (err: unknown) => {
         console.error('Failed to create office transaction', err);
         this.notifications.error('Failed to create transaction');
-        this.isSaving = false;
+        this.isSaving.set(false);
       },
     });
   }

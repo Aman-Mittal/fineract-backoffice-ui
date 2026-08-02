@@ -82,8 +82,8 @@ import {
         }
       </ion-card-content>
       <div class="card-actions">
-        <ion-button color="primary" (click)="runJob()" [disabled]="isRunning || !jobName.trim()">
-          @if (isRunning) {
+        <ion-button color="primary" (click)="runJob()" [disabled]="isRunning() || !jobName.trim()">
+          @if (isRunning()) {
             <ion-spinner name="crescent"></ion-spinner>
           } @else {
             {{ 'INLINE_JOB.RUN' | translate }}
@@ -132,9 +132,9 @@ export class InlineJobComponent {
 
   jobName = '';
   jobBody = '';
-  result = signal<InlineJobResponse | null>(null);
-  isRunning = false;
-  error = signal<string | null>(null);
+  readonly result = signal<InlineJobResponse | null>(null);
+  readonly isRunning = signal(false);
+  readonly error = signal<string | null>(null);
 
   runJob(): void {
     this.error.set(null);
@@ -150,15 +150,15 @@ export class InlineJobComponent {
       }
     }
 
-    this.isRunning = true;
+    this.isRunning.set(true);
     this.inlineJobService.postJobsJobNameInline(this.jobName.trim(), body).subscribe({
       next: (response) => {
         this.result.set(response ?? null);
-        this.isRunning = false;
+        this.isRunning.set(false);
       },
       error: (err: { message?: string }) => {
         this.error.set(err?.message ?? 'Request failed');
-        this.isRunning = false;
+        this.isRunning.set(false);
       },
     });
   }

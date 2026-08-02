@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -68,7 +68,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('LOAN_ORIGINATORS.EDIT' | translate)
                 : ('LOAN_ORIGINATORS.CREATE' | translate)
             }}
@@ -82,7 +82,7 @@ import {
               <ion-input
                 [attr.aria-label]="'LOAN_ORIGINATORS.NAME' | translate"
                 name="name"
-                [(ngModel)]="originator.name"
+                [(ngModel)]="originator().name"
                 required
               ></ion-input>
             </ion-item>
@@ -94,7 +94,7 @@ import {
               <ion-input
                 [attr.aria-label]="'LOAN_ORIGINATORS.EXTERNAL_ID' | translate"
                 name="externalId"
-                [(ngModel)]="originator.externalId"
+                [(ngModel)]="originator().externalId"
               ></ion-input>
             </ion-item>
 
@@ -106,9 +106,9 @@ import {
                 [attr.aria-label]="'LOAN_ORIGINATORS.ORIGINATOR_TYPE' | translate"
                 interface="popover"
                 name="originatorTypeId"
-                [(ngModel)]="originator.originatorTypeId"
+                [(ngModel)]="originator().originatorTypeId"
               >
-                @for (opt of originatorTypeOptions; track opt.id) {
+                @for (opt of originatorTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -122,9 +122,9 @@ import {
                 [attr.aria-label]="'LOAN_ORIGINATORS.CHANNEL_TYPE' | translate"
                 interface="popover"
                 name="channelTypeId"
-                [(ngModel)]="originator.channelTypeId"
+                [(ngModel)]="originator().channelTypeId"
               >
-                @for (opt of channelTypeOptions; track opt.id) {
+                @for (opt of channelTypeOptions(); track opt.id) {
                   <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
@@ -136,24 +136,24 @@ import {
                 [attr.aria-label]="'LOAN_ORIGINATORS.STATUS' | translate"
                 interface="popover"
                 name="status"
-                [(ngModel)]="originator.status"
+                [(ngModel)]="originator().status"
               >
-                @for (opt of statusOptions; track opt) {
+                @for (opt of statusOptions(); track opt) {
                   <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="originatorForm.invalid || isSaving"
+                [disabled]="originatorForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -189,26 +189,26 @@ export class LoanOriginatorFormComponent implements OnInit {
   private readonly LIST_PATH = '/products/loan-originators';
 
   originatorId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  originator: PostLoanOriginatorsRequest = { name: '' };
-  originatorTypeOptions: GetCodeValuesDataResponse[] = [];
-  channelTypeOptions: GetCodeValuesDataResponse[] = [];
-  statusOptions: string[] = [];
+  readonly originator = signal<PostLoanOriginatorsRequest>({ name: '' });
+  readonly originatorTypeOptions = signal<GetCodeValuesDataResponse[]>([]);
+  readonly channelTypeOptions = signal<GetCodeValuesDataResponse[]>([]);
+  readonly statusOptions = signal<string[]>([]);
 
   ngOnInit(): void {
     this.originatorsService.getLoanOriginatorsTemplate().subscribe((tpl) => {
-      this.originatorTypeOptions = tpl.originatorTypeOptions ?? [];
-      this.channelTypeOptions = tpl.channelTypeOptions ?? [];
-      this.statusOptions = tpl.statusOptions ? Array.from(tpl.statusOptions) : [];
+      this.originatorTypeOptions.set(tpl.originatorTypeOptions ?? []);
+      this.channelTypeOptions.set(tpl.channelTypeOptions ?? []);
+      this.statusOptions.set(tpl.statusOptions ? Array.from(tpl.statusOptions) : []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.originatorId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -217,31 +217,31 @@ export class LoanOriginatorFormComponent implements OnInit {
   load(): void {
     if (!this.originatorId) return;
     this.originatorsService.getLoanOriginatorsOriginatorId(this.originatorId).subscribe((data) => {
-      this.originator = {
+      this.originator.set({
         name: data.name ?? '',
         externalId: data.externalId,
         originatorTypeId: data.originatorType?.id,
         channelTypeId: data.channelType?.id,
         status: data.status,
-      };
+      });
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const request$ =
-      this.isEditMode && this.originatorId
+      this.isEditMode() && this.originatorId
         ? this.originatorsService.putLoanOriginatorsOriginatorId(this.originatorId, {
-            name: this.originator.name,
-            originatorTypeId: this.originator.originatorTypeId,
-            channelTypeId: this.originator.channelTypeId,
-            status: this.originator.status,
+            name: this.originator().name,
+            originatorTypeId: this.originator().originatorTypeId,
+            channelTypeId: this.originator().channelTypeId,
+            status: this.originator().status,
           })
-        : this.originatorsService.postLoanOriginators(this.originator);
+        : this.originatorsService.postLoanOriginators(this.originator());
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

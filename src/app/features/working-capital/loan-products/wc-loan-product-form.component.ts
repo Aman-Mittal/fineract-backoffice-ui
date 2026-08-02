@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -94,7 +94,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('WC_LOAN_PRODUCTS.EDIT' | translate)
                 : ('WC_LOAN_PRODUCTS.CREATE' | translate)
             }}
@@ -115,7 +115,7 @@ import {
                       id="wc-product-name"
                       data-testid="wc-product-name"
                       name="name"
-                      [(ngModel)]="product.name"
+                      [(ngModel)]="product().name"
                       required
                     ></ion-input>
                   </ion-item>
@@ -131,7 +131,7 @@ import {
                       id="wc-product-short-name"
                       data-testid="wc-product-short-name"
                       name="shortName"
-                      [(ngModel)]="product.shortName"
+                      [(ngModel)]="product().shortName"
                       required
                     ></ion-input>
                   </ion-item>
@@ -147,7 +147,7 @@ import {
                       id="wc-product-description"
                       data-testid="wc-product-description"
                       name="description"
-                      [(ngModel)]="product.description"
+                      [(ngModel)]="product().description"
                     ></ion-textarea>
                   </ion-item>
                 </ion-col>
@@ -163,10 +163,10 @@ import {
                       id="wc-product-currency-code"
                       data-testid="wc-product-currency-code"
                       name="currencyCode"
-                      [(ngModel)]="product.currencyCode"
+                      [(ngModel)]="product().currencyCode"
                       required
                     >
-                      @for (opt of currencyOptions; track opt.code) {
+                      @for (opt of currencyOptions(); track opt.code) {
                         <ion-select-option [value]="opt.code"
                           >{{ opt.name }} ({{ opt.code }})</ion-select-option
                         >
@@ -186,7 +186,7 @@ import {
                       data-testid="wc-product-digits-after-decimal"
                       type="number"
                       name="digitsAfterDecimal"
-                      [(ngModel)]="product.digitsAfterDecimal"
+                      [(ngModel)]="product().digitsAfterDecimal"
                       required
                     ></ion-input>
                   </ion-item>
@@ -203,7 +203,7 @@ import {
                       data-testid="wc-product-in-multiples-of"
                       type="number"
                       name="inMultiplesOf"
-                      [(ngModel)]="product.inMultiplesOf"
+                      [(ngModel)]="product().inMultiplesOf"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -219,7 +219,7 @@ import {
                       data-testid="wc-product-principal"
                       type="number"
                       name="principal"
-                      [(ngModel)]="product.principal"
+                      [(ngModel)]="product().principal"
                       required
                     ></ion-input>
                   </ion-item>
@@ -236,7 +236,7 @@ import {
                       data-testid="wc-product-period-payment-rate"
                       type="number"
                       name="periodPaymentRate"
-                      [(ngModel)]="product.periodPaymentRate"
+                      [(ngModel)]="product().periodPaymentRate"
                       required
                     ></ion-input>
                   </ion-item>
@@ -253,7 +253,7 @@ import {
                       data-testid="wc-product-repayment-every"
                       type="number"
                       name="repaymentEvery"
-                      [(ngModel)]="product.repaymentEvery"
+                      [(ngModel)]="product().repaymentEvery"
                       required
                     ></ion-input>
                   </ion-item>
@@ -270,10 +270,10 @@ import {
                       id="wc-product-repayment-frequency"
                       data-testid="wc-product-repayment-frequency"
                       name="repaymentFrequencyType"
-                      [(ngModel)]="product.repaymentFrequencyType"
+                      [(ngModel)]="product().repaymentFrequencyType"
                       required
                     >
-                      @for (opt of repaymentFrequencyTypeOptions; track opt.id) {
+                      @for (opt of repaymentFrequencyTypeOptions(); track opt.id) {
                         <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                       }
                     </ion-select>
@@ -291,10 +291,10 @@ import {
                       id="wc-product-amortization-type"
                       data-testid="wc-product-amortization-type"
                       name="amortizationType"
-                      [(ngModel)]="product.amortizationType"
+                      [(ngModel)]="product().amortizationType"
                       required
                     >
-                      @for (opt of amortizationTypeOptions; track opt.id) {
+                      @for (opt of amortizationTypeOptions(); track opt.id) {
                         <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                       }
                     </ion-select>
@@ -312,7 +312,7 @@ import {
                       data-testid="wc-product-npv-day-count"
                       type="number"
                       name="npvDayCount"
-                      [(ngModel)]="product.npvDayCount"
+                      [(ngModel)]="product().npvDayCount"
                       required
                     ></ion-input>
                   </ion-item>
@@ -329,7 +329,7 @@ import {
                       data-testid="wc-product-min-principal"
                       type="number"
                       name="minPrincipal"
-                      [(ngModel)]="product.minPrincipal"
+                      [(ngModel)]="product().minPrincipal"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -345,7 +345,7 @@ import {
                       data-testid="wc-product-max-principal"
                       type="number"
                       name="maxPrincipal"
-                      [(ngModel)]="product.maxPrincipal"
+                      [(ngModel)]="product().maxPrincipal"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -361,7 +361,7 @@ import {
                       data-testid="wc-product-min-period-payment-rate"
                       type="number"
                       name="minPeriodPaymentRate"
-                      [(ngModel)]="product.minPeriodPaymentRate"
+                      [(ngModel)]="product().minPeriodPaymentRate"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -377,7 +377,7 @@ import {
                       data-testid="wc-product-max-period-payment-rate"
                       type="number"
                       name="maxPeriodPaymentRate"
-                      [(ngModel)]="product.maxPeriodPaymentRate"
+                      [(ngModel)]="product().maxPeriodPaymentRate"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -393,9 +393,9 @@ import {
                       id="wc-product-accounting-rule"
                       data-testid="wc-product-accounting-rule"
                       name="accountingRule"
-                      [(ngModel)]="product.accountingRule"
+                      [(ngModel)]="product().accountingRule"
                     >
-                      @for (opt of accountingRuleOptions; track opt.id) {
+                      @for (opt of accountingRuleOptions(); track opt.id) {
                         <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
                       }
                     </ion-select>
@@ -413,9 +413,9 @@ import {
                       id="wc-product-breach-id"
                       data-testid="wc-product-breach-id"
                       name="breachId"
-                      [(ngModel)]="product.breachId"
+                      [(ngModel)]="product().breachId"
                     >
-                      @for (opt of breachOptions; track opt.id) {
+                      @for (opt of breachOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -433,9 +433,9 @@ import {
                       id="wc-product-near-breach-id"
                       data-testid="wc-product-near-breach-id"
                       name="nearBreachId"
-                      [(ngModel)]="product.nearBreachId"
+                      [(ngModel)]="product().nearBreachId"
                     >
-                      @for (opt of nearBreachOptions; track opt.id) {
+                      @for (opt of nearBreachOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -453,9 +453,9 @@ import {
                       id="wc-product-delinquency-bucket-id"
                       data-testid="wc-product-delinquency-bucket-id"
                       name="delinquencyBucketId"
-                      [(ngModel)]="product.delinquencyBucketId"
+                      [(ngModel)]="product().delinquencyBucketId"
                     >
-                      @for (opt of delinquencyBucketOptions; track opt.id) {
+                      @for (opt of delinquencyBucketOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -473,9 +473,9 @@ import {
                       id="wc-product-fund-id"
                       data-testid="wc-product-fund-id"
                       name="fundId"
-                      [(ngModel)]="product.fundId"
+                      [(ngModel)]="product().fundId"
                     >
-                      @for (opt of fundOptions; track opt.id) {
+                      @for (opt of fundOptions(); track opt.id) {
                         <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                       }
                     </ion-select>
@@ -515,7 +515,8 @@ import {
                           data-testid="wc-product-close-date"
                           presentation="date"
                           name="closeDate"
-                          [(ngModel)]="closeDate"
+                          [ngModel]="closeDate()"
+                          (ngModelChange)="closeDate.set($event)"
                         ></ion-datetime>
                       </ng-template>
                     </ion-modal>
@@ -532,7 +533,7 @@ import {
                       id="wc-product-external-id"
                       data-testid="wc-product-external-id"
                       name="externalId"
-                      [(ngModel)]="product.externalId"
+                      [(ngModel)]="product().externalId"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -547,7 +548,7 @@ import {
                 color="medium"
                 type="button"
                 (click)="onCancel()"
-                [disabled]="isSaving"
+                [disabled]="isSaving()"
               >
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -556,9 +557,9 @@ import {
                 data-testid="wc-product-submit-btn"
                 color="primary"
                 type="submit"
-                [disabled]="productForm.invalid || isSaving"
+                [disabled]="productForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -605,39 +606,39 @@ export class WcLoanProductFormComponent implements OnInit {
   private readonly LIST_PATH = '/working-capital/loan-products';
 
   productId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  product: Partial<PostWorkingCapitalLoanProductsRequest> = {};
+  readonly product = signal<Partial<PostWorkingCapitalLoanProductsRequest>>({});
   startDate: string | null = null;
-  closeDate: string | null = null;
+  readonly closeDate = signal<string | null>(null);
 
-  currencyOptions: CurrencyData[] = [];
-  amortizationTypeOptions: StringEnumOptionData[] = [];
-  repaymentFrequencyTypeOptions: StringEnumOptionData[] = [];
-  accountingRuleOptions: StringEnumOptionData[] = [];
-  breachOptions: WorkingCapitalBreachData[] = [];
-  nearBreachOptions: WorkingCapitalNearBreachData[] = [];
-  delinquencyBucketOptions: GetDelinquencyBucket[] = [];
-  fundOptions: FundData[] = [];
+  readonly currencyOptions = signal<CurrencyData[]>([]);
+  readonly amortizationTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly repaymentFrequencyTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly accountingRuleOptions = signal<StringEnumOptionData[]>([]);
+  readonly breachOptions = signal<WorkingCapitalBreachData[]>([]);
+  readonly nearBreachOptions = signal<WorkingCapitalNearBreachData[]>([]);
+  readonly delinquencyBucketOptions = signal<GetDelinquencyBucket[]>([]);
+  readonly fundOptions = signal<FundData[]>([]);
 
   ngOnInit(): void {
     this.productService.getWorkingCapitalLoanProductsTemplate().subscribe((tpl) => {
-      this.currencyOptions = tpl.currencyOptions ?? [];
-      this.amortizationTypeOptions = tpl.amortizationTypeOptions ?? [];
-      this.repaymentFrequencyTypeOptions = tpl.periodFrequencyTypeOptions ?? [];
-      this.accountingRuleOptions = tpl.accountingRuleOptions ?? [];
-      this.breachOptions = tpl.breachOptions ?? [];
-      this.nearBreachOptions = tpl.nearBreachOptions ?? [];
-      this.delinquencyBucketOptions = tpl.delinquencyBucketOptions ?? [];
-      this.fundOptions = tpl.fundOptions ?? [];
+      this.currencyOptions.set(tpl.currencyOptions ?? []);
+      this.amortizationTypeOptions.set(tpl.amortizationTypeOptions ?? []);
+      this.repaymentFrequencyTypeOptions.set(tpl.periodFrequencyTypeOptions ?? []);
+      this.accountingRuleOptions.set(tpl.accountingRuleOptions ?? []);
+      this.breachOptions.set(tpl.breachOptions ?? []);
+      this.nearBreachOptions.set(tpl.nearBreachOptions ?? []);
+      this.delinquencyBucketOptions.set(tpl.delinquencyBucketOptions ?? []);
+      this.fundOptions.set(tpl.fundOptions ?? []);
     });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.load();
       }
     });
@@ -646,7 +647,7 @@ export class WcLoanProductFormComponent implements OnInit {
   load(): void {
     if (!this.productId) return;
     this.productService.getWorkingCapitalLoanProductsProductId(this.productId).subscribe((data) => {
-      this.product = {
+      this.product.set({
         name: data.name,
         shortName: data.shortName,
         description: data.description,
@@ -672,34 +673,36 @@ export class WcLoanProductFormComponent implements OnInit {
         delinquencyBucketId: data.delinquencyBucket?.id,
         fundId: data.fundId,
         externalId: data.externalId,
-      };
+      });
       if (data.closeDate) {
         const cd = data.closeDate as unknown as number[];
-        this.closeDate = Array.isArray(cd)
-          ? toIsoDate(new Date(cd[0], cd[1] - 1, cd[2]))
-          : toIsoDate(new Date(data.closeDate));
+        this.closeDate.set(
+          Array.isArray(cd)
+            ? toIsoDate(new Date(cd[0], cd[1] - 1, cd[2]))
+            : toIsoDate(new Date(data.closeDate)),
+        );
       }
     });
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const payload: PostWorkingCapitalLoanProductsRequest = {
-      ...this.product,
+      ...this.product(),
       locale: FINERACT_LOCALE,
       dateFormat: FINERACT_DATE_FORMAT,
     };
     if (this.startDate) payload.startDate = formatDateToFineract(this.startDate);
-    if (this.closeDate) payload.closeDate = formatDateToFineract(this.closeDate);
+    if (this.closeDate()) payload.closeDate = formatDateToFineract(this.closeDate());
 
     const request$ =
-      this.isEditMode && this.productId
+      this.isEditMode() && this.productId
         ? this.productService.putWorkingCapitalLoanProductsProductId(this.productId, payload)
         : this.productService.postWorkingCapitalLoanProducts(payload);
 
     request$.subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),
-      error: () => (this.isSaving = false),
+      error: () => this.isSaving.set(false),
     });
   }
 

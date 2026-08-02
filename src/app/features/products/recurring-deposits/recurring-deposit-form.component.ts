@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -94,7 +94,7 @@ import {
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('RECURRING_DEPOSITS.EDIT' | translate)
                 : ('RECURRING_DEPOSITS.CREATE' | translate)
             }}
@@ -137,11 +137,11 @@ import {
                     [attr.aria-label]="'COMMON.PRODUCT' | translate"
                     interface="popover"
                     name="productId"
-                    [(ngModel)]="account['productId']"
+                    [(ngModel)]="account()['productId']"
                     required
-                    [disabled]="isEditMode"
+                    [disabled]="isEditMode()"
                   >
-                    @for (product of products; track product['id']) {
+                    @for (product of products(); track product['id']) {
                       <ion-select-option [value]="product['id']">{{
                         product['name']
                       }}</ion-select-option>
@@ -163,7 +163,7 @@ import {
                   [appTooltip]="'PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT' | translate"
                   (click)="onCreateProduct()"
                   style="margin-top: 4px;"
-                  [disabled]="isEditMode"
+                  [disabled]="isEditMode()"
                 >
                   <ion-icon color="primary" name="add-circle-outline"></ion-icon>
                 </ion-button>
@@ -179,7 +179,7 @@ import {
                   [attr.aria-label]="'COMMON.AMOUNT' | translate"
                   type="number"
                   name="mandatoryRecommendedDepositAmount"
-                  [(ngModel)]="account['mandatoryRecommendedDepositAmount']"
+                  [(ngModel)]="account()['mandatoryRecommendedDepositAmount']"
                   required
                 ></ion-input>
               </ion-item>
@@ -195,7 +195,8 @@ import {
                       data-testid="submittedOnDate-picker"
                       presentation="date"
                       name="submittedOnDate"
-                      [(ngModel)]="submittedOnDate"
+                      [ngModel]="submittedOnDate()"
+                      (ngModelChange)="submittedOnDate.set($event)"
                       required
                     ></ion-datetime>
                   </ng-template>
@@ -209,7 +210,7 @@ import {
                   [attr.aria-label]="'COMMON.PERIOD' | translate"
                   type="number"
                   name="depositPeriod"
-                  [(ngModel)]="account['depositPeriod']"
+                  [(ngModel)]="account()['depositPeriod']"
                   required
                 ></ion-input>
               </ion-item>
@@ -221,7 +222,7 @@ import {
                   [attr.aria-label]="'COMMON.FREQUENCY' | translate"
                   interface="popover"
                   name="depositPeriodFrequencyId"
-                  [(ngModel)]="account['depositPeriodFrequencyId']"
+                  [(ngModel)]="account()['depositPeriodFrequencyId']"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
@@ -237,7 +238,7 @@ import {
                 </ion-select>
               </ion-item>
 
-              @if (!isEditMode) {
+              @if (!isEditMode()) {
                 <!-- Is Calendar Inherited -->
                 <div class="checkbox-container">
                   <ion-checkbox name="isCalendarInherited" [(ngModel)]="isCalendarInherited">
@@ -263,7 +264,7 @@ import {
                       [attr.aria-label]="'RECURRING_DEPOSITS.RECURRING_FREQUENCY' | translate"
                       type="number"
                       name="recurringFrequency"
-                      [(ngModel)]="account['recurringFrequency']"
+                      [(ngModel)]="account()['recurringFrequency']"
                       [required]="!isCalendarInherited"
                     ></ion-input>
                   </ion-item>
@@ -276,7 +277,7 @@ import {
                       [attr.aria-label]="'RECURRING_DEPOSITS.FREQUENCY_TYPE' | translate"
                       interface="popover"
                       name="recurringFrequencyType"
-                      [(ngModel)]="account['recurringFrequencyType']"
+                      [(ngModel)]="account()['recurringFrequencyType']"
                       [required]="!isCalendarInherited"
                     >
                       <ion-select-option [value]="0">{{
@@ -298,15 +299,15 @@ import {
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="accountForm.invalid || isSaving"
+                [disabled]="accountForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -375,21 +376,21 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   /** Account identifier */
   accountId: number | null = null;
   /** Edit mode flag */
-  isEditMode = false;
+  readonly isEditMode = signal(false);
   /** Save state */
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   /** Post request model */
-  account: Record<string, unknown> = {
+  readonly account = signal<Record<string, unknown>>({
     depositPeriodFrequencyId: 2, // Default to Months
     recurringFrequency: 1, // Default to 1
     recurringFrequencyType: 2, // Default to Months
-  };
+  });
   isCalendarInherited = false;
   /** Submitted date for template binding */
-  submittedOnDate = toIsoDate(new Date());
+  readonly submittedOnDate = signal(toIsoDate(new Date()));
   /** Available products list */
-  products: GetRecurringProductOptions[] = [];
+  readonly products = signal<GetRecurringProductOptions[]>([]);
 
   /**
    * Component initialization.
@@ -398,8 +399,8 @@ export class RecurringDepositAccountFormComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const clientId = params['clientId'];
       if (clientId) {
-        this.account['clientId'] = +clientId;
-        this.loadProducts(this.account['clientId'] as number);
+        this.account()['clientId'] = +clientId;
+        this.loadProducts(this.account()['clientId'] as number);
       } else {
         this.loadProducts();
       }
@@ -409,14 +410,14 @@ export class RecurringDepositAccountFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.accountId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadAccountData();
       }
     });
   }
 
   getClientId(): number | null {
-    return (this.account['clientId'] as number) || null;
+    return (this.account()['clientId'] as number) || null;
   }
 
   /**
@@ -433,20 +434,20 @@ export class RecurringDepositAccountFormComponent implements OnInit {
     this.rdService.getRecurringdepositaccountsTemplate(clientId).subscribe({
       next: (template: GetRecurringDepositAccountsTemplateResponse) => {
         if (template && template.productOptions) {
-          this.products = Array.from(template.productOptions);
+          this.products.set(Array.from(template.productOptions));
         } else {
-          this.products = [];
+          this.products.set([]);
         }
       },
       error: () => {
         this.notifications.error('Operation failed. Please try again.');
-        this.products = [];
+        this.products.set([]);
       },
     });
   }
 
   onClientSelected(clientId: number): void {
-    this.account['clientId'] = clientId;
+    this.account()['clientId'] = clientId;
     this.loadProducts(clientId);
   }
 
@@ -463,15 +464,17 @@ export class RecurringDepositAccountFormComponent implements OnInit {
       next: (data: GetRecurringDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
-          this.submittedOnDate = toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2]));
+          this.submittedOnDate.set(
+            toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2])),
+          );
         }
-        this.account = {
+        this.account.set({
           clientId: data.clientId,
           productId: data.savingsProductId,
           mandatoryRecommendedDepositAmount: data.recurringDepositAmount,
           depositPeriod: data.depositPeriod,
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
-        };
+        });
       },
       error: () => this.notifications.error('Operation failed. Please try again.'),
     });
@@ -481,28 +484,28 @@ export class RecurringDepositAccountFormComponent implements OnInit {
    * Handles form submission.
    */
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    this.account['submittedOnDate'] = formatDateToFineract(this.submittedOnDate);
-    this.account['dateFormat'] = FINERACT_DATE_FORMAT;
-    this.account['locale'] = FINERACT_LOCALE;
+    this.account()['submittedOnDate'] = formatDateToFineract(this.submittedOnDate());
+    this.account()['dateFormat'] = FINERACT_DATE_FORMAT;
+    this.account()['locale'] = FINERACT_LOCALE;
 
-    if (this.isEditMode && this.accountId) {
+    if (this.isEditMode() && this.accountId) {
       const payload: Record<string, unknown> = {
-        depositAmount: this.account['mandatoryRecommendedDepositAmount'],
-        depositPeriod: this.account['depositPeriod'],
-        depositPeriodFrequencyId: this.account['depositPeriodFrequencyId'],
+        depositAmount: this.account()['mandatoryRecommendedDepositAmount'],
+        depositPeriod: this.account()['depositPeriod'],
+        depositPeriodFrequencyId: this.account()['depositPeriodFrequencyId'],
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
       };
 
       this.rdService.putRecurringdepositaccountsAccountId(this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
       const payload: Record<string, unknown> = {
-        ...this.account,
+        ...this.account(),
         isCalendarInherited: this.isCalendarInherited,
       };
 
@@ -522,7 +525,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         .postRecurringdepositaccounts(payload as PostRecurringDepositAccountsRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }

@@ -73,14 +73,15 @@ import {
                 <ion-textarea
                   [attr.aria-label]="'TWO_FACTOR_CONFIG.CONFIG_JSON' | translate"
                   name="configJson"
-                  [(ngModel)]="configJson"
+                  [ngModel]="configJson()"
+                  (ngModelChange)="configJson.set($event)"
                   rows="14"
-                  [disabled]="isSaving"
+                  [disabled]="isSaving()"
                 ></ion-textarea>
               </ion-item>
               <div class="actions">
-                <ion-button color="primary" type="submit" [disabled]="isSaving">
-                  @if (isSaving) {
+                <ion-button color="primary" type="submit" [disabled]="isSaving()">
+                  @if (isSaving()) {
                     <ion-spinner name="crescent"></ion-spinner>
                   }
                   {{ 'TWO_FACTOR_CONFIG.SAVE' | translate }}
@@ -128,9 +129,9 @@ export class TwoFactorConfigComponent implements OnInit {
   private notifications = inject(NotificationService);
   private translate = inject(TranslateService);
 
-  configJson = '';
+  readonly configJson = signal('');
   readonly isLoading = signal(false);
-  isSaving = false;
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.isLoading.set(true);
@@ -138,9 +139,9 @@ export class TwoFactorConfigComponent implements OnInit {
       next: (raw: string) => {
         try {
           const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-          this.configJson = JSON.stringify(parsed, null, 2);
+          this.configJson.set(JSON.stringify(parsed, null, 2));
         } catch {
-          this.configJson = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
+          this.configJson.set(typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2));
         }
         this.isLoading.set(false);
       },
@@ -153,7 +154,7 @@ export class TwoFactorConfigComponent implements OnInit {
   onSave(): void {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(this.configJson);
+      parsed = JSON.parse(this.configJson());
     } catch {
       this.translate.get('TWO_FACTOR_CONFIG.PARSE_ERROR').subscribe((msg: string) => {
         this.notifications.success(msg);
@@ -161,16 +162,16 @@ export class TwoFactorConfigComponent implements OnInit {
       return;
     }
 
-    this.isSaving = true;
+    this.isSaving.set(true);
     this.defaultService.putTwofactorConfigure(JSON.stringify(parsed)).subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.translate.get('TWO_FACTOR_CONFIG.SUCCESS').subscribe((msg: string) => {
           this.notifications.success(msg);
         });
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
       },
     });
   }

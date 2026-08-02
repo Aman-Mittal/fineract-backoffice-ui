@@ -66,7 +66,7 @@ describe('MeetingsListComponent', () => {
   it('should load meetings on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityTypeEntityIdMeetings).toHaveBeenCalledWith('groups', 1);
-    expect(component.meetings).toHaveSize(1);
+    expect(component.meetings()).toHaveSize(1);
   });
 
   it('should navigate to edit with the entity and meeting ids', () => {

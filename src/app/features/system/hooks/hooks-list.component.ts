@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -46,8 +46,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.HOOKS_DESC"
       createButtonLabel="HOOKS.CREATE"
       [columns]="columns"
-      [data]="hooks"
-      [totalRecords]="hooks.length"
+      [data]="hooks()"
+      [totalRecords]="hooks().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -88,7 +88,7 @@ export class HooksListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  hooks: HookData[] = [];
+  readonly hooks = signal<HookData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -97,7 +97,7 @@ export class HooksListComponent implements OnInit {
   load(): void {
     this.hooksService.getHooks().subscribe({
       next: (data: HookData[]) => {
-        this.hooks = data || [];
+        this.hooks.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load hooks', err);

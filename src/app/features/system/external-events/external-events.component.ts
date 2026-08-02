@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExternalEventConfigurationService } from '../../../api';
@@ -63,7 +63,7 @@ interface EventToggle {
 
         <ion-card-content>
           <div class="event-list">
-            @for (event of events; track event.type) {
+            @for (event of events(); track event.type) {
               <ion-toggle [(ngModel)]="event.enabled">{{ event.type }}</ion-toggle>
             }
           </div>
@@ -72,10 +72,10 @@ interface EventToggle {
             <ion-button
               color="primary"
               type="button"
-              [disabled]="!events.length || isSaving"
+              [disabled]="!events().length || isSaving()"
               (click)="onSave()"
             >
-              @if (isSaving) {
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -105,8 +105,8 @@ interface EventToggle {
 export class ExternalEventsComponent implements OnInit {
   private readonly service = inject(ExternalEventConfigurationService);
 
-  events: EventToggle[] = [];
-  isSaving = false;
+  readonly events = signal<EventToggle[]>([]);
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -114,22 +114,24 @@ export class ExternalEventsComponent implements OnInit {
 
   load(): void {
     this.service.getExternaleventsConfiguration().subscribe((data) => {
-      this.events = (data.externalEventConfiguration ?? []).map((item) => ({
-        type: item.type ?? '',
-        enabled: item.enabled ?? false,
-      }));
+      this.events.set(
+        (data.externalEventConfiguration ?? []).map((item) => ({
+          type: item.type ?? '',
+          enabled: item.enabled ?? false,
+        })),
+      );
     });
   }
 
   onSave(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
     const externalEventConfigurations: Record<string, boolean> = {};
-    for (const event of this.events) {
+    for (const event of this.events()) {
       externalEventConfigurations[event.type] = event.enabled;
     }
     this.service.putExternaleventsConfiguration({ externalEventConfigurations }).subscribe({
-      next: () => (this.isSaving = false),
-      error: () => (this.isSaving = false),
+      next: () => this.isSaving.set(false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

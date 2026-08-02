@@ -63,7 +63,7 @@ describe('RunReportComponent', () => {
 
   it('should create and read the report name from the route', () => {
     expect(component).toBeTruthy();
-    expect(component.reportName).toBe(REPORT_NAME);
+    expect(component.reportName()).toBe(REPORT_NAME);
   });
 
   it('should run the report with positionally-correct arguments (no self-service flag)', () => {

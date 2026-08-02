@@ -74,12 +74,12 @@ describe('OidcConfigComponent', () => {
   it('should parse the config string on load', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getTenantsTenantIdOidcConfig).toHaveBeenCalledWith('default');
-    expect(component.config.issuer).toBe('https://idp');
+    expect(component.config().issuer).toBe('https://idp');
     expect(component.exists).toBeTrue();
   });
 
   it('should update via put when config exists', () => {
-    component.config = { issuer: NEW_ISSUER };
+    component.config.set({ issuer: NEW_ISSUER });
     component.onSave();
     expect(serviceSpy.putTenantsTenantIdOidcConfig).toHaveBeenCalledWith(
       'default',
@@ -89,7 +89,7 @@ describe('OidcConfigComponent', () => {
 
   it('should create via post when no config exists', () => {
     component.exists = false;
-    component.config = { issuer: NEW_ISSUER };
+    component.config.set({ issuer: NEW_ISSUER });
     component.onSave();
     expect(serviceSpy.postTenantsTenantIdOidcConfig).toHaveBeenCalled();
   });

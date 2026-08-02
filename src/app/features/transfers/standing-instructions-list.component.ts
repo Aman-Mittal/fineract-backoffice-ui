@@ -97,8 +97,8 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
 export class StandingInstructionsListComponent implements OnInit {
   private readonly instructionsService = inject(StandingInstructionsService);
 
-  instructions = signal<GetPageItemsStandingInstructionSwagger[]>([]);
-  isLoading = signal<boolean>(false);
+  readonly instructions = signal<GetPageItemsStandingInstructionSwagger[]>([]);
+  readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME' },

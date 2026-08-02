@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -61,8 +61,8 @@ interface ShareDividendRow {
       helpTextKey="HELP.SHARE_DIVIDENDS_DESC"
       createButtonLabel="SHARE_DIVIDENDS.CREATE"
       [columns]="columns"
-      [data]="dividends"
-      [totalRecords]="dividends.length"
+      [data]="dividends()"
+      [totalRecords]="dividends().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -99,7 +99,7 @@ export class ShareDividendsListComponent implements OnInit {
   ];
 
   productId!: number;
-  dividends: ShareDividendRow[] = [];
+  readonly dividends = signal<ShareDividendRow[]>([]);
 
   formatDate = formatArrayDate;
 
@@ -111,7 +111,7 @@ export class ShareDividendsListComponent implements OnInit {
   load(): void {
     this.selfDividendService.getShareproductProductIdDividend(this.productId).subscribe({
       next: (data: string) => {
-        this.dividends = this.parseDividends(data);
+        this.dividends.set(this.parseDividends(data));
       },
       error: (err: unknown) => console.error('Failed to load share dividends', err),
     });

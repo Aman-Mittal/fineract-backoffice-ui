@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,8 +44,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.CASHIERS_DESC"
       createButtonLabel="TELLERS.ALLOCATE_CASHIER"
       [columns]="columns"
-      [data]="cashiers"
-      [totalRecords]="cashiers.length"
+      [data]="cashiers()"
+      [totalRecords]="cashiers().length"
       [localLogic]="true"
       (create)="onAllocateCashier()"
     >
@@ -93,7 +93,7 @@ export class CashiersListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  cashiers: CashierData[] = [];
+  readonly cashiers = signal<CashierData[]>([]);
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -107,7 +107,7 @@ export class CashiersListComponent implements OnInit {
     // Defaulting to undefined for officeId to fetch based on teller context.
     this.cashiersService.getCashiers(undefined, this.tellerId).subscribe({
       next: (data: CashierData[]) => {
-        this.cashiers = data || [];
+        this.cashiers.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load cashiers', err);

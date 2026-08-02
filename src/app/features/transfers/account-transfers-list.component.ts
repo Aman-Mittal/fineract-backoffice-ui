@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
@@ -51,8 +51,8 @@ import {
       <ion-card-content>
         <app-data-table
           [columns]="columns"
-          [data]="transfers"
-          [isLoading]="isLoading"
+          [data]="transfers()"
+          [isLoading]="isLoading()"
           [localLogic]="true"
         >
           <ng-template appCellTemplate="transferAmount" let-row>
@@ -80,8 +80,8 @@ import {
   ],
 })
 export class AccountTransfersListComponent implements OnInit {
-  transfers: GetAccountTransfersPageItems[] = [];
-  isLoading = false;
+  readonly transfers = signal<GetAccountTransfersPageItems[]>([]);
+  readonly isLoading = signal(false);
 
   columns: ColumnDef[] = [
     { key: 'id', label: 'TRANSFERS.ID' },
@@ -100,14 +100,14 @@ export class AccountTransfersListComponent implements OnInit {
   }
 
   loadTransfers(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.accountTransfersService.getAccounttransfers().subscribe({
       next: (response: GetAccountTransfersResponse) => {
-        this.transfers = Array.from(response.pageItems ?? []);
-        this.isLoading = false;
+        this.transfers.set(Array.from(response.pageItems ?? []));
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

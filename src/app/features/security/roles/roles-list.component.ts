@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,8 +43,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.ROLES_DESC"
       createButtonLabel="ROLES.CREATE"
       [columns]="columns"
-      [data]="roles"
-      [totalRecords]="roles.length"
+      [data]="roles()"
+      [totalRecords]="roles().length"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateRole()"
@@ -73,7 +73,7 @@ export class RolesListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  roles: GetRolesResponse[] = [];
+  readonly roles = signal<GetRolesResponse[]>([]);
 
   ngOnInit(): void {
     this.loadRoles();
@@ -82,7 +82,7 @@ export class RolesListComponent implements OnInit {
   private loadRoles(): void {
     this.rolesService.getRoles().subscribe({
       next: (data) => {
-        this.roles = data || [];
+        this.roles.set(data || []);
       },
       error: (err) => console.error('Failed to load roles', err),
     });

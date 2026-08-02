@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { BusinessStepConfigurationService, BusinessStep } from '../../../api';
@@ -75,15 +75,15 @@ import {
               [(ngModel)]="selectedJob"
               (ionChange)="loadSteps()"
             >
-              @for (job of jobNames; track job) {
+              @for (job of jobNames(); track job) {
                 <ion-select-option [value]="job">{{ job }}</ion-select-option>
               }
             </ion-select>
           </ion-item>
 
-          @if (steps.length) {
+          @if (steps().length) {
             <ion-list>
-              @for (step of steps; track step.stepName; let i = $index) {
+              @for (step of steps(); track step.stepName; let i = $index) {
                 <ion-item>
                   <span>{{ step.stepName }}</span>
                   <span matListItemMeta>
@@ -93,7 +93,7 @@ import {
                     <ion-button
                       fill="clear"
                       type="button"
-                      [disabled]="i === steps.length - 1"
+                      [disabled]="i === steps().length - 1"
                       (click)="moveDown(i)"
                     >
                       <ion-icon name="arrow-down-outline"></ion-icon>
@@ -110,10 +110,10 @@ import {
             <ion-button
               color="primary"
               type="button"
-              [disabled]="!steps.length || isSaving"
+              [disabled]="!steps().length || isSaving()"
               (click)="onSave()"
             >
-              @if (isSaving) {
+              @if (isSaving()) {
                 <ion-spinner name="crescent"></ion-spinner>
                 {{ 'COMMON.SAVING' | translate }}
               } @else {
@@ -138,44 +138,46 @@ import {
 export class BusinessStepsComponent implements OnInit {
   private readonly service = inject(BusinessStepConfigurationService);
 
-  jobNames: string[] = [];
+  readonly jobNames = signal<string[]>([]);
   selectedJob = '';
-  steps: BusinessStep[] = [];
-  isSaving = false;
+  readonly steps = signal<BusinessStep[]>([]);
+  readonly isSaving = signal(false);
 
   ngOnInit(): void {
     this.service.getJobsNames().subscribe((data) => {
-      this.jobNames = data.businessJobs ?? [];
+      this.jobNames.set(data.businessJobs ?? []);
     });
   }
 
   loadSteps(): void {
     if (!this.selectedJob) return;
     this.service.getJobsJobNameSteps(this.selectedJob).subscribe((data) => {
-      this.steps = [...(data.businessSteps ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      this.steps.set(
+        [...(data.businessSteps ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+      );
     });
   }
 
   moveUp(index: number): void {
     if (index <= 0) return;
-    [this.steps[index - 1], this.steps[index]] = [this.steps[index], this.steps[index - 1]];
+    [this.steps()[index - 1], this.steps()[index]] = [this.steps()[index], this.steps()[index - 1]];
   }
 
   moveDown(index: number): void {
-    if (index >= this.steps.length - 1) return;
-    [this.steps[index + 1], this.steps[index]] = [this.steps[index], this.steps[index + 1]];
+    if (index >= this.steps().length - 1) return;
+    [this.steps()[index + 1], this.steps()[index]] = [this.steps()[index], this.steps()[index + 1]];
   }
 
   onSave(): void {
     if (!this.selectedJob) return;
-    this.isSaving = true;
-    const businessSteps: BusinessStep[] = this.steps.map((step, i) => ({
+    this.isSaving.set(true);
+    const businessSteps: BusinessStep[] = this.steps().map((step, i) => ({
       stepName: step.stepName,
       order: i + 1,
     }));
     this.service.putJobsJobNameSteps(this.selectedJob, { businessSteps }).subscribe({
-      next: () => (this.isSaving = false),
-      error: () => (this.isSaving = false),
+      next: () => this.isSaving.set(false),
+      error: () => this.isSaving.set(false),
     });
   }
 }

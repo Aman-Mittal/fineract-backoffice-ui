@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -53,8 +53,8 @@ import {
       helpTextKey="HELP.WC_LOAN_PRODUCTS_DESC"
       createButtonLabel="WC_LOAN_PRODUCTS.CREATE"
       [columns]="columns"
-      [data]="products"
-      [totalRecords]="products.length"
+      [data]="products()"
+      [totalRecords]="products().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -96,7 +96,7 @@ export class WcLoanProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: GetWorkingCapitalLoanProductsResponse[] = [];
+  readonly products = signal<GetWorkingCapitalLoanProductsResponse[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -105,7 +105,7 @@ export class WcLoanProductsListComponent implements OnInit {
   load(): void {
     this.productService.getWorkingCapitalLoanProducts().subscribe({
       next: (data: GetWorkingCapitalLoanProductsResponse[]) => {
-        this.products = data || [];
+        this.products.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load working-capital loan products', err);

@@ -64,8 +64,8 @@ describe('ScorecardsComponent', () => {
   it('should load and flatten scorecards on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSurveysScorecardsSurveyId).toHaveBeenCalledWith(4);
-    expect(component.rows).toHaveSize(1);
-    expect(component.rows[0].client).toBe('John Doe');
-    expect(component.rows[0].question).toBe('How many?');
+    expect(component.rows()).toHaveSize(1);
+    expect(component.rows()[0].client).toBe('John Doe');
+    expect(component.rows()[0].question).toBe('How many?');
   });
 });

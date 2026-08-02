@@ -152,7 +152,7 @@ export class OfficeTransactionsListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
 
-  transactions = signal<OfficeTransaction[]>([]);
+  readonly transactions = signal<OfficeTransaction[]>([]);
 
   readonly displayedColumns = [
     'id',

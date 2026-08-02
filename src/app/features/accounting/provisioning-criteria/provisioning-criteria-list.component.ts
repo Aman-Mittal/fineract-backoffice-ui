@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -47,8 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.PROVISIONING_CRITERIA_DESC"
       createButtonLabel="PROVISIONING_CRITERIA.CREATE"
       [columns]="columns"
-      [data]="criteria"
-      [totalRecords]="criteria.length"
+      [data]="criteria()"
+      [totalRecords]="criteria().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -85,7 +85,7 @@ export class ProvisioningCriteriaListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  criteria: GetProvisioningCriteriaResponse[] = [];
+  readonly criteria = signal<GetProvisioningCriteriaResponse[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -94,7 +94,7 @@ export class ProvisioningCriteriaListComponent implements OnInit {
   load(): void {
     this.criteriaService.getProvisioningcriteria().subscribe({
       next: (data: GetProvisioningCriteriaResponse[]) => {
-        this.criteria = data || [];
+        this.criteria.set(data || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load provisioning criteria', err);

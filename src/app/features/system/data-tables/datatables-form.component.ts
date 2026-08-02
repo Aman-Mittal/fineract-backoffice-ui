@@ -82,7 +82,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'SYSTEM.TABLE_NAME' | translate"
                   name="datatableName"
-                  [(ngModel)]="datatable.datatableName"
+                  [(ngModel)]="datatable().datatableName"
                   required
                   [disabled]="isEditMode"
                 ></ion-input>
@@ -94,7 +94,7 @@ import {
                   [attr.aria-label]="'SYSTEM.APP_TABLE' | translate"
                   interface="popover"
                   name="apptableName"
-                  [(ngModel)]="datatable.apptableName"
+                  [(ngModel)]="datatable().apptableName"
                   required
                   [disabled]="isEditMode"
                 >
@@ -108,7 +108,7 @@ import {
             <div class="checkbox-row">
               <ion-checkbox
                 name="multiRow"
-                [(ngModel)]="datatable.multiRow"
+                [(ngModel)]="datatable().multiRow"
                 [disabled]="isEditMode"
               >
                 {{ 'SYSTEM.MULTI_ROW' | translate }}
@@ -118,7 +118,7 @@ import {
             <div class="columns-section">
               <h3>{{ 'SYSTEM.COLUMNS' | translate }}</h3>
 
-              @for (column of datatable.columns; track $index; let i = $index) {
+              @for (column of datatable().columns; track $index; let i = $index) {
                 <div class="column-row">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
@@ -285,7 +285,7 @@ export class DatatablesFormComponent implements OnInit {
 
   isEditMode = false;
   datatableName?: string;
-  codes = signal<GetCodesResponse[]>([]);
+  readonly codes = signal<GetCodesResponse[]>([]);
 
   appTables = [
     'm_client',
@@ -300,12 +300,12 @@ export class DatatablesFormComponent implements OnInit {
 
   columnTypes = ['String', 'Number', 'Decimal', 'Boolean', 'Date', 'DateTime', 'Dropdown', 'Text'];
 
-  datatable: PostDataTablesRequest = {
+  readonly datatable = signal<PostDataTablesRequest>({
     datatableName: '',
     apptableName: '',
     multiRow: false,
     columns: [],
-  };
+  });
 
   ngOnInit(): void {
     this.loadCodes();
@@ -324,7 +324,7 @@ export class DatatablesFormComponent implements OnInit {
 
   loadDatatableData(): void {
     this.datatablesService.getDatatablesDatatable(this.datatableName!).subscribe((data) => {
-      this.datatable = {
+      this.datatable.set({
         datatableName: data.registeredTableName!,
         apptableName: data.applicationTableName!,
         columns: (data.columnHeaderData || []).map((col) => ({
@@ -334,12 +334,12 @@ export class DatatablesFormComponent implements OnInit {
           length: col.columnLength,
           code: col.columnCode,
         })),
-      };
+      });
     });
   }
 
   addColumn(): void {
-    this.datatable.columns.push({
+    this.datatable().columns.push({
       name: '',
       type: 'String',
       mandatory: false,
@@ -348,7 +348,7 @@ export class DatatablesFormComponent implements OnInit {
   }
 
   removeColumn(index: number): void {
-    this.datatable.columns.splice(index, 1);
+    this.datatable().columns.splice(index, 1);
   }
 
   onSubmit(): void {
@@ -356,13 +356,13 @@ export class DatatablesFormComponent implements OnInit {
       // Fineract only supports changing column names/types/codes in specific ways via updateDatatable
       // but usually definitions are somewhat immutable. We use the service's updateDatatable.
       this.datatablesService
-        .putDatatablesDatatableName(this.datatableName!, this.datatable)
+        .putDatatablesDatatableName(this.datatableName!, this.datatable())
         .subscribe({
           next: () => this.router.navigate([this.dtListPath]),
           error: (err) => console.error('Failed to update datatable', err),
         });
     } else {
-      this.datatablesService.postDatatables(this.datatable).subscribe({
+      this.datatablesService.postDatatables(this.datatable()).subscribe({
         next: () => this.router.navigate([this.dtListPath]),
         error: (err) => console.error('Failed to create datatable', err),
       });

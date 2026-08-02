@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -48,8 +48,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="CLIENT_TRANSACTIONS.TITLE"
       helpTextKey="HELP.CLIENT_TRANSACTIONS_DESC"
       [columns]="columns"
-      [data]="transactions"
-      [totalRecords]="transactions.length"
+      [data]="transactions()"
+      [totalRecords]="transactions().length"
       [localLogic]="true"
     >
       <ng-template appCellTemplate="date" let-row>
@@ -86,7 +86,7 @@ export class ClientTransactionsListComponent implements OnInit {
   ];
 
   clientId!: number;
-  transactions: GetClientsPageItems[] = [];
+  readonly transactions = signal<GetClientsPageItems[]>([]);
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -96,7 +96,7 @@ export class ClientTransactionsListComponent implements OnInit {
   load(): void {
     this.transactionService.getClientsClientIdTransactions(this.clientId).subscribe({
       next: (data) => {
-        this.transactions = data?.pageItems ? Array.from(data.pageItems) : [];
+        this.transactions.set(data?.pageItems ? Array.from(data.pageItems) : []);
       },
       error: (err: unknown) => {
         console.error('Failed to load client transactions', err);

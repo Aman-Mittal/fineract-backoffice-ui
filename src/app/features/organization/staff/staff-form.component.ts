@@ -95,7 +95,7 @@ import {
                   [attr.aria-label]="'COMMON.OFFICE' | translate"
                   interface="popover"
                   name="officeId"
-                  [(ngModel)]="staff.officeId"
+                  [(ngModel)]="staff().officeId"
                   required
                   [disabled]="isEditMode"
                 >
@@ -110,7 +110,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
                   name="firstname"
-                  [(ngModel)]="staff.firstname"
+                  [(ngModel)]="staff().firstname"
                   required
                   [disabled]="isEditMode"
                 ></ion-input>
@@ -121,7 +121,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
                   name="lastname"
-                  [(ngModel)]="staff.lastname"
+                  [(ngModel)]="staff().lastname"
                   required
                   [disabled]="isEditMode"
                 ></ion-input>
@@ -132,7 +132,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
                   name="externalId"
-                  [(ngModel)]="staff.externalId"
+                  [(ngModel)]="staff().externalId"
                 ></ion-input>
               </ion-item>
 
@@ -141,7 +141,7 @@ import {
                 <ion-input
                   [attr.aria-label]="'CLIENTS.MOBILE_NO' | translate"
                   name="mobileNo"
-                  [(ngModel)]="staff.mobileNo"
+                  [(ngModel)]="staff().mobileNo"
                   [disabled]="isEditMode"
                 ></ion-input>
               </ion-item>
@@ -152,7 +152,7 @@ import {
                   [attr.aria-label]="'COMMON.EMAIL' | translate"
                   type="email"
                   name="emailAddress"
-                  [(ngModel)]="staff.emailAddress"
+                  [(ngModel)]="staff().emailAddress"
                 ></ion-input>
               </ion-item>
 
@@ -168,7 +168,8 @@ import {
                       data-testid="joiningDate-picker"
                       presentation="date"
                       name="joiningDate"
-                      [(ngModel)]="joiningDate"
+                      [ngModel]="joiningDate()"
+                      (ngModelChange)="joiningDate.set($event)"
                       [disabled]="isEditMode"
                     ></ion-datetime>
                   </ng-template>
@@ -177,16 +178,16 @@ import {
             </div>
 
             <div class="checkbox-group">
-              <ion-checkbox name="isLoanOfficer" [(ngModel)]="staff.isLoanOfficer">
+              <ion-checkbox name="isLoanOfficer" [(ngModel)]="staff().isLoanOfficer">
                 {{ 'ORGANIZATION.IS_LOAN_OFFICER' | translate }}
               </ion-checkbox>
 
-              <ion-checkbox name="forceStatus" [(ngModel)]="staff.forceStatus">
+              <ion-checkbox name="forceStatus" [(ngModel)]="staff().forceStatus">
                 Force Status
               </ion-checkbox>
 
               @if (!isEditMode) {
-                <ion-checkbox name="isActive" [(ngModel)]="staff.isActive">
+                <ion-checkbox name="isActive" [(ngModel)]="staff().isActive">
                   {{ 'COMMON.ACTIVE' | translate }}
                 </ion-checkbox>
               }
@@ -243,10 +244,10 @@ export class StaffFormComponent implements OnInit {
 
   staffId?: number;
   isEditMode = false;
-  offices = signal<GetOfficesResponse[]>([]);
-  joiningDate = toIsoDate(new Date());
+  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly joiningDate = signal(toIsoDate(new Date()));
 
-  staff: Partial<StaffCreateRequest> = {
+  readonly staff = signal<Partial<StaffCreateRequest>>({
     officeId: undefined,
     firstname: '',
     lastname: '',
@@ -255,7 +256,7 @@ export class StaffFormComponent implements OnInit {
     isLoanOfficer: false,
     isActive: true,
     forceStatus: false,
-  };
+  });
 
   ngOnInit(): void {
     this.loadOffices();
@@ -272,7 +273,7 @@ export class StaffFormComponent implements OnInit {
 
   loadStaffData(): void {
     this.staffService.getStaffStaffId(this.staffId!).subscribe((data) => {
-      this.staff = {
+      this.staff.set({
         officeId: data.officeId,
         firstname: data.firstname,
         lastname: data.lastname,
@@ -283,10 +284,10 @@ export class StaffFormComponent implements OnInit {
         forceStatus:
           ((data as Record<string, unknown>)['forceStatus'] as boolean | undefined) ?? false,
         emailAddress: (data as Record<string, unknown>)['emailAddress'] as string | undefined,
-      };
+      });
       if (data.joiningDate) {
         const jd = data.joiningDate as unknown as number[];
-        this.joiningDate = toIsoDate(new Date(jd[0], jd[1] - 1, jd[2]));
+        this.joiningDate.set(toIsoDate(new Date(jd[0], jd[1] - 1, jd[2])));
       }
     });
   }
@@ -294,8 +295,8 @@ export class StaffFormComponent implements OnInit {
   onSubmit(): void {
     if (this.isEditMode) {
       const updatePayload: StaffUpdateRequest = {
-        externalId: this.staff.externalId,
-        isLoanOfficer: this.staff.isLoanOfficer,
+        externalId: this.staff().externalId,
+        isLoanOfficer: this.staff().isLoanOfficer,
       };
       this.staffService.putStaffStaffId(this.staffId!, updatePayload).subscribe({
         next: () => this.router.navigate([this.staffListPath]),
@@ -303,8 +304,8 @@ export class StaffFormComponent implements OnInit {
       });
     } else {
       const payload = {
-        ...this.staff,
-        joiningDate: formatDateToFineract(this.joiningDate),
+        ...this.staff(),
+        joiningDate: formatDateToFineract(this.joiningDate()),
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
       } as StaffCreateRequest;

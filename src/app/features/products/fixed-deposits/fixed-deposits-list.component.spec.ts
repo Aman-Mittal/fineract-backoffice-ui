@@ -69,8 +69,8 @@ describe('FixedDepositAccountsListComponent', () => {
     fixture.detectChanges();
 
     expect(fixedDepositServiceSpy.getFixeddepositaccounts).toHaveBeenCalled();
-    expect(component.accounts).toHaveSize(1);
-    expect(component.accounts[0].accountNo).toBe(1001);
+    expect(component.accounts()).toHaveSize(1);
+    expect(component.accounts()[0].accountNo).toBe(1001);
   });
 
   it('should handle error when loading accounts', () => {

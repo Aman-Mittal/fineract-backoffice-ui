@@ -47,10 +47,10 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="nav.fixedDepositProducts"
       createButtonLabel="PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT"
       [columns]="columns"
-      [data]="products"
+      [data]="products()"
       [showSearch]="true"
       [localLogic]="true"
-      [isLoading]="isLoading"
+      [isLoading]="isLoading()"
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="nominalAnnualInterestRate" let-product>
@@ -89,15 +89,15 @@ export class FixedDepositProductsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  products: GetFixedDepositProductsResponse[] = [];
-  isLoading = true;
+  readonly products = signal<GetFixedDepositProductsResponse[]>([]);
+  readonly isLoading = signal(true);
 
   ngOnInit() {
     this.loadProducts();
   }
 
   loadProducts() {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.productService
       .getFixeddepositproducts()
       .pipe(
@@ -108,8 +108,8 @@ export class FixedDepositProductsListComponent implements OnInit {
         }),
       )
       .subscribe((data) => {
-        this.products = data;
-        this.isLoading = false;
+        this.products.set(data);
+        this.isLoading.set(false);
       });
   }
 

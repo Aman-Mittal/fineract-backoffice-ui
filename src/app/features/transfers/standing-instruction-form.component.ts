@@ -464,11 +464,11 @@ export class StandingInstructionFormComponent implements OnInit {
 
   isEditMode = false;
   instructionId?: number;
-  offices = signal<GetOfficesResponse[]>([]);
-  fromClients = signal<GetClientsPageItemsResponse[]>([]);
-  toClients = signal<GetClientsPageItemsResponse[]>([]);
-  fromAccounts = signal<MiniAccount[]>([]);
-  toAccounts = signal<MiniAccount[]>([]);
+  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly fromClients = signal<GetClientsPageItemsResponse[]>([]);
+  readonly toClients = signal<GetClientsPageItemsResponse[]>([]);
+  readonly fromAccounts = signal<MiniAccount[]>([]);
+  readonly toAccounts = signal<MiniAccount[]>([]);
 
   validFrom = toIsoDate(new Date());
   validTill?: Date;

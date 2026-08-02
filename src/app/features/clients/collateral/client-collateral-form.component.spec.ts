@@ -66,7 +66,7 @@ describe('ClientCollateralFormComponent', () => {
   it('should load collateral product options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdCollateralsTemplate).toHaveBeenCalledWith(1);
-    expect(component.collateralProductOptions).toHaveSize(1);
+    expect(component.collateralProductOptions()).toHaveSize(1);
   });
 
   it('should post on create and navigate to the list', () => {
@@ -75,7 +75,7 @@ describe('ClientCollateralFormComponent', () => {
         ClientCollateralManagementService['postClientsClientIdCollaterals']
       >,
     );
-    component.collateral = { collateralId: 1, quantity: 5 };
+    component.collateral.set({ collateralId: 1, quantity: 5 });
     component.onSubmit();
     expect(serviceSpy.postClientsClientIdCollaterals).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients', 1, 'collaterals']);

@@ -89,7 +89,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
     component.ngOnInit();
 
-    expect(component.account['clientId']).toBe(123);
+    expect(component.account()['clientId']).toBe(123);
     expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(123);
   });
 
@@ -105,9 +105,9 @@ describe('FixedDepositAccountFormComponent', () => {
 
     component.onClientSelected(456);
 
-    expect(component.account['clientId']).toBe(456);
+    expect(component.account()['clientId']).toBe(456);
     expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(456);
-    expect(component.products).toHaveSize(1);
+    expect(component.products()).toHaveSize(1);
   });
 
   it('should handle missing product options in template', () => {
@@ -117,7 +117,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
     (component as unknown as Record<string, () => void>)['loadProducts']();
 
-    expect(component.products).toEqual([]);
+    expect(component.products()).toEqual([]);
   });
 
   it('should load product defaults when a product is selected', () => {
@@ -130,7 +130,7 @@ describe('FixedDepositAccountFormComponent', () => {
     (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       of(mockTemplate as unknown as GetFixedDepositAccountsTemplateResponse),
     );
-    component.account['clientId'] = 1;
+    component.account()['clientId'] = 1;
 
     component.onProductSelected(101);
 
@@ -139,10 +139,10 @@ describe('FixedDepositAccountFormComponent', () => {
       undefined,
       101,
     );
-    expect(component.account['depositAmount']).toBe(5000);
-    expect(component.account['depositPeriod']).toBe(12);
-    expect(component.account['depositPeriodFrequencyId']).toBe(2);
-    expect(component.account['nominalAnnualInterestRate']).toBe(5.5);
+    expect(component.account()['depositAmount']).toBe(5000);
+    expect(component.account()['depositPeriod']).toBe(12);
+    expect(component.account()['depositPeriodFrequencyId']).toBe(2);
+    expect(component.account()['nominalAnnualInterestRate']).toBe(5.5);
   });
 
   it('should handle error when loading product defaults', () => {
@@ -150,7 +150,7 @@ describe('FixedDepositAccountFormComponent', () => {
     (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
       throwError(() => new Error(API_ERROR)),
     );
-    component.account['clientId'] = 1;
+    component.account()['clientId'] = 1;
 
     component.onProductSelected(101);
 
@@ -173,15 +173,15 @@ describe('FixedDepositAccountFormComponent', () => {
       of(mockAccount as unknown as GetFixedDepositAccountsAccountIdResponse),
     );
     component.accountId = 123;
-    component.isEditMode = true;
+    component.isEditMode.set(true);
 
     (component as unknown as Record<string, () => void>)['loadAccountData']();
 
     expect(fixedDepositServiceSpy.getFixeddepositaccountsAccountId).toHaveBeenCalledWith(123);
-    expect(component.account['clientId']).toBe(1);
-    expect(component.account['productId']).toBe(101);
-    expect(component.account['nominalAnnualInterestRate']).toBe(4.5);
-    expect(component.submittedOnDate).toEqual(SUBMITTED_ON);
+    expect(component.account()['clientId']).toBe(1);
+    expect(component.account()['productId']).toBe(101);
+    expect(component.account()['nominalAnnualInterestRate']).toBe(4.5);
+    expect(component.submittedOnDate()).toEqual(SUBMITTED_ON);
   });
 
   it('should handle error when loading account data', () => {
@@ -205,15 +205,15 @@ describe('FixedDepositAccountFormComponent', () => {
     );
     fixture.detectChanges();
 
-    component.account = {
+    component.account.set({
       clientId: 1,
       productId: 101,
       depositAmount: 1000,
       depositPeriod: 12,
       depositPeriodFrequencyId: 2,
       nominalAnnualInterestRate: 5.0,
-    };
-    component.submittedOnDate = SUBMITTED_ON;
+    });
+    component.submittedOnDate.set(SUBMITTED_ON);
 
     component.onSubmit();
 
@@ -226,14 +226,14 @@ describe('FixedDepositAccountFormComponent', () => {
       of({} as PostFixedDepositAccountsResponse),
     );
     component.accountId = 123;
-    component.isEditMode = true;
-    component.account = {
+    component.isEditMode.set(true);
+    component.account.set({
       depositAmount: 2000,
       depositPeriod: 24,
       depositPeriodFrequencyId: 2,
       nominalAnnualInterestRate: 6.0,
-    };
-    component.submittedOnDate = SUBMITTED_ON;
+    });
+    component.submittedOnDate.set(SUBMITTED_ON);
 
     component.onSubmit();
 
@@ -249,7 +249,7 @@ describe('FixedDepositAccountFormComponent', () => {
       throwError(() => new Error(API_ERROR)),
     );
     component.onSubmit();
-    expect(component.isSaving).toBeFalse();
+    expect(component.isSaving()).toBeFalse();
   });
 
   it('should navigate on cancel', () => {
@@ -268,12 +268,12 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should return clientId from account', () => {
-    component.account['clientId'] = 789;
+    component.account()['clientId'] = 789;
     expect(component.getClientId()).toBe(789);
   });
 
   it('should return null if clientId is missing', () => {
-    component.account['clientId'] = undefined;
+    component.account()['clientId'] = undefined;
     expect(component.getClientId()).toBeNull();
   });
 });

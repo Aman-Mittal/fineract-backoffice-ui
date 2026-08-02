@@ -115,7 +115,7 @@ export class ProgressiveLoanModelComponent {
   private translate = inject(TranslateService);
 
   loanId = 0;
-  model = signal<ProgressiveLoanInterestScheduleModel | null>(null);
+  readonly model = signal<ProgressiveLoanInterestScheduleModel | null>(null);
   readonly isLoading = signal(false);
 
   loadModel(): void {

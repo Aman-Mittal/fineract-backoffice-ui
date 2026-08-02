@@ -81,7 +81,7 @@ import {
 export class InteropHealthComponent {
   private interopService = inject(InterOperationService);
 
-  health = signal<unknown>(null);
+  readonly health = signal<unknown>(null);
   readonly isLoading = signal(false);
 
   checkHealth(): void {

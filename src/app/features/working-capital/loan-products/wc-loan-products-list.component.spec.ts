@@ -62,7 +62,7 @@ describe('WcLoanProductsListComponent', () => {
   it('should load loan products on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getWorkingCapitalLoanProducts).toHaveBeenCalled();
-    expect(component.products).toHaveSize(1);
+    expect(component.products()).toHaveSize(1);
   });
 
   it('should navigate to edit with the product id', () => {

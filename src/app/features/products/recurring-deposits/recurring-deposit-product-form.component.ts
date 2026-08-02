@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -72,7 +72,7 @@ const REDIRECT_URL = '/products/recurring';
         <ion-card-header>
           <ion-card-title>
             {{
-              isEditMode
+              isEditMode()
                 ? ('PRODUCTS.EDIT_RECURRING_DEPOSIT_PRODUCT' | translate)
                 : ('PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT' | translate)
             }}
@@ -87,7 +87,7 @@ const REDIRECT_URL = '/products/recurring';
                 <ion-input
                   [attr.aria-label]="'COMMON.NAME' | translate"
                   name="name"
-                  [(ngModel)]="product['name']"
+                  [(ngModel)]="product()['name']"
                   required
                 ></ion-input>
               </ion-item>
@@ -97,7 +97,7 @@ const REDIRECT_URL = '/products/recurring';
                 <ion-input
                   [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
                   name="shortName"
-                  [(ngModel)]="product['shortName']"
+                  [(ngModel)]="product()['shortName']"
                   required
                   maxlength="4"
                 ></ion-input>
@@ -108,7 +108,7 @@ const REDIRECT_URL = '/products/recurring';
                 <ion-textarea
                   [attr.aria-label]="'PRODUCTS.DESCRIPTION' | translate"
                   name="description"
-                  [(ngModel)]="product['description']"
+                  [(ngModel)]="product()['description']"
                   rows="2"
                 ></ion-textarea>
               </ion-item>
@@ -119,7 +119,7 @@ const REDIRECT_URL = '/products/recurring';
                   [attr.aria-label]="'PRODUCTS.CURRENCY' | translate"
                   interface="popover"
                   name="currencyCode"
-                  [(ngModel)]="product['currencyCode']"
+                  [(ngModel)]="product()['currencyCode']"
                   required
                 >
                   <ion-select-option [value]="DEFAULT_CURRENCY">{{
@@ -138,7 +138,7 @@ const REDIRECT_URL = '/products/recurring';
                   [attr.aria-label]="'PRODUCTS.DECIMAL_PLACES' | translate"
                   type="number"
                   name="digitsAfterDecimal"
-                  [(ngModel)]="product['digitsAfterDecimal']"
+                  [(ngModel)]="product()['digitsAfterDecimal']"
                   required
                 ></ion-input>
               </ion-item>
@@ -151,7 +151,7 @@ const REDIRECT_URL = '/products/recurring';
                   [attr.aria-label]="'PRODUCTS.RECURRING_FREQUENCY' | translate"
                   type="number"
                   name="recurringEvery"
-                  [(ngModel)]="product['recurringEvery']"
+                  [(ngModel)]="product()['recurringEvery']"
                   required
                 ></ion-input>
               </ion-item>
@@ -164,7 +164,7 @@ const REDIRECT_URL = '/products/recurring';
                   [attr.aria-label]="'PRODUCTS.FREQUENCY_TYPE' | translate"
                   interface="popover"
                   name="recurringFrequencyType"
-                  [(ngModel)]="product['recurringFrequencyType']"
+                  [(ngModel)]="product()['recurringFrequencyType']"
                   required
                 >
                   <ion-select-option [value]="0">{{ 'COMMON.DAYS' | translate }}</ion-select-option>
@@ -182,15 +182,15 @@ const REDIRECT_URL = '/products/recurring';
             </div>
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="productForm.invalid || isSaving"
+                [disabled]="productForm.invalid || isSaving()"
               >
-                @if (isSaving) {
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -231,10 +231,10 @@ export class RecurringDepositProductFormComponent implements OnInit {
   protected readonly DEFAULT_CURRENCY = DEFAULT_CURRENCY;
 
   productId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  product: Record<string, unknown> = {
+  readonly product = signal<Record<string, unknown>>({
     currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
     inMultiplesOf: 0,
@@ -248,14 +248,14 @@ export class RecurringDepositProductFormComponent implements OnInit {
     minDepositTerm: 1,
     minDepositTermTypeId: 2,
     depositAmount: 1000,
-  };
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.productId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadProductData();
       }
     });
@@ -266,7 +266,7 @@ export class RecurringDepositProductFormComponent implements OnInit {
     this.productService
       .getRecurringdepositproductsProductId(this.productId)
       .subscribe((data: GetRecurringDepositProductsProductIdResponse) => {
-        this.product = {
+        this.product.set({
           name: data.name,
           shortName: data.shortName,
           description: data.description,
@@ -276,16 +276,16 @@ export class RecurringDepositProductFormComponent implements OnInit {
           recurringFrequencyType: data.recurringDepositFrequencyType?.id,
           accountingRule: 1,
           depositAmount: 1000, // Fallback
-        };
+        });
       });
   }
 
   onSubmit() {
-    this.isSaving = true;
-    this.product['locale'] = DEFAULT_LOCALE;
+    this.isSaving.set(true);
+    this.product()['locale'] = DEFAULT_LOCALE;
 
     const payload = {
-      ...this.product,
+      ...this.product(),
       charts: [
         {
           fromDate: new Date().toISOString().split('T')[0],
@@ -306,7 +306,7 @@ export class RecurringDepositProductFormComponent implements OnInit {
     delete (payload as Record<string, unknown>)['recurringDepositFrequency'];
     delete (payload as Record<string, unknown>)['recurringDepositFrequencyTypeId'];
 
-    if (this.isEditMode && this.productId) {
+    if (this.isEditMode() && this.productId) {
       this.productService
         .putRecurringdepositproductsProductId(
           this.productId,
@@ -314,14 +314,14 @@ export class RecurringDepositProductFormComponent implements OnInit {
         )
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     } else {
       this.productService
         .postRecurringdepositproducts(payload as unknown as PostRecurringDepositProductsRequest)
         .subscribe({
           next: () => this.router.navigate([REDIRECT_URL]),
-          error: () => (this.isSaving = false),
+          error: () => this.isSaving.set(false),
         });
     }
   }

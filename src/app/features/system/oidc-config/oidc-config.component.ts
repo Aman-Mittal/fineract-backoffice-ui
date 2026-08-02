@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { TenantOIDCConfigurationService } from '../../../api';
@@ -89,7 +89,7 @@ interface OidcConfig {
               <ion-input
                 [attr.aria-label]="'OIDC_CONFIG.ISSUER' | translate"
                 name="issuer"
-                [(ngModel)]="config.issuer"
+                [(ngModel)]="config().issuer"
               ></ion-input>
             </ion-item>
             <ion-item fill="outline">
@@ -97,7 +97,7 @@ interface OidcConfig {
               <ion-input
                 [attr.aria-label]="'OIDC_CONFIG.CLIENT_ID' | translate"
                 name="clientId"
-                [(ngModel)]="config.clientId"
+                [(ngModel)]="config().clientId"
               ></ion-input>
             </ion-item>
             <ion-item fill="outline">
@@ -107,7 +107,7 @@ interface OidcConfig {
               <ion-input
                 [attr.aria-label]="'OIDC_CONFIG.CLIENT_SECRET' | translate"
                 name="clientSecret"
-                [(ngModel)]="config.clientSecret"
+                [(ngModel)]="config().clientSecret"
               ></ion-input>
             </ion-item>
             <ion-item fill="outline">
@@ -117,7 +117,7 @@ interface OidcConfig {
               <ion-input
                 [attr.aria-label]="'OIDC_CONFIG.AUTH_ENDPOINT' | translate"
                 name="authEndpoint"
-                [(ngModel)]="config.authorizationEndpoint"
+                [(ngModel)]="config().authorizationEndpoint"
               ></ion-input>
             </ion-item>
             <ion-item fill="outline">
@@ -127,7 +127,7 @@ interface OidcConfig {
               <ion-input
                 [attr.aria-label]="'OIDC_CONFIG.TOKEN_ENDPOINT' | translate"
                 name="tokenEndpoint"
-                [(ngModel)]="config.tokenEndpoint"
+                [(ngModel)]="config().tokenEndpoint"
               ></ion-input>
             </ion-item>
             <ion-item fill="outline">
@@ -135,7 +135,7 @@ interface OidcConfig {
               <ion-input
                 [attr.aria-label]="'OIDC_CONFIG.JWKS_URL' | translate"
                 name="jwksUrl"
-                [(ngModel)]="config.jwksUrl"
+                [(ngModel)]="config().jwksUrl"
               ></ion-input>
             </ion-item>
 
@@ -143,7 +143,7 @@ interface OidcConfig {
               <ion-button fill="clear" type="button" color="danger" (click)="onDelete()">
                 {{ 'COMMON.DELETE' | translate }}
               </ion-button>
-              <ion-button color="primary" type="button" [disabled]="isSaving" (click)="onSave()">
+              <ion-button color="primary" type="button" [disabled]="isSaving()" (click)="onSave()">
                 {{ 'COMMON.SAVE' | translate }}
               </ion-button>
             </div>
@@ -178,8 +178,8 @@ export class OidcConfigComponent implements OnInit {
 
   tenantId = 'default';
   exists = false;
-  isSaving = false;
-  config: OidcConfig = {};
+  readonly isSaving = signal(false);
+  readonly config = signal<OidcConfig>({});
 
   ngOnInit(): void {
     this.load();
@@ -189,29 +189,29 @@ export class OidcConfigComponent implements OnInit {
     this.oidcService.getTenantsTenantIdOidcConfig(this.tenantId).subscribe({
       next: (body: string) => {
         this.exists = !!body;
-        this.config = body ? (JSON.parse(body) as OidcConfig) : {};
+        this.config.set(body ? (JSON.parse(body) as OidcConfig) : {});
       },
       error: (err: unknown) => {
         this.exists = false;
-        this.config = {};
+        this.config.set({});
         console.error('Failed to load OIDC config', err);
       },
     });
   }
 
   onSave(): void {
-    this.isSaving = true;
-    const body = JSON.stringify(this.config);
+    this.isSaving.set(true);
+    const body = JSON.stringify(this.config());
     const request$ = this.exists
       ? this.oidcService.putTenantsTenantIdOidcConfig(this.tenantId, body)
       : this.oidcService.postTenantsTenantIdOidcConfig(this.tenantId, body);
     request$.subscribe({
       next: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.load();
       },
       error: (err: unknown) => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         console.error('Failed to save OIDC config', err);
       },
     });
@@ -222,7 +222,7 @@ export class OidcConfigComponent implements OnInit {
     this.oidcService.deleteTenantsTenantIdOidcConfig(this.tenantId).subscribe({
       next: () => {
         this.exists = false;
-        this.config = {};
+        this.config.set({});
       },
       error: (err: unknown) => console.error('Failed to delete OIDC config', err),
     });

@@ -210,7 +210,7 @@ export class InteropTransfersComponent {
   private interopService = inject(InterOperationService);
   private notifications = inject(NotificationService);
 
-  result = signal<InteropTransferResponseData | string | null>(null);
+  readonly result = signal<InteropTransferResponseData | string | null>(null);
 
   transactionCode = '';
   transferCode = '';

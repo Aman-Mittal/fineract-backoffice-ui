@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef } from '../../../shared';
@@ -38,8 +38,8 @@ import { ProvisioningEntriesService, ProvisioningEntryData } from '../../../api'
       helpTextKey="HELP.PROVISIONING_ENTRIES_DESC"
       createButtonLabel="PROVISIONING_ENTRIES.CREATE"
       [columns]="columns"
-      [data]="entries"
-      [totalRecords]="entries.length"
+      [data]="entries()"
+      [totalRecords]="entries().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -57,7 +57,7 @@ export class ProvisioningEntriesListComponent implements OnInit {
     { key: 'reservedAmount', label: 'PROVISIONING_ENTRIES.RESERVED_AMOUNT', sortable: true },
   ];
 
-  entries: ProvisioningEntryData[] = [];
+  readonly entries = signal<ProvisioningEntryData[]>([]);
 
   ngOnInit(): void {
     this.load();
@@ -66,7 +66,7 @@ export class ProvisioningEntriesListComponent implements OnInit {
   load(): void {
     this.entriesService.getProvisioningentries().subscribe({
       next: (page) => {
-        this.entries = page?.pageItems || [];
+        this.entries.set(page?.pageItems || []);
       },
       error: (err: unknown) => {
         console.error('Failed to load provisioning entries', err);

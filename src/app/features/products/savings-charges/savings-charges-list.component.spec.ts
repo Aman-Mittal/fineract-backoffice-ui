@@ -64,7 +64,7 @@ describe('SavingsChargesListComponent', () => {
   it('should load charges on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSavingsaccountsSavingsAccountIdCharges).toHaveBeenCalledWith(1);
-    expect(component.charges).toHaveSize(1);
+    expect(component.charges()).toHaveSize(1);
   });
 
   it('should delete after confirmation and reload', () => {

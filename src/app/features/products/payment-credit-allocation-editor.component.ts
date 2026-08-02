@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { computed, input, model, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -59,11 +59,11 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
         <ion-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        @for (rule of paymentAllocation; track rule.transactionType; let ruleIndex = $index) {
+        @for (rule of paymentAllocation(); track rule.transactionType; let ruleIndex = $index) {
           <div class="allocation-block">
             <div class="allocation-block-header">
               <strong>{{
-                transactionTypeLabel(rule.transactionType, transactionTypeOptions)
+                transactionTypeLabel(rule.transactionType, transactionTypeOptions())
               }}</strong>
               <ion-button
                 fill="clear"
@@ -87,7 +87,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 [name]="'futureInstallmentRule' + ruleIndex"
                 (ngModelChange)="emitPaymentAllocation()"
               >
-                @for (option of futureInstallmentOptions; track option.code) {
+                @for (option of futureInstallmentOptions(); track option.code) {
                   <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
                 }
               </ion-select>
@@ -102,7 +102,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 <ion-item class="allocation-item">
                   <span class="order-index">{{ orderIndex + 1 }}.</span>
                   <span class="order-label">{{
-                    allocationRuleLabel(order.paymentAllocationRule, allocationRuleOptions)
+                    allocationRuleLabel(order.paymentAllocationRule, allocationRuleOptions())
                   }}</span>
                   <ion-button
                     fill="clear"
@@ -162,11 +162,11 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
         <ion-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        @for (rule of creditAllocation; track rule.transactionType; let ruleIndex = $index) {
+        @for (rule of creditAllocation(); track rule.transactionType; let ruleIndex = $index) {
           <div class="allocation-block">
             <div class="allocation-block-header">
               <strong>{{
-                transactionTypeLabel(rule.transactionType, creditTransactionTypeOptions)
+                transactionTypeLabel(rule.transactionType, creditTransactionTypeOptions())
               }}</strong>
               <ion-button
                 fill="clear"
@@ -188,7 +188,7 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
                 <ion-item class="allocation-item">
                   <span class="order-index">{{ orderIndex + 1 }}.</span>
                   <span class="order-label">{{
-                    allocationRuleLabel(order.creditAllocationRule, creditAllocationRuleOptions)
+                    allocationRuleLabel(order.creditAllocationRule, creditAllocationRuleOptions())
                   }}</span>
                   <ion-button
                     fill="clear"
@@ -284,18 +284,19 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
   ],
 })
 export class PaymentCreditAllocationEditorComponent {
-  @Input() transactionTypeOptions: EnumOptionData[] = [];
-  @Input() allocationRuleOptions: EnumOptionData[] = [];
-  @Input() futureInstallmentOptions: EnumOptionData[] = [];
-  @Input() creditTransactionTypeOptions: EnumOptionData[] = [];
-  @Input() creditAllocationRuleOptions: EnumOptionData[] = [];
+  readonly transactionTypeOptions = input<EnumOptionData[]>([]);
+  readonly allocationRuleOptions = input<EnumOptionData[]>([]);
+  readonly futureInstallmentOptions = input<EnumOptionData[]>([]);
+  readonly creditTransactionTypeOptions = input<EnumOptionData[]>([]);
+  readonly creditAllocationRuleOptions = input<EnumOptionData[]>([]);
 
-  @Input() paymentAllocation: AdvancedPaymentData[] = [];
-  @Output() paymentAllocationChange = new EventEmitter<AdvancedPaymentData[]>();
+  // `model()` rather than `input()`, because this component writes its own allocation lists when
+  // a transaction type is added or removed. It also supplies the `…Change` outputs the parent
+  // already binds, so `loan-product-form` needs no change.
+  readonly paymentAllocation = model<AdvancedPaymentData[]>([]);
+  readonly creditAllocation = model<CreditAllocationData[]>([]);
 
-  @Input() creditAllocation: CreditAllocationData[] = [];
-  @Output() creditAllocationChange = new EventEmitter<CreditAllocationData[]>();
-
+  // Plain fields, not signals: both are `[(ngModel)]` targets, and a signal cannot be one.
   newPaymentTransactionType: string | null = null;
   newCreditTransactionType: string | null = null;
 
@@ -307,58 +308,54 @@ export class PaymentCreditAllocationEditorComponent {
     return options.find((option) => option.code === code)?.value ?? code ?? '';
   }
 
-  availablePaymentTransactionTypes(): EnumOptionData[] {
-    const used = new Set(this.paymentAllocation.map((rule) => rule.transactionType));
-    return this.transactionTypeOptions.filter((option) => !used.has(option.code));
-  }
+  readonly availablePaymentTransactionTypes = computed<EnumOptionData[]>(() => {
+    const used = new Set(this.paymentAllocation().map((rule) => rule.transactionType));
+    return this.transactionTypeOptions().filter((option) => !used.has(option.code));
+  });
 
-  availableCreditTransactionTypes(): EnumOptionData[] {
-    const used = new Set(this.creditAllocation.map((rule) => rule.transactionType));
-    return this.creditTransactionTypeOptions.filter((option) => !used.has(option.code));
-  }
+  readonly availableCreditTransactionTypes = computed<EnumOptionData[]>(() => {
+    const used = new Set(this.creditAllocation().map((rule) => rule.transactionType));
+    return this.creditTransactionTypeOptions().filter((option) => !used.has(option.code));
+  });
 
   addPaymentTransactionType(): void {
     if (!this.newPaymentTransactionType) return;
-    this.paymentAllocation = [
-      ...this.paymentAllocation,
+    this.paymentAllocation.set([
+      ...this.paymentAllocation(),
       {
         transactionType: this.newPaymentTransactionType,
         futureInstallmentAllocationRule:
-          this.futureInstallmentOptions[0]?.code ?? 'NEXT_INSTALLMENT',
-        paymentAllocationOrder: this.allocationRuleOptions.map((option, index) => ({
+          this.futureInstallmentOptions()[0]?.code ?? 'NEXT_INSTALLMENT',
+        paymentAllocationOrder: this.allocationRuleOptions().map((option, index) => ({
           order: index + 1,
           paymentAllocationRule: option.code,
         })),
       },
-    ];
+    ]);
     this.newPaymentTransactionType = null;
-    this.emitPaymentAllocation();
   }
 
   removePaymentTransactionType(index: number): void {
-    this.paymentAllocation = this.paymentAllocation.filter((_, i) => i !== index);
-    this.emitPaymentAllocation();
+    this.paymentAllocation.set(this.paymentAllocation().filter((_, i) => i !== index));
   }
 
   addCreditTransactionType(): void {
     if (!this.newCreditTransactionType) return;
-    this.creditAllocation = [
-      ...this.creditAllocation,
+    this.creditAllocation.set([
+      ...this.creditAllocation(),
       {
         transactionType: this.newCreditTransactionType,
-        creditAllocationOrder: this.creditAllocationRuleOptions.map((option, index) => ({
+        creditAllocationOrder: this.creditAllocationRuleOptions().map((option, index) => ({
           order: index + 1,
           creditAllocationRule: option.code,
         })),
       },
-    ];
+    ]);
     this.newCreditTransactionType = null;
-    this.emitCreditAllocation();
   }
 
   removeCreditTransactionType(index: number): void {
-    this.creditAllocation = this.creditAllocation.filter((_, i) => i !== index);
-    this.emitCreditAllocation();
+    this.creditAllocation.set(this.creditAllocation().filter((_, i) => i !== index));
   }
 
   moveOrderEntry<T extends { order?: number }>(entries: T[], index: number, delta: number): void {
@@ -370,11 +367,18 @@ export class PaymentCreditAllocationEditorComponent {
     this.emitCreditAllocation();
   }
 
+  /**
+   * Republishes the list under a new identity.
+   *
+   * Reordering and the future-installment select both mutate an object *inside* the list, so the
+   * model signal's own reference is unchanged and neither the parent nor this view would hear
+   * about it. Copying the array is what turns an in-place edit back into a notification.
+   */
   emitPaymentAllocation(): void {
-    this.paymentAllocationChange.emit(this.paymentAllocation);
+    this.paymentAllocation.set([...this.paymentAllocation()]);
   }
 
   emitCreditAllocation(): void {
-    this.creditAllocationChange.emit(this.creditAllocation);
+    this.creditAllocation.set([...this.creditAllocation()]);
   }
 }

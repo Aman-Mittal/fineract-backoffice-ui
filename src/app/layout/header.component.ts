@@ -391,12 +391,12 @@ export class HeaderComponent implements OnInit {
   private readonly businessDateService = inject(BusinessDateManagementService);
 
   searchQuery = '';
-  searchResults = signal<GetSearchResponse[]>([]);
+  readonly searchResults = signal<GetSearchResponse[]>([]);
   protected readonly showResults = signal(false);
   private searchSubject = new Subject<string>();
 
-  businessDate = signal<string>('-');
-  renderTime = signal<string>('-');
+  readonly businessDate = signal<string>('-');
+  readonly renderTime = signal<string>('-');
 
   ngOnInit(): void {
     this.loadSystemInfo();

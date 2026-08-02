@@ -60,7 +60,7 @@ describe('WcBreachListComponent', () => {
   it('should load breaches on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getWorkingCapitalBreachBreaches).toHaveBeenCalled();
-    expect(component.breaches).toHaveSize(1);
+    expect(component.breaches()).toHaveSize(1);
   });
 
   it('should navigate to edit with the breach id', () => {

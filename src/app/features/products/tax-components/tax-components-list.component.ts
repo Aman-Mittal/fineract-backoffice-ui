@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -39,8 +39,8 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
       helpTextKey="HELP.TAX_COMPONENTS_DESC"
       createButtonLabel="TAX_COMPONENTS.CREATE"
       [columns]="columns"
-      [data]="components"
-      [totalRecords]="components.length"
+      [data]="components()"
+      [totalRecords]="components().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -72,12 +72,12 @@ export class TaxComponentsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  components: TaxComponentData[] = [];
+  readonly components = signal<TaxComponentData[]>([]);
 
   ngOnInit(): void {
     this.taxComponentsService.getTaxesComponent().subscribe({
       next: (data: TaxComponentData[]) => {
-        this.components = data || [];
+        this.components.set(data || []);
       },
       error: (err: unknown) => console.error('Failed to load tax components', err),
     });

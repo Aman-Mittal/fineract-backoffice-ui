@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -48,8 +48,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       helpTextKey="HELP.CLIENT_CHARGES_DESC"
       createButtonLabel="CLIENT_CHARGES.CREATE"
       [columns]="columns"
-      [data]="charges"
-      [totalRecords]="charges.length"
+      [data]="charges()"
+      [totalRecords]="charges().length"
       [localLogic]="true"
       (create)="onCreate()"
     >
@@ -91,7 +91,7 @@ export class ClientChargesListComponent implements OnInit {
   ];
 
   clientId!: number;
-  charges: GetClientsChargesPageItems[] = [];
+  readonly charges = signal<GetClientsChargesPageItems[]>([]);
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -101,7 +101,7 @@ export class ClientChargesListComponent implements OnInit {
   load(): void {
     this.clientChargesService.getClientsClientIdCharges(this.clientId).subscribe({
       next: (data) => {
-        this.charges = data?.pageItems ? Array.from(data.pageItems) : [];
+        this.charges.set(data?.pageItems ? Array.from(data.pageItems) : []);
       },
       error: (err: unknown) => {
         console.error('Failed to load client charges', err);

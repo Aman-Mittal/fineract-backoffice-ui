@@ -197,7 +197,7 @@ export class ExternalEventsComponent {
     aggregateRootId: '',
   };
 
-  events = signal<ExternalEventResponse[]>([]);
+  readonly events = signal<ExternalEventResponse[]>([]);
   readonly isLoading = signal(false);
 
   displayedColumns = ['idempotencyKey', 'type', 'category', 'aggregateRootId', 'createdAt'];

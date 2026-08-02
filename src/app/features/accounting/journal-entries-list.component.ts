@@ -51,7 +51,7 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       helpTextKey="HELP.JOURNAL_ENTRIES_DESC"
       createButtonLabel="Add Journal Entry"
       [columns]="columns"
-      [data]="entries"
+      [data]="entries()"
       [totalRecords]="totalRecords"
       (create)="onCreateEntry()"
       (sortChange)="onSort($event)"
@@ -106,7 +106,7 @@ export class JournalEntriesListComponent {
     { key: 'amount', label: 'Amount', sortable: true },
   ];
 
-  entries: JournalEntryTransactionItem[] = [];
+  readonly entries = signal<JournalEntryTransactionItem[]>([]);
   totalRecords = 0;
 
   private searchSubject = new Subject<string>();
@@ -164,7 +164,7 @@ export class JournalEntriesListComponent {
         }),
       )
       .subscribe((data) => {
-        this.entries = data;
+        this.entries.set(data);
       });
   }
 

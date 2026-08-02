@@ -69,7 +69,7 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('ROLES.EDIT_ROLE' | translate) : ('ROLES.CREATE_ROLE' | translate) }}
+            {{ isEditMode() ? ('ROLES.EDIT_ROLE' | translate) : ('ROLES.CREATE_ROLE' | translate) }}
           </ion-card-title>
         </ion-card-header>
 
@@ -80,9 +80,9 @@ import {
               <ion-input
                 [attr.aria-label]="'COMMON.NAME' | translate"
                 name="name"
-                [(ngModel)]="role.name"
+                [(ngModel)]="role().name"
                 required
-                [disabled]="isEditMode"
+                [disabled]="isEditMode()"
               ></ion-input>
             </ion-item>
 
@@ -91,13 +91,13 @@ import {
               <ion-textarea
                 [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
                 name="description"
-                [(ngModel)]="role.description"
+                [(ngModel)]="role().description"
                 required
                 rows="2"
               ></ion-textarea>
             </ion-item>
 
-            @if (isEditMode) {
+            @if (isEditMode()) {
               <hr class="divider" />
               <div class="permissions-section">
                 <h3>{{ 'ROLES.PERMISSIONS' | translate }}</h3>
@@ -139,11 +139,11 @@ import {
             }
 
             <div class="form-actions">
-              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving">
+              <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
-              <ion-button color="primary" type="submit" [disabled]="roleForm.invalid || isSaving">
-                @if (isSaving) {
+              <ion-button color="primary" type="submit" [disabled]="roleForm.invalid || isSaving()">
+                @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
                   {{ 'COMMON.SAVING' | translate }}
                 } @else {
@@ -229,21 +229,21 @@ export class RoleFormComponent implements OnInit {
   private readonly LIST_PATH = '/security/roles';
 
   roleId: number | null = null;
-  isEditMode = false;
-  isSaving = false;
+  readonly isEditMode = signal(false);
+  readonly isSaving = signal(false);
 
-  role: PostRolesRequest = {};
-  permissions: Record<string, unknown>[] = [];
+  readonly role = signal<PostRolesRequest>({});
+  readonly permissions = signal<Record<string, unknown>[]>([]);
   permissionMappings: Record<string, boolean> = {};
 
-  groupedPermissions = signal<{ prefix: string; items: Record<string, unknown>[] }[]>([]);
+  readonly groupedPermissions = signal<{ prefix: string; items: Record<string, unknown>[] }[]>([]);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.roleId = +id;
-        this.isEditMode = true;
+        this.isEditMode.set(true);
         this.loadRoleData();
       }
     });
@@ -252,10 +252,10 @@ export class RoleFormComponent implements OnInit {
   private loadRoleData(): void {
     if (!this.roleId) return;
     this.rolesService.getRolesRoleId(this.roleId).subscribe((data) => {
-      this.role = {
+      this.role.set({
         name: data.name,
         description: data.description,
-      };
+      });
       this.loadPermissions();
     });
   }
@@ -265,8 +265,10 @@ export class RoleFormComponent implements OnInit {
     this.rolesService
       .getRolesRoleIdPermissions(this.roleId)
       .subscribe((data: GetRolesRoleIdPermissionsResponse) => {
-        this.permissions = (data.permissionUsageData as unknown as Record<string, unknown>[]) || [];
-        this.permissions.forEach((p) => {
+        this.permissions.set(
+          (data.permissionUsageData as unknown as Record<string, unknown>[]) || [],
+        );
+        this.permissions().forEach((p) => {
           this.permissionMappings[p['code'] + ''] = (p['selected'] as boolean) || false;
         });
         this.groupPermissions();
@@ -275,7 +277,7 @@ export class RoleFormComponent implements OnInit {
 
   private groupPermissions(): void {
     const groups: Record<string, Record<string, unknown>[]> = {};
-    this.permissions.forEach((p) => {
+    this.permissions().forEach((p) => {
       const code = p['code'] as string;
       const prefix = code.split('_')[1] || 'GENERAL';
       if (!groups[prefix]) groups[prefix] = [];
@@ -299,11 +301,11 @@ export class RoleFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isSaving = true;
+    this.isSaving.set(true);
 
-    if (this.isEditMode && this.roleId) {
+    if (this.isEditMode() && this.roleId) {
       const roleUpdate: PutRolesRoleIdRequest = {
-        description: this.role.description,
+        description: this.role().description,
       };
 
       // Update role description
@@ -315,15 +317,15 @@ export class RoleFormComponent implements OnInit {
           };
           this.rolesService.putRolesRoleIdPermissions(this.roleId!, permUpdate).subscribe({
             next: () => this.router.navigate([this.LIST_PATH]),
-            error: () => (this.isSaving = false),
+            error: () => this.isSaving.set(false),
           });
         },
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     } else {
-      this.rolesService.postRoles(this.role).subscribe({
+      this.rolesService.postRoles(this.role()).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => (this.isSaving = false),
+        error: () => this.isSaving.set(false),
       });
     }
   }
