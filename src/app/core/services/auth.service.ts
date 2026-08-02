@@ -21,6 +21,7 @@ import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { ConfigService } from './config.service';
+import { STORAGE } from '../adapters';
 import { skipErrorToast } from '../http/http-context';
 
 /**
@@ -66,8 +67,7 @@ export interface UserSession {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly configService = inject(ConfigService);
-  private readonly sessionKey = 'fineract_session';
-  private readonly tenantKey = 'fineract_tenant';
+  private readonly storage = inject(STORAGE);
 
   /** Signal containing the current user session or null if not authenticated */
   readonly currentUser = signal<UserSession | null>(this.getStoredSession());
@@ -83,7 +83,7 @@ export class AuthService {
    * tenant is not named `default` had every user type it into the login form.
    */
   readonly currentTenantId = signal<string>(
-    localStorage.getItem(this.tenantKey) || this.configService.config().defaultTenant,
+    this.storage.readRaw('tenant') || this.configService.config().defaultTenant,
   );
 
   /** Computed signal for the current username */
@@ -126,7 +126,11 @@ export class AuthService {
    * Logs out the current user and clears the session state.
    */
   logout(): void {
-    sessionStorage.removeItem(this.sessionKey);
+    // Every tab-scoped key, not just the session object. The endpoint override in
+    // `fineract_runtime_config` is deliberately left alone: it is device-scoped operator
+    // intent (see `ConfigService`), and clearing it would silently move the next sign-in
+    // back to the default server.
+    this.storage.clearScope('session');
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
   }
@@ -136,7 +140,7 @@ export class AuthService {
    * @param tenantId - The new tenant ID
    */
   setTenantId(tenantId: string): void {
-    localStorage.setItem(this.tenantKey, tenantId);
+    this.storage.writeRaw('tenant', tenantId);
     this.currentTenantId.set(tenantId);
   }
 
@@ -149,7 +153,7 @@ export class AuthService {
       ...session,
       permissions: this.normalizePermissions(session.permissions),
     };
-    sessionStorage.setItem(this.sessionKey, JSON.stringify(normalized));
+    this.storage.write('session', normalized);
     this.currentUser.set(normalized);
     this.isAuthenticated.set(true);
   }
@@ -159,12 +163,11 @@ export class AuthService {
    * @returns The stored UserSession or null
    */
   private getStoredSession(): UserSession | null {
-    const stored = sessionStorage.getItem(this.sessionKey);
-    if (!stored) {
+    const session = this.storage.read<UserSession | null>('session', null);
+    if (!session) {
       return null;
     }
-    const session = JSON.parse(stored) as UserSession;
-    return { ...session, permissions: this.normalizePermissions(session.permissions) };
+    return { ...session, permissions: this.normalizePermissions(session.permissions ?? []) };
   }
 
   /**

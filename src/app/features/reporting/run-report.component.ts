@@ -29,6 +29,7 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 import { PageEvent } from '../../shared/models/table.model';
 import { toIsoDate } from '../../core/utils/date-formatter';
+import { DOWNLOAD } from '../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -208,6 +209,7 @@ import {
 })
 export class RunReportComponent implements OnInit {
   private readonly runReportsService = inject(RunReportsService);
+  private readonly download = inject(DOWNLOAD);
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -279,15 +281,11 @@ export class RunReportComponent implements OnInit {
       )
       .subscribe({
         next: (data) => {
-          const blob = new Blob([data as unknown as string], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.setAttribute('href', url);
-          link.setAttribute('download', `${this.reportName().replace(/\s+/g, '_')}_Report.csv`);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+          this.download.saveText(
+            data as unknown as string,
+            this.csvFilename(),
+            'text/csv;charset=utf-8;',
+          );
           this.isLoading.set(false);
         },
         error: () => {
@@ -349,15 +347,18 @@ export class RunReportComponent implements OnInit {
       csvRows.push(values.join(','));
     }
 
-    const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${this.reportName().replace(/\s+/g, '_')}_Report.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // The BOM makes Excel read the file as UTF-8; without it, accented client names in a
+    // report downloaded on a Windows machine open as mojibake.
+    this.download.saveText(
+      '\uFEFF' + csvRows.join('\n'),
+      this.csvFilename(),
+      'text/csv;charset=utf-8;',
+    );
+  }
+
+  /** Filename shared by both CSV paths, so they cannot drift apart. */
+  private csvFilename(): string {
+    return `${this.reportName().replace(/\s+/g, '_')}_Report.csv`;
   }
 
   onCancel(): void {

@@ -17,16 +17,19 @@
  * under the License.
  */
 
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { STORAGE } from '../adapters';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
+  private readonly storage = inject(STORAGE);
+
   readonly isDarkMode = signal<boolean>(false);
 
   constructor() {
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = this.storage.readRaw('theme');
 
     if (savedTheme === 'dark') {
       this.setDarkMode(true);
@@ -48,10 +51,10 @@ export class ThemeService {
     this.isDarkMode.set(isDark);
     if (isDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('theme', 'dark');
+      this.storage.writeRaw('theme', 'dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('theme', 'light');
+      this.storage.writeRaw('theme', 'light');
     }
   }
 }

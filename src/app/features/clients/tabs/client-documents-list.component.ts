@@ -29,6 +29,7 @@ import {
 import { DocumentsService, DocumentData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { DOWNLOAD } from '../../../core/adapters';
 
 @Component({
   selector: 'app-client-documents-list',
@@ -103,6 +104,7 @@ export class ClientDocumentsListComponent implements OnInit {
   readonly clientId = input.required<number>();
 
   private readonly documentService = inject(DocumentsService);
+  private readonly download = inject(DOWNLOAD);
 
   readonly documents = signal<DocumentData[]>([]);
   readonly isLoading = signal<boolean>(false);
@@ -149,13 +151,8 @@ export class ClientDocumentsListComponent implements OnInit {
       .getEntityTypeEntityIdDocumentsDocumentIdAttachment('clients', this.clientId(), id)
       .subscribe({
         next: (blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
           const doc = this.documents().find((d) => d.id === id);
-          a.download = doc?.fileName || 'document';
-          a.click();
-          window.URL.revokeObjectURL(url);
+          this.download.save(blob, doc?.fileName || 'document');
         },
         error: (err) => console.error('Failed to download document', err),
       });

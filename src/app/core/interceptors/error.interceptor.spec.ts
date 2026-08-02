@@ -21,7 +21,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors, HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { provideFakeAdapters } from '../../testing/adapters';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { errorInterceptor } from './error.interceptor';
@@ -63,10 +63,7 @@ describe('errorInterceptor', () => {
         { provide: NotificationService, useValue: notificationsSpy },
         { provide: Router, useValue: routerSpy },
         { provide: AuthService, useValue: authSpy },
-        {
-          provide: TranslateService,
-          useValue: { instant: (key: string) => key } as Partial<TranslateService>,
-        },
+        ...provideFakeAdapters().providers,
       ],
     });
 

@@ -19,6 +19,7 @@
 
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { ConfigService } from './config.service';
+import { STORAGE } from '../adapters';
 
 /**
  * Category of institution the deployment serves. Determines which
@@ -60,7 +61,7 @@ export const DEFAULT_FEATURE_MATRIX: Record<InstitutionType, readonly Institutio
 })
 export class InstitutionConfigService {
   private readonly config = inject(ConfigService);
-  private readonly storageKey = 'fineract_institution_type';
+  private readonly storage = inject(STORAGE);
 
   /** Which features each institution type exposes, as configured for this deployment. */
   private readonly featureMatrix = computed<Record<InstitutionType, readonly InstitutionFeature[]>>(
@@ -77,7 +78,7 @@ export class InstitutionConfigService {
    * @param type - The institution type to set
    */
   setInstitutionType(type: InstitutionType): void {
-    localStorage.setItem(this.storageKey, type);
+    this.storage.writeRaw('institutionType', type);
     this._institutionType.set(type);
   }
 
@@ -95,7 +96,7 @@ export class InstitutionConfigService {
    * @returns The resolved institution type
    */
   private getStored(): InstitutionType {
-    const stored = localStorage.getItem(this.storageKey);
+    const stored = this.storage.readRaw('institutionType');
     return this.isInstitutionType(stored) ? stored : this.config.config().institutionType;
   }
 
