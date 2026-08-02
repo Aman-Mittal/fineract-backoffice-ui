@@ -20,137 +20,97 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { IonButton, IonIcon } from '@ionic/angular/standalone';
+
 import { CodesService, GetCodesResponse } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { CdkTableModule } from '@angular/cdk/table';
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonIcon,
-  IonSpinner,
-} from '@ionic/angular/standalone';
+import { CellTemplateDirective, ColumnDef } from '../../../shared';
+import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-codes-list',
   standalone: true,
   imports: [
     TranslateModule,
-    CdkTableModule,
     StatusBadgeComponent,
+    DataTableComponent,
+    CellTemplateDirective,
     IonIcon,
     IonButton,
-    IonSpinner,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonCard,
   ],
   template: `
-    <div class="list-container">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>{{ 'CODES.TITLE' | translate }}</ion-card-title>
-          <div class="header-actions">
-            <ion-button color="primary" (click)="onCreate()">
-              <ion-icon name="add-outline"></ion-icon>
-              {{ 'CODES.CREATE' | translate }}
-            </ion-button>
-          </div>
-        </ion-card-header>
+    <app-data-table
+      title="CODES.TITLE"
+      createButtonLabel="CODES.CREATE"
+      [columns]="columns"
+      [data]="codes()"
+      [totalRecords]="codes().length"
+      [showSearch]="true"
+      [localLogic]="true"
+      [isLoading]="loading()"
+      [hasError]="hasError()"
+      (retry)="load()"
+      (create)="onCreate()"
+    >
+      <ng-template appCellTemplate="systemDefined" let-row>
+        @if (row.systemDefined === true) {
+          <app-status-badge status="System"></app-status-badge>
+        }
+      </ng-template>
 
-        <ion-card-content>
-          @if (loading()) {
-            <div class="spinner-container">
-              <ion-spinner name="crescent"></ion-spinner>
-            </div>
-          } @else {
-            <table cdk-table [dataSource]="codes()" class="full-width-table">
-              <!-- Name Column -->
-              <ng-container cdkColumnDef="name">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODES.NAME' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">{{ row.name }}</td>
-              </ng-container>
-
-              <!-- System Defined Column -->
-              <ng-container cdkColumnDef="systemDefined">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODES.SYSTEM_DEFINED' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">
-                  @if (row.systemDefined === true) {
-                    <app-status-badge status="System"></app-status-badge>
-                  }
-                </td>
-              </ng-container>
-
-              <!-- Actions Column -->
-              <ng-container cdkColumnDef="actions">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'CODES.ACTIONS' | translate }}</th>
-                <td cdk-cell *cdkCellDef="let row">
-                  <ion-button fill="clear" color="primary" (click)="onEdit(row)">
-                    <ion-icon name="create-outline"></ion-icon>
-                    {{ 'CODES.EDIT' | translate }}
-                  </ion-button>
-                  <ion-button fill="clear" color="secondary" (click)="onCodeValues(row)">
-                    <ion-icon name="list-outline"></ion-icon>
-                    {{ 'CODES.CODE_VALUES' | translate }}
-                  </ion-button>
-                  <ion-button
-                    fill="clear"
-                    color="danger"
-                    (click)="onDelete(row)"
-                    [disabled]="row.systemDefined === true"
-                    [style.visibility]="row.systemDefined === true ? 'hidden' : 'visible'"
-                  >
-                    <ion-icon name="trash-outline"></ion-icon>
-                    {{ 'CODES.DELETE' | translate }}
-                  </ion-button>
-                </td>
-              </ng-container>
-
-              <tr cdk-header-row *cdkHeaderRowDef="displayedColumns"></tr>
-              <tr cdk-row *cdkRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-          }
-        </ion-card-content>
-      </ion-card>
-    </div>
+      <ng-template appCellTemplate="actions" let-row>
+        <ion-button
+          fill="clear"
+          color="primary"
+          [attr.aria-label]="'CODES.EDIT' | translate"
+          (click)="onEdit(row)"
+        >
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="secondary"
+          [attr.aria-label]="'CODES.CODE_VALUES' | translate"
+          (click)="onCodeValues(row)"
+        >
+          <ion-icon name="list-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <!-- A system-defined code cannot be deleted, so the action is absent rather than
+             present-but-inert: a disabled button invites a click that can never work. -->
+        @if (row.systemDefined !== true) {
+          <ion-button
+            fill="clear"
+            color="danger"
+            [attr.aria-label]="'CODES.DELETE' | translate"
+            (click)="onDelete(row)"
+          >
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        }
+      </ng-template>
+    </app-data-table>
   `,
-  styles: [
-    `
-      .list-container {
-        padding: 24px;
-      }
-      mat-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-      }
-      .header-actions {
-        margin-left: auto;
-      }
-      .full-width-table {
-        width: 100%;
-      }
-      .spinner-container {
-        display: flex;
-        justify-content: center;
-        padding: 32px;
-      }
-    `,
-  ],
 })
 export class CodesListComponent implements OnInit {
   private readonly codesService = inject(CodesService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   readonly codes = signal<GetCodesResponse[]>([]);
   readonly loading = signal(false);
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
 
-  readonly displayedColumns = ['name', 'systemDefined', 'actions'];
+  readonly columns: ColumnDef[] = [
+    { key: 'name', label: 'CODES.NAME', sortable: true },
+    { key: 'systemDefined', label: 'CODES.SYSTEM_DEFINED', sortable: false },
+    { key: 'actions', label: 'CODES.ACTIONS', sortable: false },
+  ];
 
   ngOnInit(): void {
     this.load();
@@ -158,16 +118,19 @@ export class CodesListComponent implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.codesService.getCodes().subscribe({
-      next: (data: GetCodesResponse[]) => {
+    this.codesService
+      .getCodes()
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([] as GetCodesResponse[]);
+        }),
+      )
+      .subscribe((data: GetCodesResponse[]) => {
         this.codes.set(data || []);
         this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load codes', err);
-        this.loading.set(false);
-      },
-    });
+      });
   }
 
   onCreate(): void {
@@ -183,12 +146,22 @@ export class CodesListComponent implements OnInit {
   }
 
   onDelete(row: GetCodesResponse): void {
-    if (row.systemDefined === true) return;
-    const confirmed = window.confirm(`${'CODES.CONFIRM_DELETE'}: ${row.name}`);
-    if (!confirmed || row.id === undefined) return;
-    this.codesService.deleteCodesCodeId(row.id).subscribe({
-      next: () => this.load(),
-      error: (err: unknown) => console.error('Failed to delete code', err),
-    });
+    if (row.systemDefined === true || row.id === undefined) return;
+
+    // Was `window.confirm` with the raw key interpolated, so the dialog literally read
+    // "CODES.CONFIRM_DELETE: <name>". Now the app's own confirm, with the string resolved.
+    void this.dialogService
+      .confirm({
+        title: this.translate.instant('CODES.DELETE'),
+        message: this.translate.instant('CODES.CONFIRM_DELETE', { name: row.name }),
+        destructive: true,
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.codesService.deleteCodesCodeId(row.id!).subscribe({
+          next: () => this.load(),
+          error: () => this.hasError.set(true),
+        });
+      });
   }
 }
