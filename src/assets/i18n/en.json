@@ -385,7 +385,8 @@
     "CHARGE_OFF_BEHAVIOUR": "When the loan is charged off",
     "REPAYMENT_START_DATE_TYPE": "Repayments are counted from",
     "FIXED_LENGTH": "Fixed term length (periods)",
-    "ENABLE_ACCRUAL_ACTIVITY_POSTING": "Post accrual activity entries"
+    "ENABLE_ACCRUAL_ACTIVITY_POSTING": "Post accrual activity entries",
+    "INTEREST_CALC_PERIOD_LOCKED_NOTE": "Fixed to Daily because interest recalculation is on — Fineract only supports the two together. Turn recalculation off to choose a different period."
   },
   "CHARGES": {
     "CREATE": "Create Charge",

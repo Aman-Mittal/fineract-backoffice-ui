@@ -60,6 +60,15 @@ import { LOAN_SCHEDULE_TYPE, isAdvancedPaymentAllocationStrategy } from './loan-
 import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocation-editor.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
+/**
+ * Fineract's id for daily interest calculation.
+ *
+ * Interest recalculation is only supported alongside it: anything else is rejected with
+ * `not.supported.for.selected.interest.calculation.type`, and the form's own default —
+ * "same as repayment period" — is one of the rejected values.
+ */
+const DAILY_INTEREST_CALCULATION_PERIOD = 0;
+
 @Component({
   selector: 'app-loan-product-form',
   standalone: true,
@@ -426,6 +435,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                       data-testid="loan-product-interest-calc-period"
                       name="interestCalculationPeriodType"
                       [(ngModel)]="product().interestCalculationPeriodType"
+                      [disabled]="interestRecalculationEnabled()"
                       required
                     >
                       <ion-select-option [value]="0">{{
@@ -436,6 +446,11 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                       }}</ion-select-option>
                     </ion-select>
                   </ion-item>
+                  @if (interestRecalculationEnabled()) {
+                    <p class="field-note" data-testid="interest-calc-period-locked-note">
+                      {{ 'PRODUCTS.INTEREST_CALC_PERIOD_LOCKED_NOTE' | translate }}
+                    </p>
+                  }
                 </ion-col>
 
                 <!-- Loan Schedule Type -->
@@ -1494,6 +1509,10 @@ export class LoanProductFormComponent implements OnInit {
     product.interestRecalculationCompoundingMethod ??= this.compoundingTypeOptions()[0]?.id;
     product.rescheduleStrategyMethod ??= this.rescheduleStrategyOptions()[0]?.id;
     product.recalculationRestFrequencyType ??= this.recalculationFrequencyOptions()[0]?.id;
+    // Fineract only supports recalculation with daily interest calculation, and rejects the
+    // form's own default outright. Setting it here means the user cannot build a product the
+    // server will refuse; the control is locked and says why.
+    product.interestCalculationPeriodType = DAILY_INTEREST_CALCULATION_PERIOD;
     this.compoundingMethod.set(product.interestRecalculationCompoundingMethod);
     this.restFrequencyType.set(product.recalculationRestFrequencyType);
     this.compoundingFrequencyType.set(product.recalculationCompoundingFrequencyType);

@@ -370,6 +370,9 @@ test.describe('Loan product down payment and tranches', () => {
     // Seeded with "same as repayment period", which needs no interval.
     await expect(page.getByTestId('loan-product-rest-interval')).toHaveCount(0);
 
+    // Wait for the select to be attached before driving it: its options come from the template
+    // request, and picking from it before that resolves times out under parallel load.
+    await expect(page.getByTestId('loan-product-rest-frequency')).toBeVisible();
     await selectOption(page, 'How often interest is recalculated', 'Daily');
 
     await expect(page.getByTestId('loan-product-rest-interval')).toBeVisible();

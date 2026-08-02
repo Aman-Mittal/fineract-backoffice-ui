@@ -420,6 +420,28 @@ describe('LoanProductFormComponent', () => {
       expect(component.interestRecalculationEnabled()).toBeFalse();
     });
 
+    /**
+     * Fineract rejects recalculation alongside any interest calculation period other than daily
+     * with `not.supported.for.selected.interest.calculation.type`, and the form's own default is
+     * one of the rejected values — so enabling it used to build a product the server refused.
+     */
+    it('forces daily interest calculation, which is the only period Fineract supports with it', () => {
+      expect(component.product().interestCalculationPeriodType).toBe(1);
+
+      component.onInterestRecalculationChange(true);
+
+      expect(component.product().interestCalculationPeriodType).toBe(0);
+    });
+
+    it('explains why the interest calculation period is locked', () => {
+      component.onInterestRecalculationChange(true);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="interest-calc-period-locked-note"]'),
+      ).not.toBeNull();
+    });
+
     it('renders its controls only once it is on', () => {
       expect(
         fixture.nativeElement.querySelector('[data-testid="loan-product-compounding-method"]'),
