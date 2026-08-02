@@ -25,6 +25,7 @@ import {
   LoansService,
   LoanBuyDownFeesService,
   LoanCapitalizedIncomeService,
+  LoanTransactionsService,
   BASE_PATH,
 } from '../../api';
 import { AuthService } from '../../core/services/auth.service';
@@ -34,6 +35,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
+import { DialogService } from '../../core/services/dialog.service';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
 
 const PRODUCT_NAME = 'Micro Loan Product';
@@ -46,6 +48,7 @@ describe('LoanViewComponent', () => {
   let buyDownFeesSpy: jasmine.SpyObj<LoanBuyDownFeesService>;
   let capitalizedIncomeSpy: jasmine.SpyObj<LoanCapitalizedIncomeService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let transactionsSpy: jasmine.SpyObj<LoanTransactionsService>;
 
   /** A cumulative loan, i.e. one that can carry none of the progressive-only features. */
   const cumulativeLoan = {
@@ -74,6 +77,10 @@ describe('LoanViewComponent', () => {
       'getLoansExternalIdLoanExternalIdCapitalizedIncomes',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    transactionsSpy = jasmine.createSpyObj('LoanTransactionsService', [
+      'postLoansLoanIdTransactions',
+    ]);
+    transactionsSpy.postLoansLoanIdTransactions.and.returnValue(of({}) as any);
 
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
@@ -103,6 +110,7 @@ describe('LoanViewComponent', () => {
         { provide: LoansService, useValue: loansServiceSpy },
         { provide: LoanBuyDownFeesService, useValue: buyDownFeesSpy },
         { provide: LoanCapitalizedIncomeService, useValue: capitalizedIncomeSpy },
+        { provide: LoanTransactionsService, useValue: transactionsSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: BASE_PATH, useValue: 'https://example.com/fineract-provider/api' },
@@ -210,6 +218,120 @@ describe('LoanViewComponent', () => {
 
       expect(component.showBuyDownFees()).toBeTrue();
       expect(buyDownFeesSpy.getLoansExternalIdLoanExternalIdBuydownFees).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * Fineract keeps a charged-off loan `Active` and flags it separately, so the status badge alone
+   * cannot distinguish it — an officer would otherwise see a normal active loan and act on it.
+   */
+  describe('charge-off', () => {
+    it('offers charge-off on a loan that is not charged off', async () => {
+      expect(component.chargedOff()).toBeFalse();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="loan-charged-off-chip"]'),
+      ).toBeNull();
+    });
+
+    it('shows that a charged-off loan is charged off', async () => {
+      await setup({ chargedOff: true });
+
+      expect(component.chargedOff()).toBeTrue();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="loan-charged-off-chip"]'),
+      ).not.toBeNull();
+    });
+
+    it('sends an empty body when undoing, which is what the command accepts', async () => {
+      await setup({ chargedOff: true });
+      const dialog = TestBed.inject(DialogService);
+      spyOn(dialog, 'confirm').and.returnValue(Promise.resolve(true));
+
+      component.onUndoChargeOff();
+      await fixture.whenStable();
+
+      // `undo-charge-off` rejects `locale` and `dateFormat`, so it cannot go through the shared
+      // transaction form — hence the direct call with `{}`.
+      expect(transactionsSpy.postLoansLoanIdTransactions).toHaveBeenCalledWith(
+        456,
+        {},
+        'undo-charge-off',
+      );
+    });
+
+    it('does nothing when the confirmation is declined', async () => {
+      await setup({ chargedOff: true });
+      const dialog = TestBed.inject(DialogService);
+      spyOn(dialog, 'confirm').and.returnValue(Promise.resolve(false));
+
+      component.onUndoChargeOff();
+      await fixture.whenStable();
+
+      expect(transactionsSpy.postLoansLoanIdTransactions).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * Every servicing command Fineract exposes is gated on the state that makes it legal. The
+   * server enforces these too — re-amortize answers "only available for progressive repayment
+   * schedule and Advanced payment allocation strategy", undo-write-off "loan status is not
+   * written off" — but a menu that offers an action only to have it rejected is a worse
+   * experience than one that does not offer it.
+   *
+   * Asserted on the gating itself rather than the rendered menu: the actions live inside an
+   * `ion-popover` template, which is not in the DOM until the popover is opened. The mocked e2e
+   * spec opens it and checks what is actually on screen.
+   */
+  describe('servicing actions by loan state', () => {
+    it('treats a cumulative loan as ineligible for the progressive-only commands', () => {
+      expect(component.isProgressiveLoan()).toBeFalse();
+      expect(component.canTakeDownPayment()).toBeFalse();
+    });
+
+    it('allows the progressive-only commands on a progressive loan', async () => {
+      await setup({
+        loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      });
+
+      expect(component.isProgressiveLoan()).toBeTrue();
+    });
+
+    it('allows a down payment only when the product enabled one', async () => {
+      await setup({
+        loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      });
+      expect(component.canTakeDownPayment()).toBeFalse();
+
+      await setup({
+        loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+        enableDownPayment: true,
+      });
+      expect(component.canTakeDownPayment()).toBeTrue();
+    });
+
+    it('requires a down payment product to be progressive as well', async () => {
+      await setup({
+        loanScheduleType: { code: LOAN_SCHEDULE_TYPE.CUMULATIVE, value: 'Cumulative' },
+        enableDownPayment: true,
+      });
+
+      expect(component.canTakeDownPayment()).toBeFalse();
+    });
+
+    it('recognises an overpaid loan, which is the only one with a balance to refund', async () => {
+      expect(component.isOverpaid()).toBeFalse();
+
+      await setup({ status: { value: 'Overpaid', overpaid: true } });
+
+      expect(component.isOverpaid()).toBeTrue();
+    });
+
+    it('recognises a written-off loan, which recovery and undo both require', async () => {
+      expect(component.isWrittenOff()).toBeFalse();
+
+      await setup({ status: { value: 'Closed (written off)', closedWrittenOff: true } });
+
+      expect(component.isWrittenOff()).toBeTrue();
     });
   });
 });

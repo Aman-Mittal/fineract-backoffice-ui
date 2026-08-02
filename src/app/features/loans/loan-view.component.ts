@@ -51,6 +51,7 @@ import {
 } from '@ionic/angular/standalone';
 import {
   LoansService,
+  LoanTransactionsService,
   GetLoansLoanIdResponse,
   GetLoansLoanIdRepaymentPeriod,
   GetLoansLoanIdTransactions,
@@ -116,6 +117,18 @@ import {
                     [status]="loan()?.status"
                     class="status-badge"
                   ></app-status-badge>
+                  @if (chargedOff()) {
+                    <div>
+                      <ion-chip
+                        color="warning"
+                        highlighted
+                        data-testid="loan-charged-off-chip"
+                        [appTooltip]="'HELP.CHARGE_OFF_DESC' | translate"
+                      >
+                        {{ 'LOANS.ACTIONS.CHARGED_OFF' | translate }}
+                      </ion-chip>
+                    </div>
+                  }
                   @if (loan()?.loanScheduleType?.value) {
                     <div>
                       <ion-chip
@@ -241,6 +254,139 @@ import {
                       >
                         <ion-icon slot="start" color="danger" name="trash-bin-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</ion-label>
+                      </ion-item>
+
+                      @if (!chargedOff()) {
+                        <ion-item
+                          button
+                          class="warn-item"
+                          data-testid="loan-charge-off-action"
+                          (click)="onLoanTransactionAction('charge-off')"
+                        >
+                          <ion-icon slot="start" color="warning" name="alert-circle-outline">
+                          </ion-icon>
+                          <ion-label>{{ 'LOANS.ACTIONS.CHARGE_OFF' | translate }}</ion-label>
+                        </ion-item>
+                      }
+
+                      <!-- Refunds and credits, all available while the loan is active. -->
+                      <ion-item
+                        button
+                        data-testid="loan-merchant-issued-refund-action"
+                        (click)="onLoanTransactionAction('merchantIssuedRefund')"
+                      >
+                        <ion-icon slot="start" name="storefront-outline"></ion-icon>
+                        <ion-label>{{
+                          'LOANS.ACTIONS.MERCHANT_ISSUED_REFUND' | translate
+                        }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="loan-payout-refund-action"
+                        (click)="onLoanTransactionAction('payoutRefund')"
+                      >
+                        <ion-icon slot="start" name="return-down-back-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.PAYOUT_REFUND' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="loan-goodwill-credit-action"
+                        (click)="onLoanTransactionAction('goodwillCredit')"
+                      >
+                        <ion-icon slot="start" name="gift-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.GOODWILL_CREDIT' | translate }}</ion-label>
+                      </ion-item>
+
+                      <!-- Progressive-engine servicing. Fineract rejects these outright on a
+                           cumulative loan, so they are not offered there. -->
+                      @if (canTakeDownPayment()) {
+                        <ion-item
+                          button
+                          data-testid="loan-down-payment-action"
+                          (click)="onLoanTransactionAction('downPayment')"
+                        >
+                          <ion-icon slot="start" name="wallet-outline"></ion-icon>
+                          <ion-label>{{ 'LOANS.ACTIONS.DOWN_PAYMENT' | translate }}</ion-label>
+                        </ion-item>
+                      }
+
+                      @if (isProgressiveLoan()) {
+                        <ion-item
+                          button
+                          data-testid="loan-interest-payment-waiver-action"
+                          (click)="onLoanTransactionAction('interestPaymentWaiver')"
+                        >
+                          <ion-icon slot="start" name="remove-circle-outline"></ion-icon>
+                          <ion-label>{{
+                            'LOANS.ACTIONS.INTEREST_PAYMENT_WAIVER' | translate
+                          }}</ion-label>
+                        </ion-item>
+
+                        <ion-item
+                          button
+                          data-testid="loan-re-age-action"
+                          (click)="onLoanTransactionAction('reAge')"
+                        >
+                          <ion-icon slot="start" name="calendar-number-outline"></ion-icon>
+                          <ion-label>{{ 'LOANS.ACTIONS.RE_AGE' | translate }}</ion-label>
+                        </ion-item>
+
+                        <ion-item
+                          button
+                          data-testid="loan-re-amortize-action"
+                          (click)="onLoanTransactionAction('reAmortize')"
+                        >
+                          <ion-icon slot="start" name="repeat-outline"></ion-icon>
+                          <ion-label>{{ 'LOANS.ACTIONS.RE_AMORTIZE' | translate }}</ion-label>
+                        </ion-item>
+                      }
+                    }
+
+                    <!-- Only an overpaid loan has a credit balance to give back. -->
+                    @if (isOverpaid()) {
+                      <ion-item
+                        button
+                        data-testid="loan-credit-balance-refund-action"
+                        (click)="onLoanTransactionAction('creditBalanceRefund')"
+                      >
+                        <ion-icon slot="start" name="cash-outline"></ion-icon>
+                        <ion-label>{{
+                          'LOANS.ACTIONS.CREDIT_BALANCE_REFUND' | translate
+                        }}</ion-label>
+                      </ion-item>
+                    }
+
+                    <!-- Both require the loan to have been written off. -->
+                    @if (isWrittenOff()) {
+                      <ion-item
+                        button
+                        data-testid="loan-recovery-payment-action"
+                        (click)="onLoanTransactionAction('recoverypayment')"
+                      >
+                        <ion-icon slot="start" name="trending-up-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.RECOVERY_PAYMENT' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="loan-undo-write-off-action"
+                        (click)="onLoanTransactionAction('undowriteoff')"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_WRITE_OFF' | translate }}</ion-label>
+                      </ion-item>
+                    }
+
+                    @if (chargedOff()) {
+                      <ion-item
+                        button
+                        data-testid="loan-undo-charge-off-action"
+                        (click)="onUndoChargeOff()"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_CHARGE_OFF' | translate }}</ion-label>
                       </ion-item>
                     }
                   </ion-list>
@@ -1162,6 +1308,7 @@ export class LoanViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   readonly activeTab = signal('0');
   private readonly loansService = inject(LoansService);
+  private readonly transactionService = inject(LoanTransactionsService);
   private readonly buyDownFeesService = inject(LoanBuyDownFeesService);
   private readonly capitalizedIncomeService = inject(LoanCapitalizedIncomeService);
   private readonly disbursementDetailsService = inject(LoanDisbursementDetailsService);
@@ -1193,6 +1340,34 @@ export class LoanViewComponent implements OnInit {
   readonly collateralDetail = signal<LoanCollateralResponseData | null>(null);
   collateralDetailId = 0;
   readonly deleteCollateralId = signal(0);
+
+  /**
+   * Fineract keeps a charged-off loan `Active` and flags it separately, so the status badge alone
+   * cannot tell the two apart — an officer would see a normal active loan.
+   */
+  readonly chargedOff = computed(() => this.loan()?.chargedOff === true);
+
+  /** Overpaid loans are the only ones that can refund a credit balance. */
+  readonly isOverpaid = computed(
+    () => (this.loan()?.status as unknown as Record<string, unknown>)?.['overpaid'] === true,
+  );
+
+  /** Recovery payments and undoing a write-off both require the loan to be written off. */
+  readonly isWrittenOff = computed(
+    () =>
+      (this.loan()?.status as unknown as Record<string, unknown>)?.['closedWrittenOff'] === true,
+  );
+
+  /**
+   * Down payment is only meaningful when the product enabled it.
+   *
+   * Fineract's own message for the neighbouring re-amortize command — "only available for
+   * progressive repayment schedule and Advanced payment allocation strategy" — is why these
+   * three are gated on the engine rather than offered everywhere.
+   */
+  readonly canTakeDownPayment = computed(
+    () => this.isProgressiveLoan() && this.loan()?.enableDownPayment === true,
+  );
 
   isProgressiveLoan(): boolean {
     return this.loan()?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
@@ -1495,6 +1670,26 @@ export class LoanViewComponent implements OnInit {
           next: () => this.loadLoanData(),
           error: (err) => console.error('Failed to undo disbursal', err),
         });
+      },
+    );
+  }
+
+  onUndoChargeOff(): void {
+    this.confirm('LOANS.ACTIONS.UNDO_CHARGE_OFF', 'LOANS.CONFIRM_UNDO_CHARGE_OFF').subscribe(
+      (confirmed) => {
+        if (!confirmed) return;
+        // Deliberately not routed through the shared transaction form: this command takes an
+        // empty body, and rejects the `locale` and `dateFormat` that form sends on every request.
+        this.transactionService
+          .postLoansLoanIdTransactions(this.loanId(), {}, 'undo-charge-off')
+          .subscribe({
+            next: () => {
+              this.notifications.success(this.translate.instant('LOANS.CHARGE_OFF_UNDONE'));
+              this.loadLoanData();
+            },
+            error: () =>
+              this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED')),
+          });
       },
     );
   }

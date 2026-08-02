@@ -495,7 +495,20 @@
       "FORECLOSURE": "Foreclosure",
       "PREPAY_LOAN": "Prepay Loan",
       "CLOSE": "Close",
-      "ADJUST_TRANSACTION": "Adjust Transaction"
+      "ADJUST_TRANSACTION": "Adjust Transaction",
+      "CHARGE_OFF": "Charge Off",
+      "UNDO_CHARGE_OFF": "Undo Charge Off",
+      "CHARGED_OFF": "Charged Off",
+      "MERCHANT_ISSUED_REFUND": "Merchant Issued Refund",
+      "PAYOUT_REFUND": "Payout Refund",
+      "GOODWILL_CREDIT": "Goodwill Credit",
+      "DOWN_PAYMENT": "Record Down Payment",
+      "INTEREST_PAYMENT_WAIVER": "Waive Interest Payment",
+      "CREDIT_BALANCE_REFUND": "Refund Credit Balance",
+      "RECOVERY_PAYMENT": "Record Recovery Payment",
+      "UNDO_WRITE_OFF": "Undo Write-off",
+      "RE_AGE": "Re-age Loan",
+      "RE_AMORTIZE": "Re-amortise Loan"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -530,7 +543,14 @@
     "FILE_NAME": "File Name",
     "CONFIRM_DELETE_DOCUMENT": "Are you sure you want to delete this document? This action cannot be undone.",
     "TRANSACTION_DETAILS": "Transaction Details",
-    "REVERSED": "Reversed"
+    "REVERSED": "Reversed",
+    "CHARGE_OFF_REASON": "Reason for charging off",
+    "CONFIRM_CHARGE_OFF": "Charge off this loan? The balance moves out of performing assets for reporting, and collection continues. This is not a write-off.",
+    "CONFIRM_UNDO_CHARGE_OFF": "Undo the charge-off? The loan returns to being reported as a performing asset.",
+    "CHARGE_OFF_UNDONE": "Charge-off reversed.",
+    "CONFIRM_UNDO_WRITE_OFF": "Undo the write-off? The loan returns to being an active receivable.",
+    "CONFIRM_RE_AGE": "Re-age this loan? Overdue instalments are folded into a new schedule, giving the borrower a fresh start on the arrears.",
+    "CONFIRM_RE_AMORTIZE": "Re-amortise this loan? The outstanding balance is spread across the remaining instalments."
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",
@@ -917,7 +937,9 @@
     "CHARGE_OFF_BEHAVIOUR_DESC": "What happens to interest once the loan is written off as uncollectible: carry on as normal, stop accruing, or treat the loan as matured immediately.",
     "REPAYMENT_START_DATE_TYPE_DESC": "Whether the repayment schedule counts from the date the loan was approved for disbursement or the date the money actually went out.",
     "FIXED_LENGTH_DESC": "Force every loan on this product to run for the same number of periods, regardless of the amount borrowed. Leave empty for a term set per loan.",
-    "ACCRUAL_ACTIVITY_POSTING_DESC": "Post an accounting entry each time interest or fees accrue, rather than only when they are charged or paid. Gives finance a running view at the cost of more journal entries."
+    "ACCRUAL_ACTIVITY_POSTING_DESC": "Post an accounting entry each time interest or fees accrue, rather than only when they are charged or paid. Gives finance a running view at the cost of more journal entries.",
+    "CHARGE_OFF_DESC": "Charging off moves the outstanding balance out of performing assets for reporting, while the institution carries on trying to collect. It is not the same as a write-off, which means giving up on recovery. A charged-off loan stays active.",
+    "CHARGE_OFF_REASON_DESC": "Why the loan is being charged off. Recorded against the transaction for audit and reporting. Optional, and only offered when your institution has configured reasons."
   },
   "REPORTS": {
     "NAME": "Report Name",

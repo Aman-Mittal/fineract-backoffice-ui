@@ -15,6 +15,7 @@ import { defineConfig, devices } from '@playwright/test';
 const BACKEND_SPECS = [
   'full-demo.spec.ts',
   'loan-account-actions.spec.ts',
+  'loan-charge-off.spec.ts',
   'loan-lifecycle.spec.ts',
   'loan-schedule-type.spec.ts',
   'loan-servicing.spec.ts',

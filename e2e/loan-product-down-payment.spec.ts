@@ -363,6 +363,9 @@ test.describe('Loan product down payment and tranches', () => {
   test('the rest interval appears only when the frequency is not the repayment period', async ({
     page,
   }) => {
+    // Two ion-select overlays in sequence on a form whose options arrive from the template
+    // request; under parallel workers the default 30s is not enough to open the second reliably.
+    test.slow();
     await login(page);
     await page.goto('/products/loan/create');
     await page.getByTestId('loan-product-interest-recalculation').click();
