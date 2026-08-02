@@ -24,6 +24,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
+  SavingsAccountTransactionsService,
   SavingsAccountData,
   SavingsAccountTransactionData,
   SavingsAccountChargeData,
@@ -36,6 +37,16 @@ import {
   SavingsBlockDialogData,
   SavingsBlockResult,
 } from './savings-block-dialog.component';
+import {
+  SavingsOfficerDialogComponent,
+  SavingsOfficerResult,
+} from './savings-officer-dialog.component';
+import {
+  formatDateToFineract,
+  toIsoDate,
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+} from '../../core/utils/date-formatter';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -124,6 +135,28 @@ import {
                   Approve
                 </ion-button>
               }
+              @if (account()?.status?.submittedAndPendingApproval) {
+                <ion-button
+                  color="danger"
+                  fill="outline"
+                  data-testid="savings-reject"
+                  *appHasPermission="'REJECT_SAVINGSACCOUNT'"
+                  (click)="onDatedCommand('reject', 'rejectedOnDate')"
+                >
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                  {{ 'SAVINGS.REJECT' | translate }}
+                </ion-button>
+                <ion-button
+                  color="medium"
+                  fill="outline"
+                  data-testid="savings-withdrawn"
+                  *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
+                  (click)="onDatedCommand('withdrawnByApplicant', 'withdrawnOnDate')"
+                >
+                  <ion-icon name="arrow-undo-outline"></ion-icon>
+                  {{ 'SAVINGS.WITHDRAWN_BY_APPLICANT' | translate }}
+                </ion-button>
+              }
               @if (account()?.status?.approved) {
                 <ion-button
                   color="primary"
@@ -197,6 +230,31 @@ import {
                       >
                         <ion-icon slot="start" name="pricetag-outline"></ion-icon>
                         <ion-label>{{ 'SAVINGS.APPLY_ANNUAL_FEES' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="savings-assign-officer"
+                        (click)="onAssignOfficer()"
+                      >
+                        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.ASSIGN_OFFICER' | translate }}</ion-label>
+                      </ion-item>
+
+                      @if (hasOfficer()) {
+                        <ion-item
+                          button
+                          data-testid="savings-unassign-officer"
+                          (click)="onDatedCommand('unassignSavingsOfficer', 'unassignedDate')"
+                        >
+                          <ion-icon slot="start" name="person-remove-outline"></ion-icon>
+                          <ion-label>{{ 'SAVINGS.UNASSIGN_OFFICER' | translate }}</ion-label>
+                        </ion-item>
+                      }
+
+                      <ion-item button data-testid="savings-hold-amount" (click)="onHoldAmount()">
+                        <ion-icon slot="start" name="pause-circle-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.HOLD_AMOUNT' | translate }}</ion-label>
                       </ion-item>
 
                       @if (!isBlocked()) {
@@ -613,6 +671,7 @@ export class SavingsAccountViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   readonly activeTab = signal('0');
   private readonly savingsService = inject(SavingsAccountService);
+  private readonly savingsTransactionsService = inject(SavingsAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
@@ -726,11 +785,8 @@ export class SavingsAccountViewComponent implements OnInit {
           command,
         )
         .subscribe({
-          next: () => {
-            this.notifications.success(this.translate.instant('COMMON.SUCCESS'));
-            this.loadAccountData();
-          },
-          error: () => this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED')),
+          next: () => this.afterCommand(),
+          error: () => this.commandFailed(),
         });
     });
   }
@@ -741,6 +797,107 @@ export class SavingsAccountViewComponent implements OnInit {
    * The three draw from *different* Fineract code lists, so the reason cannot be a shared
    * lookup — picking from the wrong list would offer reasons the server rejects.
    */
+  /** Whether an officer is assigned. Fineract reports none as `0`, not as absent. */
+  readonly hasOfficer = computed(() => {
+    const id = (this.account() as unknown as Record<string, unknown> | null)?.['fieldOfficerId'];
+    return typeof id === 'number' && id > 0;
+  });
+
+  /**
+   * Commands that need only a date, under the field name Fineract expects for that command.
+   *
+   * The name differs per command — `rejectedOnDate`, `withdrawnOnDate`, `unassignedDate` — so it
+   * is passed in rather than guessed.
+   */
+  onDatedCommand(command: string, dateField: string): void {
+    const key = command.replace(/([A-Z])/g, '_$1').toUpperCase();
+    from(
+      this.dialogService.confirm({
+        title: this.translate.instant(`SAVINGS.${key}`),
+        message: this.translate.instant(`SAVINGS.CONFIRM_${key}`),
+        destructive: command === 'reject',
+      }),
+    ).subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.runCommand(command, {
+        [dateField]: formatDateToFineract(toIsoDate(new Date())),
+        dateFormat: FINERACT_DATE_FORMAT,
+        locale: FINERACT_LOCALE,
+      });
+    });
+  }
+
+  onAssignOfficer(): void {
+    from(this.dialogService.open<SavingsOfficerResult>(SavingsOfficerDialogComponent)).subscribe(
+      (result) => {
+        if (!result) return;
+        this.runCommand('assignSavingsOfficer', {
+          toSavingsOfficerId: result.toSavingsOfficerId,
+          assignmentDate: formatDateToFineract(toIsoDate(new Date())),
+          dateFormat: FINERACT_DATE_FORMAT,
+          locale: FINERACT_LOCALE,
+        });
+      },
+    );
+  }
+
+  /**
+   * Ring-fences part of the balance.
+   *
+   * Distinct from a block: a hold leaves the rest of the account working, which is the difference
+   * between securing the disputed amount and freezing a customer out of their own money.
+   */
+  onHoldAmount(): void {
+    from(
+      this.dialogService.open<SavingsBlockResult>(SavingsBlockDialogComponent, {
+        data: {
+          titleKey: 'SAVINGS.HOLD_AMOUNT',
+          messageKey: 'SAVINGS.CONFIRM_HOLD_AMOUNT',
+          codeName: 'SavingsAccountBlockReasons',
+          withAmount: true,
+        } satisfies SavingsBlockDialogData,
+      }),
+    ).subscribe((result) => {
+      if (!result?.transactionAmount) return;
+      // On the transactions endpoint, not the account one, and the amount field is
+      // `transactionAmount` — `amount` is rejected outright.
+      this.savingsTransactionsService
+        .postSavingsaccountsSavingsIdTransactions(
+          this.accountId,
+          {
+            transactionAmount: result.transactionAmount,
+            reasonForBlock: result.reasonForBlock,
+            transactionDate: formatDateToFineract(toIsoDate(new Date())),
+            dateFormat: FINERACT_DATE_FORMAT,
+            locale: FINERACT_LOCALE,
+          } as never,
+          'holdAmount',
+        )
+        .subscribe({
+          next: () => this.afterCommand(),
+          error: () => this.commandFailed(),
+        });
+    });
+  }
+
+  private runCommand(command: string, payload: Record<string, unknown>): void {
+    this.savingsService
+      .postSavingsaccountsAccountId(this.accountId, payload as never, command)
+      .subscribe({
+        next: () => this.afterCommand(),
+        error: () => this.commandFailed(),
+      });
+  }
+
+  private afterCommand(): void {
+    this.notifications.success(this.translate.instant('COMMON.SUCCESS'));
+    this.loadAccountData();
+  }
+
+  private commandFailed(): void {
+    this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED'));
+  }
+
   onBlockCommand(command: 'block' | 'blockDebit' | 'blockCredit'): void {
     const config = {
       block: { codeName: 'SavingsAccountBlockReasons', key: 'BLOCK' },
@@ -765,11 +922,8 @@ export class SavingsAccountViewComponent implements OnInit {
           command,
         )
         .subscribe({
-          next: () => {
-            this.notifications.success(this.translate.instant('COMMON.SUCCESS'));
-            this.loadAccountData();
-          },
-          error: () => this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED')),
+          next: () => this.afterCommand(),
+          error: () => this.commandFailed(),
         });
     });
   }

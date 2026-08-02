@@ -66,6 +66,11 @@ export class IonicOverlayAdapter implements OverlayAdapter {
     return handle.result;
   }
 
+  async dismissModal<T>(result?: T): Promise<void> {
+    // Ionic routes this to the topmost modal, which is the one the calling component is in.
+    await this.modalController.dismiss(result);
+  }
+
   async presentModal<T>(request: ModalRequest): Promise<ModalHandle<T>> {
     const modal = await this.modalController.create({
       component: request.component,

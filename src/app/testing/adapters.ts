@@ -60,6 +60,14 @@ export class FakeOverlayAdapter implements OverlayAdapter {
   /** Set when a modal opened via `presentModal` was dismissed through its handle. */
   dismissed = false;
 
+  /**
+   * Results passed to `dismissModal`, in order.
+   *
+   * Recorded rather than merely flagged: a dialog component's whole contribution is the value it
+   * hands back, so a spec asserting on that value is asserting the thing that matters.
+   */
+  readonly dismissals: unknown[] = [];
+
   async toast(request: ToastRequest): Promise<void> {
     this.toasts.push(request);
   }
@@ -67,6 +75,10 @@ export class FakeOverlayAdapter implements OverlayAdapter {
   async modal<T>(request: ModalRequest): Promise<T | undefined> {
     const handle = await this.presentModal<T>(request);
     return handle.result;
+  }
+
+  async dismissModal<T>(result?: T): Promise<void> {
+    this.dismissals.push(result);
   }
 
   async presentModal<T>(request: ModalRequest): Promise<ModalHandle<T>> {
