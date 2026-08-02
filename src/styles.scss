@@ -16,17 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/* Ionic's base CSS is loaded via the `styles` array in angular.json rather than from here.
+   A Sass `@import` of a .css file is emitted as a plain CSS @import with a bare package
+   specifier, which the dev server cannot resolve — it served index.html for every one of
+   them, so Ionic components rendered with no base styles at all.
+
+   That array lists `@ionic/angular/css/ionic.bundle.css` before `src/styles.scss`, which is
+   what puts Ionic's stock `:root` palette ahead of everything below. Nothing in this file
+   can affect that ordering.
+
+   Load order here decides the rest, and `ionic-theme` is last because it maps Ionic's
+   theming variables onto the design tokens `common` defines. `@use` emits each module's CSS
+   in the order the rules appear, so this list is the cascade. */
 @use 'styles/common' as *;
 @use 'styles/dialogs';
-
-/* Ionic's base CSS is loaded via the `styles` array in angular.json rather than an
-   @import here. A Sass `@import` of a .css file is emitted as a plain CSS @import with a
-   bare package specifier, which the dev server cannot resolve — it served index.html for
-   every one of them, so Ionic components rendered with no base styles at all. */
-
-/* Maps Ionic's theming variables onto the app's design tokens. Must come after
-   the Ionic CSS above, whose :root block defines the stock palette. */
-@import 'styles/ionic-theme';
+@use 'styles/ionic-theme';
 
 :root {
   --sidebar-width: 260px;

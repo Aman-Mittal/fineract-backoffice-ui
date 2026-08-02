@@ -105,7 +105,10 @@ export const appConfig: ApplicationConfig = {
     },
     importProvidersFrom(
       TranslateModule.forRoot({
-        defaultLanguage: 'en',
+        // `defaultLanguage` is deprecated in ngx-translate 17 and warns on every test run.
+        // `fallbackLang` is the replacement and means the same thing here: the catalogue
+        // consulted when a key is missing from the active language.
+        fallbackLang: 'en',
       }),
     ),
     provideTranslateHttpLoader({
