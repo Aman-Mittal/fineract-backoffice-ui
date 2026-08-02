@@ -1,0 +1,99 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Dev Release CI
+
+on:
+  push:
+    branches:
+      - dev-release
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build
+        run: npm run build -- --configuration production --base-href /fineract-backoffice-ui/
+
+      # The demo is a static site on GitHub Pages, so it has no backend of its own. The
+      # committed public/config.json ships a relative "/api/v1", which resolves against
+      # github.io and cannot work here — every request would 404 against Pages itself.
+      #
+      # Point it at the community Fineract sandbox instead. That host returns
+      # Access-Control-Allow-Origin for this Pages origin and permits the authorization,
+      # content-type and fineract-platform-tenantid headers the application sends, so the
+      # browser will accept the cross-origin responses.
+      #
+      # This is written here rather than committed to public/config.json so the demo endpoint
+      # does not become a permanent divergence that conflicts on every merge from main.
+      - name: Point the demo at the community Fineract sandbox
+        run: |
+          # allowedApiOrigins entries are offered to the user as selectable endpoints on the
+          # login screen, not just used for allow-listing. So each one must be a complete API
+          # base URL: a bare origin would appear in the dropdown as a legitimate-looking choice
+          # and then send requests to <origin>/authentication, with no /fineract-provider/api/v1
+          # path — which the server answers 405 and without CORS headers.
+          #
+          # A full URL still allow-lists correctly, because isOriginAllowed() compares
+          # new URL(allowed).origin and so ignores the path.
+          cat > dist/fineract-backoffice-ui/browser/config.json <<'JSON'
+          {
+            "fineractApiUrl": "https://sandbox.mifos.community/fineract-provider/api/v1",
+            "defaultTenant": "default",
+            "rbacEnabled": true,
+            "institutionType": "universal",
+            "allowedApiOrigins": ["https://sandbox.mifos.community/fineract-provider/api/v1"]
+          }
+          JSON
+          cat dist/fineract-backoffice-ui/browser/config.json
+
+      - name: Copy index.html to 404.html for GitHub Pages routing fallback
+        run: cp dist/fineract-backoffice-ui/browser/index.html dist/fineract-backoffice-ui/browser/404.html
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-release-build
+          path: dist/fineract-backoffice-ui/browser
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist/fineract-backoffice-ui/browser
+          force_orphan: true
