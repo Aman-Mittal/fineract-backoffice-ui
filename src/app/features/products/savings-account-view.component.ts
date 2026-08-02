@@ -17,9 +17,10 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { computed, inject, signal, Component, OnInit } from '@angular/core';
+import { from } from 'rxjs';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
@@ -29,6 +30,7 @@ import {
 } from '../../api';
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
 import { NotificationService } from '../../core/services/notification.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -38,7 +40,11 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonChip,
+  IonItem,
   IonLabel,
+  IonList,
+  IonPopover,
   IonSegment,
   IonSegmentButton,
 } from '@ionic/angular/standalone';
@@ -66,7 +72,11 @@ import {
     IonCard,
     IonSegment,
     IonSegmentButton,
+    IonChip,
+    IonItem,
     IonLabel,
+    IonList,
+    IonPopover,
     TooltipDirective,
   ],
   template: `
@@ -89,6 +99,11 @@ import {
                     [status]="account()?.status"
                     class="status-badge"
                   ></app-status-badge>
+                  @if (blockLabelKey(); as blockKey) {
+                    <ion-chip color="warning" highlighted data-testid="savings-blocked-chip">
+                      {{ blockKey | translate }}
+                    </ion-chip>
+                  }
                 </div>
               </div>
             </div>
@@ -144,6 +159,77 @@ import {
                 <ion-icon name="remove-circle-outline"></ion-icon>
                 Withdraw
               </ion-button>
+              @if (isActive()) {
+                <ion-button color="primary" id="savingsMenu-trigger" data-testid="savings-actions">
+                  <ion-icon name="caret-down-outline"></ion-icon>
+                  {{ 'COMMON.ACTIONS' | translate }}
+                </ion-button>
+                <ion-popover trigger="savingsMenu-trigger" [dismissOnSelect]="true">
+                  <ng-template>
+                    <ion-list>
+                      <ion-item
+                        button
+                        data-testid="savings-calculate-interest"
+                        (click)="onSimpleCommand('calculateInterest')"
+                      >
+                        <ion-icon slot="start" name="calculator-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.CALCULATE_INTEREST' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="savings-post-interest"
+                        (click)="onSimpleCommand('postInterest')"
+                      >
+                        <ion-icon slot="start" name="trending-up-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.POST_INTEREST' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="savings-apply-annual-fees"
+                        (click)="onSimpleCommand('applyAnnualFees')"
+                      >
+                        <ion-icon slot="start" name="pricetag-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.APPLY_ANNUAL_FEES' | translate }}</ion-label>
+                      </ion-item>
+
+                      <!-- Reversals only. Fineract rejects each one unless the matching block is
+                           actually in force, so they appear only when it is. -->
+                      @if (isBlocked()) {
+                        <ion-item
+                          button
+                          data-testid="savings-unblock"
+                          (click)="onSimpleCommand('unblock')"
+                        >
+                          <ion-icon slot="start" name="lock-open-outline"></ion-icon>
+                          <ion-label>{{ 'SAVINGS.UNBLOCK' | translate }}</ion-label>
+                        </ion-item>
+                      }
+                      @if (isDebitBlocked()) {
+                        <ion-item
+                          button
+                          data-testid="savings-unblock-debit"
+                          (click)="onSimpleCommand('unblockDebit')"
+                        >
+                          <ion-icon slot="start" name="lock-open-outline"></ion-icon>
+                          <ion-label>{{ 'SAVINGS.UNBLOCK_DEBIT' | translate }}</ion-label>
+                        </ion-item>
+                      }
+                      @if (isCreditBlocked()) {
+                        <ion-item
+                          button
+                          data-testid="savings-unblock-credit"
+                          (click)="onSimpleCommand('unblockCredit')"
+                        >
+                          <ion-icon slot="start" name="lock-open-outline"></ion-icon>
+                          <ion-label>{{ 'SAVINGS.UNBLOCK_CREDIT' | translate }}</ion-label>
+                        </ion-item>
+                      }
+                    </ion-list>
+                  </ng-template>
+                </ion-popover>
+              }
               <ion-button fill="clear" (click)="onBack()">
                 <ion-icon name="arrow-back-outline"></ion-icon>
                 {{ 'COMMON.BACK' | translate }}
@@ -491,6 +577,8 @@ export class SavingsAccountViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   accountId = 0;
   readonly account = signal<SavingsAccountData | null>(null);
@@ -548,6 +636,64 @@ export class SavingsAccountViewComponent implements OnInit {
 
   onTransaction(command: string) {
     this.router.navigate([`/products/savings-accounts/${this.accountId}/transactions/${command}`]);
+  }
+
+  /**
+   * `subStatus` is where Fineract records a block; `status` stays `Active` throughout, so the
+   * status badge alone cannot tell a frozen account from a healthy one.
+   */
+  readonly isActive = computed(() => this.account()?.status?.active === true);
+  readonly isBlocked = computed(() => this.subStatus()?.['block'] === true);
+  readonly isDebitBlocked = computed(() => this.subStatus()?.['blockDebit'] === true);
+  readonly isCreditBlocked = computed(() => this.subStatus()?.['blockCredit'] === true);
+
+  private subStatus(): Record<string, unknown> | undefined {
+    return (this.account() as unknown as Record<string, Record<string, unknown>> | null)?.[
+      'subStatus'
+    ];
+  }
+
+  /** The most restrictive block in force, or null when the account moves freely. */
+  blockLabelKey(): string | null {
+    if (this.isBlocked()) return 'SAVINGS.BLOCKED';
+    if (this.isDebitBlocked() && this.isCreditBlocked()) return 'SAVINGS.BLOCKED';
+    if (this.isDebitBlocked()) return 'SAVINGS.DEBITS_BLOCKED';
+    if (this.isCreditBlocked()) return 'SAVINGS.CREDITS_BLOCKED';
+    return null;
+  }
+
+  /**
+   * Commands that need nothing beyond a confirmation.
+   *
+   * Each was verified against a running Fineract: they accept `dateFormat` and `locale` and
+   * nothing else. The block commands are deliberately not here — they require a
+   * `reasonForBlock` drawn from a different code list per block type, which needs its own picker.
+   */
+  onSimpleCommand(command: string): void {
+    const titleKey = `SAVINGS.${command.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+    from(
+      this.dialogService.confirm({
+        title: this.translate.instant(titleKey),
+        message: this.translate.instant(
+          `SAVINGS.CONFIRM_${command.replace(/([A-Z])/g, '_$1').toUpperCase()}`,
+        ),
+      }),
+    ).subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.savingsService
+        .postSavingsaccountsAccountId(
+          this.accountId,
+          { dateFormat: 'dd MMMM yyyy', locale: 'en' } as never,
+          command,
+        )
+        .subscribe({
+          next: () => {
+            this.notifications.success(this.translate.instant('COMMON.SUCCESS'));
+            this.loadAccountData();
+          },
+          error: () => this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED')),
+        });
+    });
   }
 
   onSavingsAction(command: string) {

@@ -28,6 +28,7 @@ import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
+import { provideIonicTesting } from '../../testing/ionic-testing';
 
 describe('SavingsAccountViewComponent', () => {
   let component: SavingsAccountViewComponent;
@@ -56,6 +57,7 @@ describe('SavingsAccountViewComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SavingsAccountViewComponent, TranslateModule.forRoot()],
       providers: [
+        provideIonicTesting(),
         provideNoopAnimations(),
         { provide: SavingsAccountService, useValue: savingsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
@@ -101,5 +103,46 @@ describe('SavingsAccountViewComponent', () => {
       'all',
     );
     expect(component.account()?.savingsProductName).toBe('Regular Savings');
+  });
+
+  /**
+   * Fineract records a block in `subStatus` and leaves `status` as `Active`, so the status badge
+   * cannot distinguish a frozen account from a healthy one. It also rejects each reversal unless
+   * the matching block is actually in force — `unblockDebit` answers "debits.are.not.blocked" —
+   * so each is offered only in the state that permits it.
+   */
+  describe('block state', () => {
+    function withSubStatus(subStatus: Record<string, boolean>): void {
+      component.account.set({
+        ...(component.account() ?? {}),
+        status: { active: true },
+        subStatus,
+      } as never);
+    }
+
+    it('reports no block on a healthy account', () => {
+      withSubStatus({ block: false, blockDebit: false, blockCredit: false });
+
+      expect(component.isBlocked()).toBeFalse();
+      expect(component.isDebitBlocked()).toBeFalse();
+      expect(component.isCreditBlocked()).toBeFalse();
+      expect(component.blockLabelKey()).toBeNull();
+    });
+
+    it('distinguishes a debit block from a credit block', () => {
+      withSubStatus({ block: false, blockDebit: true, blockCredit: false });
+      expect(component.blockLabelKey()).toBe('SAVINGS.DEBITS_BLOCKED');
+
+      withSubStatus({ block: false, blockDebit: false, blockCredit: true });
+      expect(component.blockLabelKey()).toBe('SAVINGS.CREDITS_BLOCKED');
+    });
+
+    it('treats a full block, and both partial blocks together, as frozen', () => {
+      withSubStatus({ block: true, blockDebit: false, blockCredit: false });
+      expect(component.blockLabelKey()).toBe('SAVINGS.BLOCKED');
+
+      withSubStatus({ block: false, blockDebit: true, blockCredit: true });
+      expect(component.blockLabelKey()).toBe('SAVINGS.BLOCKED');
+    });
   });
 });
