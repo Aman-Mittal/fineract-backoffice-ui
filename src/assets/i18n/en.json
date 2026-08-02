@@ -262,7 +262,8 @@
       "UNEXPECTED": "Something went wrong. The action was not completed — please try again.",
       "LOAD_FAILED": "This list could not be loaded."
     },
-    "RETRY": "Try again"
+    "RETRY": "Try again",
+    "SUCCESS": "Done."
   },
   "ACTIONS": {
     "NEW_ACCOUNT": "New Account",
@@ -688,7 +689,30 @@
     "WITHDRAW_CASH": "Withdraw Cash",
     "APPROVE": "Approve Savings Account",
     "ACTIVATE": "Activate Savings Account",
-    "CLOSE": "Close Savings Account"
+    "CLOSE": "Close Savings Account",
+    "CALCULATE_INTEREST": "Calculate Interest",
+    "POST_INTEREST": "Post Interest",
+    "APPLY_ANNUAL_FEES": "Apply Annual Fees",
+    "UNBLOCK": "Unfreeze Account",
+    "UNBLOCK_DEBIT": "Allow Withdrawals Again",
+    "UNBLOCK_CREDIT": "Allow Deposits Again",
+    "BLOCKED": "Frozen",
+    "DEBITS_BLOCKED": "Withdrawals blocked",
+    "CREDITS_BLOCKED": "Deposits blocked",
+    "CONFIRM_CALCULATE_INTEREST": "Work out the interest earned so far? This only calculates it — nothing is posted to the account.",
+    "CONFIRM_POST_INTEREST": "Post the interest earned to this account? The balance changes and the customer sees it.",
+    "CONFIRM_APPLY_ANNUAL_FEES": "Charge the product's annual fee to this account?",
+    "CONFIRM_UNBLOCK": "Unfreeze this account? Money can move in and out again.",
+    "CONFIRM_UNBLOCK_DEBIT": "Allow withdrawals again? Deposits are unaffected.",
+    "CONFIRM_UNBLOCK_CREDIT": "Allow deposits again? Withdrawals are unaffected.",
+    "BLOCK": "Freeze Account",
+    "BLOCK_DEBIT": "Stop Withdrawals",
+    "BLOCK_CREDIT": "Stop Deposits",
+    "BLOCK_REASON": "Reason",
+    "NO_BLOCK_REASONS": "No reasons have been configured for this. Add them under Manage Codes before freezing an account.",
+    "CONFIRM_BLOCK": "Freeze this account? No money can move in or out until it is unfrozen. The customer will not be able to deposit or withdraw.",
+    "CONFIRM_BLOCK_DEBIT": "Stop withdrawals from this account? Deposits still go through — the customer can pay in but cannot take money out.",
+    "CONFIRM_BLOCK_CREDIT": "Stop deposits into this account? Withdrawals still go through — the customer can draw down the balance but cannot pay in."
   },
   "USERS": {
     "CREATE": "Create User",
