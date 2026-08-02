@@ -52,7 +52,7 @@
     "@ionic/angular": "^8.8.15",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
-    "es-module-shims": "^1.5.12",
+    "es-module-shims": "^2.8.4",
     "ionicons": "^8.0.13",
     "rxjs": "~7.8.0",
     "tslib": "^2.8.1",
