@@ -38,6 +38,8 @@ import {
   LOAN_SCHEDULE_TYPE,
 } from './loan-schedule-type';
 
+const EQUAL_AMORTIZATION_LABEL = 'Equal amortization';
+
 const TEMPLATE = {
   loanScheduleTypeOptions: [
     { id: 1, code: LOAN_SCHEDULE_TYPE.CUMULATIVE, value: 'Cumulative' },
@@ -56,6 +58,50 @@ const TEMPLATE = {
   creditAllocationAllocationTypes: [],
   creditAllocationTransactionTypes: [],
   currencyOptions: [{ code: 'USD', name: 'US Dollar', decimalPlaces: 2 }],
+  capitalizedIncomeTypeOptions: [
+    { code: 'FEE', value: 'Fee' },
+    { code: 'INTEREST', value: 'Interest' },
+  ],
+  capitalizedIncomeCalculationTypeOptions: [{ code: 'FLAT', value: 'Flat' }],
+  capitalizedIncomeStrategyOptions: [
+    { code: 'EQUAL_AMORTIZATION', value: EQUAL_AMORTIZATION_LABEL },
+  ],
+  buyDownFeeIncomeTypeOptions: [{ code: 'FEE', value: 'Fee' }],
+  buyDownFeeCalculationTypeOptions: [{ code: 'FLAT', value: 'Flat' }],
+  buyDownFeeStrategyOptions: [{ code: 'EQUAL_AMORTIZATION', value: EQUAL_AMORTIZATION_LABEL }],
+  interestRecalculationCompoundingTypeOptions: [
+    { id: 0, code: 'interestRecalculationCompoundingMethod.none', description: 'None' },
+    { id: 1, code: 'interestRecalculationCompoundingMethod.fee', description: 'Fee' },
+  ],
+  interestRecalculationFrequencyTypeOptions: [
+    {
+      id: 1,
+      code: 'interestRecalculationFrequencyType.same.as.repayment.period',
+      description: 'Same as repayment period',
+    },
+    { id: 2, code: 'interestRecalculationFrequencyType.daily', description: 'Daily' },
+  ],
+  rescheduleStrategyTypeOptions: [
+    {
+      id: 1,
+      code: 'loanRescheduleStrategyMethod.reduce.emi.amount',
+      description: 'Reduce EMI amount',
+    },
+  ],
+  preClosureInterestCalculationStrategyOptions: [
+    {
+      id: 1,
+      code: 'preClosureInterestCalculationStrategy.tillPreClosureDate',
+      description: 'Till pre-close date',
+    },
+  ],
+  repaymentStartDateTypeOptions: [
+    { id: 1, code: 'repaymentStartDateType.disbursement', description: 'Disbursement date' },
+  ],
+  chargeOffBehaviourOptions: [
+    { code: 'REGULAR', value: 'Regular' },
+    { code: 'ZERO_INTEREST', value: 'Zero interest' },
+  ],
 };
 
 describe('LoanProductFormComponent', () => {
@@ -286,6 +332,121 @@ describe('LoanProductFormComponent', () => {
     });
   });
 
+  describe('interest recalculation', () => {
+    /**
+     * `POST /loanproducts` documents the chain: the compounding method, reschedule strategy and
+     * rest frequency are mandatory once recalculation is on, and each interval applies only when
+     * its frequency is something other than the repayment period. Before this, the flag was a
+     * hardcoded `false` with no control at all.
+     */
+    it('seeds the three mandatory fields when it is switched on', () => {
+      component.onInterestRecalculationChange(true);
+
+      const product = component.product();
+      expect(product.isInterestRecalculationEnabled).toBeTrue();
+      expect(product.interestRecalculationCompoundingMethod).toBe(0);
+      expect(product.rescheduleStrategyMethod).toBe(1);
+      expect(product.recalculationRestFrequencyType).toBe(1);
+    });
+
+    it('hides the rest interval while the frequency matches the repayment period', () => {
+      component.onInterestRecalculationChange(true);
+      component.onRestFrequencyTypeChange(1); // same as repayment period
+
+      expect(component.restIntervalApplies()).toBeFalse();
+
+      component.onRestFrequencyTypeChange(2); // daily
+
+      expect(component.restIntervalApplies()).toBeTrue();
+    });
+
+    it('drops a rest interval that no longer applies', () => {
+      component.onInterestRecalculationChange(true);
+      component.onRestFrequencyTypeChange(2);
+      component.product().recalculationRestFrequencyInterval = 3;
+
+      component.onRestFrequencyTypeChange(1);
+
+      expect(component.product().recalculationRestFrequencyInterval).toBeUndefined();
+    });
+
+    it('treats a "none" compounding method as no compounding', () => {
+      component.onInterestRecalculationChange(true);
+      component.onCompoundingMethodChange(0);
+      expect(component.compoundingSelected()).toBeFalse();
+
+      component.onCompoundingMethodChange(1);
+      expect(component.compoundingSelected()).toBeTrue();
+    });
+
+    it('drops the compounding settings when the method goes back to none', () => {
+      component.onInterestRecalculationChange(true);
+      component.onCompoundingMethodChange(1);
+      component.onCompoundingFrequencyTypeChange(2);
+      component.product().recalculationCompoundingFrequencyInterval = 2;
+
+      component.onCompoundingMethodChange(0);
+
+      expect(component.product().recalculationCompoundingFrequencyType).toBeUndefined();
+      expect(component.product().recalculationCompoundingFrequencyInterval).toBeUndefined();
+    });
+
+    it('needs a compounding interval only when compounding is on and not per repayment period', () => {
+      component.onInterestRecalculationChange(true);
+      component.onCompoundingMethodChange(1);
+
+      component.onCompoundingFrequencyTypeChange(1);
+      expect(component.compoundingIntervalApplies()).toBeFalse();
+
+      component.onCompoundingFrequencyTypeChange(2);
+      expect(component.compoundingIntervalApplies()).toBeTrue();
+    });
+
+    it('clears the whole group when it is switched off', () => {
+      component.onInterestRecalculationChange(true);
+      component.onCompoundingMethodChange(1);
+      component.onCompoundingFrequencyTypeChange(2);
+      component.product().preClosureInterestCalculationStrategy = 1;
+
+      component.onInterestRecalculationChange(false);
+
+      const product = component.product();
+      expect(product.isInterestRecalculationEnabled).toBeFalse();
+      expect(product.interestRecalculationCompoundingMethod).toBeUndefined();
+      expect(product.rescheduleStrategyMethod).toBeUndefined();
+      expect(product.recalculationRestFrequencyType).toBeUndefined();
+      expect(product.recalculationCompoundingFrequencyType).toBeUndefined();
+      expect(product.preClosureInterestCalculationStrategy).toBeUndefined();
+      expect(component.interestRecalculationEnabled()).toBeFalse();
+    });
+
+    it('renders its controls only once it is on', () => {
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="loan-product-compounding-method"]'),
+      ).toBeNull();
+
+      component.onInterestRecalculationChange(true);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="loan-product-compounding-method"]'),
+      ).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="loan-product-reschedule-strategy"]'),
+      ).not.toBeNull();
+    });
+  });
+
+  describe('option lists', () => {
+    /** These come from the product template; an earlier revision held them as local constants. */
+    it('takes the income-recognition options from the template', () => {
+      expect(component.capitalizedIncomeTypeOptions()).toHaveSize(2);
+      expect(component.capitalizedIncomeStrategyOptions()[0].value).toBe(EQUAL_AMORTIZATION_LABEL);
+      expect(component.chargeOffBehaviourOptions()).toHaveSize(2);
+      expect(component.repaymentStartDateTypeOptions()).toHaveSize(1);
+    });
+  });
+
   describe('editing an existing product', () => {
     /**
      * The payload is rebuilt field by field, so anything the form does not name is dropped on
@@ -311,11 +472,14 @@ describe('LoanProductFormComponent', () => {
           enableIncomeCapitalization: true,
           capitalizedIncomeType: { code: 'INTEREST', value: 'Interest' },
           capitalizedIncomeCalculationType: { code: 'FLAT', value: 'Flat' },
-          capitalizedIncomeStrategy: { code: 'EQUAL_AMORTIZATION', value: 'Equal amortization' },
+          capitalizedIncomeStrategy: {
+            code: 'EQUAL_AMORTIZATION',
+            value: EQUAL_AMORTIZATION_LABEL,
+          },
           enableBuyDownFee: true,
           buyDownFeeIncomeType: { code: 'FEE', value: 'Fee' },
           buyDownFeeCalculationType: { code: 'FLAT', value: 'Flat' },
-          buyDownFeeStrategy: { code: 'EQUAL_AMORTIZATION', value: 'Equal amortization' },
+          buyDownFeeStrategy: { code: 'EQUAL_AMORTIZATION', value: EQUAL_AMORTIZATION_LABEL },
         }) as any,
       );
 

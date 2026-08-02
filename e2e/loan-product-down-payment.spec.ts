@@ -107,6 +107,50 @@ async function login(page: Page): Promise<Captured> {
         creditAllocationAllocationTypes: [],
         creditAllocationTransactionTypes: [],
         chargeOptions: [],
+        capitalizedIncomeTypeOptions: [
+          { code: 'FEE', value: 'Fee' },
+          { code: 'INTEREST', value: 'Interest' },
+        ],
+        capitalizedIncomeCalculationTypeOptions: [{ code: 'FLAT', value: 'Flat' }],
+        capitalizedIncomeStrategyOptions: [
+          { code: 'EQUAL_AMORTIZATION', value: 'Equal amortization' },
+        ],
+        buyDownFeeIncomeTypeOptions: [{ code: 'FEE', value: 'Fee' }],
+        buyDownFeeCalculationTypeOptions: [{ code: 'FLAT', value: 'Flat' }],
+        buyDownFeeStrategyOptions: [{ code: 'EQUAL_AMORTIZATION', value: 'Equal amortization' }],
+        interestRecalculationCompoundingTypeOptions: [
+          { id: 0, code: 'interestRecalculationCompoundingMethod.none', description: 'None' },
+          { id: 1, code: 'interestRecalculationCompoundingMethod.fee', description: 'Fee' },
+        ],
+        interestRecalculationFrequencyTypeOptions: [
+          {
+            id: 1,
+            code: 'interestRecalculationFrequencyType.same.as.repayment.period',
+            description: 'Same as repayment period',
+          },
+          { id: 2, code: 'interestRecalculationFrequencyType.daily', description: 'Daily' },
+        ],
+        rescheduleStrategyTypeOptions: [
+          {
+            id: 1,
+            code: 'loanRescheduleStrategyMethod.reduce.emi.amount',
+            description: 'Reduce EMI amount',
+          },
+        ],
+        preClosureInterestCalculationStrategyOptions: [
+          {
+            id: 1,
+            code: 'preClosureInterestCalculationStrategy.tillPreClosureDate',
+            description: 'Till pre-close date',
+          },
+        ],
+        repaymentStartDateTypeOptions: [
+          { id: 1, code: 'repaymentStartDateType.disbursement', description: 'Disbursement date' },
+        ],
+        chargeOffBehaviourOptions: [
+          { code: 'REGULAR', value: 'Regular' },
+          { code: 'ZERO_INTEREST', value: 'Zero interest' },
+        ],
       }),
     }),
   );
@@ -298,5 +342,71 @@ test.describe('Loan product down payment and tranches', () => {
     expect(body['capitalizedIncomeType']).toBeUndefined();
     expect(body['enableBuyDownFee']).toBeUndefined();
     expect(body['buyDownFeeStrategy']).toBeUndefined();
+  });
+
+  test('interest recalculation reveals its mandatory settings only once it is on', async ({
+    page,
+  }) => {
+    await login(page);
+    await page.goto('/products/loan/create');
+    await expect(page.getByTestId('loan-product-interest-recalculation')).toBeVisible();
+
+    await expect(page.getByTestId('loan-product-compounding-method')).toHaveCount(0);
+
+    await page.getByTestId('loan-product-interest-recalculation').click();
+
+    await expect(page.getByTestId('loan-product-compounding-method')).toBeVisible();
+    await expect(page.getByTestId('loan-product-reschedule-strategy')).toBeVisible();
+    await expect(page.getByTestId('loan-product-rest-frequency')).toBeVisible();
+  });
+
+  test('the rest interval appears only when the frequency is not the repayment period', async ({
+    page,
+  }) => {
+    await login(page);
+    await page.goto('/products/loan/create');
+    await page.getByTestId('loan-product-interest-recalculation').click();
+
+    // Seeded with "same as repayment period", which needs no interval.
+    await expect(page.getByTestId('loan-product-rest-interval')).toHaveCount(0);
+
+    await selectOption(page, 'How often interest is recalculated', 'Daily');
+
+    await expect(page.getByTestId('loan-product-rest-interval')).toBeVisible();
+  });
+
+  test('submits the interest recalculation settings it was given', async ({ page }) => {
+    const captured = await login(page);
+    await page.goto('/products/loan/create');
+    await fillRequiredFields(page, 'E2E Recalculating Product');
+
+    await page.getByTestId('loan-product-interest-recalculation').click();
+    await page.getByTestId('loan-product-submit-btn').click();
+
+    await expect.poll(() => captured.body).not.toBeNull();
+    expect(captured.body).toMatchObject({
+      isInterestRecalculationEnabled: true,
+      interestRecalculationCompoundingMethod: 0,
+      rescheduleStrategyMethod: 1,
+      recalculationRestFrequencyType: 1,
+    });
+  });
+
+  test('does not send recalculation settings once it is switched back off', async ({ page }) => {
+    const captured = await login(page);
+    await page.goto('/products/loan/create');
+    await fillRequiredFields(page, 'E2E No Recalculation Product');
+
+    await page.getByTestId('loan-product-interest-recalculation').click();
+    await page.getByTestId('loan-product-interest-recalculation').click();
+
+    await page.getByTestId('loan-product-submit-btn').click();
+
+    await expect.poll(() => captured.body).not.toBeNull();
+    const body = captured.body as Record<string, unknown>;
+    expect(body['isInterestRecalculationEnabled']).toBe(false);
+    expect(body['interestRecalculationCompoundingMethod']).toBeUndefined();
+    expect(body['rescheduleStrategyMethod']).toBeUndefined();
+    expect(body['recalculationRestFrequencyType']).toBeUndefined();
   });
 });

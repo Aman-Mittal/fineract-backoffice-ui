@@ -371,7 +371,21 @@
     "INCOME_TYPE_FEE": "Fee",
     "INCOME_TYPE_INTEREST": "Interest",
     "INCOME_CALCULATION_FLAT": "A flat amount",
-    "INCOME_STRATEGY_EQUAL_AMORTIZATION": "In equal parts across the term"
+    "INCOME_STRATEGY_EQUAL_AMORTIZATION": "In equal parts across the term",
+    "INTEREST_RECALCULATION": "Interest Recalculation",
+    "ENABLE_INTEREST_RECALCULATION": "Recalculate interest on the actual balance",
+    "COMPOUNDING_METHOD": "What gets compounded",
+    "RESCHEDULE_STRATEGY": "When the amount owed changes",
+    "REST_FREQUENCY": "How often interest is recalculated",
+    "REST_INTERVAL": "Recalculate every (number of periods)",
+    "COMPOUNDING_FREQUENCY": "How often compounding is applied",
+    "COMPOUNDING_INTERVAL": "Compound every (number of periods)",
+    "PRE_CLOSURE_STRATEGY": "Interest on early settlement",
+    "OTHER_SETTINGS": "Other Settings",
+    "CHARGE_OFF_BEHAVIOUR": "When the loan is charged off",
+    "REPAYMENT_START_DATE_TYPE": "Repayments are counted from",
+    "FIXED_LENGTH": "Fixed term length (periods)",
+    "ENABLE_ACCRUAL_ACTIVITY_POSTING": "Post accrual activity entries"
   },
   "CHARGES": {
     "CREATE": "Create Charge",
@@ -890,7 +904,19 @@
     "ENABLE_BUY_DOWN_FEE_DESC": "Let someone other than the borrower — typically a dealer or supplier — pay an amount upfront to reduce the borrower's effective rate. The cost is spread over the term rather than taken in full at disbursement. Progressive products only.",
     "BUY_DOWN_FEE_INCOME_TYPE_DESC": "Whether the amount the third party paid is booked as a fee or as interest.",
     "INCOME_CALCULATION_TYPE_DESC": "How the amount to recognise in each period is worked out. Flat divides the total evenly rather than varying it with the outstanding balance.",
-    "INCOME_STRATEGY_DESC": "How the total is distributed across the loan's periods. Equal parts gives every period the same share."
+    "INCOME_STRATEGY_DESC": "How the total is distributed across the loan's periods. Equal parts gives every period the same share.",
+    "INTEREST_RECALCULATION_DESC": "Charge interest on what the borrower actually owes on the day, rather than on the balance the original schedule assumed. A borrower who pays early then pays less interest, and one who pays late pays more. Leave off for a schedule fixed at disbursement.",
+    "COMPOUNDING_METHOD_DESC": "Which unpaid amounts are added to the balance that interest is charged on — none, interest only, fees, or both. Choosing none still recalculates interest, it simply does not compound what is outstanding.",
+    "RESCHEDULE_STRATEGY_DESC": "What to adjust when recalculation changes the amount owed: keep the instalment the same and change how many there are, reduce the instalment, or adjust the final one.",
+    "REST_FREQUENCY_DESC": "How often the balance is re-examined. Daily reacts to every payment; matching the repayment period recalculates once per instalment.",
+    "REST_INTERVAL_DESC": "How many of those periods pass between recalculations. Only needed when the frequency is something other than the repayment period.",
+    "COMPOUNDING_FREQUENCY_DESC": "How often the amounts chosen above are folded into the balance interest is charged on.",
+    "COMPOUNDING_INTERVAL_DESC": "How many of those periods pass between compounding. Only needed when the frequency is something other than the repayment period.",
+    "PRE_CLOSURE_STRATEGY_DESC": "How much interest to charge when a borrower settles early — up to the settlement date, or to the end of the current period.",
+    "CHARGE_OFF_BEHAVIOUR_DESC": "What happens to interest once the loan is written off as uncollectible: carry on as normal, stop accruing, or treat the loan as matured immediately.",
+    "REPAYMENT_START_DATE_TYPE_DESC": "Whether the repayment schedule counts from the date the loan was approved for disbursement or the date the money actually went out.",
+    "FIXED_LENGTH_DESC": "Force every loan on this product to run for the same number of periods, regardless of the amount borrowed. Leave empty for a term set per loan.",
+    "ACCRUAL_ACTIVITY_POSTING_DESC": "Post an accounting entry each time interest or fees accrue, rather than only when they are charged or paid. Gives finance a running view at the cost of more journal entries."
   },
   "REPORTS": {
     "NAME": "Report Name",

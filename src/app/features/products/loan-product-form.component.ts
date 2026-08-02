@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,6 +49,12 @@ import {
   DelinquencyBucketResponse,
   EnumOptionData,
   GetLoanProductsTransactionProcessingStrategyOptions,
+  GetLoanProductsInterestRecalculationCompoundingType,
+  GetLoanProductsInterestRecalculationCompoundingFrequencyType,
+  GetLoanProductsRescheduleStrategyType,
+  GetLoanProductsPreClosureInterestCalculationStrategy,
+  GetLoanProductsRepaymentStartDateType,
+  StringEnumOptionData,
 } from '../../api';
 import { LOAN_SCHEDULE_TYPE, isAdvancedPaymentAllocationStrategy } from './loan-schedule-type';
 import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocation-editor.component';
@@ -700,9 +706,9 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                           [(ngModel)]="product().capitalizedIncomeType"
                           required
                         >
-                          @for (option of incomeTypeOptions; track option.code) {
+                          @for (option of capitalizedIncomeTypeOptions(); track option.code) {
                             <ion-select-option [value]="option.code">{{
-                              option.labelKey | translate
+                              option.value
                             }}</ion-select-option>
                           }
                         </ion-select>
@@ -726,9 +732,12 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                           [(ngModel)]="product().capitalizedIncomeCalculationType"
                           required
                         >
-                          @for (option of incomeCalculationOptions; track option.code) {
+                          @for (
+                            option of capitalizedIncomeCalculationTypeOptions();
+                            track option.code
+                          ) {
                             <ion-select-option [value]="option.code">{{
-                              option.labelKey | translate
+                              option.value
                             }}</ion-select-option>
                           }
                         </ion-select>
@@ -752,9 +761,9 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                           [(ngModel)]="product().capitalizedIncomeStrategy"
                           required
                         >
-                          @for (option of incomeStrategyOptions; track option.code) {
+                          @for (option of capitalizedIncomeStrategyOptions(); track option.code) {
                             <ion-select-option [value]="option.code">{{
-                              option.labelKey | translate
+                              option.value
                             }}</ion-select-option>
                           }
                         </ion-select>
@@ -796,9 +805,9 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                           [(ngModel)]="product().buyDownFeeIncomeType"
                           required
                         >
-                          @for (option of incomeTypeOptions; track option.code) {
+                          @for (option of buyDownFeeIncomeTypeOptions(); track option.code) {
                             <ion-select-option [value]="option.code">{{
-                              option.labelKey | translate
+                              option.value
                             }}</ion-select-option>
                           }
                         </ion-select>
@@ -822,9 +831,9 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                           [(ngModel)]="product().buyDownFeeCalculationType"
                           required
                         >
-                          @for (option of incomeCalculationOptions; track option.code) {
+                          @for (option of buyDownFeeCalculationTypeOptions(); track option.code) {
                             <ion-select-option [value]="option.code">{{
-                              option.labelKey | translate
+                              option.value
                             }}</ion-select-option>
                           }
                         </ion-select>
@@ -848,9 +857,9 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                           [(ngModel)]="product().buyDownFeeStrategy"
                           required
                         >
-                          @for (option of incomeStrategyOptions; track option.code) {
+                          @for (option of buyDownFeeStrategyOptions(); track option.code) {
                             <ion-select-option [value]="option.code">{{
-                              option.labelKey | translate
+                              option.value
                             }}</ion-select-option>
                           }
                         </ion-select>
@@ -860,6 +869,303 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
                 </ion-row>
               </ion-grid>
             }
+
+            <!-- Interest recalculation and remaining product settings -->
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col size="12">
+                  <h3 class="section-heading">
+                    {{ 'PRODUCTS.INTEREST_RECALCULATION' | translate }}
+                  </h3>
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+                  <ion-item
+                    class="form-item"
+                    [appTooltip]="'HELP.INTEREST_RECALCULATION_DESC' | translate"
+                  >
+                    <ion-checkbox
+                      name="isInterestRecalculationEnabled"
+                      data-testid="loan-product-interest-recalculation"
+                      [ngModel]="interestRecalculationEnabled()"
+                      (ngModelChange)="onInterestRecalculationChange($event)"
+                    >
+                      {{ 'PRODUCTS.ENABLE_INTEREST_RECALCULATION' | translate }}
+                    </ion-checkbox>
+                  </ion-item>
+                </ion-col>
+
+                @if (interestRecalculationEnabled()) {
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      fill="outline"
+                      class="form-item"
+                      [appTooltip]="'HELP.COMPOUNDING_METHOD_DESC' | translate"
+                    >
+                      <ion-label position="stacked">{{
+                        'PRODUCTS.COMPOUNDING_METHOD' | translate
+                      }}</ion-label>
+                      <ion-select
+                        [attr.aria-label]="'PRODUCTS.COMPOUNDING_METHOD' | translate"
+                        interface="popover"
+                        data-testid="loan-product-compounding-method"
+                        name="interestRecalculationCompoundingMethod"
+                        [ngModel]="compoundingMethod()"
+                        (ngModelChange)="onCompoundingMethodChange($event)"
+                        required
+                      >
+                        @for (option of compoundingTypeOptions(); track option.id) {
+                          <ion-select-option [value]="option.id">{{
+                            option.description
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      fill="outline"
+                      class="form-item"
+                      [appTooltip]="'HELP.RESCHEDULE_STRATEGY_DESC' | translate"
+                    >
+                      <ion-label position="stacked">{{
+                        'PRODUCTS.RESCHEDULE_STRATEGY' | translate
+                      }}</ion-label>
+                      <ion-select
+                        [attr.aria-label]="'PRODUCTS.RESCHEDULE_STRATEGY' | translate"
+                        interface="popover"
+                        data-testid="loan-product-reschedule-strategy"
+                        name="rescheduleStrategyMethod"
+                        [(ngModel)]="product().rescheduleStrategyMethod"
+                        required
+                      >
+                        @for (option of rescheduleStrategyOptions(); track option.id) {
+                          <ion-select-option [value]="option.id">{{
+                            option.description
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      fill="outline"
+                      class="form-item"
+                      [appTooltip]="'HELP.REST_FREQUENCY_DESC' | translate"
+                    >
+                      <ion-label position="stacked">{{
+                        'PRODUCTS.REST_FREQUENCY' | translate
+                      }}</ion-label>
+                      <ion-select
+                        [attr.aria-label]="'PRODUCTS.REST_FREQUENCY' | translate"
+                        interface="popover"
+                        data-testid="loan-product-rest-frequency"
+                        name="recalculationRestFrequencyType"
+                        [ngModel]="restFrequencyType()"
+                        (ngModelChange)="onRestFrequencyTypeChange($event)"
+                        required
+                      >
+                        @for (option of recalculationFrequencyOptions(); track option.id) {
+                          <ion-select-option [value]="option.id">{{
+                            option.description
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+
+                  @if (restIntervalApplies()) {
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.REST_INTERVAL_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.REST_INTERVAL' | translate
+                        }}</ion-label>
+                        <ion-input
+                          [attr.aria-label]="'PRODUCTS.REST_INTERVAL' | translate"
+                          type="number"
+                          min="1"
+                          data-testid="loan-product-rest-interval"
+                          name="recalculationRestFrequencyInterval"
+                          [(ngModel)]="product().recalculationRestFrequencyInterval"
+                        ></ion-input>
+                      </ion-item>
+                    </ion-col>
+                  }
+
+                  @if (compoundingSelected()) {
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.COMPOUNDING_FREQUENCY_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.COMPOUNDING_FREQUENCY' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.COMPOUNDING_FREQUENCY' | translate"
+                          interface="popover"
+                          data-testid="loan-product-compounding-frequency"
+                          name="recalculationCompoundingFrequencyType"
+                          [ngModel]="compoundingFrequencyType()"
+                          (ngModelChange)="onCompoundingFrequencyTypeChange($event)"
+                        >
+                          @for (option of recalculationFrequencyOptions(); track option.id) {
+                            <ion-select-option [value]="option.id">{{
+                              option.description
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                  }
+
+                  @if (compoundingIntervalApplies()) {
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.COMPOUNDING_INTERVAL_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.COMPOUNDING_INTERVAL' | translate
+                        }}</ion-label>
+                        <ion-input
+                          [attr.aria-label]="'PRODUCTS.COMPOUNDING_INTERVAL' | translate"
+                          type="number"
+                          min="1"
+                          data-testid="loan-product-compounding-interval"
+                          name="recalculationCompoundingFrequencyInterval"
+                          [(ngModel)]="product().recalculationCompoundingFrequencyInterval"
+                        ></ion-input>
+                      </ion-item>
+                    </ion-col>
+                  }
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      fill="outline"
+                      class="form-item"
+                      [appTooltip]="'HELP.PRE_CLOSURE_STRATEGY_DESC' | translate"
+                    >
+                      <ion-label position="stacked">{{
+                        'PRODUCTS.PRE_CLOSURE_STRATEGY' | translate
+                      }}</ion-label>
+                      <ion-select
+                        [attr.aria-label]="'PRODUCTS.PRE_CLOSURE_STRATEGY' | translate"
+                        interface="popover"
+                        data-testid="loan-product-pre-closure-strategy"
+                        name="preClosureInterestCalculationStrategy"
+                        [(ngModel)]="product().preClosureInterestCalculationStrategy"
+                      >
+                        @for (option of preClosureStrategyOptions(); track option.id) {
+                          <ion-select-option [value]="option.id">{{
+                            option.description
+                          }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                }
+
+                <ion-col size="12">
+                  <h3 class="section-heading">
+                    {{ 'PRODUCTS.OTHER_SETTINGS' | translate }}
+                  </h3>
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+                  <ion-item
+                    fill="outline"
+                    class="form-item"
+                    [appTooltip]="'HELP.CHARGE_OFF_BEHAVIOUR_DESC' | translate"
+                  >
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.CHARGE_OFF_BEHAVIOUR' | translate
+                    }}</ion-label>
+                    <ion-select
+                      [attr.aria-label]="'PRODUCTS.CHARGE_OFF_BEHAVIOUR' | translate"
+                      interface="popover"
+                      data-testid="loan-product-charge-off-behaviour"
+                      name="chargeOffBehaviour"
+                      [(ngModel)]="product().chargeOffBehaviour"
+                    >
+                      @for (option of chargeOffBehaviourOptions(); track option.code) {
+                        <ion-select-option [value]="option.code">{{
+                          option.value
+                        }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+                  <ion-item
+                    fill="outline"
+                    class="form-item"
+                    [appTooltip]="'HELP.REPAYMENT_START_DATE_TYPE_DESC' | translate"
+                  >
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.REPAYMENT_START_DATE_TYPE' | translate
+                    }}</ion-label>
+                    <ion-select
+                      [attr.aria-label]="'PRODUCTS.REPAYMENT_START_DATE_TYPE' | translate"
+                      interface="popover"
+                      data-testid="loan-product-repayment-start-date-type"
+                      name="repaymentStartDateType"
+                      [(ngModel)]="product().repaymentStartDateType"
+                    >
+                      @for (option of repaymentStartDateTypeOptions(); track option.id) {
+                        <ion-select-option [value]="option.id">{{
+                          option.description
+                        }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+                  <ion-item
+                    fill="outline"
+                    class="form-item"
+                    [appTooltip]="'HELP.FIXED_LENGTH_DESC' | translate"
+                  >
+                    <ion-label position="stacked">{{
+                      'PRODUCTS.FIXED_LENGTH' | translate
+                    }}</ion-label>
+                    <ion-input
+                      [attr.aria-label]="'PRODUCTS.FIXED_LENGTH' | translate"
+                      type="number"
+                      min="1"
+                      data-testid="loan-product-fixed-length"
+                      name="fixedLength"
+                      [(ngModel)]="product().fixedLength"
+                    ></ion-input>
+                  </ion-item>
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+                  <ion-item
+                    class="form-item"
+                    [appTooltip]="'HELP.ACCRUAL_ACTIVITY_POSTING_DESC' | translate"
+                  >
+                    <ion-checkbox
+                      name="enableAccrualActivityPosting"
+                      data-testid="loan-product-accrual-activity-posting"
+                      [(ngModel)]="product().enableAccrualActivityPosting"
+                    >
+                      {{ 'PRODUCTS.ENABLE_ACCRUAL_ACTIVITY_POSTING' | translate }}
+                    </ion-checkbox>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
 
             @if (isProgressive()) {
               <app-payment-credit-allocation-editor
@@ -985,24 +1291,35 @@ export class LoanProductFormComponent implements OnInit {
   readonly incomeCapitalizationEnabled = signal(false);
   readonly buyDownFeeEnabled = signal(false);
 
-  /**
-   * Option lists for the income-recognition enums.
-   *
-   * Held here rather than taken from the product template, which does not return them. Two of the
-   * three currently admit a single value; they are still rendered as selects so the payload
-   * records what the product was created with, and so a value added upstream needs one line here
-   * rather than a new control.
-   */
-  readonly incomeTypeOptions = [
-    { code: 'FEE', labelKey: 'PRODUCTS.INCOME_TYPE_FEE' },
-    { code: 'INTEREST', labelKey: 'PRODUCTS.INCOME_TYPE_INTEREST' },
-  ];
-  readonly incomeCalculationOptions = [
-    { code: 'FLAT', labelKey: 'PRODUCTS.INCOME_CALCULATION_FLAT' },
-  ];
-  readonly incomeStrategyOptions = [
-    { code: 'EQUAL_AMORTIZATION', labelKey: 'PRODUCTS.INCOME_STRATEGY_EQUAL_AMORTIZATION' },
-  ];
+  // Income-recognition options. These come from the product template — an earlier revision held
+  // them as local constants on the belief that the template did not return them, which was wrong.
+  readonly capitalizedIncomeTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly capitalizedIncomeCalculationTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly capitalizedIncomeStrategyOptions = signal<StringEnumOptionData[]>([]);
+  readonly buyDownFeeIncomeTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly buyDownFeeCalculationTypeOptions = signal<StringEnumOptionData[]>([]);
+  readonly buyDownFeeStrategyOptions = signal<StringEnumOptionData[]>([]);
+
+  // Interest recalculation and the remaining product settings.
+  readonly interestRecalculationEnabled = signal(false);
+  // The three fields the conditional rules key off. Mirrored as signals because `product` holds an
+  // object: assigning to one of its properties invalidates nothing, so a `computed` reading
+  // `product().x` would never re-run and the dependent controls would never appear.
+  readonly compoundingMethod = signal<number | undefined>(undefined);
+  readonly restFrequencyType = signal<number | undefined>(undefined);
+  readonly compoundingFrequencyType = signal<number | undefined>(undefined);
+  readonly compoundingTypeOptions = signal<GetLoanProductsInterestRecalculationCompoundingType[]>(
+    [],
+  );
+  readonly recalculationFrequencyOptions = signal<
+    GetLoanProductsInterestRecalculationCompoundingFrequencyType[]
+  >([]);
+  readonly rescheduleStrategyOptions = signal<GetLoanProductsRescheduleStrategyType[]>([]);
+  readonly preClosureStrategyOptions = signal<
+    GetLoanProductsPreClosureInterestCalculationStrategy[]
+  >([]);
+  readonly repaymentStartDateTypeOptions = signal<GetLoanProductsRepaymentStartDateType[]>([]);
+  readonly chargeOffBehaviourOptions = signal<StringEnumOptionData[]>([]);
 
   readonly product = signal<PostLoanProductsRequest>({
     currencyCode: 'USD',
@@ -1042,6 +1359,30 @@ export class LoanProductFormComponent implements OnInit {
       this.transactionProcessingStrategyOptionsBase = template.transactionProcessingStrategyOptions
         ? Array.from(template.transactionProcessingStrategyOptions)
         : [];
+      this.capitalizedIncomeTypeOptions.set(template.capitalizedIncomeTypeOptions ?? []);
+      this.capitalizedIncomeCalculationTypeOptions.set(
+        template.capitalizedIncomeCalculationTypeOptions ?? [],
+      );
+      this.capitalizedIncomeStrategyOptions.set(template.capitalizedIncomeStrategyOptions ?? []);
+      this.buyDownFeeIncomeTypeOptions.set(template.buyDownFeeIncomeTypeOptions ?? []);
+      this.buyDownFeeCalculationTypeOptions.set(template.buyDownFeeCalculationTypeOptions ?? []);
+      this.buyDownFeeStrategyOptions.set(template.buyDownFeeStrategyOptions ?? []);
+
+      this.compoundingTypeOptions.set(
+        Array.from(template.interestRecalculationCompoundingTypeOptions ?? []),
+      );
+      this.recalculationFrequencyOptions.set(
+        Array.from(template.interestRecalculationFrequencyTypeOptions ?? []),
+      );
+      this.rescheduleStrategyOptions.set(Array.from(template.rescheduleStrategyTypeOptions ?? []));
+      this.preClosureStrategyOptions.set(
+        Array.from(template.preClosureInterestCalculationStrategyOptions ?? []),
+      );
+      this.repaymentStartDateTypeOptions.set(
+        Array.from(template.repaymentStartDateTypeOptions ?? []),
+      );
+      this.chargeOffBehaviourOptions.set(template.chargeOffBehaviourOptions ?? []);
+
       this.applyTransactionProcessingStrategyFilter();
     });
 
@@ -1093,6 +1434,114 @@ export class LoanProductFormComponent implements OnInit {
       return;
     }
     this.clearDownPayment();
+  }
+
+  /**
+   * Whether a compounding method other than "none" is selected.
+   *
+   * Matched on the option's code rather than its id, because the ids are Fineract's own and would
+   * be a magic number here; the code carries the meaning.
+   */
+  readonly compoundingSelected = computed(() => {
+    const method = this.compoundingMethod();
+    if (method === undefined || method === null) return false;
+    const option = this.compoundingTypeOptions().find((o) => o.id === method);
+    return !this.isNoneOption(option?.code);
+  });
+
+  /** The rest interval only matters when the rest frequency differs from the repayment period. */
+  readonly restIntervalApplies = computed(() =>
+    this.isIntervalBearing(
+      this.recalculationFrequencyOptions().find((o) => o.id === this.restFrequencyType())?.code,
+    ),
+  );
+
+  readonly compoundingIntervalApplies = computed(
+    () =>
+      this.compoundingSelected() &&
+      this.isIntervalBearing(
+        this.recalculationFrequencyOptions().find((o) => o.id === this.compoundingFrequencyType())
+          ?.code,
+      ),
+  );
+
+  private isNoneOption(code: string | undefined): boolean {
+    return (code ?? '').toLowerCase().includes('none');
+  }
+
+  /** "Same as repayment period" needs no interval; every other frequency does. */
+  private isIntervalBearing(code: string | undefined): boolean {
+    if (!code) return false;
+    return !code.toLowerCase().includes('same');
+  }
+
+  /**
+   * Interest recalculation, and the fields the API documents as depending on it.
+   *
+   * `POST /loanproducts` states the chain: the compounding method, reschedule strategy and rest
+   * frequency are mandatory once this is on, and the two intervals apply only when their
+   * frequency is something other than the repayment period. The form follows that rather than
+   * showing every field at once.
+   */
+  onInterestRecalculationChange(enabled: boolean): void {
+    if (!enabled) {
+      this.clearInterestRecalculation();
+      return;
+    }
+    this.interestRecalculationEnabled.set(true);
+    const product = this.product();
+    product.isInterestRecalculationEnabled = true;
+    product.interestRecalculationCompoundingMethod ??= this.compoundingTypeOptions()[0]?.id;
+    product.rescheduleStrategyMethod ??= this.rescheduleStrategyOptions()[0]?.id;
+    product.recalculationRestFrequencyType ??= this.recalculationFrequencyOptions()[0]?.id;
+    this.compoundingMethod.set(product.interestRecalculationCompoundingMethod);
+    this.restFrequencyType.set(product.recalculationRestFrequencyType);
+    this.compoundingFrequencyType.set(product.recalculationCompoundingFrequencyType);
+  }
+
+  private clearInterestRecalculation(): void {
+    this.interestRecalculationEnabled.set(false);
+    const product = this.product();
+    // Left in the payload, these would describe recalculation settings for a product that does
+    // not recalculate.
+    product.isInterestRecalculationEnabled = false;
+    product.interestRecalculationCompoundingMethod = undefined;
+    product.rescheduleStrategyMethod = undefined;
+    product.recalculationRestFrequencyType = undefined;
+    product.recalculationRestFrequencyInterval = undefined;
+    product.recalculationCompoundingFrequencyType = undefined;
+    product.recalculationCompoundingFrequencyInterval = undefined;
+    product.preClosureInterestCalculationStrategy = undefined;
+    this.compoundingMethod.set(undefined);
+    this.restFrequencyType.set(undefined);
+    this.compoundingFrequencyType.set(undefined);
+  }
+
+  /** Dropping the compounding method takes the settings that only exist because of it. */
+  onCompoundingMethodChange(method: number | undefined): void {
+    this.product().interestRecalculationCompoundingMethod = method;
+    this.compoundingMethod.set(method);
+    if (!this.compoundingSelected()) {
+      this.product().recalculationCompoundingFrequencyType = undefined;
+      this.product().recalculationCompoundingFrequencyInterval = undefined;
+      this.compoundingFrequencyType.set(undefined);
+    }
+  }
+
+  onRestFrequencyTypeChange(type: number | undefined): void {
+    this.product().recalculationRestFrequencyType = type;
+    this.restFrequencyType.set(type);
+    if (!this.restIntervalApplies()) {
+      this.product().recalculationRestFrequencyInterval = undefined;
+    }
+  }
+
+  onCompoundingFrequencyTypeChange(type: number | undefined): void {
+    this.product().recalculationCompoundingFrequencyType = type;
+    this.compoundingFrequencyType.set(type);
+    if (!this.compoundingIntervalApplies()) {
+      this.product().recalculationCompoundingFrequencyInterval = undefined;
+    }
   }
 
   onEnableIncomeCapitalizationChange(enabled: boolean): void {
@@ -1235,12 +1684,33 @@ export class LoanProductFormComponent implements OnInit {
         buyDownFeeIncomeType: data.buyDownFeeIncomeType?.code as never,
         buyDownFeeCalculationType: data.buyDownFeeCalculationType?.code as never,
         buyDownFeeStrategy: data.buyDownFeeStrategy?.code as never,
+        interestRecalculationCompoundingMethod:
+          data.interestRecalculationData?.interestRecalculationCompoundingType?.id,
+        rescheduleStrategyMethod: data.interestRecalculationData?.rescheduleStrategyType?.id,
+        recalculationRestFrequencyType:
+          data.interestRecalculationData?.recalculationRestFrequencyType?.id,
+        recalculationRestFrequencyInterval:
+          data.interestRecalculationData?.recalculationRestFrequencyInterval,
+        recalculationCompoundingFrequencyType:
+          data.interestRecalculationData?.interestRecalculationCompoundingFrequencyType?.id,
+        recalculationCompoundingFrequencyInterval:
+          data.interestRecalculationData?.recalculationCompoundingFrequencyInterval,
+        preClosureInterestCalculationStrategy:
+          data.interestRecalculationData?.preClosureInterestCalculationStrategy?.id,
+        chargeOffBehaviour: data.chargeOffBehaviour?.code,
+        enableAccrualActivityPosting: data.enableAccrualActivityPosting,
+        fixedLength: data.fixedLength,
+        repaymentStartDateType: data.repaymentStartDateType?.id,
       });
       this.isProgressive.set(this.product().loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
       this.downPaymentEnabled.set(this.product().enableDownPayment === true);
       this.multiDisburseEnabled.set(this.product().multiDisburseLoan === true);
       this.incomeCapitalizationEnabled.set(this.product().enableIncomeCapitalization === true);
       this.buyDownFeeEnabled.set(this.product().enableBuyDownFee === true);
+      this.interestRecalculationEnabled.set(this.product().isInterestRecalculationEnabled === true);
+      this.compoundingMethod.set(this.product().interestRecalculationCompoundingMethod);
+      this.restFrequencyType.set(this.product().recalculationRestFrequencyType);
+      this.compoundingFrequencyType.set(this.product().recalculationCompoundingFrequencyType);
       this.applyTransactionProcessingStrategyFilter();
     });
   }
