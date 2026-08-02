@@ -31,6 +31,11 @@ import {
 import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
+import {
+  SavingsBlockDialogComponent,
+  SavingsBlockDialogData,
+  SavingsBlockResult,
+} from './savings-block-dialog.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -193,6 +198,40 @@ import {
                         <ion-icon slot="start" name="pricetag-outline"></ion-icon>
                         <ion-label>{{ 'SAVINGS.APPLY_ANNUAL_FEES' | translate }}</ion-label>
                       </ion-item>
+
+                      @if (!isBlocked()) {
+                        <ion-item
+                          button
+                          class="warn-item"
+                          data-testid="savings-block"
+                          (click)="onBlockCommand('block')"
+                        >
+                          <ion-icon slot="start" color="danger" name="lock-closed-outline">
+                          </ion-icon>
+                          <ion-label>{{ 'SAVINGS.BLOCK' | translate }}</ion-label>
+                        </ion-item>
+
+                        @if (!isDebitBlocked()) {
+                          <ion-item
+                            button
+                            data-testid="savings-block-debit"
+                            (click)="onBlockCommand('blockDebit')"
+                          >
+                            <ion-icon slot="start" name="arrow-up-circle-outline"></ion-icon>
+                            <ion-label>{{ 'SAVINGS.BLOCK_DEBIT' | translate }}</ion-label>
+                          </ion-item>
+                        }
+                        @if (!isCreditBlocked()) {
+                          <ion-item
+                            button
+                            data-testid="savings-block-credit"
+                            (click)="onBlockCommand('blockCredit')"
+                          >
+                            <ion-icon slot="start" name="arrow-down-circle-outline"></ion-icon>
+                            <ion-label>{{ 'SAVINGS.BLOCK_CREDIT' | translate }}</ion-label>
+                          </ion-item>
+                        }
+                      }
 
                       <!-- Reversals only. Fineract rejects each one unless the matching block is
                            actually in force, so they appear only when it is. -->
@@ -684,6 +723,45 @@ export class SavingsAccountViewComponent implements OnInit {
         .postSavingsaccountsAccountId(
           this.accountId,
           { dateFormat: 'dd MMMM yyyy', locale: 'en' } as never,
+          command,
+        )
+        .subscribe({
+          next: () => {
+            this.notifications.success(this.translate.instant('COMMON.SUCCESS'));
+            this.loadAccountData();
+          },
+          error: () => this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED')),
+        });
+    });
+  }
+
+  /**
+   * The block commands, each of which needs a reason.
+   *
+   * The three draw from *different* Fineract code lists, so the reason cannot be a shared
+   * lookup — picking from the wrong list would offer reasons the server rejects.
+   */
+  onBlockCommand(command: 'block' | 'blockDebit' | 'blockCredit'): void {
+    const config = {
+      block: { codeName: 'SavingsAccountBlockReasons', key: 'BLOCK' },
+      blockDebit: { codeName: 'DebitTransactionFreezeReasons', key: 'BLOCK_DEBIT' },
+      blockCredit: { codeName: 'CreditTransactionFreezeReasons', key: 'BLOCK_CREDIT' },
+    }[command];
+
+    from(
+      this.dialogService.open<SavingsBlockResult>(SavingsBlockDialogComponent, {
+        data: {
+          titleKey: `SAVINGS.${config.key}`,
+          messageKey: `SAVINGS.CONFIRM_${config.key}`,
+          codeName: config.codeName,
+        } satisfies SavingsBlockDialogData,
+      }),
+    ).subscribe((result) => {
+      if (!result) return;
+      this.savingsService
+        .postSavingsaccountsAccountId(
+          this.accountId,
+          { reasonForBlock: result.reasonForBlock } as never,
           command,
         )
         .subscribe({
