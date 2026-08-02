@@ -20,6 +20,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { CalendarService, CalendarData } from '../../api';
@@ -45,6 +47,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
   ],
   template: `
     <app-data-table
+      [hasError]="hasError()"
+      (retry)="onRetry()"
       title="CALENDARS.TITLE"
       helpTextKey="HELP.CALENDARS_DESC"
       createButtonLabel="CALENDARS.CREATE"
@@ -94,6 +98,8 @@ export class CalendarsListComponent implements OnInit {
   entityType!: string;
   entityId!: number;
   readonly calendars = signal<CalendarData[]>([]);
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
 
   ngOnInit(): void {
     this.entityType = this.route.snapshot.paramMap.get('entityType') ?? '';
@@ -102,14 +108,22 @@ export class CalendarsListComponent implements OnInit {
   }
 
   load(): void {
-    this.calendarService.getEntityTypeEntityIdCalendars(this.entityType, this.entityId).subscribe({
-      next: (data: CalendarData[]) => {
+    this.calendarService
+      .getEntityTypeEntityIdCalendars(this.entityType, this.entityId)
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([] as CalendarData[]);
+        }),
+      )
+      .subscribe((data: CalendarData[]) => {
         this.calendars.set(data || []);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load calendars', err);
-      },
-    });
+      });
+  }
+
+  onRetry(): void {
+    this.load();
   }
 
   formatDate(value: string | undefined): string {

@@ -252,4 +252,33 @@ test.describe('List load failure', () => {
     await expect(page.getByTestId('data-table-error')).toHaveCount(0);
     await expect(firstAccountNo(page)).toHaveText('000000001');
   });
+
+  test('calendars: reports the failure and reloads when the user retries', async ({ page }) => {
+    await login(page);
+
+    let attempts = 0;
+    await page.route(/\/api\/v1\/centers\/2\/calendars(\?|$)/, async (route) => {
+      attempts += 1;
+      if (attempts === 1) {
+        await route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ id: 1, title: 'Weekly Meeting', startDate: [2026, 1, 15] }]),
+      });
+    });
+
+    await page.goto('/calendars/centers/2');
+
+    // Not "No records found": nobody knows whether there are records.
+    await expect(page.getByTestId('data-table-error')).toBeVisible();
+    await expect(page.locator('table.data-table')).toHaveCount(0);
+
+    await page.getByTestId('data-table-retry').click();
+
+    await expect(page.getByTestId('data-table-error')).toHaveCount(0);
+    await expect(page.locator('table.data-table')).toContainText('Weekly Meeting');
+  });
 });
