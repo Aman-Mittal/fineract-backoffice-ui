@@ -656,6 +656,211 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
               </ion-row>
             </ion-grid>
 
+            <!-- Income recognition. Both groups belong to the progressive engine. -->
+            @if (isProgressive()) {
+              <ion-grid class="ion-no-padding">
+                <ion-row>
+                  <ion-col size="12">
+                    <h3 class="section-heading">
+                      {{ 'PRODUCTS.INCOME_RECOGNITION' | translate }}
+                    </h3>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      class="form-item"
+                      [appTooltip]="'HELP.ENABLE_INCOME_CAPITALIZATION_DESC' | translate"
+                    >
+                      <ion-checkbox
+                        name="enableIncomeCapitalization"
+                        data-testid="loan-product-enable-income-capitalization"
+                        [ngModel]="incomeCapitalizationEnabled()"
+                        (ngModelChange)="onEnableIncomeCapitalizationChange($event)"
+                      >
+                        {{ 'PRODUCTS.ENABLE_INCOME_CAPITALIZATION' | translate }}
+                      </ion-checkbox>
+                    </ion-item>
+                  </ion-col>
+
+                  @if (incomeCapitalizationEnabled()) {
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.CAPITALIZED_INCOME_TYPE_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.CAPITALIZED_INCOME_TYPE' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.CAPITALIZED_INCOME_TYPE' | translate"
+                          interface="popover"
+                          data-testid="loan-product-capitalized-income-type"
+                          name="capitalizedIncomeType"
+                          [(ngModel)]="product().capitalizedIncomeType"
+                          required
+                        >
+                          @for (option of incomeTypeOptions; track option.code) {
+                            <ion-select-option [value]="option.code">{{
+                              option.labelKey | translate
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.INCOME_CALCULATION_TYPE_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.INCOME_CALCULATION_TYPE' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.INCOME_CALCULATION_TYPE' | translate"
+                          interface="popover"
+                          data-testid="loan-product-capitalized-income-calculation"
+                          name="capitalizedIncomeCalculationType"
+                          [(ngModel)]="product().capitalizedIncomeCalculationType"
+                          required
+                        >
+                          @for (option of incomeCalculationOptions; track option.code) {
+                            <ion-select-option [value]="option.code">{{
+                              option.labelKey | translate
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.INCOME_STRATEGY_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.INCOME_STRATEGY' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.INCOME_STRATEGY' | translate"
+                          interface="popover"
+                          data-testid="loan-product-capitalized-income-strategy"
+                          name="capitalizedIncomeStrategy"
+                          [(ngModel)]="product().capitalizedIncomeStrategy"
+                          required
+                        >
+                          @for (option of incomeStrategyOptions; track option.code) {
+                            <ion-select-option [value]="option.code">{{
+                              option.labelKey | translate
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                  }
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      class="form-item"
+                      [appTooltip]="'HELP.ENABLE_BUY_DOWN_FEE_DESC' | translate"
+                    >
+                      <ion-checkbox
+                        name="enableBuyDownFee"
+                        data-testid="loan-product-enable-buy-down-fee"
+                        [ngModel]="buyDownFeeEnabled()"
+                        (ngModelChange)="onEnableBuyDownFeeChange($event)"
+                      >
+                        {{ 'PRODUCTS.ENABLE_BUY_DOWN_FEE' | translate }}
+                      </ion-checkbox>
+                    </ion-item>
+                  </ion-col>
+
+                  @if (buyDownFeeEnabled()) {
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.BUY_DOWN_FEE_INCOME_TYPE_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.BUY_DOWN_FEE_INCOME_TYPE' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.BUY_DOWN_FEE_INCOME_TYPE' | translate"
+                          interface="popover"
+                          data-testid="loan-product-buy-down-fee-income-type"
+                          name="buyDownFeeIncomeType"
+                          [(ngModel)]="product().buyDownFeeIncomeType"
+                          required
+                        >
+                          @for (option of incomeTypeOptions; track option.code) {
+                            <ion-select-option [value]="option.code">{{
+                              option.labelKey | translate
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.INCOME_CALCULATION_TYPE_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.INCOME_CALCULATION_TYPE' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.INCOME_CALCULATION_TYPE' | translate"
+                          interface="popover"
+                          data-testid="loan-product-buy-down-fee-calculation"
+                          name="buyDownFeeCalculationType"
+                          [(ngModel)]="product().buyDownFeeCalculationType"
+                          required
+                        >
+                          @for (option of incomeCalculationOptions; track option.code) {
+                            <ion-select-option [value]="option.code">{{
+                              option.labelKey | translate
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.INCOME_STRATEGY_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.INCOME_STRATEGY' | translate
+                        }}</ion-label>
+                        <ion-select
+                          [attr.aria-label]="'PRODUCTS.INCOME_STRATEGY' | translate"
+                          interface="popover"
+                          data-testid="loan-product-buy-down-fee-strategy"
+                          name="buyDownFeeStrategy"
+                          [(ngModel)]="product().buyDownFeeStrategy"
+                          required
+                        >
+                          @for (option of incomeStrategyOptions; track option.code) {
+                            <ion-select-option [value]="option.code">{{
+                              option.labelKey | translate
+                            }}</ion-select-option>
+                          }
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                  }
+                </ion-row>
+              </ion-grid>
+            }
+
             @if (isProgressive()) {
               <app-payment-credit-allocation-editor
                 [transactionTypeOptions]="advancedPaymentAllocationTransactionTypes()"
@@ -777,6 +982,27 @@ export class LoanProductFormComponent implements OnInit {
   // its own signal rather than being read off the product.
   readonly downPaymentEnabled = signal(false);
   readonly multiDisburseEnabled = signal(false);
+  readonly incomeCapitalizationEnabled = signal(false);
+  readonly buyDownFeeEnabled = signal(false);
+
+  /**
+   * Option lists for the income-recognition enums.
+   *
+   * Held here rather than taken from the product template, which does not return them. Two of the
+   * three currently admit a single value; they are still rendered as selects so the payload
+   * records what the product was created with, and so a value added upstream needs one line here
+   * rather than a new control.
+   */
+  readonly incomeTypeOptions = [
+    { code: 'FEE', labelKey: 'PRODUCTS.INCOME_TYPE_FEE' },
+    { code: 'INTEREST', labelKey: 'PRODUCTS.INCOME_TYPE_INTEREST' },
+  ];
+  readonly incomeCalculationOptions = [
+    { code: 'FLAT', labelKey: 'PRODUCTS.INCOME_CALCULATION_FLAT' },
+  ];
+  readonly incomeStrategyOptions = [
+    { code: 'EQUAL_AMORTIZATION', labelKey: 'PRODUCTS.INCOME_STRATEGY_EQUAL_AMORTIZATION' },
+  ];
 
   readonly product = signal<PostLoanProductsRequest>({
     currencyCode: 'USD',
@@ -840,9 +1066,11 @@ export class LoanProductFormComponent implements OnInit {
       this.product().loanScheduleProcessingType = undefined;
       this.product().paymentAllocation = undefined;
       this.product().creditAllocation = undefined;
-      // Down payment is a progressive capability. Hiding the controls is not enough — the values
-      // would still be in the payload, describing a product the cumulative engine cannot honour.
+      // These are progressive capabilities. Hiding the controls is not enough — the values would
+      // still be in the payload, describing a product the cumulative engine cannot honour.
       this.clearDownPayment();
+      this.clearIncomeCapitalization();
+      this.clearBuyDownFee();
     }
   }
 
@@ -865,6 +1093,52 @@ export class LoanProductFormComponent implements OnInit {
       return;
     }
     this.clearDownPayment();
+  }
+
+  onEnableIncomeCapitalizationChange(enabled: boolean): void {
+    if (!enabled) {
+      this.clearIncomeCapitalization();
+      return;
+    }
+    this.incomeCapitalizationEnabled.set(true);
+    const product = this.product();
+    product.enableIncomeCapitalization = true;
+    // Seeded explicitly so the product records what it was created with, rather than relying on
+    // whatever the server would default to.
+    product.capitalizedIncomeType ??= 'FEE';
+    product.capitalizedIncomeCalculationType ??= 'FLAT';
+    product.capitalizedIncomeStrategy ??= 'EQUAL_AMORTIZATION';
+  }
+
+  onEnableBuyDownFeeChange(enabled: boolean): void {
+    if (!enabled) {
+      this.clearBuyDownFee();
+      return;
+    }
+    this.buyDownFeeEnabled.set(true);
+    const product = this.product();
+    product.enableBuyDownFee = true;
+    product.buyDownFeeIncomeType ??= 'FEE';
+    product.buyDownFeeCalculationType ??= 'FLAT';
+    product.buyDownFeeStrategy ??= 'EQUAL_AMORTIZATION';
+  }
+
+  private clearIncomeCapitalization(): void {
+    this.incomeCapitalizationEnabled.set(false);
+    const product = this.product();
+    product.enableIncomeCapitalization = undefined;
+    product.capitalizedIncomeType = undefined;
+    product.capitalizedIncomeCalculationType = undefined;
+    product.capitalizedIncomeStrategy = undefined;
+  }
+
+  private clearBuyDownFee(): void {
+    this.buyDownFeeEnabled.set(false);
+    const product = this.product();
+    product.enableBuyDownFee = undefined;
+    product.buyDownFeeIncomeType = undefined;
+    product.buyDownFeeCalculationType = undefined;
+    product.buyDownFeeStrategy = undefined;
   }
 
   private clearDownPayment(): void {
@@ -953,10 +1227,20 @@ export class LoanProductFormComponent implements OnInit {
         enableDownPayment: data.enableDownPayment,
         disbursedAmountPercentageForDownPayment: data.disbursedAmountPercentageForDownPayment,
         enableAutoRepaymentForDownPayment: data.enableAutoRepaymentForDownPayment,
+        enableIncomeCapitalization: data.enableIncomeCapitalization,
+        capitalizedIncomeType: data.capitalizedIncomeType?.code as never,
+        capitalizedIncomeCalculationType: data.capitalizedIncomeCalculationType?.code as never,
+        capitalizedIncomeStrategy: data.capitalizedIncomeStrategy?.code as never,
+        enableBuyDownFee: data.enableBuyDownFee,
+        buyDownFeeIncomeType: data.buyDownFeeIncomeType?.code as never,
+        buyDownFeeCalculationType: data.buyDownFeeCalculationType?.code as never,
+        buyDownFeeStrategy: data.buyDownFeeStrategy?.code as never,
       });
       this.isProgressive.set(this.product().loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
       this.downPaymentEnabled.set(this.product().enableDownPayment === true);
       this.multiDisburseEnabled.set(this.product().multiDisburseLoan === true);
+      this.incomeCapitalizationEnabled.set(this.product().enableIncomeCapitalization === true);
+      this.buyDownFeeEnabled.set(this.product().enableBuyDownFee === true);
       this.applyTransactionProcessingStrategyFilter();
     });
   }

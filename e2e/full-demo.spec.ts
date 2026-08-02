@@ -151,6 +151,16 @@ test.describe('Full feature demo recording', () => {
     await page.getByTestId('loan-product-max-tranche-count').locator('input').fill('3');
     await beat(page);
 
+    // Income recognition: spread fee or interest income across the term rather than booking it
+    // at once, and let a third party buy down the borrower's rate. Both are progressive-engine
+    // capabilities, and both are what the Buy-Down Fees and Capitalised Income tabs on the loan
+    // account read — until they were settable here, those tabs could never appear.
+    await page.getByTestId('loan-product-enable-income-capitalization').click();
+    await expect(page.getByTestId('loan-product-capitalized-income-type')).toBeVisible();
+    await page.getByTestId('loan-product-enable-buy-down-fee').click();
+    await expect(page.getByTestId('loan-product-buy-down-fee-income-type')).toBeVisible();
+    await beat(page);
+
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/products\/loan$/, { timeout: 15000 });
 
@@ -178,6 +188,8 @@ test.describe('Full feature demo recording', () => {
     // explanation of where the setting lives, rather than simply not being there.
     await expect(page.getByTestId('down-payment-unavailable-note')).toBeVisible();
     await expect(page.getByTestId('loan-product-enable-down-payment')).toHaveCount(0);
+    await expect(page.getByTestId('loan-product-enable-income-capitalization')).toHaveCount(0);
+    await expect(page.getByTestId('loan-product-enable-buy-down-fee')).toHaveCount(0);
     await beat(page);
 
     const cumSuffix = uniqueSuffix();
