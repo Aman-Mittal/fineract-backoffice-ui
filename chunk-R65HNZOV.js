@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var t=[{path:"",loadComponent:()=>import("./chunk-XEVF76R5.js").then(o=>o.GroupsListComponent)},{path:"create",loadComponent:()=>import("./chunk-EUHHDNVC.js").then(o=>o.GroupFormComponent)},{path:"edit/:id",loadComponent:()=>import("./chunk-EUHHDNVC.js").then(o=>o.GroupFormComponent)}];export{t as GROUPS_ROUTES};

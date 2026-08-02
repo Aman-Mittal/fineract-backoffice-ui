@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var t=[{path:"",loadComponent:()=>import("./chunk-7JH6R6XL.js").then(o=>o.ReportsListComponent)},{path:"run/:reportName",loadComponent:()=>import("./chunk-ZR527XG7.js").then(o=>o.RunReportComponent)}];export{t as REPORTING_ROUTES};

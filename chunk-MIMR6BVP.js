@@ -1,0 +1,15 @@
+import { b as c } from "@nf-internal/chunk-6V6Z65ZI";
+import { g as a } from "@nf-internal/chunk-CQE4ZXWS";
+import { e as l } from "@nf-internal/chunk-JHI3MBHO";
+var n = "ion-content", i = ".ion-content-scroll-host", m = `${n}, ${i}`, r = o => o.tagName === "ION-CONTENT", y = o => l(null, null, function* () { return r(o) ? (yield new Promise(e => c(o, e)), o.getScrollElement()) : o; }), h = o => o.querySelector(i) || o.querySelector(m), v = o => o.closest(m), u = (o, e) => r(o) ? o.scrollToTop(e) : Promise.resolve(o.scrollTo({ top: 0, left: 0, behavior: "smooth" })), P = (o, e, s, t) => r(o) ? o.scrollByPoint(e, s, t) : Promise.resolve(o.scrollBy({ top: s, left: e, behavior: t > 0 ? "smooth" : "auto" })), T = o => a(o, n), w = o => { if (r(o)) {
+    let e = o.scrollY;
+    return o.scrollY = !1, e;
+} return o.style.setProperty("overflow", "hidden"), !0; }, N = (o, e) => { r(o) ? o.scrollY = e : o.style.removeProperty("overflow"); };
+export { n as a, i as b, r as c, y as d, h as e, v as f, u as g, P as h, T as i, w as j, N as k };
+/*! Bundled license information:
+
+@ionic/core/components/p-ijF0iCrA.js:
+  (*!
+   * (C) Ionic http://ionicframework.com - MIT License
+   *)
+*/

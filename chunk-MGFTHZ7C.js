@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var n=[{path:"mapping",loadComponent:()=>import("./chunk-XQCYCBYZ.js").then(o=>o.MixMappingComponent)},{path:"report",loadComponent:()=>import("./chunk-ZV4FJU6F.js").then(o=>o.MixReportComponent)},{path:"taxonomy",loadComponent:()=>import("./chunk-UCFAAMGY.js").then(o=>o.MixTaxonomyComponent)}];export{n as MIX_ROUTES};

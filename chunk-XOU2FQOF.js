@@ -1,0 +1,1 @@
+import{a as r}from"./chunk-MDHS3IHG.js";import{inject as t}from"@angular/core";import{Router as i}from"@angular/router";var m=()=>{let e=t(r),o=t(i);return e.isAuthenticated()?!0:o.parseUrl("/login")};export{m as a};

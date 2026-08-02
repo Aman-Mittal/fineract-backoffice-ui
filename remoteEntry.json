@@ -1,0 +1,1255 @@
+{
+  "$version": "v4",
+  "name": "fineract-backoffice-ui",
+  "shared": [
+    {
+      "packageName": "@angular/cdk/table",
+      "outFileName": "_angular_cdk_table.e9KM1SLwk7.js",
+      "requiredVersion": "^22.0.6",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.6"
+    },
+    {
+      "packageName": "@angular/common",
+      "outFileName": "_angular_common.XnDavU59Zf.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/common/http",
+      "outFileName": "_angular_common_http.xxLohDyxpy.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/core",
+      "outFileName": "_angular_core.5IHQHkimTa.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/core/primitives/di",
+      "outFileName": "_angular_core_primitives_di.5YR9ODl3Ny.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/core/primitives/signals",
+      "outFileName": "_angular_core_primitives_signals.SPFPkJa9Vq.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/core/rxjs-interop",
+      "outFileName": "_angular_core_rxjs_interop.J6MYRYhi8b.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/forms",
+      "outFileName": "_angular_forms.Uqp-5OSf0U.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/platform-browser",
+      "outFileName": "_angular_platform_browser.xgDmUImeun.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/platform-browser/animations/async",
+      "outFileName": "_angular_platform_browser_animations_async.EgT2wzj3-q.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@angular/router",
+      "outFileName": "_angular_router.6QAeW3W_bu.js",
+      "requiredVersion": "^22.0.7",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "22.0.7"
+    },
+    {
+      "packageName": "@ngx-translate/core",
+      "outFileName": "_ngx_translate_core.IcXqRkH6XV.js",
+      "requiredVersion": "^17.0.0",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "17.0.0"
+    },
+    {
+      "packageName": "@ngx-translate/http-loader",
+      "outFileName": "_ngx_translate_http_loader.BTkvfDrEo6.js",
+      "requiredVersion": "^17.0.0",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "17.0.0"
+    },
+    {
+      "packageName": "ionicons",
+      "outFileName": "ionicons.mr9VvhDipB.js",
+      "requiredVersion": "^8.0.13",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "8.0.13"
+    },
+    {
+      "packageName": "ionicons/components/ion-icon.js",
+      "outFileName": "ionicons_components_ion_icon_js.VGRwlVCes-.js",
+      "requiredVersion": "^8.0.13",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "8.0.13"
+    },
+    {
+      "packageName": "ionicons/icons",
+      "outFileName": "ionicons_icons.I6SNgQtC4P.js",
+      "requiredVersion": "^8.0.13",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "8.0.13"
+    },
+    {
+      "packageName": "rxjs",
+      "outFileName": "rxjs.KmCaQj4Ckt.js",
+      "requiredVersion": "~7.8.0",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "7.8.2"
+    },
+    {
+      "packageName": "rxjs/operators",
+      "outFileName": "rxjs_operators.v8W2hmyvLN.js",
+      "requiredVersion": "~7.8.0",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "7.8.2"
+    },
+    {
+      "packageName": "tslib",
+      "outFileName": "tslib.uQQlAWPEc-.js",
+      "requiredVersion": "^2.8.1",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "2.8.1"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-KNUKVBCT",
+      "outFileName": "chunk-KNUKVBCT.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/browser-X57CIEX3",
+      "outFileName": "browser-X57CIEX3.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-icon.entry-X2ZZ3FZT",
+      "outFileName": "ion-icon.entry-X2ZZ3FZT.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-E4H4WIO7",
+      "outFileName": "chunk-E4H4WIO7.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-TO42TR6E",
+      "outFileName": "chunk-TO42TR6E.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-6WA2KI7L",
+      "outFileName": "chunk-6WA2KI7L.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-CO263U2P",
+      "outFileName": "chunk-CO263U2P.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-FZ6GFVYX",
+      "outFileName": "chunk-FZ6GFVYX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-X4HXWS2T",
+      "outFileName": "chunk-X4HXWS2T.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-TBG2VGBV",
+      "outFileName": "chunk-TBG2VGBV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-IQO3VMP7",
+      "outFileName": "chunk-IQO3VMP7.js"
+    },
+    {
+      "packageName": "@ionic/angular",
+      "outFileName": "_ionic_angular.uhT9jEVIBG.js",
+      "requiredVersion": "^8.8.15",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "8.8.15"
+    },
+    {
+      "packageName": "@ionic/angular/common",
+      "outFileName": "_ionic_angular_common.9g43qOuMIl.js",
+      "requiredVersion": "^8.8.15",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "8.8.15"
+    },
+    {
+      "packageName": "@ionic/angular/standalone",
+      "outFileName": "_ionic_angular_standalone.GzH2yzZGXw.js",
+      "requiredVersion": "^8.8.15",
+      "singleton": true,
+      "strictVersion": true,
+      "version": "8.8.15"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-D7bSXQD3-LSGVHRHI",
+      "outFileName": "p-D7bSXQD3-LSGVHRHI.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-D5Ubpm7D-4RUYYWX5",
+      "outFileName": "p-D5Ubpm7D-4RUYYWX5.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-BmVRXR1y-VQB77JTY",
+      "outFileName": "p-BmVRXR1y-VQB77JTY.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-tab_2.entry-5KU4BVTA",
+      "outFileName": "ion-tab_2.entry-5KU4BVTA.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-text.entry-MR7T6XU5",
+      "outFileName": "ion-text.entry-MR7T6XU5.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-textarea.entry-4GF2MNRO",
+      "outFileName": "ion-textarea.entry-4GF2MNRO.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-toast.entry-MU2FSWO7",
+      "outFileName": "ion-toast.entry-MU2FSWO7.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-toggle.entry-YQKOXLN6",
+      "outFileName": "ion-toggle.entry-YQKOXLN6.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-Sh0ICmPV-NNDV7CTC",
+      "outFileName": "p-Sh0ICmPV-NNDV7CTC.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-D6Ynv7Xh-ZMGHAPHD",
+      "outFileName": "p-D6Ynv7Xh-ZMGHAPHD.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-C4t5ymfq-2QJETPSG",
+      "outFileName": "p-C4t5ymfq-2QJETPSG.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-segment-content.entry-5UNVZSRP",
+      "outFileName": "ion-segment-content.entry-5UNVZSRP.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-segment-view.entry-4HHQE43Y",
+      "outFileName": "ion-segment-view.entry-4HHQE43Y.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-segment_2.entry-UHTFGPSB",
+      "outFileName": "ion-segment_2.entry-UHTFGPSB.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-select-modal.entry-55YSWORQ",
+      "outFileName": "ion-select-modal.entry-55YSWORQ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-select_3.entry-MH5RE53P",
+      "outFileName": "ion-select_3.entry-MH5RE53P.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-spinner.entry-55OADNWD",
+      "outFileName": "ion-spinner.entry-55OADNWD.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-split-pane.entry-IXR6CLBO",
+      "outFileName": "ion-split-pane.entry-IXR6CLBO.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-tab-bar_2.entry-LTDZUGKV",
+      "outFileName": "ion-tab-bar_2.entry-LTDZUGKV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-progress-bar.entry-C3QUK2GE",
+      "outFileName": "ion-progress-bar.entry-C3QUK2GE.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-radio_2.entry-QRJWMNT4",
+      "outFileName": "ion-radio_2.entry-QRJWMNT4.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-VSTP2F4J",
+      "outFileName": "chunk-VSTP2F4J.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-range.entry-AOUNZXKX",
+      "outFileName": "ion-range.entry-AOUNZXKX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-refresher_2.entry-RIH7BUPL",
+      "outFileName": "ion-refresher_2.entry-RIH7BUPL.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-NW4NW6QR",
+      "outFileName": "chunk-NW4NW6QR.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-reorder_2.entry-O5VULUSD",
+      "outFileName": "ion-reorder_2.entry-O5VULUSD.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-ripple-effect.entry-6YBCR3RX",
+      "outFileName": "ion-ripple-effect.entry-6YBCR3RX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-route_4.entry-5I7AW7GE",
+      "outFileName": "ion-route_4.entry-5I7AW7GE.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-searchbar.entry-ESXVSAN6",
+      "outFileName": "ion-searchbar.entry-ESXVSAN6.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-loading.entry-CPREOYR5",
+      "outFileName": "ion-loading.entry-CPREOYR5.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-menu_3.entry-O2T6VNWZ",
+      "outFileName": "ion-menu_3.entry-O2T6VNWZ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-modal.entry-DOTLRBOE",
+      "outFileName": "ion-modal.entry-DOTLRBOE.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-nav_2.entry-NR4TRPQX",
+      "outFileName": "ion-nav_2.entry-NR4TRPQX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-picker-column-option.entry-7MMTVHGP",
+      "outFileName": "ion-picker-column-option.entry-7MMTVHGP.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-picker-column.entry-IBVM6WDB",
+      "outFileName": "ion-picker-column.entry-IBVM6WDB.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-picker.entry-FSRFE36M",
+      "outFileName": "ion-picker.entry-FSRFE36M.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-popover.entry-DXRFAZ33",
+      "outFileName": "ion-popover.entry-DXRFAZ33.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-fab_3.entry-7ENU7X4Z",
+      "outFileName": "ion-fab_3.entry-7ENU7X4Z.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-img.entry-4JMFHH5V",
+      "outFileName": "ion-img.entry-4JMFHH5V.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-infinite-scroll_2.entry-PYQGMD6T",
+      "outFileName": "ion-infinite-scroll_2.entry-PYQGMD6T.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-input-otp.entry-J64Q3KZ2",
+      "outFileName": "ion-input-otp.entry-J64Q3KZ2.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-input-password-toggle.entry-KNM67VYP",
+      "outFileName": "ion-input-password-toggle.entry-KNM67VYP.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-input.entry-2Y3MGZXD",
+      "outFileName": "ion-input.entry-2Y3MGZXD.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-HP3FLRO2",
+      "outFileName": "chunk-HP3FLRO2.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-B4TOUYIV",
+      "outFileName": "chunk-B4TOUYIV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-item-option_3.entry-6PUMT7C3",
+      "outFileName": "ion-item-option_3.entry-6PUMT7C3.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-JD2VJJFW",
+      "outFileName": "chunk-JD2VJJFW.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-item_8.entry-BWTPHACU",
+      "outFileName": "ion-item_8.entry-BWTPHACU.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-breadcrumb_2.entry-YZAFPTW7",
+      "outFileName": "ion-breadcrumb_2.entry-YZAFPTW7.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-button_2.entry-3PAQZRC2",
+      "outFileName": "ion-button_2.entry-3PAQZRC2.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-card_5.entry-FZS36RFR",
+      "outFileName": "ion-card_5.entry-FZS36RFR.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-checkbox.entry-6Z4MVJMK",
+      "outFileName": "ion-checkbox.entry-6Z4MVJMK.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-OUI3QRQY",
+      "outFileName": "chunk-OUI3QRQY.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-chip.entry-PADOYFPK",
+      "outFileName": "ion-chip.entry-PADOYFPK.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-col_3.entry-7UIH244N",
+      "outFileName": "ion-col_3.entry-7UIH244N.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-datetime-button.entry-CFP36WNY",
+      "outFileName": "ion-datetime-button.entry-CFP36WNY.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-datetime_3.entry-VNNSBNMT",
+      "outFileName": "ion-datetime_3.entry-VNNSBNMT.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-YDPFCFKV",
+      "outFileName": "chunk-YDPFCFKV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/input-shims-D10mwcw1-VK5XAR4B",
+      "outFileName": "input-shims-D10mwcw1-VK5XAR4B.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/keyboard-ywgs5efA-FDAKEVAW",
+      "outFileName": "keyboard-ywgs5efA-FDAKEVAW.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-K3HLM7AI",
+      "outFileName": "chunk-K3HLM7AI.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/focus-visible-BmVRXR1y-Q62WZ6HB",
+      "outFileName": "focus-visible-BmVRXR1y-Q62WZ6HB.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-3I3UARMX",
+      "outFileName": "chunk-3I3UARMX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/swipe-back-DQ1q5MgD-LZEAQCFG",
+      "outFileName": "swipe-back-DQ1q5MgD-LZEAQCFG.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-app_8.entry-4A3UW7OV",
+      "outFileName": "ion-app_8.entry-4A3UW7OV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-6OIO6HJK",
+      "outFileName": "chunk-6OIO6HJK.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-GRQQPC7S",
+      "outFileName": "chunk-GRQQPC7S.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-5F7RQEA2",
+      "outFileName": "chunk-5F7RQEA2.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-avatar_3.entry-2PQM76CI",
+      "outFileName": "ion-avatar_3.entry-2PQM76CI.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-back-button.entry-AN66RVL4",
+      "outFileName": "ion-back-button.entry-AN66RVL4.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-backdrop.entry-HVYIJ6BL",
+      "outFileName": "ion-backdrop.entry-HVYIJ6BL.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/index-CfgBF1SE-IAZZDPFI",
+      "outFileName": "index-CfgBF1SE-IAZZDPFI.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/hardware-back-button-B93Gru0Y-NFDRSQK4",
+      "outFileName": "hardware-back-button-B93Gru0Y-NFDRSQK4.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-action-sheet.entry-K3ZSNB4Y",
+      "outFileName": "ion-action-sheet.entry-K3ZSNB4Y.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-alert.entry-OF3AKPSY",
+      "outFileName": "ion-alert.entry-OF3AKPSY.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-DJDDSJ6F",
+      "outFileName": "chunk-DJDDSJ6F.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-KTNUIOPA",
+      "outFileName": "chunk-KTNUIOPA.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-ZN3FGH7Q",
+      "outFileName": "chunk-ZN3FGH7Q.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-K4KGMBYV",
+      "outFileName": "chunk-K4KGMBYV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ios.transition-ClFrsIrS-RFGE6IW3",
+      "outFileName": "ios.transition-ClFrsIrS-RFGE6IW3.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/md.transition-D0msQmzI-PRB2KPZB",
+      "outFileName": "md.transition-D0msQmzI-PRB2KPZB.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/index-BRHzoo00-MKXBDPY6",
+      "outFileName": "index-BRHzoo00-MKXBDPY6.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/status-tap-Kan2W7sh-IT2FTOBY",
+      "outFileName": "status-tap-Kan2W7sh-IT2FTOBY.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-NFBH7NN2",
+      "outFileName": "chunk-NFBH7NN2.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-S7YE6MNX",
+      "outFileName": "chunk-S7YE6MNX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-B5XQ7TKQ",
+      "outFileName": "chunk-B5XQ7TKQ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-T4OEVJWM",
+      "outFileName": "chunk-T4OEVJWM.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-FI3ELXQA",
+      "outFileName": "chunk-FI3ELXQA.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-KIXHN2JV",
+      "outFileName": "chunk-KIXHN2JV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-C2WRTRKV",
+      "outFileName": "chunk-C2WRTRKV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-3VPKZZES",
+      "outFileName": "chunk-3VPKZZES.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-55MUSWHY",
+      "outFileName": "chunk-55MUSWHY.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-GP5A4OCU",
+      "outFileName": "chunk-GP5A4OCU.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-YDE5GD23",
+      "outFileName": "chunk-YDE5GD23.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-WDK2CNJV",
+      "outFileName": "chunk-WDK2CNJV.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-COG4N2LP",
+      "outFileName": "chunk-COG4N2LP.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-TSCHTRA5",
+      "outFileName": "chunk-TSCHTRA5.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-PJKO2XHO",
+      "outFileName": "chunk-PJKO2XHO.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-MIMR6BVP",
+      "outFileName": "chunk-MIMR6BVP.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-JPWMTNJE",
+      "outFileName": "chunk-JPWMTNJE.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-YCZWIBUX",
+      "outFileName": "chunk-YCZWIBUX.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-I2HR4EFT",
+      "outFileName": "chunk-I2HR4EFT.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-C6YDS23S",
+      "outFileName": "chunk-C6YDS23S.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-7ITT6ZDC",
+      "outFileName": "chunk-7ITT6ZDC.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-5WFF2DZJ",
+      "outFileName": "chunk-5WFF2DZJ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-C1aScSTo-MQBFW7FJ",
+      "outFileName": "p-C1aScSTo-MQBFW7FJ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-6YWW3CXD",
+      "outFileName": "chunk-6YWW3CXD.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-DIE4pXMl-ACVNCCWN",
+      "outFileName": "p-DIE4pXMl-ACVNCCWN.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-H4U77IPQ",
+      "outFileName": "chunk-H4U77IPQ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-OEP6Y7EQ",
+      "outFileName": "chunk-OEP6Y7EQ.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-6V6Z65ZI",
+      "outFileName": "chunk-6V6Z65ZI.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-Cl0B-RWe-LE7HEKSF",
+      "outFileName": "p-Cl0B-RWe-LE7HEKSF.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-3IHVGUEN",
+      "outFileName": "chunk-3IHVGUEN.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/p-Bz0dSlXZ-ZK647XWI",
+      "outFileName": "p-Bz0dSlXZ-ZK647XWI.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-HVYRPTZH",
+      "outFileName": "chunk-HVYRPTZH.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-CQE4ZXWS",
+      "outFileName": "chunk-CQE4ZXWS.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-JYWXGWOM",
+      "outFileName": "chunk-JYWXGWOM.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/ion-accordion_2.entry-QAGN7S2M",
+      "outFileName": "ion-accordion_2.entry-QAGN7S2M.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-BVRKUVLO",
+      "outFileName": "chunk-BVRKUVLO.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-WZJV2PK5",
+      "outFileName": "chunk-WZJV2PK5.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-WQ3B42TK",
+      "outFileName": "chunk-WQ3B42TK.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-M37FMPZ3",
+      "outFileName": "chunk-M37FMPZ3.js"
+    },
+    {
+      "singleton": false,
+      "strictVersion": false,
+      "version": "0.0.0",
+      "requiredVersion": "0.0.0",
+      "packageName": "@nf-internal/chunk-JHI3MBHO",
+      "outFileName": "chunk-JHI3MBHO.js"
+    }
+  ],
+  "exposes": []
+}

@@ -1,0 +1,1 @@
+import{a as t}from"./chunk-XNFUFXXQ.js";import"./chunk-4CLCTAJ7.js";var e=location.hostname==="localhost"||location.hostname==="127.0.0.1";t({"fineract-mfe":e?"http://localhost:4201/remoteEntry.json":"./remoteEntry.json"}).catch(o=>console.error(o)).then(()=>import("./chunk-HIU35XKS.js")).catch(o=>console.error(o));

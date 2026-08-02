@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var o=[{path:"",loadComponent:()=>import("./chunk-J2D7HSPF.js").then(t=>t.CentersListComponent)},{path:"create",loadComponent:()=>import("./chunk-KX42PXX7.js").then(t=>t.CenterFormComponent)},{path:"edit/:id",loadComponent:()=>import("./chunk-KX42PXX7.js").then(t=>t.CenterFormComponent)}];export{o as CENTERS_ROUTES};
