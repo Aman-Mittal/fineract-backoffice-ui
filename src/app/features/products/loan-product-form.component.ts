@@ -31,6 +31,7 @@ import {
   IonInput,
   IonSelect,
   IonSelectOption,
+  IonCheckbox,
   IonTextarea,
   IonButton,
   IonSpinner,
@@ -68,6 +69,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
     IonInput,
     IonSelect,
     IonSelectOption,
+    IonCheckbox,
     IonTextarea,
     IonButton,
     IonSpinner,
@@ -525,6 +527,135 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
               </ion-row>
             </ion-grid>
 
+            <!-- Disbursement and down payment -->
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col size="12">
+                  <h3 class="section-heading">
+                    {{ 'PRODUCTS.DISBURSEMENT_SETTINGS' | translate }}
+                  </h3>
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+                  <ion-item
+                    class="form-item"
+                    [appTooltip]="'HELP.MULTI_DISBURSE_LOAN_DESC' | translate"
+                  >
+                    <ion-checkbox
+                      name="multiDisburseLoan"
+                      data-testid="loan-product-multi-disburse"
+                      [ngModel]="multiDisburseEnabled()"
+                      (ngModelChange)="onMultiDisburseChange($event)"
+                    >
+                      {{ 'PRODUCTS.MULTI_DISBURSE_LOAN' | translate }}
+                    </ion-checkbox>
+                  </ion-item>
+                </ion-col>
+
+                @if (multiDisburseEnabled()) {
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      fill="outline"
+                      class="form-item"
+                      [appTooltip]="'HELP.MAX_TRANCHE_COUNT_DESC' | translate"
+                    >
+                      <ion-label position="stacked">{{
+                        'PRODUCTS.MAX_TRANCHE_COUNT' | translate
+                      }}</ion-label>
+                      <ion-input
+                        [attr.aria-label]="'PRODUCTS.MAX_TRANCHE_COUNT' | translate"
+                        type="number"
+                        min="1"
+                        data-testid="loan-product-max-tranche-count"
+                        name="maxTrancheCount"
+                        [(ngModel)]="product().maxTrancheCount"
+                        required
+                      ></ion-input>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      class="form-item"
+                      [appTooltip]="'HELP.DISALLOW_EXPECTED_DISBURSEMENTS_DESC' | translate"
+                    >
+                      <ion-checkbox
+                        name="disallowExpectedDisbursements"
+                        data-testid="loan-product-disallow-expected-disbursements"
+                        [(ngModel)]="product().disallowExpectedDisbursements"
+                      >
+                        {{ 'PRODUCTS.DISALLOW_EXPECTED_DISBURSEMENTS' | translate }}
+                      </ion-checkbox>
+                    </ion-item>
+                  </ion-col>
+                }
+
+                <!-- Down payment is a progressive-engine capability. -->
+                @if (isProgressive()) {
+                  <ion-col size="12" size-md="6">
+                    <ion-item
+                      class="form-item"
+                      [appTooltip]="'HELP.ENABLE_DOWN_PAYMENT_DESC' | translate"
+                    >
+                      <ion-checkbox
+                        name="enableDownPayment"
+                        data-testid="loan-product-enable-down-payment"
+                        [ngModel]="downPaymentEnabled()"
+                        (ngModelChange)="onEnableDownPaymentChange($event)"
+                      >
+                        {{ 'PRODUCTS.ENABLE_DOWN_PAYMENT' | translate }}
+                      </ion-checkbox>
+                    </ion-item>
+                  </ion-col>
+
+                  @if (downPaymentEnabled()) {
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        fill="outline"
+                        class="form-item"
+                        [appTooltip]="'HELP.DOWN_PAYMENT_PERCENTAGE_DESC' | translate"
+                      >
+                        <ion-label position="stacked">{{
+                          'PRODUCTS.DOWN_PAYMENT_PERCENTAGE' | translate
+                        }}</ion-label>
+                        <ion-input
+                          [attr.aria-label]="'PRODUCTS.DOWN_PAYMENT_PERCENTAGE' | translate"
+                          type="number"
+                          min="0"
+                          max="100"
+                          data-testid="loan-product-down-payment-percentage"
+                          name="disbursedAmountPercentageForDownPayment"
+                          [(ngModel)]="product().disbursedAmountPercentageForDownPayment"
+                          required
+                        ></ion-input>
+                      </ion-item>
+                    </ion-col>
+
+                    <ion-col size="12" size-md="6">
+                      <ion-item
+                        class="form-item"
+                        [appTooltip]="'HELP.AUTO_REPAYMENT_FOR_DOWN_PAYMENT_DESC' | translate"
+                      >
+                        <ion-checkbox
+                          name="enableAutoRepaymentForDownPayment"
+                          data-testid="loan-product-auto-repayment-down-payment"
+                          [(ngModel)]="product().enableAutoRepaymentForDownPayment"
+                        >
+                          {{ 'PRODUCTS.ENABLE_AUTO_REPAYMENT_FOR_DOWN_PAYMENT' | translate }}
+                        </ion-checkbox>
+                      </ion-item>
+                    </ion-col>
+                  }
+                } @else {
+                  <ion-col size="12">
+                    <p class="field-note" data-testid="down-payment-unavailable-note">
+                      {{ 'PRODUCTS.DOWN_PAYMENT_PROGRESSIVE_ONLY_NOTE' | translate }}
+                    </p>
+                  </ion-col>
+                }
+              </ion-row>
+            </ion-grid>
+
             @if (isProgressive()) {
               <app-payment-credit-allocation-editor
                 [transactionTypeOptions]="advancedPaymentAllocationTransactionTypes()"
@@ -590,6 +721,12 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
         --border-radius: 8px;
         margin-bottom: 12px;
       }
+      .section-heading {
+        margin: 8px 0 4px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-color, #1f2937);
+      }
       .field-note {
         margin: -6px 0 12px;
         padding: 0 4px;
@@ -635,6 +772,11 @@ export class LoanProductFormComponent implements OnInit {
     GetLoanProductsTransactionProcessingStrategyOptions[]
   >([]);
   readonly isProgressive = signal(false);
+  // Mirrors of two payload flags. `product` is a signal holding an object, so assigning to one of
+  // its properties changes nothing the template is watching — the same reason `isProgressive` is
+  // its own signal rather than being read off the product.
+  readonly downPaymentEnabled = signal(false);
+  readonly multiDisburseEnabled = signal(false);
 
   readonly product = signal<PostLoanProductsRequest>({
     currencyCode: 'USD',
@@ -698,7 +840,38 @@ export class LoanProductFormComponent implements OnInit {
       this.product().loanScheduleProcessingType = undefined;
       this.product().paymentAllocation = undefined;
       this.product().creditAllocation = undefined;
+      // Down payment is a progressive capability. Hiding the controls is not enough — the values
+      // would still be in the payload, describing a product the cumulative engine cannot honour.
+      this.clearDownPayment();
     }
+  }
+
+  /** Turning multi-disbursement off leaves no meaning in the settings that depend on it. */
+  onMultiDisburseChange(enabled: boolean): void {
+    this.multiDisburseEnabled.set(enabled);
+    this.product().multiDisburseLoan = enabled;
+    if (!enabled) {
+      this.product().maxTrancheCount = undefined;
+      this.product().disallowExpectedDisbursements = undefined;
+      // Only ever reachable through multi-disbursement, so it cannot outlive it.
+      this.product().allowFullTermForTranche = undefined;
+    }
+  }
+
+  onEnableDownPaymentChange(enabled: boolean): void {
+    if (enabled) {
+      this.downPaymentEnabled.set(true);
+      this.product().enableDownPayment = true;
+      return;
+    }
+    this.clearDownPayment();
+  }
+
+  private clearDownPayment(): void {
+    this.downPaymentEnabled.set(false);
+    this.product().enableDownPayment = undefined;
+    this.product().disbursedAmountPercentageForDownPayment = undefined;
+    this.product().enableAutoRepaymentForDownPayment = undefined;
   }
 
   private applyTransactionProcessingStrategyFilter() {
@@ -770,8 +943,20 @@ export class LoanProductFormComponent implements OnInit {
         loanScheduleProcessingType: data.loanScheduleProcessingType?.code,
         paymentAllocation: data.paymentAllocation,
         creditAllocation: data.creditAllocation,
+        // Carried through explicitly: this payload is rebuilt field by field, so anything the
+        // form does not name is dropped on save. Before these lines, opening a product configured
+        // with tranches or a down payment and pressing Save silently removed both.
+        multiDisburseLoan: data.multiDisburseLoan,
+        maxTrancheCount: data.maxTrancheCount,
+        disallowExpectedDisbursements: data.disallowExpectedDisbursements,
+        allowFullTermForTranche: data.allowFullTermForTranche,
+        enableDownPayment: data.enableDownPayment,
+        disbursedAmountPercentageForDownPayment: data.disbursedAmountPercentageForDownPayment,
+        enableAutoRepaymentForDownPayment: data.enableAutoRepaymentForDownPayment,
       });
       this.isProgressive.set(this.product().loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
+      this.downPaymentEnabled.set(this.product().enableDownPayment === true);
+      this.multiDisburseEnabled.set(this.product().multiDisburseLoan === true);
       this.applyTransactionProcessingStrategyFilter();
     });
   }

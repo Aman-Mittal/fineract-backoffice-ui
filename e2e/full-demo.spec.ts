@@ -139,6 +139,18 @@ test.describe('Full feature demo recording', () => {
     await expect(firstOrderItem).not.toHaveText(orderBefore ?? '');
     await beat(page);
 
+    // Down payment and tranche disbursement. Down payment is a progressive-engine capability, so
+    // the control appears only now that the schedule type is Progressive; on a Cumulative product
+    // the form says so in its place rather than silently omitting the setting.
+    await page.getByTestId('loan-product-enable-down-payment').click();
+    await page.getByTestId('loan-product-down-payment-percentage').locator('input').fill('20');
+    await expect(page.getByTestId('loan-product-auto-repayment-down-payment')).toBeVisible();
+    await beat(page);
+
+    await page.getByTestId('loan-product-multi-disburse').click();
+    await page.getByTestId('loan-product-max-tranche-count').locator('input').fill('3');
+    await beat(page);
+
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/products\/loan$/, { timeout: 15000 });
 
@@ -161,6 +173,12 @@ test.describe('Full feature demo recording', () => {
     // 5. Create a Cumulative loan product for the lifecycle walkthrough
     await page.goto('/products/loan/create');
     await waitForProductTemplate(page);
+
+    // The same section on a Cumulative product: the down payment control is replaced by an
+    // explanation of where the setting lives, rather than simply not being there.
+    await expect(page.getByTestId('down-payment-unavailable-note')).toBeVisible();
+    await expect(page.getByTestId('loan-product-enable-down-payment')).toHaveCount(0);
+    await beat(page);
 
     const cumSuffix = uniqueSuffix();
     const cumulativeProductName = `Demo Cumulative ${cumSuffix}`;

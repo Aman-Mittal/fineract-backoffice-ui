@@ -352,7 +352,15 @@
     },
     "FUND": "Fund",
     "DELINQUENCY_BUCKET": "Delinquency Bucket",
-    "STRATEGY_LOCKED_NOTE": "Fixed to Advanced Payment Allocation because this is a Progressive product — the two go together and Fineract rejects any other pairing."
+    "STRATEGY_LOCKED_NOTE": "Fixed to Advanced Payment Allocation because this is a Progressive product — the two go together and Fineract rejects any other pairing.",
+    "DISBURSEMENT_SETTINGS": "Disbursement and Down Payment",
+    "MULTI_DISBURSE_LOAN": "Release the loan in tranches",
+    "MAX_TRANCHE_COUNT": "Maximum number of tranches",
+    "DISALLOW_EXPECTED_DISBURSEMENTS": "Do not require a tranche schedule upfront",
+    "ENABLE_DOWN_PAYMENT": "Collect a down payment at disbursement",
+    "DOWN_PAYMENT_PERCENTAGE": "Down payment (% of the amount disbursed)",
+    "ENABLE_AUTO_REPAYMENT_FOR_DOWN_PAYMENT": "Post the down payment automatically",
+    "DOWN_PAYMENT_PROGRESSIVE_ONLY_NOTE": "Down payments are available on Progressive products only. Change the loan schedule type above to configure one."
   },
   "CHARGES": {
     "CREATE": "Create Charge",
@@ -736,7 +744,7 @@
     "TERM_TYPE_DESC": "The units for the loan term (e.g., Months, Years).",
     "REPAYMENTS_COUNT_DESC": "The total number of installments to repay the loan.",
     "REPAYMENT_EVERY_DESC": "How often repayments are due (e.g., every 1 month).",
-    "ENABLE_DOWN_PAYMENT_DESC": "Whether to require an initial payment from the borrower.",
+    "ENABLE_DOWN_PAYMENT_DESC": "Require the borrower to pay part of the amount back immediately at disbursement, so only the remainder is financed over the schedule. Common in asset and hire-purchase lending. Progressive products only.",
     "GROUP_NAME_DESC": "The name of the community group.",
     "CENTER_NAME_DESC": "The name of the administrative center.",
     "OFFICE_NAME_DESC": "The full name of the branch office.",
@@ -860,7 +868,12 @@
     "TRANSACTION_PROCESSING_STRATEGY_DESC": "The order in which a repayment is applied to what the borrower owes. Progressive products must use Advanced Payment Allocation, which is why the field is fixed for them.",
     "LOAN_SCHEDULE_PROCESSING_TYPE_DESC": "How a payment moves through unpaid instalments. Horizontal settles one instalment fully before moving to the next; Vertical pays the same component across every instalment first. Progressive products only.",
     "PAYMENT_ALLOCATION_DESC": "For each kind of incoming payment, the order in which it clears what is owed. The list is applied top to bottom until the payment is used up.",
-    "CREDIT_ALLOCATION_DESC": "The same ordering, for credits such as refunds and goodwill adjustments rather than borrower repayments."
+    "CREDIT_ALLOCATION_DESC": "The same ordering, for credits such as refunds and goodwill adjustments rather than borrower repayments.",
+    "MULTI_DISBURSE_LOAN_DESC": "Pay the loan out in stages rather than all at once — used where money is released against progress, such as construction or working capital. Each release is called a tranche.",
+    "MAX_TRANCHE_COUNT_DESC": "The largest number of separate releases allowed on one loan. Officers cannot add more tranches than this.",
+    "DISALLOW_EXPECTED_DISBURSEMENTS_DESC": "Leave unticked to require the full tranche plan — how much, and when — to be entered when the loan is created. Tick it to let tranches be added as they are actually needed.",
+    "DOWN_PAYMENT_PERCENTAGE_DESC": "How much of the disbursed amount the borrower pays upfront, as a percentage. 20 on a 1,000 disbursement means a 200 down payment and 800 repaid over the schedule.",
+    "AUTO_REPAYMENT_FOR_DOWN_PAYMENT_DESC": "Record the down payment for the borrower as soon as the loan is disbursed. Leave unticked if it is collected separately and should be entered by hand."
   },
   "REPORTS": {
     "NAME": "Report Name",
