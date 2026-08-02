@@ -27,7 +27,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { CellTemplateDirective, ColumnDef } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { LoanProductsService, GetLoanProductsResponse } from '../../api';
-import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
+import { readScheduleTypeCode, readScheduleTypeLabel } from './loan-schedule-type';
 
 @Component({
   selector: 'app-loan-products-list',
@@ -130,22 +130,12 @@ export class LoanProductsListComponent implements OnInit {
     this.router.navigate(['/products/loan/view', product.id]);
   }
 
-  /**
-   * `loanScheduleType` is returned by GET /loanproducts but is missing from the
-   * generated GetLoanProductsResponse model, so it's read off the raw response.
-   */
   getLoanScheduleType(product: GetLoanProductsResponse): string | undefined {
-    return (product as unknown as { loanScheduleType?: { code?: string } }).loanScheduleType?.code;
+    return readScheduleTypeCode(product);
   }
 
   getLoanScheduleTypeLabel(product: GetLoanProductsResponse): string {
-    const scheduleType = product as unknown as { loanScheduleType?: { value?: string } };
-    return (
-      scheduleType.loanScheduleType?.value ??
-      (this.getLoanScheduleType(product) === LOAN_SCHEDULE_TYPE.PROGRESSIVE
-        ? 'Progressive'
-        : 'Cumulative')
-    );
+    return readScheduleTypeLabel(product);
   }
 
   onRetry(): void {

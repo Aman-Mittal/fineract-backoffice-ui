@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, Signal, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
@@ -278,12 +278,16 @@ import {
           <ion-segment-button value="6">
             <ion-label>{{ 'LOANS.DOCUMENTS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="7">
-            <ion-label>{{ 'LOANS.BUY_DOWN_FEES' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="8">
-            <ion-label>{{ 'LOANS.CAPITALIZED_INCOME' | translate }}</ion-label>
-          </ion-segment-button>
+          @if (showBuyDownFees()) {
+            <ion-segment-button value="7">
+              <ion-label>{{ 'LOANS.BUY_DOWN_FEES' | translate }}</ion-label>
+            </ion-segment-button>
+          }
+          @if (showCapitalizedIncome()) {
+            <ion-segment-button value="8">
+              <ion-label>{{ 'LOANS.CAPITALIZED_INCOME' | translate }}</ion-label>
+            </ion-segment-button>
+          }
           <ion-segment-button value="9">
             <ion-label>{{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}</ion-label>
           </ion-segment-button>
@@ -791,7 +795,7 @@ import {
             <app-loan-documents-tab [loanId]="loanId()"></app-loan-documents-tab>
           </div>
         }
-        @if (activeTab() === '7') {
+        @if (activeTab() === '7' && showBuyDownFees()) {
           <div class="tab-content">
             @if (buyDownFees().length === 0) {
               <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
@@ -827,7 +831,7 @@ import {
             }
           </div>
         }
-        @if (activeTab() === '8') {
+        @if (activeTab() === '8' && showCapitalizedIncome()) {
           <div class="tab-content">
             @if (capitalizedIncomes().length === 0) {
               <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
@@ -1194,6 +1198,35 @@ export class LoanViewComponent implements OnInit {
     return this.loan()?.loanScheduleType?.code === LOAN_SCHEDULE_TYPE.PROGRESSIVE;
   }
 
+  /**
+   * Whether this loan can carry buy-down fees / capitalized income at all.
+   *
+   * Gated on the loan's own capability flag rather than on the schedule type. Both are features
+   * of the progressive engine, so a cumulative loan never has them — but a progressive loan only
+   * has them when the product enabled them, and a tab that can never hold anything is worse than
+   * no tab: an empty table gives the user no way to tell "none recorded" from "not applicable".
+   */
+  readonly showBuyDownFees = computed(() => this.loan()?.enableBuyDownFee === true);
+  readonly showCapitalizedIncome = computed(() => this.loan()?.enableIncomeCapitalization === true);
+
+  /** Tabs that are not always present, keyed by the segment value that selects them. */
+  private readonly conditionalTabs: Record<string, Signal<boolean>> = {
+    '7': this.showBuyDownFees,
+    '8': this.showCapitalizedIncome,
+  };
+
+  constructor() {
+    // A tab can disappear when the loan finishes loading — the segment defaults to a value before
+    // the capabilities are known. Falling back to the overview keeps the page from rendering a
+    // segment with nothing selected and no content beneath it.
+    effect(() => {
+      const available = this.conditionalTabs[this.activeTab()];
+      if (available && !available()) {
+        this.activeTab.set('0');
+      }
+    });
+  }
+
   get isLoanApproved(): boolean {
     const status = this.loan()?.status;
     return (status as unknown as Record<string, unknown>)?.['value'] === 'Approved';
@@ -1312,7 +1345,10 @@ export class LoanViewComponent implements OnInit {
         this.periods.set(data.repaymentSchedule?.periods || []);
         this.transactions.set(data.transactions || []);
         this.charges.set(data.charges || []);
-        if (data.externalId) {
+        // Only ask for what this loan can actually have. Both are progressive-engine features:
+        // fetching them for every loan meant two guaranteed-useless requests per cumulative loan
+        // view, with their failures swallowed so nothing ever surfaced the waste.
+        if (data.externalId && data.enableBuyDownFee) {
           this.buyDownFeesService
             .getLoansExternalIdLoanExternalIdBuydownFees(data.externalId)
             .subscribe({
@@ -1321,6 +1357,8 @@ export class LoanViewComponent implements OnInit {
                 /* ignored */
               },
             });
+        }
+        if (data.externalId && data.enableIncomeCapitalization) {
           this.capitalizedIncomeService
             .getLoansExternalIdLoanExternalIdCapitalizedIncomes(data.externalId)
             .subscribe({

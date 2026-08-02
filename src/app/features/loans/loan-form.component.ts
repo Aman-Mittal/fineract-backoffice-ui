@@ -32,7 +32,14 @@ import {
   GetLoanProductsProductIdResponse,
   GetLoansLoanIdResponse,
 } from '../../api';
-import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
+import {
+  ADVANCED_PAYMENT_ALLOCATION_STRATEGY,
+  LOAN_SCHEDULE_TYPE,
+  isAdvancedPaymentAllocationStrategy,
+  isProgressiveScheduleType,
+  readScheduleTypeCode,
+  requiredStrategyFor,
+} from '../products/loan-schedule-type';
 import { NotificationService } from '../../core/services/notification.service';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -649,17 +656,30 @@ export class LoanFormComponent implements OnInit {
     // Read the signal once: TypeScript cannot narrow a call expression, so the
     // guard above does not carry over to a second call.
     const productDetails = this.selectedProductDetails();
+    const selectedProduct = this.products().find((p) => p.id === this.loan().productId);
+    // The detail request may not have resolved, or may have failed; the list row still carries
+    // the schedule type, so the engine is knowable either way.
+    const scheduleTypeCode =
+      productDetails?.loanScheduleType?.code ?? readScheduleTypeCode(selectedProduct);
+
     if (productDetails?.transactionProcessingStrategyCode) {
       this.loan().transactionProcessingStrategyCode =
         productDetails.transactionProcessingStrategyCode;
-    } else {
-      const selectedProduct = this.products().find((p) => p.id === this.loan().productId);
-      if (selectedProduct && selectedProduct.transactionProcessingStrategy) {
-        this.loan().transactionProcessingStrategyCode =
-          selectedProduct.transactionProcessingStrategy;
-      } else if (!this.loan().transactionProcessingStrategyCode) {
-        this.loan().transactionProcessingStrategyCode = 'mifos-standard-strategy';
-      }
+    } else if (selectedProduct?.transactionProcessingStrategy) {
+      this.loan().transactionProcessingStrategyCode = selectedProduct.transactionProcessingStrategy;
+    } else if (!this.loan().transactionProcessingStrategyCode) {
+      // Never fall back to the standard strategy for a progressive product — it is the one code
+      // such a product may not carry, and Fineract rejects the pairing. Before this, a slow or
+      // failed product fetch could submit a loan whose strategy contradicted its own product.
+      this.loan().transactionProcessingStrategyCode = requiredStrategyFor(scheduleTypeCode);
+    }
+
+    // A strategy copied from a stale product selection can still contradict the engine.
+    if (
+      isProgressiveScheduleType(scheduleTypeCode) &&
+      !isAdvancedPaymentAllocationStrategy(this.loan().transactionProcessingStrategyCode)
+    ) {
+      this.loan().transactionProcessingStrategyCode = ADVANCED_PAYMENT_ALLOCATION_STRATEGY;
     }
 
     if (this.isEditMode() && this.loanId) {

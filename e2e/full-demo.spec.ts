@@ -128,6 +128,9 @@ test.describe('Full feature demo recording', () => {
     // locks. ion-select carries `disabled` only as a JS property — there is no
     // disabled/aria-disabled attribute on the host for toBeDisabled() to read.
     await expect(ionSelect(page, 'Repayment Strategy')).toHaveJSProperty('disabled', true);
+    // A disabled control that does not say why is a dead end for anyone who does not already
+    // know the rule, so the form states it in plain language next to the field.
+    await expect(page.getByTestId('strategy-locked-note')).toBeVisible();
     await expect(ionSelect(page, 'Loan Schedule Processing Type')).toBeVisible();
 
     const firstOrderItem = page.locator('.allocation-order-list ion-item').first();
@@ -240,6 +243,13 @@ test.describe('Full feature demo recording', () => {
     await page.goto(`/loans/view/${loanId}`);
     await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Loan Schedule Type:\s*Cumulative/)).toBeVisible();
+    // The two engines are kept apart on the account screen too: buy-down fees and capitalised
+    // income belong to the progressive engine, so this cumulative loan must not offer them.
+    // They would otherwise render as tabs that can never hold anything.
+    await expect(page.locator('ion-segment-button', { hasText: 'Buy-Down Fees' })).toHaveCount(0);
+    await expect(page.locator('ion-segment-button', { hasText: 'Capitalized Income' })).toHaveCount(
+      0,
+    );
     await beat(page);
 
     // 10. Custom Fields tab: add an entry through the dialog. The datatable this

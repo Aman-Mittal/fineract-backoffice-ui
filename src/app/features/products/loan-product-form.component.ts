@@ -51,6 +51,7 @@ import {
 } from '../../api';
 import { LOAN_SCHEDULE_TYPE, isAdvancedPaymentAllocationStrategy } from './loan-schedule-type';
 import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocation-editor.component';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-loan-product-form',
@@ -74,6 +75,7 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
     IonRow,
     IonCol,
     PaymentCreditAllocationEditorComponent,
+    TooltipDirective,
   ],
   template: `
     <div class="form-container">
@@ -430,7 +432,11 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <!-- Loan Schedule Type -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" class="form-item">
+                  <ion-item
+                    fill="outline"
+                    class="form-item"
+                    [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+                  >
                     <ion-label position="stacked">{{
                       'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate
                     }}</ion-label>
@@ -455,7 +461,11 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
 
                 <!-- Transaction Processing Strategy Code -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" class="form-item">
+                  <ion-item
+                    fill="outline"
+                    class="form-item"
+                    [appTooltip]="'HELP.TRANSACTION_PROCESSING_STRATEGY_DESC' | translate"
+                  >
                     <ion-label position="stacked">{{
                       'PRODUCTS.TRANSACTION_PROCESSING_STRATEGY' | translate
                     }}</ion-label>
@@ -476,12 +486,21 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
                       }
                     </ion-select>
                   </ion-item>
+                  @if (isProgressive()) {
+                    <p class="field-note" data-testid="strategy-locked-note">
+                      {{ 'PRODUCTS.STRATEGY_LOCKED_NOTE' | translate }}
+                    </p>
+                  }
                 </ion-col>
 
                 <!-- Loan Schedule Processing Type (Progressive only) -->
                 @if (isProgressive()) {
                   <ion-col size="12" size-md="6">
-                    <ion-item fill="outline" class="form-item">
+                    <ion-item
+                      fill="outline"
+                      class="form-item"
+                      [appTooltip]="'HELP.LOAN_SCHEDULE_PROCESSING_TYPE_DESC' | translate"
+                    >
                       <ion-label position="stacked">{{
                         'PRODUCTS.LOAN_SCHEDULE_PROCESSING_TYPE' | translate
                       }}</ion-label>
@@ -570,6 +589,13 @@ import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocat
         --background: var(--ion-color-light, #f8f9fa);
         --border-radius: 8px;
         margin-bottom: 12px;
+      }
+      .field-note {
+        margin: -6px 0 12px;
+        padding: 0 4px;
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--text-muted, #6b7280);
       }
       .form-actions {
         display: flex;

@@ -34,6 +34,7 @@ import {
   IonIcon,
 } from '@ionic/angular/standalone';
 import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../../api';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-payment-credit-allocation-editor',
@@ -52,11 +53,14 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
     IonSelectOption,
     IonButton,
     IonIcon,
+    TooltipDirective,
   ],
   template: `
     <ion-card class="allocation-card">
       <ion-card-header>
-        <ion-card-title>{{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}</ion-card-title>
+        <ion-card-title [appTooltip]="'HELP.PAYMENT_ALLOCATION_DESC' | translate">
+          {{ 'PRODUCTS.PAYMENT_ALLOCATION' | translate }}
+        </ion-card-title>
       </ion-card-header>
       <ion-card-content>
         @for (rule of paymentAllocation(); track rule.transactionType; let ruleIndex = $index) {
@@ -159,7 +163,9 @@ import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../..
 
     <ion-card class="allocation-card">
       <ion-card-header>
-        <ion-card-title>{{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}</ion-card-title>
+        <ion-card-title [appTooltip]="'HELP.CREDIT_ALLOCATION_DESC' | translate">
+          {{ 'PRODUCTS.CREDIT_ALLOCATION' | translate }}
+        </ion-card-title>
       </ion-card-header>
       <ion-card-content>
         @for (rule of creditAllocation(); track rule.transactionType; let ruleIndex = $index) {

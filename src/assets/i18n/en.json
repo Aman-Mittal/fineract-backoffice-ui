@@ -351,7 +351,8 @@
       "PENALTIES_FEES_INTEREST_PRINCIPAL": "Penalties, Fees, Interest, Principal"
     },
     "FUND": "Fund",
-    "DELINQUENCY_BUCKET": "Delinquency Bucket"
+    "DELINQUENCY_BUCKET": "Delinquency Bucket",
+    "STRATEGY_LOCKED_NOTE": "Fixed to Advanced Payment Allocation because this is a Progressive product — the two go together and Fineract rejects any other pairing."
   },
   "CHARGES": {
     "CREATE": "Create Charge",
@@ -720,7 +721,7 @@
     "ACTIVATION_DATE_DESC": "The date when this account or entity becomes operational.",
     "ACTIVE_DESC": "Whether this record is currently active in the system.",
     "PRODUCT_NAME_DESC": "The full name of the financial product.",
-    "LOAN_SCHEDULE_TYPE_DESC": "Cumulative uses the traditional repayment schedule engine. Progressive uses the advanced payment allocation engine and requires the Advanced Payment Allocation repayment strategy.",
+    "LOAN_SCHEDULE_TYPE_DESC": "Which engine builds the repayment schedule. Cumulative is the classic method: each repayment is split across penalties, fees, interest and principal in a fixed order. Progressive lets you define that order yourself per transaction type, and is required for down payments, capitalised income and buy-down fees. This cannot be changed once the product has loans against it.",
     "SHORT_NAME_DESC": "A 4-character unique identifier for the product.",
     "DESCRIPTION_DESC": "A detailed explanation of the product's purpose and rules.",
     "CURRENCY_DESC": "The currency in which transactions are processed.",
@@ -855,7 +856,11 @@
     "FLOATING_RATES_DESC": "Floating rates define base/differential interest rates that vary over time periods.",
     "LOAN_CHARGES_DESC": "Manage and view charges and fees applied to this loan account.",
     "OFFICES_DESC": "Configure and manage branch offices and their hierarchical structure.",
-    "TASKS_DESC": "Review and approve or reject maker-checker tasks pending authorization."
+    "TASKS_DESC": "Review and approve or reject maker-checker tasks pending authorization.",
+    "TRANSACTION_PROCESSING_STRATEGY_DESC": "The order in which a repayment is applied to what the borrower owes. Progressive products must use Advanced Payment Allocation, which is why the field is fixed for them.",
+    "LOAN_SCHEDULE_PROCESSING_TYPE_DESC": "How a payment moves through unpaid instalments. Horizontal settles one instalment fully before moving to the next; Vertical pays the same component across every instalment first. Progressive products only.",
+    "PAYMENT_ALLOCATION_DESC": "For each kind of incoming payment, the order in which it clears what is owed. The list is applied top to bottom until the payment is used up.",
+    "CREDIT_ALLOCATION_DESC": "The same ordering, for credits such as refunds and goodwill adjustments rather than borrower repayments."
   },
   "REPORTS": {
     "NAME": "Report Name",
