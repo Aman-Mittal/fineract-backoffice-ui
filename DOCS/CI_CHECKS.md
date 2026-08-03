@@ -116,9 +116,15 @@ npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
 Karma + Jasmine. Coverage is uploaded as an artifact for 7 days.
 
-`ng test` runs **both** workspace projects; the totals print separately, so a run
-ending in `TOTAL: 2 SUCCESS` is the `fineract-mfe` project and not the app. Add
-`--project=fineract-backoffice-ui` when you want just the app.
+The project is named explicitly because a bare `ng test` does **not** run both
+workspace projects. `angular.json` declares two — `fineract-backoffice-ui` and the
+`fineract-mfe` placeholder — with no default, and the CLI resolved that to
+`fineract-mfe` alone: 1 spec file, 2 tests, exit code 0. The app's 775 specs never
+ran, and because the run passed, nothing pointed at it.
+
+A suite that silently tests nothing is worse than no suite, so treat the printed
+total as the check: the app run ends in `TOTAL: 775 SUCCESS`-order numbers, not
+`TOTAL: 2`. `npm run test:mfe` runs the placeholder.
 
 > `jest.config.ts`, `setup-jest.ts` and a `vitest` devDependency all exist in the
 > repo but nothing runs them. Karma is the real runner.
