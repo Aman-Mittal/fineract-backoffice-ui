@@ -583,7 +583,16 @@
     "USAGE": "Usage",
     "STAFF": "Staff Member",
     "IS_FULL_TIME": "Full Time",
-    "REMAVAL_DATE": "Removal Date"
+    "REMAVAL_DATE": "Removal Date",
+    "ALLOCATE_CASH": "Allocate Cash",
+    "SETTLE_CASH": "Settle Cash",
+    "ALLOCATE": "Allocate",
+    "SETTLE": "Settle",
+    "CASHIER_SUMMARY": "Cashier Summary",
+    "CASHIER_TRANSACTIONS": "Cashier Transactions",
+    "TOTAL_ALLOCATED": "Total Allocated",
+    "TOTAL_SETTLED": "Total Settled",
+    "NET_CASH": "Net Cash"
   },
   "CLIENTS": {
     "CREATE_CLIENT": "Create Client",
