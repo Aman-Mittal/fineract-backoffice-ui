@@ -1,0 +1,7 @@
+# .apache-magpie.lock — committed; the project's pin.
+# Edited only by /magpie-setup; do not modify by hand.
+
+method: svn-zip
+url:    https://downloads.apache.org/magpie/0.1.0/apache-magpie-0.1.0-source.zip
+ref:    0.1.0
+sha512: 991218c7ecbe66a5ccf4b6e5b55cedee33382d8f38d1bd8683a45303771e8d43cd106acd371931801450ed77d993c9c778fd03f0c231eb892adb7f8b21af3568
