@@ -1,15 +1,18 @@
 {
   "AccountNumberFormatService": [
+    "deleteAccountnumberformatsAccountNumberFormatId",
     "getAccountnumberformats",
     "getAccountnumberformatsAccountNumberFormatId",
     "getAccountnumberformatsTemplate",
-    "postAccountnumberformats"
+    "postAccountnumberformats",
+    "putAccountnumberformatsAccountNumberFormatId"
   ],
   "AccountTransfersService": ["getAccounttransfers", "postAccounttransfers"],
-  "AccountingClosureService": ["getGlclosures", "postGlclosures"],
+  "AccountingClosureService": ["deleteGlclosuresGlClosureId", "getGlclosures", "postGlclosures"],
   "AccountingRulesService": [
     "deleteAccountingrulesAccountingRuleId",
     "getAccountingrules",
+    "getAccountingrulesAccountingRuleId",
     "getAccountingrulesTemplate",
     "postAccountingrules",
     "putAccountingrulesAccountingRuleId"
@@ -22,8 +25,9 @@
     "postAdhocquery",
     "putAdhocqueryAdHocId"
   ],
+  "AuditsService": ["getAudits"],
   "BatchAPIService": ["postBatches"],
-  "BulkImportService": ["getImports"],
+  "BulkImportService": ["getImports", "getImportsDownloadOutputTemplate"],
   "BulkLoansService": ["getLoansLoanreassignmentTemplate", "postLoansLoanreassignment"],
   "BusinessDateManagementService": ["getBusinessdate", "postBusinessdate"],
   "BusinessStepConfigurationService": [
@@ -33,13 +37,21 @@
   ],
   "CacheService": ["getCaches", "putCaches"],
   "CalendarService": [
+    "deleteEntityTypeEntityIdCalendarsCalendarId",
     "getEntityTypeEntityIdCalendars",
+    "getEntityTypeEntityIdCalendarsCalendarId",
+    "getEntityTypeEntityIdCalendarsTemplate",
     "postEntityTypeEntityIdCalendars",
     "putEntityTypeEntityIdCalendarsCalendarId"
   ],
   "CashierJournalsService": ["getCashiersjournal"],
-  "CashiersService": ["getCashiers"],
-  "CentersService": ["getCentersCenterId", "postCenters", "putCentersCenterId"],
+  "CentersService": [
+    "getCenters",
+    "getCentersCenterId",
+    "postCenters",
+    "postCentersCenterId",
+    "putCentersCenterId"
+  ],
   "ChargesService": [
     "getCharges",
     "getChargesChargeId",
@@ -48,22 +60,36 @@
     "putChargesChargeId"
   ],
   "ClientChargesService": [
+    "deleteClientsClientIdChargesChargeId",
     "getClientsClientIdCharges",
     "getClientsClientIdChargesTemplate",
     "postClientsClientIdCharges"
   ],
   "ClientCollateralManagementService": [
+    "deleteClientsClientIdCollateralsCollateralId",
     "getClientsClientIdCollaterals",
+    "getClientsClientIdCollateralsClientCollateralId",
     "getClientsClientIdCollateralsTemplate",
     "postClientsClientIdCollaterals",
     "putClientsClientIdCollateralsCollateralId"
   ],
   "ClientFamilyMemberService": [
+    "deleteClientsClientIdFamilymembersFamilyMemberId",
     "getClientsClientIdFamilymembers",
+    "getClientsClientIdFamilymembersFamilyMemberId",
     "getClientsClientIdFamilymembersTemplate",
-    "postClientsClientIdFamilymembers"
+    "postClientsClientIdFamilymembers",
+    "putClientsClientIdFamilymembersFamilyMemberId"
   ],
-  "ClientIdentifierService": ["getClientsClientIdIdentifiers"],
+  "ClientIdentifierService": [
+    "deleteClientsClientIdIdentifiersIdentifierId",
+    "getClientsClientIdIdentifiers",
+    "getClientsClientIdIdentifiersIdentifierId",
+    "getClientsClientIdIdentifiersTemplate",
+    "postClientsClientIdIdentifiers",
+    "putClientsClientIdIdentifiersIdentifierId"
+  ],
+  "ClientSearchV2Service": ["postClientsSearch"],
   "ClientService": [
     "deleteClientsClientId",
     "getClients",
@@ -72,19 +98,26 @@
     "getClientsDownloadtemplate",
     "postClients",
     "postClientsClientId",
-    "postClientsUploadtemplate"
+    "postClientsUploadtemplate",
+    "putClientsClientId"
   ],
-  "ClientTransactionService": ["getClientsClientIdTransactions"],
+  "ClientTransactionService": [
+    "getClientsClientIdTransactions",
+    "postClientsClientIdTransactionsTransactionId"
+  ],
   "ClientsAddressService": [
     "getClientAddressesTemplate",
     "getClientClientidAddresses",
+    "postClientClientidAddresses",
     "putClientClientidAddresses"
   ],
   "CodeValuesService": [
     "deleteCodesCodeIdCodevaluesCodeValueId",
     "getCodesCodeIdCodevalues",
+    "getCodesCodeIdCodevaluesCodeValueId",
     "getCodesNameCodeNameCodevalues",
-    "postCodesCodeIdCodevalues"
+    "postCodesCodeIdCodevalues",
+    "putCodesCodeIdCodevaluesCodeValueId"
   ],
   "CodesService": [
     "deleteCodesCodeId",
@@ -97,6 +130,7 @@
   "CollateralManagementService": [
     "deleteCollateralManagementCollateralId",
     "getCollateralManagement",
+    "getCollateralManagementCollateralId",
     "getCollateralManagementTemplate",
     "postCollateralManagement",
     "putCollateralManagementCollateralId"
@@ -106,13 +140,19 @@
     "getCreditBureauConfiguration",
     "getCreditBureauConfigurationLoanProduct"
   ],
+  "CreditBureauIntegrationService": [
+    "getCreditBureauIntegrationCreditReportCreditBureauId",
+    "postCreditBureauIntegrationSaveCreditReport"
+  ],
   "CurrencyService": ["getCurrencies", "putCurrencies"],
   "DataTablesService": [
     "deleteDatatablesDatatableName",
     "getDatatables",
     "getDatatablesDatatable",
     "getDatatablesDatatableApptableId",
-    "postDatatables"
+    "postDatatables",
+    "postDatatablesDatatableApptableId",
+    "putDatatablesDatatableName"
   ],
   "DefaultService": [
     "deleteEmailCampaignResourceId",
@@ -128,6 +168,7 @@
     "getEmailFailedEmail",
     "getEmailPendingEmail",
     "getEmailSentEmail",
+    "getInternalExternalevents",
     "getOfficetransactions",
     "getOfficetransactionsTemplate",
     "getSmscampaigns",
@@ -151,7 +192,15 @@
     "getDelinquencyBuckets",
     "getDelinquencyRanges"
   ],
-  "DocumentsService": ["getEntityTypeEntityIdDocuments"],
+  "DepositAccountOnHoldFundTransactionsService": ["getSavingsaccountsSavingsIdOnholdtransactions"],
+  "DocumentsService": [
+    "deleteEntityTypeEntityIdDocumentsDocumentId",
+    "getEntityTypeEntityIdDocuments",
+    "getEntityTypeEntityIdDocumentsDocumentId",
+    "getEntityTypeEntityIdDocumentsDocumentIdAttachment",
+    "postEntityTypeEntityIdDocuments",
+    "putEntityTypeEntityIdDocumentsDocumentId"
+  ],
   "EntityDataTableService": [
     "deleteEntityDatatableChecksEntityDatatableCheckId",
     "getEntityDatatableChecks",
@@ -159,12 +208,19 @@
     "postEntityDatatableChecks"
   ],
   "EntityFieldConfigurationService": ["getFieldconfigurationEntity"],
-  "ExternalAssetOwnersService": ["postExternalAssetOwnersSearch"],
+  "ExternalAssetOwnerLoanProductAttributesService": [
+    "getExternalAssetOwnersLoanProductLoanProductIdAttributes"
+  ],
+  "ExternalAssetOwnersService": [
+    "getExternalAssetOwnersTransfers",
+    "getExternalAssetOwnersTransfersTransferIdJournalEntries",
+    "postExternalAssetOwnersSearch"
+  ],
   "ExternalEventConfigurationService": [
     "getExternaleventsConfiguration",
     "putExternaleventsConfiguration"
   ],
-  "ExternalServicesService": ["getExternalserviceServicename"],
+  "ExternalServicesService": ["getExternalserviceServicename", "putExternalserviceServicename"],
   "FetchAuthenticatedUserDetailsService": ["getUserdetails"],
   "FineractEntityService": [
     "deleteEntitytoentitymappingMapId",
@@ -177,8 +233,18 @@
     "getFixeddepositaccounts",
     "getFixeddepositaccountsAccountId",
     "getFixeddepositaccountsTemplate",
+    "postFixeddepositaccounts",
     "postFixeddepositaccountsAccountId",
     "putFixeddepositaccountsAccountId"
+  ],
+  "FixedDepositAccountTransactionsService": [
+    "getFixeddepositaccountsFixedDepositAccountIdTransactions"
+  ],
+  "FixedDepositProductService": [
+    "getFixeddepositproducts",
+    "getFixeddepositproductsProductId",
+    "postFixeddepositproducts",
+    "putFixeddepositproductsProductId"
   ],
   "FloatingRatesService": [
     "getFloatingrates",
@@ -187,13 +253,25 @@
     "putFloatingratesFloatingRateId"
   ],
   "FundsService": ["getFunds", "getFundsFundId", "postFunds", "putFundsFundId"],
-  "GeneralLedgerAccountService": ["getGlaccountsGlAccountId", "postGlaccounts"],
+  "GeneralLedgerAccountService": [
+    "getGlaccounts",
+    "getGlaccountsGlAccountId",
+    "postGlaccounts",
+    "putGlaccountsGlAccountId"
+  ],
   "GlobalConfigurationService": ["getConfigurations", "putConfigurationsConfigId"],
   "GroupsLevelService": ["getGrouplevels"],
-  "GroupsService": ["getGroupsGroupId", "postGroups", "putGroupsGroupId"],
+  "GroupsService": [
+    "getGroups",
+    "getGroupsGroupId",
+    "postGroups",
+    "postGroupsGroupId",
+    "putGroupsGroupId"
+  ],
   "GuarantorsService": [
     "deleteLoansLoanIdGuarantorsGuarantorId",
     "getLoansLoanIdGuarantors",
+    "getLoansLoanIdGuarantorsGuarantorId",
     "getLoansLoanIdGuarantorsTemplate",
     "postLoansLoanIdGuarantors",
     "putLoansLoanIdGuarantorsGuarantorId"
@@ -220,12 +298,17 @@
     "getInteroperationAccountsAccountId",
     "getInteroperationAccountsAccountIdIdentifiers",
     "getInteroperationAccountsAccountIdKyc",
+    "getInteroperationAccountsAccountIdTransactions",
     "getInteroperationHealth",
     "getInteroperationPartiesIdTypeIdValue",
     "getInteroperationPartiesIdTypeIdValueSubIdOrType",
+    "getInteroperationTransactionsTransactionCodeQuotesQuoteCode",
+    "getInteroperationTransactionsTransactionCodeTransfersTransferCode",
     "postInteroperationPartiesIdTypeIdValue",
     "postInteroperationPartiesIdTypeIdValueSubIdOrType",
     "postInteroperationQuotes",
+    "postInteroperationTransactionsAccountIdDisburse",
+    "postInteroperationTransactionsAccountIdLoanrepayment",
     "postInteroperationTransfers"
   ],
   "InterestRateChartService": [
@@ -236,33 +319,54 @@
     "putInterestratechartsChartId"
   ],
   "InterestRateSlabAKAInterestBandsService": [
+    "deleteInterestratechartsChartIdChartslabsChartSlabId",
     "getInterestratechartsChartIdChartslabs",
+    "getInterestratechartsChartIdChartslabsTemplate",
     "postInterestratechartsChartIdChartslabs"
   ],
   "InternalCOBService": [
     "getInternalCobPartitionsPartitionSize",
+    "postInternalCobFastForwardCobDateOfLoanLoanId",
     "postInternalCobLoanReprocessLoanId"
   ],
   "JournalEntriesService": [
+    "getJournalentries",
     "getJournalentriesDownloadtemplate",
     "postJournalentries",
     "postJournalentriesUploadtemplate"
   ],
   "LikelihoodService": ["getLikelihoodPpiName", "putLikelihoodPpiNameLikelihoodId"],
   "ListReportMailingJobHistoryService": ["getReportmailingjobrunhistory"],
-  "LoanAccountLockService": ["getLoansLocked"],
+  "LoanAccountLockService": ["getLoansLocked", "postInternalLoansLoanIdPlaceLockLockOwner"],
+  "LoanBuyDownFeesService": ["getLoansExternalIdLoanExternalIdBuydownFees"],
   "LoanCOBCatchUpService": [
     "getLoansIsCatchUpRunning",
     "getLoansOldestCobClosed",
     "postLoansCatchUp"
   ],
+  "LoanCapitalizedIncomeService": ["getLoansExternalIdLoanExternalIdCapitalizedIncomes"],
   "LoanChargesService": [
     "deleteLoansLoanIdChargesLoanChargeId",
     "getLoansLoanIdCharges",
     "getLoansLoanIdChargesTemplate",
     "postLoansLoanIdCharges"
   ],
-  "LoanCollateralService": ["getLoansLoanIdCollaterals", "getLoansLoanIdCollateralsTemplate"],
+  "LoanCollateralManagementService": [
+    "deleteLoanCollateralManagementId",
+    "getLoanCollateralManagementCollateralId"
+  ],
+  "LoanCollateralService": [
+    "deleteLoansLoanIdCollateralsCollateralId",
+    "getLoansLoanIdCollaterals",
+    "getLoansLoanIdCollateralsCollateralId",
+    "getLoansLoanIdCollateralsTemplate",
+    "postLoansLoanIdCollaterals",
+    "putLoansLoanIdCollateralsCollateralId"
+  ],
+  "LoanDisbursementDetailsService": [
+    "getLoansLoanIdDisbursementsDisbursementId",
+    "putLoansLoanIdDisbursementsDisbursementId"
+  ],
   "LoanInterestPauseService": [
     "deleteLoansLoanIdInterestPausesVariationId",
     "getLoansLoanIdInterestPauses",
@@ -281,7 +385,15 @@
     "getLoanproducts",
     "getLoanproductsProductId",
     "getLoanproductsTemplate",
-    "postLoanproducts"
+    "postLoanproducts",
+    "putLoanproductsProductId"
+  ],
+  "LoanReschedulingService": ["postLoansLoanIdSchedule"],
+  "LoanTransactionsService": [
+    "getLoansLoanIdTransactionsTemplate",
+    "getLoansLoanIdTransactionsTransactionId",
+    "postLoansLoanIdTransactions",
+    "postLoansLoanIdTransactionsTransactionId"
   ],
   "LoansPointInTimeService": ["postLoansAtDateSearch"],
   "LoansService": [
@@ -291,7 +403,8 @@
     "getLoansLoanId",
     "postLoans",
     "postLoansLoanId",
-    "postLoansUploadtemplate"
+    "postLoansUploadtemplate",
+    "putLoansLoanId"
   ],
   "MakerCheckerOr4EyeFunctionalityService": [
     "deleteMakercheckersAuditId",
@@ -299,22 +412,34 @@
     "postMakercheckersAuditId"
   ],
   "MappingFinancialActivitiesToAccountsService": [
+    "deleteFinancialactivityaccountsMappingId",
     "getFinancialactivityaccounts",
+    "getFinancialactivityaccountsMappingId",
     "getFinancialactivityaccountsTemplate",
     "postFinancialactivityaccounts",
     "putFinancialactivityaccountsMappingId"
   ],
   "MeetingsService": [
+    "deleteEntityTypeEntityIdMeetingsMeetingId",
     "getEntityTypeEntityIdMeetings",
+    "getEntityTypeEntityIdMeetingsMeetingId",
+    "getEntityTypeEntityIdMeetingsTemplate",
     "postEntityTypeEntityIdMeetings",
     "putEntityTypeEntityIdMeetingsMeetingId"
   ],
   "MixMappingService": ["getMixmapping", "putMixmapping"],
   "MixReportService": ["getMixreport"],
   "MixTaxonomyService": ["getMixtaxonomy"],
-  "NotesService": ["getResourceTypeResourceIdNotes", "postResourceTypeResourceIdNotes"],
+  "NotesService": [
+    "deleteResourceTypeResourceIdNotesNoteId",
+    "getResourceTypeResourceIdNotes",
+    "getResourceTypeResourceIdNotesNoteId",
+    "postResourceTypeResourceIdNotes",
+    "putResourceTypeResourceIdNotesNoteId"
+  ],
   "NotificationService": ["getNotifications", "putNotifications"],
   "OfficesService": ["getOffices", "getOfficesOfficeId", "postOffices", "putOfficesOfficeId"],
+  "PasswordManagementService": ["postPasswordForgot"],
   "PasswordPreferencesService": ["getPasswordpreferences", "putPasswordpreferences"],
   "PaymentTypeService": [
     "deletePaymenttypesPaymentTypeId",
@@ -332,7 +457,12 @@
     "postLoanproductsProductIdProductmix",
     "putLoanproductsProductIdProductmix"
   ],
-  "ProductsService": ["getProductsTypeProductId", "postProductsType"],
+  "ProductsService": [
+    "getProductsType",
+    "getProductsTypeProductId",
+    "postProductsType",
+    "putProductsTypeProductId"
+  ],
   "ProgressiveLoanService": [
     "deleteInternalLoanProgressiveLoanIdModel",
     "getInternalLoanProgressiveLoanIdModel",
@@ -357,10 +487,25 @@
     "getRecurringdepositaccounts",
     "getRecurringdepositaccountsAccountId",
     "getRecurringdepositaccountsTemplate",
+    "postRecurringdepositaccounts",
     "postRecurringdepositaccountsAccountId",
     "putRecurringdepositaccountsAccountId"
   ],
-  "RepaymentWithPostDatedChecksService": ["getLoansLoanIdPostdatedchecks"],
+  "RecurringDepositAccountTransactionsService": [
+    "getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate",
+    "postRecurringdepositaccountsRecurringDepositAccountIdTransactions"
+  ],
+  "RecurringDepositProductService": [
+    "getRecurringdepositproducts",
+    "getRecurringdepositproductsProductId",
+    "postRecurringdepositproducts",
+    "putRecurringdepositproductsProductId"
+  ],
+  "RepaymentWithPostDatedChecksService": [
+    "deleteLoansLoanIdPostdatedchecksPostDatedCheckId",
+    "getLoansLoanIdPostdatedchecks",
+    "putLoansLoanIdPostdatedchecksPostDatedCheckId"
+  ],
   "ReportMailingJobsService": [
     "deleteReportmailingjobsEntityId",
     "getReportmailingjobs",
@@ -377,10 +522,12 @@
   "RolesService": [
     "getRoles",
     "getRolesRoleId",
+    "getRolesRoleIdPermissions",
     "postRoles",
     "putRolesRoleId",
     "putRolesRoleIdPermissions"
   ],
+  "RunReportsService": ["getRunreportsReportName"],
   "SCHEDULERJOBService": ["getJobs", "getJobsJobIdRunhistory", "postJobsJobId"],
   "SMSService": [
     "deleteSmsResourceId",
@@ -396,17 +543,33 @@
     "getSavingsaccountsDownloadtemplate",
     "postSavingsaccounts",
     "postSavingsaccountsAccountId",
-    "postSavingsaccountsUploadtemplate"
+    "postSavingsaccountsUploadtemplate",
+    "putSavingsaccountsAccountId"
+  ],
+  "SavingsAccountTransactionsService": [
+    "getSavingsaccountsSavingsIdTransactionsTemplate",
+    "postSavingsaccountsSavingsIdTransactions"
+  ],
+  "SavingsChargesService": [
+    "deleteSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId",
+    "getSavingsaccountsSavingsAccountIdCharges",
+    "getSavingsaccountsSavingsAccountIdChargesTemplate",
+    "postSavingsaccountsSavingsAccountIdCharges"
   ],
   "SavingsProductService": [
     "getSavingsproducts",
     "getSavingsproductsProductId",
-    "postSavingsproducts"
+    "postSavingsproducts",
+    "putSavingsproductsProductId"
   ],
   "SchedulerService": ["getScheduler", "postScheduler"],
   "ScoreCardService": ["getSurveysScorecardsSurveyId"],
   "SearchAPIService": ["getSearch", "getSearchTemplate"],
-  "SelfDividendService": ["getShareproductProductIdDividend", "postShareproductProductIdDividend"],
+  "SelfDividendService": [
+    "deleteShareproductProductIdDividendDividendId",
+    "getShareproductProductIdDividend",
+    "postShareproductProductIdDividend"
+  ],
   "ShareAccountService": [
     "getAccountsType",
     "getAccountsTypeAccountId",
@@ -417,10 +580,21 @@
   "SpmSurveysService": ["getSurveys", "getSurveysId", "postSurveys", "putSurveysId"],
   "StaffService": ["getStaff", "getStaffStaffId", "postStaff", "putStaffStaffId"],
   "StandingInstructionsHistoryService": ["getStandinginstructionrunhistory"],
-  "StandingInstructionsService": ["getStandinginstructions", "postStandinginstructions"],
-  "SurveyService": ["getSurvey"],
+  "StandingInstructionsService": [
+    "getStandinginstructions",
+    "getStandinginstructionsStandingInstructionId",
+    "postStandinginstructions",
+    "putStandinginstructionsStandingInstructionId"
+  ],
+  "SurveyService": [
+    "deleteSurveySurveyNameClientIdFulfilledId",
+    "getSurvey",
+    "getSurveySurveyNameClientId",
+    "postSurveySurveyNameApptableId"
+  ],
   "TaxComponentsService": [
     "getTaxesComponent",
+    "getTaxesComponentTaxComponentId",
     "postTaxesComponent",
     "putTaxesComponentTaxComponentId"
   ],
@@ -432,13 +606,25 @@
     "putTaxesGroupTaxGroupId"
   ],
   "TellerCashManagementService": [
+    "deleteTellersTellerIdCashiersCashierId",
     "getTellers",
     "getTellersTellerId",
+    "getTellersTellerIdCashiers",
+    "getTellersTellerIdCashiersCashierIdSummaryandtransactions",
+    "getTellersTellerIdCashiersCashierIdTransactionsTemplate",
     "postTellers",
     "postTellersTellerIdCashiers",
+    "postTellersTellerIdCashiersCashierIdAllocate",
+    "postTellersTellerIdCashiersCashierIdSettle",
     "putTellersTellerId"
   ],
-  "TemplatesService": ["deleteTemplatesTemplateId", "getTemplates"],
+  "TemplatesService": [
+    "deleteTemplatesTemplateId",
+    "getTemplates",
+    "getTemplatesTemplateId",
+    "postTemplates",
+    "putTemplatesTemplateId"
+  ],
   "TenantOIDCConfigurationService": [
     "deleteTenantsTenantIdOidcConfig",
     "getTenantsTenantIdOidcConfig",
@@ -454,6 +640,9 @@
     "postWorkingCapitalBreachBreaches",
     "putWorkingCapitalBreachBreachesBreachId"
   ],
+  "WorkingCapitalLoanAccountLockService": [
+    "postInternalWorkingCapitalLoansLoanIdPlaceLockLockOwner"
+  ],
   "WorkingCapitalLoanBreachScheduleService": ["getWorkingCapitalLoansLoanIdBreachSchedule"],
   "WorkingCapitalLoanCOBCatchUpService": [
     "getWorkingCapitalLoansIsCatchUpRunning",
@@ -461,6 +650,7 @@
     "postWorkingCapitalLoansCatchUp"
   ],
   "WorkingCapitalLoanChargesService": ["getWorkingCapitalLoansLoanIdCharges"],
+  "WorkingCapitalLoanDelinquencyActionsService": ["getWorkingCapitalLoansLoanIdDelinquencyActions"],
   "WorkingCapitalLoanInternalCOBApiService": [
     "deleteInternalWorkingCapitalLoansInternalLastCobRun",
     "postInternalWorkingCapitalLoansInternalLastCobRun"
@@ -473,13 +663,17 @@
     "postWorkingCapitalLoanProducts",
     "putWorkingCapitalLoanProductsProductId"
   ],
-  "WorkingCapitalLoanTransactionsService": ["getWorkingCapitalLoansLoanIdTransactions"],
+  "WorkingCapitalLoanTransactionsService": [
+    "getWorkingCapitalLoansLoanIdTransactions",
+    "postWorkingCapitalLoansLoanIdTransactions"
+  ],
   "WorkingCapitalLoansService": [
     "deleteWorkingCapitalLoansLoanId",
     "getWorkingCapitalLoans",
     "getWorkingCapitalLoansLoanId",
     "getWorkingCapitalLoansTemplate",
-    "postWorkingCapitalLoans"
+    "postWorkingCapitalLoans",
+    "postWorkingCapitalLoansLoanId"
   ],
   "WorkingCapitalNearBreachService": [
     "deleteWorkingCapitalNearBreachBreachId",
