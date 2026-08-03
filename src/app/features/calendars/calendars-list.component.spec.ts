@@ -21,7 +21,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarsListComponent } from './calendars-list.component';
 import { CalendarService } from '../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
@@ -96,5 +96,39 @@ describe('CalendarsListComponent', () => {
     spyOn(window, 'confirm').and.returnValue(false);
     component.onDelete({ id: 5 });
     expect(serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId).not.toHaveBeenCalled();
+  });
+
+  it('reports a failed load instead of an empty list', () => {
+    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+      throwError(() => new Error('boom')) as unknown as ReturnType<
+        CalendarService['getEntityTypeEntityIdCalendars']
+      >,
+    );
+
+    component.load();
+
+    expect(component.hasError()).toBeTrue();
+    expect(component.calendars()).toHaveSize(0);
+  });
+
+  it('clears the error after a successful retry', () => {
+    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+      throwError(() => new Error('boom')) as unknown as ReturnType<
+        CalendarService['getEntityTypeEntityIdCalendars']
+      >,
+    );
+    component.load();
+    expect(component.hasError()).toBeTrue();
+
+    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+      of([{ id: 1, title: 'Weekly Meeting', startDate: '2026-01-15' }]) as unknown as ReturnType<
+        CalendarService['getEntityTypeEntityIdCalendars']
+      >,
+    );
+
+    component.onRetry();
+
+    expect(component.hasError()).toBeFalse();
+    expect(component.calendars()).toHaveSize(1);
   });
 });
