@@ -82,20 +82,29 @@ async function ensureCashMappings(page: Page): Promise<void> {
 
   const CASH_AT_MAIN_VAULT = 101;
   const CASH_AT_TELLER = 102;
-  const needed: { activity: string; account: string; code: string }[] = [];
+  const needed: { activity: string; label: string }[] = [];
   if (!mappedIds.has(CASH_AT_MAIN_VAULT)) {
-    needed.push({ activity: 'cashAtMainVault', account: 'E2E Vault Cash', code: 'E2E-VAULT' });
+    needed.push({ activity: 'cashAtMainVault', label: 'Vault' });
   }
   if (!mappedIds.has(CASH_AT_TELLER)) {
-    needed.push({ activity: 'cashAtTeller', account: 'E2E Teller Cash', code: 'E2E-TELLER' });
+    needed.push({ activity: 'cashAtTeller', label: 'Teller' });
   }
 
   for (const item of needed) {
     // A mapping needs a GL account to point at, and the account must be an ASSET the platform
     // will accept for a detail posting.
+    //
+    // Named per run rather than with a fixed code. A GL code is unique platform-wide, so a fixed
+    // one turns any failure after the account is created — but before its mapping is — into a
+    // permanent one: the next run finds the mapping still absent, tries to create the account
+    // again, and is refused for a duplicate code before it ever reaches the mapping.
+    const suffix = uniqueSuffix();
+    const account = `E2E ${item.label} Cash ${suffix}`;
+    const code = `E2E-${item.label.toUpperCase()}-${suffix}`;
+
     await page.goto('/accounting/chart-of-accounts/create');
-    await page.locator('input[name="name"]').fill(item.account);
-    await page.locator('input[name="glCode"]').fill(item.code);
+    await page.locator('input[name="name"]').fill(account);
+    await page.locator('input[name="glCode"]').fill(code);
     await selectOption(page, 'Account Type', 'Asset');
     await selectOption(page, 'Account Usage', 'Detail');
     await page.getByRole('button', { name: /^save$/i }).click();
@@ -103,8 +112,10 @@ async function ensureCashMappings(page: Page): Promise<void> {
 
     await page.goto('/accounting/financial-activity-mappings/create');
     await selectOption(page, 'Financial Activity', item.activity);
-    await selectOption(page, 'GL Account', `${item.account} (${item.code})`);
-    await page.getByRole('button', { name: /^save$/i }).click();
+    await selectOption(page, 'GL Account', `${account} (${code})`);
+    // "Define", not "Save": this form names its submit for the action rather than the verb the
+    // rest of the app uses, and an unmatched name times the click out rather than failing fast.
+    await page.getByRole('button', { name: /^define$/i }).click();
     await expect(page).toHaveURL(/\/accounting\/financial-activity-mappings$/, { timeout: 20000 });
   }
 }
