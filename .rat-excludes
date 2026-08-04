@@ -61,4 +61,5 @@ src/app/api/
 # carrying its own SPDX headers.
 .apache-magpie/
 .apache-magpie-local/
+.apache-magpie.local.lock
 .agents/skills/magpie-setup/
