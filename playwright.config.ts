@@ -20,6 +20,7 @@ const BACKEND_SPECS = [
   'loan-schedule-type.spec.ts',
   'loan-servicing.spec.ts',
   'login.spec.ts',
+  'teller-cash-management.spec.ts',
 ];
 
 export default defineConfig({

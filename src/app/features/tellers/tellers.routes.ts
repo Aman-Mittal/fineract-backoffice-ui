@@ -42,6 +42,22 @@ export const TELLERS_ROUTES: Routes = [
     loadComponent: () =>
       import('./cashiers/cashier-form.component').then((m) => m.CashierFormComponent),
   },
+  // Declared after `:tellerId/cashiers/create` so the literal segment is matched before
+  // `:cashierId` is allowed to capture it.
+  {
+    path: ':tellerId/cashiers/:cashierId/transactions',
+    loadComponent: () =>
+      import('./cashiers/cashier-transactions.component').then(
+        (m) => m.CashierTransactionsComponent,
+      ),
+  },
+  {
+    path: ':tellerId/cashiers/:cashierId/transactions/:command',
+    loadComponent: () =>
+      import('./cashiers/cashier-transaction-form.component').then(
+        (m) => m.CashierTransactionFormComponent,
+      ),
+  },
   {
     path: 'cashier-journals',
     loadComponent: () =>

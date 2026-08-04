@@ -24,7 +24,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
-import { CashiersService, CashierData, TellerCashManagementService } from '../../../api';
+import { CashierData, TellerCashManagementService } from '../../../api';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
@@ -64,6 +64,16 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       <ng-template appCellTemplate="actions" let-cashier>
         <ion-button
           fill="clear"
+          [attr.aria-label]="'TELLERS.CASHIER_TRANSACTIONS' | translate"
+          [appTooltip]="'TELLERS.CASHIER_TRANSACTIONS' | translate"
+          (click)="onViewTransactions(cashier)"
+          [id]="'cashier-transactions-btn-' + cashier.id"
+          [attr.data-testid]="'cashier-transactions-btn-' + cashier.id"
+        >
+          <ion-icon name="cash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
           color="danger"
           [attr.aria-label]="'COMMON.DELETE' | translate"
           [appTooltip]="'Remove Cashier Allocation'"
@@ -78,7 +88,6 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   `,
 })
 export class CashiersListComponent implements OnInit {
-  private readonly cashiersService = inject(CashiersService);
   private readonly tellerService = inject(TellerCashManagementService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -102,12 +111,21 @@ export class CashiersListComponent implements OnInit {
     });
   }
 
+  /**
+   * Loads the cashiers allocated to this teller.
+   *
+   * Read from `/tellers/{tellerId}/cashiers`, not the top-level `/cashiers` collection. The
+   * latter answers `204 No Content` for every combination of `officeId` and `tellerId`, so the
+   * list rendered empty however many cashiers had been allocated — and an empty list is
+   * indistinguishable from a teller that genuinely has none, which is why it went unnoticed.
+   *
+   * The response is an object describing the teller with a `cashiers` array inside it, rather
+   * than a bare array.
+   */
   private loadCashiers(): void {
-    // Note: getCashierData signature usually needs officeId but can work with just tellerId in some versions.
-    // Defaulting to undefined for officeId to fetch based on teller context.
-    this.cashiersService.getCashiers(undefined, this.tellerId).subscribe({
-      next: (data: CashierData[]) => {
-        this.cashiers.set(data || []);
+    this.tellerService.getTellersTellerIdCashiers(this.tellerId).subscribe({
+      next: (data) => {
+        this.cashiers.set(data.cashiers ?? []);
       },
       error: (err: unknown) => {
         console.error('Failed to load cashiers', err);
@@ -117,6 +135,10 @@ export class CashiersListComponent implements OnInit {
 
   onAllocateCashier(): void {
     this.router.navigate(['/tellers', this.tellerId, 'cashiers', 'create']);
+  }
+
+  onViewTransactions(cashier: CashierData): void {
+    this.router.navigate(['/tellers', this.tellerId, 'cashiers', cashier.id, 'transactions']);
   }
 
   onRemoveCashier(cashier: CashierData): void {

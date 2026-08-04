@@ -72,7 +72,7 @@ import {
             formControlName="glAccountId"
             required
           >
-            @for (account of filteredAccounts; track account['id']) {
+            @for (account of filteredAccounts(); track account['id']) {
               <ion-select-option [value]="account['id']">
                 {{ account['name'] }} ({{ account['glCode'] }})
               </ion-select-option>
@@ -127,7 +127,17 @@ export class FinancialActivityMappingFormComponent implements OnInit {
 
   readonly activities = signal<Record<string, unknown>[]>([]);
   glAccountOptions: Record<string, unknown> = {};
-  filteredAccounts: Record<string, unknown>[] = [];
+
+  /**
+   * The GL accounts offered for the chosen activity.
+   *
+   * A signal rather than a plain field because it is assigned from two places that are not
+   * user events: the template response, and the `valueChanges` subscription. Selecting the
+   * activity before the template has arrived leaves the list empty, and the refill that
+   * `loadTemplate` does afterwards notifies nothing — so the dropdown stays empty for a
+   * selection the platform would have accepted.
+   */
+  readonly filteredAccounts = signal<Record<string, unknown>[]>([]);
 
   constructor() {
     this.mappingForm = this.fb.group({
@@ -182,16 +192,19 @@ export class FinancialActivityMappingFormComponent implements OnInit {
 
   updateFilteredAccounts(activityId: number) {
     if (activityId >= 100 && activityId < 200) {
-      this.filteredAccounts =
-        (this.glAccountOptions['assetAccountOptions'] as Record<string, unknown>[]) || [];
+      this.filteredAccounts.set(
+        (this.glAccountOptions['assetAccountOptions'] as Record<string, unknown>[]) || [],
+      );
     } else if (activityId >= 200 && activityId < 300) {
-      this.filteredAccounts =
-        (this.glAccountOptions['liabilityAccountOptions'] as Record<string, unknown>[]) || [];
+      this.filteredAccounts.set(
+        (this.glAccountOptions['liabilityAccountOptions'] as Record<string, unknown>[]) || [],
+      );
     } else if (activityId >= 300 && activityId < 400) {
-      this.filteredAccounts =
-        (this.glAccountOptions['equityAccountOptions'] as Record<string, unknown>[]) || [];
+      this.filteredAccounts.set(
+        (this.glAccountOptions['equityAccountOptions'] as Record<string, unknown>[]) || [],
+      );
     } else {
-      this.filteredAccounts = [];
+      this.filteredAccounts.set([]);
     }
   }
 

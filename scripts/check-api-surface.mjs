@@ -105,7 +105,11 @@ function calledOperations() {
     ];
 
     for (const [, field, service] of fields) {
-      const calls = source.matchAll(new RegExp(`this\\.${field}\\.(\\w+)\\(`, 'g'));
+      // `\s*` around the dot on purpose: Prettier breaks a long call onto its own line, leaving
+      // `this.tellerService\n  .getTellersTellerIdCashiers(`. Requiring the two to be adjacent
+      // missed every wrapped call, so regenerating the manifest silently dropped operations that
+      // are still called — quietly narrowing the drift check instead of failing loudly.
+      const calls = source.matchAll(new RegExp(`this\\.${field}\\s*\\.\\s*(\\w+)\\(`, 'g'));
       for (const [, operation] of calls) {
         if (!byService.has(service)) byService.set(service, new Set());
         byService.get(service).add(operation);
