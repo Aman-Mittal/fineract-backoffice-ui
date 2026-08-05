@@ -185,8 +185,8 @@ import {
                 (click)="onTransaction('deposit')"
                 [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
-                  <ion-icon name="add-circle-outline"></ion-icon>
-                  {{ 'SAVINGS.DEPOSIT' | translate }}
+                <ion-icon name="add-circle-outline"></ion-icon>
+                {{ 'SAVINGS.DEPOSIT' | translate }}
               </ion-button>
               <ion-button
                 color="danger"
@@ -194,8 +194,8 @@ import {
                 (click)="onTransaction('withdrawal')"
                 [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
               >
-                  <ion-icon name="remove-circle-outline"></ion-icon>
-                  {{ 'SAVINGS.WITHDRAW' | translate }}
+                <ion-icon name="remove-circle-outline"></ion-icon>
+                {{ 'SAVINGS.WITHDRAW' | translate }}
               </ion-button>
               @if (isActive()) {
                 <ion-button color="primary" id="savingsMenu-trigger" data-testid="savings-actions">
