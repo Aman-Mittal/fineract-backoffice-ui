@@ -24,6 +24,10 @@ on:
       - develop
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Granted per job rather than here: a workflow-level `pull-requests: write` hands
 # that token to every step in every job, including the ones that run npm install
 # and Playwright. Each job below re-declares the minimum it needs.
