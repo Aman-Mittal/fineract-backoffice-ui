@@ -35,6 +35,7 @@
 import { test, expect, Page } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { confirmDialog, modalFor } from './utils/ionic-locators';
+import { selectInDialog } from './utils/select-in-dialog';
 import { selectOption } from './utils/select-option';
 
 const HEAD_OFFICE = 'Head Office';
@@ -103,6 +104,45 @@ async function createGroup(page: Page, name: string): Promise<void> {
   await expect(page).toHaveURL(/\/groups$/, { timeout: 20000 });
 }
 
+/**
+ * Ensures the `GroupClosureReason` code has at least one value, creating one through the
+ * system screens if it does not.
+ *
+ * Fineract ships that code empty, and `close` rejects a request without a `closureReasonId`.
+ * Populating it is a real administrator task rather than test scaffolding, which is why it is
+ * done on screen — and it has to be done at all, because CI starts from a fresh database where
+ * no institution has configured one.
+ *
+ * Idempotent: the suite runs repeatedly against the same database, and a second value would be
+ * harmless but the navigation is not free.
+ */
+async function ensureClosureReason(page: Page, name: string): Promise<string> {
+  await page.goto('/system/codes');
+  const codeRow = await findRow(page, 'GroupClosureReason');
+  await codeRow.getByRole('button', { name: 'Code Values' }).click();
+  await expect(page).toHaveURL(/\/system\/codes\/\d+\/values$/, { timeout: 20000 });
+
+  // An existing value is reused. The list renders "No records found." while the request is
+  // still in flight, so this waits for a row or for the table to settle rather than reading
+  // the DOM immediately and concluding the code is empty.
+  const anyValue = page.locator('app-data-table tbody tr');
+  await expect(async () => {
+    const count = await anyValue.count();
+    expect(count).toBeGreaterThanOrEqual(0);
+  }).toPass({ timeout: 20000 });
+
+  if ((await anyValue.count()) > 0) {
+    return (await anyValue.first().locator('td').first().innerText()).trim();
+  }
+
+  await page.getByRole('button', { name: 'Add Value', exact: true }).click();
+  await expect(page).toHaveURL(/\/system\/codes\/\d+\/values\/create$/, { timeout: 20000 });
+  await page.locator('ion-input[name="name"] input').fill(name);
+  await page.getByRole('button', { name: /^save$/i }).click();
+  await expect(page).toHaveURL(/\/system\/codes\/\d+\/values$/, { timeout: 20000 });
+  return name;
+}
+
 /** Opens a group's detail view from the list, the way a user reaches it. */
 async function openGroup(page: Page, name: string): Promise<void> {
   await page.goto('/groups');
@@ -148,7 +188,7 @@ test.describe('Group membership and lifecycle', () => {
     const staffDialog = modalFor(page, 'app-group-staff-dialog');
     await expect(staffDialog).toBeVisible();
     // Scoped to the group's office; staff from elsewhere are refused by `assignStaff`.
-    await selectOption(page, 'Staff', staffName);
+    await selectInDialog(page, staffDialog, 'staffId', staffName);
     await staffDialog.getByTestId('group-staff-confirm').click();
 
     await expect(page.getByTestId('group-staff-name')).toHaveText(staffName, { timeout: 20000 });
@@ -181,9 +221,9 @@ test.describe('Group membership and lifecycle', () => {
     await page.getByTestId('group-assign-role').click();
     const roleDialog = modalFor(page, 'app-group-role-dialog');
     await expect(roleDialog).toBeVisible();
-    await selectOption(page, 'Member', clientName);
+    await selectInDialog(page, roleDialog, 'clientId', clientName);
     // 'Leader' is the one value Fineract ships in the GROUPROLE code.
-    await selectOption(page, 'Role', 'Leader');
+    await selectInDialog(page, roleDialog, 'roleId', 'Leader');
     await roleDialog.getByTestId('group-role-confirm').click();
 
     const roleRow = page.getByRole('row', { name: new RegExp(clientName) }).first();
@@ -244,5 +284,77 @@ test.describe('Group membership and lifecycle', () => {
     await expect(page.getByRole('row', { name: new RegExp(suffix) })).toHaveCount(0, {
       timeout: 20000,
     });
+  });
+
+  test('an empty group is closed with a reason, and a group with members is refused', async ({
+    page,
+  }) => {
+    test.setTimeout(240000);
+    await login(page);
+
+    const suffix = uniqueSuffix();
+    const groupName = `E2E Close Group ${suffix}`;
+
+    const reason = await ensureClosureReason(page, `E2E Disbanded ${suffix}`);
+    const clientName = await createClient(page, suffix);
+    await createGroup(page, groupName);
+    await openGroup(page, groupName);
+
+    // Activate first: close is only offered for an active group, and a pending one is deleted
+    // rather than closed.
+    await page.getByTestId('group-actions').click();
+    await page.getByTestId('group-action-activate').click();
+    await modalFor(page, 'app-group-action-dialog').getByTestId('group-action-confirm').click();
+    await expect(page.getByTestId('group-status')).toContainText('Active', { timeout: 20000 });
+
+    // Give it a member, so the first close attempt hits the platform's rule.
+    await page.getByTestId('group-tab-members').click();
+    await page.getByTestId('group-add-members').click();
+    const addDialog = modalFor(page, 'app-group-members-dialog');
+    await addDialog
+      .locator('ion-searchbar[data-testid="group-member-search"] input')
+      .fill(clientName);
+    const candidate = addDialog.locator('ion-checkbox').filter({ hasText: clientName });
+    await expect(candidate).toBeVisible({ timeout: 20000 });
+    await candidate.click();
+    await addDialog.getByTestId('group-members-confirm').click();
+    await expect(page.getByRole('cell', { name: clientName })).toBeVisible({ timeout: 20000 });
+
+    // Fineract refuses: "Group cannot be closed because of active clients associated with it."
+    // The screen does not pre-empt that rule — the platform is the authority on it — so what
+    // matters is that the refusal reaches the user and the group is left alone. The message
+    // comes from errorInterceptor, which surfaces the platform's own defaultUserMessage.
+    await page.getByTestId('group-actions').click();
+    await page.getByTestId('group-action-close').click();
+    const refusedDialog = modalFor(page, 'app-group-action-dialog');
+    await selectInDialog(page, refusedDialog, 'closureReasonId', reason);
+    await refusedDialog.getByTestId('group-action-confirm').click();
+
+    // Scoped to `.error-toast`: success toasts from the activate and add-member steps are still
+    // on screen at this point, and a bare `ion-toast` locator trips strict mode against them.
+    await expect(page.locator('ion-toast.error-toast')).toContainText(/active clients/i, {
+      timeout: 20000,
+    });
+    await expect(page.getByTestId('group-status')).toContainText('Active');
+
+    // Remove the member, and the same command now succeeds.
+    await page.getByTestId('group-tab-members').click();
+    await page.getByTestId('group-remove-members').click();
+    const removeDialog = modalFor(page, 'app-group-members-dialog');
+    await removeDialog.locator('ion-checkbox').filter({ hasText: clientName }).click();
+    await removeDialog.getByTestId('group-members-confirm').click();
+    await expect(page.getByRole('cell', { name: clientName })).toHaveCount(0, { timeout: 20000 });
+
+    await page.getByTestId('group-actions').click();
+    await page.getByTestId('group-action-close').click();
+    const closeDialog = modalFor(page, 'app-group-action-dialog');
+    await selectInDialog(page, closeDialog, 'closureReasonId', reason);
+    await closeDialog.getByTestId('group-action-confirm').click();
+
+    await expect(page.getByTestId('group-status')).toContainText('Closed', { timeout: 20000 });
+    // Closed groups offer no further lifecycle commands.
+    await page.getByTestId('group-actions').click();
+    await expect(page.getByTestId('group-action-close')).toHaveCount(0);
+    await expect(page.getByTestId('group-action-assign-staff')).toHaveCount(0);
   });
 });

@@ -34,7 +34,7 @@
 import { Page, Request } from '@playwright/test';
 import { test, expect } from './fixtures';
 import { confirmDialog, modalFor } from './utils/ionic-locators';
-import { selectOption } from './utils/select-option';
+import { selectInDialog } from './utils/select-in-dialog';
 
 const HEAD_OFFICE = 'Head Office';
 const GROUP_ID = 7;
@@ -227,10 +227,9 @@ test.describe('Group detail', () => {
 
     const dialog = modalFor(page, 'app-group-action-dialog');
     await expect(dialog).toBeVisible();
-    // Through selectOption rather than a hand-rolled click: it retries the open, which matters
-    // because the whole mocked project runs fully parallel and an ion-select popover under
-    // contention sometimes needs a second attempt to render its options.
-    await selectOption(page, 'Closure Reason', 'Group disbanded');
+    // selectInDialog, not selectOption: the latter presses Escape between attempts, which
+    // dismisses the modal this select lives in. See its doc comment.
+    await selectInDialog(page, dialog, 'closureReasonId', 'Group disbanded');
     await dialog.getByTestId('group-action-confirm').click();
 
     await expect.poll(() => commands.length).toBeGreaterThan(0);
