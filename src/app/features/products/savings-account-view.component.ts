@@ -132,7 +132,7 @@ import {
                   [appTooltip]="'SAVINGS.APPROVE' | translate"
                 >
                   <ion-icon name="checkmark-circle-outline"></ion-icon>
-                  Approve
+                  {{ 'SAVINGS.APPROVE' | translate }}
                 </ion-button>
               }
               @if (account()?.status?.submittedAndPendingApproval) {
@@ -165,7 +165,7 @@ import {
                   [appTooltip]="'SAVINGS.ACTIVATE' | translate"
                 >
                   <ion-icon name="play-circle-outline"></ion-icon>
-                  Activate
+                  {{ 'SAVINGS.ACTIVATE' | translate }}
                 </ion-button>
               }
               @if (account()?.status?.active) {
@@ -176,7 +176,7 @@ import {
                   [appTooltip]="'SAVINGS.CLOSE' | translate"
                 >
                   <ion-icon name="power-outline"></ion-icon>
-                  Close
+                  {{ 'SAVINGS.CLOSE' | translate }}
                 </ion-button>
               }
               <ion-button
@@ -186,7 +186,7 @@ import {
                 [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
                 <ion-icon name="add-circle-outline"></ion-icon>
-                Deposit
+                {{ 'SAVINGS.DEPOSIT' | translate }}
               </ion-button>
               <ion-button
                 color="danger"
@@ -195,7 +195,7 @@ import {
                 [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
               >
                 <ion-icon name="remove-circle-outline"></ion-icon>
-                Withdraw
+                {{ 'SAVINGS.WITHDRAW' | translate }}
               </ion-button>
               @if (isActive()) {
                 <ion-button color="primary" id="savingsMenu-trigger" data-testid="savings-actions">
