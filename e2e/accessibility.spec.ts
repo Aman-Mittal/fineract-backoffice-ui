@@ -25,6 +25,21 @@ const TENANT = 'default';
 const USERNAME = 'mifos';
 const PASSWORD = 'password';
 const HEAD_OFFICE = 'Head Office';
+const LOGIN_ROUTE = '/login';
+const DASHBOARD_ROUTE = '/dashboard';
+const CLIENTS_ROUTE = '/clients';
+const CREATE_CLIENT_ROUTE = '/clients/create';
+const TENANT_INPUT_SELECTOR = '#tenantId';
+const USERNAME_INPUT_SELECTOR = '#username';
+const PASSWORD_INPUT_SELECTOR = '#password';
+const CARD_SELECTOR = 'ion-card';
+const CARD_TITLE_SELECTOR = 'ion-card-title';
+const ACTIVE_MODAL_SELECTOR = 'ion-modal:not(.ion-datetime-button-overlay)';
+const BUTTON_ROLE = 'button';
+const SIGN_IN_BUTTON_NAME = 'Sign In';
+const ADD_NEW_OFFICE_BUTTON_NAME = 'Add New Office';
+const CLIENTS_TITLE = 'Clients';
+const CREATE_CLIENT_TITLE = 'Create Client';
 const BLOCKING_IMPACTS = new Set(['serious', 'critical']);
 const CLIENT_LIST_BASELINE = new Set([
   'role-img-alt|ion-icon[name="add-outline"]',
@@ -111,12 +126,12 @@ async function mockSession(page: Page): Promise<void> {
 
 async function login(page: Page): Promise<void> {
   await mockSession(page);
-  await page.goto('/login');
-  await page.locator('#tenantId').fill(TENANT);
-  await page.locator('#username').fill(USERNAME);
-  await page.locator('#password').fill(PASSWORD);
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await expect(page).toHaveURL('/dashboard');
+  await page.goto(LOGIN_ROUTE);
+  await page.locator(TENANT_INPUT_SELECTOR).fill(TENANT);
+  await page.locator(USERNAME_INPUT_SELECTOR).fill(USERNAME);
+  await page.locator(PASSWORD_INPUT_SELECTOR).fill(PASSWORD);
+  await page.getByRole(BUTTON_ROLE, { name: SIGN_IN_BUTTON_NAME }).click();
+  await expect(page).toHaveURL(DASHBOARD_ROUTE);
 }
 
 async function expectNoBlockingAccessibilityViolations(
@@ -162,27 +177,27 @@ test.describe('Runtime accessibility', () => {
   });
 
   test('client list has no blocking violations', async ({ page }) => {
-    await page.goto('/clients');
-    await expect(page.locator('ion-card-title').first()).toContainText('Clients');
+    await page.goto(CLIENTS_ROUTE);
+    await expect(page.locator(CARD_TITLE_SELECTOR).first()).toContainText(CLIENTS_TITLE);
 
-    await expectNoBlockingAccessibilityViolations(page, 'ion-card', CLIENT_LIST_BASELINE);
+    await expectNoBlockingAccessibilityViolations(page, CARD_SELECTOR, CLIENT_LIST_BASELINE);
   });
 
   test('client form has no blocking violations', async ({ page }) => {
-    await page.goto('/clients/create');
-    await expect(page.locator('ion-card-title').first()).toContainText('Create Client');
+    await page.goto(CREATE_CLIENT_ROUTE);
+    await expect(page.locator(CARD_TITLE_SELECTOR).first()).toContainText(CREATE_CLIENT_TITLE);
 
-    await expectNoBlockingAccessibilityViolations(page, 'ion-card', CLIENT_FORM_BASELINE);
+    await expectNoBlockingAccessibilityViolations(page, CARD_SELECTOR, CLIENT_FORM_BASELINE);
   });
 
   test('create office dialog has no blocking violations', async ({ page }) => {
-    await page.goto('/clients/create');
-    await page.getByRole('button', { name: 'Add New Office' }).click();
-    await expect(page.locator('ion-modal:not(.ion-datetime-button-overlay)')).toBeVisible();
+    await page.goto(CREATE_CLIENT_ROUTE);
+    await page.getByRole(BUTTON_ROLE, { name: ADD_NEW_OFFICE_BUTTON_NAME }).click();
+    await expect(page.locator(ACTIVE_MODAL_SELECTOR)).toBeVisible();
 
     await expectNoBlockingAccessibilityViolations(
       page,
-      'ion-modal:not(.ion-datetime-button-overlay)',
+      ACTIVE_MODAL_SELECTOR,
       CREATE_OFFICE_DIALOG_BASELINE,
     );
   });
