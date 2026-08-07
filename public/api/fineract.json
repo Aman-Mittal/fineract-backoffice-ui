@@ -10412,7 +10412,9 @@
         "responses": {
           "default": {
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AuditData" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoanAuditFieldsData" }
+              }
             },
             "description": "default response"
           }
@@ -10439,7 +10441,9 @@
         "responses": {
           "default": {
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AuditData" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoanAuditFieldsData" }
+              }
             },
             "description": "default response"
           }
@@ -11419,7 +11423,16 @@
           },
           "required": true
         },
-        "responses": { "200": { "description": "OK" } },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CommandProcessingResult" }
+              }
+            },
+            "description": "OK"
+          }
+        },
         "summary": "Update a Job",
         "tags": ["SCHEDULER JOB"]
       }
@@ -11545,7 +11558,16 @@
           },
           "required": true
         },
-        "responses": { "200": { "description": "OK" } },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CommandProcessingResult" }
+              }
+            },
+            "description": "OK"
+          }
+        },
         "summary": "Update a Job",
         "tags": ["SCHEDULER JOB"]
       }
@@ -22504,7 +22526,7 @@
     },
     "/v1/search": {
       "get": {
-        "description": "Example Requests:\n\nsearch?query=000000001\n\n\nsearch?query=Petra&resource=clients,groups\n\n\nsearch?query=Petra&resource=clients,groups&exactMatch=true",
+        "description": "Example Requests:\n\nsearch?query=000000001\n\n\nsearch?query=Petra&resource=clients,groups\n\n\nsearch?query=Petra&resource=clients,groups&exactMatch=true\n\n\nsearch?query=7253&resource=loanTransactions,savingsTransactions",
         "operationId": "searchData",
         "parameters": [
           {
@@ -26622,6 +26644,41 @@
         "tags": ["Working Capital Loans"]
       }
     },
+    "/v1/working-capital-loans/external-id/{loanExternalId}/mark-as-fraud": {
+      "put": {
+        "description": "Flags the loan as fraudulent. When the loan is later charged off, a fraudulent loan is routed to the charge-off fraud expense account instead of the regular charge-off expense account. Does not change the loan status.",
+        "operationId": "markWorkingCapitalLoanAsFraudByExternalId",
+        "parameters": [
+          {
+            "description": "loanExternalId",
+            "in": "path",
+            "name": "loanExternalId",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MarkWorkingCapitalLoanAsFraudRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CommandProcessingResult" }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Mark or unmark a Working Capital Loan as fraudulent by external id",
+        "tags": ["Working Capital Loans"]
+      }
+    },
     "/v1/working-capital-loans/external-id/{loanExternalId}/near-breach-actions": {
       "get": {
         "description": "Returns all near breach action records for the loan, ordered by most recent first.",
@@ -27922,6 +27979,41 @@
           }
         },
         "summary": "Update discount for a disbursed Working Capital Loan",
+        "tags": ["Working Capital Loans"]
+      }
+    },
+    "/v1/working-capital-loans/{loanId}/mark-as-fraud": {
+      "put": {
+        "description": "Flags the loan as fraudulent. When the loan is later charged off, a fraudulent loan is routed to the charge-off fraud expense account instead of the regular charge-off expense account. Does not change the loan status.",
+        "operationId": "markWorkingCapitalLoanAsFraudById",
+        "parameters": [
+          {
+            "description": "loanId",
+            "in": "path",
+            "name": "loanId",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MarkWorkingCapitalLoanAsFraudRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CommandProcessingResult" }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Mark or unmark a Working Capital Loan as fraudulent",
         "tags": ["Working Capital Loans"]
       }
     },
@@ -29831,6 +29923,7 @@
             "items": { "$ref": "#/components/schemas/OfficeData" }
           },
           "id": { "type": "integer", "format": "int64" },
+          "paymentDetailData": { "$ref": "#/components/schemas/PaymentDetailData" },
           "reversed": { "type": "boolean" },
           "toAccount": { "$ref": "#/components/schemas/PortfolioAccountData" },
           "toAccountOptions": {
@@ -29860,12 +29953,18 @@
       "AccountTransferRequest": {
         "type": "object",
         "properties": {
+          "accountNumber": { "type": "string" },
+          "bankNumber": { "type": "string" },
+          "checkNumber": { "type": "string" },
           "dateFormat": { "type": "string" },
           "fromAccountId": { "type": "string" },
           "fromAccountType": { "type": "string" },
           "fromClientId": { "type": "string" },
           "fromOfficeId": { "type": "string" },
           "locale": { "type": "string" },
+          "paymentTypeId": { "type": "integer", "format": "int64" },
+          "receiptNumber": { "type": "string" },
+          "routingCode": { "type": "string" },
           "toAccountId": { "type": "string" },
           "toAccountType": { "type": "string" },
           "toClientId": { "type": "string" },
@@ -30154,10 +30253,27 @@
       "AuditData": {
         "type": "object",
         "properties": {
-          "createdBy": { "type": "integer", "format": "int64" },
-          "createdDate": { "type": "string", "format": "date-time" },
-          "lastModifiedBy": { "type": "integer", "format": "int64" },
-          "lastModifiedDate": { "type": "string", "format": "date-time" }
+          "actionName": { "type": "string" },
+          "checkedOnDate": { "type": "string", "format": "date-time" },
+          "checker": { "type": "string" },
+          "clientId": { "type": "integer", "format": "int64" },
+          "clientName": { "type": "string" },
+          "commandAsJson": { "type": "string" },
+          "entityName": { "type": "string" },
+          "groupLevelName": { "type": "string" },
+          "groupName": { "type": "string" },
+          "id": { "type": "integer", "format": "int64" },
+          "ip": { "type": "string" },
+          "loanAccountNo": { "type": "string" },
+          "loanId": { "type": "integer", "format": "int64" },
+          "madeOnDate": { "type": "string", "format": "date-time" },
+          "maker": { "type": "string" },
+          "officeName": { "type": "string" },
+          "processingResult": { "type": "string" },
+          "resourceId": { "type": "integer", "format": "int64" },
+          "savingsAccountNo": { "type": "string" },
+          "subresourceId": { "type": "integer", "format": "int64" },
+          "url": { "type": "string" }
         }
       },
       "AuditSearchData": {
@@ -32619,6 +32735,9 @@
           "fromClient": { "$ref": "#/components/schemas/GetAccountTransfersFromClientOptions" },
           "fromOffice": { "$ref": "#/components/schemas/GetAccountTransfersPageItemsFromOffice" },
           "id": { "type": "integer", "format": "int64", "example": 1 },
+          "paymentDetailData": {
+            "$ref": "#/components/schemas/GetAccountTransfersPageItemsPaymentDetailData"
+          },
           "reversed": { "type": "boolean", "example": false },
           "toAccount": { "$ref": "#/components/schemas/GetAccountTransfersPageItemsFromAccount" },
           "toAccountType": {
@@ -32654,6 +32773,25 @@
         "properties": {
           "id": { "type": "integer", "format": "int64", "example": 1 },
           "name": { "type": "string", "example": "HO" }
+        }
+      },
+      "GetAccountTransfersPageItemsPaymentDetailData": {
+        "type": "object",
+        "properties": {
+          "accountNumber": { "type": "string", "example": "ACC-123" },
+          "bankNumber": { "type": "string", "example": "BNK-123" },
+          "checkNumber": { "type": "string", "example": "CHK-123" },
+          "id": { "type": "integer", "format": "int64", "example": 1 },
+          "paymentType": { "$ref": "#/components/schemas/GetAccountTransfersPageItemsPaymentType" },
+          "receiptNumber": { "type": "string", "example": "RC-123" },
+          "routingCode": { "type": "string", "example": "RT-123" }
+        }
+      },
+      "GetAccountTransfersPageItemsPaymentType": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64", "example": 1 },
+          "name": { "type": "string", "example": "Cash" }
         }
       },
       "GetAccountTransfersPageItemsToAccountType": {
@@ -40154,6 +40292,9 @@
         "type": "object",
         "description": "GetSearchResponse",
         "properties": {
+          "accountId": { "type": "integer", "format": "int64", "example": 42 },
+          "accountNo": { "type": "string", "example": "000000042" },
+          "accountType": { "type": "string", "example": "savings" },
           "entityAccountNo": { "type": "integer", "format": "int64", "example": 1 },
           "entityExternalId": { "type": "string", "example": "ID_JKZGEXF" },
           "entityId": { "type": "integer", "format": "int64", "example": 1 },
@@ -40161,7 +40302,16 @@
           "entityStatus": { "$ref": "#/components/schemas/EnumOptionData" },
           "entityType": { "type": "string", "example": "GROUP" },
           "parentId": { "type": "integer", "format": "int64", "example": 1 },
-          "parentName": { "type": "string", "example": "Head Office" }
+          "parentName": { "type": "string", "example": "Head Office" },
+          "parentType": { "type": "string", "example": "client" },
+          "subEntityType": { "type": "string", "example": "depositAccountType.savingsDeposit" },
+          "transactionExternalId": { "type": "string", "example": "txn-external-id-1" },
+          "transactionId": { "type": "integer", "format": "int64", "example": 7253 },
+          "transactionRefNo": {
+            "type": "string",
+            "example": "69da9027-653d-45e0-9a5a-cbd7c8507237"
+          },
+          "transactionType": { "type": "string", "example": "deposit" }
         }
       },
       "GetShareEquityId": {
@@ -40848,6 +40998,17 @@
           "submittedOnDate": { "type": "string", "format": "date" }
         }
       },
+      "GetWorkingCapitalLoanChargePaidByData": {
+        "type": "object",
+        "description": "How much of a transaction settled one specific charge",
+        "properties": {
+          "amount": { "type": "number", "example": 100.0 },
+          "chargeId": { "type": "integer", "format": "int64", "example": 12 },
+          "id": { "type": "integer", "format": "int64", "example": 1 },
+          "name": { "type": "string", "example": "Processing fee" },
+          "transactionId": { "type": "integer", "format": "int64", "example": 34 }
+        }
+      },
       "GetWorkingCapitalLoanDelinquencyRangeScheduleTagHistoryResponse": {
         "type": "object",
         "description": "GetWorkingCapitalLoanDelinquencyTagHistoryResponse",
@@ -41135,6 +41296,11 @@
         "type": "object",
         "description": "Working Capital Loan transaction (e.g. disbursement) in GET transaction response.",
         "properties": {
+          "chargePaidByList": {
+            "type": "array",
+            "description": "Which charges this transaction settled, and for how much",
+            "items": { "$ref": "#/components/schemas/GetWorkingCapitalLoanChargePaidByData" }
+          },
           "classification": { "$ref": "#/components/schemas/CodeValueData" },
           "externalId": { "type": "string", "example": "txn-ext-001" },
           "feeChargesPortion": {
@@ -41233,9 +41399,16 @@
             "description": "Annualized EIR: (1 + dailyEir)^365 − 1; null if schedule not yet generated",
             "example": 0.1691
           },
+          "chargeOffReason": { "$ref": "#/components/schemas/CodeValueData" },
           "chargedOff": {
             "type": "boolean",
-            "description": "Charge-off flag. Placeholder: null until the WCP charge-off feature is implemented"
+            "description": "Whether the loan is charged off (pure accounting tag; the loan stays active)"
+          },
+          "chargedOffOnDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the loan was charged off",
+            "example": "2026-07-16"
           },
           "charges": {
             "type": "array",
@@ -41285,7 +41458,8 @@
           "externalId": { "type": "string", "example": "ext-id-001" },
           "fraud": {
             "type": "boolean",
-            "description": "Fraud flag. Placeholder: null until the WCP fraud feature is implemented"
+            "description": "Fraud flag. True when the loan has been marked as fraudulent",
+            "example": false
           },
           "fundId": { "type": "integer", "format": "int64", "example": 1 },
           "fundName": { "type": "string", "example": "Fund 1" },
@@ -42905,6 +43079,15 @@
           "totalOverdue": { "type": "number" }
         }
       },
+      "LoanAuditFieldsData": {
+        "type": "object",
+        "properties": {
+          "createdBy": { "type": "integer", "format": "int64" },
+          "createdDate": { "type": "string", "format": "date-time" },
+          "lastModifiedBy": { "type": "integer", "format": "int64" },
+          "lastModifiedDate": { "type": "string", "format": "date-time" }
+        }
+      },
       "LoanCapitalizedIncomeData": {
         "type": "object",
         "properties": {
@@ -44247,6 +44430,17 @@
           "valueFrom": { "type": "integer", "format": "int32" },
           "valueTo": { "type": "integer", "format": "int32" }
         }
+      },
+      "MarkWorkingCapitalLoanAsFraudRequest": {
+        "type": "object",
+        "properties": {
+          "fraud": {
+            "type": "boolean",
+            "description": "Whether the loan should be flagged as fraudulent",
+            "example": true
+          }
+        },
+        "required": ["fraud"]
       },
       "MediaType": {
         "type": "object",
@@ -47656,6 +47850,12 @@
         "type": "object",
         "description": "Request for transaction command: repayment, creditBalanceRefund, discountFee, or discountFeeAdjustment",
         "properties": {
+          "chargeOffReasonId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Optional charge-off reason code value id (command=chargeOff)",
+            "example": 7
+          },
           "classificationId": {
             "type": "integer",
             "format": "int64",
@@ -52041,6 +52241,12 @@
         "properties": {
           "approvalAmount": { "type": "number" },
           "approvalDate": { "type": "string", "format": "date" },
+          "chargeOffAmount": { "type": "number" },
+          "chargeOffDate": { "type": "string", "format": "date" },
+          "chargeOffReasonOptions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CodeValueData" }
+          },
           "classificationOptions": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/CodeValueData" }

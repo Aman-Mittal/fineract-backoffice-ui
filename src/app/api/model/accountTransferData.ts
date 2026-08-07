@@ -27,6 +27,7 @@ import { PortfolioAccountData } from './portfolioAccountData';
 import { CurrencyData } from './currencyData';
 import { ClientData } from './clientData';
 import { OfficeData } from './officeData';
+import { PaymentDetailData } from './paymentDetailData';
 import { EnumOptionData } from './enumOptionData';
 
 
@@ -41,6 +42,7 @@ export interface AccountTransferData {
     fromOffice?: OfficeData;
     fromOfficeOptions?: Array<OfficeData>;
     id?: number;
+    paymentDetailData?: PaymentDetailData;
     reversed?: boolean;
     toAccount?: PortfolioAccountData;
     toAccountOptions?: Array<PortfolioAccountData>;

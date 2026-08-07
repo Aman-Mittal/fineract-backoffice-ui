@@ -26,9 +26,26 @@
 
 
 export interface AuditData { 
-    createdBy?: number;
-    createdDate?: string;
-    lastModifiedBy?: number;
-    lastModifiedDate?: string;
+    actionName?: string;
+    checkedOnDate?: string;
+    checker?: string;
+    clientId?: number;
+    clientName?: string;
+    commandAsJson?: string;
+    entityName?: string;
+    groupLevelName?: string;
+    groupName?: string;
+    id?: number;
+    ip?: string;
+    loanAccountNo?: string;
+    loanId?: number;
+    madeOnDate?: string;
+    maker?: string;
+    officeName?: string;
+    processingResult?: string;
+    resourceId?: number;
+    savingsAccountNo?: string;
+    subresourceId?: number;
+    url?: string;
 }
 

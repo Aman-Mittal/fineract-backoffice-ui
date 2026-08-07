@@ -27,6 +27,7 @@ import { GetBalance } from './getBalance';
 import { GetWorkingCapitalLoanProductsResponse } from './getWorkingCapitalLoanProductsResponse';
 import { StringEnumOptionData } from './stringEnumOptionData';
 import { GetWorkingCapitalLoanCharge } from './getWorkingCapitalLoanCharge';
+import { CodeValueData } from './codeValueData';
 import { GetWorkingCapitalLoanNearBreach } from './getWorkingCapitalLoanNearBreach';
 import { GetWorkingCapitalLoansLoanIdStatus } from './getWorkingCapitalLoansLoanIdStatus';
 import { GetWorkingCapitalLoansLoanIdTimeline } from './getWorkingCapitalLoansLoanIdTimeline';
@@ -67,10 +68,15 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
      * Annualized EIR: (1 + dailyEir)^365 − 1; null if schedule not yet generated
      */
     calculatedAnnualEir?: number;
+    chargeOffReason?: CodeValueData;
     /**
-     * Charge-off flag. Placeholder: null until the WCP charge-off feature is implemented
+     * Whether the loan is charged off (pure accounting tag; the loan stays active)
      */
     chargedOff?: boolean;
+    /**
+     * Date the loan was charged off
+     */
+    chargedOffOnDate?: string;
     /**
      * Charges associated with the loan
      */
@@ -108,7 +114,7 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     enableInstallmentLevelDelinquency?: boolean;
     externalId?: string;
     /**
-     * Fraud flag. Placeholder: null until the WCP fraud feature is implemented
+     * Fraud flag. True when the loan has been marked as fraudulent
      */
     fraud?: boolean;
     fundId?: number;

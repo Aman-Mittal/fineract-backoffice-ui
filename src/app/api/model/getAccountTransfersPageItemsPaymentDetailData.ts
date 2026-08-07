@@ -23,27 +23,16 @@
  * Do not edit the class manually.
  */
 
+import { GetAccountTransfersPageItemsPaymentType } from './getAccountTransfersPageItemsPaymentType';
 
 
-export interface AccountTransferRequest { 
+export interface GetAccountTransfersPageItemsPaymentDetailData { 
     accountNumber?: string;
     bankNumber?: string;
     checkNumber?: string;
-    dateFormat?: string;
-    fromAccountId?: string;
-    fromAccountType?: string;
-    fromClientId?: string;
-    fromOfficeId?: string;
-    locale?: string;
-    paymentTypeId?: number;
+    id?: number;
+    paymentType?: GetAccountTransfersPageItemsPaymentType;
     receiptNumber?: string;
     routingCode?: string;
-    toAccountId?: string;
-    toAccountType?: string;
-    toClientId?: string;
-    toOfficeId?: string;
-    transferAmount?: string;
-    transferDate?: string;
-    transferDescription?: string;
 }
 

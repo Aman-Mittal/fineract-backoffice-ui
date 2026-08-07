@@ -57,7 +57,7 @@ export class SearchAPIService extends BaseService {
 
     /**
      * Search Resources
-     * Example Requests:  search?query&#x3D;000000001   search?query&#x3D;Petra&amp;resource&#x3D;clients,groups   search?query&#x3D;Petra&amp;resource&#x3D;clients,groups&amp;exactMatch&#x3D;true
+     * Example Requests:  search?query&#x3D;000000001   search?query&#x3D;Petra&amp;resource&#x3D;clients,groups   search?query&#x3D;Petra&amp;resource&#x3D;clients,groups&amp;exactMatch&#x3D;true   search?query&#x3D;7253&amp;resource&#x3D;loanTransactions,savingsTransactions
      * @endpoint get /v1/search
      * @param query query
      * @param resource resource

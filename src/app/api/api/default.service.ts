@@ -35,8 +35,6 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { AdvancedPaymentData } from '../model/advancedPaymentData';
 // @ts-ignore
-import { AuditData } from '../model/auditData';
-// @ts-ignore
 import { CampaignPreviewData } from '../model/campaignPreviewData';
 // @ts-ignore
 import { CommandProcessingResult } from '../model/commandProcessingResult';
@@ -50,6 +48,8 @@ import { FormDataBodyPart } from '../model/formDataBodyPart';
 import { ImageCreateResponse } from '../model/imageCreateResponse';
 // @ts-ignore
 import { ImageDeleteResponse } from '../model/imageDeleteResponse';
+// @ts-ignore
+import { LoanAuditFieldsData } from '../model/loanAuditFieldsData';
 // @ts-ignore
 import { SmsCampaignData } from '../model/smsCampaignData';
 // @ts-ignore
@@ -1766,9 +1766,9 @@ export class DefaultService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getInternalLoanLoanIdAudit(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuditData>;
-    public getInternalLoanLoanIdAudit(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuditData>>;
-    public getInternalLoanLoanIdAudit(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuditData>>;
+    public getInternalLoanLoanIdAudit(loanId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAuditFieldsData>;
+    public getInternalLoanLoanIdAudit(loanId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAuditFieldsData>>;
+    public getInternalLoanLoanIdAudit(loanId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAuditFieldsData>>;
     public getInternalLoanLoanIdAudit(loanId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling getInternalLoanLoanIdAudit.');
@@ -1807,7 +1807,7 @@ export class DefaultService extends BaseService {
 
         let localVarPath = `/v1/internal/loan/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/audit`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<AuditData>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanAuditFieldsData>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -1828,9 +1828,9 @@ export class DefaultService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AuditData>;
-    public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuditData>>;
-    public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuditData>>;
+    public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoanAuditFieldsData>;
+    public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoanAuditFieldsData>>;
+    public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoanAuditFieldsData>>;
     public getInternalLoanLoanIdTransactionTransactionIdAudit(loanId: number, transactionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (loanId === null || loanId === undefined) {
             throw new Error('Required parameter loanId was null or undefined when calling getInternalLoanLoanIdTransactionTransactionIdAudit.');
@@ -1872,7 +1872,7 @@ export class DefaultService extends BaseService {
 
         let localVarPath = `/v1/internal/loan/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/transaction/${this.configuration.encodeParam({name: "transactionId", value: transactionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/audit`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<AuditData>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LoanAuditFieldsData>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

@@ -30,6 +30,9 @@ import { EnumOptionData } from './enumOptionData';
  * GetSearchResponse
  */
 export interface GetSearchResponse { 
+    accountId?: number;
+    accountNo?: string;
+    accountType?: string;
     entityAccountNo?: number;
     entityExternalId?: string;
     entityId?: number;
@@ -38,5 +41,11 @@ export interface GetSearchResponse {
     entityType?: string;
     parentId?: number;
     parentName?: string;
+    parentType?: string;
+    subEntityType?: string;
+    transactionExternalId?: string;
+    transactionId?: number;
+    transactionRefNo?: string;
+    transactionType?: string;
 }
 
