@@ -31,6 +31,10 @@ import { PostWorkingCapitalLoanTransactionsPaymentDetailRequest } from './postWo
  */
 export interface PostWorkingCapitalLoanTransactionsRequest { 
     /**
+     * Optional charge-off reason code value id (command=chargeOff)
+     */
+    chargeOffReasonId?: number;
+    /**
      * Optional code value id for transaction classification
      */
     classificationId?: number;

@@ -25,25 +25,14 @@
 
 
 
-export interface AccountTransferRequest { 
-    accountNumber?: string;
-    bankNumber?: string;
-    checkNumber?: string;
-    dateFormat?: string;
-    fromAccountId?: string;
-    fromAccountType?: string;
-    fromClientId?: string;
-    fromOfficeId?: string;
-    locale?: string;
-    paymentTypeId?: number;
-    receiptNumber?: string;
-    routingCode?: string;
-    toAccountId?: string;
-    toAccountType?: string;
-    toClientId?: string;
-    toOfficeId?: string;
-    transferAmount?: string;
-    transferDate?: string;
-    transferDescription?: string;
+/**
+ * How much of a transaction settled one specific charge
+ */
+export interface GetWorkingCapitalLoanChargePaidByData { 
+    amount?: number;
+    chargeId?: number;
+    id?: number;
+    name?: string;
+    transactionId?: number;
 }
 

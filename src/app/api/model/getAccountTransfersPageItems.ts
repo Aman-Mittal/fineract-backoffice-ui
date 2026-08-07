@@ -28,6 +28,7 @@ import { GetAccountTransfersPageItemsCurrency } from './getAccountTransfersPageI
 import { GetAccountTransfersFromClientOptions } from './getAccountTransfersFromClientOptions';
 import { GetAccountTransfersPageItemsToAccountType } from './getAccountTransfersPageItemsToAccountType';
 import { GetAccountTransfersPageItemsFromOffice } from './getAccountTransfersPageItemsFromOffice';
+import { GetAccountTransfersPageItemsPaymentDetailData } from './getAccountTransfersPageItemsPaymentDetailData';
 import { GetAccountTransfersFromAccountType } from './getAccountTransfersFromAccountType';
 
 
@@ -38,6 +39,7 @@ export interface GetAccountTransfersPageItems {
     fromClient?: GetAccountTransfersFromClientOptions;
     fromOffice?: GetAccountTransfersPageItemsFromOffice;
     id?: number;
+    paymentDetailData?: GetAccountTransfersPageItemsPaymentDetailData;
     reversed?: boolean;
     toAccount?: GetAccountTransfersPageItemsFromAccount;
     toAccountType?: GetAccountTransfersPageItemsToAccountType;

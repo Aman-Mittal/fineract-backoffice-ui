@@ -31,6 +31,9 @@ import { CodeValueData } from './codeValueData';
 export interface WorkingCapitalLoanCommandTemplateData { 
     approvalAmount?: number;
     approvalDate?: string;
+    chargeOffAmount?: number;
+    chargeOffDate?: string;
+    chargeOffReasonOptions?: Array<CodeValueData>;
     classificationOptions?: Array<CodeValueData>;
     currency?: CurrencyData;
     discountAmount?: number;

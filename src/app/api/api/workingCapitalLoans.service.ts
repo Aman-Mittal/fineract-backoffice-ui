@@ -45,6 +45,8 @@ import { GetWorkingCapitalLoansPagedResponse } from '../model/getWorkingCapitalL
 // @ts-ignore
 import { GetWorkingCapitalLoansTemplateResponse } from '../model/getWorkingCapitalLoansTemplateResponse';
 // @ts-ignore
+import { MarkWorkingCapitalLoanAsFraudRequest } from '../model/markWorkingCapitalLoanAsFraudRequest';
+// @ts-ignore
 import { PostWorkingCapitalLoansLoanIdRequest } from '../model/postWorkingCapitalLoansLoanIdRequest';
 // @ts-ignore
 import { PostWorkingCapitalLoansLoanIdResponse } from '../model/postWorkingCapitalLoansLoanIdResponse';
@@ -1482,6 +1484,83 @@ export class WorkingCapitalLoansService extends BaseService {
     }
 
     /**
+     * Mark or unmark a Working Capital Loan as fraudulent by external id
+     * Flags the loan as fraudulent. When the loan is later charged off, a fraudulent loan is routed to the charge-off fraud expense account instead of the regular charge-off expense account. Does not change the loan status.
+     * @endpoint put /v1/working-capital-loans/external-id/{loanExternalId}/mark-as-fraud
+     * @param loanExternalId loanExternalId
+     * @param markWorkingCapitalLoanAsFraudRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putWorkingCapitalLoansExternalIdLoanExternalIdMarkAsFraud(loanExternalId: string, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putWorkingCapitalLoansExternalIdLoanExternalIdMarkAsFraud(loanExternalId: string, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putWorkingCapitalLoansExternalIdLoanExternalIdMarkAsFraud(loanExternalId: string, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putWorkingCapitalLoansExternalIdLoanExternalIdMarkAsFraud(loanExternalId: string, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanExternalId === null || loanExternalId === undefined) {
+            throw new Error('Required parameter loanExternalId was null or undefined when calling putWorkingCapitalLoansExternalIdLoanExternalIdMarkAsFraud.');
+        }
+        if (markWorkingCapitalLoanAsFraudRequest === null || markWorkingCapitalLoanAsFraudRequest === undefined) {
+            throw new Error('Required parameter markWorkingCapitalLoanAsFraudRequest was null or undefined when calling putWorkingCapitalLoansExternalIdLoanExternalIdMarkAsFraud.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/working-capital-loans/external-id/${this.configuration.encodeParam({name: "loanExternalId", value: loanExternalId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/mark-as-fraud`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: markWorkingCapitalLoanAsFraudRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Update period payment rate for an active Working Capital Loan by external id
      * Modifies the period payment rate and triggers schedule recalculation for the remaining term.
      * @endpoint put /v1/working-capital-loans/external-id/{loanExternalId}/payment-rate
@@ -1715,6 +1794,83 @@ export class WorkingCapitalLoansService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: putWorkingCapitalLoansLoanIdDiscountRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Mark or unmark a Working Capital Loan as fraudulent
+     * Flags the loan as fraudulent. When the loan is later charged off, a fraudulent loan is routed to the charge-off fraud expense account instead of the regular charge-off expense account. Does not change the loan status.
+     * @endpoint put /v1/working-capital-loans/{loanId}/mark-as-fraud
+     * @param loanId loanId
+     * @param markWorkingCapitalLoanAsFraudRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public putWorkingCapitalLoansLoanIdMarkAsFraud(loanId: number, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public putWorkingCapitalLoansLoanIdMarkAsFraud(loanId: number, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public putWorkingCapitalLoansLoanIdMarkAsFraud(loanId: number, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public putWorkingCapitalLoansLoanIdMarkAsFraud(loanId: number, markWorkingCapitalLoanAsFraudRequest: MarkWorkingCapitalLoanAsFraudRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanId === null || loanId === undefined) {
+            throw new Error('Required parameter loanId was null or undefined when calling putWorkingCapitalLoansLoanIdMarkAsFraud.');
+        }
+        if (markWorkingCapitalLoanAsFraudRequest === null || markWorkingCapitalLoanAsFraudRequest === undefined) {
+            throw new Error('Required parameter markWorkingCapitalLoanAsFraudRequest was null or undefined when calling putWorkingCapitalLoansLoanIdMarkAsFraud.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/working-capital-loans/${this.configuration.encodeParam({name: "loanId", value: loanId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/mark-as-fraud`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: markWorkingCapitalLoanAsFraudRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

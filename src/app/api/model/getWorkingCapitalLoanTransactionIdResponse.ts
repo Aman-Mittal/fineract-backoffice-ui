@@ -26,12 +26,17 @@
 import { CodeValueData } from './codeValueData';
 import { WorkingCapitalLoanTransactionPaymentDetailData } from './workingCapitalLoanTransactionPaymentDetailData';
 import { LoanTransactionEnumData } from './loanTransactionEnumData';
+import { GetWorkingCapitalLoanChargePaidByData } from './getWorkingCapitalLoanChargePaidByData';
 
 
 /**
  * Working Capital Loan transaction (e.g. disbursement) in GET transaction response.
  */
 export interface GetWorkingCapitalLoanTransactionIdResponse { 
+    /**
+     * Which charges this transaction settled, and for how much
+     */
+    chargePaidByList?: Array<GetWorkingCapitalLoanChargePaidByData>;
     classification?: CodeValueData;
     externalId?: string;
     /**

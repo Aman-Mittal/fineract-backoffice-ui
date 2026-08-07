@@ -375,6 +375,8 @@ model/getAccountTransfersPageItems.ts
 model/getAccountTransfersPageItemsCurrency.ts
 model/getAccountTransfersPageItemsFromAccount.ts
 model/getAccountTransfersPageItemsFromOffice.ts
+model/getAccountTransfersPageItemsPaymentDetailData.ts
+model/getAccountTransfersPageItemsPaymentType.ts
 model/getAccountTransfersPageItemsToAccountType.ts
 model/getAccountTransfersResponse.ts
 model/getAccountTransfersStatus.ts
@@ -924,6 +926,7 @@ model/getUsersTemplateResponse.ts
 model/getUsersUserIdResponse.ts
 model/getWorkingCapitalLoanBreach.ts
 model/getWorkingCapitalLoanCharge.ts
+model/getWorkingCapitalLoanChargePaidByData.ts
 model/getWorkingCapitalLoanDelinquencyRangeScheduleTagHistoryResponse.ts
 model/getWorkingCapitalLoanNearBreach.ts
 model/getWorkingCapitalLoanProductsProductIdResponse.ts
@@ -1015,6 +1018,7 @@ model/loanAccountLockResponseDTO.ts
 model/loanAmortizationAllocationResponse.ts
 model/loanApprovedAmountHistoryData.ts
 model/loanArrearsData.ts
+model/loanAuditFieldsData.ts
 model/loanCapitalizedIncomeData.ts
 model/loanChargePaidByData.ts
 model/loanCollateralDeleteResponse.ts
@@ -1064,6 +1068,7 @@ model/localTime.ts
 model/lockRequest.ts
 model/lookupTableData.ts
 model/lookupTableEntry.ts
+model/markWorkingCapitalLoanAsFraudRequest.ts
 model/mediaType.ts
 model/meetingAttendanceData.ts
 model/meetingAttendanceUpdateRequest.ts
