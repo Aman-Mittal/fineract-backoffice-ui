@@ -34,6 +34,7 @@
 import { Page, Request } from '@playwright/test';
 import { test, expect } from './fixtures';
 import { confirmDialog, modalFor } from './utils/ionic-locators';
+import { selectOption } from './utils/select-option';
 
 const HEAD_OFFICE = 'Head Office';
 const GROUP_ID = 7;
@@ -226,11 +227,10 @@ test.describe('Group detail', () => {
 
     const dialog = modalFor(page, 'app-group-action-dialog');
     await expect(dialog).toBeVisible();
-    await dialog.locator('ion-select[name="closureReasonId"]').click();
-    await page
-      .locator('ion-alert, ion-popover')
-      .getByRole('radio', { name: 'Group disbanded' })
-      .click();
+    // Through selectOption rather than a hand-rolled click: it retries the open, which matters
+    // because the whole mocked project runs fully parallel and an ion-select popover under
+    // contention sometimes needs a second attempt to render its options.
+    await selectOption(page, 'Closure Reason', 'Group disbanded');
     await dialog.getByTestId('group-action-confirm').click();
 
     await expect.poll(() => commands.length).toBeGreaterThan(0);

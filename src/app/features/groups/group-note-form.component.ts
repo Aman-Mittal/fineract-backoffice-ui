@@ -155,7 +155,8 @@ export class GroupNoteFormComponent implements OnInit {
       .getResourceTypeResourceIdNotesNoteId('groups', this.groupId, this.noteId!)
       .subscribe({
         next: (data) => this.note.set(data.note ?? ''),
-        error: () => void this.notifications.error(this.i18n.translate('GROUPS.NOTE_LOAD_FAILED')),
+        // No toast: errorInterceptor already raises one with the platform's message.
+        error: () => undefined,
       });
   }
 
@@ -180,10 +181,9 @@ export class GroupNoteFormComponent implements OnInit {
         void this.notifications.success(this.i18n.translate('GROUPS.NOTE_SAVED'));
         this.onCancel();
       },
-      error: () => {
-        this.isSaving.set(false);
-        void this.notifications.error(this.i18n.translate('GROUPS.NOTE_SAVE_FAILED'));
-      },
+      // Clearing isSaving is all this owes: errorInterceptor raises the toast, and leaving the
+      // flag set would disable the submit button for good after one failure.
+      error: () => this.isSaving.set(false),
     });
   }
 

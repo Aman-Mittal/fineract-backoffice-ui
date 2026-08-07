@@ -666,6 +666,12 @@ export class GroupViewComponent implements OnInit {
    * names — activating stamps the activation date and flips the status, associating a client
    * changes both member lists — and a screen that guessed at those would drift from the platform
    * in ways only the next reload would reveal.
+   *
+   * No error toast here. `errorInterceptor` already raises one carrying the platform's own
+   * `defaultUserMessage`, and that message is the useful one: closing a group with members
+   * answers "Group cannot be closed because of active clients associated with it", which a
+   * generic "the group could not be updated" would replace with nothing. All this handler owes
+   * is clearing the pending state.
    */
   private runCommand(command: string, body: Record<string, unknown>, roleId?: number): void {
     this.isLoading.set(true);
@@ -681,10 +687,7 @@ export class GroupViewComponent implements OnInit {
         void this.notifications.success(this.i18n.translate(`GROUPS.CMD_${command.toUpperCase()}`));
         this.loadGroup();
       },
-      error: () => {
-        this.isLoading.set(false);
-        void this.notifications.error(this.i18n.translate('GROUPS.COMMAND_FAILED'));
-      },
+      error: () => this.isLoading.set(false),
     });
   }
 }

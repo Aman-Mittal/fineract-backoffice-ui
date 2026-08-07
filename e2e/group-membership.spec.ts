@@ -148,8 +148,7 @@ test.describe('Group membership and lifecycle', () => {
     const staffDialog = modalFor(page, 'app-group-staff-dialog');
     await expect(staffDialog).toBeVisible();
     // Scoped to the group's office; staff from elsewhere are refused by `assignStaff`.
-    await staffDialog.locator('ion-select[name="staffId"]').click();
-    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: staffName }).click();
+    await selectOption(page, 'Staff', staffName);
     await staffDialog.getByTestId('group-staff-confirm').click();
 
     await expect(page.getByTestId('group-staff-name')).toHaveText(staffName, { timeout: 20000 });
@@ -182,11 +181,9 @@ test.describe('Group membership and lifecycle', () => {
     await page.getByTestId('group-assign-role').click();
     const roleDialog = modalFor(page, 'app-group-role-dialog');
     await expect(roleDialog).toBeVisible();
-    await roleDialog.locator('ion-select[name="clientId"]').click();
-    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: clientName }).click();
+    await selectOption(page, 'Member', clientName);
     // 'Leader' is the one value Fineract ships in the GROUPROLE code.
-    await roleDialog.locator('ion-select[name="roleId"]').click();
-    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Leader' }).click();
+    await selectOption(page, 'Role', 'Leader');
     await roleDialog.getByTestId('group-role-confirm').click();
 
     const roleRow = page.getByRole('row', { name: new RegExp(clientName) }).first();
