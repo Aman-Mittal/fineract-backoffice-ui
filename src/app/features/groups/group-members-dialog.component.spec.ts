@@ -30,6 +30,7 @@ import { provideFakeAdapters, FakeOverlayAdapter } from '../../testing/adapters'
 
 /** Longer than the component's 300ms debounce. */
 const AFTER_DEBOUNCE = 350;
+const AMINA = 'Amina Yusuf';
 
 describe('GroupMembersDialogComponent', () => {
   let fixture: ComponentFixture<GroupMembersDialogComponent>;
@@ -42,7 +43,7 @@ describe('GroupMembersDialogComponent', () => {
     clientService.getClients.and.returnValue(
       of({
         pageItems: [
-          { id: 11, accountNo: '000000011', displayName: 'Amina Yusuf' },
+          { id: 11, accountNo: '000000011', displayName: AMINA },
           { id: 21, accountNo: '000000021', displayName: 'Chidi Okonkwo' },
         ],
       }) as never,
@@ -70,7 +71,7 @@ describe('GroupMembersDialogComponent', () => {
     await setup({
       mode: 'add',
       officeId: 1,
-      members: [{ id: 11, displayName: 'Amina Yusuf' }],
+      members: [{ id: 11, displayName: AMINA }],
     });
 
     tick(AFTER_DEBOUNCE);
@@ -81,7 +82,7 @@ describe('GroupMembersDialogComponent', () => {
     expect(component.candidates().map((candidate) => candidate.id)).toEqual([21]);
   }));
 
-  it('scopes the candidate search to the group office and to active clients', fakeAsync(async () => {
+  it('scopes the candidate search to the group office, but not by client status', fakeAsync(async () => {
     await setup({ mode: 'add', officeId: 4, members: [] });
 
     tick(AFTER_DEBOUNCE);
@@ -89,7 +90,9 @@ describe('GroupMembersDialogComponent', () => {
     // Signature: officeId, externalId, displayName, firstName, lastName, status, …
     const args = clientService.getClients.calls.mostRecent().args;
     expect(args[0]).toBe(4);
-    expect(args[5]).toBe('active');
+    // `associateClients` accepts a pending client, and a group whose members activate after it
+    // forms is the ordinary case. Filtering to 'active' hid them.
+    expect(args[5]).toBeUndefined();
   }));
 
   it('lists the current members and makes no search in remove mode', fakeAsync(async () => {
@@ -97,7 +100,7 @@ describe('GroupMembersDialogComponent', () => {
       mode: 'remove',
       officeId: 1,
       members: [
-        { id: 11, displayName: 'Amina Yusuf' },
+        { id: 11, displayName: AMINA },
         { id: 12, displayName: 'Beatrice Wanjiru' },
       ],
     });

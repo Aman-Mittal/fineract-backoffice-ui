@@ -177,7 +177,8 @@ export class GroupNotesListComponent implements OnInit {
           void this.notifications.success(this.i18n.translate('GROUPS.NOTE_DELETED'));
           this.loadNotes();
         },
-        error: () => void this.notifications.error(this.i18n.translate('GROUPS.NOTE_DELETE_FAILED')),
+        error: () =>
+          void this.notifications.error(this.i18n.translate('GROUPS.NOTE_DELETE_FAILED')),
       });
   }
 }

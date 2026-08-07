@@ -205,8 +205,9 @@ export class GroupActionDialogComponent implements OnInit {
   private loadClosureReasons(): void {
     this.groupsService.getGroupsTemplate(undefined, undefined, undefined, 'close').subscribe({
       next: (template) => {
-        const reasons = (template as unknown as { closureReasons?: { id?: number; name?: string }[] })
-          .closureReasons;
+        const reasons = (
+          template as unknown as { closureReasons?: { id?: number; name?: string }[] }
+        ).closureReasons;
         this.closureReasons.set(reasons ?? []);
       },
       error: () => this.closureReasons.set([]),

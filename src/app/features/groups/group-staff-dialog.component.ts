@@ -19,7 +19,13 @@
 
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonButton, IonItem, IonLabel, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular/standalone';
 
 import { GroupsService } from '../../api';
 import { OVERLAY, TranslatePipe } from '../../core/adapters';

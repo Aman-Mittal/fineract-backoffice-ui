@@ -51,7 +51,7 @@ import { TranslatePipe } from '../../core/adapters';
       (retry)="onRetry()"
       title="nav.groups"
       helpTextKey="HELP.GROUPS_DESC"
-      createButtonLabel="Create Group"
+      createButtonLabel="GROUPS.CREATE_GROUP"
       [columns]="columns"
       [data]="groups()"
       [totalRecords]="totalRecords"

@@ -21,13 +21,7 @@ import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import {
-  IonButton,
-  IonCheckbox,
-  IonItem,
-  IonList,
-  IonSearchbar,
-} from '@ionic/angular/standalone';
+import { IonButton, IonCheckbox, IonItem, IonList, IonSearchbar } from '@ionic/angular/standalone';
 
 import { ClientService, GetClientsPageItemsResponse } from '../../api';
 import { OVERLAY, TranslatePipe } from '../../core/adapters';
@@ -60,19 +54,16 @@ export interface GroupMembersResult {
  * The search is scoped to the group's office because Fineract refuses a client from anywhere
  * else, and filtered against the current membership so that a client already in the group is not
  * offered — associating them a second time is rejected.
+ *
+ * It is deliberately *not* filtered by client status. `associateClients` accepts a pending
+ * client, and in group lending that is the ordinary case: a group forms and its members are
+ * activated afterwards. Restricting the search to active clients hid exactly the people an
+ * officer forms a group with.
  */
 @Component({
   selector: 'app-group-members-dialog',
   standalone: true,
-  imports: [
-    FormsModule,
-    TranslatePipe,
-    IonButton,
-    IonCheckbox,
-    IonItem,
-    IonList,
-    IonSearchbar,
-  ],
+  imports: [FormsModule, TranslatePipe, IonButton, IonCheckbox, IonItem, IonList, IonSearchbar],
   template: `
     <h2 class="dialog-title">
       {{ (data().mode === 'add' ? 'GROUPS.ADD_MEMBERS' : 'GROUPS.REMOVE_MEMBERS') | appTranslate }}
@@ -175,13 +166,15 @@ export class GroupMembersDialogComponent implements OnInit {
         distinctUntilChanged(),
         switchMap((term) =>
           this.clientService
+            // Signature: officeId, externalId, displayName, firstName, lastName, status,
+            // underHierarchy, offset, limit
             .getClients(
               this.data().officeId,
               undefined,
               term || undefined,
               undefined,
               undefined,
-              'active',
+              undefined,
               undefined,
               0,
               20,

@@ -226,10 +226,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
         </ion-card>
 
         <div class="content-body">
-          <ion-segment
-            [value]="activeTab()"
-            (ionChange)="activeTab.set($any($event).detail.value)"
-          >
+          <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
             <ion-segment-button value="0" data-testid="group-tab-general">
               <ion-label>{{ 'GROUPS.GENERAL' | appTranslate }}</ion-label>
             </ion-segment-button>
@@ -279,7 +276,9 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                   </div>
                   <div class="detail-item">
                     <span class="label">{{ 'GROUPS.MEMBER_COUNT' | appTranslate }}</span>
-                    <span class="value" data-testid="group-member-count">{{ members().length }}</span>
+                    <span class="value" data-testid="group-member-count">{{
+                      members().length
+                    }}</span>
                   </div>
                 </ion-card-content>
               </ion-card>
@@ -510,11 +509,14 @@ export class GroupViewComponent implements OnInit {
    * with the summary alone, leaving the members and committee tabs empty for every group that
    * has both. `BASE_PATH` and the injected client keep the request on the configured API root
    * and through the app's interceptors, the same escape hatch `loan-documents-tab` uses.
+   *
+   * `BASE_PATH` stops short of the version segment — `app.config.ts` strips a trailing `/v1`
+   * because the generated services prepend their own — so `/v1` belongs here.
    */
   loadGroup(): void {
     this.isLoading.set(true);
     this.httpClient
-      .get<GroupDetail>(`${this.basePath}/groups/${this.groupId}`, {
+      .get<GroupDetail>(`${this.basePath}/v1/groups/${this.groupId}`, {
         params: { associations: 'all' },
       })
       .subscribe({

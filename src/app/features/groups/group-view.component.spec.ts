@@ -29,7 +29,14 @@ import { GroupDetail } from './group-detail.model';
 import { BASE_PATH, GroupsService } from '../../api';
 import { provideFakeAdapters, FakeOverlayAdapter } from '../../testing/adapters';
 
-const API = '/api/v1';
+/**
+ * As `app.config.ts` computes it: the configured API url with a trailing `/v1` removed, since
+ * the generated services prepend their own version segment. Using `/api/v1` here would let a
+ * call site that forgot the `/v1` pass this spec and 404 in the browser.
+ */
+const API = '/api';
+const HEAD_OFFICE = 'Head Office';
+const AMINA = 'Amina Yusuf';
 
 /** An active group with one member and one committee role, as the platform returns it. */
 const GROUP: GroupDetail = {
@@ -40,28 +47,28 @@ const GROUP: GroupDetail = {
   active: true,
   activationDate: [2026, 1, 15],
   officeId: 1,
-  officeName: 'Head Office',
+  officeName: HEAD_OFFICE,
   staffId: 4,
   staffName: 'Okoth, Grace',
   clientMembers: [
     {
       id: 11,
       accountNo: '000000011',
-      displayName: 'Amina Yusuf',
+      displayName: AMINA,
       status: { id: 300, value: 'Active' },
-      officeName: 'Head Office',
+      officeName: HEAD_OFFICE,
     },
     {
       id: 12,
       accountNo: '000000012',
       displayName: 'Beatrice Wanjiru',
       status: { id: 100, value: 'Pending' },
-      officeName: 'Head Office',
+      officeName: HEAD_OFFICE,
     },
   ],
   // Deliberately only one of the two. The screen must not read this list.
-  activeClientMembers: [{ id: 11, displayName: 'Amina Yusuf' }],
-  groupRoles: [{ id: 3, role: { id: 13, name: 'Leader' }, clientId: 11, clientName: 'Amina Yusuf' }],
+  activeClientMembers: [{ id: 11, displayName: AMINA }],
+  groupRoles: [{ id: 3, role: { id: 13, name: 'Leader' }, clientId: 11, clientName: AMINA }],
   timeline: { submittedOnDate: [2026, 1, 1] },
 };
 
@@ -105,7 +112,7 @@ describe('GroupViewComponent', () => {
 
   /** Answers the outstanding group fetch and asserts it asked for the associations. */
   function flushGroup(body: GroupDetail = GROUP): void {
-    const request = httpMock.expectOne((req) => req.url === `${API}/groups/7`);
+    const request = httpMock.expectOne((req) => req.url === `${API}/v1/groups/7`);
     expect(request.request.params.get('associations')).toBe('all');
     request.flush(body);
     fixture.detectChanges();
@@ -128,7 +135,7 @@ describe('GroupViewComponent', () => {
 
   it('offers a retry rather than an empty group when the load fails', () => {
     httpMock
-      .expectOne((req) => req.url === `${API}/groups/7`)
+      .expectOne((req) => req.url === `${API}/v1/groups/7`)
       .flush('boom', { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 
