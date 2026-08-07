@@ -59,10 +59,27 @@ export async function selectInDialog(
   // Ionic renders select options as radios inside the overlay, not as role="option".
   const choice = overlay.getByRole('radio', { name: option, exact: true });
 
-  // Retried rather than clicked once: the option list is often filled from an HTTP response, so
-  // a first open can present an empty overlay. Re-clicking the select toggles it shut and open
-  // again, which is the only lever available without the keyboard.
+  // Retried rather than clicked once: the option list is filled from an HTTP response, so a
+  // first open can present an empty overlay.
+  //
+  // The retry must never click a select that is already covered. An open select-popover sits
+  // over its own select and intercepts pointer events, so a loop that just re-clicks cannot
+  // make progress — Playwright retries the click until the test times out, reporting
+  // "<ion-popover class="select-popover"> intercepts pointer events" several hundred times.
+  // That is a wedge, not a flake: it fails identically on every retry.
+  //
+  // So the overlay is closed before each new attempt, and only then is the select clicked.
+  // Escape is safe *here* and only here: Ionic dismisses the topmost overlay, which is the
+  // popover while one is open. It is what must not be pressed when nothing is open, because
+  // then the dialog itself is topmost — see the note above.
   for (let attempt = 0; attempt < 5; attempt++) {
+    if (await overlay.count()) {
+      // Already open — possibly holding the option we want, so look before closing it.
+      if (await choice.isVisible().catch(() => false)) break;
+      await page.keyboard.press('Escape');
+      await expect(overlay).toHaveCount(0);
+    }
+
     await combobox.click();
     try {
       await expect(choice).toBeVisible({ timeout: 8000 });
