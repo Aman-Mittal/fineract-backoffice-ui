@@ -19,8 +19,7 @@
 
 import { Component, inject, signal } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import {
@@ -32,12 +31,14 @@ import {
 import { GroupsService, GetGroupsPageItems } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { TranslatePipe } from '../../core/adapters';
 
 @Component({
   selector: 'app-groups-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    RouterModule,
+    TranslatePipe,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
@@ -60,6 +61,12 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       [pageIndex]="pageIndex()"
       (pageChange)="onPage($event)"
     >
+      <ng-template appCellTemplate="name" let-group>
+        <a [routerLink]="['/groups/view', group.id]" data-testid="group-name-link">
+          {{ group.name }}
+        </a>
+      </ng-template>
+
       <ng-template appCellTemplate="status" let-group>
         <app-status-badge [status]="group.status?.value"></app-status-badge>
       </ng-template>
@@ -68,8 +75,18 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
-          title="Edit Group"
+          [attr.aria-label]="'COMMON.VIEW' | appTranslate"
+          [attr.data-testid]="'group-view-' + group.id"
+          [title]="'COMMON.VIEW' | appTranslate"
+          (click)="onViewGroup(group)"
+        >
+          <ion-icon name="eye-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="primary"
+          [attr.aria-label]="'COMMON.EDIT' | appTranslate"
+          [title]="'COMMON.EDIT' | appTranslate"
           (click)="onEditGroup(group)"
         >
           <ion-icon name="create-outline"></ion-icon>
@@ -183,6 +200,10 @@ export class GroupsListComponent {
 
   onEditGroup(group: GetGroupsPageItems) {
     this.router.navigate(['/groups/edit', group.id]);
+  }
+
+  onViewGroup(group: GetGroupsPageItems) {
+    this.router.navigate(['/groups/view', group.id]);
   }
 
   onRetry(): void {
