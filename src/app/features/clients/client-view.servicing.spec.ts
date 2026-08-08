@@ -23,7 +23,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { ClientViewComponent } from './client-view.component';
@@ -37,6 +36,7 @@ import {
 } from '../../api';
 import { AuthService } from '../../core/services/auth.service';
 import { provideIonicTesting } from '../../testing/ionic-testing';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 import { CLIENT_STATUS } from './client-servicing.model';
 
@@ -60,6 +60,7 @@ describe('ClientViewComponent — servicing commands', () => {
   let overlay: FakeOverlayAdapter;
 
   const CLIENT_ID = 123;
+  const OFFICER_NAME = 'Officer, Probe';
 
   /** The client as `GET /clients/{id}` actually returns it, including the undeclared fields. */
   function clientResponse(overrides: Record<string, unknown> = {}): any {
@@ -134,9 +135,12 @@ describe('ClientViewComponent — servicing commands', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [ClientViewComponent, TranslateModule.forRoot()],
+      imports: [ClientViewComponent],
       providers: [
         provideIonicTesting(),
+        // client-view still renders `| translate` directly, so the library has to be present
+        // alongside the fake I18N adapter. See provideTranslateTesting().
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
         ...adapters.providers,
         { provide: ClientService, useValue: clientServiceSpy },
@@ -277,7 +281,7 @@ describe('ClientViewComponent — servicing commands', () => {
     });
 
     it('echoes the current staff id back when unassigning, which the platform requires', async () => {
-      await setUp(clientResponse({ staffId: 4, staffName: 'Officer, Probe' }));
+      await setUp(clientResponse({ staffId: 4, staffName: OFFICER_NAME }));
       overlay.nextModalResult = true;
 
       await component.onUnassignStaff();
@@ -297,10 +301,10 @@ describe('ClientViewComponent — servicing commands', () => {
     });
 
     it('reads the staff and savings fields the generated model does not declare', async () => {
-      await setUp(clientResponse({ staffId: 4, staffName: 'Officer, Probe', savingsAccountId: 8 }));
+      await setUp(clientResponse({ staffId: 4, staffName: OFFICER_NAME, savingsAccountId: 8 }));
 
       expect(component.assignedStaffId()).toBe(4);
-      expect(component.assignedStaffName()).toBe('Officer, Probe');
+      expect(component.assignedStaffName()).toBe(OFFICER_NAME);
       expect(component.defaultSavingsAccountId()).toBe(8);
     });
 
