@@ -124,20 +124,29 @@ async function createGroup(page: Page, name: string): Promise<void> {
 async function ensureClosureReason(page: Page, name: string): Promise<string> {
   await page.goto('/system/codes');
   const codeRow = await findRow(page, 'GroupClosureReason');
+
+  const responseReceived = page.waitForResponse(
+    (response) => /\/codes\/\d+\/codevalues/.test(response.url()) && response.ok(),
+  );
   await codeRow.getByRole('button', { name: 'Code Values' }).click();
+
   await expect(page).toHaveURL(/\/system\/codes\/\d+\/values$/, { timeout: 20000 });
+  // Synchronised on the request and on the table's own spinner, not on the presence of rows.
+  // `app-data-table` renders CDK's `*cdkNoDataRow` as a real `<tr class="no-data-row">` reading
+  // "No records found.", from the moment it mounts — so a count of `tbody tr` is 1 while the
+  // request is still in flight *and* 1 when the code genuinely has no values, and cannot tell
+  // the two apart. Counting it as data is what broke this: the placeholder was taken for a
+  // value, "No records found." was handed back as the closure reason, no value was ever
+  // created, and the close dialog then offered nothing that matched. It reproduced on every CI
+  // run against a fresh database, where `GroupClosureReason` really is empty, and never on a
+  // developer machine, where an earlier run has already populated it.
+  await responseReceived;
+  await expect(page.getByTestId('data-table-spinner')).toHaveCount(0, { timeout: 20000 });
 
-  // An existing value is reused. The list renders "No records found." while the request is
-  // still in flight, so this waits for a row or for the table to settle rather than reading
-  // the DOM immediately and concluding the code is empty.
-  const anyValue = page.locator('app-data-table tbody tr');
-  await expect(async () => {
-    const count = await anyValue.count();
-    expect(count).toBeGreaterThanOrEqual(0);
-  }).toPass({ timeout: 20000 });
-
-  if ((await anyValue.count()) > 0) {
-    return (await anyValue.first().locator('td').first().innerText()).trim();
+  // Excludes the placeholder, so this is the count of values the institution actually has.
+  const existingValues = page.locator('app-data-table tbody tr:not(.no-data-row)');
+  if ((await existingValues.count()) > 0) {
+    return (await existingValues.first().locator('td').first().innerText()).trim();
   }
 
   await page.getByRole('button', { name: 'Add Value', exact: true }).click();
