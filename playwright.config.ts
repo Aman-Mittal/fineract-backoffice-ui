@@ -13,6 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  * A spec belongs here if it contains no page.route() mocks.
  */
 const BACKEND_SPECS = [
+  'client-transfer.spec.ts',
   'full-demo.spec.ts',
   'group-membership.spec.ts',
   'loan-account-actions.spec.ts',
