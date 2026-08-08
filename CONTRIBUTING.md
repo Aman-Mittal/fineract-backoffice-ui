@@ -54,7 +54,7 @@ explaining why, start with Jira.
     failure locally, and the rules that most often surprise people — is documented in
     [`DOCS/CI_CHECKS.md`](DOCS/CI_CHECKS.md).
 
-7.  **Submit a Pull Request** against the `develop` branch.
+7.  **Submit a Pull Request** against the `main` branch.
 
 ## End-to-End Tests
 
