@@ -21,6 +21,11 @@ import { Routes } from '@angular/router';
 
 export const CALENDARS_ROUTES: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: '/dashboard',
+  },
+  {
     path: ':entityType/:entityId',
     loadComponent: () => import('./calendars-list.component').then((m) => m.CalendarsListComponent),
   },
