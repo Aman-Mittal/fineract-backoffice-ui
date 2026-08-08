@@ -119,4 +119,26 @@ relying on transitive resolution, so the audit sees them.
   back-office UI are tracked here, not in Jira — the ASF Jira project is for
   [apache/fineract](https://github.com/apache/fineract), the platform itself.
 - Ensure CI checks pass.
+- Commits must be signed (GPG) — see [Commit Signing](#commit-signing) below.
 - New features should include unit tests.
+
+## Commit Signing
+
+`main` requires signed commits — an unsigned commit cannot be merged. Set this up
+before you start work, not after.
+
+```bash
+git config user.signingkey <your-gpg-key-id>
+git config commit.gpgsign true
+```
+
+`commit.gpgsign true` makes signing automatic for every commit, so it isn't a flag
+you have to remember. See GitHub's docs for full setup instructions:
+[commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification).
+
+**If you already have unsigned commits on your branch**, sign them retroactively
+instead of starting over:
+
+```bash
+git rebase --exec 'git commit --amend --no-edit -S' <base-branch>
+```
