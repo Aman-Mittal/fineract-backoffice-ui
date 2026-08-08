@@ -188,7 +188,9 @@ test.describe('Group membership and lifecycle', () => {
     await page.getByTestId('group-action-activate').click();
     const activateDialog = modalFor(page, 'app-group-action-dialog');
     await expect(activateDialog).toBeVisible();
-    // The date defaults to the platform's business date, which is what the command wants.
+    // Confirmed without touching the date. That default has to be one the platform accepts
+    // from a browser whose clock disagrees with the tenant's about what day it is — this run
+    // is UTC in CI against a tenant on `Asia/Kolkata`, which are different days after 18:30.
     await activateDialog.getByTestId('group-action-confirm').click();
 
     await expect(page.getByTestId('group-status')).toContainText('Active', { timeout: 20000 });
