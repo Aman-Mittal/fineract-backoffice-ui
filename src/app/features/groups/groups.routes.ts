@@ -32,4 +32,18 @@ export const GROUPS_ROUTES: Routes = [
     path: 'edit/:id',
     loadComponent: () => import('./group-form.component').then((m) => m.GroupFormComponent),
   },
+  {
+    path: 'view/:id',
+    loadComponent: () => import('./group-view.component').then((m) => m.GroupViewComponent),
+  },
+  {
+    path: ':groupId/notes/create',
+    loadComponent: () =>
+      import('./group-note-form.component').then((m) => m.GroupNoteFormComponent),
+  },
+  {
+    path: ':groupId/notes/edit/:id',
+    loadComponent: () =>
+      import('./group-note-form.component').then((m) => m.GroupNoteFormComponent),
+  },
 ];

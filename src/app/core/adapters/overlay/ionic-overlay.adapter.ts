@@ -82,15 +82,20 @@ export class IonicOverlayAdapter implements OverlayAdapter {
       keyboardClose: request.dismissible ?? true,
     });
 
-    await modal.present();
-
     // `onWillDismiss` rather than `onDidDismiss`: the caller's follow-up work — a navigation,
     // a refetch — should start as the modal begins animating out, not after it has finished.
     //
-    // Subscribed here rather than inside the handle's getter so the listener is attached
-    // before this method returns. A caller that dismisses immediately would otherwise race
-    // the subscription and never see the result.
+    // Subscribed *before* `present()` is awaited, which is not a stylistic choice. Ionic sets
+    // `presented = true` and starts the enter animation, then resolves `present()` only once
+    // that animation has finished; the overlay is dismissible for the whole ~300 ms in between.
+    // A confirm clicked inside that window — routine on a loaded machine, where dropped frames
+    // make the dialog look settled long before it is — emits `ionModalWillDismiss` while
+    // `present()` is still pending. Attaching the listener afterwards misses that event for
+    // good, and the promise below never settles: the dialog closes, the caller goes on awaiting
+    // a result that will never arrive, and the command it collected is silently never sent.
     const result = modal.onWillDismiss<T>().then(({ data }) => data);
+
+    await modal.present();
 
     return {
       result,

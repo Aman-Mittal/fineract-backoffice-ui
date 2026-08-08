@@ -449,11 +449,6 @@
       "count": 1
     }
   },
-  "src/app/features/groups/groups-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/interop/interop-account-view.component.ts": {
     "no-restricted-imports": {
       "count": 1
