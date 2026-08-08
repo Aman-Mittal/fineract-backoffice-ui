@@ -36,14 +36,18 @@ permissions: {}
 # The suite is split in two so a broken mock does not wait behind a Fineract
 # boot, and so the slow half is not on the critical path for the fast one.
 #
-#   mocked  — 220 tests that stub the backend with page.route(). Needs no
+#   mocked  — tests that stub the backend with page.route(). Needs no
 #             Fineract at all, so it skips the docker bring-up entirely and
 #             reports in a couple of minutes.
-#   backend — 23 tests that drive a real Fineract end to end. Slow, and the
+#   backend — tests that drive a real Fineract end to end. Slow, and the
 #             only half that needs the stack.
 #
 # The split lives in playwright.config.ts as two projects, so `--project=mocked`
 # and `--project=backend` mean the same thing locally as they do here.
+# Branch protection must replace the former `E2E (mocked backend)` requirement
+# with all four shard checks. Do not require `E2E (mocked backend report)`
+# instead: merging reports can succeed when a shard fails, so only the shard
+# jobs enforce the mocked E2E result.
 jobs:
   mocked:
     name: E2E (mocked backend, shard ${{ matrix.shard }}/${{ matrix.total }})
@@ -134,7 +138,7 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
         run: npx playwright merge-reports --reporter=html,json ./all-blob-reports
 
-      - name: Upload merged report
+      - name: Upload merged report and videos
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}
         with:
