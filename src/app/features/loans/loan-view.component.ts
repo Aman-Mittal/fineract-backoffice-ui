@@ -27,6 +27,17 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
 import { DialogService } from '../../core/services/dialog.service';
+import { HasPermissionDirective } from '../../shared';
+import {
+  LoanUndoApprovalDialogComponent,
+  LoanUndoApprovalResult,
+} from './loan-undo-approval-dialog.component';
+import { LoanDelinquencyTabComponent } from './tabs/loan-delinquency-tab.component';
+import { LoanTermVariationsTabComponent } from './tabs/loan-term-variations-tab.component';
+import { LoanOverdueChargesTabComponent } from './tabs/loan-overdue-charges-tab.component';
+import { LoanOriginatorsTabComponent } from './tabs/loan-originators-tab.component';
+import { LoanStandingInstructionsTabComponent } from './tabs/loan-standing-instructions-tab.component';
+import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
@@ -96,6 +107,12 @@ import {
     IonPopover,
     IonList,
     TooltipDirective,
+    HasPermissionDirective,
+    LoanDelinquencyTabComponent,
+    LoanTermVariationsTabComponent,
+    LoanOverdueChargesTabComponent,
+    LoanOriginatorsTabComponent,
+    LoanStandingInstructionsTabComponent,
   ],
   template: `
     @if (loan()) {
@@ -211,6 +228,18 @@ import {
                       </ion-item>
                     }
 
+                    @if (isLoanApproved) {
+                      <ion-item
+                        button
+                        data-testid="loan-undo-approval-action"
+                        (click)="onUndoApproval()"
+                        *appHasPermission="'APPROVALUNDO_LOAN'"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
+                      </ion-item>
+                    }
+
                     <ion-item button (click)="onAddCollateral()">
                       <ion-icon slot="start" name="shield-outline"></ion-icon>
                       <ion-label>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</ion-label>
@@ -245,6 +274,17 @@ import {
                       <ion-item button (click)="onLoanTransactionAction('close')">
                         <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="loan-close-as-rescheduled-action"
+                        (click)="onLoanTransactionAction('close-rescheduled')"
+                      >
+                        <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED' | translate }}
+                        </ion-label>
                       </ion-item>
 
                       <ion-item
@@ -439,6 +479,27 @@ import {
           </ion-segment-button>
           <ion-segment-button value="10">
             <ion-label>{{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="11" data-testid="loan-tab-delinquency">
+            <ion-label>{{ 'LOANS.DELINQUENCY' | translate }}</ion-label>
+          </ion-segment-button>
+          @if (hasTermVariations()) {
+            <ion-segment-button value="12" data-testid="loan-tab-term-variations">
+              <ion-label>{{ 'LOANS.TERM_VARIATIONS' | translate }}</ion-label>
+            </ion-segment-button>
+          }
+          @if (hasOverdueCharges()) {
+            <ion-segment-button value="13" data-testid="loan-tab-overdue-charges">
+              <ion-label>{{ 'LOANS.OVERDUE_CHARGES' | translate }}</ion-label>
+            </ion-segment-button>
+          }
+          @if (hasOriginators()) {
+            <ion-segment-button value="14" data-testid="loan-tab-originators">
+              <ion-label>{{ 'LOANS.ORIGINATORS' | translate }}</ion-label>
+            </ion-segment-button>
+          }
+          <ion-segment-button value="15" data-testid="loan-tab-standing-instructions">
+            <ion-label>{{ 'LOANS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
@@ -1140,6 +1201,43 @@ import {
             </ion-card>
           </div>
         }
+        @if (activeTab() === '11') {
+          <div class="tab-content">
+            <app-loan-delinquency-tab
+              [loanId]="loanId()"
+              [summary]="loan()?.delinquent"
+            ></app-loan-delinquency-tab>
+          </div>
+        }
+        @if (activeTab() === '12' && hasTermVariations()) {
+          <div class="tab-content">
+            <app-loan-term-variations-tab
+              [variations]="loan()?.loanTermVariations"
+            ></app-loan-term-variations-tab>
+          </div>
+        }
+        @if (activeTab() === '13' && hasOverdueCharges()) {
+          <div class="tab-content">
+            <app-loan-overdue-charges-tab
+              [charges]="overdueCharges()"
+            ></app-loan-overdue-charges-tab>
+          </div>
+        }
+        @if (activeTab() === '14' && hasOriginators()) {
+          <div class="tab-content">
+            <app-loan-originators-tab
+              [originators]="loan()?.originators"
+            ></app-loan-originators-tab>
+          </div>
+        }
+        @if (activeTab() === '15') {
+          <div class="tab-content">
+            <app-loan-standing-instructions-tab
+              [loanId]="loanId()"
+              [clientId]="loan()?.clientId"
+            ></app-loan-standing-instructions-tab>
+          </div>
+        }
       </div>
     }
   `,
@@ -1385,9 +1483,28 @@ export class LoanViewComponent implements OnInit {
   readonly showCapitalizedIncome = computed(() => this.loan()?.enableIncomeCapitalization === true);
 
   /** Tabs that are not always present, keyed by the segment value that selects them. */
+  /**
+   * `overdueCharges` is absent from the generated response type — the upstream document omits
+   * it — so it is read through a declared shape rather than cast at the point of use.
+   */
+  readonly overdueCharges = computed<LoanOverdueCharge[]>(
+    () =>
+      (this.loan() as unknown as { overdueCharges?: LoanOverdueCharge[] })?.overdueCharges ?? [],
+  );
+
+  // Hidden when empty rather than shown empty. An empty table here would read as "nothing was
+  // varied" / "no originator", which is the same thing a failed read looks like; the platform
+  // returns these arrays on every loan and most loans have none.
+  readonly hasTermVariations = computed(() => (this.loan()?.loanTermVariations ?? []).length > 0);
+  readonly hasOverdueCharges = computed(() => this.overdueCharges().length > 0);
+  readonly hasOriginators = computed(() => (this.loan()?.originators ?? []).length > 0);
+
   private readonly conditionalTabs: Record<string, Signal<boolean>> = {
     '7': this.showBuyDownFees,
     '8': this.showCapitalizedIncome,
+    '12': this.hasTermVariations,
+    '13': this.hasOverdueCharges,
+    '14': this.hasOriginators,
   };
 
   constructor() {
@@ -1659,6 +1776,30 @@ export class LoanViewComponent implements OnInit {
         next: () => this.router.navigate(['/loans']),
         error: (err) => console.error('Failed to delete loan', err),
       });
+    });
+  }
+
+  /**
+   * Returns an approved loan to `Submitted and pending approval`.
+   *
+   * Not routed through the shared account action form, for the same reason as
+   * {@link onUndoChargeOff}: that form sends `locale` and `dateFormat` on every request, and
+   * `undoapproval` rejects both — the platform answers 400 naming them as unsupported
+   * parameters. It accepts an empty body, or one carrying only `note`.
+   */
+  async onUndoApproval(): Promise<void> {
+    const result = await this.dialogService.open<LoanUndoApprovalResult>(
+      LoanUndoApprovalDialogComponent,
+    );
+    if (!result) return;
+
+    this.loansService.postLoansLoanId(this.loanId(), result, 'undoapproval').subscribe({
+      next: () => {
+        this.notifications.success(this.translate.instant('LOANS.APPROVAL_UNDONE'));
+        this.loadLoanData();
+      },
+      // No toast here: errorInterceptor already raises one with the platform's own message.
+      error: () => undefined,
     });
   }
 

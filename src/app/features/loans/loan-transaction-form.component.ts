@@ -76,6 +76,7 @@ const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   undowriteoff: 'LOANS.ACTIONS.UNDO_WRITE_OFF',
   reAge: 'LOANS.ACTIONS.RE_AGE',
   reAmortize: 'LOANS.ACTIONS.RE_AMORTIZE',
+  'close-rescheduled': 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED',
 };
 
 /** Commands the template endpoint rejects; verified against a running Fineract. */
@@ -117,6 +118,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   undowriteoff: 'LOANS.CONFIRM_UNDO_WRITE_OFF',
   reAge: 'LOANS.CONFIRM_RE_AGE',
   reAmortize: 'LOANS.CONFIRM_RE_AMORTIZE',
+  'close-rescheduled': 'LOANS.CONFIRM_CLOSE_AS_RESCHEDULED',
 };
 
 @Component({
