@@ -17,6 +17,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 
+<!-- Commits must be signed to merge — see CONTRIBUTING.md#commit-signing if you haven't set this up. -->
+
 ## What and why
 
 <!-- One or two sentences explaining what changed and why. -->
@@ -42,3 +44,4 @@ Closes #
 - [ ] User-facing strings use translation keys.
 - [ ] I added or updated tests appropriate to this change, or explained why tests were not needed.
 - [ ] UI workflow changes include suitable e2e coverage, including real-backend testing where relevant.
+- [ ] Commits are signed — see [Commit Signing](CONTRIBUTING.md#commit-signing) in CONTRIBUTING.md.
