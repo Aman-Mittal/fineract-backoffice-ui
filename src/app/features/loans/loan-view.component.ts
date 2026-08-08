@@ -276,6 +276,17 @@ import {
 
                       <ion-item
                         button
+                        data-testid="loan-close-as-rescheduled-action"
+                        (click)="onLoanTransactionAction('close-rescheduled')"
+                      >
+                        <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED' | translate }}
+                        </ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
                         class="warn-item"
                         (click)="onLoanTransactionAction('writeoff')"
                       >

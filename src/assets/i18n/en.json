@@ -511,7 +511,8 @@
       "UNDO_WRITE_OFF": "Undo Write-off",
       "RE_AGE": "Re-age Loan",
       "RE_AMORTIZE": "Re-amortise Loan",
-      "UNDO_APPROVAL": "Undo Approval"
+      "UNDO_APPROVAL": "Undo Approval",
+      "CLOSE_AS_RESCHEDULED": "Close as Rescheduled"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -582,7 +583,8 @@
     "PENALTY": "Penalty",
     "ORIGINATORS": "Originators",
     "ORIGINATOR_TYPE": "Originator Type",
-    "CHANNEL": "Channel"
+    "CHANNEL": "Channel",
+    "CONFIRM_CLOSE_AS_RESCHEDULED": "This closes the loan on the basis that it has been rescheduled onto a new loan. The outstanding balance is not written off and no further repayment is expected on this account."
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",
