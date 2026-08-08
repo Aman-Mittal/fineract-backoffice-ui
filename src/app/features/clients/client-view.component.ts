@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
@@ -34,6 +34,20 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 import { ClientActionDialogComponent } from './client-action-dialog.component';
 import {
+  ClientTransferDialogComponent,
+  ClientTransferResult,
+} from './client-transfer-dialog.component';
+import {
+  ClientTransferResponseDialogComponent,
+  ClientTransferResponseResult,
+} from './client-transfer-response-dialog.component';
+import { ClientStaffDialogComponent, ClientStaffResult } from './client-staff-dialog.component';
+import {
+  ClientSavingsAccountDialogComponent,
+  ClientSavingsAccountResult,
+} from './client-savings-account-dialog.component';
+import { CLIENT_STATUS, ClientServicingFields } from './client-servicing.model';
+import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -46,6 +60,7 @@ import { ClientDocumentsListComponent } from './tabs/client-documents-list.compo
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { DialogService } from '../../core/services/dialog.service';
+import { I18N } from '../../core/adapters';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
@@ -68,6 +83,19 @@ interface ClientActionResult {
   reasonId?: number;
   note?: string;
 }
+
+/**
+ * Menu identifier to platform command name, for the two that differ.
+ *
+ * `undoReject` and `undoWithdraw` are not near-misses the platform tolerates — it answers
+ * `400 "The query parameter command has an unsupported value of: undoReject"` and never reaches
+ * the payload, so both menu items were dead. Matching is case-insensitive, so the casing here is
+ * for readability; the words are what matter. See issue #273.
+ */
+const CLIENT_COMMAND_NAMES: Record<string, string> = {
+  undoReject: 'UndoRejection',
+  undoWithdraw: 'UndoWithdrawal',
+};
 
 @Component({
   selector: 'app-client-view',
@@ -120,6 +148,12 @@ interface ClientActionResult {
                   <span class="divider">|</span>
                   <span class="office-name">{{ client()?.officeName }}</span>
                   <app-status-badge [status]="client()?.status"></app-status-badge>
+                  @if (assignedStaffName()) {
+                    <span class="divider">|</span>
+                    <span class="staff-name" data-testid="client-staff-name">
+                      {{ assignedStaffName() }}
+                    </span>
+                  }
                 </div>
               </div>
             </div>
@@ -148,6 +182,14 @@ interface ClientActionResult {
                   'REACTIVATE_CLIENT',
                   'UNDOREJECT_CLIENT',
                   'UNDOWITHDRAW_CLIENT',
+                  'PROPOSETRANSFER_CLIENT',
+                  'PROPOSEANDACCEPTTRANSFER_CLIENT',
+                  'ACCEPTTRANSFER_CLIENT',
+                  'REJECTTRANSFER_CLIENT',
+                  'WITHDRAWTRANSFER_CLIENT',
+                  'ASSIGNSTAFF_CLIENT',
+                  'UNASSIGNSTAFF_CLIENT',
+                  'UPDATESAVINGSACCOUNT_CLIENT',
                 ]"
               >
                 <ion-icon name="settings-outline"></ion-icon>
@@ -157,7 +199,7 @@ interface ClientActionResult {
               <ion-popover trigger="clientActionsMenu-trigger" [dismissOnSelect]="true">
                 <ng-template>
                   <ion-list>
-                    @if (client()?.status?.id === 100) {
+                    @if (client()?.status?.id === CLIENT_STATUS.PENDING) {
                       <ion-item
                         button
                         (click)="onClientAction('activate')"
@@ -191,7 +233,7 @@ interface ClientActionResult {
                         <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
                       </ion-item>
                     }
-                    @if (client()?.status?.id === 300) {
+                    @if (client()?.status?.id === CLIENT_STATUS.ACTIVE) {
                       <ion-item
                         button
                         (click)="onClientAction('close')"
@@ -200,8 +242,100 @@ interface ClientActionResult {
                         <ion-icon slot="start" name="close-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.CLOSE_CLIENT' | translate }}</ion-label>
                       </ion-item>
+                      <ion-item
+                        button
+                        (click)="onProposeTransfer()"
+                        data-testid="client-propose-transfer-action"
+                        *appHasPermission="'PROPOSETRANSFER_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="swap-horizontal-outline"></ion-icon>
+                        <ion-label>{{ 'CLIENTS.ACTIONS.PROPOSE_TRANSFER' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        (click)="onProposeAndAcceptTransfer()"
+                        data-testid="client-propose-and-accept-transfer-action"
+                        *appHasPermission="'PROPOSEANDACCEPTTRANSFER_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="git-compare-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'CLIENTS.ACTIONS.PROPOSE_AND_ACCEPT_TRANSFER' | translate }}
+                        </ion-label>
+                      </ion-item>
                     }
-                    @if (client()?.status?.id === 600) {
+
+                    @if (client()?.status?.id === CLIENT_STATUS.TRANSFER_IN_PROGRESS) {
+                      <ion-item
+                        button
+                        (click)="onAcceptTransfer()"
+                        data-testid="client-accept-transfer-action"
+                        *appHasPermission="'ACCEPTTRANSFER_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+                        <ion-label>{{ 'CLIENTS.ACTIONS.ACCEPT_TRANSFER' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        (click)="onRejectTransfer()"
+                        data-testid="client-reject-transfer-action"
+                        *appHasPermission="'REJECTTRANSFER_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                        <ion-label>{{ 'CLIENTS.ACTIONS.REJECT_TRANSFER' | translate }}</ion-label>
+                      </ion-item>
+                    }
+
+                    <!--
+                      Withdrawing is offered from "on hold" as well as "in progress". A rejected
+                      transfer leaves the client on hold at the source office, and this command is
+                      the only way back to Active from there.
+                    -->
+                    @if (isTransferPending()) {
+                      <ion-item
+                        button
+                        (click)="onWithdrawTransfer()"
+                        data-testid="client-withdraw-transfer-action"
+                        *appHasPermission="'WITHDRAWTRANSFER_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'CLIENTS.ACTIONS.WITHDRAW_TRANSFER' | translate }}</ion-label>
+                      </ion-item>
+                    }
+
+                    @if (canServiceClient()) {
+                      <ion-item
+                        button
+                        (click)="onAssignStaff()"
+                        data-testid="client-assign-staff-action"
+                        *appHasPermission="'ASSIGNSTAFF_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                        <ion-label>{{ 'CLIENTS.ACTIONS.ASSIGN_STAFF' | translate }}</ion-label>
+                      </ion-item>
+                      @if (assignedStaffId() !== undefined) {
+                        <ion-item
+                          button
+                          (click)="onUnassignStaff()"
+                          data-testid="client-unassign-staff-action"
+                          *appHasPermission="'UNASSIGNSTAFF_CLIENT'"
+                        >
+                          <ion-icon slot="start" name="person-remove-outline"></ion-icon>
+                          <ion-label>{{ 'CLIENTS.ACTIONS.UNASSIGN_STAFF' | translate }}</ion-label>
+                        </ion-item>
+                      }
+                      <ion-item
+                        button
+                        (click)="onUpdateSavingsAccount()"
+                        data-testid="client-update-savings-account-action"
+                        *appHasPermission="'UPDATESAVINGSACCOUNT_CLIENT'"
+                      >
+                        <ion-icon slot="start" name="wallet-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'CLIENTS.ACTIONS.UPDATE_SAVINGS_ACCOUNT' | translate }}
+                        </ion-label>
+                      </ion-item>
+                    }
+                    @if (client()?.status?.id === CLIENT_STATUS.CLOSED) {
                       <ion-item
                         button
                         (click)="onClientAction('reactivate')"
@@ -211,7 +345,7 @@ interface ClientActionResult {
                         <ion-label>{{ 'ACTIONS.REACTIVATE_CLIENT' | translate }}</ion-label>
                       </ion-item>
                     }
-                    @if (client()?.status?.id === 500) {
+                    @if (client()?.status?.id === CLIENT_STATUS.REJECTED) {
                       <ion-item
                         button
                         (click)="onClientAction('undoReject')"
@@ -221,7 +355,7 @@ interface ClientActionResult {
                         <ion-label>{{ 'ACTIONS.UNDO_REJECT_CLIENT' | translate }}</ion-label>
                       </ion-item>
                     }
-                    @if (client()?.status?.id === 400) {
+                    @if (client()?.status?.id === CLIENT_STATUS.WITHDRAWN) {
                       <ion-item
                         button
                         (click)="onClientAction('undoWithdraw')"
@@ -800,6 +934,7 @@ export class ClientViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly clientId = signal(0);
   readonly client = signal<GetClientsClientIdResponse | null>(null);
@@ -808,6 +943,38 @@ export class ClientViewComponent implements OnInit {
 
   savingsColumns = ['accountNo', 'productName', 'balance', 'status', 'actions'];
   loanColumns = ['accountNo', 'productName', 'principal', 'status', 'actions'];
+
+  /** Exposed so the template can name the statuses it gates on rather than spell out ids. */
+  protected readonly CLIENT_STATUS = CLIENT_STATUS;
+
+  /**
+   * The fields `GetClientsClientIdResponse` does not describe but the endpoint returns.
+   * See {@link ClientServicingFields} for why this cast is here rather than a spec change.
+   */
+  private readonly servicing = computed<ClientServicingFields>(
+    () => (this.client() as unknown as ClientServicingFields | null) ?? {},
+  );
+  readonly assignedStaffId = computed(() => this.servicing().staffId);
+  readonly assignedStaffName = computed(() => this.servicing().staffName);
+  readonly defaultSavingsAccountId = computed(() => this.servicing().savingsAccountId);
+
+  /** True while a transfer is awaiting an answer, and while a rejected one is on hold. */
+  readonly isTransferPending = computed(() => {
+    const status = this.client()?.status?.id;
+    return (
+      status === CLIENT_STATUS.TRANSFER_IN_PROGRESS || status === CLIENT_STATUS.TRANSFER_ON_HOLD
+    );
+  });
+
+  /**
+   * Whether the day-to-day servicing actions apply. Staff assignment and the default savings
+   * account are settings on a live record; a client who has been rejected, withdrawn or closed
+   * has nobody to service and no account to disburse into.
+   */
+  readonly canServiceClient = computed(() => {
+    const status = this.client()?.status?.id;
+    return status === CLIENT_STATUS.PENDING || status === CLIENT_STATUS.ACTIVE;
+  });
 
   get formattedActivationDate(): string {
     const actDateArray = this.client()?.activationDate as unknown as number[];
@@ -901,8 +1068,8 @@ export class ClientViewComponent implements OnInit {
     return payload;
   }
 
-  onClientAction(command: string) {
-    this.dialogService
+  onClientAction(command: string): Promise<void> {
+    return this.dialogService
       .open<ClientActionResult>(ClientActionDialogComponent, {
         data: {
           title: `ACTIONS.${command.toUpperCase()}_CLIENT`,
@@ -917,7 +1084,11 @@ export class ClientViewComponent implements OnInit {
         const payload = this.buildClientActionPayload(command, result, formattedDate);
 
         this.clientService
-          .postClientsClientId(this.clientId(), payload as PostClientsClientIdRequest, command)
+          .postClientsClientId(
+            this.clientId(),
+            payload as PostClientsClientIdRequest,
+            CLIENT_COMMAND_NAMES[command] ?? command,
+          )
           .subscribe({
             next: () => {
               const isNoteOnlyCommand =
@@ -945,6 +1116,139 @@ export class ClientViewComponent implements OnInit {
             error: (err) => console.error(`Failed to execute ${command}`, err),
           });
       });
+  }
+
+  /**
+   * Posts a client command and reloads.
+   *
+   * Every body here is cast: `PostClientsClientIdRequest` describes only the
+   * activate/reject/withdraw/close family, so `destinationOfficeId`, `staffId` and
+   * `savingsAccountId` have no declared home. See {@link ClientServicingFields}.
+   *
+   * No error toast is raised — `errorInterceptor` already shows one carrying the platform's own
+   * message, which for these commands is the useful part ("The Client with id `18` is not
+   * awaiting transfer" says more than anything this component could add).
+   */
+  private runClientCommand(command: string, body: Record<string, unknown>): void {
+    this.clientService
+      .postClientsClientId(this.clientId(), body as PostClientsClientIdRequest, command)
+      .subscribe({
+        next: () => this.loadClientData(),
+        error: () => undefined,
+      });
+  }
+
+  onProposeTransfer(): Promise<void> {
+    return this.openTransferDialog('propose');
+  }
+
+  onProposeAndAcceptTransfer(): Promise<void> {
+    return this.openTransferDialog('proposeAndAccept');
+  }
+
+  private async openTransferDialog(mode: 'propose' | 'proposeAndAccept'): Promise<void> {
+    const result = await this.dialogService.open<ClientTransferResult>(
+      ClientTransferDialogComponent,
+      { data: { mode, officeId: this.client()?.officeId } },
+    );
+    if (!result) return;
+
+    const body: Record<string, unknown> = {
+      destinationOfficeId: result.destinationOfficeId,
+    };
+    // `proposeTransfer` requires a date and the locale/format that make it parseable;
+    // `proposeAndAcceptTransfer` rejects `transferDate` outright, so neither is sent for it.
+    if (mode === 'propose' && result.transferDate) {
+      body['transferDate'] = formatDateToFineract(new Date(result.transferDate));
+      body['locale'] = FINERACT_LOCALE;
+      body['dateFormat'] = FINERACT_DATE_FORMAT;
+    }
+    if (result.note) body['note'] = result.note;
+
+    this.runClientCommand(
+      mode === 'propose' ? 'proposeTransfer' : 'proposeAndAcceptTransfer',
+      body,
+    );
+  }
+
+  onAcceptTransfer(): Promise<void> {
+    return this.respondToTransfer('acceptTransfer', {
+      titleKey: 'CLIENTS.ACTIONS.ACCEPT_TRANSFER',
+      messageKey: 'CLIENTS.CONFIRM_ACCEPT_TRANSFER',
+    });
+  }
+
+  onRejectTransfer(): Promise<void> {
+    return this.respondToTransfer('rejectTransfer', {
+      titleKey: 'CLIENTS.ACTIONS.REJECT_TRANSFER',
+      messageKey: 'CLIENTS.CONFIRM_REJECT_TRANSFER',
+      destructive: true,
+    });
+  }
+
+  onWithdrawTransfer(): Promise<void> {
+    return this.respondToTransfer('withdrawTransfer', {
+      titleKey: 'CLIENTS.ACTIONS.WITHDRAW_TRANSFER',
+      messageKey: 'CLIENTS.CONFIRM_WITHDRAW_TRANSFER',
+      destructive: true,
+    });
+  }
+
+  /**
+   * The three answers to a pending transfer. All take an optional note and nothing else — a date
+   * or a `locale` is refused with "The parameter … is not supported", so the body is built here
+   * rather than shared with {@link buildClientActionPayload}.
+   */
+  private async respondToTransfer(
+    command: string,
+    data: {
+      titleKey: string;
+      messageKey: string;
+      destructive?: boolean;
+    },
+  ): Promise<void> {
+    const result = await this.dialogService.open<ClientTransferResponseResult>(
+      ClientTransferResponseDialogComponent,
+      { data },
+    );
+    if (!result) return;
+
+    this.runClientCommand(command, result.note ? { note: result.note } : {});
+  }
+
+  async onAssignStaff(): Promise<void> {
+    const result = await this.dialogService.open<ClientStaffResult>(ClientStaffDialogComponent, {
+      data: { officeId: this.client()?.officeId, staffId: this.assignedStaffId() },
+    });
+    if (!result) return;
+
+    this.runClientCommand('assignStaff', { staffId: result.staffId });
+  }
+
+  async onUnassignStaff(): Promise<void> {
+    const staffId = this.assignedStaffId();
+    if (staffId === undefined) return;
+
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('CLIENTS.ACTIONS.UNASSIGN_STAFF'),
+      message: this.i18n.translate('CLIENTS.CONFIRM_UNASSIGN_STAFF'),
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    // `staffId` is mandatory even to unassign — an empty body answers
+    // "The parameter `staffId` is mandatory." So the current holder is echoed back.
+    this.runClientCommand('unassignStaff', { staffId });
+  }
+
+  async onUpdateSavingsAccount(): Promise<void> {
+    const result = await this.dialogService.open<ClientSavingsAccountResult>(
+      ClientSavingsAccountDialogComponent,
+      { data: { clientId: this.clientId(), savingsAccountId: this.defaultSavingsAccountId() } },
+    );
+    if (!result) return;
+
+    this.runClientCommand('updateSavingsAccount', { savingsAccountId: result.savingsAccountId });
   }
 
   onDeleteClient() {
