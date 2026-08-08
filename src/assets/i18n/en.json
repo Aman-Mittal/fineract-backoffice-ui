@@ -731,7 +731,25 @@
     "EDIT_DOCUMENT": "Edit Document",
     "EDIT_FAMILY_MEMBER": "Edit Family Member",
     "EDIT_IDENTIFIER": "Edit Identifier",
-    "EDIT_NOTE": "Edit Note"
+    "EDIT_NOTE": "Edit Note",
+    "ACTIONS": {
+      "PROPOSE_TRANSFER": "Propose Transfer",
+      "PROPOSE_AND_ACCEPT_TRANSFER": "Transfer Immediately",
+      "ACCEPT_TRANSFER": "Accept Transfer",
+      "REJECT_TRANSFER": "Reject Transfer",
+      "WITHDRAW_TRANSFER": "Withdraw Transfer",
+      "ASSIGN_STAFF": "Assign Staff",
+      "UNASSIGN_STAFF": "Unassign Staff",
+      "UPDATE_SAVINGS_ACCOUNT": "Set Default Savings Account"
+    },
+    "DESTINATION_OFFICE": "Destination Office",
+    "NO_OTHER_OFFICES": "There is no other office to transfer this client to.",
+    "NO_STAFF_AVAILABLE": "No staff are available for this office.",
+    "CONFIRM_ACCEPT_TRANSFER": "The client will move to the destination office and become active there.",
+    "CONFIRM_REJECT_TRANSFER": "The transfer will be refused and the client placed on hold at their current office.",
+    "CONFIRM_WITHDRAW_TRANSFER": "The transfer will be cancelled and the client returned to active at their current office.",
+    "CONFIRM_UNASSIGN_STAFF": "This client will no longer be assigned to a member of staff.",
+    "SAVINGS_ACCOUNT": "Savings Account"
   },
   "SAVINGS": {
     "CREATE_ACCOUNT": "Create Savings Account",
