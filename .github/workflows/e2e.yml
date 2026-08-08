@@ -36,21 +36,25 @@ permissions: {}
 # The suite is split in two so a broken mock does not wait behind a Fineract
 # boot, and so the slow half is not on the critical path for the fast one.
 #
-#   mocked  — 188 tests that stub the backend with page.route(). Needs no
+#   mocked  — 220 tests that stub the backend with page.route(). Needs no
 #             Fineract at all, so it skips the docker bring-up entirely and
 #             reports in a couple of minutes.
-#   backend — 16 tests that drive a real Fineract end to end. Slow, and the
+#   backend — 23 tests that drive a real Fineract end to end. Slow, and the
 #             only half that needs the stack.
 #
 # The split lives in playwright.config.ts as two projects, so `--project=mocked`
 # and `--project=backend` mean the same thing locally as they do here.
 jobs:
   mocked:
-    name: E2E (mocked backend)
+    name: E2E (mocked backend, shard ${{ matrix.shard }}/${{ matrix.total }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+        total: [4]
     permissions:
       contents: read # checkout
-      pull-requests: write # upsert this job's summary comment
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
         with:
@@ -81,19 +85,63 @@ jobs:
 
       - name: Run mocked E2E tests
         env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_TOTAL: ${{ matrix.total }}
+          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/e2e-output
+        run: npx playwright test --project=mocked --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob
+
+      - name: Upload blob report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-blob-mocked-${{ matrix.shard }}
+          path: blob-report/
+          if-no-files-found: warn
+          retention-days: 1
+
+  mocked-report:
+    name: E2E (mocked backend report)
+    if: ${{ !cancelled() }}
+    needs: mocked
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout
+      pull-requests: write # upsert the merged summary comment
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download blob reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: all-blob-reports
+          pattern: playwright-blob-mocked-*
+          merge-multiple: true
+
+      - name: Merge mocked E2E reports
+        env:
           PLAYWRIGHT_HTML_OPEN: 'never'
           PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
-          PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/e2e-output
-        run: npx playwright test --project=mocked --reporter=line,html,json
+        run: npx playwright merge-reports --reporter=html,json ./all-blob-reports
 
-      - name: Upload report and videos
+      - name: Upload merged report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           name: playwright-report-mocked
           path: |
             playwright-report/
-            ${{ runner.temp }}/e2e-output/
+            playwright-results.json
           if-no-files-found: warn
           retention-days: 7
 
