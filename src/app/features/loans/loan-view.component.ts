@@ -36,6 +36,7 @@ import { LoanDelinquencyTabComponent } from './tabs/loan-delinquency-tab.compone
 import { LoanTermVariationsTabComponent } from './tabs/loan-term-variations-tab.component';
 import { LoanOverdueChargesTabComponent } from './tabs/loan-overdue-charges-tab.component';
 import { LoanOriginatorsTabComponent } from './tabs/loan-originators-tab.component';
+import { LoanStandingInstructionsTabComponent } from './tabs/loan-standing-instructions-tab.component';
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
@@ -111,6 +112,7 @@ import {
     LoanTermVariationsTabComponent,
     LoanOverdueChargesTabComponent,
     LoanOriginatorsTabComponent,
+    LoanStandingInstructionsTabComponent,
   ],
   template: `
     @if (loan()) {
@@ -496,6 +498,9 @@ import {
               <ion-label>{{ 'LOANS.ORIGINATORS' | translate }}</ion-label>
             </ion-segment-button>
           }
+          <ion-segment-button value="15" data-testid="loan-tab-standing-instructions">
+            <ion-label>{{ 'LOANS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
+          </ion-segment-button>
         </ion-segment>
 
         @if (activeTab() === '0') {
@@ -1223,6 +1228,14 @@ import {
             <app-loan-originators-tab
               [originators]="loan()?.originators"
             ></app-loan-originators-tab>
+          </div>
+        }
+        @if (activeTab() === '15') {
+          <div class="tab-content">
+            <app-loan-standing-instructions-tab
+              [loanId]="loanId()"
+              [clientId]="loan()?.clientId"
+            ></app-loan-standing-instructions-tab>
           </div>
         }
       </div>

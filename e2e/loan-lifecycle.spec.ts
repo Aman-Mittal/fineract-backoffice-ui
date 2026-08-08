@@ -199,4 +199,76 @@ test.describe('Loan lifecycle: creation, approval, disbursement', () => {
       await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 15000 });
     });
   }
+
+  /**
+   * The one step of the lifecycle that had no way back until #266.
+   *
+   * Driven entirely through the screens, and deliberately stopping at approval rather than
+   * reusing the seeded-loan helper: what is being tested is that the platform accepts the
+   * command the screen sends, and a loan approved by an API call is not evidence that the
+   * screen's approval can be undone.
+   */
+  test('an approved loan can be returned to pending approval', async ({ page }) => {
+    test.setTimeout(120000);
+
+    const clientName = await createClient(page);
+    const productName = await createLoanProduct(page, 'Cumulative');
+    const loanId = await createLoanApplication(page, clientName, productName);
+
+    await page.goto(`/loans/view/${loanId}`);
+    await page.getByRole('button', { name: 'Approve' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page).toHaveURL(`/loans/view/${loanId}`, { timeout: 15000 });
+    await expect(page.getByText('Approved', { exact: true })).toBeVisible({ timeout: 15000 });
+
+    await page.locator('#loanMenu-trigger').click();
+    await page.getByTestId('loan-undo-approval-action').click();
+    await page
+      .locator('ion-textarea[data-testid="loan-undo-approval-note"] textarea')
+      .fill('approved against the wrong client');
+    await page.getByTestId('loan-undo-approval-confirm').click();
+
+    // Back to pending, in place — the screen re-reads the loan rather than patching its own
+    // copy, so this also proves the platform actually cleared the approval.
+    await expect(page.getByText('Submitted and pending approval')).toBeVisible({ timeout: 20000 });
+
+    // And it is offered again only while approved: now that it is pending, the item is gone
+    // and Approve is back.
+    await page.locator('#loanMenu-trigger').click();
+    await expect(page.getByTestId('loan-undo-approval-action')).toHaveCount(0);
+  });
+
+  /**
+   * The four tabs added in #266 against a live platform.
+   *
+   * A fresh database carries no term variations, overdue charges, originators or delinquency
+   * tags, so this asserts what is actually true there: the delinquency tab is present and
+   * readable, and the three data-only tabs are correctly absent. The data-carrying case is
+   * covered in loan-servicing-gaps.spec.ts, where the response can be dictated.
+   */
+  test('the delinquency tab reads a real loan, and the empty data tabs stay hidden', async ({
+    page,
+  }) => {
+    test.setTimeout(120000);
+
+    const clientName = await createClient(page);
+    const productName = await createLoanProduct(page, 'Cumulative');
+    const loanId = await createLoanApplication(page, clientName, productName);
+
+    await page.goto(`/loans/view/${loanId}`);
+    await page.getByTestId('loan-tab-delinquency').click();
+
+    // A loan nobody has missed a payment on: zero, rather than blank or an error.
+    await expect(page.getByTestId('loan-past-due-days')).toHaveText('0', { timeout: 20000 });
+    await expect(page.getByTestId('loan-delinquent-days')).toHaveText('0');
+
+    await expect(page.getByTestId('loan-tab-term-variations')).toHaveCount(0);
+    await expect(page.getByTestId('loan-tab-overdue-charges')).toHaveCount(0);
+    await expect(page.getByTestId('loan-tab-originators')).toHaveCount(0);
+
+    // Standing instructions are always offered — an empty list there is a real answer
+    // ("nothing pays into this loan"), not a missing capability.
+    await page.getByTestId('loan-tab-standing-instructions').click();
+    await expect(page.getByTestId('data-table-error')).toHaveCount(0);
+  });
 });

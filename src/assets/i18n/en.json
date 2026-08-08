@@ -584,7 +584,11 @@
     "ORIGINATORS": "Originators",
     "ORIGINATOR_TYPE": "Originator Type",
     "CHANNEL": "Channel",
-    "CONFIRM_CLOSE_AS_RESCHEDULED": "This closes the loan on the basis that it has been rescheduled onto a new loan. The outstanding balance is not written off and no further repayment is expected on this account."
+    "CONFIRM_CLOSE_AS_RESCHEDULED": "This closes the loan on the basis that it has been rescheduled onto a new loan. The outstanding balance is not written off and no further repayment is expected on this account.",
+    "STANDING_INSTRUCTIONS": "Standing Instructions",
+    "DIRECTION": "Direction",
+    "TRANSFER_TYPE": "Transfer Type",
+    "VALID_FROM": "Valid From"
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",
