@@ -56,6 +56,7 @@ import {
 } from '../../core/utils/date-formatter';
 import {
   GROUP_STATUS,
+  FineractDate,
   GroupClientMember,
   GroupDetail,
   GroupRoleAssignment,
@@ -543,7 +544,12 @@ export class GroupViewComponent implements OnInit {
   // --- Lifecycle commands -------------------------------------------------------------------
 
   async onActivate(): Promise<void> {
-    const result = await this.openActionDialog('GROUPS.ACTIVATE', 'activate');
+    // The platform will not activate a group before the day it was submitted on.
+    const result = await this.openActionDialog(
+      'GROUPS.ACTIVATE',
+      'activate',
+      this.isoDate(this.group()?.timeline?.submittedOnDate),
+    );
     if (!result) return;
 
     this.runCommand('activate', {
@@ -554,7 +560,12 @@ export class GroupViewComponent implements OnInit {
   }
 
   async onClose(): Promise<void> {
-    const result = await this.openActionDialog('GROUPS.CLOSE', 'close');
+    // And it will not close one before the day it was activated on.
+    const result = await this.openActionDialog(
+      'GROUPS.CLOSE',
+      'close',
+      this.isoDate(this.group()?.timeline?.activatedOnDate),
+    );
     if (!result) return;
 
     this.runCommand('close', {
@@ -568,10 +579,22 @@ export class GroupViewComponent implements OnInit {
   private openActionDialog(
     title: string,
     command: GroupActionDialogData['command'],
+    minDate?: string,
   ): Promise<GroupActionResult | undefined> {
     return this.dialogService.open<GroupActionResult>(GroupActionDialogComponent, {
-      data: { title, command } satisfies GroupActionDialogData,
+      data: { title, command, minDate } satisfies GroupActionDialogData,
     });
+  }
+
+  /**
+   * A date the platform has stamped, as the ISO `YYYY-MM-DD` the action dialog floors on.
+   *
+   * These arrive rendered in the tenant's timezone, which is exactly what makes them usable as
+   * a floor for a picker that would otherwise only know what day it is in the browser's.
+   */
+  private isoDate(value: FineractDate | undefined): string | undefined {
+    const iso = formatArrayDate(value);
+    return iso === '-' ? undefined : iso;
   }
 
   // --- Staff --------------------------------------------------------------------------------

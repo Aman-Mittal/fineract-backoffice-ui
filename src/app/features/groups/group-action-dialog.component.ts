@@ -39,6 +39,13 @@ export interface GroupActionDialogData {
   title: string;
   /** The Fineract command this dialog collects arguments for. */
   command: 'activate' | 'close';
+  /**
+   * ISO `YYYY-MM-DD`: the earliest date the platform will accept for this command, taken from
+   * a date Fineract has already stamped — the group's submitted-on date for an activation, its
+   * activation date for a closure. Optional, because a caller that has neither is no worse off
+   * than before. See {@link GroupActionDialogComponent.applyMinDate}.
+   */
+  minDate?: string;
 }
 
 export interface GroupActionResult {
@@ -91,6 +98,7 @@ export interface GroupActionResult {
                 [ngModel]="actionDate()"
                 (ngModelChange)="actionDate.set($event)"
                 required
+                [min]="minDate()"
                 [max]="maxDate()"
               ></ion-datetime>
             </ng-template>
@@ -164,6 +172,7 @@ export class GroupActionDialogComponent implements OnInit {
   readonly data = input.required<GroupActionDialogData>();
 
   readonly actionDate = signal(toIsoDate(new Date()));
+  readonly minDate = signal<string | undefined>(undefined);
   readonly maxDate = signal<string | undefined>(undefined);
   readonly closureReasons = signal<{ id?: number; name?: string }[]>([]);
   closureReasonId?: number;
@@ -173,9 +182,37 @@ export class GroupActionDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.applyMinDate();
     this.loadBusinessDate();
     if (this.data().command === 'close') {
       this.loadClosureReasons();
+    }
+  }
+
+  /**
+   * Floors the picker at the date the platform has already committed to, and moves the default
+   * up to meet it.
+   *
+   * The default above comes from the browser's clock. The date it has to sit on or after —
+   * the group's submitted-on date for an activation, its activation date for a closure — was
+   * stamped by Fineract in the *tenant's* timezone, and the two disagree about what day it is
+   * for as long as the offset between them. A browser in UTC against the stock `Asia/Kolkata`
+   * tenant is a day behind from 18:30 UTC onwards, and sending that day answers
+   * `error.msg.group.submittedOnDate.after.activation.date`: the group stays pending, with a
+   * toast as the only sign of why. Taking the later of the two takes the browser's clock out
+   * of the decision wherever the platform has already made it.
+   *
+   * A lexical comparison is the right one here — both sides are zero-padded `YYYY-MM-DD`, which
+   * orders identically to the dates it spells, and parsing them back into `Date` would put the
+   * browser's timezone back into a comparison this exists to keep it out of.
+   */
+  private applyMinDate(): void {
+    const min = this.data().minDate;
+    if (!min) return;
+
+    this.minDate.set(min);
+    if (min > this.actionDate()) {
+      this.actionDate.set(min);
     }
   }
 
@@ -192,8 +229,15 @@ export class GroupActionDialogComponent implements OnInit {
         const parts = businessDate?.date as unknown as number[] | undefined;
         if (parts?.length) {
           const iso = toIsoDate(new Date(parts[0], parts[1] - 1, parts[2]));
-          this.actionDate.set(iso);
-          this.maxDate.set(iso);
+          const min = this.minDate();
+          // A business date earlier than the floor would leave the picker with a range it
+          // cannot satisfy. The floor wins, because it is the constraint the command itself
+          // validates; a business date that far behind is a tenant configuration question and
+          // the platform will say so on submit.
+          if (!min || iso >= min) {
+            this.actionDate.set(iso);
+            this.maxDate.set(iso);
+          }
         }
       },
       // A tenant with the business-date module off answers 403 here. Today's date is the
