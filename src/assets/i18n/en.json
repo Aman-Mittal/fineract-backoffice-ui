@@ -596,7 +596,13 @@
     "UNASSIGNED_DATE": "Unassigned Date",
     "COMMAND_APPLIED": "Done.",
     "CONFIRM_UNASSIGN_LOAN_OFFICER": "The loan stops counting towards this officer from the date you choose. Backdate it to the day they actually stopped, or every report for the period in between will still credit them.",
-    "CONFIRM_UNDO_LAST_DISBURSAL": "This reverses the most recent tranche released on this loan. The schedule is recalculated without it."
+    "CONFIRM_UNDO_LAST_DISBURSAL": "This reverses the most recent tranche released on this loan. The schedule is recalculated without it.",
+    "ASSET_TRANSFERS": "Asset Transfers",
+    "TRANSFER_ID": "Transfer ID",
+    "OWNER": "Owner",
+    "PURCHASE_PRICE_RATIO": "Purchase Price Ratio",
+    "SETTLEMENT_DATE": "Settlement Date",
+    "EFFECTIVE_FROM": "Effective From"
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",

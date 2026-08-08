@@ -50,6 +50,7 @@ import {
   LoanUnassignOfficerDialogComponent,
   LoanUnassignOfficerResult,
 } from './loan-unassign-officer-dialog.component';
+import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.component';
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
@@ -126,6 +127,7 @@ import {
     LoanOverdueChargesTabComponent,
     LoanOriginatorsTabComponent,
     LoanStandingInstructionsTabComponent,
+    LoanAssetTransfersTabComponent,
   ],
   template: `
     @if (loan()) {
@@ -553,6 +555,9 @@ import {
           }
           <ion-segment-button value="15" data-testid="loan-tab-standing-instructions">
             <ion-label>{{ 'LOANS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="16" data-testid="loan-tab-asset-transfers">
+            <ion-label>{{ 'LOANS.ASSET_TRANSFERS' | translate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
@@ -1289,6 +1294,11 @@ import {
               [loanId]="loanId()"
               [clientId]="loan()?.clientId"
             ></app-loan-standing-instructions-tab>
+          </div>
+        }
+        @if (activeTab() === '16') {
+          <div class="tab-content">
+            <app-loan-asset-transfers-tab [loanId]="loanId()"></app-loan-asset-transfers-tab>
           </div>
         }
       </div>

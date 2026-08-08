@@ -43,9 +43,13 @@ const LOAN_ID = 456;
 const MENU_TRIGGER = '#loanMenu-trigger';
 const UNDO_APPROVAL_ITEM = 'loan-undo-approval-action';
 const WRONG_CLIENT = 'approved against the wrong client';
+const OFFICER_NAME = 'Field Officer';
 
 interface LoanOverrides {
   status?: Record<string, unknown>;
+  loanOfficerId?: number;
+  loanOfficerName?: string;
+  multiDisburseLoan?: boolean;
   loanTermVariations?: unknown[];
   overdueCharges?: unknown[];
   originators?: unknown[];
@@ -271,6 +275,88 @@ test.describe('Loan servicing gaps', () => {
 
     await tab(page, 'loan-tab-originators').click();
     await expect(page.getByRole('cell', { name: 'Partner Agent' })).toBeVisible();
+  });
+
+  test('disburse to savings sends the date and amount, with the platform date format', async ({
+    page,
+  }) => {
+    const probe = await loginWithLoan(page, { status: APPROVED });
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+    await page.getByTestId('loan-disburse-to-savings-action').click();
+    await page.getByTestId('disburse-to-savings-confirm').click();
+
+    await expect.poll(() => probe.commands.length).toBe(1);
+    expect(probe.commands[0].command).toBe('disbursetosavings');
+    const body = probe.commands[0].body as Record<string, unknown>;
+    // Unlike undoapproval, this command *does* take locale and dateFormat, and the date has to
+    // be in the platform's own format rather than the ISO the picker produces.
+    expect(body['dateFormat']).toBe('dd MMMM yyyy');
+    expect(body['locale']).toBe('en');
+    expect(body['actualDisbursementDate']).toMatch(/^\d{2} \w+ \d{4}$/);
+    expect(body['transactionAmount']).toBe(5000);
+  });
+
+  test('disburse to savings is offered only on an approved loan', async ({ page }) => {
+    await loginWithLoan(page, {});
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+
+    await expect(page.getByTestId('loan-disburse-to-savings-action')).toHaveCount(0);
+  });
+
+  test('unassign loan officer sends the date, and appears only when one is assigned', async ({
+    page,
+  }) => {
+    const probe = await loginWithLoan(page, { loanOfficerId: 7, loanOfficerName: OFFICER_NAME });
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+    await page.getByTestId('loan-unassign-officer-action').click();
+    await page.getByTestId('unassign-officer-confirm').click();
+
+    await expect.poll(() => probe.commands.length).toBe(1);
+    expect(probe.commands[0].command).toBe('unassignloanofficer');
+    const body = probe.commands[0].body as Record<string, unknown>;
+    expect(body['unassignedDate']).toMatch(/^\d{2} \w+ \d{4}$/);
+    expect(body['dateFormat']).toBe('dd MMMM yyyy');
+  });
+
+  test('unassign loan officer is hidden on a loan with no officer', async ({ page }) => {
+    await loginWithLoan(page, {});
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+
+    await expect(page.getByTestId('loan-unassign-officer-action')).toHaveCount(0);
+  });
+
+  test('undo last disbursal appears only on a multi-disbursal loan, and sends an empty body', async ({
+    page,
+  }) => {
+    const probe = await loginWithLoan(page, { multiDisburseLoan: true });
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+    await page.getByTestId('loan-undo-last-disbursal-action').click();
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect.poll(() => probe.commands.length).toBe(1);
+    expect(probe.commands[0].command).toBe('undoLastDisbursal');
+    expect(probe.commands[0].body).toEqual({});
+  });
+
+  test('undo last disbursal is hidden on a single-disbursal loan', async ({ page }) => {
+    await loginWithLoan(page, {});
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+
+    // The platform can only ever answer 403 there. An action whose sole outcome is an error
+    // is worse than no action at all.
+    await expect(page.getByTestId('loan-undo-last-disbursal-action')).toHaveCount(0);
   });
 
   test('close as rescheduled is offered on an active loan', async ({ page }) => {
