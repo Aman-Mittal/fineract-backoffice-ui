@@ -29,14 +29,15 @@ import { Locator, Page, expect } from '@playwright/test';
  *     overlay. Inside an `ion-modal` it dismisses the dialog, so the select is detached from
  *     the DOM mid-click and Playwright reports "element was not stable" against a control that
  *     was perfectly fine until the test closed the window it was in.
- *  2. **Its "no overlay is open" guard counts overlays that were never opened.** A screen that
+ *  2. **Its "no overlay is open" guard counts overlays that are not the select's.** A screen that
  *     declares `<ion-popover trigger="...">` in its template — the group, client, loan, savings,
  *     deposit and working-capital-loan detail views all do, for their actions menus — keeps that
  *     element mounted for the life of the page, marked `.overlay-hidden`. The guard therefore
  *     never passes there and the call fails after five attempts against a popover nobody opened.
  *
- * So this addresses the select by `name` within the dialog rather than by its label text, never
- * touches the keyboard, and waits for the option overlay by visibility instead of by count.
+ * So this addresses the select by `name` within the dialog rather than by its label text, and
+ * narrows every overlay lookup to the select's *own* overlay, which Ionic tags with a class
+ * naming the interface it presented (`select-popover`, `select-alert`, `select-action-sheet`).
  *
  * @param dialog   The modal, e.g. `modalFor(page, 'app-group-action-dialog')`.
  * @param name     The `name` attribute of the `ion-select` — its `formControlName`/`ngModel` name.
@@ -51,10 +52,13 @@ export async function selectInDialog(
   const combobox = dialog.locator(`ion-select[name="${name}"]`);
   await expect(combobox).toBeVisible({ timeout: 20000 });
 
-  // Only overlays that are actually presented. Ionic marks a mounted-but-closed one
-  // `.overlay-hidden` (display: none), and the dialog's own host would otherwise match too.
+  // The select's own overlay, and nothing else. Matching a bare `ion-popover` also matches the
+  // screen's actions menu: the action that opened this dialog was itself an item in one, and
+  // `dismissOnSelect` starts that menu's dismissal at the same moment the dialog is presented,
+  // so it is still on the overlay stack when this helper runs. `:not(.overlay-hidden)` excludes
+  // a menu that is merely mounted; the class filter excludes one that is genuinely open.
   const overlay = page.locator(
-    'ion-alert:not(.overlay-hidden), ion-popover:not(.overlay-hidden), ion-action-sheet:not(.overlay-hidden)',
+    'ion-alert.select-alert:not(.overlay-hidden), ion-popover.select-popover:not(.overlay-hidden), ion-action-sheet.select-action-sheet:not(.overlay-hidden)',
   );
   // Ionic renders select options as radios inside the overlay, not as role="option".
   const choice = overlay.getByRole('radio', { name: option, exact: true });
@@ -69,9 +73,10 @@ export async function selectInDialog(
   // That is a wedge, not a flake: it fails identically on every retry.
   //
   // So the overlay is closed before each new attempt, and only then is the select clicked.
-  // Escape is safe *here* and only here: Ionic dismisses the topmost overlay, which is the
-  // popover while one is open. It is what must not be pressed when nothing is open, because
-  // then the dialog itself is topmost — see the note above.
+  // Escape is what closes it, and it is safe *only* because `overlay` is narrowed to the
+  // select's own overlay: an open select-popover is the topmost thing on the stack, so Escape
+  // takes it and leaves the dialog underneath alone. Pressed on any looser reading of "an
+  // overlay is open" it dismisses the dialog instead — see the note above.
   for (let attempt = 0; attempt < 5; attempt++) {
     if (await overlay.count()) {
       // Already open — possibly holding the option we want, so look before closing it.
