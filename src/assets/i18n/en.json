@@ -510,7 +510,8 @@
       "RECOVERY_PAYMENT": "Record Recovery Payment",
       "UNDO_WRITE_OFF": "Undo Write-off",
       "RE_AGE": "Re-age Loan",
-      "RE_AMORTIZE": "Re-amortise Loan"
+      "RE_AMORTIZE": "Re-amortise Loan",
+      "UNDO_APPROVAL": "Undo Approval"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -552,7 +553,10 @@
     "CHARGE_OFF_UNDONE": "Charge-off reversed.",
     "CONFIRM_UNDO_WRITE_OFF": "Undo the write-off? The loan returns to being an active receivable.",
     "CONFIRM_RE_AGE": "Re-age this loan? Overdue instalments are folded into a new schedule, giving the borrower a fresh start on the arrears.",
-    "CONFIRM_RE_AMORTIZE": "Re-amortise this loan? The outstanding balance is spread across the remaining instalments."
+    "CONFIRM_RE_AMORTIZE": "Re-amortise this loan? The outstanding balance is spread across the remaining instalments.",
+    "CONFIRM_UNDO_APPROVAL": "This returns the loan to pending approval. The approved amount and approval date are cleared, and the loan has to be approved again before it can be disbursed.",
+    "UNDO_APPROVAL_REASON": "Reason (optional)",
+    "APPROVAL_UNDONE": "Loan approval undone."
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",

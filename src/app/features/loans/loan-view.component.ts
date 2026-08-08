@@ -27,6 +27,11 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
 import { DialogService } from '../../core/services/dialog.service';
+import { HasPermissionDirective } from '../../shared';
+import {
+  LoanUndoApprovalDialogComponent,
+  LoanUndoApprovalResult,
+} from './loan-undo-approval-dialog.component';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
@@ -96,6 +101,7 @@ import {
     IonPopover,
     IonList,
     TooltipDirective,
+    HasPermissionDirective,
   ],
   template: `
     @if (loan()) {
@@ -208,6 +214,18 @@ import {
                       <ion-item button (click)="onDeleteLoan()">
                         <ion-icon slot="start" name="trash-outline"></ion-icon>
                         <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
+                      </ion-item>
+                    }
+
+                    @if (isLoanApproved) {
+                      <ion-item
+                        button
+                        data-testid="loan-undo-approval-action"
+                        (click)="onUndoApproval()"
+                        *appHasPermission="'APPROVALUNDO_LOAN'"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
                       </ion-item>
                     }
 
@@ -1659,6 +1677,30 @@ export class LoanViewComponent implements OnInit {
         next: () => this.router.navigate(['/loans']),
         error: (err) => console.error('Failed to delete loan', err),
       });
+    });
+  }
+
+  /**
+   * Returns an approved loan to `Submitted and pending approval`.
+   *
+   * Not routed through the shared account action form, for the same reason as
+   * {@link onUndoChargeOff}: that form sends `locale` and `dateFormat` on every request, and
+   * `undoapproval` rejects both — the platform answers 400 naming them as unsupported
+   * parameters. It accepts an empty body, or one carrying only `note`.
+   */
+  async onUndoApproval(): Promise<void> {
+    const result = await this.dialogService.open<LoanUndoApprovalResult>(
+      LoanUndoApprovalDialogComponent,
+    );
+    if (!result) return;
+
+    this.loansService.postLoansLoanId(this.loanId(), result, 'undoapproval').subscribe({
+      next: () => {
+        this.notifications.success(this.translate.instant('LOANS.APPROVAL_UNDONE'));
+        this.loadLoanData();
+      },
+      // No toast here: errorInterceptor already raises one with the platform's own message.
+      error: () => undefined,
     });
   }
 
