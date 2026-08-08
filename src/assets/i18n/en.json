@@ -512,7 +512,10 @@
       "RE_AGE": "Re-age Loan",
       "RE_AMORTIZE": "Re-amortise Loan",
       "UNDO_APPROVAL": "Undo Approval",
-      "CLOSE_AS_RESCHEDULED": "Close as Rescheduled"
+      "CLOSE_AS_RESCHEDULED": "Close as Rescheduled",
+      "DISBURSE_TO_SAVINGS": "Disburse to Savings",
+      "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
+      "UNDO_LAST_DISBURSAL": "Undo Last Disbursal"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -588,7 +591,12 @@
     "STANDING_INSTRUCTIONS": "Standing Instructions",
     "DIRECTION": "Direction",
     "TRANSFER_TYPE": "Transfer Type",
-    "VALID_FROM": "Valid From"
+    "VALID_FROM": "Valid From",
+    "DISBURSEMENT_DATE": "Disbursement Date",
+    "UNASSIGNED_DATE": "Unassigned Date",
+    "COMMAND_APPLIED": "Done.",
+    "CONFIRM_UNASSIGN_LOAN_OFFICER": "The loan stops counting towards this officer from the date you choose. Backdate it to the day they actually stopped, or every report for the period in between will still credit them.",
+    "CONFIRM_UNDO_LAST_DISBURSAL": "This reverses the most recent tranche released on this loan. The schedule is recalculated without it."
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",

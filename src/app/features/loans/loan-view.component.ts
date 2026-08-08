@@ -27,6 +27,11 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
 import { DialogService } from '../../core/services/dialog.service';
+import {
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+  formatDateToFineract,
+} from '../../core/utils/date-formatter';
 import { HasPermissionDirective } from '../../shared';
 import {
   LoanUndoApprovalDialogComponent,
@@ -37,6 +42,14 @@ import { LoanTermVariationsTabComponent } from './tabs/loan-term-variations-tab.
 import { LoanOverdueChargesTabComponent } from './tabs/loan-overdue-charges-tab.component';
 import { LoanOriginatorsTabComponent } from './tabs/loan-originators-tab.component';
 import { LoanStandingInstructionsTabComponent } from './tabs/loan-standing-instructions-tab.component';
+import {
+  LoanDisburseToSavingsDialogComponent,
+  LoanDisburseToSavingsResult,
+} from './loan-disburse-to-savings-dialog.component';
+import {
+  LoanUnassignOfficerDialogComponent,
+  LoanUnassignOfficerResult,
+} from './loan-unassign-officer-dialog.component';
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { LoanNotesTabComponent } from './loan-notes-tab.component';
 import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
@@ -231,6 +244,18 @@ import {
                     @if (isLoanApproved) {
                       <ion-item
                         button
+                        data-testid="loan-disburse-to-savings-action"
+                        (click)="onDisburseToSavings()"
+                        *appHasPermission="'DISBURSETOSAVINGS_LOAN'"
+                      >
+                        <ion-icon slot="start" name="wallet-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.DISBURSE_TO_SAVINGS' | translate }}
+                        </ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
                         data-testid="loan-undo-approval-action"
                         (click)="onUndoApproval()"
                         *appHasPermission="'APPROVALUNDO_LOAN'"
@@ -249,6 +274,34 @@ import {
                       <ion-icon slot="start" name="person-add-outline"></ion-icon>
                       <ion-label>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</ion-label>
                     </ion-item>
+
+                    @if (hasLoanOfficer()) {
+                      <ion-item
+                        button
+                        data-testid="loan-unassign-officer-action"
+                        (click)="onUnassignLoanOfficer()"
+                        *appHasPermission="'REMOVELOANOFFICER_LOAN'"
+                      >
+                        <ion-icon slot="start" name="person-remove-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.UNASSIGN_LOAN_OFFICER' | translate }}
+                        </ion-label>
+                      </ion-item>
+                    }
+
+                    @if (isLoanActive && isMultiDisburse()) {
+                      <ion-item
+                        button
+                        data-testid="loan-undo-last-disbursal-action"
+                        (click)="onUndoLastDisbursal()"
+                        *appHasPermission="'DISBURSALLASTUNDO_LOAN'"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.UNDO_LAST_DISBURSAL' | translate }}
+                        </ion-label>
+                      </ion-item>
+                    }
 
                     @if (isLoanActive) {
                       <ion-item button (click)="onUndoDisbursal()">
@@ -1499,6 +1552,19 @@ export class LoanViewComponent implements OnInit {
   readonly hasOverdueCharges = computed(() => this.overdueCharges().length > 0);
   readonly hasOriginators = computed(() => (this.loan()?.originators ?? []).length > 0);
 
+  readonly hasLoanOfficer = computed(() => !!this.loan()?.loanOfficerId);
+
+  /**
+   * `multiDisburseLoan` is absent from the generated response type even though every loan
+   * carries it, so it is read through a declared shape — same as `overdueCharges`.
+   *
+   * Gating on it keeps "Undo Last Disbursal" off a single-disbursal loan, where the platform
+   * can only ever answer 403 `loan.product.does.not.support.multiple.disbursals`.
+   */
+  readonly isMultiDisburse = computed(
+    () => (this.loan() as unknown as { multiDisburseLoan?: boolean })?.multiDisburseLoan === true,
+  );
+
   private readonly conditionalTabs: Record<string, Signal<boolean>> = {
     '7': this.showBuyDownFees,
     '8': this.showCapitalizedIncome,
@@ -1799,6 +1865,72 @@ export class LoanViewComponent implements OnInit {
         this.loadLoanData();
       },
       // No toast here: errorInterceptor already raises one with the platform's own message.
+      error: () => undefined,
+    });
+  }
+
+  /**
+   * Disburses into the savings account the loan was linked to at application time.
+   *
+   * There is no destination to choose — the platform refuses the command on a loan with no
+   * linked account ("requires linked savings account for payment"), so the dialog collects
+   * only the date and the amount.
+   */
+  async onDisburseToSavings(): Promise<void> {
+    const result = await this.dialogService.open<LoanDisburseToSavingsResult>(
+      LoanDisburseToSavingsDialogComponent,
+      { data: { amount: this.loan()?.principal } },
+    );
+    if (!result) return;
+
+    this.runLoanCommand('disbursetosavings', {
+      ...result,
+      actualDisbursementDate: formatDateToFineract(new Date(result.actualDisbursementDate)),
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    });
+  }
+
+  /** Takes the loan officer off the loan from a given date. */
+  async onUnassignLoanOfficer(): Promise<void> {
+    const result = await this.dialogService.open<LoanUnassignOfficerResult>(
+      LoanUnassignOfficerDialogComponent,
+    );
+    if (!result) return;
+
+    this.runLoanCommand('unassignloanofficer', {
+      unassignedDate: formatDateToFineract(new Date(result.unassignedDate)),
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    });
+  }
+
+  /**
+   * Reverses the most recent tranche of a multi-disbursal loan.
+   *
+   * Sends an empty body, matching its sibling `undoDisbursal` rather than the shared action
+   * form — see {@link onUndoApproval} for why that form is not usable for parameterless
+   * commands.
+   */
+  onUndoLastDisbursal(): void {
+    this.confirm(
+      'LOANS.ACTIONS.UNDO_LAST_DISBURSAL',
+      'LOANS.CONFIRM_UNDO_LAST_DISBURSAL',
+      true,
+    ).subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.runLoanCommand('undoLastDisbursal', {});
+    });
+  }
+
+  /** Posts a loan state-transition command and re-reads the loan, with one success toast. */
+  private runLoanCommand(command: string, body: Record<string, unknown>): void {
+    this.loansService.postLoansLoanId(this.loanId(), body, command).subscribe({
+      next: () => {
+        this.notifications.success(this.translate.instant('LOANS.COMMAND_APPLIED'));
+        this.loadLoanData();
+      },
+      // No toast: errorInterceptor already raises one with the platform's own message.
       error: () => undefined,
     });
   }
