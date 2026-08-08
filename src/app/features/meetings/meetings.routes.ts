@@ -21,6 +21,11 @@ import { Routes } from '@angular/router';
 
 export const MEETINGS_ROUTES: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: '/dashboard',
+  },
+  {
     path: ':entityType/:entityId',
     loadComponent: () => import('./meetings-list.component').then((m) => m.MeetingsListComponent),
   },
