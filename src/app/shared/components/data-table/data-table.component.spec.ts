@@ -43,6 +43,7 @@ const ROWS: TestData[] = [
 ];
 
 const CUSTOM_CELL = '.custom-cell';
+const SORT_BUTTON = 'button.sort-button';
 
 describe('DataTableComponent', () => {
   let fixture: ComponentFixture<DataTableComponent<TestData>>;
@@ -304,6 +305,29 @@ describe('DataTableComponent', () => {
   });
 
   describe('accessibility', () => {
+    it('renders native buttons only for sortable headers', () => {
+      const headers = fixture.nativeElement.querySelectorAll('th[cdk-header-cell]');
+      const sortButtons = fixture.nativeElement.querySelectorAll(SORT_BUTTON);
+
+      expect(sortButtons).toHaveSize(2);
+      expect(sortButtons[0].getAttribute('type')).toBe('button');
+      expect(headers[0].querySelector(SORT_BUTTON)).toBe(sortButtons[0]);
+      expect(headers[1].querySelector(SORT_BUTTON)).toBe(sortButtons[1]);
+      expect(headers[2].querySelector(SORT_BUTTON)).toBeNull();
+    });
+
+    it('sorts through the rendered keyboard-operable control', () => {
+      const nameSortButton: HTMLButtonElement =
+        fixture.nativeElement.querySelectorAll(SORT_BUTTON)[1];
+
+      nameSortButton.focus();
+      nameSortButton.click();
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(nameSortButton);
+      expect(component.sort()).toEqual({ active: 'name', direction: 'asc' });
+    });
+
     it('exposes the sorted column via aria-sort', () => {
       component.onSortHeaderClick(COLUMNS[1]);
       fixture.detectChanges();

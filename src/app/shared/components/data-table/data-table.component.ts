@@ -161,16 +161,22 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                     [appTooltip]="col.tooltip || ''"
                     [attr.aria-sort]="ariaSortFor(col)"
                     [class.sortable]="col.sortable"
-                    (click)="onSortHeaderClick(col)"
                   >
-                    {{ col.label | translate }}
-                    @if (col.sortable && sort().active === col.key && sort().direction) {
-                      <ion-icon
-                        class="sort-indicator"
-                        [name]="
-                          sort().direction === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'
-                        "
-                      ></ion-icon>
+                    @if (col.sortable) {
+                      <button type="button" class="sort-button" (click)="onSortHeaderClick(col)">
+                        {{ col.label | translate }}
+                        @if (sort().active === col.key && sort().direction) {
+                          <ion-icon
+                            aria-hidden="true"
+                            class="sort-indicator"
+                            [name]="
+                              sort().direction === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'
+                            "
+                          ></ion-icon>
+                        }
+                      </button>
+                    } @else {
+                      {{ col.label | translate }}
                     }
                   </th>
                   <td cdk-cell *cdkCellDef="let row">
@@ -271,11 +277,25 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         white-space: nowrap;
       }
       .data-table th.sortable {
-        cursor: pointer;
         user-select: none;
       }
       .data-table th.sortable:hover {
         color: var(--primary-color);
+      }
+      .sort-button {
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+        border: 0;
+        color: inherit;
+        font: inherit;
+        background: transparent;
+        cursor: pointer;
+      }
+      .sort-button:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 3px;
+        border-radius: 2px;
       }
       .data-table th[aria-sort] {
         color: var(--primary-color);
