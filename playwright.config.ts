@@ -19,6 +19,7 @@ const BACKEND_SPECS = [
   'loan-account-actions.spec.ts',
   'loan-charge-off.spec.ts',
   'loan-lifecycle.spec.ts',
+  'loan-product-accounting.spec.ts',
   'loan-schedule-type.spec.ts',
   'loan-servicing.spec.ts',
   'login.spec.ts',

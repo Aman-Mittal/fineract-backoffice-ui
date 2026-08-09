@@ -37,10 +37,25 @@ import {
   DEFAULT_TRANSACTION_PROCESSING_STRATEGY,
   LOAN_SCHEDULE_TYPE,
 } from './loan-schedule-type';
+import { ACCOUNTING_RULE, LOAN_ACCOUNTING_FIELDS } from './accounting/product-accounting.model';
 
 const EQUAL_AMORTIZATION_LABEL = 'Equal amortization';
 
+const LOAN_PORTFOLIO = 'Loan Portfolio';
+
 const TEMPLATE = {
+  accountingRuleOptions: [
+    { id: 1, code: 'accountingRuleType.none', value: 'NONE' },
+    { id: 2, code: 'accountingRuleType.cash', value: 'CASH BASED' },
+    { id: 3, code: 'accountingRuleType.accrual.periodic', value: 'ACCRUAL PERIODIC' },
+    { id: 4, code: 'accountingRuleType.accrual.upfront', value: 'ACCRUAL UPFRONT' },
+  ],
+  accountingMappingOptions: {
+    assetAccountOptions: [{ id: 11, name: LOAN_PORTFOLIO, glCode: '10201' }],
+    liabilityAccountOptions: [{ id: 12, name: 'Overpayment', glCode: '20101' }],
+    incomeAccountOptions: [{ id: 13, name: 'Interest Income', glCode: '40101' }],
+    expenseAccountOptions: [{ id: 14, name: 'Write-off', glCode: '50101' }],
+  },
   loanScheduleTypeOptions: [
     { id: 1, code: LOAN_SCHEDULE_TYPE.CUMULATIVE, value: 'Cumulative' },
     { id: 2, code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
@@ -523,6 +538,171 @@ describe('LoanProductFormComponent', () => {
       expect(product.buyDownFeeIncomeType).toBe('FEE');
       expect(component.incomeCapitalizationEnabled()).toBeTrue();
       expect(component.buyDownFeeEnabled()).toBeTrue();
+    });
+  });
+  describe('accounting', () => {
+    /** Fills every slot the rule requires, the way a user working down the section would. */
+    function fillMappings(rule: number): void {
+      component.product().accountingRule = rule;
+      const byType: Record<string, number> = {
+        asset: 11,
+        liability: 12,
+        income: 13,
+        expense: 14,
+      };
+      const mappings: Record<string, number> = {};
+      for (const field of LOAN_ACCOUNTING_FIELDS) {
+        if (field.rules.includes(rule as never)) mappings[field.key] = byType[field.accountType];
+      }
+      component.accountingMappings.set(mappings);
+    }
+
+    it('defaults to NONE, so behaviour is unchanged until a rule is chosen', () => {
+      expect(component.product().accountingRule).toBe(ACCOUNTING_RULE.NONE);
+      expect(component.accountingMappings()).toEqual({});
+    });
+
+    it('reads the account options and rule labels off the template', () => {
+      // Hardcoding either would break on every tenant but the one it was written against.
+      expect(component.accountingRuleOptions().map((option) => option.id)).toEqual([1, 2, 3, 4]);
+      expect(
+        Array.from(component.accountingMappingOptions().assetAccountOptions ?? []).map((a) => a.id),
+      ).toEqual([11]);
+    });
+
+    it('submits no mapping keys under NONE', () => {
+      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+
+      component.onSubmit();
+
+      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
+        string,
+        unknown
+      >;
+      expect(body['accountingRule']).toBe(ACCOUNTING_RULE.NONE);
+      expect(Object.keys(body).filter((key) => key.endsWith('AccountId'))).toEqual([]);
+    });
+
+    it('submits the nine slots cash accounting requires', () => {
+      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      fillMappings(ACCOUNTING_RULE.CASH);
+
+      component.onSubmit();
+
+      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
+        string,
+        unknown
+      >;
+      expect(body['fundSourceAccountId']).toBe(11);
+      expect(body['overpaymentLiabilityAccountId']).toBe(12);
+      expect(body['incomeFromRecoveryAccountId']).toBe(13);
+      expect(body['writeOffAccountId']).toBe(14);
+      expect(body['receivableInterestAccountId']).toBeUndefined();
+    });
+
+    it('adds the receivables under accrual', () => {
+      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      fillMappings(ACCOUNTING_RULE.ACCRUAL_PERIODIC);
+
+      component.onSubmit();
+
+      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
+        string,
+        unknown
+      >;
+      expect(body['receivableInterestAccountId']).toBe(11);
+      expect(body['receivableFeeAccountId']).toBe(11);
+      expect(body['receivablePenaltyAccountId']).toBe(11);
+    });
+
+    it('does not send the down-payment auto-repayment flag while down payment is off', () => {
+      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      component.product().enableDownPayment = false;
+      component.product().enableAutoRepaymentForDownPayment = false;
+
+      component.onSubmit();
+
+      // The platform refuses the pair outright on update, which made every loan product without
+      // down payment unsaveable from the edit screen.
+      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
+        string,
+        unknown
+      >;
+      expect('enableAutoRepaymentForDownPayment' in body).toBe(false);
+    });
+
+    it('keeps the flag once down payment is on', () => {
+      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      component.product().enableDownPayment = true;
+      component.product().enableAutoRepaymentForDownPayment = true;
+
+      component.onSubmit();
+
+      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
+        string,
+        unknown
+      >;
+      expect(body['enableAutoRepaymentForDownPayment']).toBe(true);
+    });
+
+    it('populates the mappings of a product opened for editing', async () => {
+      await setup('7');
+      productServiceSpy.getLoanproductsProductId.and.returnValue(
+        of({
+          name: 'Configured',
+          currency: { code: 'USD', decimalPlaces: 2 },
+          accountingRule: { id: 3, value: 'ACCRUAL PERIODIC' },
+          accountingMappings: {
+            fundSourceAccount: { id: 11, name: LOAN_PORTFOLIO },
+            overpaymentLiabilityAccount: { id: 12, name: 'Overpayment' },
+            receivableFeeAccount: { id: 11, name: LOAN_PORTFOLIO },
+          },
+        }) as never,
+      );
+      component.loadProductData();
+
+      expect(component.product().accountingRule).toBe(ACCOUNTING_RULE.ACCRUAL_PERIODIC);
+      expect(component.accountingMappings()).toEqual({
+        fundSourceAccountId: 11,
+        overpaymentLiabilityAccountId: 12,
+        receivableFeeAccountId: 11,
+      });
+    });
+
+    it("carries a configured product's mappings back out on save", async () => {
+      await setup('7');
+      productServiceSpy.getLoanproductsProductId.and.returnValue(
+        of({
+          name: 'Configured',
+          currency: { code: 'USD', decimalPlaces: 2 },
+          accountingRule: { id: 2, value: 'CASH BASED' },
+          accountingMappings: {
+            fundSourceAccount: { id: 11 },
+            loanPortfolioAccount: { id: 11 },
+            transfersInSuspenseAccount: { id: 11 },
+            interestOnLoanAccount: { id: 13 },
+            incomeFromFeeAccount: { id: 13 },
+            incomeFromPenaltyAccount: { id: 13 },
+            incomeFromRecoveryAccount: { id: 13 },
+            writeOffAccount: { id: 14 },
+            overpaymentLiabilityAccount: { id: 12 },
+          },
+        }) as never,
+      );
+      component.loadProductData();
+      productServiceSpy.putLoanproductsProductId.and.returnValue(of({}) as never);
+
+      // Opening a product, changing one unrelated field and saving must not blank the ledger.
+      component.product().name = 'Renamed';
+      component.onSubmit();
+
+      const body = productServiceSpy.putLoanproductsProductId.calls.mostRecent().args[1] as Record<
+        string,
+        unknown
+      >;
+      expect(body['name']).toBe('Renamed');
+      expect(Object.keys(body).filter((key) => key.endsWith('AccountId'))).toHaveSize(9);
+      expect(body['fundSourceAccountId']).toBe(11);
     });
   });
 });
