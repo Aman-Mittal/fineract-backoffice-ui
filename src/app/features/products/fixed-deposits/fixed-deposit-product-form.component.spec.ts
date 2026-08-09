@@ -41,9 +41,12 @@ describe('FixedDepositProductFormComponent', () => {
   beforeEach(async () => {
     productServiceSpy = jasmine.createSpyObj('FixedDepositProductService', [
       'getFixeddepositproductsProductId',
+      'getFixeddepositproductsTemplate',
       'postFixeddepositproducts',
       'putFixeddepositproductsProductId',
     ]);
+    // The accounting section reads its rule labels and account options from the template.
+    productServiceSpy.getFixeddepositproductsTemplate.and.returnValue(of({}) as never);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({

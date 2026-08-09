@@ -44,6 +44,15 @@ import {
   PostSavingsProductsRequest,
   PutSavingsProductsProductIdRequest,
 } from '../../api';
+import { ProductAccountingSectionComponent } from './accounting/product-accounting-section.component';
+import {
+  ACCOUNTING_RULE,
+  AccountingMappings,
+  GlAccountOptions,
+  SAVINGS_ACCOUNTING_FIELDS,
+  mappingsForRule,
+  mappingsFromResponse,
+} from './accounting/product-accounting.model';
 
 @Component({
   selector: 'app-savings-product-form',
@@ -51,6 +60,7 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
+    ProductAccountingSectionComponent,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -186,6 +196,16 @@ import {
               </ion-row>
             </ion-grid>
 
+            <app-product-accounting-section
+              [fields]="accountingFields"
+              [accountOptions]="accountingMappingOptions()"
+              [ruleOptions]="accountingRuleOptions()"
+              [accountingRule]="product().accountingRule ?? 1"
+              (accountingRuleChange)="product().accountingRule = $event"
+              [mappings]="accountingMappings()"
+              (mappingsChange)="accountingMappings.set($event)"
+            ></app-product-accounting-section>
+
             <div class="form-actions">
               <ion-button
                 id="savings-product-cancel-btn"
@@ -253,6 +273,11 @@ export class SavingsProductFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
+  readonly accountingFields = SAVINGS_ACCOUNTING_FIELDS;
+  readonly accountingMappingOptions = signal<GlAccountOptions>({});
+  readonly accountingRuleOptions = signal<{ id?: number; value?: string }[]>([]);
+  readonly accountingMappings = signal<AccountingMappings>({});
+
   readonly product = signal<PostSavingsProductsRequest>({
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
@@ -264,6 +289,16 @@ export class SavingsProductFormComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.productService.getSavingsproductsTemplate().subscribe((template) => {
+      const raw = template as unknown as Record<string, unknown>;
+      this.accountingMappingOptions.set(
+        (raw['accountingMappingOptions'] as GlAccountOptions) ?? {},
+      );
+      this.accountingRuleOptions.set(
+        Array.from((raw['accountingRuleOptions'] as { id?: number; value?: string }[]) ?? []),
+      );
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -284,31 +319,51 @@ export class SavingsProductFormComponent implements OnInit {
         currencyCode: data.currency?.code,
         digitsAfterDecimal: data.currency?.decimalPlaces,
         nominalAnnualInterestRate: data.nominalAnnualInterestRate,
-        interestCompoundingPeriodType: 1,
-        interestPostingPeriodType: 4,
-        interestCalculationType: 1,
-        interestCalculationDaysInYearType: 365,
-        accountingRule: 1,
+        // Read back rather than re-seeded with the create defaults: every one of these was
+        // pinned, so opening a product configured with, say, quarterly posting and saving it
+        // silently moved it back to monthly — and reset its accounting rule to NONE, taking
+        // every GL mapping under it.
+        interestCompoundingPeriodType: data.interestCompoundingPeriodType?.id ?? 1,
+        interestPostingPeriodType: data.interestPostingPeriodType?.id ?? 4,
+        interestCalculationType: data.interestCalculationType?.id ?? 1,
+        interestCalculationDaysInYearType: data.interestCalculationDaysInYearType?.id ?? 365,
+        accountingRule: data.accountingRule?.id ?? ACCOUNTING_RULE.NONE,
       });
+      this.accountingMappings.set(
+        mappingsFromResponse(
+          this.accountingFields,
+          (data as unknown as Record<string, unknown>)['accountingMappings'] as object,
+        ),
+      );
     });
+  }
+
+  /** The form's fields plus exactly the account slots the chosen rule has. */
+  private buildRequest(): PostSavingsProductsRequest {
+    return {
+      ...this.product(),
+      ...mappingsForRule(
+        this.accountingFields,
+        this.product().accountingRule ?? ACCOUNTING_RULE.NONE,
+        this.accountingMappings(),
+      ),
+    };
   }
 
   onSubmit() {
     this.isSaving.set(true);
     this.product().locale = 'en';
+    const request = this.buildRequest();
 
     if (this.isEditMode() && this.productId) {
       this.productService
-        .putSavingsproductsProductId(
-          this.productId,
-          this.product() as PutSavingsProductsProductIdRequest,
-        )
+        .putSavingsproductsProductId(this.productId, request as PutSavingsProductsProductIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => this.isSaving.set(false),
         });
     } else {
-      this.productService.postSavingsproducts(this.product()).subscribe({
+      this.productService.postSavingsproducts(request).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => this.isSaving.set(false),
       });
