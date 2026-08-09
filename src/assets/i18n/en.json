@@ -1137,6 +1137,7 @@
   },
   "ACCOUNTING_CLOSURES": {
     "CREATE": "Close Period",
+    "REOPEN": "Re-open Period",
     "CLOSING_DATE": "Closing Date",
     "IS_CLOSED": "Is Closed"
   },
@@ -1226,6 +1227,9 @@
   "ACCOUNTING": {
     "CREATE_GL_ACCOUNT": "Create GL Account",
     "EDIT_GL_ACCOUNT": "Edit GL Account",
+    "ADD_LEDGER_ACCOUNT": "Add Ledger Account",
+    "EDIT_ACCOUNT": "Edit Account",
+    "DEFINE_MAPPING": "Define Mapping",
     "GL_CODE": "GL Code",
     "ACCOUNT_TYPE": "Account Type",
     "ACCOUNT_USAGE": "Account Usage",

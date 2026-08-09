@@ -25,6 +25,7 @@ import { of } from 'rxjs';
 import { catchError, startWith, tap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
 import { GeneralLedgerAccountService, GetGLAccountsResponse } from '../../api';
+import { TranslatePipe } from '../../core/adapters';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 @Component({
@@ -34,6 +35,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
+    TranslatePipe,
     NgClass,
     IonIcon,
     IonButton,
@@ -42,9 +44,9 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     <app-data-table
       [hasError]="hasError()"
       (retry)="onRetry()"
-      title="Chart of Accounts"
+      title="nav.chartOfAccounts"
       helpTextKey="HELP.CHART_OF_ACCOUNTS_DESC"
-      createButtonLabel="Add Ledger Account"
+      createButtonLabel="ACCOUNTING.ADD_LEDGER_ACCOUNT"
       [columns]="columns"
       [data]="accounts()"
       [localLogic]="true"
@@ -60,7 +62,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
         <ion-button
           fill="clear"
           color="primary"
-          title="Edit Account"
+          [title]="'ACCOUNTING.EDIT_ACCOUNT' | appTranslate"
           (click)="onEditAccount(account)"
         >
           <ion-icon name="create-outline"></ion-icon>

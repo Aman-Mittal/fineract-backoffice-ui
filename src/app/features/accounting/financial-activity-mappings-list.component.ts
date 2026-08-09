@@ -36,11 +36,11 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   template: `
     <div class="container">
       <app-data-table
-        title="Financial Activity Mappings"
+        title="nav.financialActivityMappings"
         [data]="mappings()"
         [columns]="columns"
         [localLogic]="true"
-        createButtonLabel="Define Mapping"
+        createButtonLabel="ACCOUNTING.DEFINE_MAPPING"
         (create)="onCreate()"
       >
         <ng-template appCellTemplate="financialActivity" let-row>
