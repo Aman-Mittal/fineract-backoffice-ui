@@ -60,6 +60,7 @@ describe('ClientFormComponent', () => {
         legalFormId: 1,
         submittedOnDate: [2026, 6, 16] as unknown as number[],
         activationDate: [2026, 6, 17] as unknown as number[],
+        dateOfBirth: [1990, 1, 5] as unknown as number[],
         active: true,
       }) as unknown as Observable<never>,
     );
@@ -184,6 +185,9 @@ describe('ClientFormComponent', () => {
       expect(component.isEditMode()).toBeTrue();
       expect(component.clientId).toBe(10);
       expect(clientServiceSpy.getClientsClientId).toHaveBeenCalledWith(10);
+      expect(component.submittedOnDate()).toBe('2026-06-16');
+      expect(component.activationDate()).toBe('2026-06-17');
+      expect(component.dateOfBirth()).toBe('1990-01-05');
 
       clientServiceSpy.putClientsClientId.and.returnValue(of({}) as unknown as Observable<never>);
       component.onSubmit();

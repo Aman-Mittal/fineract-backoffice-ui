@@ -32,7 +32,7 @@ import {
   IonTextarea,
   ModalController,
 } from '@ionic/angular/standalone';
-import { toIsoDate } from '../../core/utils/date-formatter';
+import { formatArrayDate, toIsoDate } from '../../core/utils/date-formatter';
 import {
   CodesService,
   CodeValuesService,
@@ -162,9 +162,8 @@ export class ClientActionDialogComponent implements OnInit {
       next: (dates) => {
         const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
         if (bd && bd.date) {
-          const d = bd.date as unknown as number[];
           // ion-datetime works in ISO strings, including its max bound.
-          const bDate = toIsoDate(new Date(d[0], d[1] - 1, d[2]));
+          const bDate = formatArrayDate(bd.date);
           this.actionDate.set(bDate);
           this.maxDate.set(bDate);
         }
