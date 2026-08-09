@@ -100,6 +100,17 @@ describe('ClientActionDialogComponent', () => {
       component.actionDate.set(null as unknown as string);
       expect(component.isValid).toBeFalse();
     });
+
+    it('should use the business date for the action date and maximum', () => {
+      businessDateServiceSpy.getBusinessdate.and.returnValue(
+        of([{ type: 'BUSINESS_DATE', date: [2026, 1, 5] }]) as unknown as Observable<never>,
+      );
+
+      component.ngOnInit();
+
+      expect(component.actionDate()).toBe('2026-01-05');
+      expect(component.maxDate()).toBe('2026-01-05');
+    });
   });
 
   describe('with Reject command (requiring reasons)', () => {

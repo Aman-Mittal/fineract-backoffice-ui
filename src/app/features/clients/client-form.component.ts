@@ -52,6 +52,7 @@ import {
   GetOfficesResponse,
 } from '../../api';
 import {
+  formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -438,25 +439,19 @@ export class ClientFormComponent implements OnInit {
       const clientData = data as any;
       const actDateArray = clientData.activationDate as unknown as number[];
       if (actDateArray) {
-        this.activationDate.set(
-          toIsoDate(new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2])),
-        );
+        this.activationDate.set(formatArrayDate(actDateArray));
       }
 
       const subDateArray = clientData.submittedOnDate as unknown as number[];
       if (subDateArray) {
-        this.submittedOnDate.set(
-          toIsoDate(new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2])),
-        );
+        this.submittedOnDate.set(formatArrayDate(subDateArray));
       } else if (actDateArray) {
-        this.submittedOnDate.set(
-          toIsoDate(new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2])),
-        );
+        this.submittedOnDate.set(formatArrayDate(actDateArray));
       }
 
       const dobArray = clientData.dateOfBirth as unknown as number[];
       if (dobArray) {
-        this.dateOfBirth.set(toIsoDate(new Date(dobArray[0], dobArray[1] - 1, dobArray[2])));
+        this.dateOfBirth.set(formatArrayDate(dobArray));
       }
 
       this.originalActive.set(!!clientData.active);
