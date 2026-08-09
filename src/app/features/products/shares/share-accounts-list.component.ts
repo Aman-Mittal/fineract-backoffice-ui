@@ -67,6 +67,15 @@ import { PageEvent } from '../../../shared/models/table.model';
         <ion-button
           fill="clear"
           color="primary"
+          [attr.aria-label]="'COMMON.VIEW' | translate"
+          [attr.data-testid]="'share-account-view-' + account.id"
+          (click)="onViewAccount(account)"
+        >
+          <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="clear"
+          color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
           (click)="onEditAccount(account)"
         >
@@ -142,6 +151,10 @@ export class ShareAccountsListComponent implements OnInit {
    *
    * @param account - The share account entity.
    */
+  onViewAccount(account: GetAccountsPageItems): void {
+    this.router.navigate(['/products/shares/view', account.id]);
+  }
+
   onEditAccount(account: GetAccountsPageItems): void {
     this.router.navigate(['/products/shares/edit', account.id]);
   }

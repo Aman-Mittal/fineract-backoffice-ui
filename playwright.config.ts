@@ -24,6 +24,7 @@ const BACKEND_SPECS = [
   'loan-product-accounting.spec.ts',
   'loan-schedule-type.spec.ts',
   'loan-servicing.spec.ts',
+  'share-account-servicing.spec.ts',
   'login.spec.ts',
   'teller-cash-management.spec.ts',
 ];

@@ -365,6 +365,103 @@ export async function seedFixedDepositAccount(
   return { accountId, clientName: client.displayName, productName };
 }
 
+export interface SeededShareAccount {
+  accountId: number;
+  clientName: string;
+  productName: string;
+}
+
+/**
+ * Seeds a client, a savings account, a share product and a share account pending approval.
+ *
+ * The savings account is not optional scaffolding: `savingsAccountId` is mandatory on a share
+ * account, because that is where dividends are paid, and it has to be **active** before the share
+ * account will activate.
+ *
+ * Two of the share product's fields are easy to get wrong and answer with validation rather than
+ * anything descriptive: `nominalShares` is mandatory, and `minimumactiveperiodFrequencyType` must
+ * be 0 when there is no minimum active period.
+ */
+export async function seedShareAccount(
+  api: APIRequestContext,
+  namePrefix = 'E2EShare',
+): Promise<SeededShareAccount> {
+  const client = await seedClient(api, namePrefix);
+  const suffix = seedSuffix();
+  const today = fineractDate();
+
+  const { resourceId: savingsProductId } = await post<{ resourceId: number }>(
+    api,
+    '/savingsproducts',
+    {
+      name: `${namePrefix} Savings ${suffix}`,
+      shortName: `S${suffix.slice(-3).toUpperCase()}`,
+      description: 'Dividend destination for the share account',
+      currencyCode: 'USD',
+      digitsAfterDecimal: 2,
+      inMultiplesOf: 0,
+      nominalAnnualInterestRate: 5,
+      interestCompoundingPeriodType: 1,
+      interestPostingPeriodType: 4,
+      interestCalculationType: 1,
+      interestCalculationDaysInYearType: 365,
+      accountingRule: 1,
+      locale: LOCALE,
+    },
+  );
+
+  const { savingsId } = await post<{ savingsId: number }>(api, '/savingsaccounts', {
+    clientId: client.clientId,
+    productId: savingsProductId,
+    submittedOnDate: today,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+  for (const [command, field] of [
+    ['approve', 'approvedOnDate'],
+    ['activate', 'activatedOnDate'],
+  ] as const) {
+    await post(api, `/savingsaccounts/${savingsId}?command=${command}`, {
+      [field]: today,
+      dateFormat: DATE_FORMAT,
+      locale: LOCALE,
+    });
+  }
+
+  const productName = `${namePrefix} Shares ${suffix}`;
+  const { resourceId: productId } = await post<{ resourceId: number }>(api, '/products/share', {
+    name: productName,
+    shortName: `H${suffix.slice(-3).toUpperCase()}`,
+    description: 'Seeded for share account servicing coverage',
+    currencyCode: 'USD',
+    digitsAfterDecimal: 2,
+    totalShares: 10000,
+    sharesIssued: 10000,
+    nominalShares: 10000,
+    unitPrice: 10,
+    minimumActivePeriodForDividends: 0,
+    minimumactiveperiodFrequencyType: 0,
+    lockinPeriodFrequency: 0,
+    lockinPeriodFrequencyType: 0,
+    allowDividendCalculationForInactiveClients: true,
+    accountingRule: 1,
+    locale: LOCALE,
+  });
+
+  const { resourceId: accountId } = await post<{ resourceId: number }>(api, '/accounts/share', {
+    clientId: client.clientId,
+    productId,
+    savingsAccountId: savingsId,
+    submittedDate: today,
+    applicationDate: today,
+    requestedShares: 100,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+
+  return { accountId, clientName: client.displayName, productName };
+}
+
 export interface SeededLoanProduct {
   productId: number;
   productName: string;
