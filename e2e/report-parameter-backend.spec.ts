@@ -86,12 +86,12 @@ test.describe('Dynamic report parameters against Fineract', () => {
       await reportResponse;
       const rows = page.locator('table tbody tr');
       await expect(rows.first()).toBeVisible({ timeout: 20000 });
-      await expect(page.locator('table')).toContainText(expectedClientName);
       const pageSize = page.getByTestId('paginator-page-size');
       if ((await pageSize.evaluate((select: HTMLIonSelectElement) => select.value)) !== 100) {
         await pageSize.click();
         await page.locator('ion-popover').getByRole('radio', { name: '100' }).click();
       }
+      await expect(page.locator('table')).toContainText(expectedClientName);
       return rows.allTextContents();
     };
 
