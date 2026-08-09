@@ -33,9 +33,22 @@ import { selectOption } from './utils/select-option';
 import { createApiContext, seedClient, seedOffice } from './utils/seed-api';
 
 const REPORT_NAME = 'Client Listing';
+const CASCADING_REPORT_NAME = 'Active Loans - Summary';
 const HEAD_OFFICE = 'Head Office';
 
 test.describe('Dynamic report parameters against Fineract', () => {
+  test('keeps the parameter form available when a report has cascading lookups', async ({
+    page,
+  }) => {
+    await login(page);
+    await page.goto(`/reporting/run/${encodeURIComponent(CASCADING_REPORT_NAME)}?type=Table`);
+
+    await expect(page.locator('ion-card-title')).toContainText(CASCADING_REPORT_NAME);
+    await expect(page.getByTestId('report-parameters-error')).toHaveCount(0);
+    await expect(page.getByTestId('report-parameter-officeId')).toBeVisible();
+    await expect(page.getByTestId('report-parameter-loanOfficerId')).toBeVisible();
+  });
+
   test('changing Office changes the Client Listing row set', async ({ page }) => {
     const api = await createApiContext();
     const branch = await seedOffice(api, 'E2EReportParameters');

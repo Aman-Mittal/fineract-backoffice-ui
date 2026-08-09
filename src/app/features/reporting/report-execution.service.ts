@@ -19,7 +19,7 @@
 
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { ConfigService } from '../../core/services/config.service';
 
@@ -68,7 +68,11 @@ export class ReportExecutionService {
     const params = new HttpParams().set('R_reportListing', reportName).set('parameterType', 'true');
 
     return this.http.get<GenericResultset>(this.reportUrl('FullParameterList'), { params }).pipe(
-      map((response) => (response.data ?? []).map((entry) => this.toReportParameter(entry.row))),
+      map((response) =>
+        (response.data ?? [])
+          .map((entry) => this.toReportParameter(entry.row))
+          .filter((parameter): parameter is ReportParameter => parameter !== null),
+      ),
       switchMap((parameters) => this.loadSelectOptions(parameters)),
     );
   }
@@ -85,7 +89,10 @@ export class ReportExecutionService {
 
   private loadSelectOptions(parameters: ReportParameter[]): Observable<ReportParameter[]> {
     const requests = parameters.map((parameter) => {
-      if (parameter.displayType !== 'select') {
+      // Parent-dependent options cannot be fetched until the parent has a value. Populating them
+      // after a parent selection is tracked in #301; for now they remain empty without preventing
+      // the rest of the parameter form from loading.
+      if (parameter.displayType !== 'select' || parameter.parentParameterName) {
         return of(parameter);
       }
 
@@ -104,15 +111,17 @@ export class ReportExecutionService {
                 : options,
           };
         }),
+        // A tenant-specific lookup failure should affect only that field, not the entire form.
+        catchError(() => of(parameter)),
       );
     });
 
     return requests.length > 0 ? forkJoin(requests) : of([]);
   }
 
-  private toReportParameter(row: unknown): ReportParameter {
+  private toReportParameter(row: unknown): ReportParameter | null {
     if (!Array.isArray(row) || row.length < 9) {
-      throw new Error('The report parameter template returned an invalid row.');
+      return null;
     }
 
     const [
@@ -131,7 +140,7 @@ export class ReportExecutionService {
       typeof variable !== 'string' ||
       typeof displayType !== 'string'
     ) {
-      throw new Error('The report parameter template omitted a required field.');
+      return null;
     }
 
     return {

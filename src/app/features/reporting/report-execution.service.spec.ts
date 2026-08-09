@@ -27,6 +27,8 @@ import { ReportExecutionService } from './report-execution.service';
 describe('ReportExecutionService', () => {
   const REPORT_NAME = 'Client Listing';
   const OUTPUT_TYPE = 'output-type';
+  const FULL_PARAMETER_LIST_URL = '/api/v1/runreports/FullParameterList';
+  const HEAD_OFFICE = 'Head Office';
   let service: ReportExecutionService;
   let http: HttpTestingController;
 
@@ -52,15 +54,13 @@ describe('ReportExecutionService', () => {
       expect(parameters).toHaveSize(2);
       expect(parameters[0].queryParameter).toBe('R_officeId');
       expect(parameters[0].options).toEqual([
-        { id: 1, name: 'Head Office' },
+        { id: 1, name: HEAD_OFFICE },
         { id: '-1', name: '', isAll: true },
       ]);
       expect(parameters[1].displayType).toBe('date');
     });
 
-    const template = http.expectOne(
-      (request) => request.url === '/api/v1/runreports/FullParameterList',
-    );
+    const template = http.expectOne((request) => request.url === FULL_PARAMETER_LIST_URL);
     expect(template.request.params.get('R_reportListing')).toBe('Portfolio at Risk');
     expect(template.request.params.get('parameterType')).toBe('true');
     template.flush({
@@ -98,8 +98,104 @@ describe('ReportExecutionService', () => {
       (request) => request.url === '/api/v1/runreports/OfficeIdSelectAll',
     );
     expect(lookup.request.params.get('parameterType')).toBe('true');
-    lookup.flush({ data: [{ row: [1, 'Head Office'] }] });
+    lookup.flush({ data: [{ row: [1, HEAD_OFFICE] }] });
     expect(discovered).toBeTrue();
+  });
+
+  it('keeps cascading selects empty until their parent has a value', () => {
+    service.getReportParameters('Active Loans - Summary').subscribe((parameters) => {
+      expect(parameters).toHaveSize(2);
+      expect(parameters[0].options).toEqual([{ id: 1, name: HEAD_OFFICE }]);
+      expect(parameters[1].queryParameter).toBe('R_loanOfficerId');
+      expect(parameters[1].parentParameterName).toBe('OfficeIdSelectOne');
+      expect(parameters[1].options).toEqual([]);
+    });
+
+    http
+      .expectOne((request) => request.url === FULL_PARAMETER_LIST_URL)
+      .flush({
+        data: [
+          {
+            row: [
+              'OfficeIdSelectOne',
+              'officeId',
+              'Office',
+              'select',
+              'number',
+              '0',
+              null,
+              null,
+              null,
+            ],
+          },
+          {
+            row: [
+              'loanOfficerIdSelectAll',
+              'loanOfficerId',
+              'Loan Officer',
+              'select',
+              'number',
+              '0',
+              null,
+              null,
+              'OfficeIdSelectOne',
+            ],
+          },
+        ],
+      });
+
+    http.expectNone((request) => request.url === '/api/v1/runreports/loanOfficerIdSelectAll');
+    http
+      .expectOne((request) => request.url === '/api/v1/runreports/OfficeIdSelectOne')
+      .flush({ data: [{ row: [1, HEAD_OFFICE] }] });
+  });
+
+  it('isolates a failed lookup instead of dropping the parameter form', () => {
+    service.getReportParameters('Tenant Report').subscribe((parameters) => {
+      expect(parameters).toHaveSize(2);
+      expect(parameters[0].options).toEqual([]);
+      expect(parameters[1].options).toEqual([{ id: 'USD', name: 'US Dollar' }]);
+    });
+
+    http
+      .expectOne((request) => request.url === FULL_PARAMETER_LIST_URL)
+      .flush({
+        data: [
+          {
+            row: [
+              'OfficeIdSelectOne',
+              'officeId',
+              'Office',
+              'select',
+              'number',
+              '0',
+              null,
+              null,
+              null,
+            ],
+          },
+          {
+            row: [
+              'currencyIdSelectAll',
+              'currencyId',
+              'Currency',
+              'select',
+              'string',
+              '',
+              null,
+              null,
+              null,
+            ],
+          },
+        ],
+      });
+
+    http
+      .expectOne((request) => request.url === '/api/v1/runreports/OfficeIdSelectOne')
+      .flush('Lookup failed', { status: 403, statusText: 'Forbidden' });
+    http
+      .expectOne((request) => request.url === '/api/v1/runreports/currencyIdSelectAll')
+      .flush({ data: [{ row: ['USD', 'US Dollar'] }] });
   });
 
   it('sends every named report parameter without relying on positional arguments', () => {
@@ -145,17 +241,34 @@ describe('ReportExecutionService', () => {
     request.flush('Client ID,Display Name');
   });
 
-  it('fails closed when the parameter template is malformed', () => {
-    let message = '';
-    service.getReportParameters('Broken Report').subscribe({
-      error: (error: Error) => {
-        message = error.message;
+  it('skips malformed template rows without dropping valid parameters', () => {
+    service.getReportParameters('Tenant Report').subscribe({
+      next: (parameters) => {
+        expect(parameters).toHaveSize(1);
+        expect(parameters[0].queryParameter).toBe('R_startDate');
       },
+      error: fail,
     });
 
     http
-      .expectOne((request) => request.url === '/api/v1/runreports/FullParameterList')
-      .flush({ data: [{ row: ['missing-fields'] }] });
-    expect(message).toContain('invalid row');
+      .expectOne((request) => request.url === FULL_PARAMETER_LIST_URL)
+      .flush({
+        data: [
+          { row: ['missing-fields'] },
+          {
+            row: [
+              'startDateSelect',
+              'startDate',
+              'From Date',
+              'date',
+              'date',
+              'today',
+              null,
+              null,
+              null,
+            ],
+          },
+        ],
+      });
   });
 });
