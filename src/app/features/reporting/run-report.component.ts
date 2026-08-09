@@ -17,19 +17,11 @@
  * under the License.
  */
 
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { RunReportsService, OfficesService, GetOfficesResponse } from '../../api';
-import { HelpIconComponent } from '../../shared';
-import { NotificationService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
-import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
-import { PageEvent } from '../../shared/models/table.model';
-import { toIsoDate } from '../../core/utils/date-formatter';
-import { DOWNLOAD } from '../../core/adapters';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -39,12 +31,29 @@ import {
   IonDatetime,
   IonDatetimeButton,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonModal,
+  IonNote,
   IonSelect,
   IonSelectOption,
+  IonSpinner,
 } from '@ionic/angular/standalone';
+
+import { DOWNLOAD } from '../../core/adapters';
+import { NotificationService } from '../../core/services/notification.service';
+import { toIsoDate } from '../../core/utils/date-formatter';
+import { HelpIconComponent } from '../../shared';
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
+import { PageEvent } from '../../shared/models/table.model';
+import {
+  ReportExecutionService,
+  ReportParameter,
+  ReportParameterValues,
+} from './report-execution.service';
+
+const SUPPORTED_DISPLAY_TYPES = new Set(['select', 'date', 'text', 'none']);
 
 @Component({
   selector: 'app-run-report',
@@ -67,7 +76,10 @@ import {
     IonSelect,
     IonDatetime,
     IonDatetimeButton,
+    IonInput,
     IonModal,
+    IonNote,
+    IonSpinner,
   ],
   template: `
     <div class="form-container">
@@ -80,62 +92,125 @@ import {
         </ion-card-header>
 
         <ion-card-content>
+          @if (isParametersLoading()) {
+            <div class="parameter-status" data-testid="report-parameters-loading">
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>{{ 'REPORTS.PARAMETERS_LOADING' | translate }}</span>
+            </div>
+          } @else if (parameterLoadFailed()) {
+            <ion-note color="danger" data-testid="report-parameters-error">
+              {{ 'REPORTS.PARAMETERS_LOAD_FAILED' | translate }}
+            </ion-note>
+          } @else if (unsupportedParameters().length > 0) {
+            <ion-note color="danger" data-testid="report-parameters-unsupported">
+              {{ 'REPORTS.PARAMETERS_UNSUPPORTED' | translate }}:
+              {{ unsupportedParameterNames() }}
+            </ion-note>
+          }
+
           <div class="report-parameters form-grid">
-            <ion-item fill="outline">
-              <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
-              <ion-select
-                [attr.aria-label]="'COMMON.OFFICE' | translate"
-                interface="popover"
-                [(ngModel)]="officeId"
-              >
-                @for (office of offices(); track office.id) {
-                  <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
+            @for (parameter of parameters(); track parameter.queryParameter; let index = $index) {
+              @switch (parameter.displayType) {
+                @case ('select') {
+                  <ion-item
+                    fill="outline"
+                    [attr.data-testid]="parameterTestId(parameter)"
+                    [id]="parameterControlId(parameter, index)"
+                  >
+                    <ion-label position="stacked">{{ parameter.label }}</ion-label>
+                    <ion-select
+                      [id]="parameterControlId(parameter, index) + '-select'"
+                      [attr.data-testid]="parameterTestId(parameter) + '-select'"
+                      [attr.aria-label]="parameter.label"
+                      interface="popover"
+                      [value]="parameterValue(parameter)"
+                      (ionChange)="onParameterChange(parameter, $event)"
+                    >
+                      @for (option of parameter.options; track option.id) {
+                        <ion-select-option [value]="option.id">
+                          {{ option.isAll ? ('COMMON.ALL' | translate) : option.name }}
+                        </ion-select-option>
+                      }
+                    </ion-select>
+                  </ion-item>
                 }
-              </ion-select>
-            </ion-item>
-
-            <ion-item fill="outline">
-              <ion-label position="stacked">{{ 'COMMON.FROM_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
-              <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                  <ion-datetime
-                    id="fromDate-picker"
-                    data-testid="fromDate-picker"
-                    presentation="date"
-                    name="fromDate"
-                    [(ngModel)]="fromDate"
-                  ></ion-datetime>
-                </ng-template>
-              </ion-modal>
-            </ion-item>
-
-            <ion-item fill="outline">
-              <ion-label position="stacked">{{ 'COMMON.TO_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
-              <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                  <ion-datetime
-                    id="toDate-picker"
-                    data-testid="toDate-picker"
-                    presentation="date"
-                    name="toDate"
-                    [(ngModel)]="toDate"
-                  ></ion-datetime>
-                </ng-template>
-              </ion-modal>
-            </ion-item>
+                @case ('date') {
+                  <ion-item
+                    fill="outline"
+                    [attr.data-testid]="parameterTestId(parameter)"
+                    [id]="parameterControlId(parameter, index)"
+                  >
+                    <ion-label position="stacked">{{ parameter.label }}</ion-label>
+                    <ion-datetime-button
+                      [id]="parameterControlId(parameter, index) + '-button'"
+                      [attr.data-testid]="parameterTestId(parameter) + '-button'"
+                      [datetime]="parameterDatePickerId(parameter, index)"
+                    ></ion-datetime-button>
+                    <ion-modal [keepContentsMounted]="true">
+                      <ng-template>
+                        <ion-datetime
+                          presentation="date"
+                          [id]="parameterDatePickerId(parameter, index)"
+                          [attr.data-testid]="parameterDatePickerId(parameter, index)"
+                          [value]="parameterStringValue(parameter)"
+                          (ionChange)="onParameterChange(parameter, $event)"
+                        ></ion-datetime>
+                      </ng-template>
+                    </ion-modal>
+                  </ion-item>
+                }
+                @case ('text') {
+                  <ion-item
+                    fill="outline"
+                    [attr.data-testid]="parameterTestId(parameter)"
+                    [id]="parameterControlId(parameter, index)"
+                  >
+                    <ion-label position="stacked">{{ parameter.label }}</ion-label>
+                    <ion-input
+                      [id]="parameterControlId(parameter, index) + '-input'"
+                      [attr.data-testid]="parameterTestId(parameter) + '-input'"
+                      type="text"
+                      [attr.aria-label]="parameter.label"
+                      [value]="parameterStringValue(parameter)"
+                      (ionInput)="onParameterChange(parameter, $event)"
+                    ></ion-input>
+                  </ion-item>
+                }
+              }
+            }
           </div>
 
+          @if (parametersLoaded() && !parameterLoadFailed() && !canRun()) {
+            <ion-note data-testid="report-parameters-incomplete">
+              {{ 'REPORTS.PARAMETERS_INCOMPLETE' | translate }}
+            </ion-note>
+          }
+
           <div class="form-actions">
-            <ion-button fill="clear" (click)="onCancel()">{{
-              'COMMON.CANCEL' | translate
-            }}</ion-button>
-            <ion-button color="secondary" (click)="onDownloadCSV()" [disabled]="isLoading()">
+            <ion-button
+              id="cancel-report"
+              data-testid="cancel-report"
+              fill="clear"
+              (click)="onCancel()"
+              >{{ 'COMMON.CANCEL' | translate }}</ion-button
+            >
+            <ion-button
+              id="download-report-csv"
+              data-testid="download-report-csv"
+              color="secondary"
+              (click)="onDownloadCSV()"
+              [disabled]="!canRun() || isLoading()"
+            >
               <ion-icon name="download-outline"></ion-icon>
               {{ 'REPORTS.DOWNLOAD_CSV' | translate }}
             </ion-button>
-            <ion-button color="primary" (click)="onRun()" [disabled]="isLoading()">
+            <ion-button
+              id="run-report"
+              data-testid="run-report"
+              color="primary"
+              (click)="onRun()"
+              [disabled]="!canRun() || isLoading()"
+            >
               {{ isLoading() ? ('COMMON.LOADING' | translate) : ('REPORTS.RUN' | translate) }}
             </ion-button>
           </div>
@@ -145,7 +220,12 @@ import {
               <hr class="divider" />
               <div class="results-header">
                 <h3 class="mt-2">{{ 'REPORTS.RESULTS' | translate }}</h3>
-                <ion-button color="primary" (click)="downloadCSV()">
+                <ion-button
+                  id="download-report-results-csv"
+                  data-testid="download-report-results-csv"
+                  color="primary"
+                  (click)="downloadCSV()"
+                >
                   <ion-icon name="download-outline"></ion-icon>
                   {{ 'REPORTS.DOWNLOAD_RESULTS_CSV' | translate }}
                 </ion-button>
@@ -184,8 +264,18 @@ import {
       }
       .form-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 16px;
+      }
+      .parameter-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      ion-note {
+        display: block;
+        margin: 8px 0 16px;
       }
       .results-header {
         display: flex;
@@ -204,26 +294,49 @@ import {
       .mt-2 {
         margin-top: 1rem;
       }
+      @media (max-width: 900px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     `,
   ],
 })
 export class RunReportComponent implements OnInit {
-  private readonly runReportsService = inject(RunReportsService);
+  private readonly reportExecution = inject(ReportExecutionService);
   private readonly download = inject(DOWNLOAD);
-  private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   readonly reportName = signal('');
   reportType = '';
   readonly isLoading = signal(false);
+  readonly isParametersLoading = signal(false);
+  readonly parametersLoaded = signal(false);
+  readonly parameterLoadFailed = signal(false);
+  readonly parameters = signal<ReportParameter[]>([]);
+  readonly parameterValues = signal<Record<string, string | number>>({});
 
-  officeId: number | undefined = undefined;
-  fromDate: string | null = null;
-  toDate: string | null = null;
+  readonly unsupportedParameters = computed(() =>
+    this.parameters().filter((parameter) => !SUPPORTED_DISPLAY_TYPES.has(parameter.displayType)),
+  );
+  readonly unsupportedParameterNames = computed(() =>
+    this.unsupportedParameters()
+      .map((parameter) => `${parameter.label} (${parameter.displayType})`)
+      .join(', '),
+  );
+  readonly canRun = computed(
+    () =>
+      this.parametersLoaded() &&
+      !this.parameterLoadFailed() &&
+      this.unsupportedParameters().length === 0 &&
+      this.parameters().every((parameter) =>
+        this.hasValue(this.parameterValues()[parameter.queryParameter]),
+      ),
+  );
 
-  readonly offices = signal<GetOfficesResponse[]>([]);
   readonly reportData = signal<Record<string, unknown> | null>(null);
   readonly displayedColumns = signal<string[]>([]);
   readonly dataRows = signal<Record<string, unknown>[]>([]);
@@ -237,97 +350,90 @@ export class RunReportComponent implements OnInit {
     return this.rows().slice(start, start + this.pageSize());
   });
 
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      const reportName = params.get('reportName') || '';
+      this.reportName.set(reportName);
+      this.loadParameters(reportName);
+    });
+    this.route.queryParamMap.subscribe((params) => {
+      this.reportType = params.get('type') || '';
+    });
+  }
+
   onPage(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
   }
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.reportName.set(params.get('reportName') || '');
-    });
-    this.route.queryParamMap.subscribe((params) => {
-      this.reportType = params.get('type') || '';
-    });
-    this.loadMetadata();
+  onParameterChange(parameter: ReportParameter, event: Event): void {
+    const detailValue = (event as CustomEvent<{ value?: string | number | null }>).detail?.value;
+    const targetValue = (event.target as HTMLInputElement | null)?.value;
+    const value = detailValue ?? targetValue;
+    if (value !== undefined && value !== null) {
+      this.setParameterValue(parameter, value);
+    }
   }
 
-  private loadMetadata(): void {
-    this.officesService.getOffices(true).subscribe((data) => {
-      this.offices.set(data);
-    });
+  setParameterValue(parameter: ReportParameter, value: string | number): void {
+    this.parameterValues.update((current) => ({
+      ...current,
+      [parameter.queryParameter]: value,
+    }));
+  }
+
+  parameterValue(parameter: ReportParameter): string | number | undefined {
+    return this.parameterValues()[parameter.queryParameter];
+  }
+
+  parameterStringValue(parameter: ReportParameter): string | undefined {
+    const value = this.parameterValue(parameter);
+    return value === undefined ? undefined : String(value);
+  }
+
+  parameterControlId(parameter: ReportParameter, index: number): string {
+    return `report-parameter-${this.safeIdentifier(parameter.variable)}-${index}`;
+  }
+
+  parameterDatePickerId(parameter: ReportParameter, index: number): string {
+    return `${this.parameterControlId(parameter, index)}-picker`;
+  }
+
+  parameterTestId(parameter: ReportParameter): string {
+    return `report-parameter-${this.safeIdentifier(parameter.variable)}`;
   }
 
   onDownloadCSV(): void {
+    if (!this.canRun()) return;
     this.isLoading.set(true);
-    const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
-    const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
-    this.runReportsService
-      .getRunreportsReportName(
-        this.reportName(),
-        true, // exportCSV
-        undefined, // parameterType
-        'CSV', // outputType
-        this.officeId?.toString(),
-        undefined, // rLoanOfficerId
-        formattedFrom,
-        formattedTo,
-        undefined,
-        undefined,
-        'body',
-        false,
-        { httpHeaderAccept: 'text/csv' },
-      )
-      .subscribe({
-        next: (data) => {
-          this.download.saveText(
-            data as unknown as string,
-            this.csvFilename(),
-            'text/csv;charset=utf-8;',
-          );
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.notifications.error('Operation failed. Please try again.');
-          this.isLoading.set(false);
-        },
-      });
+    this.reportExecution.downloadCsv(this.reportName(), this.collectedValues()).subscribe({
+      next: (data) => {
+        this.download.saveText(data, this.csvFilename(), 'text/csv;charset=utf-8;');
+        this.isLoading.set(false);
+      },
+      error: () => this.handleRunError(),
+    });
   }
 
   onRun(): void {
+    if (!this.canRun()) return;
     this.isLoading.set(true);
-    const formattedFrom = this.fromDate ? toIsoDate(this.fromDate) : undefined;
-    const formattedTo = this.toDate ? toIsoDate(this.toDate) : undefined;
 
-    this.runReportsService
-      .getRunreportsReportName(
-        this.reportName(),
-        false, // exportCSV
-        undefined, // parameterType
-        'HTML', // outputType
-        this.officeId?.toString(),
-        undefined, // rLoanOfficerId
-        formattedFrom,
-        formattedTo,
-      )
-      .subscribe({
-        next: (data) => {
-          const result = data as unknown as Record<string, unknown>;
-          this.reportData.set(result);
-          const columnHeaders = (result['columnHeaders'] as Record<string, unknown>[]) || [];
-          this.displayedColumns.set(columnHeaders.map((h) => h['columnName'] as string));
-          const dataRows = (result['data'] as Record<string, unknown>[]) || [];
-          this.dataRows.set(dataRows);
-          this.rows.set(dataRows);
-          this.pageIndex.set(0);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.notifications.error('Operation failed. Please try again.');
-          this.isLoading.set(false);
-        },
-      });
+    this.reportExecution.runReport(this.reportName(), this.collectedValues()).subscribe({
+      next: (data) => {
+        const result = data as Record<string, unknown>;
+        this.reportData.set(result);
+        const columnHeaders = (result['columnHeaders'] as Record<string, unknown>[]) || [];
+        this.displayedColumns.set(columnHeaders.map((header) => header['columnName'] as string));
+        const dataRows = (result['data'] as Record<string, unknown>[]) || [];
+        this.dataRows.set(dataRows);
+        this.rows.set(dataRows);
+        this.pageIndex.set(0);
+        this.isLoading.set(false);
+      },
+      error: () => this.handleRunError(),
+    });
   }
 
   downloadCSV(): void {
@@ -356,11 +462,6 @@ export class RunReportComponent implements OnInit {
     );
   }
 
-  /** Filename shared by both CSV paths, so they cannot drift apart. */
-  private csvFilename(): string {
-    return `${this.reportName().replace(/\s+/g, '_')}_Report.csv`;
-  }
-
   onCancel(): void {
     this.router.navigate(['/reporting']);
   }
@@ -378,5 +479,64 @@ export class RunReportComponent implements OnInit {
       return String(val);
     }
     return '';
+  }
+
+  private loadParameters(reportName: string): void {
+    this.isParametersLoading.set(true);
+    this.parametersLoaded.set(false);
+    this.parameterLoadFailed.set(false);
+    this.parameters.set([]);
+    this.parameterValues.set({});
+
+    this.reportExecution.getReportParameters(reportName).subscribe({
+      next: (parameters) => {
+        this.parameters.set(parameters);
+        this.parameterValues.set(
+          Object.fromEntries(
+            parameters
+              .filter((parameter) => parameter.displayType === 'none')
+              .map((parameter) => [parameter.queryParameter, String(parameter.defaultValue ?? '')]),
+          ),
+        );
+        this.parametersLoaded.set(true);
+        this.isParametersLoading.set(false);
+      },
+      error: () => {
+        this.parameterLoadFailed.set(true);
+        this.isParametersLoading.set(false);
+        this.notifications.error(this.translate.instant('REPORTS.PARAMETERS_LOAD_FAILED'));
+      },
+    });
+  }
+
+  private collectedValues(): ReportParameterValues {
+    const current = this.parameterValues();
+    return Object.fromEntries(
+      this.parameters().map((parameter) => {
+        const value = current[parameter.queryParameter];
+        return [
+          parameter.queryParameter,
+          parameter.displayType === 'date' ? toIsoDate(String(value)) : value,
+        ];
+      }),
+    );
+  }
+
+  private hasValue(value: string | number | undefined): boolean {
+    return value !== undefined && String(value).trim().length > 0;
+  }
+
+  private handleRunError(): void {
+    this.notifications.error(this.translate.instant('COMMON.ERROR'));
+    this.isLoading.set(false);
+  }
+
+  private safeIdentifier(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_-]/g, '-');
+  }
+
+  /** Filename shared by both CSV paths, so they cannot drift apart. */
+  private csvFilename(): string {
+    return `${this.reportName().replace(/\s+/g, '_')}_Report.csv`;
   }
 }

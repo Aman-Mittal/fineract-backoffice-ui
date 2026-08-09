@@ -71,6 +71,14 @@ test.describe('Reporting', () => {
       });
     });
 
+    await page.route('**/api/v1/runreports/FullParameterList**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: [] }),
+      });
+    });
+
     await page.goto('/login');
     await page.locator('#tenantId').fill('default');
     await page.locator('#username').fill('mifos');
