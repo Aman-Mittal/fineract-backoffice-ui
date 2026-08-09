@@ -58,6 +58,15 @@ import {
 } from '../../api';
 import { LOAN_SCHEDULE_TYPE, isAdvancedPaymentAllocationStrategy } from './loan-schedule-type';
 import { PaymentCreditAllocationEditorComponent } from './payment-credit-allocation-editor.component';
+import { ProductAccountingSectionComponent } from './accounting/product-accounting-section.component';
+import {
+  ACCOUNTING_RULE,
+  AccountingMappings,
+  GlAccountOptions,
+  LOAN_ACCOUNTING_FIELDS,
+  mappingsForRule,
+  mappingsFromResponse,
+} from './accounting/product-accounting.model';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 /**
@@ -75,6 +84,7 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
   imports: [
     FormsModule,
     TranslateModule,
+    ProductAccountingSectionComponent,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -1111,8 +1121,13 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       name="chargeOffBehaviour"
                       [(ngModel)]="product().chargeOffBehaviour"
                     >
-                      @for (option of chargeOffBehaviourOptions(); track option.code) {
-                        <ion-select-option [value]="option.code">{{
+                      <!--
+                        The id, not the code. The template offers both — id "REGULAR", code
+                        "chargeOffBehaviour.regular" — and the platform accepts only the former.
+                        Sending the code answers validation.msg.enum.value.not.found.
+                      -->
+                      @for (option of chargeOffBehaviourOptions(); track option.id) {
+                        <ion-select-option [value]="option.id">{{
                           option.value
                         }}</ion-select-option>
                       }
@@ -1197,6 +1212,16 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                 (creditAllocationChange)="product().creditAllocation = $event"
               ></app-payment-credit-allocation-editor>
             }
+
+            <app-product-accounting-section
+              [fields]="accountingFields"
+              [accountOptions]="accountingMappingOptions()"
+              [ruleOptions]="accountingRuleOptions()"
+              [accountingRule]="product().accountingRule ?? 1"
+              (accountingRuleChange)="product().accountingRule = $event"
+              [mappings]="accountingMappings()"
+              (mappingsChange)="accountingMappings.set($event)"
+            ></app-product-accounting-section>
 
             <div class="form-actions">
               <ion-button
@@ -1336,6 +1361,19 @@ export class LoanProductFormComponent implements OnInit {
   readonly repaymentStartDateTypeOptions = signal<GetLoanProductsRepaymentStartDateType[]>([]);
   readonly chargeOffBehaviourOptions = signal<StringEnumOptionData[]>([]);
 
+  /**
+   * Accounting.
+   *
+   * The selected accounts are held here rather than on `product()`, and merged into the body at
+   * submit. Keeping them out of the request object is what makes a rule change safe: the slots a
+   * rule does not have must not be sent, and a model that carried them would send whatever the
+   * user picked under a rule they have since moved away from. See `mappingsForRule`.
+   */
+  readonly accountingFields = LOAN_ACCOUNTING_FIELDS;
+  readonly accountingMappingOptions = signal<GlAccountOptions>({});
+  readonly accountingRuleOptions = signal<{ id?: number; value?: string }[]>([]);
+  readonly accountingMappings = signal<AccountingMappings>({});
+
   readonly product = signal<PostLoanProductsRequest>({
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
@@ -1397,6 +1435,8 @@ export class LoanProductFormComponent implements OnInit {
         Array.from(template.repaymentStartDateTypeOptions ?? []),
       );
       this.chargeOffBehaviourOptions.set(template.chargeOffBehaviourOptions ?? []);
+      this.accountingMappingOptions.set(template.accountingMappingOptions ?? {});
+      this.accountingRuleOptions.set(Array.from(template.accountingRuleOptions ?? []));
 
       this.applyTransactionProcessingStrategyFilter();
     });
@@ -1716,11 +1756,16 @@ export class LoanProductFormComponent implements OnInit {
           data.interestRecalculationData?.recalculationCompoundingFrequencyInterval,
         preClosureInterestCalculationStrategy:
           data.interestRecalculationData?.preClosureInterestCalculationStrategy?.id,
-        chargeOffBehaviour: data.chargeOffBehaviour?.code,
+        chargeOffBehaviour: data.chargeOffBehaviour?.id,
         enableAccrualActivityPosting: data.enableAccrualActivityPosting,
         fixedLength: data.fixedLength,
         repaymentStartDateType: data.repaymentStartDateType?.id,
       });
+      // Without this, opening a configured product shows empty account pickers, and the first
+      // save under a *changed* rule would submit the product with nothing mapped.
+      this.accountingMappings.set(
+        mappingsFromResponse(this.accountingFields, data.accountingMappings),
+      );
       this.isProgressive.set(this.product().loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
       this.downPaymentEnabled.set(this.product().enableDownPayment === true);
       this.multiDisburseEnabled.set(this.product().multiDisburseLoan === true);
@@ -1734,19 +1779,49 @@ export class LoanProductFormComponent implements OnInit {
     });
   }
 
+  /**
+   * The request body: the form's own fields plus exactly the account slots the chosen rule has.
+   *
+   * Under `NONE` that adds nothing at all — the platform rejects a mapping key it has no slot
+   * for, including one whose value is null.
+   */
+  private buildRequest(): PostLoanProductsRequest {
+    const request: PostLoanProductsRequest = {
+      ...this.product(),
+      ...mappingsForRule(
+        this.accountingFields,
+        this.product().accountingRule ?? ACCOUNTING_RULE.NONE,
+        this.accountingMappings(),
+      ),
+    };
+
+    // `enableAutoRepaymentForDownPayment` is only a valid parameter while down payment is on.
+    // Sending `false` alongside `enableDownPayment: false` is refused —
+    // `validation.msg.loanproduct.enableAutoRepaymentForDownPayment.supported.only.for.enable.down.payment.true`
+    // — and a product loaded for editing carries exactly that pair, because Fineract returns the
+    // flag as `false` rather than omitting it. Create tolerates the combination; update does not,
+    // so every loan product without down payment was unsaveable from the edit screen.
+    if (request.enableDownPayment !== true) {
+      delete request.enableAutoRepaymentForDownPayment;
+    }
+
+    return request;
+  }
+
   onSubmit() {
     this.isSaving.set(true);
     this.product().locale = 'en';
+    const request = this.buildRequest();
 
     if (this.isEditMode() && this.productId) {
       this.productService
-        .putLoanproductsProductId(this.productId, this.product() as PutLoanProductsProductIdRequest)
+        .putLoanproductsProductId(this.productId, request as PutLoanProductsProductIdRequest)
         .subscribe({
           next: () => this.router.navigate([this.LIST_PATH]),
           error: () => this.isSaving.set(false),
         });
     } else {
-      this.productService.postLoanproducts(this.product()).subscribe({
+      this.productService.postLoanproducts(request).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => this.isSaving.set(false),
       });

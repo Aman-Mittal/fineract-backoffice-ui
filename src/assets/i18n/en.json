@@ -388,7 +388,25 @@
     "REPAYMENT_START_DATE_TYPE": "Repayments are counted from",
     "FIXED_LENGTH": "Fixed term length (periods)",
     "ENABLE_ACCRUAL_ACTIVITY_POSTING": "Post accrual activity entries",
-    "INTEREST_CALC_PERIOD_LOCKED_NOTE": "Fixed to Daily because interest recalculation is on — Fineract only supports the two together. Turn recalculation off to choose a different period."
+    "INTEREST_CALC_PERIOD_LOCKED_NOTE": "Fixed to Daily because interest recalculation is on — Fineract only supports the two together. Turn recalculation off to choose a different period.",
+    "ACCOUNTING": {
+      "TITLE": "Accounting",
+      "RULE": "Accounting rule",
+      "SELECT_ACCOUNT": "Select an account",
+      "NO_ACCOUNTS_OF_TYPE": "No general ledger accounts of this type exist yet. Create them under Accounting > Chart of Accounts before configuring this product.",
+      "FUND_SOURCE": "Fund source",
+      "LOAN_PORTFOLIO": "Loan portfolio",
+      "TRANSFERS_IN_SUSPENSE": "Transfers in suspense",
+      "RECEIVABLE_INTEREST": "Interest receivable",
+      "RECEIVABLE_FEE": "Fees receivable",
+      "RECEIVABLE_PENALTY": "Penalties receivable",
+      "INTEREST_ON_LOANS": "Interest on loans",
+      "INCOME_FROM_FEES": "Income from fees",
+      "INCOME_FROM_PENALTIES": "Income from penalties",
+      "INCOME_FROM_RECOVERY": "Income from recovery repayments",
+      "LOSSES_WRITTEN_OFF": "Losses written off",
+      "OVERPAYMENT_LIABILITY": "Overpayment liability"
+    }
   },
   "CHARGES": {
     "CREATE": "Create Charge",
