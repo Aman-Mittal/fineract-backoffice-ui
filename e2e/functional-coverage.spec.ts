@@ -1035,6 +1035,36 @@ test.describe('Reporting — Run Report Flow', () => {
         }),
       });
     });
+    await page.route('**/api/v1/runreports/FullParameterList**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              row: [
+                'OfficeIdSelectOne',
+                'officeId',
+                'Office',
+                'select',
+                'number',
+                '0',
+                null,
+                null,
+                null,
+              ],
+            },
+          ],
+        }),
+      });
+    });
+    await page.route('**/api/v1/runreports/OfficeIdSelectOne**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: [{ row: [1, HEAD_OFFICE] }] }),
+      });
+    });
 
     await page.getByRole('link', { name: 'Reports' }).click();
     await expect(page).toHaveURL('/reporting');
@@ -1044,7 +1074,7 @@ test.describe('Reporting — Run Report Flow', () => {
     await expect(page).toHaveURL(/\/reporting\/run/);
 
     /* select office and run */
-    await page.locator('ion-select').click();
+    await page.getByTestId('report-parameter-officeId').locator('ion-select').click();
     await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
     await page.getByRole('button', { name: 'Run Report' }).click();
 

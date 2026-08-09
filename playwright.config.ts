@@ -26,6 +26,7 @@ const BACKEND_SPECS = [
   'loan-servicing.spec.ts',
   'share-account-servicing.spec.ts',
   'login.spec.ts',
+  'report-parameter-backend.spec.ts',
   'teller-cash-management.spec.ts',
 ];
 

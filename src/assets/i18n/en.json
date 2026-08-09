@@ -1111,7 +1111,11 @@
     "RUN_TITLE": "Run",
     "RESULTS": "Report Results",
     "DOWNLOAD_CSV": "Download CSV",
-    "DOWNLOAD_RESULTS_CSV": "Download Results as CSV"
+    "DOWNLOAD_RESULTS_CSV": "Download Results as CSV",
+    "PARAMETERS_LOADING": "Loading report parameters...",
+    "PARAMETERS_LOAD_FAILED": "This report cannot be run because its parameters could not be loaded.",
+    "PARAMETERS_UNSUPPORTED": "This report cannot be run because these parameters use unsupported control types",
+    "PARAMETERS_INCOMPLETE": "Complete every report parameter before running the report."
   },
   "SETTINGS": {
     "CONFIG_NAME": "Configuration Name",

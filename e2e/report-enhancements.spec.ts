@@ -18,6 +18,7 @@
  */
 
 import { test, expect } from './fixtures';
+import { selectOption } from './utils/select-option';
 
 const HEAD_OFFICE = 'Head Office';
 const ALICE_SMITH = 'Alice Smith';
@@ -25,7 +26,10 @@ const KEVIN_BACON = 'Kevin Bacon';
 const CARD_TITLE = 'ion-card-title';
 
 test.describe('Report Enhancements, Pagination, and Help Tour', () => {
+  let latestRunRequestUrl = '';
+
   test.beforeEach(async ({ page }) => {
+    latestRunRequestUrl = '';
     // Intercept config.json
     await page.route('**/config.json*', async (route) => {
       await route.fulfill({
@@ -74,6 +78,32 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
       });
     });
 
+    // The dashboard requests this before navigation completes. Keep the mocked journey free of
+    // an unrelated 404 toast so screenshots show only the report interaction under test.
+    await page.route('**/api/v1/loans?**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ pageItems: [], totalFilteredRecords: 0 }),
+      });
+    });
+    for (const dashboardResource of ['clients', 'savingsaccounts', 'accounttransfers']) {
+      await page.route(`**/api/v1/${dashboardResource}?**`, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ pageItems: [], totalFilteredRecords: 0 }),
+        });
+      });
+    }
+    await page.route('**/api/v1/businessdate**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 8, 9] }]),
+      });
+    });
+
     // Intercept Reports API
     await page.route('**/api/v1/reports', async (route) => {
       await route.fulfill({
@@ -92,8 +122,70 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
       });
     });
 
+    await page.route('**/api/v1/runreports/FullParameterList**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              row: [
+                'OfficeIdSelectOne',
+                'officeId',
+                'Office',
+                'select',
+                'number',
+                '0',
+                null,
+                null,
+                null,
+              ],
+            },
+            {
+              row: [
+                'loanOfficerIdSelectAll',
+                'loanOfficerId',
+                'Loan Officer',
+                'select',
+                'number',
+                '0',
+                null,
+                'Y',
+                null,
+              ],
+            },
+          ],
+        }),
+      });
+    });
+
+    await page.route('**/api/v1/runreports/OfficeIdSelectOne**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: [{ row: [1, HEAD_OFFICE] }] }),
+      });
+    });
+
+    await page.route('**/api/v1/runreports/loanOfficerIdSelectAll**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: [{ row: [42, 'Ada Officer'] }] }),
+      });
+    });
+
     // Intercept RunReport API with mock paginated data (12 rows)
     await page.route('**/api/v1/runreports/Active%20Clients%20Summary**', async (route) => {
+      latestRunRequestUrl = route.request().url();
+      if (new URL(latestRunRequestUrl).searchParams.get('exportCSV') === 'true') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'text/csv',
+          body: 'Client ID,Display Name,Office,Activation Date',
+        });
+        return;
+      }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -133,7 +225,7 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     }
   });
 
-  test('should run report, show paginated data, and download CSV', async ({ page }) => {
+  test('should run report, show paginated data, and download CSV', async ({ page }, testInfo) => {
     // Navigate to Reporting
     await page.getByRole('link', { name: 'Reports' }).click();
     await expect(page).toHaveURL('/reporting');
@@ -144,9 +236,18 @@ test.describe('Report Enhancements, Pagination, and Help Tour', () => {
     await expect(page).toHaveURL(/\/reporting\/run\/Active%20Clients%20Summary/);
 
     // Select an office and click Run
-    await page.locator('ion-select').click();
-    await page.locator('ion-alert, ion-popover').getByRole('radio', { name: HEAD_OFFICE }).click();
+    await selectOption(page, 'Office', HEAD_OFFICE);
+    await selectOption(page, 'Loan Officer', 'Ada Officer');
+    await expect(page.locator('ion-toast')).toHaveCount(0);
+    await page.screenshot({
+      path: testInfo.outputPath('dynamic-report-parameters.png'),
+      fullPage: true,
+    });
     await page.getByRole('button', { name: 'Run Report' }).click();
+
+    const runQuery = new URL(latestRunRequestUrl).searchParams;
+    expect(runQuery.get('R_officeId')).toBe('1');
+    expect(runQuery.get('R_loanOfficerId')).toBe('42');
 
     // Verify report results are shown
     const resultsHeader = page.locator('.results-header h3');
