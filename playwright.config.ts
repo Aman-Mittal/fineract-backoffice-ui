@@ -14,6 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const BACKEND_SPECS = [
   'client-transfer.spec.ts',
+  'deposit-account-servicing.spec.ts',
   'full-demo.spec.ts',
   'group-membership.spec.ts',
   'loan-account-actions.spec.ts',

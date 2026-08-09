@@ -275,6 +275,96 @@ export async function seedClient(
   return { clientId, firstName, lastName, displayName: `${firstName} ${lastName}` };
 }
 
+export interface SeededFixedDeposit {
+  accountId: number;
+  clientName: string;
+  productName: string;
+}
+
+/**
+ * Seeds a client, a fixed deposit product and a deposit account left **pending approval**.
+ *
+ * Seeded rather than driven through the screens because what the servicing spec is about starts
+ * where this stops: an account that exists and cannot be operated. The deposit product and
+ * account forms have their own coverage, and re-walking them here would mean a failure in the
+ * interest-rate chart reads as a broken approve button.
+ *
+ * The chart is the fiddly part. A slab has to span the account's deposit period in the *same*
+ * unit, or the account is refused with `no.applicable.interest.rate.is.found.based.on.amount.and.
+ * deposit.period` — periodType 2 is months, matching `depositPeriodFrequencyId: 2`.
+ */
+export async function seedFixedDepositAccount(
+  api: APIRequestContext,
+  namePrefix = 'E2EDeposit',
+): Promise<SeededFixedDeposit> {
+  const client = await seedClient(api, namePrefix);
+  const suffix = seedSuffix();
+  const productName = `${namePrefix} FD ${suffix}`;
+
+  const { resourceId: productId } = await post<{ resourceId: number }>(
+    api,
+    '/fixeddepositproducts',
+    {
+      name: productName,
+      shortName: suffix.slice(-4).toUpperCase(),
+      description: 'Seeded for deposit servicing coverage',
+      currencyCode: 'USD',
+      digitsAfterDecimal: 2,
+      inMultiplesOf: 0,
+      interestCompoundingPeriodType: 4,
+      interestPostingPeriodType: 4,
+      interestCalculationType: 1,
+      interestCalculationDaysInYearType: 365,
+      minDepositTerm: 1,
+      minDepositTermTypeId: 2,
+      preClosurePenalApplicable: false,
+      accountingRule: 1,
+      depositAmount: 1000,
+      minDepositAmount: 100,
+      maxDepositAmount: 100000,
+      locale: LOCALE,
+      charts: [
+        {
+          fromDate: fineractDate(),
+          dateFormat: DATE_FORMAT,
+          locale: LOCALE,
+          chartSlabs: [
+            {
+              periodType: 2,
+              fromPeriod: 1,
+              toPeriod: 60,
+              annualInterestRate: 5,
+              description: 'Seeded slab',
+              locale: LOCALE,
+            },
+          ],
+        },
+      ],
+    },
+  );
+
+  const { resourceId: accountId } = await post<{ resourceId: number }>(
+    api,
+    '/fixeddepositaccounts',
+    {
+      clientId: client.clientId,
+      productId,
+      submittedOnDate: fineractDate(),
+      dateFormat: DATE_FORMAT,
+      locale: LOCALE,
+      depositAmount: 1000,
+      depositPeriod: 12,
+      depositPeriodFrequencyId: 2,
+      interestCompoundingPeriodType: 4,
+      interestPostingPeriodType: 4,
+      interestCalculationType: 1,
+      interestCalculationDaysInYearType: 365,
+    },
+  );
+
+  return { accountId, clientName: client.displayName, productName };
+}
+
 export interface SeededLoanProduct {
   productId: number;
   productName: string;

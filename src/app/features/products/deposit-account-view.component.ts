@@ -17,13 +17,29 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, from } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { FixedDepositAccountService, RecurringDepositAccountService } from '../../api';
+import { I18N } from '../../core/adapters';
+import { NotificationService } from '../../core/services/notification.service';
+import { DialogService } from '../../core/services/dialog.service';
+import {
+  DepositClosureDialogComponent,
+  DepositClosureDialogData,
+  DepositClosureResult,
+} from './deposit-closure-dialog.component';
+import {
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+  formatArrayDate,
+  formatDateToFineract,
+  toIsoDate,
+} from '../../core/utils/date-formatter';
 import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
@@ -78,28 +94,90 @@ import {
                   <span class="account-no">#{{ account()?.['accountNo'] }}</span>
                   <span class="divider">|</span>
                   <span class="client-name">Client: {{ account()?.['clientName'] }}</span>
-                  <app-status-badge [status]="getStatusValue()"></app-status-badge>
+                  <app-status-badge
+                    data-testid="deposit-status"
+                    [status]="getStatusValue()"
+                  ></app-status-badge>
                 </div>
               </div>
             </div>
             <div class="actions-area">
-              <ion-button color="primary" id="actionsMenu-trigger">
+              <ion-button color="primary" id="actionsMenu-trigger" data-testid="deposit-actions">
                 <ion-icon name="settings-outline"></ion-icon>
                 {{ 'COMMON.ACTIONS' | translate }}
               </ion-button>
               <ion-popover trigger="actionsMenu-trigger" [dismissOnSelect]="true">
                 <ng-template>
                   <ion-list>
-                    @if (isRD) {
-                      <ion-item button (click)="onDeposit()">
-                        <ion-icon slot="start" name="add-outline"></ion-icon>
-                        <ion-label>{{ 'SAVINGS.DEPOSIT' | translate }}</ion-label>
+                    @if (isPending()) {
+                      <ion-item button data-testid="deposit-action-approve" (click)="onApprove()">
+                        <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.APPROVE' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item button data-testid="deposit-action-reject" (click)="onReject()">
+                        <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.REJECT' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        data-testid="deposit-action-withdrawnByApplicant"
+                        (click)="onWithdrawnByApplicant()"
+                      >
+                        <ion-icon slot="start" name="person-remove-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</ion-label>
                       </ion-item>
                     }
-                    <ion-item button (click)="onWithdraw()">
-                      <ion-icon slot="start" name="remove-outline"></ion-icon>
-                      <ion-label>{{ 'SAVINGS.WITHDRAW' | translate }}</ion-label>
-                    </ion-item>
+                    @if (isApproved()) {
+                      <ion-item button data-testid="deposit-action-activate" (click)="onActivate()">
+                        <ion-icon slot="start" name="play-circle-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.ACTIVATE' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        data-testid="deposit-action-undoapproval"
+                        (click)="onUndoApproval()"
+                      >
+                        <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    @if (isActive()) {
+                      @if (isRD) {
+                        <ion-item button (click)="onDeposit()">
+                          <ion-icon slot="start" name="add-outline"></ion-icon>
+                          <ion-label>{{ 'SAVINGS.DEPOSIT' | translate }}</ion-label>
+                        </ion-item>
+                      }
+                      <ion-item button (click)="onWithdraw()">
+                        <ion-icon slot="start" name="remove-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.WITHDRAW' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        data-testid="deposit-action-postInterest"
+                        (click)="onPostInterest()"
+                      >
+                        <ion-icon slot="start" name="cash-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.POST_INTEREST' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item
+                        button
+                        data-testid="deposit-action-prematureClose"
+                        (click)="onPrematureClose()"
+                      >
+                        <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.PREMATURE_CLOSE' | translate }}</ion-label>
+                      </ion-item>
+                      <ion-item button data-testid="deposit-action-close" (click)="onClose()">
+                        <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                        <ion-label>{{ 'ACTIONS.CLOSE' | translate }}</ion-label>
+                      </ion-item>
+                    }
+                    @if (!isPending() && !isApproved() && !isActive()) {
+                      <ion-item data-testid="deposit-no-actions">
+                        <ion-label>{{ 'ACTIONS.NONE_AVAILABLE' | translate }}</ion-label>
+                      </ion-item>
+                    }
                   </ion-list>
                 </ng-template>
               </ion-popover>
@@ -302,11 +380,16 @@ export class DepositAccountViewComponent implements OnInit {
   private readonly rdService = inject(RecurringDepositAccountService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly notifications = inject(NotificationService);
+  private readonly i18n = inject(I18N);
 
   accountId = 0;
   isRD = false;
   readonly account = signal<Record<string, unknown> | null>(null);
   readonly transactions = signal<Record<string, unknown>[]>([]);
+  readonly isLoading = signal(true);
+  readonly hasError = signal(false);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('id'));
@@ -314,22 +397,41 @@ export class DepositAccountViewComponent implements OnInit {
     this.loadData();
   }
 
+  /**
+   * Reads the account.
+   *
+   * This used to reach through the service as `service['retrieveOne14']` — a name that exists on
+   * neither generated service, so the lookup produced `undefined` and calling it threw
+   * `TypeError: call is not a function` out of `ngOnInit`. The template is wrapped in
+   * `@if (account())`, so the page rendered as nothing at all: every fixed and recurring deposit
+   * account opened to a blank screen.
+   *
+   * The double cast through `Record<string, unknown>` is what let that compile. Calling the
+   * generated methods by name is the point — ADR-0001 stabilises those names precisely so a
+   * rename becomes a compile error rather than a blank page.
+   */
   loadData(): void {
-    const service = (this.isRD ? this.rdService : this.fdService) as unknown as Record<
-      string,
-      unknown
-    >;
-    const method = this.isRD ? 'retrieveOne18' : 'retrieveOne14';
+    this.isLoading.set(true);
+    // Widened to `unknown`: the two responses are distinct generated types with no common
+    // supertype, and the screen reads both through the same untyped record either way.
+    const request$: Observable<unknown> = this.isRD
+      ? this.rdService.getRecurringdepositaccountsAccountId(this.accountId)
+      : this.fdService.getFixeddepositaccountsAccountId(this.accountId);
 
-    const call = service[method] as (id: number) => {
-      subscribe: (cb: (data: Record<string, unknown>) => void) => void;
-    };
-
-    call(this.accountId).subscribe((data: Record<string, unknown>) => {
-      this.account.set(data);
-      this.transactions.set(
-        Array.from((data['transactions'] as unknown[]) || []) as Record<string, unknown>[],
-      );
+    request$.subscribe({
+      next: (data) => {
+        const account = data as unknown as Record<string, unknown>;
+        this.account.set(account);
+        this.transactions.set(
+          Array.from((account['transactions'] as unknown[]) || []) as Record<string, unknown>[],
+        );
+        this.hasError.set(false);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.hasError.set(true);
+        this.isLoading.set(false);
+      },
     });
   }
 
@@ -362,6 +464,193 @@ export class DepositAccountViewComponent implements OnInit {
       return new Date(date[0], date[1] - 1, date[2]).toLocaleDateString();
     }
     return '-';
+  }
+
+  // --- Lifecycle ------------------------------------------------------------------------------
+
+  /**
+   * Fineract reports a deposit account's state as booleans beside the id, exactly as it does for
+   * savings, and the actions gate on those rather than on `status.value` — the value is the
+   * server's English label and moves with its locale.
+   */
+  private statusFlag(flag: string): boolean {
+    const status = this.account()?.['status'] as Record<string, unknown> | undefined;
+    return status?.[flag] === true;
+  }
+
+  readonly isPending = computed(() => this.statusFlag('submittedAndPendingApproval'));
+  readonly isApproved = computed(() => this.statusFlag('approved'));
+  readonly isActive = computed(() => this.statusFlag('active'));
+
+  /**
+   * The date to send for a command, never earlier than the one the platform already stamped.
+   *
+   * A command's date is validated against a date Fineract wrote itself — an approval cannot
+   * precede submission, an activation cannot precede approval — and it wrote it in the tenant's
+   * timezone. The browser's clock disagrees with that for as long as the offset between them, so
+   * a UTC browser against an `Asia/Kolkata` tenant sends yesterday from 18:30 UTC onwards and the
+   * command is refused. Taking the later of the two removes the browser's clock from the decision
+   * wherever the platform has already made it.
+   *
+   * Compared lexically: both sides are zero-padded `YYYY-MM-DD`, which orders identically to the
+   * dates it spells, and parsing them back into `Date` would reintroduce the timezone this is
+   * here to keep out.
+   */
+  private commandDateIso(floor: unknown): string {
+    const today = toIsoDate(new Date());
+    const stamped = Array.isArray(floor) && floor.length >= 3 ? formatArrayDate(floor) : '-';
+    return stamped !== '-' && stamped > today ? stamped : today;
+  }
+
+  private commandDate(floor: unknown): string {
+    // Through the parts rather than through `new Date(iso)`, which parses as UTC midnight and
+    // then reads back in local time — a day out for anyone west of Greenwich.
+    return formatDateToFineract(this.commandDateIso(floor).split('-').map(Number));
+  }
+
+  /** A date the platform stamped on this account, by timeline key. */
+  private timelineDate(key: string): unknown {
+    const timeline = this.account()?.['timeline'] as Record<string, unknown> | undefined;
+    return timeline?.[key];
+  }
+
+  /** `locale` and `dateFormat` belong with a date, and only with one — see `onUndoApproval`. */
+  private dated(field: string, floor: unknown): Record<string, unknown> {
+    return {
+      [field]: this.commandDate(floor),
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    };
+  }
+
+  onApprove(): void {
+    this.confirmCommand('APPROVE', 'approve', () =>
+      this.dated('approvedOnDate', this.timelineDate('submittedOnDate')),
+    );
+  }
+
+  onReject(): void {
+    this.confirmCommand(
+      'REJECT',
+      'reject',
+      () => this.dated('rejectedOnDate', this.timelineDate('submittedOnDate')),
+      true,
+    );
+  }
+
+  onWithdrawnByApplicant(): void {
+    this.confirmCommand('WITHDRAWN_BY_CLIENT', 'withdrawnByApplicant', () =>
+      this.dated('withdrawnOnDate', this.timelineDate('submittedOnDate')),
+    );
+  }
+
+  onActivate(): void {
+    this.confirmCommand('ACTIVATE', 'activate', () =>
+      this.dated('activatedOnDate', this.timelineDate('approvedOnDate')),
+    );
+  }
+
+  /**
+   * Sends an empty body, deliberately.
+   *
+   * The command erases a date rather than carrying one, and it refuses `locale` and `dateFormat`
+   * outright — "The parameter locale is not supported" — so the pair that every other command
+   * here requires is exactly what makes this one fail.
+   */
+  onUndoApproval(): void {
+    this.confirmCommand('UNDO_APPROVAL', 'undoapproval', () => ({}));
+  }
+
+  onPostInterest(): void {
+    this.confirmCommand('POST_INTEREST', 'postInterest', () => ({
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    }));
+  }
+
+  /**
+   * Closing at maturity, and closing before it.
+   *
+   * Both need to say what happens to the money. `withdrawBalance: true` pays it out, which is the
+   * only option that needs no second account — transferring to a savings account needs an account
+   * to transfer to, and choosing one is its own screen.
+   */
+  onClose(): void {
+    void this.closeAccount(false);
+  }
+
+  onPrematureClose(): void {
+    void this.closeAccount(true);
+  }
+
+  private async closeAccount(premature: boolean): Promise<void> {
+    const activatedOn = this.timelineDate('activatedOnDate');
+    // ISO for the dialog, which prices the closure; the command itself carries the Fineract
+    // spelling of the same day.
+    const closedOnIso = this.commandDateIso(activatedOn);
+
+    const result = await this.dialogService.open<DepositClosureResult>(
+      DepositClosureDialogComponent,
+      {
+        data: {
+          accountId: this.accountId,
+          isRD: this.isRD,
+          premature,
+          closedOnDate: closedOnIso,
+          currency: this.getCurrencySymbol(),
+        } satisfies DepositClosureDialogData,
+      },
+    );
+    if (!result) return;
+
+    this.runCommand(premature ? 'prematureClose' : 'close', {
+      ...this.dated('closedOnDate', activatedOn),
+      onAccountClosureId: result.onAccountClosureId,
+    });
+  }
+
+  /**
+   * Confirms, then posts.
+   *
+   * The payload is built after confirmation rather than before, so the date is the one at the
+   * moment of sending — a dialog left open across midnight would otherwise send yesterday.
+   *
+   * No error toast: `errorInterceptor` already raises one carrying the platform's own message,
+   * and for these commands that message is the useful one — closing before maturity, or
+   * activating an account whose client is not active, each say exactly why.
+   */
+  private confirmCommand(
+    key: string,
+    command: string,
+    payload: () => Record<string, unknown>,
+    destructive = false,
+  ): void {
+    from(
+      this.dialogService.confirm({
+        title: this.i18n.translate(`ACTIONS.${key}`),
+        message: this.i18n.translate(`ACTIONS.CONFIRM_${key}`),
+        destructive,
+      }),
+    ).subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.runCommand(command, payload());
+    });
+  }
+
+  private runCommand(command: string, body: Record<string, unknown>): void {
+    const request$: Observable<unknown> = this.isRD
+      ? this.rdService.postRecurringdepositaccountsAccountId(this.accountId, body, command)
+      : this.fdService.postFixeddepositaccountsAccountId(this.accountId, body, command);
+
+    request$.subscribe({
+      next: () => {
+        void this.notifications.success(this.i18n.translate('COMMON.SUCCESS'));
+        // Re-read rather than patch: a command moves the status, stamps a date and, for a
+        // closure, moves the balance. A screen that guessed at those would drift.
+        this.loadData();
+      },
+      error: () => undefined,
+    });
   }
 
   onDeposit(): void {
