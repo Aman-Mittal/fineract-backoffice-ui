@@ -270,3 +270,117 @@ export function mappingsFromResponse(
   }
   return mappings;
 }
+
+/**
+ * The slots a **savings product** maps.
+ *
+ * Enumerated the same way as the loan set, and it takes two passes to see all of it: supplying
+ * the first seven makes the platform ask for `overdraftPortfolioControlId` and
+ * `incomeFromInterestId` as well, which a single 400 does not reveal.
+ *
+ * Note `interestOnSavings` is an **expense**. Interest on a loan is income to the institution;
+ * interest on a deposit is money it pays out, and pointing that slot at an income account is
+ * refused.
+ */
+export const SAVINGS_ACCOUNTING_FIELDS: readonly AccountingMappingField[] = [
+  {
+    key: 'savingsReferenceAccountId',
+    responseKey: 'savingsReferenceAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.SAVINGS_REFERENCE',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'overdraftPortfolioControlId',
+    responseKey: 'overdraftPortfolioControl',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.OVERDRAFT_PORTFOLIO',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'feesReceivableAccountId',
+    responseKey: 'feeReceivableAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.RECEIVABLE_FEE',
+    rules: ACCRUAL_RULES,
+  },
+  {
+    key: 'penaltiesReceivableAccountId',
+    responseKey: 'penaltyReceivableAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.RECEIVABLE_PENALTY',
+    rules: ACCRUAL_RULES,
+  },
+  {
+    key: 'savingsControlAccountId',
+    responseKey: 'savingsControlAccount',
+    accountType: 'liability',
+    label: 'PRODUCTS.ACCOUNTING.SAVINGS_CONTROL',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'transfersInSuspenseAccountId',
+    responseKey: 'transfersInSuspenseAccount',
+    accountType: 'liability',
+    label: 'PRODUCTS.ACCOUNTING.TRANSFERS_IN_SUSPENSE',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'interestPayableAccountId',
+    responseKey: 'interestPayableAccount',
+    accountType: 'liability',
+    label: 'PRODUCTS.ACCOUNTING.INTEREST_PAYABLE',
+    rules: ACCRUAL_RULES,
+  },
+  {
+    key: 'incomeFromFeeAccountId',
+    responseKey: 'incomeFromFeeAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_FEES',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'incomeFromPenaltyAccountId',
+    responseKey: 'incomeFromPenaltyAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_PENALTIES',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'incomeFromInterestId',
+    responseKey: 'incomeFromInterest',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_INTEREST',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'interestOnSavingsAccountId',
+    responseKey: 'interestOnSavingsAccount',
+    accountType: 'expense',
+    label: 'PRODUCTS.ACCOUNTING.INTEREST_ON_SAVINGS',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+  {
+    key: 'writeOffAccountId',
+    responseKey: 'writeOffAccount',
+    accountType: 'expense',
+    label: 'PRODUCTS.ACCOUNTING.LOSSES_WRITTEN_OFF',
+    rules: ACCOUNTING_RULES_WITH_MAPPINGS,
+  },
+];
+
+/**
+ * The slots a **fixed or recurring deposit product** maps.
+ *
+ * The savings set without the two that only make sense on an account you can draw against: a
+ * term deposit has no overdraft and nothing to write off, and the platform does not ask for
+ * `writeOffAccountId`, `overdraftPortfolioControlId` or `incomeFromInterestId` on either family.
+ * Both deposit families ask for exactly the same six, and the same three receivables on accrual.
+ */
+export const TERM_DEPOSIT_ACCOUNTING_FIELDS: readonly AccountingMappingField[] =
+  SAVINGS_ACCOUNTING_FIELDS.filter(
+    (field) =>
+      !['writeOffAccountId', 'overdraftPortfolioControlId', 'incomeFromInterestId'].includes(
+        field.key,
+      ),
+  );

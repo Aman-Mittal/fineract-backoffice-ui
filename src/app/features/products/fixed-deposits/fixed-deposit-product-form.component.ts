@@ -41,10 +41,19 @@ import {
   PutFixedDepositProductsProductIdRequest,
   GetFixedDepositProductsProductIdResponse,
 } from '../../../api';
+import { ProductAccountingSectionComponent } from '../accounting/product-accounting-section.component';
+import {
+  ACCOUNTING_RULE,
+  AccountingMappings,
+  GlAccountOptions,
+  TERM_DEPOSIT_ACCOUNTING_FIELDS,
+  mappingsForRule,
+  mappingsFromResponse,
+} from '../accounting/product-accounting.model';
+import { DepositChart, chartFromResponse, defaultChart } from '../deposit-chart';
 
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_LOCALE = 'en';
-const DEFAULT_DATE_FORMAT = 'yyyy-MM-dd';
 const FIXED_PRODUCTS_PATH = '/products/fixed';
 
 @Component({
@@ -53,6 +62,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
   imports: [
     FormsModule,
     TranslateModule,
+    ProductAccountingSectionComponent,
     IonButton,
     IonSpinner,
     IonInput,
@@ -110,6 +120,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
                   name="description"
                   [(ngModel)]="product()['description']"
                   rows="2"
+                  required
                 ></ion-textarea>
               </ion-item>
 
@@ -190,6 +201,16 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
               </ion-item>
             </div>
 
+            <app-product-accounting-section
+              [fields]="accountingFields"
+              [accountOptions]="accountingMappingOptions()"
+              [ruleOptions]="accountingRuleOptions()"
+              [accountingRule]="$any(product()['accountingRule']) ?? 1"
+              (accountingRuleChange)="product()['accountingRule'] = $event"
+              [mappings]="accountingMappings()"
+              (mappingsChange)="accountingMappings.set($event)"
+            ></app-product-accounting-section>
+
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
@@ -243,6 +264,15 @@ export class FixedDepositProductFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
+  /** Accounting — see the note on {@link ProductAccountingSectionComponent}. */
+  readonly accountingFields = TERM_DEPOSIT_ACCOUNTING_FIELDS;
+  readonly accountingMappingOptions = signal<GlAccountOptions>({});
+  readonly accountingRuleOptions = signal<{ id?: number; value?: string }[]>([]);
+  readonly accountingMappings = signal<AccountingMappings>({});
+
+  /** The product's own interest chart, kept so an update can send it back untouched. */
+  readonly existingChart = signal<DepositChart | null>(null);
+
   readonly product = signal<Record<string, unknown>>({
     currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
@@ -258,6 +288,16 @@ export class FixedDepositProductFormComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.productService.getFixeddepositproductsTemplate().subscribe((template) => {
+      const raw = template as unknown as Record<string, unknown>;
+      this.accountingMappingOptions.set(
+        (raw['accountingMappingOptions'] as GlAccountOptions) ?? {},
+      );
+      this.accountingRuleOptions.set(
+        Array.from((raw['accountingRuleOptions'] as { id?: number; value?: string }[]) ?? []),
+      );
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -268,46 +308,71 @@ export class FixedDepositProductFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Reads the product back, all of it.
+   *
+   * Every field this omits is a field the update drops, because `onSubmit` rebuilds the request
+   * from this object. The previous version read six fields and hardcoded `depositAmount: 1000`
+   * and `accountingRule: 1`, so saving an edit reset the product's deposit amount to a thousand
+   * and stripped its accounting rule along with every GL mapping under it.
+   *
+   * The interest chart is kept exactly as it came back, ids included — see `onSubmit`.
+   */
   loadProductData() {
     if (!this.productId) return;
     this.productService
       .getFixeddepositproductsProductId(this.productId)
       .subscribe((data: GetFixedDepositProductsProductIdResponse) => {
+        const raw = data as unknown as Record<string, unknown>;
         this.product.set({
           name: data.name,
           shortName: data.shortName,
           description: data.description,
           currencyCode: data.currency?.code,
           digitsAfterDecimal: data.currency?.decimalPlaces,
+          inMultiplesOf:
+            (raw['currency'] as { inMultiplesOf?: number } | undefined)?.inMultiplesOf ?? 0,
           minDepositTerm: data.minDepositTerm,
           minDepositTermTypeId: data.minDepositTermType?.id,
-          depositAmount: 1000, // Fallback
-          accountingRule: 1,
+          maxDepositTerm: data.maxDepositTerm,
+          maxDepositTermTypeId: (raw['maxDepositTermType'] as { id?: number } | undefined)?.id,
+          depositAmount: raw['depositAmount'],
+          minDepositAmount: raw['minDepositAmount'],
+          maxDepositAmount: raw['maxDepositAmount'],
+          interestCompoundingPeriodType: data.interestCompoundingPeriodType?.id,
+          interestPostingPeriodType: data.interestPostingPeriodType?.id,
+          interestCalculationType: data.interestCalculationType?.id,
+          interestCalculationDaysInYearType: data.interestCalculationDaysInYearType?.id,
+          preClosurePenalApplicable: raw['preClosurePenalApplicable'] ?? false,
+          accountingRule: (raw['accountingRule'] as { id?: number } | undefined)?.id ?? 1,
         });
+        this.existingChart.set(chartFromResponse(raw['activeChart']));
+        this.accountingMappings.set(
+          mappingsFromResponse(this.accountingFields, raw['accountingMappings'] as object),
+        );
       });
   }
 
+  /**
+   * Builds the request.
+   *
+   * `charts` is mandatory on both create and update, and on update it has to be *this product's*
+   * chart. Sending a freshly invented one — which is what this did, a single slab at 5% from
+   * today, on every save — answers `500 Internal Server Error`, so a fixed deposit product could
+   * not be edited at all. Sent back with its own ids, the platform treats it as unchanged.
+   */
   onSubmit() {
     this.isSaving.set(true);
     this.product()['locale'] = DEFAULT_LOCALE;
 
-    // Add a default chart as it is mandatory
     const payload = {
       ...this.product(),
-      charts: [
-        {
-          fromDate: new Date().toISOString().split('T')[0],
-          dateFormat: DEFAULT_DATE_FORMAT,
-          locale: DEFAULT_LOCALE,
-          chartSlabs: [
-            {
-              periodType: 2, // Months
-              fromPeriod: 1,
-              annualInterestRate: 5,
-            },
-          ],
-        },
-      ],
+      ...mappingsForRule(
+        this.accountingFields,
+        (this.product()['accountingRule'] as number) ?? ACCOUNTING_RULE.NONE,
+        this.accountingMappings(),
+      ),
+      charts: [this.existingChart() ?? defaultChart()],
     };
 
     if (this.isEditMode() && this.productId) {

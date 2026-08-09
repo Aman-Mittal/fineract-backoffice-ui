@@ -41,10 +41,19 @@ import {
   PutRecurringDepositProductsRequest,
   PostRecurringDepositProductsRequest,
 } from '../../../api';
+import { ProductAccountingSectionComponent } from '../accounting/product-accounting-section.component';
+import {
+  ACCOUNTING_RULE,
+  AccountingMappings,
+  GlAccountOptions,
+  TERM_DEPOSIT_ACCOUNTING_FIELDS,
+  mappingsForRule,
+  mappingsFromResponse,
+} from '../accounting/product-accounting.model';
+import { DepositChart, chartFromResponse, defaultChart } from '../deposit-chart';
 
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_LOCALE = 'en';
-const DEFAULT_DATE_FORMAT = 'yyyy-MM-dd';
 const REDIRECT_URL = '/products/recurring';
 
 @Component({
@@ -53,6 +62,7 @@ const REDIRECT_URL = '/products/recurring';
   imports: [
     FormsModule,
     TranslateModule,
+    ProductAccountingSectionComponent,
     IonButton,
     IonSpinner,
     IonInput,
@@ -110,6 +120,7 @@ const REDIRECT_URL = '/products/recurring';
                   name="description"
                   [(ngModel)]="product()['description']"
                   rows="2"
+                  required
                 ></ion-textarea>
               </ion-item>
 
@@ -150,8 +161,8 @@ const REDIRECT_URL = '/products/recurring';
                 <ion-input
                   [attr.aria-label]="'PRODUCTS.RECURRING_FREQUENCY' | translate"
                   type="number"
-                  name="recurringEvery"
-                  [(ngModel)]="product()['recurringEvery']"
+                  name="recurringFrequency"
+                  [(ngModel)]="product()['recurringFrequency']"
                   required
                 ></ion-input>
               </ion-item>
@@ -180,6 +191,16 @@ const REDIRECT_URL = '/products/recurring';
                 </ion-select>
               </ion-item>
             </div>
+
+            <app-product-accounting-section
+              [fields]="accountingFields"
+              [accountOptions]="accountingMappingOptions()"
+              [ruleOptions]="accountingRuleOptions()"
+              [accountingRule]="$any(product()['accountingRule']) ?? 1"
+              (accountingRuleChange)="product()['accountingRule'] = $event"
+              [mappings]="accountingMappings()"
+              (mappingsChange)="accountingMappings.set($event)"
+            ></app-product-accounting-section>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
@@ -234,6 +255,14 @@ export class RecurringDepositProductFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
+  readonly accountingFields = TERM_DEPOSIT_ACCOUNTING_FIELDS;
+  readonly accountingMappingOptions = signal<GlAccountOptions>({});
+  readonly accountingRuleOptions = signal<{ id?: number; value?: string }[]>([]);
+  readonly accountingMappings = signal<AccountingMappings>({});
+
+  /** The product's own interest chart, kept so an update can send it back untouched. */
+  readonly existingChart = signal<DepositChart | null>(null);
+
   readonly product = signal<Record<string, unknown>>({
     currencyCode: DEFAULT_CURRENCY,
     digitsAfterDecimal: 2,
@@ -243,7 +272,7 @@ export class RecurringDepositProductFormComponent implements OnInit {
     interestCalculationType: 1, // Daily
     interestCalculationDaysInYearType: 365,
     accountingRule: 1, // NONE
-    recurringEvery: 1,
+    recurringFrequency: 1,
     recurringFrequencyType: 2, // Months
     minDepositTerm: 1,
     minDepositTermTypeId: 2,
@@ -251,6 +280,16 @@ export class RecurringDepositProductFormComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.productService.getRecurringdepositproductsTemplate().subscribe((template) => {
+      const raw = template as unknown as Record<string, unknown>;
+      this.accountingMappingOptions.set(
+        (raw['accountingMappingOptions'] as GlAccountOptions) ?? {},
+      );
+      this.accountingRuleOptions.set(
+        Array.from((raw['accountingRuleOptions'] as { id?: number; value?: string }[]) ?? []),
+      );
+    });
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -266,17 +305,33 @@ export class RecurringDepositProductFormComponent implements OnInit {
     this.productService
       .getRecurringdepositproductsProductId(this.productId)
       .subscribe((data: GetRecurringDepositProductsProductIdResponse) => {
+        const raw = data as unknown as Record<string, unknown>;
         this.product.set({
           name: data.name,
           shortName: data.shortName,
           description: data.description,
           currencyCode: data.currency?.code,
           digitsAfterDecimal: data.currency?.decimalPlaces,
-          recurringEvery: data.recurringDepositFrequency,
+          inMultiplesOf:
+            (raw['currency'] as { inMultiplesOf?: number } | undefined)?.inMultiplesOf ?? 0,
+          recurringFrequency: data.recurringDepositFrequency,
           recurringFrequencyType: data.recurringDepositFrequencyType?.id,
-          accountingRule: 1,
-          depositAmount: 1000, // Fallback
+          minDepositTerm: raw['minDepositTerm'],
+          minDepositTermTypeId: (raw['minDepositTermType'] as { id?: number } | undefined)?.id,
+          depositAmount: raw['depositAmount'],
+          minDepositAmount: raw['minDepositAmount'],
+          maxDepositAmount: raw['maxDepositAmount'],
+          interestCompoundingPeriodType: data.interestCompoundingPeriodType?.id,
+          interestPostingPeriodType: data.interestPostingPeriodType?.id,
+          interestCalculationType: data.interestCalculationType?.id,
+          interestCalculationDaysInYearType: data.interestCalculationDaysInYearType?.id,
+          preClosurePenalApplicable: raw['preClosurePenalApplicable'] ?? false,
+          accountingRule: (raw['accountingRule'] as { id?: number } | undefined)?.id ?? 1,
         });
+        this.existingChart.set(chartFromResponse(raw['activeChart']));
+        this.accountingMappings.set(
+          mappingsFromResponse(this.accountingFields, raw['accountingMappings'] as object),
+        );
       });
   }
 
@@ -284,27 +339,20 @@ export class RecurringDepositProductFormComponent implements OnInit {
     this.isSaving.set(true);
     this.product()['locale'] = DEFAULT_LOCALE;
 
+    // `recurringFrequency` and `recurringFrequencyType` are what the platform accepts, and they
+    // used to be deleted here along with two `recurringDeposit…` spellings that it does not.
+    // Nothing carried the recurrence at all, so a recurring deposit product could be neither
+    // created nor updated — the request came back 400 naming `recurringDepositFrequency`, which
+    // is the *entity* field rather than the parameter, and is what sent the guess wrong.
     const payload = {
       ...this.product(),
-      charts: [
-        {
-          fromDate: new Date().toISOString().split('T')[0],
-          dateFormat: DEFAULT_DATE_FORMAT,
-          locale: DEFAULT_LOCALE,
-          chartSlabs: [
-            {
-              periodType: 2, // Months
-              fromPeriod: 1,
-              annualInterestRate: 5,
-            },
-          ],
-        },
-      ],
+      ...mappingsForRule(
+        this.accountingFields,
+        (this.product()['accountingRule'] as number) ?? ACCOUNTING_RULE.NONE,
+        this.accountingMappings(),
+      ),
+      charts: [this.existingChart() ?? defaultChart()],
     };
-    delete (payload as Record<string, unknown>)['recurringEvery'];
-    delete (payload as Record<string, unknown>)['recurringFrequencyType'];
-    delete (payload as Record<string, unknown>)['recurringDepositFrequency'];
-    delete (payload as Record<string, unknown>)['recurringDepositFrequencyTypeId'];
 
     if (this.isEditMode() && this.productId) {
       this.productService
