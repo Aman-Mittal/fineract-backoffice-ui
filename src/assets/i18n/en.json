@@ -884,6 +884,8 @@
     "LENGTH": "Length",
     "CODE": "Code",
     "MANDATORY": "Mandatory",
+    "UNIQUE": "Unique",
+    "INDEXED": "Indexed",
     "CUSTOM_FIELDS": "Custom Fields",
     "ADD_ENTRY": "Add Entry",
     "NO_DATA_TABLES_REGISTERED": "No data tables registered for this entity.",
