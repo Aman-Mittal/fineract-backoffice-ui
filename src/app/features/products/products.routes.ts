@@ -259,6 +259,11 @@ export const PRODUCTS_ROUTES: Routes = [
       import('./shares/share-account-form.component').then((m) => m.ShareAccountFormComponent),
   },
   {
+    path: 'shares/view/:id',
+    loadComponent: () =>
+      import('./shares/share-account-view.component').then((m) => m.ShareAccountViewComponent),
+  },
+  {
     path: 'shares/edit/:id',
     loadComponent: () =>
       import('./shares/share-account-form.component').then((m) => m.ShareAccountFormComponent),
