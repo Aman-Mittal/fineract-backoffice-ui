@@ -59,9 +59,11 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
           (click)="sidebarService.toggle()"
           [attr.aria-label]="'Toggle Sidebar'"
         >
-          <ion-icon
-            [name]="sidebarService.isCollapsed() ? 'menu-outline' : 'chevron-back-outline'"
-          ></ion-icon>
+          @if (sidebarService.isCollapsed()) {
+            <ion-icon name="menu-outline"></ion-icon>
+          } @else {
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          }
         </button>
         <img src="favicon.png" alt="Fineract Logo" class="logo" />
         <span class="app-title">{{ 'app.title' | translate }}</span>
@@ -121,9 +123,11 @@ import { TooltipDirective } from '../shared/directives/tooltip.directive';
           [appTooltip]="'COMMON.TOGGLE_THEME' | translate"
           [attr.aria-label]="'COMMON.TOGGLE_THEME' | translate"
         >
-          <ion-icon
-            [name]="themeService.isDarkMode() ? 'sunny-outline' : 'moon-outline'"
-          ></ion-icon>
+          @if (themeService.isDarkMode()) {
+            <ion-icon name="sunny-outline"></ion-icon>
+          } @else {
+            <ion-icon name="moon-outline"></ion-icon>
+          }
         </button>
 
         <button class="tour-btn" (click)="startTour()" [attr.aria-label]="'Help Tour'">
