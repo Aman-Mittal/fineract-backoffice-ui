@@ -187,6 +187,20 @@ import {
                     >
                       {{ 'SYSTEM.MANDATORY' | translate }}
                     </ion-checkbox>
+                    <ion-checkbox
+                      [name]="'colUnique' + i"
+                      [(ngModel)]="column.unique"
+                      [disabled]="isEditMode"
+                    >
+                      {{ 'SYSTEM.UNIQUE' | translate }}
+                    </ion-checkbox>
+                    <ion-checkbox
+                      [name]="'colIndexed' + i"
+                      [(ngModel)]="column.indexed"
+                      [disabled]="isEditMode"
+                    >
+                      {{ 'SYSTEM.INDEXED' | translate }}
+                    </ion-checkbox>
                   </div>
 
                   @if (!isEditMode) {
@@ -253,7 +267,7 @@ import {
       }
       .column-row {
         display: grid;
-        grid-template-columns: 2fr 1.5fr 1.5fr 1fr auto;
+        grid-template-columns: 2fr 1.5fr 1.5fr 2fr auto;
         gap: 12px;
         align-items: center;
         margin-bottom: 8px;
@@ -261,6 +275,8 @@ import {
       .column-checkboxes {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
         height: 100%;
       }
       .add-col-btn {
@@ -331,6 +347,8 @@ export class DatatablesFormComponent implements OnInit {
           name: col.columnName!,
           type: col.columnDisplayType!,
           mandatory: !col.isColumnNullable,
+          unique: col.isColumnUnique,
+          indexed: col.isColumnIndexed,
           length: col.columnLength,
           code: col.columnCode,
         })),
@@ -343,6 +361,8 @@ export class DatatablesFormComponent implements OnInit {
       name: '',
       type: 'String',
       mandatory: false,
+      unique: false,
+      indexed: false,
       length: 10,
     });
   }
