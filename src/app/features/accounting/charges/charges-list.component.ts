@@ -24,6 +24,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { ChargesService, ChargeData } from '../../../api';
+import { TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 /**
@@ -38,6 +39,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
+    TranslatePipe,
     DecimalPipe,
     CurrencyPipe,
     IonIcon,
@@ -79,7 +81,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          title="Edit Charge"
+          [title]="'CHARGES.EDIT' | appTranslate"
           (click)="onEditCharge(charge)"
         >
           <ion-icon name="create-outline"></ion-icon>

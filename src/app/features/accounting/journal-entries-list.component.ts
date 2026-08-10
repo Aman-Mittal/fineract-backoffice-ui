@@ -47,9 +47,9 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
     <app-data-table
       [hasError]="hasError()"
       (retry)="onRetry()"
-      title="Journal Entries"
+      title="nav.journalEntries"
       helpTextKey="HELP.JOURNAL_ENTRIES_DESC"
-      createButtonLabel="Add Journal Entry"
+      createButtonLabel="JOURNAL_ENTRIES.CREATE"
       [columns]="columns"
       [data]="entries()"
       [totalRecords]="totalRecords"
