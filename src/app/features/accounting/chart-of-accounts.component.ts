@@ -64,6 +64,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           color="primary"
           [title]="'ACCOUNTING.EDIT_ACCOUNT' | appTranslate"
           (click)="onEditAccount(account)"
+          [attr.aria-label]="'ACCOUNTING.EDIT_ACCOUNT' | translate"
         >
           <ion-icon name="create-outline"></ion-icon>
         </ion-button>
