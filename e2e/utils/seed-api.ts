@@ -371,6 +371,80 @@ export interface SeededShareAccount {
   productName: string;
 }
 
+export interface SeededSavingsAccount {
+  savingsId: number;
+  clientName: string;
+}
+
+/**
+ * Seeds a client and an **active** savings account carrying one deposit and one hold.
+ *
+ * Both transactions matter to what this seeds for: a deposit is the only kind of row that can be
+ * reversed, and a hold is the only kind that can be released. They also go through different
+ * endpoints — a hold is `POST /savingsaccounts/{id}/transactions?command=holdAmount`, takes
+ * `transactionAmount` rather than `amount`, and needs a `reasonForBlock` from the
+ * `SavingsAccountBlockReasons` code.
+ */
+export async function seedSavingsAccountWithTransactions(
+  api: APIRequestContext,
+  namePrefix = 'E2ESavings',
+): Promise<SeededSavingsAccount> {
+  const client = await seedClient(api, namePrefix);
+  const suffix = seedSuffix();
+  const today = fineractDate();
+
+  const { resourceId: productId } = await post<{ resourceId: number }>(api, '/savingsproducts', {
+    name: `${namePrefix} Savings ${suffix}`,
+    shortName: `V${suffix.slice(-3).toUpperCase()}`,
+    description: 'Seeded for savings transaction correction coverage',
+    currencyCode: 'USD',
+    digitsAfterDecimal: 2,
+    inMultiplesOf: 0,
+    nominalAnnualInterestRate: 5,
+    interestCompoundingPeriodType: 1,
+    interestPostingPeriodType: 4,
+    interestCalculationType: 1,
+    interestCalculationDaysInYearType: 365,
+    accountingRule: 1,
+    locale: LOCALE,
+  });
+
+  const { savingsId } = await post<{ savingsId: number }>(api, '/savingsaccounts', {
+    clientId: client.clientId,
+    productId,
+    submittedOnDate: today,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+  for (const [command, field] of [
+    ['approve', 'approvedOnDate'],
+    ['activate', 'activatedOnDate'],
+  ] as const) {
+    await post(api, `/savingsaccounts/${savingsId}?command=${command}`, {
+      [field]: today,
+      dateFormat: DATE_FORMAT,
+      locale: LOCALE,
+    });
+  }
+
+  await post(api, `/savingsaccounts/${savingsId}/transactions?command=deposit`, {
+    transactionDate: today,
+    transactionAmount: 500,
+    paymentTypeId: 1,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+  await post(api, `/savingsaccounts/${savingsId}/transactions?command=holdAmount`, {
+    transactionDate: today,
+    transactionAmount: 100,
+    reasonForBlock: 1,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+
+  return { savingsId, clientName: client.displayName };
+}
+
 /**
  * Seeds a client, a savings account, a share product and a share account pending approval.
  *

@@ -353,6 +353,15 @@ export const PRODUCTS_ROUTES: Routes = [
         (m) => m.FixedDepositTransactionsListComponent,
       ),
   },
+  // Deposit only — the platform refuses a withdrawal on a fixed deposit, so there is no
+  // `:command` segment to switch on. See the form's own documentation.
+  {
+    path: 'fixed-deposits/:accountId/transactions/deposit',
+    loadComponent: () =>
+      import('./fixed-deposit-transactions/fixed-deposit-transaction-form.component').then(
+        (m) => m.FixedDepositTransactionFormComponent,
+      ),
+  },
   {
     path: 'recurring-deposits/:accountId/transactions/create',
     loadComponent: () =>
