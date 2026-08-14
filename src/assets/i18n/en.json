@@ -217,6 +217,8 @@
     "MATURITY_AMOUNT": "Maturity Amount",
     "MOBILE_NO": "Mobile No",
     "MONTHS": "Months",
+    "MOVE_DOWN": "Move down",
+    "MOVE_UP": "Move up",
     "NAME": "Name",
     "NEXT_PAGE": "Next page",
     "NO": "No",
@@ -607,6 +609,7 @@
     "UNRECOGNIZED_AMOUNT": "Unrecognized Amount",
     "NOTES": "Notes",
     "ADD_NOTE": "Add a note",
+    "DELETE_NOTE": "Delete note",
     "NO_NOTES": "No notes recorded for this loan yet.",
     "CONFIRM_DELETE_NOTE": "Are you sure you want to delete this note? This action cannot be undone.",
     "DOCUMENTS": "Documents",
@@ -902,6 +905,7 @@
     "MULTI_ROW": "Multi Row",
     "COLUMNS": "Columns",
     "ADD_COLUMN": "Add Column",
+    "REMOVE_COLUMN": "Remove column",
     "LENGTH": "Length",
     "CODE": "Code",
     "MANDATORY": "Mandatory",
@@ -1167,7 +1171,9 @@
   "JOURNAL_ENTRIES": {
     "CREATE": "Add Journal Entry",
     "DEBITS": "Debits",
+    "REMOVE_DEBIT": "Remove debit line",
     "CREDITS": "Credits",
+    "REMOVE_CREDIT": "Remove credit line",
     "TRANSACTION_DATE": "Transaction Date",
     "REFERENCE_NUMBER": "Reference Number",
     "OFFICE": "Office",
@@ -1273,6 +1279,8 @@
     "APPLICATION_DATE": "Application Date",
     "APPLY_SHARES": "Apply for more shares",
     "CREATE": "Create Share Account",
+    "CREATE_CLIENT": "Create client",
+    "CREATE_PRODUCT": "Create share product",
     "DIVIDENDS": "Dividends",
     "EDIT": "Edit Share Account",
     "LINKED_SAVINGS": "Linked savings account",
@@ -1854,6 +1862,9 @@
     "TITLE": "Business Step Configuration",
     "JOB": "Job",
     "NO_STEPS": "No steps configured for this job."
+  },
+  "CHECKER_INBOX": {
+    "VIEW_PAYLOAD": "View payload"
   },
   "BUSINESS_DATES": {
     "TITLE": "Business Date Management",

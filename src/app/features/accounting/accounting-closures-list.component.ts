@@ -71,6 +71,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           color="danger"
           [title]="'ACCOUNTING_CLOSURES.REOPEN' | appTranslate"
           (click)="onDeleteClosure(closure)"
+          [attr.aria-label]="'ACCOUNTING_CLOSURES.REOPEN' | translate"
         >
           <ion-icon name="lock-open-outline"></ion-icon>
         </ion-button>

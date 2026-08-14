@@ -82,6 +82,7 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
               color="danger"
               class="delete-btn"
               (click)="onDeleteNote(note.id!)"
+              [attr.aria-label]="'LOANS.DELETE_NOTE' | translate"
             >
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
