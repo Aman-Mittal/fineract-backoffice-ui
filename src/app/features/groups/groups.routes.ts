@@ -22,27 +22,33 @@ import { Routes } from '@angular/router';
 export const GROUPS_ROUTES: Routes = [
   {
     path: '',
+    title: 'nav.groups',
     loadComponent: () => import('./groups-list.component').then((m) => m.GroupsListComponent),
   },
   {
     path: 'create',
+    title: 'GROUPS.CREATE_GROUP',
     loadComponent: () => import('./group-form.component').then((m) => m.GroupFormComponent),
   },
   {
     path: 'edit/:id',
+    title: 'GROUPS.EDIT_GROUP',
     loadComponent: () => import('./group-form.component').then((m) => m.GroupFormComponent),
   },
   {
     path: 'view/:id',
+    title: 'GROUPS.GROUP_DETAILS',
     loadComponent: () => import('./group-view.component').then((m) => m.GroupViewComponent),
   },
   {
     path: ':groupId/notes/create',
+    title: 'GROUPS.ADD_NOTE',
     loadComponent: () =>
       import('./group-note-form.component').then((m) => m.GroupNoteFormComponent),
   },
   {
     path: ':groupId/notes/edit/:id',
+    title: 'GROUPS.EDIT_NOTE',
     loadComponent: () =>
       import('./group-note-form.component').then((m) => m.GroupNoteFormComponent),
   },
