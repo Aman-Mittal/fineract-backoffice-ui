@@ -54,9 +54,11 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       [columns]="columns"
       [data]="charges()"
       [totalRecords]="charges().length"
+      [hasError]="hasError()"
       [showSearch]="true"
       [localLogic]="true"
       (create)="onCreateCharge()"
+      (retry)="onRetry()"
     >
       <ng-template appCellTemplate="amount" let-charge>
         @if (
@@ -104,6 +106,7 @@ export class ChargesListComponent implements OnInit {
   ];
 
   readonly charges = signal<ChargeData[]>([]);
+  readonly hasError = signal(false);
 
   ngOnInit(): void {
     this.loadCharges();
@@ -112,10 +115,18 @@ export class ChargesListComponent implements OnInit {
   private loadCharges(): void {
     this.chargesService.getCharges().subscribe({
       next: (data) => {
+        this.hasError.set(false);
         this.charges.set(data || []);
       },
-      error: (err) => console.error('Failed to load charges', err),
+      error: () => {
+        this.hasError.set(true);
+        this.charges.set([]);
+      },
     });
+  }
+
+  onRetry(): void {
+    this.loadCharges();
   }
 
   onCreateCharge(): void {
