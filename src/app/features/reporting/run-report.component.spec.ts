@@ -31,8 +31,8 @@ import { RunReportComponent } from './run-report.component';
 describe('RunReportComponent', () => {
   const REPORT_NAME = 'Active Clients';
   const HEAD_OFFICE = 'Head Office';
-  const BAR_CHART = BAR_CHART;
-  const REPORT_TABLE = REPORT_TABLE;
+  const BAR_CHART = '[data-testid="report-chart-bar"]';
+  const REPORT_TABLE = '[data-testid="report-table"]';
   let component: RunReportComponent;
   let fixture: ComponentFixture<RunReportComponent>;
   let reportExecutionSpy: jasmine.SpyObj<ReportExecutionService>;
