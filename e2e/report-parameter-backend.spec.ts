@@ -30,11 +30,26 @@ import { test, expect } from './fixtures';
 import { login } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
-import { createApiContext, seedClient, seedOffice } from './utils/seed-api';
+import {
+  createApiContext,
+  seedChartReport,
+  seedClient,
+  seedCurrencyScopedProduct,
+  seedOffice,
+} from './utils/seed-api';
 
 const REPORT_NAME = 'Client Listing';
 const CASCADING_REPORT_NAME = 'Active Loans - Summary';
 const HEAD_OFFICE = 'Head Office';
+
+/**
+ * Declares Currency -> Product and, unlike every other stock loan report, no Loan Officer.
+ *
+ * That matters: the stock loan-officer lookup compares a bigint column against a bound string
+ * (`o.id = '${officeId}'`) and answers 403 on PostgreSQL whatever the UI sends, so a report
+ * carrying it would exercise that platform defect rather than the cascade.
+ */
+const PRODUCT_CASCADE_REPORT = 'Written-Off Loans';
 
 test.describe('Dynamic report parameters against Fineract', () => {
   test('keeps the parameter form available when a report has cascading lookups', async ({
@@ -109,5 +124,88 @@ test.describe('Dynamic report parameters against Fineract', () => {
     expect(branchRows.join(' ')).toContain(branchClient.displayName);
     expect(branchRows.join(' ')).not.toContain(headOfficeClient.displayName);
     expect(branchRows).not.toEqual(headOfficeRows);
+  });
+});
+
+test.describe('Cascading report parameters against Fineract', () => {
+  test('scopes Product by Currency and clears it when Currency changes', async ({ page }) => {
+    test.setTimeout(180000);
+    const api = await createApiContext();
+    const eurProduct = await seedCurrencyScopedProduct(api, 'EUR');
+    await api.dispose();
+
+    await login(page);
+    await page.goto(`/reporting/run/${encodeURIComponent(PRODUCT_CASCADE_REPORT)}?type=Table`);
+    await expect(page.locator('ion-card-title')).toContainText(PRODUCT_CASCADE_REPORT);
+
+    // Until Currency has a value there is nothing meaningful to offer, so the control says so
+    // rather than presenting every product in the institution.
+    await expect(page.getByTestId('report-parameter-loanProductId')).toBeVisible({
+      timeout: 20000,
+    });
+    await expect(page.getByTestId('report-parameter-loanProductId-waiting')).toBeVisible();
+    await expect(ionSelect(page, 'Product')).toBeDisabled();
+
+    const productOptions = async (): Promise<string[]> => {
+      await ionSelect(page, 'Product').click();
+      const overlay = page.locator('ion-alert, ion-popover, ion-action-sheet');
+      await expect(overlay.getByRole('radio').first()).toBeVisible({ timeout: 20000 });
+      const names = await overlay.getByRole('radio').allTextContents();
+      await page.keyboard.press('Escape');
+      await expect(overlay).toHaveCount(0);
+      return names.map((name) => name.trim());
+    };
+
+    await selectOption(page, 'Currency', 'Euro');
+    await expect(page.getByTestId('report-parameter-loanProductId-waiting')).toHaveCount(0);
+    await expect(ionSelect(page, 'Product')).toBeEnabled({ timeout: 20000 });
+
+    const euroProducts = await productOptions();
+    expect(euroProducts).toContain(eurProduct.productName);
+
+    await selectOption(page, 'Product', eurProduct.productName);
+    await expect(ionSelect(page, 'Product')).toContainText(eurProduct.productName);
+
+    // The regression this guards: a stale product surviving a currency change would filter the
+    // report to a product that does not exist in the chosen currency, returning nothing.
+    await selectOption(page, 'Currency', 'US Dollar');
+    await expect(ionSelect(page, 'Product')).not.toContainText(eurProduct.productName, {
+      timeout: 20000,
+    });
+
+    const dollarProducts = await productOptions();
+    expect(dollarProducts).not.toContain(eurProduct.productName);
+    expect(dollarProducts.length).toBeGreaterThan(0);
+  });
+});
+
+test.describe('Chart reports against Fineract', () => {
+  test('renders a chart report as a chart rather than a table', async ({ page }) => {
+    test.setTimeout(180000);
+    const api = await createApiContext();
+    const report = await seedChartReport(api, 'E2EChart', 'Bar');
+    await api.dispose();
+
+    await login(page);
+    await page.goto(
+      `/reporting/run/${encodeURIComponent(report.reportName)}?type=Chart&subType=Bar`,
+    );
+    await expect(page.locator('ion-card-title')).toContainText(report.reportName);
+
+    const reportResponse = page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        url.pathname.endsWith(`/runreports/${encodeURIComponent(report.reportName)}`) &&
+        response.ok()
+      );
+    });
+    await page.getByTestId('run-report').click();
+    await reportResponse;
+
+    // The platform returns the same generic resultset it returns for a table report, so the
+    // chart existing at all is the proof that the declared report type was honoured.
+    await expect(page.getByTestId('report-chart-bar')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('report-table')).toHaveCount(0);
+    await expect(page.getByTestId('report-chart-bar')).toContainText(HEAD_OFFICE);
   });
 });

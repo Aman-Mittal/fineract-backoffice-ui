@@ -683,3 +683,87 @@ export async function seedRepayment(
     locale: LOCALE,
   });
 }
+
+export interface SeededChartReport {
+  reportId: number;
+  reportName: string;
+}
+
+/**
+ * A parameterless `Chart` report, so the run screen has something whose type is not `Table`.
+ *
+ * `Chart` is one of only three report types the platform accepts — posting `Pentaho` answers
+ * `validation.msg.report.reportType.is.not.one.of.expected.enumerations` naming
+ * `["Table","Chart","SMS"]` — and a chart report returns the *same* generic resultset a table
+ * report does, so the chart is drawn entirely from the column types.
+ *
+ * The SQL is written for PostgreSQL and takes no parameters on purpose: most stock loan reports
+ * compare a bigint column against a bound string (`o.id='${officeId}'`) and fail outright on
+ * PostgreSQL, which would make this a test of that defect rather than of the chart.
+ */
+export async function seedChartReport(
+  api: APIRequestContext,
+  namePrefix = 'E2EChart',
+  subType: 'Bar' | 'Pie' = 'Bar',
+): Promise<SeededChartReport> {
+  const reportName = `${namePrefix} Clients By Office ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/reports', {
+    reportName,
+    reportType: 'Chart',
+    reportSubType: subType,
+    reportCategory: 'Client',
+    reportSql:
+      'select o.name as "Office", count(c.id) as "Clients" ' +
+      'from m_office o left join m_client c on c.office_id = o.id ' +
+      'group by o.name order by 1',
+    useReport: true,
+  });
+  return { reportId: resourceId, reportName };
+}
+
+/**
+ * Enables a second currency and creates a loan product in it.
+ *
+ * The report parameter cascade is only observable when the parent has more than one value to
+ * choose between: with a single enabled currency, "scoped to the selection" and "everything"
+ * are the same list.
+ */
+export async function seedCurrencyScopedProduct(
+  api: APIRequestContext,
+  currencyCode = 'EUR',
+): Promise<SeededLoanProduct> {
+  const currencies = await get<{ selectedCurrencyOptions?: { code: string }[] }>(
+    api,
+    '/currencies',
+  );
+  const enabled = (currencies.selectedCurrencyOptions ?? []).map((c) => c.code);
+  if (!enabled.includes(currencyCode)) {
+    await put(api, '/currencies', { currencies: [...enabled, currencyCode] });
+  }
+
+  const suffix = seedSuffix();
+  const productName = `E2E ${currencyCode} Product ${suffix}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/loanproducts', {
+    name: productName,
+    shortName: suffix.slice(-4).toUpperCase(),
+    currencyCode,
+    digitsAfterDecimal: 2,
+    principal: 1000,
+    numberOfRepayments: 3,
+    repaymentEvery: 1,
+    repaymentFrequencyType: 2,
+    interestRatePerPeriod: 10,
+    interestRateFrequencyType: 2,
+    amortizationType: 1,
+    interestType: 0,
+    interestCalculationPeriodType: 1,
+    accountingRule: 1,
+    daysInYearType: 1,
+    daysInMonthType: 1,
+    isInterestRecalculationEnabled: false,
+    transactionProcessingStrategyCode: 'mifos-standard-strategy',
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return { productId: resourceId, productName };
+}
