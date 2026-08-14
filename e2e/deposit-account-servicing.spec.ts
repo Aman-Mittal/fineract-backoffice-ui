@@ -116,6 +116,58 @@ test.describe('Term deposit account servicing', () => {
     });
   });
 
+  /**
+   * The transactions tab and its correction path.
+   *
+   * Two things here only a real platform settles. The tab used to read `transactions` off the
+   * account response, which never carries that key — so it was empty on every account regardless
+   * of activity, and a mocked fixture that returned the key would have hidden that. And a
+   * reversal must leave the row on screen: Fineract marks it `reversed` rather than deleting it,
+   * and a screen that dropped it would take the audit trail with it.
+   */
+  test('a deposit is recorded, listed, and reversed without leaving the list', async ({ page }) => {
+    test.setTimeout(240000);
+    await login(page);
+
+    const api = await createApiContext();
+    let accountId: number;
+    try {
+      ({ accountId } = await seedFixedDepositAccount(api, 'E2ETxn'));
+    } finally {
+      await api.dispose();
+    }
+
+    await openAccount(page, accountId);
+    await runAction(page, 'approve');
+    await expect(page.getByTestId('deposit-status')).toContainText('Approved', { timeout: 20000 });
+    await runAction(page, 'activate');
+    await expect(page.getByTestId('deposit-status')).toContainText('Active', { timeout: 20000 });
+
+    // --- Record a deposit --------------------------------------------------------------------
+    await page.getByTestId('deposit-actions').click();
+    await page.getByTestId('deposit-action-deposit').click();
+
+    await expect(page.getByTestId('fd-transaction-amount')).toBeVisible({ timeout: 20000 });
+    await page.locator('ion-input[data-testid="fd-transaction-amount"] input').fill('250');
+    await page.getByTestId('fd-transaction-save').click();
+
+    // --- It appears on the tab ---------------------------------------------------------------
+    await expect(page.getByTestId('deposit-status')).toBeVisible({ timeout: 20000 });
+    await page.getByTestId('deposit-tab-transactions').click();
+    const undoButtons = page.locator('[data-testid^="deposit-tx-undo-"]');
+    await expect(undoButtons.first()).toBeVisible({ timeout: 20000 });
+    const rowsBefore = await undoButtons.count();
+    expect(rowsBefore).toBeGreaterThan(0);
+
+    // --- Reverse it --------------------------------------------------------------------------
+    await undoButtons.first().click();
+    await confirmDialog(page).getByTestId('confirm-dialog-confirm').click();
+
+    await page.getByTestId('deposit-tab-transactions').click();
+    // The reversed row is still there, marked rather than removed, and no longer offers undo.
+    await expect(page.getByTestId('deposit-tx-reversed').first()).toBeVisible({ timeout: 20000 });
+  });
+
   test('an application can be rejected instead of approved', async ({ page }) => {
     test.setTimeout(240000);
     await login(page);

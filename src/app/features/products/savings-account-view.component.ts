@@ -340,7 +340,7 @@ import {
           <ion-segment-button value="0">
             <ion-label>Overview</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="1">
+          <ion-segment-button value="1" data-testid="savings-tab-transactions">
             <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button value="2">
@@ -456,6 +456,38 @@ import {
                       <td cdk-cell *cdkCellDef="let tx">
                         {{ account()?.currency?.displaySymbol }}
                         {{ tx.runningBalance || 0 | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="actions">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+                      <td cdk-cell *cdkCellDef="let tx">
+                        @if (canRelease(tx)) {
+                          <ion-button
+                            fill="clear"
+                            size="small"
+                            [attr.data-testid]="'savings-tx-release-' + tx.id"
+                            [attr.aria-label]="'ACTIONS.RELEASE_AMOUNT' | translate"
+                            (click)="onReleaseAmount(tx)"
+                          >
+                            <ion-icon name="lock-open-outline"></ion-icon>
+                          </ion-button>
+                        } @else if (canUndo(tx)) {
+                          <ion-button
+                            fill="clear"
+                            color="danger"
+                            size="small"
+                            [attr.data-testid]="'savings-tx-undo-' + tx.id"
+                            [attr.aria-label]="'ACTIONS.UNDO_TRANSACTION' | translate"
+                            (click)="onUndoTransaction(tx)"
+                          >
+                            <ion-icon name="arrow-undo-outline"></ion-icon>
+                          </ion-button>
+                        } @else if (tx.reversed) {
+                          <span class="reversed-marker" data-testid="savings-tx-reversed">
+                            {{ 'COMMON.REVERSED' | translate }}
+                          </span>
+                        }
                       </td>
                     </ng-container>
 
@@ -664,6 +696,10 @@ import {
         opacity: 0.6;
         color: #7f8c8d;
       }
+      .reversed-marker {
+        color: #7f8c8d;
+        font-style: italic;
+      }
     `,
   ],
 })
@@ -683,7 +719,7 @@ export class SavingsAccountViewComponent implements OnInit {
   readonly transactions = signal<SavingsAccountTransactionData[]>([]);
   readonly charges = signal<SavingsAccountChargeData[]>([]);
 
-  transactionColumns = ['id', 'date', 'type', 'amount', 'runningBalance'];
+  transactionColumns = ['id', 'date', 'type', 'amount', 'runningBalance', 'actions'];
   chargeColumns = ['name', 'amount', 'outstanding'];
 
   get formattedSubmittedDate(): string {
@@ -878,6 +914,85 @@ export class SavingsAccountViewComponent implements OnInit {
           error: () => this.commandFailed(),
         });
     });
+  }
+
+  /**
+   * Whether this row is a hold that still ties up money.
+   *
+   * A hold is `transactionType.amountHold`; once released, Fineract records the id of the
+   * releasing transaction on it. `releaseTransactionId` is `0` — not absent — while the hold
+   * stands, so the check is for a truthy id rather than for the key. Releasing twice is refused
+   * with `validation.msg.amount.is.not.on.hold`, and offering the button anyway would turn a
+   * settled claim into an error toast.
+   */
+  canRelease(transaction: SavingsAccountTransactionData): boolean {
+    const raw = transaction as unknown as Record<string, unknown>;
+    const type = raw['transactionType'] as Record<string, unknown> | undefined;
+    return Boolean(type?.['amountHold']) && !raw['releaseTransactionId'];
+  }
+
+  /**
+   * Whether this row can still be reversed.
+   *
+   * Holds and releases are excluded even though the platform accepts `undo` against them and
+   * answers `200`: a hold is unwound by releasing it, and an undo there reports success without
+   * freeing the money. Already-reversed rows are excluded for the same reason.
+   */
+  canUndo(transaction: SavingsAccountTransactionData): boolean {
+    const raw = transaction as unknown as Record<string, unknown>;
+    const type = raw['transactionType'] as Record<string, unknown> | undefined;
+    return !raw['reversed'] && !type?.['amountHold'] && !type?.['amountRelease'];
+  }
+
+  /**
+   * Frees a held amount.
+   *
+   * `releaseAmount` is addressed to the hold transaction itself, not to the account, and takes no
+   * body — the platform derives the amount from the transaction being released.
+   */
+  onReleaseAmount(transaction: SavingsAccountTransactionData): void {
+    void this.dialogService
+      .confirm({
+        title: this.translate.instant('ACTIONS.RELEASE_AMOUNT'),
+        message: this.translate.instant('ACTIONS.CONFIRM_RELEASE_AMOUNT'),
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.runTransactionCommand(Number(transaction.id), 'releaseAmount');
+      });
+  }
+
+  /**
+   * Reverses a transaction.
+   *
+   * The row stays in the list, struck through — Fineract marks it `reversed` rather than deleting
+   * it, and the ledger depends on that entry still being there.
+   */
+  onUndoTransaction(transaction: SavingsAccountTransactionData): void {
+    void this.dialogService
+      .confirm({
+        title: this.translate.instant('ACTIONS.UNDO_TRANSACTION'),
+        message: this.translate.instant('ACTIONS.CONFIRM_UNDO_TRANSACTION'),
+        destructive: true,
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.runTransactionCommand(Number(transaction.id), 'undo');
+      });
+  }
+
+  private runTransactionCommand(transactionId: number, command: string): void {
+    this.savingsTransactionsService
+      .postSavingsaccountsSavingsIdTransactionsTransactionId(
+        this.accountId,
+        transactionId,
+        {},
+        command,
+      )
+      .subscribe({
+        next: () => this.afterCommand(),
+        error: () => this.commandFailed(),
+      });
   }
 
   private runCommand(command: string, payload: Record<string, unknown>): void {
