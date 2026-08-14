@@ -91,3 +91,17 @@ export function ionSelect(page: Page, label: string): Locator {
     .filter({ has: page.getByText(label, { exact: true }) })
     .locator('ion-select');
 }
+
+/**
+ * Whether an ion-select is disabled.
+ *
+ * `expect(ionSelect(...)).toBeDisabled()` does not work and looks like a product bug when it
+ * fails: the disabled state lives on the button inside the component's shadow root, so the host
+ * element reads as "enabled" while the control is both visibly and functionally disabled. The
+ * host does carry the state as a property, which is what this reads.
+ */
+export async function isIonSelectDisabled(page: Page, label: string): Promise<boolean> {
+  return ionSelect(page, label).evaluate(
+    (element: HTMLElement & { disabled?: boolean }) => element.disabled === true,
+  );
+}

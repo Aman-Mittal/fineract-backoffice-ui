@@ -28,7 +28,7 @@
 
 import { test, expect } from './fixtures';
 import { login } from './utils/fineract-login';
-import { ionSelect } from './utils/ionic-locators';
+import { ionSelect, isIonSelectDisabled } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
 import {
   createApiContext,
@@ -144,7 +144,7 @@ test.describe('Cascading report parameters against Fineract', () => {
       timeout: 20000,
     });
     await expect(page.getByTestId('report-parameter-loanProductId-waiting')).toBeVisible();
-    await expect(ionSelect(page, 'Product')).toBeDisabled();
+    expect(await isIonSelectDisabled(page, 'Product')).toBe(true);
 
     const productOptions = async (): Promise<string[]> => {
       await ionSelect(page, 'Product').click();
@@ -158,7 +158,7 @@ test.describe('Cascading report parameters against Fineract', () => {
 
     await selectOption(page, 'Currency', 'Euro');
     await expect(page.getByTestId('report-parameter-loanProductId-waiting')).toHaveCount(0);
-    await expect(ionSelect(page, 'Product')).toBeEnabled({ timeout: 20000 });
+    await expect.poll(() => isIonSelectDisabled(page, 'Product'), { timeout: 20000 }).toBe(false);
 
     const euroProducts = await productOptions();
     expect(euroProducts).toContain(eurProduct.productName);
