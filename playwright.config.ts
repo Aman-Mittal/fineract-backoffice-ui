@@ -28,6 +28,7 @@ const BACKEND_SPECS = [
   'login.spec.ts',
   'report-parameter-backend.spec.ts',
   'savings-transaction-correction.spec.ts',
+  'share-product-accounting.spec.ts',
   'teller-cash-management.spec.ts',
 ];
 
