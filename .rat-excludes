@@ -59,3 +59,6 @@ ssl/
 # scaffolding (configuration.ts, encoder.ts, variables.ts and similar) does not, because those
 # templates are not overridden. Tracked as an audit finding rather than hidden silently.
 src/app/api/
+# Release-readiness audit reports and their raw evidence (CSV/txt exports). Documentation
+# rather than shipped source, and excluded on the same basis as DOCS/ above.
+audit/

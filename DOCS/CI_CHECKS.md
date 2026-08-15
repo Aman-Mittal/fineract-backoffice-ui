@@ -213,6 +213,11 @@ npx --no-install license-checker --production \
 Two separate things: every source file carries the ASF header, and every
 production dependency has a compatible licence.
 
+Every licence in that list is ASF Category A. Adding one is a decision about what
+the project may redistribute, not a way to make a build pass — a Category B
+dependency may not ship in a source release at all. That constraint is why the UI
+carries no webfont; see `DOCS/FONTS.md`.
+
 The header check covers `src`, `deploy`, `.github`, `scripts` and `e2e`. **A new
 `.github/workflows/*.yml` needs the header too** — that catches people out.
 `src/app/api/` is excluded.
@@ -268,6 +273,7 @@ trust boundaries in `security.md`.
 | `adapter-boundary`   | advisory     | the suppressions backlog only falls                                          |
 | `api-surface`        | pass         | as `api-surface` above                                                       |
 | `deps`               | pass         | no high/critical advisories in the **production** tree                       |
+| `external-fonts`     | pass         | no `fonts.googleapis.com` / `fonts.gstatic.com` in source or in `dist/`      |
 
 Two conventions worth knowing:
 

@@ -308,6 +308,72 @@ function* sources(dir = 'src') {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Gate 5 — no external webfont dependency
+//
+// The UI once pulled Inter from `fonts.googleapis.com` via a <link> in `src/index.html`. That
+// cost more than it looked: Angular's font inlining fetched the stylesheet at *build* time and
+// failed the entire build when it was unreachable, and at *runtime* the browser fetched the
+// binaries from `fonts.gstatic.com` — which `deploy/nginx.conf`'s `font-src 'self' data:`
+// blocked, so the deployed UI silently rendered in the fallback stack. Inter is now bundled
+// from `@fontsource-variable/inter` and served from this origin.
+//
+// This gate keeps it that way. It matches host references that carry a scheme or a
+// protocol-relative prefix, so prose in a code comment does not trip it but a real <link>,
+// @import or url() does. `audit/` and `DOCS/` are not scanned: they document this history and
+// necessarily name the hosts.
+// ---------------------------------------------------------------------------------------------
+{
+  const FONT_HOSTS = /(?:https?:)?\/\/fonts\.(?:googleapis|gstatic)\.com/i;
+  const SCANNED_EXTENSIONS = ['.html', '.css', '.scss', '.sass', '.ts', '.js', '.json'];
+
+  /** Walks a directory yielding files worth scanning; missing directories yield nothing. */
+  function* scannable(dir) {
+    if (!existsSync(dir)) return;
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) yield* scannable(full);
+      else if (SCANNED_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) yield full;
+    }
+  }
+
+  const offenders = [];
+
+  // Application and build inputs — what a developer would edit to reintroduce the dependency.
+  for (const dir of ['src', 'public', 'projects', 'deploy']) {
+    for (const file of scannable(dir)) {
+      if (FONT_HOSTS.test(read(file))) offenders.push(file);
+    }
+  }
+  for (const file of ['angular.json', 'index.html']) {
+    if (existsSync(file) && FONT_HOSTS.test(read(file))) offenders.push(file);
+  }
+
+  // The built artifact, when one is present. A clean source tree that still emits a Google URL
+  // would mean the build itself put it there, which is exactly what used to happen.
+  let artifactChecked = false;
+  for (const built of scannable('dist')) {
+    artifactChecked = true;
+    if (FONT_HOSTS.test(read(built))) offenders.push(built);
+  }
+
+  if (offenders.length > 0) {
+    record('external-fonts', 'No external webfont dependency', 'fail', {
+      detail:
+        `Reference to fonts.googleapis.com or fonts.gstatic.com in: ${offenders.join(', ')}.\n` +
+        'Fonts must be bundled and served from this origin — the deployment CSP blocks ' +
+        'third-party font hosts, and the build must not depend on a network fetch.',
+      reference: 'DOCS/FONTS.md',
+    });
+  } else {
+    record('external-fonts', 'No external webfont dependency', 'pass', {
+      detail: artifactChecked
+        ? 'Source and built artifact are both clean.'
+        : 'Source is clean; no dist/ present, so the artifact was not checked.',
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------------------------
 
