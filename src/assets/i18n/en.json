@@ -269,7 +269,11 @@
     "VIEW_DETAILS": "View Details",
     "WEEKS": "Weeks",
     "YEARS": "Years",
-    "YES": "Yes"
+    "YES": "Yes",
+    "GENERAL": "General",
+    "NOTES": "Notes",
+    "DATA_TABLES": "Data Tables",
+    "UNASSIGNED": "Unassigned"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -1196,7 +1200,34 @@
   "CENTERS": {
     "CREATE_CENTER": "Create Center",
     "EDIT_CENTER": "Edit Center",
-    "NAME": "Center Name"
+    "NAME": "Center Name",
+    "ACTIVATE": "Activate Center",
+    "CLOSE": "Close Center",
+    "ACTIVATION_DATE": "Activation Date",
+    "CLOSURE_DATE": "Closure Date",
+    "CLOSURE_REASON": "Closure Reason",
+    "NO_CLOSURE_REASONS": "No closure reasons have been configured, so this center cannot be closed. Add values to the CenterClosureReason code first.",
+    "ASSIGN_STAFF": "Assign Staff",
+    "UNASSIGN_STAFF": "Unassign Staff",
+    "CONFIRM_UNASSIGN_STAFF": "Unassign the member of staff currently responsible for this center?",
+    "NO_STAFF_IN_OFFICE": "No staff are available in this center’s office.",
+    "ATTACH_GROUPS": "Attach Groups",
+    "DETACH_GROUPS": "Detach Groups",
+    "SEARCH_GROUPS": "Search groups",
+    "NO_GROUPS_FOUND": "No unattached groups were found in this office.",
+    "NO_GROUPS": "This center has no groups.",
+    "GROUPS": "Groups",
+    "GROUP_COUNT": "Groups",
+    "LOAD_FAILED": "This center could not be loaded.",
+    "MEETING": "Meeting",
+    "ATTACH_MEETING": "Attach Meeting",
+    "EDIT_MEETING": "Edit Meeting",
+    "MEETING_TITLE": "Meeting Title",
+    "MEETING_START": "Starts On",
+    "MEETING_FREQUENCY": "Repeats",
+    "MEETING_INTERVAL": "Every",
+    "MEETING_TYPE": "Meeting Type",
+    "MEETING_DAY": "Repeats On"
   },
   "GROUPS": {
     "ACTIVATE": "Activate Group",
