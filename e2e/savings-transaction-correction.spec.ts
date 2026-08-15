@@ -34,7 +34,7 @@
  *   npx playwright test e2e/savings-transaction-correction.spec.ts --project=backend --workers=1
  */
 
-import { test, expect } from './fixtures';
+import { test, expect, recordingTimeout } from './fixtures';
 import { login } from './utils/fineract-login';
 import { confirmDialog } from './utils/ionic-locators';
 import { createApiContext, seedSavingsAccountWithTransactions } from './utils/seed-api';
@@ -43,7 +43,7 @@ test.describe('Savings transaction correction', () => {
   test.describe.configure({ mode: 'serial' });
 
   test('a deposit is reversed and a hold is released', async ({ page }) => {
-    test.setTimeout(240000);
+    test.setTimeout(recordingTimeout(240000));
     await login(page);
 
     const api = await createApiContext();
