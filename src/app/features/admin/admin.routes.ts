@@ -18,6 +18,7 @@
  */
 
 import { Routes } from '@angular/router';
+import { developerToolsGuard } from '../../core/guards/developer-tools.guard';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -34,20 +35,24 @@ export const ADMIN_ROUTES: Routes = [
   },
   {
     path: 'cob-tools',
+    canMatch: [developerToolsGuard],
     loadComponent: () => import('./cob-tools/cob-tools.component').then((m) => m.CobToolsComponent),
   },
   {
     path: 'wc-cob-tools',
+    canMatch: [developerToolsGuard],
     loadComponent: () =>
       import('./wc-cob-tools/wc-cob-tools.component').then((m) => m.WcCobToolsComponent),
   },
   {
     path: 'external-events',
+    canMatch: [developerToolsGuard],
     loadComponent: () =>
       import('./external-events/external-events.component').then((m) => m.ExternalEventsComponent),
   },
   {
     path: 'progressive-loan',
+    canMatch: [developerToolsGuard],
     loadComponent: () =>
       import('./progressive-loan/progressive-loan-model.component').then(
         (m) => m.ProgressiveLoanModelComponent,

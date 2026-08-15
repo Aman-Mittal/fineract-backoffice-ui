@@ -18,6 +18,7 @@
  */
 
 import { Routes } from '@angular/router';
+import { developerToolsGuard } from '../../core/guards/developer-tools.guard';
 
 export const WORKING_CAPITAL_ROUTES: Routes = [
   {
@@ -99,6 +100,7 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
   },
   {
     path: 'loans/account-locks',
+    canMatch: [developerToolsGuard],
     loadComponent: () =>
       import('./loans/wc-account-lock/wc-loan-account-lock.component').then(
         (m) => m.WcLoanAccountLockComponent,
