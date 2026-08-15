@@ -720,3 +720,80 @@ export async function seedChartReport(
   });
   return { reportId: resourceId, reportName };
 }
+
+export interface SeededCenter {
+  centerId: number;
+  centerName: string;
+}
+
+/** A pending center, which is where the lifecycle actions on the detail view start. */
+export async function seedCenter(
+  api: APIRequestContext,
+  namePrefix = 'E2ECenter',
+): Promise<SeededCenter> {
+  const centerName = `${namePrefix} ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/centers', {
+    name: centerName,
+    officeId: 1,
+    active: false,
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return { centerId: resourceId, centerName };
+}
+
+export interface SeededGroup {
+  groupId: number;
+  groupName: string;
+}
+
+/**
+ * A group with no parent center, so it is a candidate for attaching to one.
+ *
+ * `GET /groups?orphansOnly=true` is what the attach dialog offers, and a group already held by a
+ * center is excluded from it — a group has at most one parent.
+ */
+export async function seedGroup(
+  api: APIRequestContext,
+  namePrefix = 'E2EGroup',
+): Promise<SeededGroup> {
+  const groupName = `${namePrefix} ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/groups', {
+    name: groupName,
+    officeId: 1,
+    active: false,
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return { groupId: resourceId, groupName };
+}
+
+export interface SeededStaff {
+  staffId: number;
+  staffName: string;
+}
+
+/**
+ * A member of staff in the head office.
+ *
+ * Seeded rather than assumed: a fresh Fineract has none, and a staff picker scoped to the office
+ * — as every one of them is, because the platform refuses staff from another office — then has
+ * nothing to offer. `displayName` comes back as "lastname, firstname", which is what the pickers
+ * show.
+ */
+export async function seedStaff(
+  api: APIRequestContext,
+  namePrefix = 'E2EStaff',
+): Promise<SeededStaff> {
+  const lastname = `${namePrefix}${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/staff', {
+    officeId: 1,
+    firstname: 'Field',
+    lastname,
+    isLoanOfficer: true,
+    joiningDate: fineractDate(new Date(2020, 0, 1)),
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return { staffId: resourceId, staffName: `${lastname}, Field` };
+}

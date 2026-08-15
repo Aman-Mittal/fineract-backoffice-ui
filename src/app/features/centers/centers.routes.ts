@@ -32,4 +32,22 @@ export const CENTERS_ROUTES: Routes = [
     path: 'edit/:id',
     loadComponent: () => import('./center-form.component').then((m) => m.CenterFormComponent),
   },
+  {
+    path: 'view/:id',
+    loadComponent: () => import('./center-view.component').then((m) => m.CenterViewComponent),
+  },
+  // A center's notes are stored against the groups resource, so the note form is the group one.
+  // `basePath` sends it back to the center it was opened from rather than to a group view.
+  {
+    path: ':groupId/notes/create',
+    loadComponent: () =>
+      import('../groups/group-note-form.component').then((m) => m.GroupNoteFormComponent),
+    data: { basePath: '/centers' },
+  },
+  {
+    path: ':groupId/notes/edit/:id',
+    loadComponent: () =>
+      import('../groups/group-note-form.component').then((m) => m.GroupNoteFormComponent),
+    data: { basePath: '/centers' },
+  },
 ];
