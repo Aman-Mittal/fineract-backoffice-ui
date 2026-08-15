@@ -194,4 +194,5 @@ For more information on contributing, setting up the project, and our coding sta
 - [Contributing Guide](CONTRIBUTING.md)
 - [Project Setup Guide](SETUP.md)
 - [Code Style Guide](STYLE.md)
+- [Fonts](DOCS/FONTS.md)
 - [Prompt Checkpoint](GEMINI.md)
