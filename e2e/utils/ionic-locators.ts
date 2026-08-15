@@ -105,3 +105,17 @@ export async function isIonSelectDisabled(page: Page, label: string): Promise<bo
     (element: HTMLElement & { disabled?: boolean }) => element.disabled === true,
   );
 }
+
+/**
+ * The value currently selected in an ion-select, or null when nothing is.
+ *
+ * Do not assert a selection with `toContainText()`: the options are light-DOM `<ion-select-option>`
+ * children, so the host's text is every option label concatenated — " Product A  Product B  All " —
+ * and a `not.toContainText()` on a still-listed option can never pass. The selection lives in the
+ * host's `value` property.
+ */
+export async function ionSelectValue(page: Page, label: string): Promise<unknown> {
+  return ionSelect(page, label).evaluate(
+    (element: HTMLElement & { value?: unknown }) => element.value ?? null,
+  );
+}

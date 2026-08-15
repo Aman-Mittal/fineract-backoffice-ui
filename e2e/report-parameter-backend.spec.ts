@@ -28,13 +28,13 @@
 
 import { test, expect } from './fixtures';
 import { login } from './utils/fineract-login';
-import { ionSelect, isIonSelectDisabled } from './utils/ionic-locators';
+import { ionSelect, ionSelectValue, isIonSelectDisabled } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
 import {
   createApiContext,
   seedChartReport,
   seedClient,
-  seedCurrencyScopedProduct,
+  seedLoanProduct,
   seedOffice,
 } from './utils/seed-api';
 
@@ -128,10 +128,31 @@ test.describe('Dynamic report parameters against Fineract', () => {
 });
 
 test.describe('Cascading report parameters against Fineract', () => {
-  test('scopes Product by Currency and clears it when Currency changes', async ({ page }) => {
+  /**
+   * Proves the cascade by what it *sends*, not by two currencies.
+   *
+   * Making "scoped to the selection" differ from "everything" in the returned list would need a
+   * second enabled currency with a product in it — and that is a one-way door. Enabling a currency
+   * is tenant-wide, and once any product uses it the platform refuses to disable it again
+   * (`error.msg.currency.currencyCode.inUse`), so the suite could never put the tenant back.
+   * That matters beyond tidiness: `cashier-transaction-form.component.ts` fills its currency in
+   * automatically only when the tenant has exactly one, so a second currency makes the teller spec
+   * — which never had to choose one — post without a currency and read a zero total back.
+   *
+   * The parent value reaching the lookup, the refetch on change, and the child being cleared are
+   * the whole of what #301 does, and all three are observable without touching tenant currencies.
+   * Which options a given parent value yields is pinned by the unit specs.
+   */
+  const PRODUCT_LOOKUP = '/runreports/loanProductIdSelectAll';
+
+  test('sends the parent value to the child lookup and clears the child when it changes', async ({
+    page,
+  }) => {
     test.setTimeout(180000);
     const api = await createApiContext();
-    const eurProduct = await seedCurrencyScopedProduct(api, 'EUR');
+    // A product of its own, so the list is proven to be populated from the lookup rather than
+    // merely carrying the client-side "All" entry.
+    const product = await seedLoanProduct(api, 'E2EReportCascade');
     await api.dispose();
 
     await login(page);
@@ -146,36 +167,25 @@ test.describe('Cascading report parameters against Fineract', () => {
     await expect(page.getByTestId('report-parameter-loanProductId-waiting')).toBeVisible();
     expect(await isIonSelectDisabled(page, 'Product')).toBe(true);
 
-    const productOptions = async (): Promise<string[]> => {
-      await ionSelect(page, 'Product').click();
-      const overlay = page.locator('ion-alert, ion-popover, ion-action-sheet');
-      await expect(overlay.getByRole('radio').first()).toBeVisible({ timeout: 20000 });
-      const names = await overlay.getByRole('radio').allTextContents();
-      await page.keyboard.press('Escape');
-      await expect(overlay).toHaveCount(0);
-      return names.map((name) => name.trim());
-    };
+    const lookupFor = () =>
+      page.waitForRequest((request) => request.url().includes(PRODUCT_LOOKUP), { timeout: 20000 });
 
-    await selectOption(page, 'Currency', 'Euro');
+    const scopedLookup = lookupFor();
+    await selectOption(page, 'Currency', 'US Dollar');
+    expect(new URL((await scopedLookup).url()).searchParams.get('R_currencyId')).toBe('USD');
+
     await expect(page.getByTestId('report-parameter-loanProductId-waiting')).toHaveCount(0);
     await expect.poll(() => isIonSelectDisabled(page, 'Product'), { timeout: 20000 }).toBe(false);
 
-    const euroProducts = await productOptions();
-    expect(euroProducts).toContain(eurProduct.productName);
-
-    await selectOption(page, 'Product', eurProduct.productName);
-    await expect(ionSelect(page, 'Product')).toContainText(eurProduct.productName);
+    await selectOption(page, 'Product', product.productName);
+    expect(await ionSelectValue(page, 'Product')).toBe(product.productId);
 
     // The regression this guards: a stale product surviving a currency change would filter the
     // report to a product that does not exist in the chosen currency, returning nothing.
-    await selectOption(page, 'Currency', 'US Dollar');
-    await expect(ionSelect(page, 'Product')).not.toContainText(eurProduct.productName, {
-      timeout: 20000,
-    });
-
-    const dollarProducts = await productOptions();
-    expect(dollarProducts).not.toContain(eurProduct.productName);
-    expect(dollarProducts.length).toBeGreaterThan(0);
+    const refetch = lookupFor();
+    await selectOption(page, 'Currency', 'All');
+    expect(new URL((await refetch).url()).searchParams.get('R_currencyId')).toBe('-1');
+    await expect.poll(() => ionSelectValue(page, 'Product'), { timeout: 20000 }).toBeNull();
   });
 });
 
