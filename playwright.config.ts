@@ -56,7 +56,10 @@ export default defineConfig({
     baseURL: 'https://localhost:4200',
     trace: 'on-first-retry',
     ignoreHTTPSErrors: true,
-    video: process.env.CI ? 'on' : 'retain-on-failure',
+    // `DEMO_RECORD=1` records every spec, not just the ones that fail — the suites *are* the
+    // flows, so recording them is what produces a demo of the application rather than a separate
+    // script that could drift from what the app actually does. See DOCS/DEMO.md.
+    video: process.env.DEMO_RECORD === '1' || process.env.CI ? 'on' : 'retain-on-failure',
   },
   projects: [
     // Seeds the reference data the real-backend specs need — enabled currencies, a
