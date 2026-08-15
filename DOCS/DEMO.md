@@ -33,14 +33,36 @@ directory is git-ignored.
 
 ## What the switches do
 
-| Variable                | Effect                                                                                                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DEMO_RECORD=1`         | Records every spec, not only the ones that fail. Read in `playwright.config.ts`.                                                                                                            |
-| `DEMO_BEAT_MS`          | Inserts a pause between steps so a recording is watchable. Cosmetic: nothing synchronises on it, so the specs are equally correct with it unset. Currently honoured by `full-demo.spec.ts`. |
-| `PLAYWRIGHT_OUTPUT_DIR` | Where the recordings are written.                                                                                                                                                           |
+| Variable                | Effect                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DEMO_RECORD=1`         | Records every spec, not only the ones that fail. Read in `playwright.config.ts`.                                                                                                                                                |
+| `DEMO_SLOW_MO`          | Milliseconds Playwright waits before **each action** — click, fill, navigation. Defaults to 450 while recording, 0 otherwise. This is what makes a recording followable: the pause lands on the action rather than on the film. |
+| `DEMO_BEAT_MS`          | Inserts a pause between _steps_, on top of the per-action pause. Cosmetic: nothing synchronises on it, so the specs are equally correct with it unset. Honoured by `full-demo.spec.ts`.                                         |
+| `PLAYWRIGHT_OUTPUT_DIR` | Where the recordings are written.                                                                                                                                                                                               |
 
-`npm run demo:record` sets all three and runs the `backend` project with a single worker, so the
+`npm run demo:record` sets these and runs the `backend` project with a single worker, so the
 recordings are in a sensible order rather than interleaved.
+
+### Why pacing is recorded rather than added afterwards
+
+Slowing the footage in post stretches everything uniformly, which lengthens a recording without
+giving the eye anywhere to land — a slowed fast-forward is still a fast-forward. `slowMo` pauses
+_before each action_, so the beat falls where the interaction is. Once that is in the source, no
+post-processing slowdown is needed.
+
+Per-test budgets have to follow. A test's own `test.setTimeout` overrides both the project and the
+root config, so a paced run would otherwise be cut off mid-flow and the clip would end on a frozen
+screen. Specs therefore wrap their budget in `recordingTimeout()` from `e2e/fixtures.ts`, which
+scales it while filming and returns it untouched otherwise. `captureJson()` sizes its
+response-capture window the same way.
+
+Two practical notes:
+
+- **Playwright clears `outputDir` at the start of every run.** Re-recording a single spec into the
+  same directory deletes every other clip. Use a separate `PLAYWRIGHT_OUTPUT_DIR` for one-off
+  re-records.
+- **Do not change the working tree while a recording is in flight.** The dev server recompiles from
+  source, so a checkout or rebase mid-run films a moving target.
 
 ## What each recording shows
 

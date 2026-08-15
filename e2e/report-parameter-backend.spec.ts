@@ -26,7 +26,7 @@
  * bug, where the UI silently omitted a declared parameter and Fineract returned the wrong scope.
  */
 
-import { test, expect } from './fixtures';
+import { test, expect, recordingTimeout } from './fixtures';
 import { login } from './utils/fineract-login';
 import { ionSelect, ionSelectValue, isIonSelectDisabled } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
@@ -148,7 +148,7 @@ test.describe('Cascading report parameters against Fineract', () => {
   test('sends the parent value to the child lookup and clears the child when it changes', async ({
     page,
   }) => {
-    test.setTimeout(180000);
+    test.setTimeout(recordingTimeout(180000));
     const api = await createApiContext();
     // A product of its own, so the list is proven to be populated from the lookup rather than
     // merely carrying the client-side "All" entry.
@@ -191,7 +191,7 @@ test.describe('Cascading report parameters against Fineract', () => {
 
 test.describe('Chart reports against Fineract', () => {
   test('renders a chart report as a chart rather than a table', async ({ page }) => {
-    test.setTimeout(180000);
+    test.setTimeout(recordingTimeout(180000));
     const api = await createApiContext();
     const report = await seedChartReport(api, 'E2EChart', 'Bar');
     await api.dispose();

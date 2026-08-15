@@ -72,6 +72,9 @@ export default defineConfig({
   // .fill()/.click() already wait ~30s via actionability; this brings plain
   // expect() into the same range instead of failing on a slow-but-correct page.
   expect: { timeout: 15000 },
+  // Recording paces every action, so a flow that fits comfortably at test speed needs a larger
+  // budget while it is being filmed.
+  timeout: process.env.DEMO_RECORD === '1' ? 900000 : 30000,
   use: {
     baseURL: 'https://localhost:4200',
     trace: 'on-first-retry',
@@ -80,6 +83,15 @@ export default defineConfig({
     // flows, so recording them is what produces a demo of the application rather than a separate
     // script that could drift from what the app actually does. See DOCS/DEMO.md.
     video: process.env.DEMO_RECORD === '1' || process.env.CI ? 'on' : 'retain-on-failure',
+    // A recording of a test suite is unwatchable at test speed: every click, fill and navigation
+    // lands instantly, so a viewer sees the result of an action without ever seeing the action.
+    // `slowMo` pauses before each Playwright operation, which puts a beat on the action itself
+    // rather than uniformly slowing the footage in post — the difference between following what
+    // is happening and watching a fast-forward. Recording only; the suite runs at full speed
+    // otherwise, so this costs CI nothing.
+    launchOptions: {
+      slowMo: process.env.DEMO_RECORD === '1' ? Number(process.env.DEMO_SLOW_MO ?? 450) : 0,
+    },
   },
   projects: [
     // Seeds the reference data the real-backend specs need — enabled currencies, a
@@ -106,7 +118,10 @@ export default defineConfig({
       // more than the 30s default. Set here rather than per test because
       // test.setTimeout() does not cover beforeEach, and logging in against a
       // cold lazy-loaded route was already exceeding the default in that hook.
-      timeout: 120000,
+      //
+      // This project setting overrides the root one, so it is what governs a recording run —
+      // where every action carries a deliberate pause and the same flow takes far longer.
+      timeout: process.env.DEMO_RECORD === '1' ? 900000 : 120000,
     },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },

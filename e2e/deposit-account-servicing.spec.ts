@@ -32,7 +32,7 @@
  *   npx playwright test e2e/deposit-account-servicing.spec.ts --project=backend --workers=1
  */
 
-import { test, expect, Page } from './fixtures';
+import { test, expect, Page, recordingTimeout } from './fixtures';
 import { login } from './utils/fineract-login';
 import { confirmDialog, modalFor } from './utils/ionic-locators';
 import { createApiContext, seedFixedDepositAccount } from './utils/seed-api';
@@ -55,7 +55,7 @@ test.describe('Term deposit account servicing', () => {
   test.describe.configure({ mode: 'serial' });
 
   test('an account is approved, activated and closed before maturity', async ({ page }) => {
-    test.setTimeout(240000);
+    test.setTimeout(recordingTimeout(240000));
     await login(page);
 
     const api = await createApiContext();
@@ -126,7 +126,7 @@ test.describe('Term deposit account servicing', () => {
    * and a screen that dropped it would take the audit trail with it.
    */
   test('a deposit is recorded, listed, and reversed without leaving the list', async ({ page }) => {
-    test.setTimeout(240000);
+    test.setTimeout(recordingTimeout(240000));
     await login(page);
 
     const api = await createApiContext();
@@ -169,7 +169,7 @@ test.describe('Term deposit account servicing', () => {
   });
 
   test('an application can be rejected instead of approved', async ({ page }) => {
-    test.setTimeout(240000);
+    test.setTimeout(recordingTimeout(240000));
     await login(page);
 
     const api = await createApiContext();

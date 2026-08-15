@@ -32,7 +32,7 @@
  *   npx playwright test e2e/loan-product-accounting.spec.ts --project=backend --workers=1
  */
 
-import { test, expect, Page } from './fixtures';
+import { test, expect, Page, recordingTimeout } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { captureJson } from './utils/capture-response';
 import { ionSelect } from './utils/ionic-locators';
@@ -91,7 +91,7 @@ test.describe('Loan product accounting', () => {
   test('a cash-accounting product is configured, round-trips on edit, and posts to the ledger', async ({
     page,
   }) => {
-    test.setTimeout(480000);
+    test.setTimeout(recordingTimeout(480000));
     await login(page);
 
     const suffix = uniqueSuffix();

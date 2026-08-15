@@ -37,14 +37,14 @@
  *   npx playwright test e2e/center-servicing.spec.ts --project=backend --workers=1
  */
 
-import { expect, test } from './fixtures';
+import { expect, test, recordingTimeout } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
 import { createApiContext, seedCenter, seedGroup, seedStaff } from './utils/seed-api';
 
 test.describe('Center servicing', () => {
   test('a center is activated, staffed and given a group', async ({ page }) => {
-    test.setTimeout(240000);
+    test.setTimeout(recordingTimeout(240000));
 
     const api = await createApiContext();
     const suffix = uniqueSuffix();
@@ -147,7 +147,7 @@ test.describe('Center servicing', () => {
    * "Note does not support resource centers", while `/groups/{centerId}/notes` stores one.
    */
   test('notes are recorded against the center', async ({ page }) => {
-    test.setTimeout(180000);
+    test.setTimeout(recordingTimeout(180000));
 
     const api = await createApiContext();
     const center = await seedCenter(api, `E2ECenterNotes ${uniqueSuffix()}`);
