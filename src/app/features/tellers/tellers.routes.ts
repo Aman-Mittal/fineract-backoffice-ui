@@ -58,11 +58,4 @@ export const TELLERS_ROUTES: Routes = [
         (m) => m.CashierTransactionFormComponent,
       ),
   },
-  {
-    path: 'cashier-journals',
-    loadComponent: () =>
-      import('./cashier-journals/cashier-journals-list.component').then(
-        (m) => m.CashierJournalsListComponent,
-      ),
-  },
 ];

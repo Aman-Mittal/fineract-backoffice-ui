@@ -679,36 +679,6 @@
       "count": 1
     }
   },
-  "src/app/features/mix/mapping/mix-mapping.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/mix/mapping/mix-mapping.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/mix/report/mix-report.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/mix/report/mix-report.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/mix/taxonomy/mix-taxonomy.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/mix/taxonomy/mix-taxonomy.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/notifications/notifications-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1725,16 +1695,6 @@
     }
   },
   "src/app/features/tasks/checker-inbox/view-payload-dialog.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/tellers/cashier-journals/cashier-journals-list.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/tellers/cashier-journals/cashier-journals-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }

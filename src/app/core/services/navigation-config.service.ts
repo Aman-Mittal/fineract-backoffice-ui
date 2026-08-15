@@ -231,14 +231,11 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
     ],
   },
   {
-    labelKey: 'nav.spmMix',
+    labelKey: 'nav.spm',
     children: [
       { route: '/spm/surveys', labelKey: 'nav.spmSurveys', icon: 'bar-chart-outline' },
       { route: '/spm/poverty-line', labelKey: 'nav.povertyLine', icon: 'trending-down-outline' },
       { route: '/spm/likelihood', labelKey: 'nav.likelihood', icon: 'analytics-outline' },
-      { route: '/mix/mapping', labelKey: 'nav.mixMapping', icon: 'link-outline' },
-      { route: '/mix/report', labelKey: 'nav.mixReport', icon: ICON_DOCUMENT_TEXT_OUTLINE },
-      { route: '/mix/taxonomy', labelKey: 'nav.mixTaxonomy', icon: ICON_GIT_NETWORK_OUTLINE },
       {
         route: '/spm/survey-responses',
         labelKey: 'SURVEY_RESPONSES.TITLE',
@@ -423,14 +420,7 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
   },
   {
     labelKey: 'nav.tellerOperations',
-    children: [
-      { route: '/tellers', labelKey: 'nav.tellers', icon: 'storefront-outline' },
-      {
-        route: '/tellers/cashier-journals',
-        labelKey: 'nav.cashierJournals',
-        icon: 'book-outline',
-      },
-    ],
+    children: [{ route: '/tellers', labelKey: 'nav.tellers', icon: 'storefront-outline' }],
   },
   {
     labelKey: 'nav.organization',

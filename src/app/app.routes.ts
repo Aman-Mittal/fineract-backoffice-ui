@@ -142,10 +142,6 @@ export const routes: Routes = [
         loadChildren: () => import('./features/spm/spm.routes').then((m) => m.SPM_ROUTES),
       },
       {
-        path: 'mix',
-        loadChildren: () => import('./features/mix/mix.routes').then((m) => m.MIX_ROUTES),
-      },
-      {
         path: 'meetings',
         title: 'MEETINGS.TITLE',
         loadChildren: () =>
