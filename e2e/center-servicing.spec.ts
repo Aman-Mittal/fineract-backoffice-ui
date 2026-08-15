@@ -40,7 +40,7 @@
 import { expect, test } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
-import { createApiContext, seedCenter, seedGroup } from './utils/seed-api';
+import { createApiContext, seedCenter, seedGroup, seedStaff } from './utils/seed-api';
 
 test.describe('Center servicing', () => {
   test('a center is activated, staffed and given a group', async ({ page }) => {
@@ -50,6 +50,9 @@ test.describe('Center servicing', () => {
     const suffix = uniqueSuffix();
     const center = await seedCenter(api, `E2ECenter ${suffix}`);
     const group = await seedGroup(api, `E2ECenterGroup ${suffix}`);
+    // Seeded rather than assumed: a fresh instance has no staff at all, so the picker — which is
+    // scoped to the office because the platform refuses staff from another one — would be empty.
+    const staff = await seedStaff(api, 'E2ECenterStaff');
     await api.dispose();
 
     await login(page);
@@ -73,11 +76,19 @@ test.describe('Center servicing', () => {
     // platform answers validation.msg.center.name.cannot.be.blank, which reads like a form bug.
     await page.getByTestId('center-actions').click();
     await page.getByTestId('center-action-assign-staff').click();
+    // Not `selectOption`: it waits for every overlay to close first, and this page keeps a
+    // declarative <ion-popover trigger="…"> mounted for the actions menu, so that never holds.
+    // The radio is addressed by name instead — the actions popover has none.
     await ionSelect(page, 'Staff').click();
-    await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
+    await page
+      .locator('ion-alert, ion-popover, ion-action-sheet')
+      .getByRole('radio', { name: staff.staffName, exact: true })
+      .click();
     await page.getByTestId('center-staff-confirm').click();
 
-    await expect(page.getByTestId('center-staff-name')).not.toHaveText('Unassigned', {
+    // Asserted by name, not merely by "not Unassigned": that proves the chosen officer is the one
+    // the update carried, which is the whole point of scoping the picker to the office.
+    await expect(page.getByTestId('center-staff-name')).toHaveText(staff.staffName, {
       timeout: 20000,
     });
 

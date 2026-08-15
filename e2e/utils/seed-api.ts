@@ -767,3 +767,33 @@ export async function seedGroup(
   });
   return { groupId: resourceId, groupName };
 }
+
+export interface SeededStaff {
+  staffId: number;
+  staffName: string;
+}
+
+/**
+ * A member of staff in the head office.
+ *
+ * Seeded rather than assumed: a fresh Fineract has none, and a staff picker scoped to the office
+ * — as every one of them is, because the platform refuses staff from another office — then has
+ * nothing to offer. `displayName` comes back as "lastname, firstname", which is what the pickers
+ * show.
+ */
+export async function seedStaff(
+  api: APIRequestContext,
+  namePrefix = 'E2EStaff',
+): Promise<SeededStaff> {
+  const lastname = `${namePrefix}${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/staff', {
+    officeId: 1,
+    firstname: 'Field',
+    lastname,
+    isLoanOfficer: true,
+    joiningDate: fineractDate(new Date(2020, 0, 1)),
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return { staffId: resourceId, staffName: `${lastname}, Field` };
+}
