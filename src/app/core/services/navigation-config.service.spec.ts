@@ -119,6 +119,8 @@ describe('NavigationConfigService', () => {
       (item) => item.route === route || (item.children && findRoute(item.children, route)),
     );
 
+  const COB_TOOLS_ROUTE = '/admin/cob-tools';
+  const PLACE_LOCK_ROUTE = '/working-capital/loans/account-locks';
   const SECURITY_USERS_ROUTE = '/security/users';
   const ACCOUNTING_CHART_ROUTE = '/accounting/chart-of-accounts';
 
@@ -264,10 +266,14 @@ describe('NavigationConfigService', () => {
       expect(findRoute(items, '/interop/accounts')).toBeTrue();
       expect(findRoute(items, '/interop/health')).toBeTrue();
       expect(findRoute(items, '/campaigns/email-messages')).toBeTrue();
-      expect(findRoute(items, '/working-capital/loans/account-locks')).toBeTrue();
       expect(findRoute(items, '/working-capital/loans/cob-catchup')).toBeTrue();
-      expect(findRoute(items, '/admin/wc-cob-tools')).toBeTrue();
       expect(findRoute(items, '/transfers/history')).toBeTrue();
+
+      // Hidden for a different reason than the twelve above: these drive Fineract's
+      // /v1/internal endpoints and are gated by `developerToolsEnabled`, not by permission.
+      // They were ungated siblings when this test was written.
+      expect(findRoute(items, '/working-capital/loans/account-locks')).toBeFalse();
+      expect(findRoute(items, '/admin/wc-cob-tools')).toBeFalse();
     });
 
     it('shows only the specific interop routes the user has permission for', () => {
@@ -377,6 +383,42 @@ describe('NavigationConfigService', () => {
       expect(
         isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'CREATE_CLIENT' }),
       ).toBeFalse();
+    });
+  });
+
+  describe('developer tools', () => {
+    /**
+     * These screens drive Fineract's /v1/internal endpoints, which the backend serves only under
+     * its test Spring profile and which answer 404 on a normal deployment.
+     */
+    it('hides the internal-endpoint screens by default', () => {
+      TestBed.resetTestingModule();
+      configure();
+      setPermissions(['ALL_FUNCTIONS']);
+
+      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeFalse();
+      expect(findRoute(service.filteredNavItems(), PLACE_LOCK_ROUTE)).toBeFalse();
+    });
+
+    it('shows them when the deployment opts in', () => {
+      TestBed.resetTestingModule();
+      configure({ developerToolsEnabled: true });
+      setPermissions(['ALL_FUNCTIONS']);
+
+      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeTrue();
+      expect(findRoute(service.filteredNavItems(), PLACE_LOCK_ROUTE)).toBeTrue();
+    });
+
+    /**
+     * Turning RBAC off means "show this user everything they may reach", not "expose endpoints
+     * this deployment cannot serve" — so the developer-tool check sits before that short-circuit.
+     */
+    it('keeps them hidden even when RBAC is disabled', () => {
+      TestBed.resetTestingModule();
+      configure({ rbacEnabled: false });
+
+      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeFalse();
+      expect(findRoute(service.filteredNavItems(), SECURITY_USERS_ROUTE)).toBeTrue();
     });
   });
 });

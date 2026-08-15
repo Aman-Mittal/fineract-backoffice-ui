@@ -60,6 +60,11 @@ export interface NavItemConfig {
   children?: NavItemConfig[];
   /** Marks a purely visual separator between sibling items; no other field applies. */
   divider?: boolean;
+  /**
+   * Drives Fineract's `/v1/internal/**` endpoints, which exist only under the backend's `test`
+   * profile. Hidden unless the deployment sets `developerToolsEnabled`.
+   */
+  developerTool?: boolean;
 }
 
 /**
@@ -93,6 +98,7 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
     route: '/loans/account-locks',
     labelKey: 'LOAN_ACCOUNT_LOCK.TITLE',
     icon: ICON_LOCK_CLOSED_OUTLINE,
+    developerTool: true,
   },
   {
     route: '/loans/cob-catchup',
@@ -221,13 +227,19 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         route: '/working-capital/loans/account-locks',
         labelKey: 'WC_LOAN_ACCOUNT_LOCK.TITLE',
         icon: ICON_LOCK_CLOSED_OUTLINE,
+        developerTool: true,
       },
       {
         route: '/working-capital/loans/cob-catchup',
         labelKey: 'WC_LOAN_COB_CATCHUP.TITLE',
         icon: 'refresh-circle-outline',
       },
-      { route: '/admin/wc-cob-tools', labelKey: 'WC_COB_TOOLS.TITLE', icon: ICON_OPTIONS_OUTLINE },
+      {
+        route: '/admin/wc-cob-tools',
+        labelKey: 'WC_COB_TOOLS.TITLE',
+        icon: ICON_OPTIONS_OUTLINE,
+        developerTool: true,
+      },
     ],
   },
   {
@@ -304,17 +316,29 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         icon: 'layers-outline',
       },
       { route: '/admin/inline-job', labelKey: 'INLINE_JOB.TITLE', icon: 'play-circle-outline' },
-      { route: '/admin/cob-tools', labelKey: 'COB_TOOLS.TITLE', icon: 'construct-outline' },
-      { route: '/admin/wc-cob-tools', labelKey: 'WC_COB_TOOLS.TITLE', icon: 'build-outline' },
+      {
+        route: '/admin/cob-tools',
+        labelKey: 'COB_TOOLS.TITLE',
+        icon: 'construct-outline',
+        developerTool: true,
+      },
+      {
+        route: '/admin/wc-cob-tools',
+        labelKey: 'WC_COB_TOOLS.TITLE',
+        icon: 'build-outline',
+        developerTool: true,
+      },
       {
         route: '/admin/external-events',
         labelKey: 'EXTERNAL_EVENTS.TITLE',
         icon: ICON_CALENDAR_OUTLINE,
+        developerTool: true,
       },
       {
         route: '/admin/progressive-loan',
         labelKey: 'PROGRESSIVE_LOAN.TITLE',
         icon: ICON_TRENDING_UP_OUTLINE,
+        developerTool: true,
       },
     ],
   },
@@ -630,6 +654,7 @@ export class NavigationConfigService {
     this.authService.currentUser();
     this.institutionConfig.institutionType();
     this.config.rbacEnabled();
+    this.config.developerToolsEnabled();
     this.hidden();
     return filterNavItems(NAV_CONFIG, (item) => this.isItemVisible(item));
   });
@@ -638,6 +663,13 @@ export class NavigationConfigService {
     // Checked before the RBAC short-circuit: hiding an entry is what this deployment offers,
     // which is a separate question from what this user is allowed to reach.
     if (this.hidden().has(item.labelKey)) {
+      return false;
+    }
+
+    // Checked before the RBAC short-circuit, and for the same reason the `hidden` check is:
+    // turning RBAC off means "show this user everything they may reach", not "expose endpoints
+    // this deployment cannot serve". A developer tool stays hidden either way.
+    if (item.developerTool && !this.config.developerToolsEnabled()) {
       return false;
     }
 
