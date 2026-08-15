@@ -1143,7 +1143,11 @@
     "PARAMETERS_LOADING": "Loading report parameters...",
     "PARAMETERS_LOAD_FAILED": "This report cannot be run because its parameters could not be loaded.",
     "PARAMETERS_UNSUPPORTED": "This report cannot be run because these parameters use unsupported control types",
-    "PARAMETERS_INCOMPLETE": "Complete every report parameter before running the report."
+    "PARAMETERS_INCOMPLETE": "Complete every report parameter before running the report.",
+    "PARAMETER_SELECT_PARENT_FIRST": "Choose {{parameter}} first.",
+    "PARAMETER_OPTIONS_LOADING": "Loading options...",
+    "PARAMETER_OPTIONS_FAILED": "The options for this parameter could not be loaded.",
+    "CHART_UNAVAILABLE": "This report is defined as a chart, but its results contain no numeric column to plot. Showing the results as a table instead."
   },
   "SETTINGS": {
     "CONFIG_NAME": "Configuration Name",

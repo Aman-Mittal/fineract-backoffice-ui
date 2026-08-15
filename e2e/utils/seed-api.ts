@@ -683,3 +683,40 @@ export async function seedRepayment(
     locale: LOCALE,
   });
 }
+
+export interface SeededChartReport {
+  reportId: number;
+  reportName: string;
+}
+
+/**
+ * A parameterless `Chart` report, so the run screen has something whose type is not `Table`.
+ *
+ * `Chart` is one of only three report types the platform accepts — posting `Pentaho` answers
+ * `validation.msg.report.reportType.is.not.one.of.expected.enumerations` naming
+ * `["Table","Chart","SMS"]` — and a chart report returns the *same* generic resultset a table
+ * report does, so the chart is drawn entirely from the column types.
+ *
+ * The SQL is written for PostgreSQL and takes no parameters on purpose: most stock loan reports
+ * compare a bigint column against a bound string (`o.id='${officeId}'`) and fail outright on
+ * PostgreSQL, which would make this a test of that defect rather than of the chart.
+ */
+export async function seedChartReport(
+  api: APIRequestContext,
+  namePrefix = 'E2EChart',
+  subType: 'Bar' | 'Pie' = 'Bar',
+): Promise<SeededChartReport> {
+  const reportName = `${namePrefix} Clients By Office ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/reports', {
+    reportName,
+    reportType: 'Chart',
+    reportSubType: subType,
+    reportCategory: 'Client',
+    reportSql:
+      'select o.name as "Office", count(c.id) as "Clients" ' +
+      'from m_office o left join m_client c on c.office_id = o.id ' +
+      'group by o.name order by 1',
+    useReport: true,
+  });
+  return { reportId: resourceId, reportName };
+}
