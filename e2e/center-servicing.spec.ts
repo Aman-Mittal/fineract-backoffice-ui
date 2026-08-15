@@ -40,6 +40,7 @@
 import { expect, test, recordingTimeout } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
+import { captureJson } from './utils/capture-response';
 import { createApiContext, seedCenter, seedGroup, seedStaff } from './utils/seed-api';
 
 test.describe('Center servicing', () => {
@@ -65,9 +66,26 @@ test.describe('Center servicing', () => {
     await expect(page.getByTestId('center-group-count')).toHaveText('0');
 
     // --- Activate ------------------------------------------------------------------------------
-    await page.getByTestId('center-actions').click();
-    await page.getByTestId('center-action-activate').click();
-    await page.getByTestId('center-action-confirm').click();
+    //
+    // The response is captured rather than only the resulting badge. A refused activation leaves
+    // the badge on "Pending" and the assertion then reports nothing beyond that, which says
+    // neither what was sent nor why the platform objected — the difference between a diagnosable
+    // failure and one that has to be reproduced before it can be read.
+    const activation = await captureJson<Record<string, unknown>>(
+      page,
+      new RegExp(`/centers/${center.centerId}(\\?|$)`),
+      'POST',
+      async () => {
+        await page.getByTestId('center-actions').click();
+        await page.getByTestId('center-action-activate').click();
+        await page.getByTestId('center-action-confirm').click();
+      },
+    );
+    expect(
+      activation['resourceId'],
+      `activation was refused; the platform answered: ${JSON.stringify(activation)}`,
+    ).toBeDefined();
+
     await expect(page.getByTestId('center-status')).toContainText(/active/i, { timeout: 20000 });
 
     // --- Assign staff --------------------------------------------------------------------------
