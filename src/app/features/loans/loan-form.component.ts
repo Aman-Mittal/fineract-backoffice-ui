@@ -62,6 +62,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
+  formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -603,15 +604,11 @@ export class LoanFormComponent implements OnInit {
       next: (data: GetLoansLoanIdResponse) => {
         const subDateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (subDateArray) {
-          this.submittedOnDate.set(
-            toIsoDate(new Date(subDateArray[0], subDateArray[1] - 1, subDateArray[2])),
-          );
+          this.submittedOnDate.set(formatArrayDate(subDateArray));
         }
         const expDisbDateArray = data.timeline?.expectedDisbursementDate as unknown as number[];
         if (expDisbDateArray) {
-          this.expectedDisbursementDate.set(
-            toIsoDate(new Date(expDisbDateArray[0], expDisbDateArray[1] - 1, expDisbDateArray[2])),
-          );
+          this.expectedDisbursementDate.set(formatArrayDate(expDisbDateArray));
         }
 
         this.loan.set({
