@@ -378,5 +378,20 @@
     "REQUIRES": "{{codes}} 권한이 필요합니다 — {{summary}}",
     "JOIN_ANY": " 또는 ",
     "JOIN_ALL": " 및 "
+  },
+  "OIDC_CONFIG": {
+    "PROVIDER_TYPE": "공급자 유형",
+    "JWKS_URI": "JWKS URI",
+    "USERNAME_CLAIM": "사용자 이름 클레임",
+    "SCOPES": "스코프",
+    "POST_LOGOUT_URI": "로그아웃 후 리디렉션 URI",
+    "SECRET_HINT": "클라이언트 시크릿은 플랫폼에 저장되며 반환되지 않습니다. 기존 값을 유지하려면 비워 두십시오.",
+    "SECRET_UNCHANGED": "변경 없음",
+    "SAVED": "OIDC 구성이 저장되었습니다",
+    "DELETED": "OIDC 구성이 삭제되었습니다",
+    "LOAD_FAILED": "OIDC 구성을 불러오지 못했습니다",
+    "DELETE_TITLE": "OIDC 구성 삭제",
+    "DELETE_MESSAGE": "이 테넌트에서 해당 ID 공급자를 통한 로그인이 중단됩니다. 되돌릴 수 없습니다.",
+    "JWKS_HINT": "선택 사항입니다. 비워 두면 플랫폼이 발급자의 /.well-known/openid-configuration에서 검색합니다."
   }
 }

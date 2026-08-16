@@ -153,7 +153,9 @@ Entries are one of two kinds, and the distinction matters when adding one:
 
 - **Self-service** — the screen is about the signed-in user or their session (`/profile`,
   `/dashboard`, `/forbidden`, `/login`). Gating these on a Fineract permission would be wrong.
-- **No such permission** — Fineract's catalogue has no code covering the read. Tellers, share
+- **No such permission** — Fineract's catalogue has no code covering the read. `/system/oidc-config`
+  is the sharpest example: upstream documentation names `MANAGE_TENANT_OIDC_CONFIG` as required,
+  and that code is not among the 698 the platform seeds. See [DOCS/OIDC.md](OIDC.md). Tellers, share
   products and accounts, provisioning, ad-hoc queries and several others have CREATE/UPDATE codes
   but no READ. These are not exemptions anyone chose. Where write codes _do_ exist, the write
   routes are gated even though the read route is not; that asymmetry is deliberate.
