@@ -56,11 +56,20 @@ const TAG = 'ion-button';
 
 /** Attributes that name the element outright, static or bound. */
 const NAMING_ATTRIBUTE = /(?:\[attr\.)?aria-label(?:ledby)?\]?=|aria-labelledby=/;
-/** An `<ion-icon>` element, self-closed or paired. Its content is a glyph, never text. */
-const ICON = /<ion-icon\b[^>]*?(?:\/>|>[\s\S]*?<\/ion-icon>)/g;
-const COMMENT = /<!--[\s\S]*?-->/g;
-/** Angular control flow left behind once the icons inside it are removed. */
-const CONTROL_FLOW = /@(?:if|else|for|empty|switch|case|default)\b[^{]*\{|\}/g;
+
+/**
+ * Sticky, because `isIconOnly` matches them at a position rather than searching.
+ *
+ * `<ion-icon>`'s content is a glyph, never text. Angular control flow is structure, not
+ * content, and is left behind once the icons inside it are accounted for.
+ */
+const ICON_OPEN = /<ion-icon(?=[\s/>])/y;
+const CONTROL_FLOW = /@(?:if|else|for|empty|switch|case|default)\b[^{]*\{|\}/y;
+const WHITESPACE = /\s+/y;
+
+const ICON_CLOSE = '</ion-icon>';
+const COMMENT_OPEN = '<!--';
+const COMMENT_CLOSE = '-->';
 
 function walk(dir) {
   const out = [];
@@ -122,13 +131,67 @@ function buttons(source) {
   return found;
 }
 
-/** True when the button renders icons and nothing a name could be computed from. */
-function isIconOnly(content) {
-  ICON.lastIndex = 0;
-  if (!ICON.test(content)) return false;
-  ICON.lastIndex = 0;
+/** Index just past `pattern` when it matches at `index`, otherwise -1. */
+function skip(pattern, source, index) {
+  pattern.lastIndex = index;
+  return pattern.test(source) ? pattern.lastIndex : -1;
+}
 
-  return content.replace(COMMENT, '').replace(ICON, '').replace(CONTROL_FLOW, '').trim() === '';
+/**
+ * True when the button renders icons and nothing a name could be computed from.
+ *
+ * This walks the content rather than chaining `String.replace` to strip comments and
+ * icons out of it. Removing a multi-character delimiter such as `<!--` in a single pass
+ * is a shape worth keeping out of the tree even where it happens to be sound, because on
+ * input that can nest, one pass leaves behind a delimiter that a second pass would have
+ * caught. CodeQL flags it on sight (`js/incomplete-multi-character-sanitization`), and a
+ * check that gates other people's builds is a poor place for a pattern a reader has to
+ * stop and reason about. Walking is also stricter than the regex it replaces: it ends an
+ * icon's opening tag with `endOfOpeningTag`, so a self-closing `<ion-icon>` carrying a `>`
+ * inside one of its bindings no longer escapes the check entirely.
+ */
+function isIconOnly(content) {
+  let sawIcon = false;
+  let i = 0;
+
+  while (i < content.length) {
+    if (content.startsWith(COMMENT_OPEN, i)) {
+      const end = content.indexOf(COMMENT_CLOSE, i + COMMENT_OPEN.length);
+      i = end === -1 ? content.length : end + COMMENT_CLOSE.length;
+      continue;
+    }
+
+    if (skip(ICON_OPEN, content, i) !== -1) {
+      const tagEnd = endOfOpeningTag(content, i);
+      if (tagEnd === -1) return false;
+
+      if (content[tagEnd - 1] === '/') {
+        i = tagEnd + 1;
+      } else {
+        const close = content.indexOf(ICON_CLOSE, tagEnd);
+        i = close === -1 ? content.length : close + ICON_CLOSE.length;
+      }
+      sawIcon = true;
+      continue;
+    }
+
+    const pastControlFlow = skip(CONTROL_FLOW, content, i);
+    if (pastControlFlow !== -1) {
+      i = pastControlFlow;
+      continue;
+    }
+
+    const pastBlank = skip(WHITESPACE, content, i);
+    if (pastBlank !== -1) {
+      i = pastBlank;
+      continue;
+    }
+
+    // Anything else is content a name could be computed from.
+    return false;
+  }
+
+  return sawIcon;
 }
 
 const problems = [];
