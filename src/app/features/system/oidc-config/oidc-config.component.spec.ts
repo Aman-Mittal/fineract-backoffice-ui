@@ -181,8 +181,7 @@ describe('OidcConfigComponent', () => {
     });
 
     it('stops the spinner when the platform refuses the save', () => {
-      // The platform currently answers 500 to every write on PostgreSQL (upstream bug, see the
-      // component doc comment). Whatever the cause, the form must not stay stuck saving.
+      // Whatever the platform's reason, the form must not stay stuck saving.
       serviceSpy.putTenantsTenantIdOidcConfig.and.returnValue(
         asWrite(throwError(() => new HttpErrorResponse({ status: 500 }))),
       );

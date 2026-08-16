@@ -94,17 +94,8 @@ const DEFAULTS: OidcConfig = {
  * config is parsed on load and stringified on save, and no field name here is checked by the
  * compiler. {@link OidcConfig} is the transcript of what the platform actually returns.
  *
- * > **Writes currently fail on PostgreSQL.** `POST` and `PUT` both answer 500 from
- * > `TenantOidcConfigRepositoryJdbc.insert`, which binds a boolean to the `smallint` `enabled`
- * > column: `ERROR: column "enabled" is of type smallint but expression is of type boolean`.
- * > That is a platform bug, not one this screen can fix, and it is independent of the body sent —
- * > every field combination, including omitting `enabled` entirely, fails the same way. Reads and
- * > deletes work. Until it is fixed upstream a configuration has to be inserted directly into
- * > `m_tenant_oidc_config` in the tenants database, and this screen can only display it.
- *
- * Configuring OIDC does **not** disable password authentication: with a configuration present and
- * `enabled: true`, Basic auth continues to answer 200. So this screen is currently inert rather
- * than dangerous — unlike the two-factor switch, which takes a deployment offline.
+ * Configuring OIDC does not disable password authentication — both chains run, and a Bearer token
+ * routes to one while Basic credentials fall through to the other. See DOCS/OIDC.md.
  *
  * The tenant id is a simple input (defaults to 'default').
  */
@@ -335,10 +326,7 @@ export class OidcConfigComponent implements OnInit {
         this.load();
       },
       error: () => {
-        this.isSaving.set(false);
-        // Previously `console.error` and nothing else, so a refused save looked exactly like a
-        // successful one. The interceptor renders the platform's own message; this only has to
-        // stop the spinner and let it through.
+        // The interceptor renders the platform's own message; this only has to release the form.
         this.isSaving.set(false);
       },
     });

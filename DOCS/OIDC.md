@@ -19,183 +19,109 @@ under the License.
 
 # OpenID Connect
 
-> [!IMPORTANT]
-> **This application cannot sign a user in through an identity provider.** It has a screen that
-> edits the tenant's OIDC configuration, and nothing else. Login is username and password, sent as
-> Basic auth. See [#370](https://github.com/apache/fineract-backoffice-ui/issues/370).
+This application signs users in with a username and password, sent to `/v1/authentication` as Basic
+auth (see [`AuthService`](../src/app/core/services/auth.service.ts)). It also provides a screen for
+editing a tenant's OpenID Connect configuration, at **System → OIDC Configuration**.
 
-This document records what the platform actually offers, what the screen does, and the three
-platform defects found while establishing that — so the next person does not have to rediscover
-them.
+This document describes what that screen manages and how the platform uses it.
 
-## What the platform provides
+## How OIDC works in Fineract
 
-OIDC federation landed in Fineract via
-[FINERACT-2616](https://issues.apache.org/jira/browse/FINERACT-2616)
-([apache/fineract#5883](https://github.com/apache/fineract/pull/5883), merged 10 June 2026),
-**resolved with fix version 1.15.0**. It sits under the broader
-[FINERACT-1908](https://issues.apache.org/jira/browse/FINERACT-1908) modular-security effort, which
-remains in progress.
+OIDC federation is a **resource-server** design: Fineract validates a JWT that an identity provider
+issued, and maps it to an existing `AppUser`. The provider issues the token; Fineract checks it.
 
-It is a **resource-server** design: Fineract validates a JWT that an identity provider issued. It
-does not perform the authorization-code exchange — obtaining the token is the client's job, which
-is precisely the part this application is missing.
+Both authentication mechanisms run at once. A request carrying a Bearer token is routed to the OIDC
+chain; one carrying Basic credentials falls through to the existing chain. Enabling OIDC therefore
+adds a way in without changing the one already in use.
 
-Upstream reference: `fineract-doc/src/docs/en/chapters/security/oidc-federation.adoc`.
+Introduced by [FINERACT-2616](https://issues.apache.org/jira/browse/FINERACT-2616)
+([apache/fineract#5883](https://github.com/apache/fineract/pull/5883)), fix version **1.15.0**,
+under the [FINERACT-1908](https://issues.apache.org/jira/browse/FINERACT-1908) modular security
+architecture. Upstream reference:
+`fineract-doc/src/docs/en/chapters/security/oidc-federation.adoc`.
 
-### Enabling it
+## Server properties
 
-Federation is off unless the **server** turns it on. The tenant configuration row alone does
-nothing.
+Federation is off until the server enables it. A tenant configuration row on its own has no effect.
 
-| Property                                                     | Default              |
-| ------------------------------------------------------------ | -------------------- |
-| `fineract.security.oidc-federation.enabled`                  | `false`              |
-| `fineract.security.oidc-federation.tenant-claim-name`        | `fineract_tenant`    |
-| `fineract.security.oidc-federation.username-claim`           | `preferred_username` |
-| `fineract.security.oidc-federation.auto-create-user`         | `false`              |
-| `fineract.security.oidc-federation.default-roles`            | _(empty)_            |
-| `fineract.security.oidc-federation.provider`                 | `generic`            |
-| `fineract.security.oidc-federation.post-logout-redirect-uri` | _(empty)_            |
+| Property                                                     | Default              | Purpose                                   |
+| ------------------------------------------------------------ | -------------------- | ----------------------------------------- |
+| `fineract.security.oidc-federation.enabled`                  | `false`              | Master switch                             |
+| `fineract.security.oidc-federation.tenant-claim-name`        | `fineract_tenant`    | JWT claim naming the tenant               |
+| `fineract.security.oidc-federation.username-claim`           | `preferred_username` | JWT claim mapped to the Fineract username |
+| `fineract.security.oidc-federation.auto-create-user`         | `false`              | Create an `AppUser` on first sign-in      |
+| `fineract.security.oidc-federation.default-roles`            | _(empty)_            | Roles given to auto-created users         |
+| `fineract.security.oidc-federation.provider`                 | `generic`            | Logout-URL dialect                        |
+| `fineract.security.oidc-federation.post-logout-redirect-uri` | _(empty)_            | Where to land after sign-out              |
 
-Tenant resolution runs in priority order: the JWT claim named by `tenant-claim-name`, then the
+Each maps to an environment variable in the usual way —
+`fineract.security.oidc-federation.enabled` is `FINERACT_SECURITY_OIDC_FEDERATION_ENABLED`.
+
+Tenant resolution is tried in order: the JWT claim named by `tenant-claim-name`, then the
 `Fineract-Platform-TenantId` header, then the `tenantIdentifier` query parameter.
-
-### It does not replace Basic auth
-
-Both run at once. A Bearer token routes to OIDC; Basic credentials fall through to the existing
-chain. Confirmed on a running instance: with a configuration present and `enabled: true`,
-`GET /v1/offices` still answers 200 to Basic auth.
-
-That is why this gap is **inert rather than dangerous** — unlike two-factor authentication
-([#369](https://github.com/apache/fineract-backoffice-ui/issues/369)), which takes a deployment
-offline the moment it is switched on.
 
 ## The tenant configuration
 
-`m_tenant_oidc_config`, in the **tenants** database (`fineract_tenants`), not the tenant's own.
+Stored in `m_tenant_oidc_config` in the **tenants** database, and managed through
+`/v1/tenants/{tenantId}/oidc-config`. Changes take effect immediately; the platform caches issuer
+configurations in memory and evicts them on write. One identity provider per tenant.
 
-| Column                       | Notes                                                                                              |
-| ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| `provider_type`              | `KEYCLOAK`, `GOOGLE`, `AZURE_AD`, `OKTA`, `AUTH0`, `GENERIC`. Selects the logout-URL dialect only. |
-| `issuer_uri`                 | Unique; matched against the JWT `iss` claim                                                        |
-| `client_id`, `client_secret` | Secret is write-only — `GET` never returns it                                                      |
-| `jwks_uri`                   | Optional; discovered from `{issuer_uri}/.well-known/openid-configuration` when absent              |
-| `username_claim`             | Default `preferred_username`                                                                       |
-| `scopes`                     | Default `openid,profile,email`                                                                     |
-| `post_logout_redirect_uri`   | RP-initiated logout, browser sessions only                                                         |
-| `enabled`                    | `smallint` — see the defect below                                                                  |
+| Field                   | Notes                                                                                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| `providerType`          | `KEYCLOAK`, `GOOGLE`, `AZURE_AD`, `OKTA`, `AUTH0`, `GENERIC`. Selects the RP-initiated logout dialect. |
+| `issuerUri`             | Unique; matched against the JWT `iss` claim                                                            |
+| `clientId`              | The client registered with the provider                                                                |
+| `clientSecret`          | Write-only — `GET` never returns it                                                                    |
+| `jwksUri`               | Optional; discovered from `{issuerUri}/.well-known/openid-configuration` when omitted                  |
+| `usernameClaim`         | Default `preferred_username`                                                                           |
+| `scopes`                | Default `openid,profile,email`                                                                         |
+| `postLogoutRedirectUri` | Browser sessions only; Bearer-token clients do not use a logout flow                                   |
+| `enabled`               | Whether this issuer is accepted                                                                        |
 
-There is **no authorization endpoint and no token endpoint**. A provider publishes both in its
-discovery document, so the platform does not store them. The screen used to offer fields for both
-and silently discarded whatever was typed into them.
+A response looks like this — note that the secret is absent, by design:
 
-### The API is schemaless
-
-`POST` and `PUT /v1/tenants/{tenantId}/oidc-config` declare `requestBody: {"type": "string"}` in
-the OpenAPI document — no properties, no types. The generated client therefore types the body as
-`string`, and **nothing checks the field names at compile time**. That is how the screen came to
-send `issuer`, `authorizationEndpoint`, `tokenEndpoint` and `jwksUrl`, none of which the platform
-has ever recognised: a configured tenant opened the screen to a blank form and nobody noticed.
-
-`oidc-config.component.spec.ts` pins a verbatim transcript of a real `GET` response for this
-reason. Keep it a transcript. If it is edited to match whatever the component reads, the only
-guard against the names drifting again is gone.
-
-## Platform defects found
-
-Three, all reproduced against `apache/fineract:latest`. None is reported upstream at the time of
-writing; each deserves a FINERACT ticket.
-
-**1 — Writing a configuration always fails on PostgreSQL.**
-
-`POST` and `PUT` both answer 500, for every body, including one that omits `enabled` entirely:
-
-```
-ERROR: column "enabled" is of type smallint but expression is of type boolean
-  at TenantOidcConfigRepositoryJdbc.insert
+```json
+{
+  "tenantId": "default",
+  "providerType": "KEYCLOAK",
+  "issuerUri": "https://keycloak.example/realms/fineract",
+  "clientId": "fineract-backoffice",
+  "jwksUri": "https://keycloak.example/realms/fineract/protocol/openid-connect/certs",
+  "usernameClaim": "preferred_username",
+  "scopes": "openid,profile,email",
+  "enabled": true
+}
 ```
 
-The column is `smallint`; the repository binds `ps.setBoolean(10, config.isEnabled())`. The
-PostgreSQL JDBC driver does not coerce between the two. Reads and deletes are unaffected.
+There is no authorization endpoint or token endpoint to configure. A provider publishes both in its
+discovery document, so the platform derives them from `issuerUri` rather than storing them.
 
-_Consequence:_ the screen can display and delete a configuration but cannot create or update one.
-Until this is fixed, a row has to be inserted directly:
+### Working on the screen
 
-```sql
-INSERT INTO m_tenant_oidc_config
-  (tenant_id, provider_type, issuer_uri, client_id, client_secret, jwks_uri,
-   username_claim, scopes, enabled)
-VALUES ('default', 'KEYCLOAK', 'https://keycloak.example/realms/fineract', 'fineract-backoffice',
-        's', 'https://keycloak.example/realms/fineract/protocol/openid-connect/certs',
-        'preferred_username', 'openid,profile,email', 1);
-```
+`features/system/oidc-config/` is a thin editor over those fields. Two things about the endpoint
+shape the code and are worth knowing before changing it:
 
-**2 — Enabling federation stops Fineract from starting.**
+- **The request body is schemaless.** `POST` and `PUT` declare `requestBody: {"type": "string"}` in
+  the OpenAPI document, so the generated client types it as `string` and the compiler cannot check
+  a single field name. `oidc-config.component.spec.ts` pins a verbatim transcript of a real `GET`
+  response for exactly this reason — it is the only thing holding the names to the platform's.
+  Keep it a transcript rather than letting it become whatever the component reads.
+- **The client secret is write-only.** An empty field means "leave the stored one alone", so the
+  component omits it from the payload rather than sending a blank, which would erase it.
 
-With `FINERACT_SECURITY_OIDC_FEDERATION_ENABLED=true` the application context fails to build:
+## Setting up a provider
 
-```
-The dependencies of some of the beans in the application context form a cycle:
-  oidcFederationSecurityConfig
-   ↑     ↓
-  dynamicJwtIssuerAuthenticationManagerResolver
-```
+Using Keycloak, which is the dialect upstream documents most fully:
 
-`OidcFederationSecurityConfig` `@Autowired`s `DynamicJwtIssuerAuthenticationManagerResolver`, which
-resolves back into the same configuration. Spring prohibits circular references by default, so the
-container aborts.
+1. Enable federation on the server with the properties above.
+2. Register a client in the realm. The issuer URI is the realm path, e.g.
+   `https://keycloak.example/realms/fineract`.
+3. Add a client-scope mapper of type **User Attribute** that puts the Fineract tenant identifier
+   into the `fineract_tenant` claim, so Fineract can resolve the tenant from the token.
+4. Record the issuer, client ID and secret on the OIDC Configuration screen.
+5. Ensure each user's `preferred_username` claim matches their Fineract username — or set
+   `usernameClaim` to whichever claim does.
 
-_Consequence:_ the feature cannot be switched on at all on this build. Any work on
-[#370](https://github.com/apache/fineract-backoffice-ui/issues/370) is blocked behind this, or
-behind pinning a Fineract version where it does not occur.
-
-**3 — The documented permission does not exist.**
-
-Upstream documentation states the endpoint requires `MANAGE_TENANT_OIDC_CONFIG` (Super Admin).
-That code is **not among the 698 permissions** `GET /v1/permissions` returns on a seeded tenant.
-
-_Consequence:_ `/system/oidc-config` cannot be gated on it. The route is recorded in
-`scripts/check-route-permissions.mjs` under `UNRESTRICTED` with that reason — see
-[DOCS/RBAC.md](RBAC.md) on why a gate no role can satisfy is worse than no gate.
-
-## What this application does today
-
-`features/system/oidc-config/` edits the tenant configuration. After the corrections in
-[#371](https://github.com/apache/fineract-backoffice-ui/pull/371) it uses the platform's own field
-names, offers `provider_type` as a list rather than free text, treats a 404 as "not configured yet"
-rather than an error, omits an untouched `client_secret` instead of blanking the stored one, and
-reports failures to the user instead of only to the console.
-
-It still cannot save, because of defect 1. That is the platform's, not the screen's.
-
-## What is needed for sign-in
-
-For [#370](https://github.com/apache/fineract-backoffice-ui/issues/370), in rough order:
-
-1. **A Fineract build where defect 2 is fixed.** Nothing can be tested until federation starts.
-2. Authorization-code flow with PKCE in the browser. The `client_secret` in the tenant
-   configuration is the backend's; it must never reach the browser.
-3. The resulting Bearer token replaces the Basic credential in `auth.interceptor.ts` — a second
-   mode on the existing interceptor, not a second interceptor.
-4. The tenant claim. Fineract reads `fineract_tenant` from the JWT, so the provider must be
-   configured to emit it; a Keycloak _User Attribute_ client-scope mapper is the documented route.
-5. Refresh, and a sign-out that ends the provider session (RP-initiated logout) rather than only
-   the local one.
-6. Permissions still arrive on the Fineract side. `AuthService.hasPermission()` must remain the
-   only place they are evaluated, or the route guard in [DOCS/RBAC.md](RBAC.md) is bypassed.
-
-### Testing it
-
-The mocked layer carries most of the value and needs no provider: intercept the token endpoint the
-way `e2e/rbac-route-protection.spec.ts` already intercepts `config.json` and `/v1/authentication`.
-
-A real round-trip needs Keycloak in the compose stack and its own Playwright project, kept out of
-the default run — the same shape as the two-factor project proposed in
-[#369](https://github.com/apache/fineract-backoffice-ui/issues/369). Keycloak is the natural choice:
-it is the dialect Fineract documents most fully, and the upstream setup notes are written against
-it.
-
-**The regression case matters more than the feature case.** With OIDC absent or disabled, the
-username-and-password flow must be byte-for-byte what it is today. Every current deployment depends
-on that.
+Permissions are unaffected: they continue to come from Fineract's own role model, whichever way the
+user authenticated, and are evaluated by `AuthService.hasPermission()` as described in
+[DOCS/RBAC.md](RBAC.md).
