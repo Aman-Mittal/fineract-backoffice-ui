@@ -87,9 +87,10 @@ addressed by the Fineract server-side threat model.
 | Authenticated back-office user (high-privilege) | Valid Fineract session, admin role          | Branch managers, system admins — can perform most mutations.                 |
 | Unauthenticated browser user                    | Zero trust                                  | Can only reach the `/login` page; all other routes redirect via `authGuard`. |
 
-Sign-in uses a username and password sent to `/v1/authentication` as Basic auth. OpenID Connect
-federation, and the tenant configuration this application can edit for it, are described in
-[DOCS/OIDC.md](DOCS/OIDC.md).
+Sign-in uses a username and password sent to `/v1/authentication` as Basic auth, followed by a
+one-time code where the platform requires a second factor — see
+[DOCS/TWO-FACTOR.md](DOCS/TWO-FACTOR.md). OpenID Connect federation, and the tenant configuration
+this application can edit for it, are described in [DOCS/OIDC.md](DOCS/OIDC.md).
 
 Permission scoping in the UI is described in [DOCS/RBAC.md](DOCS/RBAC.md): route
 authorization (`permissionGuard`), navigation visibility and action-level gating, and how

@@ -18,6 +18,8 @@
     "test:e2e:local": "FINERACT_SERVER_URL=/fineract-provider/api/v1 FINERACT_TENANT_ID=default FINERACT_USERNAME=mifos FINERACT_PASSWORD=password playwright test --project=mocked --project=backend",
     "e2e:stack": "bash scripts/e2e-stack.sh",
     "e2e:stack:fresh": "bash scripts/e2e-stack.sh --fresh",
+    "e2e:stack:2fa": "bash scripts/e2e-stack-2fa.sh",
+    "test:e2e:2fa": "FINERACT_SERVER_URL=/fineract-provider/api/v1 FINERACT_TENANT_ID=default FINERACT_USERNAME=mifos FINERACT_PASSWORD=password playwright test --project=two-factor --workers=1",
     "lint": "eslint src --suppressions-location eslint-suppressions.json",
     "lint:prune": "eslint src --suppressions-location eslint-suppressions.json --prune-suppressions",
     "format": "prettier --write .",

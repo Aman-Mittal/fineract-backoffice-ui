@@ -1420,6 +1420,20 @@
     "customOption": "Custom URL…",
     "errors": {
       "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list."
+    },
+    "twoFactor": {
+      "title": "Two-step verification",
+      "chooseLede": "Choose where to send your one-time code.",
+      "loadingMethods": "Looking up how to reach you…",
+      "noMethods": "No delivery method is configured for your account. Ask an administrator to add one before you can sign in.",
+      "sentTo": "We sent a one-time code to {{target}}.",
+      "codeLabel": "One-time code",
+      "verify": "Verify",
+      "verifying": "Verifying…",
+      "resend": "Send another code",
+      "cancel": "Back to sign in",
+      "invalidCode": "That code was not accepted. Request another and try again.",
+      "requestFailed": "The code could not be sent. Try another method, or contact an administrator."
     }
   },
   "idle": {

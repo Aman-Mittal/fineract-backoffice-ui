@@ -31,6 +31,9 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * A spec belongs here if it contains no page.route() mocks.
  */
+/** Runs only against the dedicated two-factor stack; see the `two-factor` project. */
+const TWO_FACTOR_SPECS = ['two-factor-backend.spec.ts'];
+
 const BACKEND_SPECS = [
   'center-servicing.spec.ts',
   'rbac-backend-restricted-user.spec.ts',
@@ -120,7 +123,7 @@ export default defineConfig({
       // with the slower half — see .github/workflows/e2e.yml.
       name: 'mocked',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: BACKEND_SPECS,
+      testIgnore: [...BACKEND_SPECS, ...TWO_FACTOR_SPECS],
     },
     {
       // Drives a real Fineract end to end. Slow, and the only half that needs the
@@ -137,6 +140,20 @@ export default defineConfig({
       // This project setting overrides the root one, so it is what governs a recording run —
       // where every action carries a deliberate pause and the same flow takes far longer.
       timeout: process.env.DEMO_RECORD === '1' ? 900000 : 120000,
+    },
+    {
+      // Two-factor authentication, against the stack `scripts/e2e-stack-2fa.sh` brings up.
+      //
+      // Its own project because `fineract.security.2fa.enabled` is process-wide: with it on,
+      // every endpoint except /v1/twofactor answers 403 until a one-time token has been
+      // validated, so this cannot share an instance with the `backend` project and must stay
+      // out of the default run. No `setup` dependency for the same reason — the seeding it
+      // performs would be refused.
+      name: 'two-factor',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: TWO_FACTOR_SPECS,
+      // Each case waits on an email round-trip through the catcher on top of the usual form work.
+      timeout: 180000,
     },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },

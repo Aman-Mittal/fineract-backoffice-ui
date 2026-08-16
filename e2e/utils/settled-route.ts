@@ -28,11 +28,13 @@ import { Page } from '@playwright/test';
  * exactly the assertion an RBAC spec is trying to make.
  *
  * So wait for the application to have rendered something (the authenticated shell, or the login
- * form), then let the path stop moving before reporting it.
+ * card in whichever step it is showing), then let the path stop moving before reporting it.
  */
 export async function landsOn(page: Page, url: string): Promise<string> {
   await page.goto(url);
-  await page.locator('.app-container, #username').first().waitFor({ state: 'visible' });
+  // `.login-card` rather than `#username`: the login page has two steps, and the password form
+  // is replaced — not merely hidden — while a second factor is outstanding.
+  await page.locator('.app-container, .login-card').first().waitFor({ state: 'visible' });
 
   let previous = '';
   for (let stable = 0; stable < 3;) {
