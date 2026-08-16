@@ -28,6 +28,13 @@ export const TASKS_ROUTES: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'work-queues',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: ['READ_LOAN', 'READ_CLIENT'] },
+    loadComponent: () =>
+      import('./work-queues/work-queues.component').then((m) => m.WorkQueuesComponent),
+  },
+  {
     path: 'checker-inbox',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_AUDIT' },

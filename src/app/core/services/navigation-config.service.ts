@@ -527,6 +527,12 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
     labelKey: 'nav.tasks',
     children: [
       {
+        route: '/tasks/work-queues',
+        requiredPermissions: ['READ_LOAN', 'READ_CLIENT'],
+        labelKey: 'nav.workQueues',
+        icon: 'checkmark-done-outline',
+      },
+      {
         route: '/tasks/checker-inbox',
         requiredPermissions: 'READ_AUDIT',
         labelKey: 'nav.checker_inbox',

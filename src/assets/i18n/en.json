@@ -119,7 +119,8 @@
     "templates": "Templates",
     "frequentPostings": "Frequent Postings",
     "openingBalances": "Opening Balances",
-    "reportDefinitions": "Report Definitions"
+    "reportDefinitions": "Report Definitions",
+    "workQueues": "Approval Queues"
   },
   "SIDEBAR": {
     "SEARCH": "Search",
@@ -1149,7 +1150,8 @@
     "CHARGE_OFF_REASON_DESC": "Why the loan is being charged off. Recorded against the transaction for audit and reporting. Optional, and only offered when your institution has configured reasons.",
     "OPENING_BALANCES_DESC": "Carry the balances from your previous ledger into this one. Only available before the first journal entry is posted for the office.",
     "FREQUENT_POSTINGS_DESC": "Post a journal entry from a saved accounting rule, so recurring postings need only an amount and a date.",
-    "REPORT_DEFINITIONS_DESC": "The catalogue behind the Reporting section: the SQL each report runs, the parameters it takes, and whether it is offered to users."
+    "REPORT_DEFINITIONS_DESC": "The catalogue behind the Reporting section: the SQL each report runs, the parameters it takes, and whether it is offered to users.",
+    "WORK_QUEUES_DESC": "The approvals a branch works through together: pending loans, loans awaiting disbursal, pending clients and reschedule requests. Each action is sent as one batch, and any record the platform refuses is named."
   },
   "REPORTS": {
     "NAME": "Report Name",
@@ -2486,5 +2488,21 @@
     "NONE": "No documents attached.",
     "FILE_NAME": "File Name",
     "CONFIRM_DELETE": "Delete this document? The attached file is removed with it."
+  },
+  "WORK_QUEUES": {
+    "TITLE": "Approval Queues",
+    "LOAN_APPROVAL": "Loan Approval",
+    "LOAN_DISBURSAL": "Loan Disbursal",
+    "CLIENT_ACTIVATION": "Client Activation",
+    "RESCHEDULE_APPROVAL": "Reschedule Requests",
+    "EMPTY": "Nothing is waiting in this queue.",
+    "SELECT_ALL": "Select all",
+    "SELECTED": "Selected",
+    "APPROVE_SELECTED": "Approve Selected",
+    "DISBURSE_SELECTED": "Disburse Selected",
+    "ACTIVATE_SELECTED": "Activate Selected",
+    "CONFIRM": "This applies the action to {{count}} record(s) in one request.",
+    "ALL_SUCCEEDED": "{{count}} record(s) processed successfully.",
+    "PARTIAL": "{{succeeded}} of {{total}} succeeded. These were refused: {{names}}"
   }
 }
