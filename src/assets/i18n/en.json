@@ -1963,9 +1963,19 @@
     "ISSUER": "Issuer",
     "CLIENT_ID": "Client ID",
     "CLIENT_SECRET": "Client Secret",
-    "AUTH_ENDPOINT": "Authorization Endpoint",
-    "TOKEN_ENDPOINT": "Token Endpoint",
-    "JWKS_URL": "JWKS URL"
+    "PROVIDER_TYPE": "Provider type",
+    "JWKS_URI": "JWKS URI",
+    "USERNAME_CLAIM": "Username claim",
+    "SCOPES": "Scopes",
+    "POST_LOGOUT_URI": "Post-logout redirect URI",
+    "SECRET_HINT": "The client secret is stored by the platform and never sent back. Leave it blank to keep the current one.",
+    "SECRET_UNCHANGED": "Unchanged",
+    "SAVED": "OIDC configuration saved",
+    "DELETED": "OIDC configuration deleted",
+    "LOAD_FAILED": "Could not load the OIDC configuration",
+    "DELETE_TITLE": "Delete OIDC configuration",
+    "DELETE_MESSAGE": "Sign-in through this identity provider will stop working for the tenant. This cannot be undone.",
+    "JWKS_HINT": "Optional. Left blank, the platform discovers it from the issuer at /.well-known/openid-configuration."
   },
   "FIELD_CONFIG": {
     "TITLE": "Entity Field Configuration",
