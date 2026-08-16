@@ -91,7 +91,8 @@ describe('RequiresPermissionDirective', () => {
     host = fixture.nativeElement as HTMLElement;
   }
 
-  const button = (id: string) => host.querySelector<HTMLButtonElement>(`[data-testid="${id}"]`)!;
+  const button = (id: string) =>
+    host.querySelector<HTMLButtonElement>(`[data-testid="${CSS.escape(id)}"]`)!;
 
   it('leaves a permitted action alone', async () => {
     await render(['APPROVE_LOAN']);

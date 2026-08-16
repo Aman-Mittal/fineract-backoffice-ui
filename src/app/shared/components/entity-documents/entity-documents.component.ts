@@ -22,11 +22,10 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DocumentsService, DocumentData, BASE_PATH } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
-import { I18N, TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe, DOWNLOAD } from '../../../core/adapters';
 import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../directives/tooltip.directive';
-import { DOWNLOAD } from '../../../core/adapters';
 
 /**
  * Documents attached to any Fineract record that accepts them.

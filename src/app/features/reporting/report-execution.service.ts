@@ -219,7 +219,7 @@ export class ReportExecutionService {
     }
     const [id, name] = row;
     if ((typeof id !== 'string' && typeof id !== 'number') || typeof name !== 'string') {
-      throw new Error('A report parameter lookup omitted a required field.');
+      throw new TypeError('A report parameter lookup omitted a required field.');
     }
     return { id, name };
   }

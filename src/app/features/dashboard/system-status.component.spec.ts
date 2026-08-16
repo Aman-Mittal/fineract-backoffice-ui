@@ -98,7 +98,7 @@ describe('SystemStatusComponent', () => {
   describe('permission-aware widgets', () => {
     const widget = (name: string) =>
       (fixture.nativeElement as HTMLElement).querySelector(
-        `[data-testid="dashboard-${name}-widget"]`,
+        `[data-testid="dashboard-${CSS.escape(name)}-widget"]`,
       );
 
     /** Paths of the metric requests the component actually issued. */

@@ -102,7 +102,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: (configService: ConfigService) => {
         const url = configService.apiUrl;
         console.log('Initializing API BASE_PATH:', url);
-        return url.endsWith('/v1') ? url.substring(0, url.length - 3) : url;
+        return url.endsWith('/v1') ? url.slice(0, Math.max(0, url.length - 3)) : url;
       },
       deps: [ConfigService],
     },

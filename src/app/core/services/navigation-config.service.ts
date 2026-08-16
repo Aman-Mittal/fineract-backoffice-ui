@@ -887,7 +887,7 @@ export class NavigationConfigService {
   readonly navConfig: readonly NavItemConfig[] = NAV_CONFIG;
 
   /** `labelKey`s this deployment hides outright, whatever the user's permissions. */
-  private readonly hidden = computed(() => new Set(this.overrides().hidden ?? []));
+  private readonly hidden = computed(() => new Set(this.overrides().hidden));
 
   /**
    * Reactive, filtered navigation tree — recomputed whenever the current

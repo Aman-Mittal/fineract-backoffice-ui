@@ -175,7 +175,7 @@ export class ConfigService {
   readonly developerToolsEnabled = computed(() => this._config().developerToolsEnabled === true);
 
   /** Navigation entries this deployment hides, as a set of `labelKey`s. */
-  readonly hiddenNavKeys = computed(() => new Set(this._config().nav?.hidden ?? []));
+  readonly hiddenNavKeys = computed(() => new Set(this._config().nav?.hidden));
 
   /**
    * Loads configuration from the public `config.json` at runtime.
@@ -187,7 +187,7 @@ export class ConfigService {
   async loadConfig(): Promise<void> {
     try {
       const loaded = await firstValueFrom(
-        this.http.get<Partial<AppConfig>>(`config.json?cb=${new Date().getTime()}`, {
+        this.http.get<Partial<AppConfig>>(`config.json?cb=${Date.now()}`, {
           // This runs before the app renders: there is no progress bar to drive yet, and no
           // route on which to show a toast. The catch below is the reporting.
           context: skipLoading(skipErrorToast()),

@@ -114,7 +114,7 @@ describe('SavingsAccountViewComponent', () => {
   describe('block state', () => {
     function withSubStatus(subStatus: Record<string, boolean>): void {
       component.account.set({
-        ...(component.account() ?? {}),
+        ...component.account(),
         status: { active: true },
         subStatus,
       } as never);
@@ -154,7 +154,7 @@ describe('SavingsAccountViewComponent', () => {
   describe('officer assignment', () => {
     it('reports no officer when Fineract returns the zero sentinel', () => {
       component.account.set({
-        ...(component.account() ?? {}),
+        ...component.account(),
         status: { active: true },
         fieldOfficerId: 0,
       } as never);
@@ -166,7 +166,7 @@ describe('SavingsAccountViewComponent', () => {
 
     it('reports an officer once one is assigned', () => {
       component.account.set({
-        ...(component.account() ?? {}),
+        ...component.account(),
         status: { active: true },
         fieldOfficerId: 7,
       } as never);

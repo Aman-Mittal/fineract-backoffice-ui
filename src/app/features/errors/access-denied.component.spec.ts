@@ -18,10 +18,8 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { convertToParamMap } from '@angular/router';
 import { AccessDeniedComponent } from './access-denied.component';
 import { renderComponent } from '../../testing/render';
 import { provideIonicTesting } from '../../testing/ionic-testing';

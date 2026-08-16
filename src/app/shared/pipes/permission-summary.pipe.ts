@@ -122,7 +122,7 @@ function split(code: string): { verb: string; entity: string } | null {
 export function describeEntity(entity: string): string {
   const known = ENTITIES[entity];
   if (known) return known;
-  const words = entity.toLowerCase().replace(/_/g, ' ');
+  const words = entity.toLowerCase().replaceAll('_', ' ');
   // Naive pluralisation, which is the right trade here: these are nouns like "client",
   // "charge", "office". A wrong plural reads oddly; a missing one reads as a typo.
   return /(s|x|z|ch|sh)$/.test(words) ? `${words}es` : `${words}s`;
@@ -154,7 +154,7 @@ export function summarisePermissions(codes: readonly string[]): string {
     }
     const parts = split(code);
     if (!parts || !VERBS[parts.verb]) {
-      unrecognised.push(code.trim().toLowerCase().replace(/_/g, ' '));
+      unrecognised.push(code.trim().toLowerCase().replaceAll('_', ' '));
       continue;
     }
     const entity = describeEntity(parts.entity);
@@ -171,7 +171,7 @@ export function summarisePermissions(codes: readonly string[]): string {
 function joinWords(words: readonly string[]): string {
   if (words.length === 0) return '';
   if (words.length === 1) return words[0];
-  return `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
+  return `${words.slice(0, -1).join(', ')} and ${words.at(-1)}`;
 }
 
 function capitalise(text: string): string {
