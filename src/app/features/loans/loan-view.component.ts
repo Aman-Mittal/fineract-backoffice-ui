@@ -32,7 +32,7 @@ import {
   FINERACT_LOCALE,
   formatDateToFineract,
 } from '../../core/utils/date-formatter';
-import { HasPermissionDirective } from '../../shared';
+import { RequiresPermissionDirective } from '../../shared';
 import {
   LoanUndoApprovalDialogComponent,
   LoanUndoApprovalResult,
@@ -121,7 +121,7 @@ import {
     IonPopover,
     IonList,
     TooltipDirective,
-    HasPermissionDirective,
+    RequiresPermissionDirective,
     LoanDelinquencyTabComponent,
     LoanTermVariationsTabComponent,
     LoanOverdueChargesTabComponent,
@@ -179,6 +179,8 @@ import {
             <div class="actions-area">
               <ion-button
                 color="primary"
+                data-testid="loan-repayment-action"
+                appRequiresPermission="REPAYMENT_LOAN"
                 (click)="onRepayment()"
                 [appTooltip]="'LOANS.REPAYMENT' | translate"
               >
@@ -189,6 +191,7 @@ import {
               @if (isLoanPendingApproval) {
                 <ion-button
                   color="secondary"
+                  appRequiresPermission="APPROVE_LOAN"
                   (click)="onLoanAction('approve')"
                   [appTooltip]="'LOANS.APPROVE' | translate"
                 >
@@ -200,6 +203,7 @@ import {
               @if (isLoanApproved) {
                 <ion-button
                   color="secondary"
+                  appRequiresPermission="DISBURSE_LOAN"
                   (click)="onDisburse()"
                   [appTooltip]="'LOANS.DISBURSE' | translate"
                 >
@@ -216,28 +220,40 @@ import {
               <ion-popover trigger="loanMenu-trigger" [dismissOnSelect]="true">
                 <ng-template>
                   <ion-list>
-                    <ion-item button (click)="onAddCharge()">
+                    <ion-item
+                      button
+                      appRequiresPermission="CREATE_LOANCHARGE"
+                      (click)="onAddCharge()"
+                    >
                       <ion-icon slot="start" name="add-outline"></ion-icon>
                       <ion-label>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</ion-label>
                     </ion-item>
 
                     @if (isLoanPendingApproval) {
-                      <ion-item button (click)="onModifyLoan()">
+                      <ion-item button appRequiresPermission="UPDATE_LOAN" (click)="onModifyLoan()">
                         <ion-icon slot="start" name="create-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onLoanAction('reject')">
+                      <ion-item
+                        button
+                        appRequiresPermission="REJECT_LOAN"
+                        (click)="onLoanAction('reject')"
+                      >
                         <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.REJECT' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onLoanAction('withdrawnByClient')">
+                      <ion-item
+                        button
+                        appRequiresPermission="WITHDRAW_LOAN"
+                        (click)="onLoanAction('withdrawnByClient')"
+                      >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onDeleteLoan()">
+                      <ion-item button appRequiresPermission="DELETE_LOAN" (click)="onDeleteLoan()">
                         <ion-icon slot="start" name="trash-outline"></ion-icon>
                         <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
                       </ion-item>
@@ -248,7 +264,7 @@ import {
                         button
                         data-testid="loan-disburse-to-savings-action"
                         (click)="onDisburseToSavings()"
-                        *appHasPermission="'DISBURSETOSAVINGS_LOAN'"
+                        appRequiresPermission="DISBURSETOSAVINGS_LOAN"
                       >
                         <ion-icon slot="start" name="wallet-outline"></ion-icon>
                         <ion-label>
@@ -260,19 +276,27 @@ import {
                         button
                         data-testid="loan-undo-approval-action"
                         (click)="onUndoApproval()"
-                        *appHasPermission="'APPROVALUNDO_LOAN'"
+                        appRequiresPermission="APPROVALUNDO_LOAN"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
                       </ion-item>
                     }
 
-                    <ion-item button (click)="onAddCollateral()">
+                    <ion-item
+                      button
+                      appRequiresPermission="CREATE_COLLATERAL"
+                      (click)="onAddCollateral()"
+                    >
                       <ion-icon slot="start" name="shield-outline"></ion-icon>
                       <ion-label>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</ion-label>
                     </ion-item>
 
-                    <ion-item button (click)="onAssignLoanOfficer()">
+                    <ion-item
+                      button
+                      appRequiresPermission="UPDATELOANOFFICER_LOAN"
+                      (click)="onAssignLoanOfficer()"
+                    >
                       <ion-icon slot="start" name="person-add-outline"></ion-icon>
                       <ion-label>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</ion-label>
                     </ion-item>
@@ -282,7 +306,7 @@ import {
                         button
                         data-testid="loan-unassign-officer-action"
                         (click)="onUnassignLoanOfficer()"
-                        *appHasPermission="'REMOVELOANOFFICER_LOAN'"
+                        appRequiresPermission="REMOVELOANOFFICER_LOAN"
                       >
                         <ion-icon slot="start" name="person-remove-outline"></ion-icon>
                         <ion-label>
@@ -296,7 +320,7 @@ import {
                         button
                         data-testid="loan-undo-last-disbursal-action"
                         (click)="onUndoLastDisbursal()"
-                        *appHasPermission="'DISBURSALLASTUNDO_LOAN'"
+                        appRequiresPermission="DISBURSALLASTUNDO_LOAN"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>
@@ -306,27 +330,47 @@ import {
                     }
 
                     @if (isLoanActive) {
-                      <ion-item button (click)="onUndoDisbursal()">
+                      <ion-item
+                        button
+                        appRequiresPermission="DISBURSALUNDO_LOAN"
+                        (click)="onUndoDisbursal()"
+                      >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onLoanTransactionAction('waiveinterest')">
+                      <ion-item
+                        button
+                        appRequiresPermission="WAIVEINTERESTPORTION_LOAN"
+                        (click)="onLoanTransactionAction('waiveinterest')"
+                      >
                         <ion-icon slot="start" name="cash-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onLoanTransactionAction('prepayLoan')">
+                      <ion-item
+                        button
+                        appRequiresPermission="REPAYMENT_LOAN"
+                        (click)="onLoanTransactionAction('prepayLoan')"
+                      >
                         <ion-icon slot="start" name="play-forward-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onLoanTransactionAction('foreclosure')">
+                      <ion-item
+                        button
+                        appRequiresPermission="FORECLOSURE_LOAN"
+                        (click)="onLoanTransactionAction('foreclosure')"
+                      >
                         <ion-icon slot="start" name="flag-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</ion-label>
                       </ion-item>
 
-                      <ion-item button (click)="onLoanTransactionAction('close')">
+                      <ion-item
+                        button
+                        appRequiresPermission="CLOSE_LOAN"
+                        (click)="onLoanTransactionAction('close')"
+                      >
                         <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</ion-label>
                       </ion-item>
@@ -334,6 +378,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-close-as-rescheduled-action"
+                        appRequiresPermission="CLOSEASRESCHEDULED_LOAN"
                         (click)="onLoanTransactionAction('close-rescheduled')"
                       >
                         <ion-icon slot="start" name="calendar-outline"></ion-icon>
@@ -345,6 +390,7 @@ import {
                       <ion-item
                         button
                         class="warn-item"
+                        appRequiresPermission="WRITEOFF_LOAN"
                         (click)="onLoanTransactionAction('writeoff')"
                       >
                         <ion-icon slot="start" color="danger" name="trash-bin-outline"></ion-icon>
@@ -356,6 +402,7 @@ import {
                           button
                           class="warn-item"
                           data-testid="loan-charge-off-action"
+                          appRequiresPermission="CHARGEOFF_LOAN"
                           (click)="onLoanTransactionAction('charge-off')"
                         >
                           <ion-icon slot="start" color="warning" name="alert-circle-outline">
@@ -368,6 +415,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-merchant-issued-refund-action"
+                        appRequiresPermission="MERCHANTISSUEDREFUND_LOAN"
                         (click)="onLoanTransactionAction('merchantIssuedRefund')"
                       >
                         <ion-icon slot="start" name="storefront-outline"></ion-icon>
@@ -379,6 +427,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-payout-refund-action"
+                        appRequiresPermission="PAYOUTREFUND_LOAN"
                         (click)="onLoanTransactionAction('payoutRefund')"
                       >
                         <ion-icon slot="start" name="return-down-back-outline"></ion-icon>
@@ -388,6 +437,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-goodwill-credit-action"
+                        appRequiresPermission="GOODWILLCREDIT_LOAN"
                         (click)="onLoanTransactionAction('goodwillCredit')"
                       >
                         <ion-icon slot="start" name="gift-outline"></ion-icon>
@@ -400,6 +450,7 @@ import {
                         <ion-item
                           button
                           data-testid="loan-down-payment-action"
+                          appRequiresPermission="DOWNPAYMENT_LOAN"
                           (click)="onLoanTransactionAction('downPayment')"
                         >
                           <ion-icon slot="start" name="wallet-outline"></ion-icon>
@@ -411,6 +462,7 @@ import {
                         <ion-item
                           button
                           data-testid="loan-interest-payment-waiver-action"
+                          appRequiresPermission="INTERESTPAYMENTWAIVER_LOAN"
                           (click)="onLoanTransactionAction('interestPaymentWaiver')"
                         >
                           <ion-icon slot="start" name="remove-circle-outline"></ion-icon>
@@ -422,6 +474,7 @@ import {
                         <ion-item
                           button
                           data-testid="loan-re-age-action"
+                          appRequiresPermission="REAGE_LOAN"
                           (click)="onLoanTransactionAction('reAge')"
                         >
                           <ion-icon slot="start" name="calendar-number-outline"></ion-icon>
@@ -431,6 +484,7 @@ import {
                         <ion-item
                           button
                           data-testid="loan-re-amortize-action"
+                          appRequiresPermission="REAMORTIZE_LOAN"
                           (click)="onLoanTransactionAction('reAmortize')"
                         >
                           <ion-icon slot="start" name="repeat-outline"></ion-icon>
@@ -444,6 +498,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-credit-balance-refund-action"
+                        appRequiresPermission="CREDITBALANCEREFUND_LOAN"
                         (click)="onLoanTransactionAction('creditBalanceRefund')"
                       >
                         <ion-icon slot="start" name="cash-outline"></ion-icon>
@@ -458,6 +513,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-recovery-payment-action"
+                        appRequiresPermission="RECOVERYPAYMENT_LOAN"
                         (click)="onLoanTransactionAction('recoverypayment')"
                       >
                         <ion-icon slot="start" name="trending-up-outline"></ion-icon>
@@ -467,6 +523,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-undo-write-off-action"
+                        appRequiresPermission="UNDOWRITEOFF_LOAN"
                         (click)="onLoanTransactionAction('undowriteoff')"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
@@ -478,6 +535,7 @@ import {
                       <ion-item
                         button
                         data-testid="loan-undo-charge-off-action"
+                        appRequiresPermission="UNDOCHARGEOFF_LOAN"
                         (click)="onUndoChargeOff()"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>

@@ -33,6 +33,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const BACKEND_SPECS = [
   'center-servicing.spec.ts',
+  'rbac-backend-restricted-user.spec.ts',
   'client-transfer.spec.ts',
   'deposit-account-servicing.spec.ts',
   'deposit-product-configuration.spec.ts',

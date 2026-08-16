@@ -26,4 +26,6 @@ export * from './components/paginator/paginator.component';
 export * from './models/table.model';
 export * from './components/client-search/client-search.component';
 export * from './directives/has-permission.directive';
+export * from './directives/requires-permission.directive';
+export * from './pipes/permission-summary.pipe';
 export * from './components/guidance-tour/guidance-tour.component';

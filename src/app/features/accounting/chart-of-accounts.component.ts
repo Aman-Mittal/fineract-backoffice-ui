@@ -47,6 +47,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       title="nav.chartOfAccounts"
       helpTextKey="HELP.CHART_OF_ACCOUNTS_DESC"
       createButtonLabel="ACCOUNTING.ADD_LEDGER_ACCOUNT"
+      createPermission="CREATE_GLACCOUNT"
       [columns]="columns"
       [data]="accounts()"
       [localLogic]="true"

@@ -1951,7 +1951,10 @@
     "CODE": "Code",
     "ENTITY": "Entity",
     "ACTION": "Action",
-    "MAKER_CHECKER": "Maker-Checker Enabled"
+    "MAKER_CHECKER": "Maker-Checker Enabled",
+    "REQUIRES": "Requires {{codes}} — {{summary}}",
+    "JOIN_ANY": " or ",
+    "JOIN_ALL": " and "
   },
   "OIDC_CONFIG": {
     "TITLE": "Tenant OIDC Configuration",
@@ -2369,5 +2372,12 @@
     "BODY_PLACEHOLDER": "Optional JSON body, e.g. {}",
     "SUBMIT": "Submit",
     "RESPONSE": "Response"
+  },
+  "ACCESS_DENIED": {
+    "TITLE": "Access denied",
+    "MESSAGE": "You do not have permission to open this page.",
+    "HINT": "If you believe you should have access, ask an administrator to review the permissions on your role.",
+    "BACK_TO_DASHBOARD": "Back to dashboard",
+    "REQUIRES": "This page requires:"
   }
 }

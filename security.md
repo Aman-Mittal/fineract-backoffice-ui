@@ -87,6 +87,13 @@ addressed by the Fineract server-side threat model.
 | Authenticated back-office user (high-privilege) | Valid Fineract session, admin role          | Branch managers, system admins — can perform most mutations.                 |
 | Unauthenticated browser user                    | Zero trust                                  | Can only reach the `/login` page; all other routes redirect via `authGuard`. |
 
+Permission scoping in the UI is described in [DOCS/RBAC.md](DOCS/RBAC.md): route
+authorization (`permissionGuard`), navigation visibility and action-level gating, and how
+the three are kept in agreement. **That layer is defence-in-depth. Fineract Core remains the
+authoritative security boundary** — every screen is backed by an API that performs its own
+permission check, and a report that depends only on bypassing the client-side gate should be
+read in that light.
+
 ---
 
 ## §3 Out of scope (explicit non-goals)

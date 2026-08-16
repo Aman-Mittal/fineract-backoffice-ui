@@ -134,6 +134,17 @@ jobs:
       # test-only endpoint has to be a deliberate choice.
       - name: Verify no ungated dependency on test-only Fineract endpoints
         run: npm run check:internal-endpoints
+      # Route authorization and navigation visibility are declared in two places, and the
+      # failure when they disagree is silent: a menu item leading to Access Denied, or a screen
+      # missing from the menu that the URL still opens. This compares them.
+      - name: Verify route permissions agree with navigation
+        run: npm run check:route-permissions
+      # Nothing else type-checks e2e/: `npm run lint` covers src, and tsconfig.app.json excludes
+      # the suite. A helper referencing an identifier that no longer exists therefore compiled
+      # fine and failed only when CI ran the browser — which is a slow, expensive way to find a
+      # typo.
+      - name: Type-check the e2e suite
+        run: npm run typecheck:e2e
 
   test:
     name: Unit Tests
@@ -264,6 +275,30 @@ jobs:
       # are never deployed and have no upstream fix available.
       - run: npm audit --audit-level=high --omit=dev
 
+  ga-gate:
+    name: GA Readiness Gate
+    needs: dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+      - run: npm ci
+      # The generated API surface the application actually calls, against the reviewed manifest.
+      # Recorded separately from ga:check so a drift here names the operations that moved.
+      - name: Verify the called API surface matches the manifest
+        run: npm run api:surface
+      # `scripts/ga-check.mjs` has existed, and failed, without CI ever running it. A release
+      # gate nobody runs is not a gate. Blocking failures fail this job; advisory ones report.
+      - name: Run the GA readiness gate
+        run: npm run ga:check
+
   summary:
     name: Build Summary
     runs-on: ubuntu-latest
@@ -280,6 +315,7 @@ jobs:
         compliance,
         rat-scan,
         security,
+        ga-gate,
       ]
     if: always()
     permissions:
@@ -298,6 +334,7 @@ jobs:
           echo "| Formatting | ${{ needs.format.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Translation Check | ${{ needs.i18n-check.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| API Client Drift | ${{ needs.api-client-drift.result == 'success' && '✅ In Sync' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GA Readiness Gate | ${{ needs.ga-gate.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Unit Tests | ${{ needs.test.result == 'success' && '✅ Pass (Artifact Uploaded)' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Prod Build | ${{ needs.build.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compliance | ${{ needs.compliance.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY

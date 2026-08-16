@@ -41,6 +41,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     <app-data-table
       [title]="'ACCOUNT_NUMBER_FORMATS.TITLE' | translate"
       createButtonLabel="ACCOUNT_NUMBER_FORMATS.TITLE"
+      createPermission="CREATE_ACCOUNTNUMBERFORMAT"
       [columns]="columns"
       [data]="formats()"
       [totalRecords]="formats().length"

@@ -44,10 +44,10 @@
     "postEntityTypeEntityIdCalendars",
     "putEntityTypeEntityIdCalendarsCalendarId"
   ],
-  "CashierJournalsService": ["getCashiersjournal"],
   "CentersService": [
     "getCenters",
     "getCentersCenterId",
+    "getCentersTemplate",
     "postCenters",
     "postCentersCenterId",
     "putCentersCenterId"
@@ -96,6 +96,7 @@
     "getClientsClientId",
     "getClientsClientIdAccounts",
     "getClientsDownloadtemplate",
+    "getClientsTemplate",
     "postClients",
     "postClientsClientId",
     "postClientsUploadtemplate",
@@ -232,17 +233,22 @@
   "FixedDepositAccountService": [
     "getFixeddepositaccounts",
     "getFixeddepositaccountsAccountId",
+    "getFixeddepositaccountsAccountIdTemplate",
     "getFixeddepositaccountsTemplate",
     "postFixeddepositaccounts",
     "postFixeddepositaccountsAccountId",
     "putFixeddepositaccountsAccountId"
   ],
   "FixedDepositAccountTransactionsService": [
-    "getFixeddepositaccountsFixedDepositAccountIdTransactions"
+    "getFixeddepositaccountsFixedDepositAccountIdTransactions",
+    "getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate",
+    "postFixeddepositaccountsFixedDepositAccountIdTransactions",
+    "postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId"
   ],
   "FixedDepositProductService": [
     "getFixeddepositproducts",
     "getFixeddepositproductsProductId",
+    "getFixeddepositproductsTemplate",
     "postFixeddepositproducts",
     "putFixeddepositproductsProductId"
   ],
@@ -264,6 +270,7 @@
   "GroupsService": [
     "getGroups",
     "getGroupsGroupId",
+    "getGroupsTemplate",
     "postGroups",
     "postGroupsGroupId",
     "putGroupsGroupId"
@@ -401,6 +408,8 @@
     "getLoans",
     "getLoansDownloadtemplate",
     "getLoansLoanId",
+    "getLoansLoanIdDelinquencyActions",
+    "getLoansLoanIdDelinquencytags",
     "postLoans",
     "postLoansLoanId",
     "postLoansUploadtemplate",
@@ -427,9 +436,6 @@
     "postEntityTypeEntityIdMeetings",
     "putEntityTypeEntityIdMeetingsMeetingId"
   ],
-  "MixMappingService": ["getMixmapping", "putMixmapping"],
-  "MixReportService": ["getMixreport"],
-  "MixTaxonomyService": ["getMixtaxonomy"],
   "NotesService": [
     "deleteResourceTypeResourceIdNotesNoteId",
     "getResourceTypeResourceIdNotes",
@@ -460,6 +466,7 @@
   "ProductsService": [
     "getProductsType",
     "getProductsTypeProductId",
+    "getProductsTypeTemplate",
     "postProductsType",
     "putProductsTypeProductId"
   ],
@@ -486,6 +493,7 @@
   "RecurringDepositAccountService": [
     "getRecurringdepositaccounts",
     "getRecurringdepositaccountsAccountId",
+    "getRecurringdepositaccountsAccountIdTemplate",
     "getRecurringdepositaccountsTemplate",
     "postRecurringdepositaccounts",
     "postRecurringdepositaccountsAccountId",
@@ -493,11 +501,13 @@
   ],
   "RecurringDepositAccountTransactionsService": [
     "getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate",
-    "postRecurringdepositaccountsRecurringDepositAccountIdTransactions"
+    "postRecurringdepositaccountsRecurringDepositAccountIdTransactions",
+    "postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId"
   ],
   "RecurringDepositProductService": [
     "getRecurringdepositproducts",
     "getRecurringdepositproductsProductId",
+    "getRecurringdepositproductsTemplate",
     "postRecurringdepositproducts",
     "putRecurringdepositproductsProductId"
   ],
@@ -527,7 +537,6 @@
     "putRolesRoleId",
     "putRolesRoleIdPermissions"
   ],
-  "RunReportsService": ["getRunreportsReportName"],
   "SCHEDULERJOBService": ["getJobs", "getJobsJobIdRunhistory", "postJobsJobId"],
   "SMSService": [
     "deleteSmsResourceId",
@@ -548,7 +557,8 @@
   ],
   "SavingsAccountTransactionsService": [
     "getSavingsaccountsSavingsIdTransactionsTemplate",
-    "postSavingsaccountsSavingsIdTransactions"
+    "postSavingsaccountsSavingsIdTransactions",
+    "postSavingsaccountsSavingsIdTransactionsTransactionId"
   ],
   "SavingsChargesService": [
     "deleteSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId",
@@ -559,6 +569,7 @@
   "SavingsProductService": [
     "getSavingsproducts",
     "getSavingsproductsProductId",
+    "getSavingsproductsTemplate",
     "postSavingsproducts",
     "putSavingsproductsProductId"
   ],
@@ -575,6 +586,7 @@
     "getAccountsTypeAccountId",
     "getAccountsTypeTemplate",
     "postAccountsType",
+    "postAccountsTypeAccountId",
     "putAccountsTypeAccountId"
   ],
   "SpmSurveysService": ["getSurveys", "getSurveysId", "postSurveys", "putSurveysId"],

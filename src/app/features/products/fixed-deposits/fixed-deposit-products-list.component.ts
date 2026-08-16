@@ -46,6 +46,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       (retry)="onRetry()"
       title="nav.fixedDepositProducts"
       createButtonLabel="PRODUCTS.CREATE_FIXED_DEPOSIT_PRODUCT"
+      createPermission="CREATE_FIXEDDEPOSITPRODUCT"
       [columns]="columns"
       [data]="products()"
       [showSearch]="true"

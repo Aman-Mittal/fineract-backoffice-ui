@@ -52,6 +52,7 @@ import {
       title="nav.wcLoanProducts"
       helpTextKey="HELP.WC_LOAN_PRODUCTS_DESC"
       createButtonLabel="WC_LOAN_PRODUCTS.CREATE"
+      createPermission="CREATE_WORKINGCAPITALLOANPRODUCT"
       [columns]="columns"
       [data]="products()"
       [totalRecords]="products().length"

@@ -131,7 +131,7 @@ import {
           [attr.aria-label]="'LOANS.COLLATERAL' | translate"
           [appTooltip]="'LOANS.MANAGE_COLLATERAL' | translate"
           (click)="onViewCollateral(loan)"
-          *appHasPermission="'READ_LOANCOLLATERAL'"
+          *appHasPermission="'READ_COLLATERAL'"
         >
           <ion-icon name="shield-outline"></ion-icon>
         </ion-button>

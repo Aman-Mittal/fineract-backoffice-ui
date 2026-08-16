@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import { authGuard } from '../../core/guards/auth.guard';
+import { permissionGuard } from '../../core/guards/permission.guard';
 import { Routes } from '@angular/router';
 
 export const TASKS_ROUTES: Routes = [
@@ -27,6 +29,8 @@ export const TASKS_ROUTES: Routes = [
   },
   {
     path: 'checker-inbox',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_AUDIT' },
     loadComponent: () =>
       import('./checker-inbox/checker-inbox.component').then((m) => m.CheckerInboxComponent),
   },

@@ -151,7 +151,10 @@ export class AuthService {
   private setSession(session: UserSession): void {
     const normalized: UserSession = {
       ...session,
-      permissions: this.normalizePermissions(session.permissions),
+      // `?? []` for the same reason `getStoredSession` has it: a response without the field is
+      // a user with no permissions, not a crash. Without it a truncated or malformed session
+      // throws inside `login()` and the user cannot sign in at all.
+      permissions: this.normalizePermissions(session.permissions ?? []),
     };
     this.storage.write('session', normalized);
     this.currentUser.set(normalized);

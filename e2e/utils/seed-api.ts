@@ -35,6 +35,7 @@
  * runs in Node, where a relative path has nothing to resolve against.
  */
 
+import { randomInt } from 'node:crypto';
 import { APIRequestContext, request as playwrightRequest } from '@playwright/test';
 
 import { API_BASE, PASSWORD, TENANT_ID, USERNAME, assertBackendReachable } from './backend-env';
@@ -796,4 +797,145 @@ export async function seedStaff(
     dateFormat: DATE_FORMAT,
   });
   return { staffId: resourceId, staffName: `${lastname}, Field` };
+}
+
+export interface SeededRestrictedUser {
+  username: string;
+  password: string;
+  roleId: number;
+  userId: number;
+  /** Exactly the permission codes the user holds, as granted to their role. */
+  permissions: string[];
+}
+
+/**
+ * A Fineract role granted precisely the permissions listed, and nothing else.
+ *
+ * `PUT /roles/{id}/permissions` takes a map of code to boolean and applies it as a delta, so a
+ * freshly created role — which starts with none — ends up holding exactly these.
+ *
+ * @param api - an API context authenticated as a user who may administer roles
+ * @param permissions - permission codes, which must exist in `GET /permissions`
+ * @param namePrefix - distinguishes the role in a stack that keeps its database between runs
+ * @returns the new role's id
+ */
+export async function seedRole(
+  api: APIRequestContext,
+  permissions: string[],
+  namePrefix = 'E2ERole',
+): Promise<number> {
+  const name = `${namePrefix}${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/roles', {
+    name,
+    description: 'Seeded by the RBAC e2e suite',
+  });
+  await put(api, `/roles/${resourceId}/permissions`, {
+    permissions: Object.fromEntries(permissions.map((code) => [code, true])),
+  });
+  return resourceId;
+}
+
+const UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const LOWER = 'abcdefghijkmnopqrstuvwxyz';
+const DIGIT = '23456789';
+// No underscore: Fineract's policy requires a character matching `[^\w\s]`, and `\w`
+// includes `_` — a password whose only punctuation was an underscore would be rejected.
+const SPECIAL = '#$%&*+-=?@^';
+
+/**
+ * A throwaway password that satisfies Fineract's policy, drawn fresh each time.
+ *
+ * The policy is `^(?!.*(.)\1)(?!.*\s)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\w\s]).{12,50}$` —
+ * 12 to 50 characters, one of each class, no whitespace, and **no character repeated
+ * consecutively**. That last clause is the one that catches people out, and the validation error
+ * does not mention it until you read `args`.
+ *
+ * Generated rather than written down. A literal that satisfies the rule is by construction a
+ * credential-shaped string, which secret scanners flag and reviewers have to think about; there
+ * is no value in having one in the tree when the account is created and used within a single
+ * test run.
+ */
+function generatePassword(): string {
+  const pools = [UPPER, LOWER, DIGIT, SPECIAL];
+  const characters: string[] = [];
+  // One from each class first, so the policy's lookaheads are satisfied by construction,
+  // then fill out the length from the union.
+  const all = pools.join('');
+  while (characters.length < 16) {
+    const pool = characters.length < pools.length ? pools[characters.length] : all;
+    const candidate = pool[randomInt(pool.length)];
+    // Reject rather than reshuffle: the "no consecutive repeat" rule is the only ordering
+    // constraint, and refusing a duplicate neighbour is the whole of enforcing it.
+    if (candidate !== characters[characters.length - 1]) characters.push(candidate);
+  }
+  return characters.join('');
+}
+
+/**
+ * A user who genuinely holds only the given permissions, for signing into the application as.
+ *
+ * The point of seeding rather than mocking is that the resulting session is the platform's own
+ * answer: whatever the UI then allows or refuses can be checked against what Fineract itself
+ * allows or refuses, which is the only way to show the two agree.
+ *
+ * The password is generated to satisfy Fineract's policy — 12 to 50 characters, one of each
+ * class, no whitespace, and no character repeated consecutively — which rejects most obvious
+ * literals with a validation error that does not mention the rule until you read `args`.
+ *
+ * @param api - an API context authenticated as a user who may administer roles and users
+ * @param permissions - permission codes the user should hold, and only those
+ */
+export async function seedRestrictedUser(
+  api: APIRequestContext,
+  permissions: string[],
+): Promise<SeededRestrictedUser> {
+  const roleId = await seedRole(api, permissions);
+  const suffix = seedSuffix();
+  const username = `e2erbac${suffix}`;
+  const password = generatePassword();
+
+  const { resourceId } = await post<{ resourceId: number }>(api, '/users', {
+    username,
+    firstname: 'Restricted',
+    lastname: `User${suffix}`,
+    email: `${username}@example.invalid`,
+    officeId: 1,
+    roles: [roleId],
+    sendPasswordToEmail: false,
+    password,
+    repeatPassword: password,
+  });
+
+  return { username, password, roleId, userId: resourceId, permissions };
+}
+
+/**
+ * Asks Fineract the same question the UI just asked, as the restricted user themselves.
+ *
+ * Returns the HTTP status so a spec can assert the platform's answer directly rather than
+ * inferring it from what the UI did — the client guard is defence-in-depth, and this is how a
+ * test tells the difference between the two agreeing and the client merely looking convincing.
+ */
+export async function statusAs(
+  user: SeededRestrictedUser,
+  method: 'GET' | 'POST',
+  path: string,
+  body?: unknown,
+): Promise<number> {
+  const context = await playwrightRequest.newContext({
+    ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      'Fineract-Platform-TenantId': TENANT,
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${user.username}:${user.password}`).toString('base64')}`,
+    },
+  });
+  try {
+    const url = `${API_BASE}${path}`;
+    const response =
+      method === 'GET' ? await context.get(url) : await context.post(url, { data: body ?? {} });
+    return response.status();
+  } finally {
+    await context.dispose();
+  }
 }

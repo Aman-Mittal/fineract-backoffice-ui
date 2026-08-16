@@ -50,6 +50,7 @@ import { PageEvent, SortEvent } from '../../shared/models/table.model';
       title="nav.journalEntries"
       helpTextKey="HELP.JOURNAL_ENTRIES_DESC"
       createButtonLabel="JOURNAL_ENTRIES.CREATE"
+      createPermission="CREATE_JOURNALENTRY"
       [columns]="columns"
       [data]="entries()"
       [totalRecords]="totalRecords"

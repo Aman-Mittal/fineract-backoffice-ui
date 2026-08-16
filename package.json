@@ -29,6 +29,8 @@
     "i18n:check": "node scripts/check-translations.mjs",
     "check:icons": "node scripts/check-icons.mjs",
     "check:internal-endpoints": "node scripts/check-internal-endpoints.mjs",
+    "check:route-permissions": "node scripts/check-route-permissions.mjs",
+    "typecheck:e2e": "tsc -p tsconfig.e2e.json",
     "api:surface": "node scripts/check-api-surface.mjs",
     "ga:check": "node scripts/ga-check.mjs",
     "demo:record": "DEMO_RECORD=1 DEMO_BEAT_MS=900 PLAYWRIGHT_OUTPUT_DIR=demo-recordings FINERACT_SERVER_URL=/fineract-provider/api/v1 FINERACT_TENANT_ID=default FINERACT_USERNAME=mifos FINERACT_PASSWORD=password playwright test --project=backend --workers=1"

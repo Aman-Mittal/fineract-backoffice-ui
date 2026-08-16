@@ -49,6 +49,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="nav.wcBreach"
       helpTextKey="HELP.WC_BREACH_DESC"
       createButtonLabel="WC_BREACH.CREATE"
+      createPermission="CREATE_WORKINGCAPITALBREACH"
       [columns]="columns"
       [data]="breaches()"
       [totalRecords]="breaches().length"

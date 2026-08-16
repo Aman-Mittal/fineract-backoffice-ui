@@ -30,7 +30,7 @@ import {
   PostClientsClientIdRequest,
 } from '../../api';
 import { StatusBadgeComponent } from '../../shared';
-import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
+import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 import { ClientActionDialogComponent } from './client-action-dialog.component';
 import {
@@ -105,7 +105,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
     TranslateModule,
     CdkTableModule,
     StatusBadgeComponent,
-    HasPermissionDirective,
+    RequiresPermissionDirective,
     ClientIdentifiersListComponent,
     ClientAddressesListComponent,
     ClientFamilyMembersListComponent,
@@ -163,7 +163,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                 fill="outline"
                 color="primary"
                 (click)="onEditClient()"
-                *appHasPermission="'UPDATE_CLIENT'"
+                appRequiresPermission="UPDATE_CLIENT"
               >
                 <ion-icon name="create-outline"></ion-icon>
                 {{ 'COMMON.EDIT' | translate }}
@@ -173,7 +173,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                 fill="outline"
                 color="secondary"
                 id="clientActionsMenu-trigger"
-                *appHasPermission="[
+                [appRequiresPermission]="[
                   'ACTIVATE_CLIENT',
                   'CLOSE_CLIENT',
                   'REJECT_CLIENT',
@@ -203,7 +203,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('activate')"
-                        *appHasPermission="'ACTIVATE_CLIENT'"
+                        appRequiresPermission="ACTIVATE_CLIENT"
                       >
                         <ion-icon slot="start" name="play-circle-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.ACTIVATE_CLIENT' | translate }}</ion-label>
@@ -211,7 +211,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('reject')"
-                        *appHasPermission="'REJECT_CLIENT'"
+                        appRequiresPermission="REJECT_CLIENT"
                       >
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.REJECT_CLIENT' | translate }}</ion-label>
@@ -219,7 +219,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('withdraw')"
-                        *appHasPermission="'WITHDRAW_CLIENT'"
+                        appRequiresPermission="WITHDRAW_CLIENT"
                       >
                         <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.WITHDRAW_CLIENT' | translate }}</ion-label>
@@ -227,7 +227,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onDeleteClient()"
-                        *appHasPermission="'DELETE_CLIENT'"
+                        appRequiresPermission="DELETE_CLIENT"
                       >
                         <ion-icon slot="start" name="trash-outline"></ion-icon>
                         <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
@@ -237,7 +237,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('close')"
-                        *appHasPermission="'CLOSE_CLIENT'"
+                        appRequiresPermission="CLOSE_CLIENT"
                       >
                         <ion-icon slot="start" name="close-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.CLOSE_CLIENT' | translate }}</ion-label>
@@ -246,7 +246,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onProposeTransfer()"
                         data-testid="client-propose-transfer-action"
-                        *appHasPermission="'PROPOSETRANSFER_CLIENT'"
+                        appRequiresPermission="PROPOSETRANSFER_CLIENT"
                       >
                         <ion-icon slot="start" name="swap-horizontal-outline"></ion-icon>
                         <ion-label>{{ 'CLIENTS.ACTIONS.PROPOSE_TRANSFER' | translate }}</ion-label>
@@ -255,7 +255,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onProposeAndAcceptTransfer()"
                         data-testid="client-propose-and-accept-transfer-action"
-                        *appHasPermission="'PROPOSEANDACCEPTTRANSFER_CLIENT'"
+                        appRequiresPermission="PROPOSEANDACCEPTTRANSFER_CLIENT"
                       >
                         <ion-icon slot="start" name="git-compare-outline"></ion-icon>
                         <ion-label>
@@ -269,7 +269,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onAcceptTransfer()"
                         data-testid="client-accept-transfer-action"
-                        *appHasPermission="'ACCEPTTRANSFER_CLIENT'"
+                        appRequiresPermission="ACCEPTTRANSFER_CLIENT"
                       >
                         <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
                         <ion-label>{{ 'CLIENTS.ACTIONS.ACCEPT_TRANSFER' | translate }}</ion-label>
@@ -278,7 +278,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onRejectTransfer()"
                         data-testid="client-reject-transfer-action"
-                        *appHasPermission="'REJECTTRANSFER_CLIENT'"
+                        appRequiresPermission="REJECTTRANSFER_CLIENT"
                       >
                         <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                         <ion-label>{{ 'CLIENTS.ACTIONS.REJECT_TRANSFER' | translate }}</ion-label>
@@ -295,7 +295,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onWithdrawTransfer()"
                         data-testid="client-withdraw-transfer-action"
-                        *appHasPermission="'WITHDRAWTRANSFER_CLIENT'"
+                        appRequiresPermission="WITHDRAWTRANSFER_CLIENT"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'CLIENTS.ACTIONS.WITHDRAW_TRANSFER' | translate }}</ion-label>
@@ -307,7 +307,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onAssignStaff()"
                         data-testid="client-assign-staff-action"
-                        *appHasPermission="'ASSIGNSTAFF_CLIENT'"
+                        appRequiresPermission="ASSIGNSTAFF_CLIENT"
                       >
                         <ion-icon slot="start" name="person-add-outline"></ion-icon>
                         <ion-label>{{ 'CLIENTS.ACTIONS.ASSIGN_STAFF' | translate }}</ion-label>
@@ -317,7 +317,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                           button
                           (click)="onUnassignStaff()"
                           data-testid="client-unassign-staff-action"
-                          *appHasPermission="'UNASSIGNSTAFF_CLIENT'"
+                          appRequiresPermission="UNASSIGNSTAFF_CLIENT"
                         >
                           <ion-icon slot="start" name="person-remove-outline"></ion-icon>
                           <ion-label>{{ 'CLIENTS.ACTIONS.UNASSIGN_STAFF' | translate }}</ion-label>
@@ -327,7 +327,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                         button
                         (click)="onUpdateSavingsAccount()"
                         data-testid="client-update-savings-account-action"
-                        *appHasPermission="'UPDATESAVINGSACCOUNT_CLIENT'"
+                        appRequiresPermission="UPDATESAVINGSACCOUNT_CLIENT"
                       >
                         <ion-icon slot="start" name="wallet-outline"></ion-icon>
                         <ion-label>
@@ -339,7 +339,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('reactivate')"
-                        *appHasPermission="'REACTIVATE_CLIENT'"
+                        appRequiresPermission="REACTIVATE_CLIENT"
                       >
                         <ion-icon slot="start" name="refresh-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.REACTIVATE_CLIENT' | translate }}</ion-label>
@@ -349,7 +349,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('undoReject')"
-                        *appHasPermission="'UNDOREJECT_CLIENT'"
+                        appRequiresPermission="UNDOREJECT_CLIENT"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.UNDO_REJECT_CLIENT' | translate }}</ion-label>
@@ -359,7 +359,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                       <ion-item
                         button
                         (click)="onClientAction('undoWithdraw')"
-                        *appHasPermission="'UNDOWITHDRAW_CLIENT'"
+                        appRequiresPermission="UNDOWITHDRAW_CLIENT"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | translate }}</ion-label>
@@ -377,14 +377,14 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
               <ion-popover trigger="createMenu-trigger" [dismissOnSelect]="true">
                 <ng-template>
                   <ion-list>
-                    <ion-item button (click)="onCreateLoan()" *appHasPermission="'CREATE_LOAN'">
+                    <ion-item button (click)="onCreateLoan()" appRequiresPermission="CREATE_LOAN">
                       <ion-icon slot="start" name="business-outline"></ion-icon>
                       <ion-label>{{ 'ACTIONS.LOAN_ACCOUNT' | translate }}</ion-label>
                     </ion-item>
                     <ion-item
                       button
                       (click)="onCreateSavings()"
-                      *appHasPermission="'CREATE_SAVINGSACCOUNT'"
+                      appRequiresPermission="CREATE_SAVINGSACCOUNT"
                     >
                       <ion-icon slot="start" name="wallet-outline"></ion-icon>
                       <ion-label>{{ 'ACTIONS.SAVINGS_ACCOUNT' | translate }}</ion-label>
@@ -392,7 +392,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                     <ion-item
                       button
                       (click)="onCreateFixed()"
-                      *appHasPermission="'CREATE_FIXEDDEPOSITACCOUNT'"
+                      appRequiresPermission="CREATE_FIXEDDEPOSITACCOUNT"
                     >
                       <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
                       <ion-label>{{ 'ACTIONS.FIXED_DEPOSIT' | translate }}</ion-label>
@@ -400,7 +400,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                     <ion-item
                       button
                       (click)="onCreateRecurring()"
-                      *appHasPermission="'CREATE_RECURRINGDEPOSITACCOUNT'"
+                      appRequiresPermission="CREATE_RECURRINGDEPOSITACCOUNT"
                     >
                       <ion-icon slot="start" name="refresh-circle-outline"></ion-icon>
                       <ion-label>{{ 'ACTIONS.RECURRING_DEPOSIT' | translate }}</ion-label>
@@ -558,7 +558,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                             fill="clear"
                             color="primary"
                             (click)="onSavingsTransaction(account.id, 'deposit')"
-                            *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
+                            appRequiresPermission="DEPOSIT_SAVINGSACCOUNT"
                             [appTooltip]="'SAVINGS.DEPOSIT' | translate"
                           >
                             <ion-icon name="add-circle-outline"></ion-icon>
@@ -569,7 +569,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                               fill="clear"
                               color="secondary"
                               (click)="onSavingsAction(account.id, 'approve', account)"
-                              *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
+                              appRequiresPermission="APPROVE_SAVINGSACCOUNT"
                               [appTooltip]="'LOANS.APPROVE' | translate"
                             >
                               <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -581,7 +581,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                               fill="clear"
                               color="primary"
                               (click)="onSavingsAction(account.id, 'activate', account)"
-                              *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
+                              appRequiresPermission="ACTIVATE_SAVINGSACCOUNT"
                               [appTooltip]="'LOANS.ACTIVATE' | translate"
                             >
                               <ion-icon name="play-circle-outline"></ion-icon>
@@ -593,7 +593,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                               fill="clear"
                               color="danger"
                               (click)="onSavingsAction(account.id, 'close', account)"
-                              *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
+                              appRequiresPermission="CLOSE_SAVINGSACCOUNT"
                               [appTooltip]="'LOANS.CLOSE' | translate"
                             >
                               <ion-icon name="close-circle-outline"></ion-icon>
@@ -604,7 +604,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                             fill="clear"
                             color="danger"
                             (click)="onSavingsTransaction(account.id, 'withdrawal')"
-                            *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
+                            appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
                             [appTooltip]="'SAVINGS.WITHDRAWAL' | translate"
                           >
                             <ion-icon name="remove-circle-outline"></ion-icon>
@@ -677,7 +677,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                             fill="clear"
                             color="primary"
                             (click)="onLoanTransaction(account.id, 'repayment')"
-                            *appHasPermission="'REPAYMENT_LOAN'"
+                            appRequiresPermission="REPAYMENT_LOAN"
                             [appTooltip]="'LOANS.REPAYMENT' | translate"
                           >
                             <ion-icon name="card-outline"></ion-icon>
@@ -710,7 +710,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
                               fill="clear"
                               color="danger"
                               (click)="onLoanAction(account.id, 'close')"
-                              *appHasPermission="'CLOSE_LOAN'"
+                              appRequiresPermission="CLOSE_LOAN"
                               [appTooltip]="'LOANS.CLOSE' | translate"
                             >
                               <ion-icon name="close-circle-outline"></ion-icon>

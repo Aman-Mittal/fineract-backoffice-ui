@@ -29,7 +29,7 @@ import {
   SavingsAccountTransactionData,
   SavingsAccountChargeData,
 } from '../../api';
-import { StatusBadgeComponent, HasPermissionDirective } from '../../shared';
+import { StatusBadgeComponent, RequiresPermissionDirective } from '../../shared';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
 import {
@@ -77,7 +77,7 @@ import {
     TranslateModule,
     CdkTableModule,
     StatusBadgeComponent,
-    HasPermissionDirective,
+    RequiresPermissionDirective,
     DecimalPipe,
     NgClass,
     IonIcon,
@@ -127,7 +127,7 @@ import {
               @if (account()?.status?.submittedAndPendingApproval) {
                 <ion-button
                   color="secondary"
-                  *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
+                  appRequiresPermission="APPROVE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('approve')"
                   [appTooltip]="'SAVINGS.APPROVE' | translate"
                 >
@@ -140,7 +140,7 @@ import {
                   color="danger"
                   fill="outline"
                   data-testid="savings-reject"
-                  *appHasPermission="'REJECT_SAVINGSACCOUNT'"
+                  appRequiresPermission="REJECT_SAVINGSACCOUNT"
                   (click)="onDatedCommand('reject', 'rejectedOnDate')"
                 >
                   <ion-icon name="close-circle-outline"></ion-icon>
@@ -150,7 +150,7 @@ import {
                   color="medium"
                   fill="outline"
                   data-testid="savings-withdrawn"
-                  *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
+                  appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
                   (click)="onDatedCommand('withdrawnByApplicant', 'withdrawnOnDate')"
                 >
                   <ion-icon name="arrow-undo-outline"></ion-icon>
@@ -160,7 +160,7 @@ import {
               @if (account()?.status?.approved) {
                 <ion-button
                   color="primary"
-                  *appHasPermission="'ACTIVATE_SAVINGSACCOUNT'"
+                  appRequiresPermission="ACTIVATE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('activate')"
                   [appTooltip]="'SAVINGS.ACTIVATE' | translate"
                 >
@@ -171,7 +171,7 @@ import {
               @if (account()?.status?.active) {
                 <ion-button
                   color="danger"
-                  *appHasPermission="'CLOSE_SAVINGSACCOUNT'"
+                  appRequiresPermission="CLOSE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('close')"
                   [appTooltip]="'SAVINGS.CLOSE' | translate"
                 >
@@ -181,7 +181,7 @@ import {
               }
               <ion-button
                 color="primary"
-                *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
+                appRequiresPermission="DEPOSIT_SAVINGSACCOUNT"
                 (click)="onTransaction('deposit')"
                 [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
               >
@@ -190,7 +190,7 @@ import {
               </ion-button>
               <ion-button
                 color="danger"
-                *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
+                appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
                 (click)="onTransaction('withdrawal')"
                 [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
               >

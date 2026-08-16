@@ -42,6 +42,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
         [columns]="columns"
         [localLogic]="true"
         createButtonLabel="ACCOUNTING_RULES.CREATE"
+        createPermission="CREATE_ACCOUNTINGRULE"
         (create)="onCreate()"
       >
         <ng-template appCellTemplate="debitAccounts" let-row>

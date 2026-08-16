@@ -17,89 +17,110 @@
  * under the License.
  */
 
+import { permissionGuard } from '../../core/guards/permission.guard';
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/guards/auth.guard';
 
 export const SYSTEM_ROUTES: Routes = [
   {
     path: 'data-tables',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_DATATABLE' },
     loadComponent: () =>
       import('./data-tables/datatables-list.component').then((m) => m.DatatablesListComponent),
   },
   {
     path: 'data-tables/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_DATATABLE' },
     loadComponent: () =>
       import('./data-tables/datatables-form.component').then((m) => m.DatatablesFormComponent),
   },
   {
     path: 'data-tables/edit/:name',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_DATATABLE' },
     loadComponent: () =>
       import('./data-tables/datatables-form.component').then((m) => m.DatatablesFormComponent),
   },
   {
     path: 'codes',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_CODE' },
     loadComponent: () => import('./codes/codes-list.component').then((m) => m.CodesListComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'codes/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_CODE' },
     loadComponent: () => import('./codes/code-form.component').then((m) => m.CodeFormComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'codes/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_CODE' },
     loadComponent: () => import('./codes/code-form.component').then((m) => m.CodeFormComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'codes/:codeId/values',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_CODEVALUE' },
     loadComponent: () =>
       import('./codes/code-values-list.component').then((m) => m.CodeValuesListComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'codes/:codeId/values/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_CODEVALUE' },
     loadComponent: () =>
       import('./codes/code-value-form.component').then((m) => m.CodeValueFormComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'codes/:codeId/values/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_CODEVALUE' },
     loadComponent: () =>
       import('./codes/code-value-form.component').then((m) => m.CodeValueFormComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'business-dates',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_BUSINESS_DATE' },
     loadComponent: () =>
       import('./business-dates/business-dates.component').then((m) => m.BusinessDatesComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'templates',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_TEMPLATE' },
     loadComponent: () =>
       import('./templates/templates-list.component').then((m) => m.TemplatesListComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'templates/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_TEMPLATE' },
     loadComponent: () =>
       import('./templates/template-form.component').then((m) => m.TemplateFormComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'templates/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_TEMPLATE' },
     loadComponent: () =>
       import('./templates/template-form.component').then((m) => m.TemplateFormComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'bulk-import',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_IMPORT' },
     loadComponent: () =>
       import('./bulk-import/bulk-import.component').then((m) => m.BulkImportComponent),
   },
   {
     path: 'delinquency',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_DELINQUENCY_BUCKET' },
     loadComponent: () =>
       import('./delinquency/delinquency-management.component').then(
         (m) => m.DelinquencyManagementComponent,
@@ -107,6 +128,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'credit-bureau-config',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_CREDITBUREAU_CONFIGURATION' },
     loadComponent: () =>
       import('./credit-bureau-config/credit-bureau-config.component').then(
         (m) => m.CreditBureauConfigComponent,
@@ -114,14 +137,20 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'hooks',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_HOOK' },
     loadComponent: () => import('./hooks/hooks-list.component').then((m) => m.HooksListComponent),
   },
   {
     path: 'hooks/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_HOOK' },
     loadComponent: () => import('./hooks/hooks-form.component').then((m) => m.HooksFormComponent),
   },
   {
     path: 'hooks/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_HOOK' },
     loadComponent: () => import('./hooks/hooks-form.component').then((m) => m.HooksFormComponent),
   },
   {
@@ -131,28 +160,40 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'adhoc-query/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_ADHOC' },
     loadComponent: () =>
       import('./adhoc-query/adhoc-query-form.component').then((m) => m.AdhocQueryFormComponent),
   },
   {
     path: 'adhoc-query/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_ADHOC' },
     loadComponent: () =>
       import('./adhoc-query/adhoc-query-form.component').then((m) => m.AdhocQueryFormComponent),
   },
   {
     path: 'sms',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_SMS' },
     loadComponent: () => import('./sms/sms-list.component').then((m) => m.SmsListComponent),
   },
   {
     path: 'sms/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_SMS' },
     loadComponent: () => import('./sms/sms-form.component').then((m) => m.SmsFormComponent),
   },
   {
     path: 'sms/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_SMS' },
     loadComponent: () => import('./sms/sms-form.component').then((m) => m.SmsFormComponent),
   },
   {
     path: 'report-mailing-jobs',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_REPORTMAILINGJOB' },
     loadComponent: () =>
       import('./report-mailing-jobs/report-mailing-jobs-list.component').then(
         (m) => m.ReportMailingJobsListComponent,
@@ -160,6 +201,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'report-mailing-jobs/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_REPORTMAILINGJOB' },
     loadComponent: () =>
       import('./report-mailing-jobs/report-mailing-jobs-form.component').then(
         (m) => m.ReportMailingJobsFormComponent,
@@ -167,6 +210,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'report-mailing-jobs/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_REPORTMAILINGJOB' },
     loadComponent: () =>
       import('./report-mailing-jobs/report-mailing-jobs-form.component').then(
         (m) => m.ReportMailingJobsFormComponent,
@@ -174,6 +219,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'entity-data-table-checks',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_ENTITY_DATATABLE_CHECK' },
     loadComponent: () =>
       import('./entity-data-table-checks/entity-data-table-checks-list.component').then(
         (m) => m.EntityDataTableChecksListComponent,
@@ -181,6 +228,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'entity-data-table-checks/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_ENTITY_DATATABLE_CHECK' },
     loadComponent: () =>
       import('./entity-data-table-checks/entity-data-table-checks-form.component').then(
         (m) => m.EntityDataTableChecksFormComponent,
@@ -195,6 +244,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'entity-mapping/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_ENTITYMAPPING' },
     loadComponent: () =>
       import('./entity-mapping/entity-mapping-form.component').then(
         (m) => m.EntityMappingFormComponent,
@@ -202,6 +253,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'entity-mapping/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_ENTITYMAPPING' },
     loadComponent: () =>
       import('./entity-mapping/entity-mapping-form.component').then(
         (m) => m.EntityMappingFormComponent,
@@ -209,20 +262,28 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'business-steps',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_BATCH_BUSINESS_STEP' },
     loadComponent: () =>
       import('./business-steps/business-steps.component').then((m) => m.BusinessStepsComponent),
   },
   {
     path: 'cache',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_CACHE' },
     loadComponent: () => import('./cache/cache.component').then((m) => m.CacheComponent),
   },
   {
     path: 'external-events',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_EXTERNAL_EVENT_CONFIGURATION' },
     loadComponent: () =>
       import('./external-events/external-events.component').then((m) => m.ExternalEventsComponent),
   },
   {
     path: 'external-services',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_EXTERNALSERVICES' },
     loadComponent: () =>
       import('./external-services/external-services.component').then(
         (m) => m.ExternalServicesComponent,
@@ -230,6 +291,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'password-preferences',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_PASSWORD_PREFERENCES' },
     loadComponent: () =>
       import('./password-preferences/password-preferences.component').then(
         (m) => m.PasswordPreferencesComponent,
@@ -237,6 +300,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'notifications-config',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_EMAIL_CONFIGURATION' },
     loadComponent: () =>
       import('./notifications-config/notifications-config.component').then(
         (m) => m.NotificationsConfigComponent,
@@ -249,6 +314,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'scheduler-jobs',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_SCHEDULER' },
     loadComponent: () =>
       import('./scheduler-jobs/scheduler-jobs-list.component').then(
         (m) => m.SchedulerJobsListComponent,
@@ -256,6 +323,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'scheduler-jobs/:id/history',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_SCHEDULER' },
     loadComponent: () =>
       import('./scheduler-jobs/scheduler-job-history.component').then(
         (m) => m.SchedulerJobHistoryComponent,
@@ -263,6 +332,8 @@ export const SYSTEM_ROUTES: Routes = [
   },
   {
     path: 'permissions',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_PERMISSION' },
     loadComponent: () =>
       import('./permissions/permissions.component').then((m) => m.PermissionsListComponent),
   },
