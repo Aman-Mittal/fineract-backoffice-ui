@@ -58,6 +58,27 @@ export const ACCOUNTING_ROUTES: Routes = [
       import('./journal-entry-form.component').then((m) => m.JournalEntryFormComponent),
   },
   {
+    path: 'journal-entries/view/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_JOURNALENTRY' },
+    loadComponent: () =>
+      import('./journal-entry-view.component').then((m) => m.JournalEntryViewComponent),
+  },
+  {
+    path: 'frequent-postings',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_JOURNALENTRY' },
+    loadComponent: () =>
+      import('./frequent-postings.component').then((m) => m.FrequentPostingsComponent),
+  },
+  {
+    path: 'opening-balances',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'DEFINEOPENINGBALANCE_JOURNALENTRY' },
+    loadComponent: () =>
+      import('./opening-balances.component').then((m) => m.OpeningBalancesComponent),
+  },
+  {
     path: 'closures',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_GLCLOSURE' },

@@ -465,6 +465,18 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         icon: 'book-outline',
       },
       {
+        route: '/accounting/frequent-postings',
+        requiredPermissions: 'CREATE_JOURNALENTRY',
+        labelKey: 'nav.frequentPostings',
+        icon: 'flash-outline',
+      },
+      {
+        route: '/accounting/opening-balances',
+        requiredPermissions: 'DEFINEOPENINGBALANCE_JOURNALENTRY',
+        labelKey: 'nav.openingBalances',
+        icon: 'play-outline',
+      },
+      {
         route: '/accounting/closures',
         requiredPermissions: 'READ_GLCLOSURE',
         labelKey: 'nav.accountingClosures',
@@ -688,6 +700,12 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         requiredPermissions: 'READ_SMS',
         labelKey: 'nav.sms',
         icon: 'chatbubble-outline',
+      },
+      {
+        route: '/system/report-definitions',
+        requiredPermissions: 'READ_REPORT',
+        labelKey: 'nav.reportDefinitions',
+        icon: 'document-text-outline',
       },
       {
         route: '/system/report-mailing-jobs',
