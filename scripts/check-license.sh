@@ -24,7 +24,7 @@
 # whose body had been spliced -- "with the License.  See the NOTICE file BASIS, WITHOUT" --
 # losing the grant sentence, the licence URL and the "AS IS" clause. It still opened with the
 # ASF phrase, so a check that looked only for that phrase passed all six.
-FILES=$(find src deploy .github scripts e2e -type f \( -name "*.ts" -o -name "*.html" -o -name "*.scss" -o -name "*.yml" -o -name "*.sh" -o -name "Dockerfile" -o -name "nginx.conf" -o -name "eslint.config.js" -o -name ".prettierignore" \) -not -path "src/app/api/*")
+FILES=$(find src deploy .github scripts e2e -type f \( -name "*.ts" -o -name "*.html" -o -name "*.scss" -o -name "*.yml" -o -name "*.sh" -o -name "Dockerfile" -o -name "nginx.conf" -o -name "nginx.conf.template" -o -name "eslint.config.js" -o -name ".prettierignore" \) -not -path "src/app/api/*")
 
 MISSING_HEADERS=0
 
