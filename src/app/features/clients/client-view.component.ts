@@ -28,9 +28,11 @@ import {
   GetClientsLoanAccounts,
   GetClientsSavingsAccounts,
   PostClientsClientIdRequest,
+  ShareAccountService,
 } from '../../api';
 import { StatusBadgeComponent } from '../../shared';
 import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
+import { skipErrorToast } from '../../core/http/http-context';
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 import { ClientActionDialogComponent } from './client-action-dialog.component';
 import {
@@ -57,6 +59,7 @@ import { ClientAddressesListComponent } from './tabs/client-addresses-list.compo
 import { ClientFamilyMembersListComponent } from './tabs/client-family-members-list.component';
 import { ClientNotesListComponent } from './tabs/client-notes-list.component';
 import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
+import { ClientStandingInstructionsTabComponent } from './tabs/client-standing-instructions-tab.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { DialogService } from '../../core/services/dialog.service';
@@ -97,6 +100,44 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
   undoWithdraw: 'UndoWithdrawal',
 };
 
+/**
+ * `depositType.id` on a client's deposit account. Verified against a running platform by opening
+ * one of each: a fixed deposit comes back as 200 and a recurring deposit as 300, both inside the
+ * same `savingsAccounts` array as plain savings.
+ */
+const DEPOSIT_TYPE = { savings: 100, fixed: 200, recurring: 300 } as const;
+
+interface ShareAccountRow {
+  id?: number;
+  accountNo?: string;
+  productName?: string;
+  status?: { value?: string };
+}
+
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const CLIENT_TAB = {
+  details: 'details',
+  savings: 'savings',
+  loans: 'loans',
+  identifiers: 'identifiers',
+  addresses: 'addresses',
+  familyMembers: 'familyMembers',
+  notes: 'notes',
+  documents: 'documents',
+  customFields: 'customFields',
+  deposits: 'deposits',
+  shares: 'shares',
+  standingInstructions: 'standingInstructions',
+} as const;
+
+export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
+
 @Component({
   selector: 'app-client-view',
   standalone: true,
@@ -112,6 +153,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
     ClientNotesListComponent,
     ClientDocumentsListComponent,
     EntityDatatablesComponent,
+    ClientStandingInstructionsTabComponent,
     DecimalPipe,
     IonIcon,
     IonButton,
@@ -418,37 +460,49 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
         </ion-card>
 
         <div class="content-body">
-          <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-            <ion-segment-button value="0">
+          <ion-segment [value]="activeTab()" (ionChange)="onTabChange($any($event).detail.value)">
+            <ion-segment-button [value]="TAB.details">
               <ion-label>{{ 'CLIENTS.DETAILS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="1">
+            <ion-segment-button [value]="TAB.savings">
               <ion-label>{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="2">
+            <ion-segment-button [value]="TAB.loans">
               <ion-label>{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="3">
+            <ion-segment-button [value]="TAB.identifiers">
               <ion-label>{{ 'CLIENTS.IDENTIFIERS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="4">
+            <ion-segment-button [value]="TAB.addresses">
               <ion-label>{{ 'CLIENTS.ADDRESSES' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="5">
+            <ion-segment-button [value]="TAB.familyMembers">
               <ion-label>{{ 'CLIENTS.FAMILY_MEMBERS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="6">
+            <ion-segment-button [value]="TAB.notes">
               <ion-label>{{ 'CLIENTS.NOTES' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="7">
+            <ion-segment-button [value]="TAB.documents">
               <ion-label>{{ 'CLIENTS.DOCUMENTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="8">
+            <ion-segment-button [value]="TAB.customFields">
               <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [value]="TAB.deposits" data-testid="client-tab-deposits">
+              <ion-label>{{ 'CLIENTS.DEPOSIT_ACCOUNTS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [value]="TAB.shares" data-testid="client-tab-shares">
+              <ion-label>{{ 'CLIENTS.SHARE_ACCOUNTS' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button
+              [value]="TAB.standingInstructions"
+              data-testid="client-tab-standing-instructions"
+            >
+              <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
             </ion-segment-button>
           </ion-segment>
 
-          @if (activeTab() === '0') {
+          @if (activeTab() === TAB.details) {
             <div class="tab-content">
               <div class="info-grid">
                 <ion-card class="info-card">
@@ -503,12 +557,12 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
               </div>
             </div>
           }
-          @if (activeTab() === '1') {
+          @if (activeTab() === TAB.savings) {
             <div class="tab-content">
               <ion-card class="table-card">
                 <ion-card-content>
-                  @if (savingsAccounts().length > 0) {
-                    <table cdk-table [dataSource]="savingsAccounts()" class="full-width-table">
+                  @if (plainSavingsAccounts().length > 0) {
+                    <table cdk-table [dataSource]="plainSavingsAccounts()" class="full-width-table">
                       <ng-container cdkColumnDef="accountNo">
                         <th cdk-header-cell *cdkHeaderCellDef>
                           {{ 'COMMON.ACCOUNT_NO' | translate }}
@@ -625,7 +679,7 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
               </ion-card>
             </div>
           }
-          @if (activeTab() === '2') {
+          @if (activeTab() === TAB.loans) {
             <div class="tab-content">
               <ion-card class="table-card">
                 <ion-card-content>
@@ -732,39 +786,129 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
               </ion-card>
             </div>
           }
-          @if (activeTab() === '3') {
+          @if (activeTab() === TAB.identifiers) {
             <div class="tab-content">
               <app-client-identifiers-list [clientId]="clientId()"></app-client-identifiers-list>
             </div>
           }
-          @if (activeTab() === '4') {
+          @if (activeTab() === TAB.addresses) {
             <div class="tab-content">
               <app-client-addresses-list [clientId]="clientId()"></app-client-addresses-list>
             </div>
           }
-          @if (activeTab() === '5') {
+          @if (activeTab() === TAB.familyMembers) {
             <div class="tab-content">
               <app-client-family-members-list
                 [clientId]="clientId()"
               ></app-client-family-members-list>
             </div>
           }
-          @if (activeTab() === '6') {
+          @if (activeTab() === TAB.notes) {
             <div class="tab-content">
               <app-client-notes-list [clientId]="clientId()"></app-client-notes-list>
             </div>
           }
-          @if (activeTab() === '7') {
+          @if (activeTab() === TAB.documents) {
             <div class="tab-content">
               <app-client-documents-list [clientId]="clientId()"></app-client-documents-list>
             </div>
           }
-          @if (activeTab() === '8') {
+          @if (activeTab() === TAB.customFields) {
             <div class="tab-content">
               <app-entity-datatables
                 apptableName="m_client"
                 [entityId]="clientId()"
               ></app-entity-datatables>
+            </div>
+          }
+
+          @if (activeTab() === TAB.deposits) {
+            <div class="tab-content">
+              <h2>{{ 'CLIENTS.FIXED_DEPOSITS' | translate }}</h2>
+              @if (fixedDepositAccounts().length === 0) {
+                <p class="empty-state" data-testid="client-fixed-deposits-empty">
+                  {{ 'CLIENTS.NO_FIXED_DEPOSITS' | translate }}
+                </p>
+              } @else {
+                <table class="accounts-table" data-testid="client-fixed-deposits">
+                  <tbody>
+                    @for (account of fixedDepositAccounts(); track account.id) {
+                      <tr>
+                        <td>
+                          <a
+                            class="clickable-link"
+                            [routerLink]="['/products/fixed-deposits/view', account.id]"
+                            >{{ account.accountNo }}</a
+                          >
+                        </td>
+                        <td>{{ account.productName }}</td>
+                        <td>{{ account.status?.value }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+
+              <h2>{{ 'CLIENTS.RECURRING_DEPOSITS' | translate }}</h2>
+              @if (recurringDepositAccounts().length === 0) {
+                <p class="empty-state" data-testid="client-recurring-deposits-empty">
+                  {{ 'CLIENTS.NO_RECURRING_DEPOSITS' | translate }}
+                </p>
+              } @else {
+                <table class="accounts-table" data-testid="client-recurring-deposits">
+                  <tbody>
+                    @for (account of recurringDepositAccounts(); track account.id) {
+                      <tr>
+                        <td>
+                          <a
+                            class="clickable-link"
+                            [routerLink]="['/products/recurring-deposits/view', account.id]"
+                            >{{ account.accountNo }}</a
+                          >
+                        </td>
+                        <td>{{ account.productName }}</td>
+                        <td>{{ account.status?.value }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          }
+
+          @if (activeTab() === TAB.shares) {
+            <div class="tab-content">
+              @if (shareAccounts().length === 0) {
+                <p class="empty-state" data-testid="client-share-accounts-empty">
+                  {{ 'CLIENTS.NO_SHARE_ACCOUNTS' | translate }}
+                </p>
+              } @else {
+                <table class="accounts-table" data-testid="client-share-accounts">
+                  <tbody>
+                    @for (account of shareAccounts(); track account.id) {
+                      <tr>
+                        <td>
+                          <a
+                            class="clickable-link"
+                            [routerLink]="['/products/shares/view', account.id]"
+                            >{{ account.accountNo }}</a
+                          >
+                        </td>
+                        <td>{{ account.productName }}</td>
+                        <td>{{ account.status?.value }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          }
+
+          @if (activeTab() === TAB.standingInstructions) {
+            <div class="tab-content">
+              <app-client-standing-instructions-tab
+                [clientId]="clientId()"
+              ></app-client-standing-instructions-tab>
             </div>
           }
         </div>
@@ -928,18 +1072,41 @@ const CLIENT_COMMAND_NAMES: Record<string, string> = {
 })
 export class ClientViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = CLIENT_TAB;
+
+  readonly activeTab = signal<ClientTab>(CLIENT_TAB.details);
   private readonly clientService = inject(ClientService);
   private readonly notesService = inject(NotesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
+  private readonly shareAccountService = inject(ShareAccountService);
   private readonly i18n = inject(I18N);
 
   readonly clientId = signal(0);
   readonly client = signal<GetClientsClientIdResponse | null>(null);
   readonly loanAccounts = signal<GetClientsLoanAccounts[]>([]);
   readonly savingsAccounts = signal<GetClientsSavingsAccounts[]>([]);
+  readonly shareAccounts = signal<ShareAccountRow[]>([]);
+
+  /**
+   * Fineract returns savings, fixed deposits and recurring deposits in one `savingsAccounts`
+   * array, told apart only by `depositType.id` — 100, 200 and 300, confirmed against a running
+   * platform. They are three different products with three different screens, so listing them
+   * together sent a fixed deposit to the savings account view.
+   */
+  readonly plainSavingsAccounts = computed(() => this.depositAccountsOfType(DEPOSIT_TYPE.savings));
+  readonly fixedDepositAccounts = computed(() => this.depositAccountsOfType(DEPOSIT_TYPE.fixed));
+  readonly recurringDepositAccounts = computed(() =>
+    this.depositAccountsOfType(DEPOSIT_TYPE.recurring),
+  );
+
+  private depositAccountsOfType(typeId: number): GetClientsSavingsAccounts[] {
+    return this.savingsAccounts().filter(
+      (account) => (account.depositType?.id ?? DEPOSIT_TYPE.savings) === typeId,
+    );
+  }
 
   savingsColumns = ['accountNo', 'productName', 'balance', 'status', 'actions'];
   loanColumns = ['accountNo', 'productName', 'principal', 'status', 'actions'];
@@ -1022,6 +1189,47 @@ export class ClientViewComponent implements OnInit {
       },
       error: (err) => console.error('Failed to load client accounts', err),
     });
+  }
+
+  /**
+   * Share accounts, fetched when the tab is opened rather than with the client.
+   *
+   * They do not come back with the client's other accounts, so they need a request of their own —
+   * and most visits to a client never open this tab, so making it eager would add a request to
+   * every one of them. `skipErrorToast` because a tenant that does not use the shares module
+   * should not be told about it in a toast every time a client is opened.
+   *
+   * Worth knowing when reading this tab: the list returns only approved and active accounts. A
+   * share application still pending approval is readable by id but absent from the list, so it
+   * will not appear here — the platform omits it, this screen does not filter it out.
+   */
+  private loadShareAccounts(): void {
+    if (this.shareAccountsLoaded) {
+      return;
+    }
+    this.shareAccountsLoaded = true;
+    this.shareAccountService
+      .getAccountsType('share', 0, 200, 'body', false, { context: skipErrorToast() })
+      .subscribe({
+        next: (response) => {
+          const rows = [
+            ...((response.pageItems as Iterable<ShareAccountRow & { clientId?: number }>) ?? []),
+          ];
+          this.shareAccounts.set(rows.filter((row) => row.clientId === this.clientId()));
+        },
+        error: () => this.shareAccounts.set([]),
+      });
+  }
+
+  /** Set on the first visit to the shares tab, so re-selecting it does not refetch. */
+  private shareAccountsLoaded = false;
+
+  /** Loads what a tab needs the first time it is opened. */
+  onTabChange(tab: ClientTab): void {
+    this.activeTab.set(tab);
+    if (tab === CLIENT_TAB.shares) {
+      this.loadShareAccounts();
+    }
   }
 
   onEditClient() {

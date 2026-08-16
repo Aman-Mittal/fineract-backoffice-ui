@@ -116,7 +116,11 @@
     "codes": "Codes",
     "businessDates": "Business Dates",
     "accountNumberFormats": "Account Number Formats",
-    "templates": "Templates"
+    "templates": "Templates",
+    "frequentPostings": "Frequent Postings",
+    "openingBalances": "Opening Balances",
+    "reportDefinitions": "Report Definitions",
+    "workQueues": "Approval Queues"
   },
   "SIDEBAR": {
     "SEARCH": "Search",
@@ -269,7 +273,8 @@
     "GENERAL": "General",
     "NOTES": "Notes",
     "DATA_TABLES": "Data Tables",
-    "UNASSIGNED": "Unassigned"
+    "UNASSIGNED": "Unassigned",
+    "ACCOUNTS": "Accounts"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -820,7 +825,14 @@
     "CONFIRM_REJECT_TRANSFER": "The transfer will be refused and the client placed on hold at their current office.",
     "CONFIRM_WITHDRAW_TRANSFER": "The transfer will be cancelled and the client returned to active at their current office.",
     "CONFIRM_UNASSIGN_STAFF": "This client will no longer be assigned to a member of staff.",
-    "SAVINGS_ACCOUNT": "Savings Account"
+    "SAVINGS_ACCOUNT": "Savings Account",
+    "DEPOSIT_ACCOUNTS": "Deposits",
+    "SHARE_ACCOUNTS": "Shares",
+    "FIXED_DEPOSITS": "Fixed Deposits",
+    "RECURRING_DEPOSITS": "Recurring Deposits",
+    "NO_FIXED_DEPOSITS": "This client holds no fixed deposits.",
+    "NO_RECURRING_DEPOSITS": "This client holds no recurring deposits.",
+    "NO_SHARE_ACCOUNTS": "This client holds no share accounts."
   },
   "SAVINGS": {
     "CREATE_ACCOUNT": "Create Savings Account",
@@ -875,7 +887,13 @@
     "CONFIRM_WITHDRAWN_BY_APPLICANT": "Record that the applicant withdrew this application? Use Decline instead if the institution turned it down.",
     "CONFIRM_ASSIGN_OFFICER": "Choose the officer who will look after this account.",
     "CONFIRM_UNASSIGN_SAVINGS_OFFICER": "Remove the officer from this account? It will be unassigned until someone else takes it on.",
-    "CONFIRM_HOLD_AMOUNT": "Hold part of the balance so it cannot be withdrawn — for a disputed transaction or a court order. The rest of the account keeps working normally, unlike freezing it."
+    "CONFIRM_HOLD_AMOUNT": "Hold part of the balance so it cannot be withdrawn — for a disputed transaction or a court order. The rest of the account keeps working normally, unlike freezing it.",
+    "NOTES": "Notes",
+    "DOCUMENTS": "Documents",
+    "STANDING_INSTRUCTIONS": "Standing Instructions",
+    "NO_STANDING_INSTRUCTIONS": "No standing instructions transfer from this account.",
+    "TRANSFER_IN": "Into this account",
+    "TRANSFER_OUT": "Out of this account"
   },
   "USERS": {
     "CREATE": "Create User",
@@ -1129,7 +1147,11 @@
     "FIXED_LENGTH_DESC": "Force every loan on this product to run for the same number of periods, regardless of the amount borrowed. Leave empty for a term set per loan.",
     "ACCRUAL_ACTIVITY_POSTING_DESC": "Post an accounting entry each time interest or fees accrue, rather than only when they are charged or paid. Gives finance a running view at the cost of more journal entries.",
     "CHARGE_OFF_DESC": "Charging off moves the outstanding balance out of performing assets for reporting, while the institution carries on trying to collect. It is not the same as a write-off, which means giving up on recovery. A charged-off loan stays active.",
-    "CHARGE_OFF_REASON_DESC": "Why the loan is being charged off. Recorded against the transaction for audit and reporting. Optional, and only offered when your institution has configured reasons."
+    "CHARGE_OFF_REASON_DESC": "Why the loan is being charged off. Recorded against the transaction for audit and reporting. Optional, and only offered when your institution has configured reasons.",
+    "OPENING_BALANCES_DESC": "Carry the balances from your previous ledger into this one. Only available before the first journal entry is posted for the office.",
+    "FREQUENT_POSTINGS_DESC": "Post a journal entry from a saved accounting rule, so recurring postings need only an amount and a date.",
+    "REPORT_DEFINITIONS_DESC": "The catalogue behind the Reporting section: the SQL each report runs, the parameters it takes, and whether it is offered to users.",
+    "WORK_QUEUES_DESC": "The approvals a branch works through together: pending loans, loans awaiting disbursal, pending clients and reschedule requests. Each action is sent as one batch, and any record the platform refuses is named."
   },
   "REPORTS": {
     "NAME": "Report Name",
@@ -1183,7 +1205,20 @@
     "REFERENCE_NUMBER": "Reference Number",
     "OFFICE": "Office",
     "CURRENCY": "Currency",
-    "BALANCED_ERROR": "Total debits must equal total credits."
+    "BALANCED_ERROR": "Total debits must equal total credits.",
+    "TRANSACTION": "Transaction",
+    "ACCOUNT": "Account",
+    "ENTRY_TYPE": "Entry Type",
+    "MANUAL": "Manual entry",
+    "SYSTEM_GENERATED": "System generated",
+    "CREATED_BY": "Created By",
+    "PAYMENT_TYPE": "Payment Type",
+    "REVERSE": "Reverse Transaction",
+    "REVERSE_CONFIRM": "This posts an offsetting transaction. The original entries stay on the ledger, marked as reversed.",
+    "REVERSED": "Reversed",
+    "REVERSED_SUCCESS": "Transaction reversed",
+    "SYSTEM_ENTRY_NOT_REVERSIBLE": "This entry was created by the platform from a portfolio transaction. Reverse the transaction that produced it instead.",
+    "NOT_FOUND": "That journal entry could not be found."
   },
   "OFFICES": {
     "CREATE_OFFICE": "Create Office",
@@ -1191,7 +1226,11 @@
     "NAME": "Office Name",
     "PARENT": "Parent Office",
     "EXTERNAL_ID": "External ID",
-    "OPENING_DATE": "Opening Date"
+    "OPENING_DATE": "Opening Date",
+    "STAFF": "Staff",
+    "HIERARCHY": "Hierarchy",
+    "NO_STAFF": "No staff are assigned to this office.",
+    "NOT_FOUND": "That office could not be found."
   },
   "CENTERS": {
     "CREATE_CENTER": "Create Center",
@@ -1274,7 +1313,11 @@
     "SUMMARY": "Group Summary",
     "UNASSIGNED": "Unassigned",
     "UNASSIGN_ROLE": "Unassign Role",
-    "UNASSIGN_STAFF": "Unassign Staff"
+    "UNASSIGN_STAFF": "Unassign Staff",
+    "LOAN_ACCOUNTS": "Loan Accounts",
+    "SAVINGS_ACCOUNTS": "Savings Accounts",
+    "NO_LOAN_ACCOUNTS": "This group has no loan accounts.",
+    "NO_SAVINGS_ACCOUNTS": "This group has no savings accounts."
   },
   "ACCOUNT_NUMBER_FORMATS": {
     "TITLE": "Account Number Formats",
@@ -2403,5 +2446,63 @@
     "HINT": "If you believe you should have access, ask an administrator to review the permissions on your role.",
     "BACK_TO_DASHBOARD": "Back to dashboard",
     "REQUIRES": "This page requires:"
+  },
+  "OPENING_BALANCES": {
+    "TITLE": "Define Opening Balances",
+    "CONTRA_NOT_MAPPED": "Opening balances need an equity account mapped to the opening-balances contra financial activity. Set that up under Financial Activity Mappings first.",
+    "LOAD_FAILED": "Opening balances could not be loaded for that office and currency.",
+    "SAVED": "Opening balances saved"
+  },
+  "FREQUENT_POSTINGS": {
+    "TITLE": "Frequent Postings",
+    "RULE": "Accounting Rule",
+    "NO_RULES": "No accounting rules have been defined yet. Create one to post from it here.",
+    "WILL_POST": "This will post",
+    "POST": "Post Entry",
+    "POSTED": "Journal entry posted",
+    "MULTI_ACCOUNT_RULE": "This rule names more than one account on a side. Use the full journal entry form so you can set each amount."
+  },
+  "REPORT_DEFINITIONS": {
+    "CREATE": "Create Report",
+    "EDIT": "Edit Report",
+    "CATEGORY": "Category",
+    "SUB_TYPE": "Chart Type",
+    "SQL": "Report SQL",
+    "IN_USE": "In Use",
+    "CORE": "Core",
+    "TENANT": "Tenant",
+    "CORE_NOT_DELETABLE": "Core reports cannot be deleted.",
+    "CORE_READ_ONLY": "This is a core report. The platform allows only the \"In Use\" setting to change; the rest of the definition is shown for reference.",
+    "DELETE_CONFIRM": "This removes the report definition. Reports already run from it are not affected.",
+    "DELETED": "Report definition deleted",
+    "SAVED": "Report definition saved"
+  },
+  "NOTES": {
+    "ADD": "Add a note",
+    "CONFIRM_DELETE": "Delete this note? Notes are an audit trail, so removing one leaves no trace of what it said."
+  },
+  "DOCUMENTS": {
+    "SELECT_FILE": "Select File",
+    "NO_FILE_SELECTED": "No file selected",
+    "UPLOAD": "Upload",
+    "NONE": "No documents attached.",
+    "FILE_NAME": "File Name",
+    "CONFIRM_DELETE": "Delete this document? The attached file is removed with it."
+  },
+  "WORK_QUEUES": {
+    "TITLE": "Approval Queues",
+    "LOAN_APPROVAL": "Loan Approval",
+    "LOAN_DISBURSAL": "Loan Disbursal",
+    "CLIENT_ACTIVATION": "Client Activation",
+    "RESCHEDULE_APPROVAL": "Reschedule Requests",
+    "EMPTY": "Nothing is waiting in this queue.",
+    "SELECT_ALL": "Select all",
+    "SELECTED": "Selected",
+    "APPROVE_SELECTED": "Approve Selected",
+    "DISBURSE_SELECTED": "Disburse Selected",
+    "ACTIVATE_SELECTED": "Activate Selected",
+    "CONFIRM": "This applies the action to {{count}} record(s) in one request.",
+    "ALL_SUCCEEDED": "{{count}} record(s) processed successfully.",
+    "PARTIAL": "{{succeeded}} of {{total}} succeeded. These were refused: {{names}}"
   }
 }

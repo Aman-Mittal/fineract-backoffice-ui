@@ -63,6 +63,21 @@ import {
   IonSegmentButton,
 } from '@ionic/angular/standalone';
 
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const DEPOSIT_TAB = {
+  overview: 'overview',
+  transactions: 'transactions',
+  customFields: 'customFields',
+} as const;
+
+export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
+
 @Component({
   selector: 'app-deposit-account-view',
   standalone: true,
@@ -204,18 +219,18 @@ import {
         </ion-card>
 
         <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-          <ion-segment-button value="0">
+          <ion-segment-button [value]="TAB.overview">
             <ion-label>{{ 'COMMON.OVERVIEW' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="1" data-testid="deposit-tab-transactions">
+          <ion-segment-button [value]="TAB.transactions" data-testid="deposit-tab-transactions">
             <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="2">
+          <ion-segment-button [value]="TAB.customFields">
             <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
-        @if (activeTab() === '0') {
+        @if (activeTab() === TAB.overview) {
           <div class="tab-content">
             <div class="info-grid">
               <ion-card class="info-card">
@@ -254,7 +269,7 @@ import {
             </div>
           </div>
         }
-        @if (activeTab() === '1') {
+        @if (activeTab() === TAB.transactions) {
           <div class="tab-content">
             @if (transactions().length > 0) {
               <table cdk-table [dataSource]="transactions()" class="full-width-table">
@@ -324,7 +339,7 @@ import {
             }
           </div>
         }
-        @if (activeTab() === '2') {
+        @if (activeTab() === TAB.customFields) {
           <div class="tab-content">
             <app-entity-datatables
               [apptableName]="isRD ? 'm_savings_account' : 'm_savings_account'"
@@ -451,7 +466,10 @@ import {
 })
 export class DepositAccountViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = DEPOSIT_TAB;
+
+  readonly activeTab = signal<DepositTab>(DEPOSIT_TAB.overview);
   private readonly fdService = inject(FixedDepositAccountService);
   private readonly rdService = inject(RecurringDepositAccountService);
   private readonly fdTransactionsService = inject(FixedDepositAccountTransactionsService);

@@ -569,17 +569,7 @@
       "count": 1
     }
   },
-  "src/app/features/loans/loan-documents-tab.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/loan-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/loans/loan-notes-tab.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1960,16 +1950,6 @@
     }
   },
   "src/app/shared/components/guidance-tour/guidance-tour.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/help-icon/help-icon.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/help-icon/help-icon.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }

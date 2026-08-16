@@ -136,6 +136,33 @@ export const SYSTEM_ROUTES: Routes = [
       ),
   },
   {
+    path: 'report-definitions',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_REPORT' },
+    loadComponent: () =>
+      import('./report-definitions/report-definitions-list.component').then(
+        (m) => m.ReportDefinitionsListComponent,
+      ),
+  },
+  {
+    path: 'report-definitions/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_REPORT' },
+    loadComponent: () =>
+      import('./report-definitions/report-definition-form.component').then(
+        (m) => m.ReportDefinitionFormComponent,
+      ),
+  },
+  {
+    path: 'report-definitions/edit/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_REPORT' },
+    loadComponent: () =>
+      import('./report-definitions/report-definition-form.component').then(
+        (m) => m.ReportDefinitionFormComponent,
+      ),
+  },
+  {
     path: 'hooks',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_HOOK' },

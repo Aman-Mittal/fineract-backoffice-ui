@@ -52,8 +52,8 @@ import {
 } from './loan-unassign-officer-dialog.component';
 import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.component';
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
-import { LoanNotesTabComponent } from './loan-notes-tab.component';
-import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
+import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
+import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -91,6 +91,35 @@ import {
   LoanCollateralResponseData,
 } from '../../api';
 
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const LOAN_TAB = {
+  overview: 'overview',
+  repaymentSchedule: 'repaymentSchedule',
+  transactions: 'transactions',
+  charges: 'charges',
+  customFields: 'customFields',
+  notes: 'notes',
+  documents: 'documents',
+  buyDownFees: 'buyDownFees',
+  capitalizedIncome: 'capitalizedIncome',
+  disbursementDetails: 'disbursementDetails',
+  collateral: 'collateral',
+  delinquency: 'delinquency',
+  termVariations: 'termVariations',
+  overdueCharges: 'overdueCharges',
+  originators: 'originators',
+  standingInstructions: 'standingInstructions',
+  assetTransfers: 'assetTransfers',
+} as const;
+
+export type LoanTab = (typeof LOAN_TAB)[keyof typeof LOAN_TAB];
+
 @Component({
   selector: 'app-loan-view',
   standalone: true,
@@ -101,8 +130,8 @@ import {
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
-    LoanNotesTabComponent,
-    LoanDocumentsTabComponent,
+    EntityNotesComponent,
+    EntityDocumentsComponent,
     DecimalPipe,
     NgClass,
     JsonPipe,
@@ -556,70 +585,73 @@ import {
 
         <!-- Tabs Section -->
         <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-          <ion-segment-button value="0">
+          <ion-segment-button [value]="TAB.overview">
             <ion-label>{{ 'LOANS.OVERVIEW' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="1">
+          <ion-segment-button [value]="TAB.repaymentSchedule">
             <ion-label>{{ 'LOANS.REPAYMENT_SCHEDULE' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="2">
+          <ion-segment-button [value]="TAB.transactions">
             <ion-label>{{ 'LOANS.TRANSACTIONS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="3">
+          <ion-segment-button [value]="TAB.charges">
             <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="4">
+          <ion-segment-button [value]="TAB.customFields">
             <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="5">
+          <ion-segment-button [value]="TAB.notes">
             <ion-label>{{ 'LOANS.NOTES' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="6">
+          <ion-segment-button [value]="TAB.documents">
             <ion-label>{{ 'LOANS.DOCUMENTS' | translate }}</ion-label>
           </ion-segment-button>
           @if (showBuyDownFees()) {
-            <ion-segment-button value="7">
+            <ion-segment-button [value]="TAB.buyDownFees">
               <ion-label>{{ 'LOANS.BUY_DOWN_FEES' | translate }}</ion-label>
             </ion-segment-button>
           }
           @if (showCapitalizedIncome()) {
-            <ion-segment-button value="8">
+            <ion-segment-button [value]="TAB.capitalizedIncome">
               <ion-label>{{ 'LOANS.CAPITALIZED_INCOME' | translate }}</ion-label>
             </ion-segment-button>
           }
-          <ion-segment-button value="9">
+          <ion-segment-button [value]="TAB.disbursementDetails">
             <ion-label>{{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="10">
+          <ion-segment-button [value]="TAB.collateral">
             <ion-label>{{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="11" data-testid="loan-tab-delinquency">
+          <ion-segment-button [value]="TAB.delinquency" data-testid="loan-tab-delinquency">
             <ion-label>{{ 'LOANS.DELINQUENCY' | translate }}</ion-label>
           </ion-segment-button>
           @if (hasTermVariations()) {
-            <ion-segment-button value="12" data-testid="loan-tab-term-variations">
+            <ion-segment-button [value]="TAB.termVariations" data-testid="loan-tab-term-variations">
               <ion-label>{{ 'LOANS.TERM_VARIATIONS' | translate }}</ion-label>
             </ion-segment-button>
           }
           @if (hasOverdueCharges()) {
-            <ion-segment-button value="13" data-testid="loan-tab-overdue-charges">
+            <ion-segment-button [value]="TAB.overdueCharges" data-testid="loan-tab-overdue-charges">
               <ion-label>{{ 'LOANS.OVERDUE_CHARGES' | translate }}</ion-label>
             </ion-segment-button>
           }
           @if (hasOriginators()) {
-            <ion-segment-button value="14" data-testid="loan-tab-originators">
+            <ion-segment-button [value]="TAB.originators" data-testid="loan-tab-originators">
               <ion-label>{{ 'LOANS.ORIGINATORS' | translate }}</ion-label>
             </ion-segment-button>
           }
-          <ion-segment-button value="15" data-testid="loan-tab-standing-instructions">
+          <ion-segment-button
+            [value]="TAB.standingInstructions"
+            data-testid="loan-tab-standing-instructions"
+          >
             <ion-label>{{ 'LOANS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="16" data-testid="loan-tab-asset-transfers">
+          <ion-segment-button [value]="TAB.assetTransfers" data-testid="loan-tab-asset-transfers">
             <ion-label>{{ 'LOANS.ASSET_TRANSFERS' | translate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
-        @if (activeTab() === '0') {
+        @if (activeTab() === TAB.overview) {
           <div class="tab-content">
             <div class="info-grid">
               <ion-card class="info-card">
@@ -691,7 +723,7 @@ import {
             </div>
           </div>
         }
-        @if (activeTab() === '1') {
+        @if (activeTab() === TAB.repaymentSchedule) {
           <div class="tab-content">
             <ion-card class="table-card" style="overflow-x: auto;">
               <ion-card-content>
@@ -985,7 +1017,7 @@ import {
             </ion-card>
           </div>
         }
-        @if (activeTab() === '2') {
+        @if (activeTab() === TAB.transactions) {
           <div class="tab-content">
             <ion-card class="table-card">
               <ion-card-content>
@@ -1050,7 +1082,7 @@ import {
             </ion-card>
           </div>
         }
-        @if (activeTab() === '3') {
+        @if (activeTab() === TAB.charges) {
           <div class="tab-content">
             <ion-card class="table-card">
               <ion-card-content>
@@ -1100,7 +1132,7 @@ import {
             </ion-card>
           </div>
         }
-        @if (activeTab() === '4') {
+        @if (activeTab() === TAB.customFields) {
           <div class="tab-content">
             <app-entity-datatables
               apptableName="m_loan"
@@ -1108,17 +1140,17 @@ import {
             ></app-entity-datatables>
           </div>
         }
-        @if (activeTab() === '5') {
+        @if (activeTab() === TAB.notes) {
           <div class="tab-content">
-            <app-loan-notes-tab [loanId]="loanId()"></app-loan-notes-tab>
+            <app-entity-notes resourceType="loans" [resourceId]="loanId()"></app-entity-notes>
           </div>
         }
-        @if (activeTab() === '6') {
+        @if (activeTab() === TAB.documents) {
           <div class="tab-content">
-            <app-loan-documents-tab [loanId]="loanId()"></app-loan-documents-tab>
+            <app-entity-documents entityType="loans" [entityId]="loanId()"></app-entity-documents>
           </div>
         }
-        @if (activeTab() === '7' && showBuyDownFees()) {
+        @if (activeTab() === TAB.buyDownFees && showBuyDownFees()) {
           <div class="tab-content">
             @if (buyDownFees().length === 0) {
               <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
@@ -1154,7 +1186,7 @@ import {
             }
           </div>
         }
-        @if (activeTab() === '8' && showCapitalizedIncome()) {
+        @if (activeTab() === TAB.capitalizedIncome && showCapitalizedIncome()) {
           <div class="tab-content">
             @if (capitalizedIncomes().length === 0) {
               <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
@@ -1182,7 +1214,7 @@ import {
             }
           </div>
         }
-        @if (activeTab() === '9') {
+        @if (activeTab() === TAB.disbursementDetails) {
           <div class="tab-content">
             <ion-card class="info-card" style="margin-bottom: 24px;">
               <ion-card-header>
@@ -1257,7 +1289,7 @@ import {
             </ion-card>
           </div>
         }
-        @if (activeTab() === '10') {
+        @if (activeTab() === TAB.collateral) {
           <div class="tab-content">
             <ion-card class="info-card" style="margin-bottom: 24px;">
               <ion-card-header>
@@ -1317,7 +1349,7 @@ import {
             </ion-card>
           </div>
         }
-        @if (activeTab() === '11') {
+        @if (activeTab() === TAB.delinquency) {
           <div class="tab-content">
             <app-loan-delinquency-tab
               [loanId]="loanId()"
@@ -1325,28 +1357,28 @@ import {
             ></app-loan-delinquency-tab>
           </div>
         }
-        @if (activeTab() === '12' && hasTermVariations()) {
+        @if (activeTab() === TAB.termVariations && hasTermVariations()) {
           <div class="tab-content">
             <app-loan-term-variations-tab
               [variations]="loan()?.loanTermVariations"
             ></app-loan-term-variations-tab>
           </div>
         }
-        @if (activeTab() === '13' && hasOverdueCharges()) {
+        @if (activeTab() === TAB.overdueCharges && hasOverdueCharges()) {
           <div class="tab-content">
             <app-loan-overdue-charges-tab
               [charges]="overdueCharges()"
             ></app-loan-overdue-charges-tab>
           </div>
         }
-        @if (activeTab() === '14' && hasOriginators()) {
+        @if (activeTab() === TAB.originators && hasOriginators()) {
           <div class="tab-content">
             <app-loan-originators-tab
               [originators]="loan()?.originators"
             ></app-loan-originators-tab>
           </div>
         }
-        @if (activeTab() === '15') {
+        @if (activeTab() === TAB.standingInstructions) {
           <div class="tab-content">
             <app-loan-standing-instructions-tab
               [loanId]="loanId()"
@@ -1354,7 +1386,7 @@ import {
             ></app-loan-standing-instructions-tab>
           </div>
         }
-        @if (activeTab() === '16') {
+        @if (activeTab() === TAB.assetTransfers) {
           <div class="tab-content">
             <app-loan-asset-transfers-tab [loanId]="loanId()"></app-loan-asset-transfers-tab>
           </div>
@@ -1525,7 +1557,10 @@ import {
 })
 export class LoanViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = LOAN_TAB;
+
+  readonly activeTab = signal<LoanTab>(LOAN_TAB.overview);
   private readonly loansService = inject(LoansService);
   private readonly transactionService = inject(LoanTransactionsService);
   private readonly buyDownFeesService = inject(LoanBuyDownFeesService);
@@ -1633,12 +1668,13 @@ export class LoanViewComponent implements OnInit {
     () => (this.loan() as unknown as { multiDisburseLoan?: boolean })?.multiDisburseLoan === true,
   );
 
-  private readonly conditionalTabs: Record<string, Signal<boolean>> = {
-    '7': this.showBuyDownFees,
-    '8': this.showCapitalizedIncome,
-    '12': this.hasTermVariations,
-    '13': this.hasOverdueCharges,
-    '14': this.hasOriginators,
+  /** Tabs that exist only when the loan says so. Keyed by tab, which is why tabs have names. */
+  private readonly conditionalTabs: Partial<Record<LoanTab, Signal<boolean>>> = {
+    [LOAN_TAB.buyDownFees]: this.showBuyDownFees,
+    [LOAN_TAB.capitalizedIncome]: this.showCapitalizedIncome,
+    [LOAN_TAB.termVariations]: this.hasTermVariations,
+    [LOAN_TAB.overdueCharges]: this.hasOverdueCharges,
+    [LOAN_TAB.originators]: this.hasOriginators,
   };
 
   constructor() {
@@ -1648,7 +1684,7 @@ export class LoanViewComponent implements OnInit {
     effect(() => {
       const available = this.conditionalTabs[this.activeTab()];
       if (available && !available()) {
-        this.activeTab.set('0');
+        this.activeTab.set(LOAN_TAB.overview);
       }
     });
   }

@@ -29,3 +29,6 @@ export * from './directives/has-permission.directive';
 export * from './directives/requires-permission.directive';
 export * from './pipes/permission-summary.pipe';
 export * from './components/guidance-tour/guidance-tour.component';
+export * from './components/entity-notes/entity-notes.component';
+export * from './components/entity-documents/entity-documents.component';
+export * from './components/entity-datatables/entity-datatables.component';

@@ -36,6 +36,7 @@ const TWO_FACTOR_SPECS = ['two-factor-backend.spec.ts'];
 
 const BACKEND_SPECS = [
   'center-servicing.spec.ts',
+  'parity-screens.spec.ts',
   'rbac-backend-restricted-user.spec.ts',
   'client-transfer.spec.ts',
   'deposit-account-servicing.spec.ts',

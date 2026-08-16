@@ -19,21 +19,28 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
-import { NotesService, NoteData } from '../../api';
-import { DialogService } from '../../core/services/dialog.service';
+import { NotesService, NoteData } from '../../../api';
+import { DialogService } from '../../../core/services/dialog.service';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angular/standalone';
 
-// Notes are treated as an append-only audit trail (who said what, when) —
-// staff can add and remove entries, but existing note text is not editable
-// in place, so the record stays trustworthy for compliance review.
+/**
+ * Notes against any Fineract record that has them — clients, groups, loans, savings accounts.
+ *
+ * Fineract exposes notes under one templated path, `/{resourceType}/{resourceId}/notes`, so this
+ * takes the resource type as an input rather than existing once per entity. A per-entity copy is
+ * how a savings account ends up with no notes tab while a loan has one.
+ *
+ * Notes are an append-only audit trail (who said what, when): staff can add and remove entries,
+ * but existing note text is not editable in place, so the record stays trustworthy for review.
+ */
 @Component({
-  selector: 'app-loan-notes-tab',
+  selector: 'app-entity-notes',
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     DatePipe,
     IonIcon,
     IonButton,
@@ -44,9 +51,9 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
   template: `
     <div class="add-note-row">
       <ion-item fill="outline" class="note-input">
-        <ion-label position="stacked">{{ 'LOANS.ADD_NOTE' | translate }}</ion-label>
+        <ion-label position="stacked">{{ 'NOTES.ADD' | appTranslate }}</ion-label>
         <ion-textarea
-          [attr.aria-label]="'LOANS.ADD_NOTE' | translate"
+          [attr.aria-label]="'NOTES.ADD' | appTranslate"
           rows="2"
           [ngModel]="newNoteText()"
           (ngModelChange)="newNoteText.set($event)"
@@ -59,14 +66,14 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
         (click)="onAddNote()"
       >
         <ion-icon name="add-outline"></ion-icon>
-        {{ 'COMMON.SAVE' | translate }}
+        {{ 'COMMON.SAVE' | appTranslate }}
       </ion-button>
     </div>
 
     @if (isLoading()) {
-      <p class="empty-state">{{ 'COMMON.LOADING' | translate }}</p>
+      <p class="empty-state">{{ 'COMMON.LOADING' | appTranslate }}</p>
     } @else if (notes().length === 0) {
-      <p class="empty-state">{{ 'LOANS.NO_NOTES' | translate }}</p>
+      <p class="empty-state">{{ 'LOANS.NO_NOTES' | appTranslate }}</p>
     } @else {
       <div class="notes-list">
         @for (note of notes(); track note.id) {
@@ -82,7 +89,7 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
               color="danger"
               class="delete-btn"
               (click)="onDeleteNote(note.id!)"
-              [attr.aria-label]="'LOANS.DELETE_NOTE' | translate"
+              [attr.aria-label]="'LOANS.DELETE_NOTE' | appTranslate"
             >
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
@@ -136,12 +143,14 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
     `,
   ],
 })
-export class LoanNotesTabComponent implements OnInit {
-  readonly loanId = input.required<number>();
+export class EntityNotesComponent implements OnInit {
+  /** The path segment Fineract knows this entity by: `clients`, `groups`, `loans`, `savings`. */
+  readonly resourceType = input.required<string>();
+  readonly resourceId = input.required<number>();
 
   private readonly notesService = inject(NotesService);
   private readonly dialogService = inject(DialogService);
-  private readonly translate = inject(TranslateService);
+  private readonly i18n = inject(I18N);
 
   readonly notes = signal<NoteData[]>([]);
   readonly isLoading = signal(false);
@@ -154,49 +163,53 @@ export class LoanNotesTabComponent implements OnInit {
 
   loadNotes(): void {
     this.isLoading.set(true);
-    this.notesService.getResourceTypeResourceIdNotes('loans', this.loanId()).subscribe({
-      next: (data) => {
-        this.notes.set(data);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to load loan notes', err);
-        this.isLoading.set(false);
-      },
-    });
+    this.notesService
+      .getResourceTypeResourceIdNotes(this.resourceType(), this.resourceId())
+      .subscribe({
+        next: (data) => {
+          this.notes.set(data);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load notes', err);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   onAddNote(): void {
     const note = this.newNoteText().trim();
     if (!note) return;
     this.isSaving.set(true);
-    this.notesService.postResourceTypeResourceIdNotes('loans', this.loanId(), { note }).subscribe({
-      next: () => {
-        this.newNoteText.set('');
-        this.isSaving.set(false);
-        this.loadNotes();
-      },
-      error: (err) => {
-        console.error('Failed to add loan note', err);
-        this.isSaving.set(false);
-      },
-    });
+    this.notesService
+      .postResourceTypeResourceIdNotes(this.resourceType(), this.resourceId(), { note })
+      .subscribe({
+        next: () => {
+          this.newNoteText.set('');
+          this.isSaving.set(false);
+          this.loadNotes();
+        },
+        error: (err) => {
+          console.error('Failed to add note', err);
+          this.isSaving.set(false);
+        },
+      });
   }
 
   onDeleteNote(noteId: number): void {
     this.dialogService
       .confirm({
-        title: this.translate.instant('COMMON.DELETE'),
-        message: this.translate.instant('LOANS.CONFIRM_DELETE_NOTE'),
+        title: this.i18n.translate('COMMON.DELETE'),
+        message: this.i18n.translate('NOTES.CONFIRM_DELETE'),
         destructive: true,
       })
       .then((confirmed) => {
         if (!confirmed) return;
         this.notesService
-          .deleteResourceTypeResourceIdNotesNoteId('loans', this.loanId(), noteId)
+          .deleteResourceTypeResourceIdNotesNoteId(this.resourceType(), this.resourceId(), noteId)
           .subscribe({
             next: () => this.loadNotes(),
-            error: (err) => console.error('Failed to delete loan note', err),
+            error: (err) => console.error('Failed to delete note', err),
           });
       });
   }

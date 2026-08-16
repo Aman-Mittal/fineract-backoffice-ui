@@ -40,6 +40,20 @@ import {
   DelinquencyBucketResponse,
 } from '../../../api';
 
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const DELINQUENCY_TAB = {
+  ranges: 'ranges',
+  buckets: 'buckets',
+} as const;
+
+export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_TAB];
+
 @Component({
   selector: 'app-delinquency-management',
   standalone: true,
@@ -59,15 +73,15 @@ import {
   template: `
     <div class="management-container">
       <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-        <ion-segment-button value="0">
+        <ion-segment-button [value]="TAB.ranges">
           <ion-label>{{ 'SYSTEM.DELINQUENCY_RANGES' | translate }}</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="1">
+        <ion-segment-button [value]="TAB.buckets">
           <ion-label>{{ 'SYSTEM.DELINQUENCY_BUCKETS' | translate }}</ion-label>
         </ion-segment-button>
       </ion-segment>
 
-      @if (activeTab() === '0') {
+      @if (activeTab() === TAB.ranges) {
         <div class="tab-content">
           <app-data-table
             title="SYSTEM.DELINQUENCY_RANGES"
@@ -111,7 +125,7 @@ import {
           </app-data-table>
         </div>
       }
-      @if (activeTab() === '1') {
+      @if (activeTab() === TAB.buckets) {
         <div class="tab-content">
           <app-data-table
             title="SYSTEM.DELINQUENCY_BUCKETS"
@@ -180,7 +194,10 @@ import {
 })
 export class DelinquencyManagementComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = DELINQUENCY_TAB;
+
+  readonly activeTab = signal<DelinquencyTab>(DELINQUENCY_TAB.ranges);
   private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
 
   readonly ranges = signal<DelinquencyRangeData[]>([]);

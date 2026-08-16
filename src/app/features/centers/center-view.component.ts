@@ -92,7 +92,20 @@ import {
 } from './center-detail.model';
 
 /** A tab index that is also what the segment binds to; `ion-segment` deals in strings. */
-const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '2' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const CENTER_TAB = {
+  general: 'general',
+  notes: 'notes',
+  customFields: 'customFields',
+} as const;
+
+export type CenterTab = (typeof CENTER_TAB)[keyof typeof CENTER_TAB];
 
 @Component({
   selector: 'app-center-view',
@@ -253,19 +266,19 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
               [value]="activeTab()"
               (ionChange)="activeTab.set($any($event).detail.value)"
             >
-              <ion-segment-button [value]="TAB.GENERAL" data-testid="center-tab-general">
+              <ion-segment-button [value]="TAB.general" data-testid="center-tab-general">
                 <ion-label>{{ 'COMMON.GENERAL' | appTranslate }}</ion-label>
               </ion-segment-button>
-              <ion-segment-button [value]="TAB.NOTES" data-testid="center-tab-notes">
+              <ion-segment-button [value]="TAB.notes" data-testid="center-tab-notes">
                 <ion-label>{{ 'COMMON.NOTES' | appTranslate }}</ion-label>
               </ion-segment-button>
-              <ion-segment-button [value]="TAB.DATATABLES" data-testid="center-tab-datatables">
+              <ion-segment-button [value]="TAB.customFields" data-testid="center-tab-datatables">
                 <ion-label>{{ 'COMMON.DATA_TABLES' | appTranslate }}</ion-label>
               </ion-segment-button>
             </ion-segment>
 
             @switch (activeTab()) {
-              @case (TAB.GENERAL) {
+              @case (TAB.general) {
                 <div class="summary-grid">
                   <div class="summary-item">
                     <span class="label">{{ 'COMMON.OFFICE' | appTranslate }}</span>
@@ -316,7 +329,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                   </ng-template>
                 </app-data-table>
               }
-              @case (TAB.NOTES) {
+              @case (TAB.notes) {
                 <!--
                   Notes are read and written through the *groups* resource.
                   POST /centers/{id}/notes answers 404 "Note does not support resource centers",
@@ -329,7 +342,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                   data-testid="center-notes"
                 ></app-group-notes-list>
               }
-              @case (TAB.DATATABLES) {
+              @case (TAB.customFields) {
                 <app-entity-datatables
                   data-testid="center-datatables"
                   [entityId]="centerId"
@@ -415,13 +428,14 @@ export class CenterViewComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
 
-  protected readonly TAB = TAB;
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = CENTER_TAB;
 
   centerId = 0;
   readonly center = signal<CenterDetail | null>(null);
   readonly meeting = signal<CenterMeeting | null>(null);
   readonly loadFailed = signal(false);
-  readonly activeTab = signal<string>(TAB.GENERAL);
+  readonly activeTab = signal<CenterTab>(CENTER_TAB.general);
 
   readonly groupColumns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
