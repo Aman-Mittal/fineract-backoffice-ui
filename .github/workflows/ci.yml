@@ -73,6 +73,11 @@ jobs:
       # longer exists, so a fixed one cannot quietly come back and the file only shrinks.
       - name: Lint TypeScript files
         run: npm run lint:prune
+      # eslint-rules/ holds this repository's own rules, currently the cognitive-complexity rule
+      # that replaced the one from the removed LGPL plugin. Its tests assert exact scores, so a
+      # silent drift into being stricter or laxer than what it replaced fails here.
+      - name: Test the repository's own ESLint rules
+        run: npm run test:eslint-rules
 
   html-lint:
     name: HTML Lint
@@ -227,8 +232,22 @@ jobs:
       - run: npm ci
       - name: Check Apache license headers (Custom Script)
         run: ./scripts/check-license.sh
+      # An allow-list over what ships. Kept alongside the categorised scan below rather than
+      # replaced by it: the two read npm's metadata by different routes, so a package whose
+      # licence one of them misreads is still caught by the other.
       - name: Check dependency licenses
         run: npx --no-install license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD"
+      # The tree is clean today, so a green scan proves nothing on its own about whether the
+      # classifier still classifies. This is what proves it — including that LGPL-3.0 still
+      # resolves to Category X, which is the case that removed eslint-plugin-sonarjs.
+      - name: Verify the licence classifier still blocks what it must
+        run: npm run check:licenses:selftest
+      # ASF policy, enforced: Category A passes, Category B is reported for PMC awareness,
+      # Category X and any licence nobody has classified fail the build. Runs over the whole
+      # tree, not just what ships: devDependencies are named in package.json, and package.json
+      # travels in a source release.
+      - name: Classify every dependency licence against ASF policy
+        run: npm run check:licenses
 
   rat-scan:
     name: Apache RAT Scan
