@@ -60,7 +60,7 @@ reaching a third-party service.
 `package-lock.json`. A `css2?family=Inter:wght@…` URL pins nothing, so two builds of the same
 commit could embed different bytes with nothing recording the difference.
 
-**The font never actually loaded in the container.** `deploy/nginx.conf` sets
+**The font never actually loaded in the container.** `deploy/nginx.conf.template` sets
 `font-src 'self' data:`. The built page asked the browser for the binaries from
 `fonts.gstatic.com`, and the CSP blocked every request. Measured in Chrome against that exact
 policy: 35 blocked requests and `document.fonts.check('16px Inter')` returning `false`.

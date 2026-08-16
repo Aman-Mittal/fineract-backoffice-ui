@@ -73,12 +73,14 @@ function* sources(dir = 'src') {
 // ---------------------------------------------------------------------------------------------
 // Gate 1 — HTTP security headers
 //
-// `deploy/nginx.conf` sets none. For a core-banking UI the missing `frame-ancestors` is the
-// sharp end: without it the whole application is frameable, and a clickjacked "Approve loan"
-// is a real transaction.
+// `deploy/nginx.conf.template` is the file that defines the server block — the container renders
+// it at startup, substituting only the proxy upstream. For a core-banking UI the missing
+// `frame-ancestors` is the sharp end: without it the whole application is frameable, and a
+// clickjacked "Approve loan" is a real transaction.
 // ---------------------------------------------------------------------------------------------
 {
-  const conf = read('deploy/nginx.conf');
+  const NGINX_CONF = 'deploy/nginx.conf.template';
+  const conf = read(NGINX_CONF);
   const required = [
     ['Content-Security-Policy', /add_header\s+Content-Security-Policy/i],
     ['X-Content-Type-Options', /add_header\s+X-Content-Type-Options/i],
@@ -96,11 +98,11 @@ function* sources(dir = 'src') {
 
   if (!conf) {
     record('headers', 'NGINX sets HTTP security headers', 'unknown', {
-      detail: 'deploy/nginx.conf not found — cannot determine what the deployment sends.',
+      detail: `${NGINX_CONF} not found — cannot determine what the deployment sends.`,
     });
   } else if (missing.length > 0) {
     record('headers', 'NGINX sets HTTP security headers', 'fail', {
-      detail: `deploy/nginx.conf is missing: ${missing.join(', ')}.`,
+      detail: `${NGINX_CONF} is missing: ${missing.join(', ')}.`,
       reference: 'security.md §4',
     });
   } else {
@@ -313,7 +315,7 @@ function* sources(dir = 'src') {
 // The UI once pulled Inter from `fonts.googleapis.com` via a <link> in `src/index.html`. That
 // cost more than it looked: Angular's font inlining fetched the stylesheet at *build* time and
 // failed the entire build when it was unreachable, and at *runtime* the browser fetched the
-// binaries from `fonts.gstatic.com` — which `deploy/nginx.conf`'s `font-src 'self' data:`
+// binaries from `fonts.gstatic.com` — which `deploy/nginx.conf.template`'s `font-src 'self' data:`
 // blocked, so the deployed UI silently rendered in the fallback stack. Inter is now bundled
 // from `@fontsource-variable/inter` and served from this origin.
 //
@@ -400,4 +402,10 @@ if (JSON_OUTPUT) {
   );
 }
 
-process.exit(results.some((r) => r.status === 'fail' && r.blocking) ? 1 : 0);
+// An undetermined blocking gate fails alongside an outright failure. `unknown` means the check
+// could not read what it needed — a renamed file, a moved config — and the honest reading of "I
+// could not tell" is not "yes". This repository has already had a release gate that existed and
+// never ran; a gate that silently stops checking is the same failure wearing a green tick.
+process.exit(
+  results.some((r) => r.blocking && (r.status === 'fail' || r.status === 'unknown')) ? 1 : 0,
+);

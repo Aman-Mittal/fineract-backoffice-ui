@@ -263,17 +263,17 @@ gates are the machine-checkable part of what would have to change for that line 
 come out. Each is documented at its definition in `scripts/ga-check.mjs`, against the
 trust boundaries in `security.md`.
 
-| Gate                 | Status today | What it wants                                                                |
-| -------------------- | ------------ | ---------------------------------------------------------------------------- |
-| `headers`            | **fail**     | `deploy/nginx.conf` sets CSP (or `X-Frame-Options`), HSTS, nosniff, referrer |
-| `api-url-validation` | **fail**     | `ConfigService.setApiUrl()` validates against an allow-list                  |
-| `auth-header-scope`  | **fail**     | `authInterceptor` does not send `Authorization` to a foreign origin          |
-| `xss-sinks`          | pass         | no `bypassSecurityTrust*`, `[innerHTML]`, `document.write`                   |
-| `login-hosts`        | **fail**     | the server picker offers no third-party hosts                                |
-| `adapter-boundary`   | advisory     | the suppressions backlog only falls                                          |
-| `api-surface`        | pass         | as `api-surface` above                                                       |
-| `deps`               | pass         | no high/critical advisories in the **production** tree                       |
-| `external-fonts`     | pass         | no `fonts.googleapis.com` / `fonts.gstatic.com` in source or in `dist/`      |
+| Gate                 | Status today | What it wants                                                                         |
+| -------------------- | ------------ | ------------------------------------------------------------------------------------- |
+| `headers`            | **fail**     | `deploy/nginx.conf.template` sets CSP (or `X-Frame-Options`), HSTS, nosniff, referrer |
+| `api-url-validation` | **fail**     | `ConfigService.setApiUrl()` validates against an allow-list                           |
+| `auth-header-scope`  | **fail**     | `authInterceptor` does not send `Authorization` to a foreign origin                   |
+| `xss-sinks`          | pass         | no `bypassSecurityTrust*`, `[innerHTML]`, `document.write`                            |
+| `login-hosts`        | **fail**     | the server picker offers no third-party hosts                                         |
+| `adapter-boundary`   | advisory     | the suppressions backlog only falls                                                   |
+| `api-surface`        | pass         | as `api-surface` above                                                                |
+| `deps`               | pass         | no high/critical advisories in the **production** tree                                |
+| `external-fonts`     | pass         | no `fonts.googleapis.com` / `fonts.gstatic.com` in source or in `dist/`               |
 
 Two conventions worth knowing:
 
