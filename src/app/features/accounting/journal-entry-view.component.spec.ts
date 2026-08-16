@@ -122,6 +122,27 @@ describe('JournalEntryViewComponent', () => {
     expect(journalSpy.postJournalentriesTransactionId).not.toHaveBeenCalled();
   });
 
+  it('offers no reversal for an entry the platform wrote itself, and says why', () => {
+    // Covered here rather than end to end: producing a system-generated entry needs a portfolio
+    // transaction with accounting attached, and a spec that opens whichever entry happens to be
+    // first instead depends on what the rest of the suite has posted.
+    build(line({ manualEntry: false }), [line({ manualEntry: false })]);
+    fixture.detectChanges();
+
+    const html = (fixture.nativeElement as HTMLElement).innerHTML;
+    expect(html).toContain('journal-entry-system-note');
+    expect(html).not.toContain('journal-entry-reverse');
+  });
+
+  it('offers no reversal once the transaction is reversed', () => {
+    build(line({ reversed: true }), [line({ reversed: true })]);
+    fixture.detectChanges();
+
+    const html = (fixture.nativeElement as HTMLElement).innerHTML;
+    expect(html).toContain('journal-entry-reversed');
+    expect(html).not.toContain('journal-entry-reverse"');
+  });
+
   it('falls back to the single line when the transaction lookup fails', () => {
     journalSpy.getJournalentriesJournalEntryId.and.returnValue(
       of(line()) as unknown as Observable<never>,

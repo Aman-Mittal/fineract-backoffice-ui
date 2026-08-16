@@ -278,6 +278,7 @@ export async function seedClient(
 
 export interface SeededFixedDeposit {
   accountId: number;
+  clientId: number;
   clientName: string;
   productName: string;
 }
@@ -363,7 +364,7 @@ export async function seedFixedDepositAccount(
     },
   );
 
-  return { accountId, clientName: client.displayName, productName };
+  return { accountId, clientId: client.clientId, clientName: client.displayName, productName };
 }
 
 export interface SeededShareAccount {
@@ -374,6 +375,7 @@ export interface SeededShareAccount {
 
 export interface SeededSavingsAccount {
   savingsId: number;
+  clientId: number;
   clientName: string;
 }
 
@@ -443,7 +445,7 @@ export async function seedSavingsAccountWithTransactions(
     locale: LOCALE,
   });
 
-  return { savingsId, clientName: client.displayName };
+  return { savingsId, clientId: client.clientId, clientName: client.displayName };
 }
 
 /**
@@ -1060,4 +1062,19 @@ export async function seedPendingLoan(
 
   const loan = await get<{ accountNo: string }>(api, `/loans/${loanId}`);
   return { loanId, clientName: client.displayName, accountNo: loan.accountNo };
+}
+
+/**
+ * Reverses a journal transaction over the API.
+ *
+ * Used to put a record into the reversed state a spec wants to *read*, rather than to test the
+ * reversal itself — that goes through the UI.
+ */
+export async function reverseJournalEntry(
+  api: APIRequestContext,
+  transactionId: string,
+): Promise<void> {
+  await post(api, `/journalentries/${transactionId}?command=reverse`, {
+    comments: 'Reversed by the e2e suite',
+  });
 }

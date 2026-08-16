@@ -38,11 +38,11 @@ import {
   seedManualJournalEntry,
   seedPendingLoan,
   seedReportDefinition,
+  seedSavingsAccountWithTransactions,
+  reverseJournalEntry,
 } from './utils/seed-api';
 
 test.describe('Screens added for platform parity', () => {
-  test.describe.configure({ mode: 'serial' });
-
   test('a manual journal entry can be read whole and reversed', async ({ page }) => {
     test.setTimeout(recordingTimeout(180000));
 
@@ -84,21 +84,26 @@ test.describe('Screens added for platform parity', () => {
     }
   });
 
-  test('a system-generated entry offers no reversal, and says why', async ({ page }) => {
-    test.setTimeout(recordingTimeout(120000));
-    await login(page);
+  test('an entry that is already reversed is not offered again', async ({ page }) => {
+    test.setTimeout(recordingTimeout(180000));
 
-    // Any entry the platform wrote itself behind a portfolio transaction.
-    await page.goto('/accounting/journal-entries');
-    await page.getByTestId('journal-entry-view').first().click();
-    await expect(page).toHaveURL(/\/accounting\/journal-entries\/view\/\d+/);
-
-    const origin = page.getByTestId('journal-entry-origin');
-    await expect(origin).toBeVisible({ timeout: 20000 });
-    if ((await origin.innerText()).includes('System')) {
-      await expect(page.getByTestId('journal-entry-reverse')).toHaveCount(0);
-      await expect(page.getByTestId('journal-entry-system-note')).toBeVisible();
+    // Seeded and reversed over the API: this asserts the resulting state, where the test above
+    // asserts the act. Reading whichever entry happens to be first in the list instead would make
+    // the test depend on what the rest of the suite has posted.
+    const api = await createApiContext();
+    let entry: Awaited<ReturnType<typeof seedManualJournalEntry>>;
+    try {
+      entry = await seedManualJournalEntry(api, 'E2EReversed');
+      await reverseJournalEntry(api, entry.transactionId);
+    } finally {
+      await api.dispose();
     }
+
+    await login(page);
+    await page.goto(`/accounting/journal-entries/view/${entry.entryId}`);
+
+    await expect(page.getByTestId('journal-entry-reversed')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId('journal-entry-reverse')).toHaveCount(0);
   });
 
   test('a report definition can be created, edited and deleted; a core one cannot', async ({
@@ -204,12 +209,7 @@ test.describe('Screens added for platform parity', () => {
     }
 
     await login(page);
-    await page.goto('/clients');
-    await page
-      .getByPlaceholder(/search/i)
-      .first()
-      .fill(deposit.clientName);
-    await page.getByRole('cell', { name: deposit.clientName }).first().click();
+    await page.goto(`/clients/view/${deposit.clientId}`);
 
     await expect(page.getByTestId('client-tab-deposits')).toBeVisible({ timeout: 30000 });
     await page.getByTestId('client-tab-deposits').click();
@@ -238,11 +238,16 @@ test.describe('Screens added for platform parity', () => {
 
   test('a savings account carries notes, and the note survives a reload', async ({ page }) => {
     test.setTimeout(recordingTimeout(180000));
-    await login(page);
+    const api = await createApiContext();
+    let savings: Awaited<ReturnType<typeof seedSavingsAccountWithTransactions>>;
+    try {
+      savings = await seedSavingsAccountWithTransactions(api, 'E2ENotes');
+    } finally {
+      await api.dispose();
+    }
 
-    await page.goto('/products/savings-accounts');
-    await page.getByRole('link').filter({ hasText: /^0000/ }).first().click();
-    await expect(page).toHaveURL(/\/products\/savings-accounts\/view\/\d+/, { timeout: 20000 });
+    await login(page);
+    await page.goto(`/products/savings-accounts/view/${savings.savingsId}`);
 
     await page.getByTestId('savings-tab-notes').click();
     const note = `Seeded by e2e ${Date.now()}`;
