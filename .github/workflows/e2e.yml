@@ -18,6 +18,17 @@
 name: E2E Tests
 
 on:
+  # Every push, on every branch. The suite is the only thing that exercises this application
+  # against a real Fineract, and waiting for a pull request to open means a branch can be several
+  # commits deep in a broken state before anything says so. It costs a stack bring-up per push;
+  # the concurrency rule below is what keeps that from compounding.
+  push:
+    branches:
+      - '**'
+  # Kept alongside `push` so pull requests from forks are covered: a fork's pushes land in the
+  # fork, not here, so `push` alone would leave external contributions untested. A branch in this
+  # repository with an open pull request will therefore get both runs — same commit, tested twice.
+  # Dropping this trigger removes the duplicate at the cost of fork coverage.
   pull_request:
     branches:
       - main
@@ -25,8 +36,11 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  # Superseded runs are cancelled everywhere except the long-lived branches, where the point of
+  # the run is the record that this commit passed. Without this, pushing three times in five
+  # minutes queues three full Fineract bring-ups.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
 
 # Granted per job rather than here: a workflow-level `pull-requests: write` hands
 # that token to every step in every job, including the ones that run npm install
