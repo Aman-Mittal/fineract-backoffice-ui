@@ -52,8 +52,8 @@ import {
 } from './loan-unassign-officer-dialog.component';
 import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.component';
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
-import { LoanNotesTabComponent } from './loan-notes-tab.component';
-import { LoanDocumentsTabComponent } from './loan-documents-tab.component';
+import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
+import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -101,8 +101,8 @@ import {
     FormsModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
-    LoanNotesTabComponent,
-    LoanDocumentsTabComponent,
+    EntityNotesComponent,
+    EntityDocumentsComponent,
     DecimalPipe,
     NgClass,
     JsonPipe,
@@ -1110,12 +1110,12 @@ import {
         }
         @if (activeTab() === '5') {
           <div class="tab-content">
-            <app-loan-notes-tab [loanId]="loanId()"></app-loan-notes-tab>
+            <app-entity-notes resourceType="loans" [resourceId]="loanId()"></app-entity-notes>
           </div>
         }
         @if (activeTab() === '6') {
           <div class="tab-content">
-            <app-loan-documents-tab [loanId]="loanId()"></app-loan-documents-tab>
+            <app-entity-documents entityType="loans" [entityId]="loanId()"></app-entity-documents>
           </div>
         }
         @if (activeTab() === '7' && showBuyDownFees()) {

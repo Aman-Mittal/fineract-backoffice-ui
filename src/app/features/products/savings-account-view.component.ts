@@ -30,6 +30,10 @@ import {
   SavingsAccountChargeData,
 } from '../../api';
 import { StatusBadgeComponent, RequiresPermissionDirective } from '../../shared';
+import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
+import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
+import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
+import { SavingsStandingInstructionsTabComponent } from './savings/savings-standing-instructions-tab.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
 import {
@@ -73,6 +77,10 @@ import {
   selector: 'app-savings-account-view',
   standalone: true,
   imports: [
+    EntityNotesComponent,
+    EntityDocumentsComponent,
+    EntityDatatablesComponent,
+    SavingsStandingInstructionsTabComponent,
     RouterModule,
     TranslateModule,
     CdkTableModule,
@@ -346,6 +354,18 @@ import {
           <ion-segment-button value="2">
             <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
           </ion-segment-button>
+          <ion-segment-button value="3" data-testid="savings-tab-notes">
+            <ion-label>{{ 'SAVINGS.NOTES' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="4" data-testid="savings-tab-documents">
+            <ion-label>{{ 'SAVINGS.DOCUMENTS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="5" data-testid="savings-tab-standing-instructions">
+            <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="6" data-testid="savings-tab-custom-fields">
+            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+          </ion-segment-button>
         </ion-segment>
 
         @if (activeTab() === '0') {
@@ -543,6 +563,39 @@ import {
                 }
               </ion-card-content>
             </ion-card>
+          </div>
+        }
+
+        @if (activeTab() === '3') {
+          <div class="tab-content">
+            <app-entity-notes resourceType="savings" [resourceId]="accountId"></app-entity-notes>
+          </div>
+        }
+
+        @if (activeTab() === '4') {
+          <div class="tab-content">
+            <app-entity-documents
+              entityType="savings"
+              [entityId]="accountId"
+            ></app-entity-documents>
+          </div>
+        }
+
+        @if (activeTab() === '5') {
+          <div class="tab-content">
+            <app-savings-standing-instructions-tab
+              [savingsAccountId]="accountId"
+              [clientId]="account()?.clientId"
+            ></app-savings-standing-instructions-tab>
+          </div>
+        }
+
+        @if (activeTab() === '6') {
+          <div class="tab-content">
+            <app-entity-datatables
+              apptableName="m_savings_account"
+              [entityId]="accountId"
+            ></app-entity-datatables>
           </div>
         }
       </div>

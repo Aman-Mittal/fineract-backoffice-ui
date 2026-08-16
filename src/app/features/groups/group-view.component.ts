@@ -82,6 +82,9 @@ import {
   GroupStaffResult,
 } from './group-staff-dialog.component';
 import { GroupNotesListComponent } from './tabs/group-notes-list.component';
+import { GroupAccountsTabComponent } from './tabs/group-accounts-tab.component';
+import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
+import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 
 /** A tab index that is also what the segment binds to; `ion-segment` deals in strings. */
 const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
@@ -105,6 +108,9 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
   selector: 'app-group-view',
   standalone: true,
   imports: [
+    GroupAccountsTabComponent,
+    EntityDocumentsComponent,
+    EntityDatatablesComponent,
     RouterModule,
     TranslatePipe,
     StatusBadgeComponent,
@@ -236,6 +242,15 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
             </ion-segment-button>
             <ion-segment-button value="2" data-testid="group-tab-committee">
               <ion-label>{{ 'GROUPS.COMMITTEE' | appTranslate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="4" data-testid="group-tab-accounts">
+              <ion-label>{{ 'COMMON.ACCOUNTS' | appTranslate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="5" data-testid="group-tab-documents">
+              <ion-label>{{ 'SAVINGS.DOCUMENTS' | appTranslate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="6" data-testid="group-tab-custom-fields">
+              <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</ion-label>
             </ion-segment-button>
             <ion-segment-button value="3" data-testid="group-tab-notes">
               <ion-label>{{ 'GROUPS.NOTES' | appTranslate }}</ion-label>
@@ -373,6 +388,27 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
           @if (activeTab() === '3') {
             <div class="tab-content">
               <app-group-notes-list [groupId]="groupId"></app-group-notes-list>
+            </div>
+          }
+
+          @if (activeTab() === '4') {
+            <div class="tab-content">
+              <app-group-accounts-tab [groupId]="groupId"></app-group-accounts-tab>
+            </div>
+          }
+
+          @if (activeTab() === '5') {
+            <div class="tab-content">
+              <app-entity-documents entityType="groups" [entityId]="groupId"></app-entity-documents>
+            </div>
+          }
+
+          @if (activeTab() === '6') {
+            <div class="tab-content">
+              <app-entity-datatables
+                apptableName="m_group"
+                [entityId]="groupId"
+              ></app-entity-datatables>
             </div>
           }
         </div>
