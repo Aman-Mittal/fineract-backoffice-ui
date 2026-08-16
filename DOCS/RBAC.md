@@ -210,6 +210,11 @@ the platform's answer rather than infer it from the UI. Use it for any new refus
 proving only that the client refused something would quietly invite the conclusion that the client
 is the boundary.
 
-Note Fineract's password policy when seeding users — 12 to 50 characters, one of each class, no
-whitespace, and **no character repeated consecutively**. It rejects most obvious literals with a
-validation error that does not mention the rule until you read `args`.
+Seeded users get a password generated at run time by `generatePassword()` rather than a literal.
+Fineract's policy is `^(?!.*(.)\1)(?!.*\s)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\w\s]).{12,50}$`
+— 12 to 50 characters, one of each class, no whitespace, and **no character repeated
+consecutively**. Two things about it are easy to get wrong: that last clause, whose validation
+error does not mention the rule until you read `args`; and `[^\w\s]`, which excludes `_` because
+`\w` includes it, so an underscore does not count as the punctuation the policy demands. Any
+literal satisfying all of that is by construction a credential-shaped string that secret scanners
+flag, which is the other reason it is generated.

@@ -35,6 +35,7 @@
  * runs in Node, where a relative path has nothing to resolve against.
  */
 
+import { randomInt } from 'node:crypto';
 import { APIRequestContext, request as playwrightRequest } from '@playwright/test';
 
 import { API_BASE, PASSWORD, TENANT_ID, USERNAME, assertBackendReachable } from './backend-env';
@@ -834,6 +835,42 @@ export async function seedRole(
   return resourceId;
 }
 
+const UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const LOWER = 'abcdefghijkmnopqrstuvwxyz';
+const DIGIT = '23456789';
+// No underscore: Fineract's policy requires a character matching `[^\w\s]`, and `\w`
+// includes `_` — a password whose only punctuation was an underscore would be rejected.
+const SPECIAL = '#$%&*+-=?@^';
+
+/**
+ * A throwaway password that satisfies Fineract's policy, drawn fresh each time.
+ *
+ * The policy is `^(?!.*(.)\1)(?!.*\s)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\w\s]).{12,50}$` —
+ * 12 to 50 characters, one of each class, no whitespace, and **no character repeated
+ * consecutively**. That last clause is the one that catches people out, and the validation error
+ * does not mention it until you read `args`.
+ *
+ * Generated rather than written down. A literal that satisfies the rule is by construction a
+ * credential-shaped string, which secret scanners flag and reviewers have to think about; there
+ * is no value in having one in the tree when the account is created and used within a single
+ * test run.
+ */
+function generatePassword(): string {
+  const pools = [UPPER, LOWER, DIGIT, SPECIAL];
+  const characters: string[] = [];
+  // One from each class first, so the policy's lookaheads are satisfied by construction,
+  // then fill out the length from the union.
+  const all = pools.join('');
+  while (characters.length < 16) {
+    const pool = characters.length < pools.length ? pools[characters.length] : all;
+    const candidate = pool[randomInt(pool.length)];
+    // Reject rather than reshuffle: the "no consecutive repeat" rule is the only ordering
+    // constraint, and refusing a duplicate neighbour is the whole of enforcing it.
+    if (candidate !== characters[characters.length - 1]) characters.push(candidate);
+  }
+  return characters.join('');
+}
+
 /**
  * A user who genuinely holds only the given permissions, for signing into the application as.
  *
@@ -853,10 +890,8 @@ export async function seedRestrictedUser(
   permissions: string[],
 ): Promise<SeededRestrictedUser> {
   const roleId = await seedRole(api, permissions);
-  const suffix = seedSuffix();
-  const username = `e2erbac${suffix}`;
-  // No consecutive repeats, so the suffix is interleaved rather than appended.
-  const password = `Rb${suffix.slice(0, 3)}#kQ7z${suffix.slice(-3)}Vm`;
+  const username = `e2erbac${seedSuffix()}`;
+  const password = generatePassword();
 
   const { resourceId } = await post<{ resourceId: number }>(api, '/users', {
     username,
