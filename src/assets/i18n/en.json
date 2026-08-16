@@ -1951,7 +1951,10 @@
     "CODE": "Code",
     "ENTITY": "Entity",
     "ACTION": "Action",
-    "MAKER_CHECKER": "Maker-Checker Enabled"
+    "MAKER_CHECKER": "Maker-Checker Enabled",
+    "REQUIRES": "Requires {{codes}} — {{summary}}",
+    "JOIN_ANY": " or ",
+    "JOIN_ALL": " and "
   },
   "OIDC_CONFIG": {
     "TITLE": "Tenant OIDC Configuration",

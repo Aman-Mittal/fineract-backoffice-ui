@@ -56,7 +56,7 @@ import {
   CellTemplateDirective,
   ColumnDef,
   DataTableComponent,
-  HasPermissionDirective,
+  RequiresPermissionDirective,
   StatusBadgeComponent,
 } from '../../shared';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
@@ -102,7 +102,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
     TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
-    HasPermissionDirective,
+    RequiresPermissionDirective,
     StatusBadgeComponent,
     EntityDatatablesComponent,
     GroupNotesListComponent,
@@ -162,7 +162,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                           button
                           data-testid="center-action-activate"
                           (click)="onAction('activate')"
-                          *appHasPermission="'ACTIVATE_CENTER'"
+                          appRequiresPermission="ACTIVATE_CENTER"
                         >
                           <ion-label>{{ 'CENTERS.ACTIVATE' | appTranslate }}</ion-label>
                         </ion-item>
@@ -172,7 +172,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                           button
                           data-testid="center-action-close"
                           (click)="onAction('close')"
-                          *appHasPermission="'CLOSE_CENTER'"
+                          appRequiresPermission="CLOSE_CENTER"
                         >
                           <ion-label>{{ 'CENTERS.CLOSE' | appTranslate }}</ion-label>
                         </ion-item>
@@ -182,7 +182,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                           button
                           data-testid="center-action-assign-staff"
                           (click)="onAssignStaff()"
-                          *appHasPermission="'UPDATE_CENTER'"
+                          appRequiresPermission="UPDATE_CENTER"
                         >
                           <ion-label>{{ 'CENTERS.ASSIGN_STAFF' | appTranslate }}</ion-label>
                         </ion-item>
@@ -191,7 +191,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                             button
                             data-testid="center-action-unassign-staff"
                             (click)="onUnassignStaff()"
-                            *appHasPermission="'UNASSIGNSTAFF_GROUP'"
+                            appRequiresPermission="UNASSIGNSTAFF_GROUP"
                           >
                             <ion-label>{{ 'CENTERS.UNASSIGN_STAFF' | appTranslate }}</ion-label>
                           </ion-item>
@@ -201,7 +201,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                             button
                             data-testid="center-action-meeting"
                             (click)="onScheduleMeeting()"
-                            *appHasPermission="'CREATE_MEETING'"
+                            appRequiresPermission="CREATE_MEETING"
                           >
                             <ion-label>
                               {{
@@ -215,7 +215,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                           button
                           data-testid="center-action-attach-groups"
                           (click)="onManageGroups('add')"
-                          *appHasPermission="'ASSOCIATEGROUPS_CENTER'"
+                          appRequiresPermission="ASSOCIATEGROUPS_CENTER"
                         >
                           <ion-label>{{ 'CENTERS.ATTACH_GROUPS' | appTranslate }}</ion-label>
                         </ion-item>
@@ -224,7 +224,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                             button
                             data-testid="center-action-detach-groups"
                             (click)="onManageGroups('remove')"
-                            *appHasPermission="'DISASSOCIATEGROUPS_CENTER'"
+                            appRequiresPermission="DISASSOCIATEGROUPS_CENTER"
                           >
                             <ion-label>{{ 'CENTERS.DETACH_GROUPS' | appTranslate }}</ion-label>
                           </ion-item>
@@ -233,7 +233,7 @@ const TAB = { GENERAL: '0', NOTES: '1', DATATABLES: '2' } as const;
                           button
                           data-testid="center-action-edit"
                           [routerLink]="['/centers/edit', centerId]"
-                          *appHasPermission="'UPDATE_CENTER'"
+                          appRequiresPermission="UPDATE_CENTER"
                         >
                           <ion-label>{{ 'COMMON.EDIT' | appTranslate }}</ion-label>
                         </ion-item>

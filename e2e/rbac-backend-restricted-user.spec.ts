@@ -37,6 +37,8 @@ import { landsOn } from './utils/settled-route';
 import { login, PASSWORD, SERVER_URL, TENANT_ID, USERNAME } from './utils/fineract-login';
 import {
   createApiContext,
+  ensureReferenceData,
+  seedActiveLoan,
   seedRestrictedUser,
   statusAs,
   SeededRestrictedUser,
@@ -58,8 +60,8 @@ test.beforeAll(async () => {
   }
 });
 
-/** Signs in as the seeded restricted user rather than the suite's superuser. */
-async function loginAsRestricted(page: Page): Promise<void> {
+/** Signs in as a seeded restricted user rather than as the suite's superuser. */
+async function loginAs(page: Page, user: SeededRestrictedUser): Promise<void> {
   await page.goto('/login');
   const serverSelect = page.locator('#serverUrl');
   await serverSelect.waitFor({ state: 'visible' });
@@ -71,8 +73,8 @@ async function loginAsRestricted(page: Page): Promise<void> {
     await page.locator('#customUrl').fill(SERVER_URL);
   }
   await page.locator('#tenantId').fill(TENANT_ID);
-  await page.locator('#username').fill(restricted.username);
-  await page.locator('#password').fill(restricted.password);
+  await page.locator('#username').fill(user.username);
+  await page.locator('#password').fill(user.password);
   await page.getByRole('button', { name: 'Sign In' }).click();
   await expect(page.getByRole('navigation', { name: 'Main Navigation' })).toBeVisible({
     timeout: 30_000,
@@ -88,7 +90,7 @@ test.describe('a genuinely restricted Fineract user', () => {
   });
 
   test('reaches the screen their permission covers', async ({ page }) => {
-    await loginAsRestricted(page);
+    await loginAs(page, restricted);
     expect(await landsOn(page, '/clients')).toBe('/clients');
     await expect(page.getByRole('link', { name: 'Clients', exact: true })).toBeVisible();
   });
@@ -96,7 +98,7 @@ test.describe('a genuinely restricted Fineract user', () => {
   test('is refused a screen their permission does not cover, by URL and by the backend', async ({
     page,
   }) => {
-    await loginAsRestricted(page);
+    await loginAs(page, restricted);
 
     // The client refuses the navigation...
     expect(await landsOn(page, '/accounting/chart-of-accounts')).toBe('/forbidden');
@@ -111,7 +113,7 @@ test.describe('a genuinely restricted Fineract user', () => {
   test('is refused a write screen they can read the list for, and the write itself', async ({
     page,
   }) => {
-    await loginAsRestricted(page);
+    await loginAs(page, restricted);
 
     // READ_CLIENT opens the list but not the form: the two routes declare different codes.
     expect(await landsOn(page, '/clients')).toBe('/clients');
@@ -133,7 +135,7 @@ test.describe('a genuinely restricted Fineract user', () => {
   });
 
   test('is not offered the actions it would be refused for', async ({ page }) => {
-    await loginAsRestricted(page);
+    await loginAs(page, restricted);
     await page.goto('/clients');
     await page.locator('.app-container').waitFor({ state: 'visible' });
 
@@ -142,6 +144,40 @@ test.describe('a genuinely restricted Fineract user', () => {
     // Screens the user cannot open are absent from the navigation as well as from the router.
     await expect(page.getByRole('link', { name: 'Chart of Accounts', exact: true })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Users', exact: true })).toHaveCount(0);
+  });
+
+  test('is shown an action it cannot take, disabled and saying what it needs', async ({ page }) => {
+    // A different restricted user from the one the rest of this spec uses: this one can open a
+    // loan, which is the whole point — the action belongs to the record in front of them, so
+    // hiding it would read as a missing feature rather than as a limit on their role.
+    const api = await createApiContext();
+    let loanViewer: SeededRestrictedUser;
+    let loan: { loanId: number };
+    try {
+      await ensureReferenceData(api);
+      loan = await seedActiveLoan(api);
+      loanViewer = await seedRestrictedUser(api, ['READ_LOAN', 'READ_CLIENT']);
+    } finally {
+      await api.dispose();
+    }
+
+    await loginAs(page, loanViewer);
+    expect(await landsOn(page, `/loans/view/${loan.loanId}`)).toBe(`/loans/view/${loan.loanId}`);
+
+    const repayment = page.getByTestId('loan-repayment-action');
+    await expect(repayment).toBeVisible();
+    await expect(repayment).toHaveAttribute('disabled', /.*/);
+    await expect(repayment).toHaveAttribute('title', /REPAYMENT_LOAN/);
+
+    // And the platform agrees: the operation the button would have started is refused.
+    expect(
+      await statusAs(loanViewer, 'POST', `/loans/${loan.loanId}/transactions?command=repayment`, {
+        locale: 'en',
+        dateFormat: 'dd MMMM yyyy',
+        transactionDate: '01 January 2026',
+        transactionAmount: 1,
+      }),
+    ).toBe(403);
   });
 
   test('the superuser the rest of the suite uses is unaffected', async ({ page }) => {

@@ -104,6 +104,13 @@ describe('AccessDeniedComponent', () => {
       expect(required?.textContent).toContain('CREATE_JOURNALENTRY');
     });
 
+    it('also says what they mean, for a reader who does not speak in codes', async () => {
+      await render('READ_JOURNALENTRY,CREATE_JOURNALENTRY');
+      expect(host.querySelector(REQUIRED_TESTID)?.textContent).toContain(
+        'View and create journal entries',
+      );
+    });
+
     it('says nothing at all when there are none to name', () => {
       // Reached directly rather than by refusal: inventing a requirement would be worse than
       // leaving the sentence out.

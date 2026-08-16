@@ -23,6 +23,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '../../core/adapters';
 import { REQUIRED_PERMISSIONS_PARAM } from '../../core/guards/permission.guard';
+import { PermissionSummaryPipe } from '../../shared/pipes/permission-summary.pipe';
 
 /**
  * The page a user lands on when `permissionGuard` refuses a route.
@@ -45,7 +46,7 @@ import { REQUIRED_PERMISSIONS_PARAM } from '../../core/guards/permission.guard';
 @Component({
   selector: 'app-access-denied',
   standalone: true,
-  imports: [RouterLink, IonButton, IonIcon, TranslatePipe],
+  imports: [RouterLink, IonButton, IonIcon, TranslatePipe, PermissionSummaryPipe],
   template: `
     <div class="access-denied" role="alert" aria-live="polite">
       <ion-icon name="lock-closed-outline" class="access-denied__icon" aria-hidden="true" />
@@ -63,6 +64,13 @@ import { REQUIRED_PERMISSIONS_PARAM } from '../../core/guards/permission.guard';
       @if (requiredPermissions().length) {
         <p class="access-denied__required" data-testid="access-denied-required">
           {{ 'ACCESS_DENIED.REQUIRES' | appTranslate }}
+          <!--
+            Both forms, deliberately. The sentence is what the user reads; the code is what they
+            quote to an administrator, and it is the only one of the two that is unambiguous.
+          -->
+          <span class="access-denied__required-plain">
+            {{ requiredPermissions() | permissionSummary }}
+          </span>
           <code>{{ requiredPermissions().join(', ') }}</code>
         </p>
       }
@@ -107,6 +115,9 @@ import { REQUIRED_PERMISSIONS_PARAM } from '../../core/guards/permission.guard';
         margin: 0;
         max-width: 44ch;
         font-size: 0.9rem;
+      }
+      .access-denied__required-plain {
+        display: block;
       }
       .access-denied__required code {
         font-family: monospace;

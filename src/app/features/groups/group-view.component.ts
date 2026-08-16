@@ -40,7 +40,7 @@ import {
   CellTemplateDirective,
   ColumnDef,
   DataTableComponent,
-  HasPermissionDirective,
+  RequiresPermissionDirective,
   StatusBadgeComponent,
 } from '../../shared';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
@@ -110,7 +110,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
-    HasPermissionDirective,
+    RequiresPermissionDirective,
     TooltipDirective,
     GroupNotesListComponent,
     IonButton,
@@ -165,7 +165,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                           button
                           data-testid="group-action-activate"
                           (click)="onActivate()"
-                          *appHasPermission="'ACTIVATE_GROUP'"
+                          appRequiresPermission="ACTIVATE_GROUP"
                         >
                           <ion-icon slot="start" name="play-circle-outline"></ion-icon>
                           <ion-label>{{ 'GROUPS.ACTIVATE' | appTranslate }}</ion-label>
@@ -176,7 +176,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                           button
                           data-testid="group-action-close"
                           (click)="onClose()"
-                          *appHasPermission="'CLOSE_GROUP'"
+                          appRequiresPermission="CLOSE_GROUP"
                         >
                           <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                           <ion-label>{{ 'GROUPS.CLOSE' | appTranslate }}</ion-label>
@@ -187,7 +187,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                           button
                           data-testid="group-action-assign-staff"
                           (click)="onAssignStaff()"
-                          *appHasPermission="'ASSIGNSTAFF_GROUP'"
+                          appRequiresPermission="ASSIGNSTAFF_GROUP"
                         >
                           <ion-icon slot="start" name="person-add-outline"></ion-icon>
                           <ion-label>{{ 'GROUPS.ASSIGN_STAFF' | appTranslate }}</ion-label>
@@ -197,7 +197,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                             button
                             data-testid="group-action-unassign-staff"
                             (click)="onUnassignStaff()"
-                            *appHasPermission="'UNASSIGNSTAFF_GROUP'"
+                            appRequiresPermission="UNASSIGNSTAFF_GROUP"
                           >
                             <ion-icon slot="start" name="person-remove-outline"></ion-icon>
                             <ion-label>{{ 'GROUPS.UNASSIGN_STAFF' | appTranslate }}</ion-label>
@@ -207,7 +207,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                           button
                           data-testid="group-action-edit"
                           [routerLink]="['/groups/edit', groupId]"
-                          *appHasPermission="'UPDATE_GROUP'"
+                          appRequiresPermission="UPDATE_GROUP"
                         >
                           <ion-icon slot="start" name="create-outline"></ion-icon>
                           <ion-label>{{ 'COMMON.EDIT' | appTranslate }}</ion-label>
@@ -294,7 +294,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                   data-testid="group-add-members"
                   [disabled]="isClosed()"
                   (click)="onAddMembers()"
-                  *appHasPermission="'ASSOCIATECLIENTS_GROUP'"
+                  appRequiresPermission="ASSOCIATECLIENTS_GROUP"
                 >
                   <ion-icon name="person-add-outline"></ion-icon>
                   {{ 'GROUPS.ADD_MEMBERS' | appTranslate }}
@@ -305,7 +305,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                   data-testid="group-remove-members"
                   [disabled]="isClosed() || !members().length"
                   (click)="onRemoveMembers()"
-                  *appHasPermission="'DISASSOCIATECLIENTS_GROUP'"
+                  appRequiresPermission="DISASSOCIATECLIENTS_GROUP"
                 >
                   <ion-icon name="person-remove-outline"></ion-icon>
                   {{ 'GROUPS.REMOVE_MEMBERS' | appTranslate }}
@@ -336,7 +336,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                   data-testid="group-assign-role"
                   [disabled]="isClosed() || !members().length"
                   (click)="onAssignRole()"
-                  *appHasPermission="'ASSIGNROLE_GROUP'"
+                  appRequiresPermission="ASSIGNROLE_GROUP"
                 >
                   <ion-icon name="ribbon-outline"></ion-icon>
                   {{ 'GROUPS.ASSIGN_ROLE' | appTranslate }}
@@ -359,7 +359,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
                     [attr.data-testid]="'group-unassign-role-' + row.id"
                     [disabled]="isClosed()"
                     (click)="onUnassignRole(row)"
-                    *appHasPermission="'UNASSIGNROLE_GROUP'"
+                    appRequiresPermission="UNASSIGNROLE_GROUP"
                     [appTooltip]="'GROUPS.UNASSIGN_ROLE' | appTranslate"
                     [attr.aria-label]="'GROUPS.UNASSIGN_ROLE' | appTranslate"
                   >

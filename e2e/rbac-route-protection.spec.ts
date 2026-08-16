@@ -203,8 +203,9 @@ test.describe('route authorization', () => {
 test.describe('the Access Denied page', () => {
   test.beforeEach(async ({ page }) => {
     await login(page, { permissions: ['READ_CLIENT'] });
-    await page.goto(CHART_OF_ACCOUNTS);
-    await expect(page).toHaveURL(FORBIDDEN);
+    // Compare the path, not the whole URL: the guard appends the permissions the route wanted
+    // as a query parameter, and `toHaveURL` matches the query string too.
+    expect(await landsOn(page, CHART_OF_ACCOUNTS)).toBe(FORBIDDEN);
   });
 
   test('says what happened, under a single heading', async ({ page }) => {
@@ -244,6 +245,27 @@ test.describe('the Access Denied page', () => {
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL('/dashboard');
+  });
+});
+
+test.describe('permission feedback', () => {
+  test('a visible nav entry says what the user can do in that module', async ({ page }) => {
+    // The label is one word; what "Clients" means for this particular role is not obvious from
+    // it, and the tooltip is derived from the codes the user actually holds rather than from
+    // the single code the entry is gated on.
+    await login(page, { permissions: ['READ_CLIENT', 'CREATE_CLIENT'] });
+
+    const clients = link(page, 'Clients');
+    await expect(clients).toBeVisible();
+    await expect(clients).toHaveAttribute('title', /view and create clients/i);
+  });
+
+  test('a nav entry carries no hint when there is nothing specific to say', async ({ page }) => {
+    // A superuser holds ALL_FUNCTIONS rather than the individual codes, so enumerating is
+    // impossible and "you can do everything" on every item is noise.
+    await login(page, { permissions: ['ALL_FUNCTIONS'] });
+
+    await expect(link(page, 'Clients')).not.toHaveAttribute('title', /./);
   });
 });
 
