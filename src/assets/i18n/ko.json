@@ -493,5 +493,14 @@
     "SAVINGS_ACCOUNTS": "저축 계좌",
     "NO_LOAN_ACCOUNTS": "이 그룹에는 대출 계좌가 없습니다.",
     "NO_SAVINGS_ACCOUNTS": "이 그룹에는 저축 계좌가 없습니다."
+  },
+  "CLIENTS": {
+    "DEPOSIT_ACCOUNTS": "예금",
+    "SHARE_ACCOUNTS": "출자금",
+    "FIXED_DEPOSITS": "정기 예금",
+    "RECURRING_DEPOSITS": "적립식 예금",
+    "NO_FIXED_DEPOSITS": "이 고객에게 정기 예금이 없습니다.",
+    "NO_RECURRING_DEPOSITS": "이 고객에게 적립식 예금이 없습니다.",
+    "NO_SHARE_ACCOUNTS": "이 고객에게 출자금 계좌가 없습니다."
   }
 }

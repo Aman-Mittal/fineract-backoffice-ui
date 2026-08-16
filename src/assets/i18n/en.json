@@ -824,7 +824,14 @@
     "CONFIRM_REJECT_TRANSFER": "The transfer will be refused and the client placed on hold at their current office.",
     "CONFIRM_WITHDRAW_TRANSFER": "The transfer will be cancelled and the client returned to active at their current office.",
     "CONFIRM_UNASSIGN_STAFF": "This client will no longer be assigned to a member of staff.",
-    "SAVINGS_ACCOUNT": "Savings Account"
+    "SAVINGS_ACCOUNT": "Savings Account",
+    "DEPOSIT_ACCOUNTS": "Deposits",
+    "SHARE_ACCOUNTS": "Shares",
+    "FIXED_DEPOSITS": "Fixed Deposits",
+    "RECURRING_DEPOSITS": "Recurring Deposits",
+    "NO_FIXED_DEPOSITS": "This client holds no fixed deposits.",
+    "NO_RECURRING_DEPOSITS": "This client holds no recurring deposits.",
+    "NO_SHARE_ACCOUNTS": "This client holds no share accounts."
   },
   "SAVINGS": {
     "CREATE_ACCOUNT": "Create Savings Account",

@@ -493,5 +493,14 @@
     "SAVINGS_ACCOUNTS": "बचत खाते",
     "NO_LOAN_ACCOUNTS": "इस समूह का कोई ऋण खाता नहीं है।",
     "NO_SAVINGS_ACCOUNTS": "इस समूह का कोई बचत खाता नहीं है।"
+  },
+  "CLIENTS": {
+    "DEPOSIT_ACCOUNTS": "जमा",
+    "SHARE_ACCOUNTS": "शेयर",
+    "FIXED_DEPOSITS": "सावधि जमा",
+    "RECURRING_DEPOSITS": "आवर्ती जमा",
+    "NO_FIXED_DEPOSITS": "इस ग्राहक की कोई सावधि जमा नहीं है।",
+    "NO_RECURRING_DEPOSITS": "इस ग्राहक की कोई आवर्ती जमा नहीं है।",
+    "NO_SHARE_ACCOUNTS": "इस ग्राहक का कोई शेयर खाता नहीं है।"
   }
 }
