@@ -32,10 +32,11 @@ on:
     branches:
       - main
       - develop
-    # Tag builds exist so check-version.mjs can compare the tag against package.json. A release
-    # artifact that disagrees with the tag the vote was held on is the quiet way this goes wrong.
-    tags:
-      - '*'
+  # Deliberately no `tags:` trigger. Adding one made every job in this workflow a
+  # cache-poisoning finding (zizmor, 11 × high): a tag push is a publishing trigger, and a job
+  # that restores an npm cache on one can be fed content written from a lower-privilege context,
+  # which is precisely the threat that matters for a release build. The tag check lives in
+  # release-tag.yml instead, where it needs no dependencies and therefore no cache.
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
