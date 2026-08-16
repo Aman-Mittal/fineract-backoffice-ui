@@ -44,6 +44,13 @@ export const ORGANIZATION_ROUTES: Routes = [
       import('./offices/office-form.component').then((m) => m.OfficeFormComponent),
   },
   {
+    path: 'offices/view/:id',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_OFFICE' },
+    loadComponent: () =>
+      import('./offices/office-view.component').then((m) => m.OfficeViewComponent),
+  },
+  {
     path: 'funds',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_FUND' },
