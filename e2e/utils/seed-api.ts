@@ -797,3 +797,109 @@ export async function seedStaff(
   });
   return { staffId: resourceId, staffName: `${lastname}, Field` };
 }
+
+export interface SeededRestrictedUser {
+  username: string;
+  password: string;
+  roleId: number;
+  userId: number;
+  /** Exactly the permission codes the user holds, as granted to their role. */
+  permissions: string[];
+}
+
+/**
+ * A Fineract role granted precisely the permissions listed, and nothing else.
+ *
+ * `PUT /roles/{id}/permissions` takes a map of code to boolean and applies it as a delta, so a
+ * freshly created role — which starts with none — ends up holding exactly these.
+ *
+ * @param api - an API context authenticated as a user who may administer roles
+ * @param permissions - permission codes, which must exist in `GET /permissions`
+ * @param namePrefix - distinguishes the role in a stack that keeps its database between runs
+ * @returns the new role's id
+ */
+export async function seedRole(
+  api: APIRequestContext,
+  permissions: string[],
+  namePrefix = 'E2ERole',
+): Promise<number> {
+  const name = `${namePrefix}${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/roles', {
+    name,
+    description: 'Seeded by the RBAC e2e suite',
+  });
+  await put(api, `/roles/${resourceId}/permissions`, {
+    permissions: Object.fromEntries(permissions.map((code) => [code, true])),
+  });
+  return resourceId;
+}
+
+/**
+ * A user who genuinely holds only the given permissions, for signing into the application as.
+ *
+ * The point of seeding rather than mocking is that the resulting session is the platform's own
+ * answer: whatever the UI then allows or refuses can be checked against what Fineract itself
+ * allows or refuses, which is the only way to show the two agree.
+ *
+ * The password is generated to satisfy Fineract's policy — 12 to 50 characters, one of each
+ * class, no whitespace, and no character repeated consecutively — which rejects most obvious
+ * literals with a validation error that does not mention the rule until you read `args`.
+ *
+ * @param api - an API context authenticated as a user who may administer roles and users
+ * @param permissions - permission codes the user should hold, and only those
+ */
+export async function seedRestrictedUser(
+  api: APIRequestContext,
+  permissions: string[],
+): Promise<SeededRestrictedUser> {
+  const roleId = await seedRole(api, permissions);
+  const suffix = seedSuffix();
+  const username = `e2erbac${suffix}`;
+  // No consecutive repeats, so the suffix is interleaved rather than appended.
+  const password = `Rb${suffix.slice(0, 3)}#kQ7z${suffix.slice(-3)}Vm`;
+
+  const { resourceId } = await post<{ resourceId: number }>(api, '/users', {
+    username,
+    firstname: 'Restricted',
+    lastname: `User${suffix}`,
+    email: `${username}@example.invalid`,
+    officeId: 1,
+    roles: [roleId],
+    sendPasswordToEmail: false,
+    password,
+    repeatPassword: password,
+  });
+
+  return { username, password, roleId, userId: resourceId, permissions };
+}
+
+/**
+ * Asks Fineract the same question the UI just asked, as the restricted user themselves.
+ *
+ * Returns the HTTP status so a spec can assert the platform's answer directly rather than
+ * inferring it from what the UI did — the client guard is defence-in-depth, and this is how a
+ * test tells the difference between the two agreeing and the client merely looking convincing.
+ */
+export async function statusAs(
+  user: SeededRestrictedUser,
+  method: 'GET' | 'POST',
+  path: string,
+  body?: unknown,
+): Promise<number> {
+  const context = await playwrightRequest.newContext({
+    ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      'Fineract-Platform-TenantId': TENANT,
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${user.username}:${user.password}`).toString('base64')}`,
+    },
+  });
+  try {
+    const url = `${API_BASE}${path}`;
+    const response =
+      method === 'GET' ? await context.get(url) : await context.post(url, { data: body ?? {} });
+    return response.status();
+  } finally {
+    await context.dispose();
+  }
+}

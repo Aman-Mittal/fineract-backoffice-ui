@@ -2369,5 +2369,11 @@
     "BODY_PLACEHOLDER": "Optional JSON body, e.g. {}",
     "SUBMIT": "Submit",
     "RESPONSE": "Response"
+  },
+  "ACCESS_DENIED": {
+    "TITLE": "Access denied",
+    "MESSAGE": "You do not have permission to open this page.",
+    "HINT": "If you believe you should have access, ask an administrator to review the permissions on your role.",
+    "BACK_TO_DASHBOARD": "Back to dashboard"
   }
 }

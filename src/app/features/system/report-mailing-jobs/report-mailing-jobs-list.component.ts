@@ -75,6 +75,7 @@ import {
         title="nav.reportMailingJobs"
         helpTextKey="HELP.REPORT_MAILING_JOBS_DESC"
         createButtonLabel="REPORT_MAILING_JOBS.CREATE"
+        createPermission="CREATE_REPORTMAILINGJOB"
         [columns]="columns"
         [data]="jobs()"
         [totalRecords]="jobs().length"

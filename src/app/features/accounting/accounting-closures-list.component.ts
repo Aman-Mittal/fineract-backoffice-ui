@@ -49,6 +49,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       title="nav.accountingClosures"
       helpTextKey="HELP.ACCOUNTING_CLOSURES_DESC"
       createButtonLabel="ACCOUNTING_CLOSURES.CREATE"
+      createPermission="CREATE_GLCLOSURE"
       [columns]="columns"
       [data]="closures()"
       [localLogic]="true"

@@ -52,6 +52,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       title="nav.centers"
       helpTextKey="HELP.CENTERS_DESC"
       createButtonLabel="Create Center"
+      createPermission="CREATE_CENTER"
       [columns]="columns"
       [data]="centers()"
       [totalRecords]="totalRecords"

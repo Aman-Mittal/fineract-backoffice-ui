@@ -46,6 +46,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="nav.wcNearBreach"
       helpTextKey="HELP.WC_NEAR_BREACH_DESC"
       createButtonLabel="WC_NEAR_BREACH.CREATE"
+      createPermission="CREATE_WORKINGCAPITALNEARBREACH"
       [columns]="columns"
       [data]="items()"
       [totalRecords]="items().length"

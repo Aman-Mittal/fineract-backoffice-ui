@@ -43,6 +43,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="nav.offices"
       helpTextKey="HELP.OFFICES_DESC"
       createButtonLabel="OFFICES.CREATE_OFFICE"
+      createPermission="CREATE_OFFICE"
       [columns]="columns"
       [data]="offices()"
       [totalRecords]="offices().length"

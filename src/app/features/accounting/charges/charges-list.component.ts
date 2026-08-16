@@ -50,6 +50,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       title="nav.charges"
       helpTextKey="HELP.CHARGES_DESC"
       createButtonLabel="CHARGES.CREATE"
+      createPermission="CREATE_CHARGE"
       [columns]="columns"
       [data]="charges()"
       [totalRecords]="charges().length"

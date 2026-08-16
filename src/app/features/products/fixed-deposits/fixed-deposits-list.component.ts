@@ -50,6 +50,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="Fixed Deposit Accounts"
       helpTextKey="HELP.FIXED_DEPOSITS_DESC"
       createButtonLabel="FIXED_DEPOSITS.CREATE"
+      createPermission="CREATE_FIXEDDEPOSITACCOUNT"
       [columns]="columns"
       [data]="accounts()"
       [totalRecords]="accounts().length"

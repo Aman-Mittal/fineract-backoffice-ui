@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { permissionGuard } from './core/guards/permission.guard';
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout.component';
@@ -47,23 +48,38 @@ export const routes: Routes = [
           ),
       },
       {
+        // Where `permissionGuard` sends a user it refuses. Deliberately carries no `data.permissions`
+        // of its own: a refusal that could itself be refused would loop. It stays inside the
+        // authenticated shell so the user keeps the navigation and can go somewhere they are allowed.
+        path: 'forbidden',
+        title: 'ACCESS_DENIED.TITLE',
+        loadComponent: () =>
+          import('./features/errors/access-denied.component').then((m) => m.AccessDeniedComponent),
+      },
+      {
         path: 'fineract-mfe',
         loadComponent: () =>
           loadRemoteModule('fineract-mfe', './Component').then((m) => m.FineractMfeComponent),
       },
       {
         path: 'clients',
+        canActivate: [authGuard, permissionGuard],
+        data: { permissions: 'READ_CLIENT' },
         title: 'nav.clients',
         loadChildren: () =>
           import('./features/clients/clients.routes').then((m) => m.CLIENTS_ROUTES),
       },
       {
         path: 'groups',
+        canActivate: [authGuard, permissionGuard],
+        data: { permissions: 'READ_GROUP' },
         title: 'nav.groups',
         loadChildren: () => import('./features/groups/groups.routes').then((m) => m.GROUPS_ROUTES),
       },
       {
         path: 'centers',
+        canActivate: [authGuard, permissionGuard],
+        data: { permissions: 'READ_CENTER' },
         title: 'nav.centers',
         loadChildren: () =>
           import('./features/centers/centers.routes').then((m) => m.CENTERS_ROUTES),
@@ -100,6 +116,8 @@ export const routes: Routes = [
       },
       {
         path: 'loans',
+        canActivate: [authGuard, permissionGuard],
+        data: { permissions: 'READ_LOAN' },
         title: 'nav.loans',
         loadChildren: () => import('./features/loans/loans.routes').then((m) => m.LOANS_ROUTES),
       },
@@ -122,6 +140,8 @@ export const routes: Routes = [
       },
       {
         path: 'reporting',
+        canActivate: [authGuard, permissionGuard],
+        data: { permissions: 'READ_REPORT' },
         title: 'nav.reporting',
         loadChildren: () =>
           import('./features/reporting/reporting.routes').then((m) => m.REPORTING_ROUTES),
@@ -155,12 +175,13 @@ export const routes: Routes = [
       },
       {
         path: 'collection-sheet',
+        canActivate: [authGuard, permissionGuard],
+        data: { permissions: 'READ_COLLECTIONSHEET' },
         title: 'COLLECTION_SHEET.TITLE',
         loadComponent: () =>
           import('./features/collection-sheet/collection-sheet.component').then(
             (m) => m.CollectionSheetComponent,
           ),
-        canActivate: [authGuard],
       },
       {
         path: 'notifications',

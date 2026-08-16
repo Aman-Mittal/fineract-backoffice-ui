@@ -56,6 +56,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="Recurring Deposit Accounts"
       helpTextKey="HELP.RECURRING_DEPOSITS_DESC"
       createButtonLabel="RECURRING_DEPOSITS.CREATE"
+      createPermission="CREATE_RECURRINGDEPOSITACCOUNT"
       [columns]="columns"
       [data]="accounts()"
       [totalRecords]="accounts().length"

@@ -80,7 +80,7 @@ import {
               headerActions
               color="primary"
               [routerLink]="['ranges', 'create']"
-              *appHasPermission="'CREATE_DELINQUENCYRANGE'"
+              *appHasPermission="'CREATE_DELINQUENCY_RANGE'"
             >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'SYSTEM.CREATE_RANGE' | translate }}
@@ -92,7 +92,7 @@ import {
                   fill="clear"
                   color="primary"
                   [routerLink]="['ranges', 'edit', row.id]"
-                  *appHasPermission="'UPDATE_DELINQUENCYRANGE'"
+                  *appHasPermission="'UPDATE_DELINQUENCY_RANGE'"
                   [appTooltip]="'COMMON.EDIT' | translate"
                 >
                   <ion-icon name="create-outline"></ion-icon>
@@ -101,7 +101,7 @@ import {
                   fill="clear"
                   color="danger"
                   (click)="onDeleteRange(row.id)"
-                  *appHasPermission="'DELETE_DELINQUENCYRANGE'"
+                  *appHasPermission="'DELETE_DELINQUENCY_RANGE'"
                   [appTooltip]="'COMMON.DELETE' | translate"
                 >
                   <ion-icon name="trash-outline"></ion-icon>
@@ -124,7 +124,7 @@ import {
               headerActions
               color="primary"
               [routerLink]="['buckets', 'create']"
-              *appHasPermission="'CREATE_DELINQUENCYBUCKET'"
+              *appHasPermission="'CREATE_DELINQUENCY_BUCKET'"
             >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'SYSTEM.CREATE_BUCKET' | translate }}
@@ -142,7 +142,7 @@ import {
                   fill="clear"
                   color="primary"
                   [routerLink]="['buckets', 'edit', row.id]"
-                  *appHasPermission="'UPDATE_DELINQUENCYBUCKET'"
+                  *appHasPermission="'UPDATE_DELINQUENCY_BUCKET'"
                   [appTooltip]="'COMMON.EDIT' | translate"
                 >
                   <ion-icon name="create-outline"></ion-icon>
@@ -151,7 +151,7 @@ import {
                   fill="clear"
                   color="danger"
                   (click)="onDeleteBucket(row.id)"
-                  *appHasPermission="'DELETE_DELINQUENCYBUCKET'"
+                  *appHasPermission="'DELETE_DELINQUENCY_BUCKET'"
                   [appTooltip]="'COMMON.DELETE' | translate"
                 >
                   <ion-icon name="trash-outline"></ion-icon>

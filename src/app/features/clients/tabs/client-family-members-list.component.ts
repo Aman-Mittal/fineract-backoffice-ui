@@ -48,7 +48,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       <ion-button
         color="primary"
         [routerLink]="['/clients', clientId(), 'family-members', 'create']"
-        *appHasPermission="'CREATE_CLIENTFAMILYMEMBER'"
+        *appHasPermission="'CREATE_FAMILYMEMBERS'"
       >
         <ion-icon name="add-outline"></ion-icon>
         {{ 'CLIENTS.ADD_FAMILY_MEMBER' | translate }}
@@ -71,7 +71,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
             fill="clear"
             color="primary"
             [routerLink]="['/clients', clientId(), 'family-members', 'edit', row.id]"
-            *appHasPermission="'UPDATE_CLIENTFAMILYMEMBER'"
+            *appHasPermission="'UPDATE_FAMILYMEMBERS'"
             [appTooltip]="'COMMON.EDIT' | translate"
           >
             <ion-icon name="create-outline"></ion-icon>
@@ -80,7 +80,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
             fill="clear"
             color="danger"
             (click)="onDelete(row.id)"
-            *appHasPermission="'DELETE_CLIENTFAMILYMEMBER'"
+            *appHasPermission="'DELETE_FAMILYMEMBERS'"
             [appTooltip]="'COMMON.DELETE' | translate"
           >
             <ion-icon name="trash-outline"></ion-icon>

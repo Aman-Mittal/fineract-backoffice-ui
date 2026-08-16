@@ -46,6 +46,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       title="nav.provisioningCriteria"
       helpTextKey="HELP.PROVISIONING_CRITERIA_DESC"
       createButtonLabel="PROVISIONING_CRITERIA.CREATE"
+      createPermission="CREATE_PROVISIONCRITERIA"
       [columns]="columns"
       [data]="criteria()"
       [totalRecords]="criteria().length"
