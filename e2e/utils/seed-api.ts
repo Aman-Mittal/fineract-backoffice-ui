@@ -939,3 +939,125 @@ export async function statusAs(
     await context.dispose();
   }
 }
+
+export interface SeededJournalEntry {
+  /** The id of one line, which is what the detail route takes. */
+  entryId: number;
+  /** The id of the transaction, which is what reversal takes. */
+  transactionId: string;
+  debitAccountName: string;
+  creditAccountName: string;
+}
+
+/**
+ * A manual journal entry that can actually be reversed.
+ *
+ * Reversal is refused for system-generated entries — those written by the platform behind a loan
+ * or savings transaction — so a spec covering the reverse action cannot reuse whatever the other
+ * specs happen to have posted. It has to make one by hand, which is what this does.
+ */
+export async function seedManualJournalEntry(
+  api: APIRequestContext,
+  namePrefix = 'E2EJournal',
+): Promise<SeededJournalEntry> {
+  const suffix = seedSuffix();
+  const debitAccountName = `${namePrefix} Cash ${suffix}`;
+  const creditAccountName = `${namePrefix} Income ${suffix}`;
+
+  const { resourceId: debitId } = await post<{ resourceId: number }>(api, '/glaccounts', {
+    name: debitAccountName,
+    glCode: `E2E-D-${suffix}`,
+    type: 1,
+    usage: 1,
+    manualEntriesAllowed: true,
+  });
+  const { resourceId: creditId } = await post<{ resourceId: number }>(api, '/glaccounts', {
+    name: creditAccountName,
+    glCode: `E2E-C-${suffix}`,
+    type: 4,
+    usage: 1,
+    manualEntriesAllowed: true,
+  });
+
+  const { transactionId } = await post<{ transactionId: string }>(api, '/journalentries', {
+    officeId: 1,
+    currencyCode: 'USD',
+    transactionDate: fineractDate(),
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+    comments: 'Seeded for reversal coverage',
+    debits: [{ glAccountId: debitId, amount: 100 }],
+    credits: [{ glAccountId: creditId, amount: 100 }],
+  });
+
+  const page = await get<{ pageItems: { id: number }[] }>(
+    api,
+    `/journalentries?transactionId=${transactionId}`,
+  );
+  return {
+    entryId: page.pageItems[0].id,
+    transactionId,
+    debitAccountName,
+    creditAccountName,
+  };
+}
+
+export interface SeededReportDefinition {
+  reportId: number;
+  reportName: string;
+}
+
+/** A tenant report definition — the only kind the platform allows to be edited or deleted. */
+export async function seedReportDefinition(
+  api: APIRequestContext,
+  namePrefix = 'E2EReportDef',
+): Promise<SeededReportDefinition> {
+  const reportName = `${namePrefix} ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/reports', {
+    reportName,
+    reportType: 'Table',
+    reportCategory: 'Client',
+    description: 'Seeded for report definition coverage',
+    reportSql: 'select 1 as one',
+    useReport: true,
+    reportParameters: [],
+  });
+  return { reportId: resourceId, reportName };
+}
+
+/**
+ * A loan left in "Submitted and pending approval", which is what an approval queue is made of.
+ *
+ * `seedActiveLoan` approves and disburses; a queue needs the opposite, so this stops at submission.
+ */
+export async function seedPendingLoan(
+  api: APIRequestContext,
+  namePrefix = 'E2EQueue',
+): Promise<{ loanId: number; clientName: string; accountNo: string }> {
+  const client = await seedClient(api, namePrefix);
+  const product = await seedLoanProduct(api, namePrefix);
+
+  const { loanId } = await post<{ loanId: number }>(api, '/loans', {
+    clientId: client.clientId,
+    productId: product.productId,
+    principal: 1000,
+    loanTermFrequency: 6,
+    loanTermFrequencyType: 2,
+    numberOfRepayments: 6,
+    repaymentEvery: 1,
+    repaymentFrequencyType: 2,
+    interestRatePerPeriod: 2,
+    amortizationType: 1,
+    interestType: 0,
+    interestCalculationPeriodType: 1,
+    transactionProcessingStrategyCode: 'mifos-standard-strategy',
+    expectedDisbursementDate: fineractDate(),
+    submittedOnDate: fineractDate(),
+    loanType: 'individual',
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+
+  const loan = await get<{ accountNo: string }>(api, `/loans/${loanId}`);
+  return { loanId, clientName: client.displayName, accountNo: loan.accountNo };
+}

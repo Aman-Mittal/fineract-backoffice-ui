@@ -28,6 +28,7 @@ import {
   DocumentsService,
   ClientFamilyMemberService,
   ClientIdentifierService,
+  ShareAccountService,
 } from '../../api';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -47,6 +48,7 @@ describe('ClientViewComponent', () => {
   let familyMemberServiceSpy: jasmine.SpyObj<ClientFamilyMemberService>;
   let identifierServiceSpy: jasmine.SpyObj<ClientIdentifierService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let shareAccountServiceSpy: jasmine.SpyObj<ShareAccountService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
@@ -70,6 +72,9 @@ describe('ClientViewComponent', () => {
     identifierServiceSpy = jasmine.createSpyObj('ClientIdentifierService', [
       'getClientsClientIdIdentifiers',
     ]);
+
+    shareAccountServiceSpy = jasmine.createSpyObj('ShareAccountService', ['getAccountsType']);
+    shareAccountServiceSpy.getAccountsType.and.returnValue(of({ pageItems: [] }) as any);
 
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
@@ -96,6 +101,7 @@ describe('ClientViewComponent', () => {
         { provide: ClientFamilyMemberService, useValue: familyMemberServiceSpy },
         { provide: ClientIdentifierService, useValue: identifierServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: ShareAccountService, useValue: shareAccountServiceSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
@@ -146,5 +152,62 @@ describe('ClientViewComponent', () => {
     expect(clientServiceSpy.getClientsClientId).toHaveBeenCalledWith(123);
     expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(123);
     expect(component.client()?.displayName).toBe('John Doe');
+  });
+
+  describe('deposit accounts', () => {
+    /**
+     * The platform returns savings, fixed deposits and recurring deposits in one array, told
+     * apart only by `depositType.id` — 100, 200 and 300, confirmed by opening one of each against
+     * a running Fineract. Before this split all three were listed as savings accounts and linked
+     * to the savings screen.
+     */
+    beforeEach(() => {
+      clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+        of({
+          loanAccounts: [] as any,
+          savingsAccounts: [
+            { id: 2, accountNo: '2', depositType: { id: 100, value: 'Savings' } },
+            { id: 6, accountNo: '6', depositType: { id: 200, value: 'Fixed Deposit' } },
+            { id: 7, accountNo: '7', depositType: { id: 300, value: 'Recurring Deposit' } },
+          ] as any,
+        }) as any,
+      );
+      component.loadClientAccounts();
+    });
+
+    it('keeps only true savings on the savings tab', () => {
+      expect(component.plainSavingsAccounts().map((account) => account.id)).toEqual([2]);
+    });
+
+    it('separates fixed from recurring deposits', () => {
+      expect(component.fixedDepositAccounts().map((account) => account.id)).toEqual([6]);
+      expect(component.recurringDepositAccounts().map((account) => account.id)).toEqual([7]);
+    });
+
+    it('treats an account with no deposit type as savings, which is what it is', () => {
+      clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+        of({ savingsAccounts: [{ id: 11, accountNo: '11' }] as any }) as any,
+      );
+      component.loadClientAccounts();
+
+      expect(component.plainSavingsAccounts().map((account) => account.id)).toEqual([11]);
+    });
+  });
+
+  describe('share accounts', () => {
+    it('shows only the accounts belonging to this client', () => {
+      shareAccountServiceSpy.getAccountsType.and.returnValue(
+        of({
+          pageItems: [
+            { id: 1, accountNo: '000000001', clientId: 123, productName: 'Shares' },
+            { id: 2, accountNo: '000000002', clientId: 999, productName: 'Shares' },
+          ],
+        }) as any,
+      );
+
+      component.loadClientAccounts();
+
+      expect(component.shareAccounts().map((account) => account.id)).toEqual([1]);
+    });
   });
 });

@@ -100,124 +100,128 @@ interface ReportDefinitionPayload {
         </ion-card-header>
 
         <ion-card-content>
-          @if (isCoreReport()) {
-            <p class="note" role="note" data-testid="report-definition-core-note">
-              {{ 'REPORT_DEFINITIONS.CORE_READ_ONLY' | appTranslate }}
-            </p>
-          }
+          @if (!isModelReady()) {
+            <ion-spinner data-testid="report-definition-loading"></ion-spinner>
+          } @else {
+            @if (isCoreReport()) {
+              <p class="note" role="note" data-testid="report-definition-core-note">
+                {{ 'REPORT_DEFINITIONS.CORE_READ_ONLY' | appTranslate }}
+              </p>
+            }
 
-          <div class="form-grid">
-            <ion-item fill="outline">
-              <ion-label position="stacked">{{ 'COMMON.NAME' | appTranslate }}</ion-label>
-              <ion-input
-                name="reportName"
-                data-testid="report-definition-name"
-                [attr.aria-label]="'COMMON.NAME' | appTranslate"
-                [disabled]="isCoreReport()"
-                [(ngModel)]="report.reportName"
-              ></ion-input>
-            </ion-item>
-
-            <ion-item fill="outline">
-              <ion-label position="stacked">{{ 'COMMON.TYPE' | appTranslate }}</ion-label>
-              <ion-select
-                interface="popover"
-                name="reportType"
-                data-testid="report-definition-type"
-                [attr.aria-label]="'COMMON.TYPE' | appTranslate"
-                [disabled]="isCoreReport()"
-                [(ngModel)]="report.reportType"
-              >
-                @for (type of reportTypes(); track type) {
-                  <ion-select-option [value]="type">{{ type }}</ion-select-option>
-                }
-              </ion-select>
-            </ion-item>
-
-            @if (report.reportType === 'Chart') {
+            <div class="form-grid">
               <ion-item fill="outline">
-                <ion-label position="stacked">{{
-                  'REPORT_DEFINITIONS.SUB_TYPE' | appTranslate
-                }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.NAME' | appTranslate }}</ion-label>
+                <ion-input
+                  name="reportName"
+                  data-testid="report-definition-name"
+                  [attr.aria-label]="'COMMON.NAME' | appTranslate"
+                  [disabled]="isCoreReport()"
+                  [(ngModel)]="report.reportName"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'COMMON.TYPE' | appTranslate }}</ion-label>
                 <ion-select
                   interface="popover"
-                  name="reportSubType"
-                  data-testid="report-definition-sub-type"
-                  [attr.aria-label]="'REPORT_DEFINITIONS.SUB_TYPE' | appTranslate"
+                  name="reportType"
+                  data-testid="report-definition-type"
+                  [attr.aria-label]="'COMMON.TYPE' | appTranslate"
                   [disabled]="isCoreReport()"
-                  [(ngModel)]="report.reportSubType"
+                  [(ngModel)]="report.reportType"
                 >
-                  @for (subType of reportSubTypes(); track subType) {
-                    <ion-select-option [value]="subType">{{ subType }}</ion-select-option>
+                  @for (type of reportTypes(); track type) {
+                    <ion-select-option [value]="type">{{ type }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
-            }
 
-            <ion-item fill="outline">
-              <ion-label position="stacked">{{
-                'REPORT_DEFINITIONS.CATEGORY' | appTranslate
-              }}</ion-label>
-              <ion-input
-                name="reportCategory"
-                data-testid="report-definition-category"
-                [attr.aria-label]="'REPORT_DEFINITIONS.CATEGORY' | appTranslate"
-                [disabled]="isCoreReport()"
-                [(ngModel)]="report.reportCategory"
-              ></ion-input>
-            </ion-item>
-
-            <ion-item fill="outline" class="span-two">
-              <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | appTranslate }}</ion-label>
-              <ion-textarea
-                name="description"
-                data-testid="report-definition-description"
-                [attr.aria-label]="'COMMON.DESCRIPTION' | appTranslate"
-                [disabled]="isCoreReport()"
-                [(ngModel)]="report.description"
-              ></ion-textarea>
-            </ion-item>
-
-            <ion-item fill="outline" class="span-two">
-              <ion-label position="stacked">{{
-                'REPORT_DEFINITIONS.SQL' | appTranslate
-              }}</ion-label>
-              <ion-textarea
-                name="reportSql"
-                rows="8"
-                data-testid="report-definition-sql"
-                [attr.aria-label]="'REPORT_DEFINITIONS.SQL' | appTranslate"
-                [disabled]="isCoreReport()"
-                [(ngModel)]="report.reportSql"
-              ></ion-textarea>
-            </ion-item>
-
-            <ion-item fill="outline">
-              <ion-label>{{ 'REPORT_DEFINITIONS.IN_USE' | appTranslate }}</ion-label>
-              <ion-toggle
-                name="useReport"
-                data-testid="report-definition-in-use"
-                [(ngModel)]="report.useReport"
-              ></ion-toggle>
-            </ion-item>
-          </div>
-
-          <div class="actions">
-            <ion-button fill="outline" (click)="onCancel()">
-              {{ 'COMMON.CANCEL' | appTranslate }}
-            </ion-button>
-            <ion-button
-              data-testid="report-definition-save"
-              [disabled]="!canSave || isSaving()"
-              (click)="onSave()"
-            >
-              @if (isSaving()) {
-                <ion-spinner name="dots"></ion-spinner>
-              } @else {
-                {{ 'COMMON.SAVE' | appTranslate }}
+              @if (report.reportType === 'Chart') {
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'REPORT_DEFINITIONS.SUB_TYPE' | appTranslate
+                  }}</ion-label>
+                  <ion-select
+                    interface="popover"
+                    name="reportSubType"
+                    data-testid="report-definition-sub-type"
+                    [attr.aria-label]="'REPORT_DEFINITIONS.SUB_TYPE' | appTranslate"
+                    [disabled]="isCoreReport()"
+                    [(ngModel)]="report.reportSubType"
+                  >
+                    @for (subType of reportSubTypes(); track subType) {
+                      <ion-select-option [value]="subType">{{ subType }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
               }
-            </ion-button>
-          </div>
+
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'REPORT_DEFINITIONS.CATEGORY' | appTranslate
+                }}</ion-label>
+                <ion-input
+                  name="reportCategory"
+                  data-testid="report-definition-category"
+                  [attr.aria-label]="'REPORT_DEFINITIONS.CATEGORY' | appTranslate"
+                  [disabled]="isCoreReport()"
+                  [(ngModel)]="report.reportCategory"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item fill="outline" class="span-two">
+                <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | appTranslate }}</ion-label>
+                <ion-textarea
+                  name="description"
+                  data-testid="report-definition-description"
+                  [attr.aria-label]="'COMMON.DESCRIPTION' | appTranslate"
+                  [disabled]="isCoreReport()"
+                  [(ngModel)]="report.description"
+                ></ion-textarea>
+              </ion-item>
+
+              <ion-item fill="outline" class="span-two">
+                <ion-label position="stacked">{{
+                  'REPORT_DEFINITIONS.SQL' | appTranslate
+                }}</ion-label>
+                <ion-textarea
+                  name="reportSql"
+                  rows="8"
+                  data-testid="report-definition-sql"
+                  [attr.aria-label]="'REPORT_DEFINITIONS.SQL' | appTranslate"
+                  [disabled]="isCoreReport()"
+                  [(ngModel)]="report.reportSql"
+                ></ion-textarea>
+              </ion-item>
+
+              <ion-item fill="outline">
+                <ion-label>{{ 'REPORT_DEFINITIONS.IN_USE' | appTranslate }}</ion-label>
+                <ion-toggle
+                  name="useReport"
+                  data-testid="report-definition-in-use"
+                  [(ngModel)]="report.useReport"
+                ></ion-toggle>
+              </ion-item>
+            </div>
+
+            <div class="actions">
+              <ion-button fill="outline" (click)="onCancel()">
+                {{ 'COMMON.CANCEL' | appTranslate }}
+              </ion-button>
+              <ion-button
+                data-testid="report-definition-save"
+                [disabled]="!canSave || isSaving()"
+                (click)="onSave()"
+              >
+                @if (isSaving()) {
+                  <ion-spinner name="dots"></ion-spinner>
+                } @else {
+                  {{ 'COMMON.SAVE' | appTranslate }}
+                }
+              </ion-button>
+            </div>
+          }
         </ion-card-content>
       </ion-card>
     </div>
@@ -259,6 +263,16 @@ export class ReportDefinitionFormComponent implements OnInit {
   readonly isEdit = signal(false);
   readonly isCoreReport = signal(false);
 
+  /**
+   * Whether the model the form binds to is final.
+   *
+   * Editing loads the record after the view would otherwise exist, and `[(ngModel)]` writes its
+   * value back in a microtask — the first change-detection pass reads undefined and the
+   * verification pass reads the loaded name, which is NG0100. Same cause, same remedy as the loan
+   * form: bind the fields only once there is something to bind them to.
+   */
+  readonly isModelReady = signal(false);
+
   report: ReportDefinitionPayload = { reportType: 'Table', useReport: true, reportParameters: [] };
 
   private reportId: number | undefined;
@@ -287,6 +301,8 @@ export class ReportDefinitionFormComponent implements OnInit {
       this.reportId = Number(id);
       this.isEdit.set(true);
       this.load(this.reportId);
+    } else {
+      this.isModelReady.set(true);
     }
   }
 
@@ -304,7 +320,10 @@ export class ReportDefinitionFormComponent implements OnInit {
           useReport: report.useReport,
           reportParameters: report.reportParameters ?? [],
         };
+        this.isModelReady.set(true);
       },
+      // A failed load must still leave a usable screen rather than a spinner.
+      error: () => this.isModelReady.set(true),
     });
   }
 
