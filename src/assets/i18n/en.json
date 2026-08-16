@@ -331,7 +331,8 @@
     "WITHDRAWAL_DATE": "Withdrawal Date",
     "WITHDRAWAL_REASON": "Withdrawal Reason",
     "WITHDRAWN_BY_CLIENT": "Withdrawn by client",
-    "WITHDRAW_CLIENT": "Withdraw Client"
+    "WITHDRAW_CLIENT": "Withdraw Client",
+    "ACCOUNT_ACTION": "Account Action"
   },
   "PRODUCTS": {
     "LOAN_PRODUCTS": "Loan Products",
@@ -893,7 +894,9 @@
     "STANDING_INSTRUCTIONS": "Standing Instructions",
     "NO_STANDING_INSTRUCTIONS": "No standing instructions transfer from this account.",
     "TRANSFER_IN": "Into this account",
-    "TRANSFER_OUT": "Out of this account"
+    "TRANSFER_OUT": "Out of this account",
+    "ACCOUNT_DETAILS": "Savings Account Details",
+    "TRANSACTION": "Savings Transaction"
   },
   "USERS": {
     "CREATE": "Create User",
@@ -1378,18 +1381,21 @@
     "SHARES": "Shares",
     "SHARES_HELD": "Shares held",
     "TOTAL_SHARES": "Total Shares",
-    "UNIT_PRICE": "Unit price"
+    "UNIT_PRICE": "Unit price",
+    "ACCOUNT_DETAILS": "Share Account Details"
   },
   "RECURRING_DEPOSITS": {
     "CREATE": "Create Recurring Deposit Account",
     "EDIT": "Edit Recurring Deposit Account",
     "INHERIT_CALENDAR": "Inherit Calendar",
     "RECURRING_FREQUENCY": "Recurring Frequency",
-    "FREQUENCY_TYPE": "Frequency Type"
+    "FREQUENCY_TYPE": "Frequency Type",
+    "ACCOUNT_DETAILS": "Recurring Deposit Account Details"
   },
   "FIXED_DEPOSITS": {
     "CREATE": "Create Fixed Deposit Account",
-    "EDIT": "Edit Fixed Deposit Account"
+    "EDIT": "Edit Fixed Deposit Account",
+    "ACCOUNT_DETAILS": "Fixed Deposit Account Details"
   },
   "GUIDE": {
     "DASHBOARD_WELCOME_TITLE": "Welcome to Fineract Backoffice",
