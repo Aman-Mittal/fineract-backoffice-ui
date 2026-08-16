@@ -26,12 +26,14 @@ export const CLIENTS_ROUTES: Routes = [
     path: '',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_CLIENT' },
+    title: 'nav.clients',
     loadComponent: () => import('./clients-list.component').then((m) => m.ClientsListComponent),
   },
   {
     path: 'search',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_CLIENT' },
+    title: 'CLIENT_SEARCH_V2.TITLE',
     loadComponent: () =>
       import('./client-search-v2.component').then((m) => m.ClientSearchV2Component),
   },
@@ -39,24 +41,28 @@ export const CLIENTS_ROUTES: Routes = [
     path: 'create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_CLIENT' },
+    title: 'CLIENTS.CREATE_CLIENT',
     loadComponent: () => import('./client-form.component').then((m) => m.ClientFormComponent),
   },
   {
     path: 'edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_CLIENT' },
+    title: 'CLIENTS.EDIT_CLIENT',
     loadComponent: () => import('./client-form.component').then((m) => m.ClientFormComponent),
   },
   {
     path: 'view/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_CLIENT' },
+    title: 'CLIENTS.DETAILS',
     loadComponent: () => import('./client-view.component').then((m) => m.ClientViewComponent),
   },
   {
     path: ':clientId/identifiers/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_CLIENTIDENTIFIER' },
+    title: 'CLIENTS.ADD_IDENTIFIER',
     loadComponent: () =>
       import('./kyc/client-identifier-form.component').then((m) => m.ClientIdentifierFormComponent),
   },
@@ -64,6 +70,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/identifiers/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_CLIENTIDENTIFIER' },
+    title: 'CLIENTS.EDIT_IDENTIFIER',
     loadComponent: () =>
       import('./kyc/client-identifier-form.component').then((m) => m.ClientIdentifierFormComponent),
   },
@@ -71,6 +78,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/addresses/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_ADDRESS' },
+    title: 'CLIENTS.ADD_ADDRESS',
     loadComponent: () =>
       import('./kyc/client-address-form.component').then((m) => m.ClientAddressFormComponent),
   },
@@ -78,6 +86,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/addresses/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_ADDRESS' },
+    title: 'CLIENTS.EDIT_ADDRESS',
     loadComponent: () =>
       import('./kyc/client-address-form.component').then((m) => m.ClientAddressFormComponent),
   },
@@ -85,6 +94,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/family-members/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_FAMILYMEMBERS' },
+    title: 'CLIENTS.ADD_FAMILY_MEMBER',
     loadComponent: () =>
       import('./kyc/client-family-member-form.component').then(
         (m) => m.ClientFamilyMemberFormComponent,
@@ -94,6 +104,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/family-members/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_FAMILYMEMBERS' },
+    title: 'CLIENTS.EDIT_FAMILY_MEMBER',
     loadComponent: () =>
       import('./kyc/client-family-member-form.component').then(
         (m) => m.ClientFamilyMemberFormComponent,
@@ -103,6 +114,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/notes/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_CLIENTNOTE' },
+    title: 'CLIENTS.ADD_NOTE',
     loadComponent: () =>
       import('./kyc/client-note-form.component').then((m) => m.ClientNoteFormComponent),
   },
@@ -110,6 +122,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/notes/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_CLIENTNOTE' },
+    title: 'CLIENTS.EDIT_NOTE',
     loadComponent: () =>
       import('./kyc/client-note-form.component').then((m) => m.ClientNoteFormComponent),
   },
@@ -117,6 +130,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/documents/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_DOCUMENT' },
+    title: 'CLIENTS.ADD_DOCUMENT',
     loadComponent: () =>
       import('./kyc/client-document-form.component').then((m) => m.ClientDocumentFormComponent),
   },
@@ -124,6 +138,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/documents/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_DOCUMENT' },
+    title: 'CLIENTS.EDIT_DOCUMENT',
     loadComponent: () =>
       import('./kyc/client-document-form.component').then((m) => m.ClientDocumentFormComponent),
   },
@@ -131,6 +146,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/charges',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_CLIENTCHARGE' },
+    title: 'CLIENT_CHARGES.TITLE',
     loadComponent: () =>
       import('./charges/client-charges-list.component').then((m) => m.ClientChargesListComponent),
   },
@@ -138,11 +154,13 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/charges/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_CLIENTCHARGE' },
+    title: 'CLIENT_CHARGES.CREATE',
     loadComponent: () =>
       import('./charges/client-charge-form.component').then((m) => m.ClientChargeFormComponent),
   },
   {
     path: ':clientId/collaterals',
+    title: 'CLIENT_COLLATERAL.TITLE',
     loadComponent: () =>
       import('./collateral/client-collateral-list.component').then(
         (m) => m.ClientCollateralListComponent,
@@ -152,6 +170,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/collaterals/create',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'CREATE_CLIENT_COLLATERAL_PRODUCT' },
+    title: 'CLIENT_COLLATERAL.CREATE',
     loadComponent: () =>
       import('./collateral/client-collateral-form.component').then(
         (m) => m.ClientCollateralFormComponent,
@@ -161,6 +180,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/collaterals/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_CLIENT_COLLATERAL_PRODUCT' },
+    title: 'CLIENT_COLLATERAL.EDIT',
     loadComponent: () =>
       import('./collateral/client-collateral-form.component').then(
         (m) => m.ClientCollateralFormComponent,
@@ -170,6 +190,7 @@ export const CLIENTS_ROUTES: Routes = [
     path: ':clientId/transactions',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_CLIENT' },
+    title: 'CLIENT_TRANSACTIONS.TITLE',
     loadComponent: () =>
       import('./transactions/client-transactions-list.component').then(
         (m) => m.ClientTransactionsListComponent,
