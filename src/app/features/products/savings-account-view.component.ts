@@ -73,6 +73,25 @@ import {
   resolveAccountRoutePrefix,
 } from '../../core/utils/account-type-resolver';
 
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const SAVINGS_TAB = {
+  overview: 'overview',
+  transactions: 'transactions',
+  charges: 'charges',
+  notes: 'notes',
+  documents: 'documents',
+  standingInstructions: 'standingInstructions',
+  customFields: 'customFields',
+} as const;
+
+export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
+
 @Component({
   selector: 'app-savings-account-view',
   standalone: true,
@@ -345,30 +364,33 @@ import {
 
         <!-- Tabs Section -->
         <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-          <ion-segment-button value="0">
+          <ion-segment-button [value]="TAB.overview">
             <ion-label>Overview</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="1" data-testid="savings-tab-transactions">
+          <ion-segment-button [value]="TAB.transactions" data-testid="savings-tab-transactions">
             <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="2">
+          <ion-segment-button [value]="TAB.charges">
             <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="3" data-testid="savings-tab-notes">
+          <ion-segment-button [value]="TAB.notes" data-testid="savings-tab-notes">
             <ion-label>{{ 'SAVINGS.NOTES' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="4" data-testid="savings-tab-documents">
+          <ion-segment-button [value]="TAB.documents" data-testid="savings-tab-documents">
             <ion-label>{{ 'SAVINGS.DOCUMENTS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="5" data-testid="savings-tab-standing-instructions">
+          <ion-segment-button
+            [value]="TAB.standingInstructions"
+            data-testid="savings-tab-standing-instructions"
+          >
             <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
           </ion-segment-button>
-          <ion-segment-button value="6" data-testid="savings-tab-custom-fields">
+          <ion-segment-button [value]="TAB.customFields" data-testid="savings-tab-custom-fields">
             <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
-        @if (activeTab() === '0') {
+        @if (activeTab() === TAB.overview) {
           <div class="tab-content">
             <div class="info-grid">
               <ion-card class="info-card">
@@ -432,7 +454,7 @@ import {
             </div>
           </div>
         }
-        @if (activeTab() === '1') {
+        @if (activeTab() === TAB.transactions) {
           <div class="tab-content">
             <ion-card class="table-card">
               <ion-card-content>
@@ -524,7 +546,7 @@ import {
             </ion-card>
           </div>
         }
-        @if (activeTab() === '2') {
+        @if (activeTab() === TAB.charges) {
           <div class="tab-content">
             <ion-card class="table-card">
               <ion-card-content>
@@ -566,13 +588,13 @@ import {
           </div>
         }
 
-        @if (activeTab() === '3') {
+        @if (activeTab() === TAB.notes) {
           <div class="tab-content">
             <app-entity-notes resourceType="savings" [resourceId]="accountId"></app-entity-notes>
           </div>
         }
 
-        @if (activeTab() === '4') {
+        @if (activeTab() === TAB.documents) {
           <div class="tab-content">
             <app-entity-documents
               entityType="savings"
@@ -581,7 +603,7 @@ import {
           </div>
         }
 
-        @if (activeTab() === '5') {
+        @if (activeTab() === TAB.standingInstructions) {
           <div class="tab-content">
             <app-savings-standing-instructions-tab
               [savingsAccountId]="accountId"
@@ -590,7 +612,7 @@ import {
           </div>
         }
 
-        @if (activeTab() === '6') {
+        @if (activeTab() === TAB.customFields) {
           <div class="tab-content">
             <app-entity-datatables
               apptableName="m_savings_account"
@@ -758,7 +780,10 @@ import {
 })
 export class SavingsAccountViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = SAVINGS_TAB;
+
+  readonly activeTab = signal<SavingsTab>(SAVINGS_TAB.overview);
   private readonly savingsService = inject(SavingsAccountService);
   private readonly savingsTransactionsService = inject(SavingsAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);

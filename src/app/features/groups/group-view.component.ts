@@ -104,6 +104,25 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
  * render empty against a group that has members. See {@link GroupDetail} for why the response is
  * typed here rather than taken from the generated client.
  */
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const GROUP_TAB = {
+  general: 'general',
+  members: 'members',
+  committee: 'committee',
+  notes: 'notes',
+  accounts: 'accounts',
+  documents: 'documents',
+  customFields: 'customFields',
+} as const;
+
+export type GroupTab = (typeof GROUP_TAB)[keyof typeof GROUP_TAB];
+
 @Component({
   selector: 'app-group-view',
   standalone: true,
@@ -234,30 +253,30 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
 
         <div class="content-body">
           <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-            <ion-segment-button value="0" data-testid="group-tab-general">
+            <ion-segment-button [value]="TAB.general" data-testid="group-tab-general">
               <ion-label>{{ 'GROUPS.GENERAL' | appTranslate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="1" data-testid="group-tab-members">
+            <ion-segment-button [value]="TAB.members" data-testid="group-tab-members">
               <ion-label>{{ 'GROUPS.MEMBERS' | appTranslate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="2" data-testid="group-tab-committee">
+            <ion-segment-button [value]="TAB.committee" data-testid="group-tab-committee">
               <ion-label>{{ 'GROUPS.COMMITTEE' | appTranslate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="4" data-testid="group-tab-accounts">
+            <ion-segment-button [value]="TAB.accounts" data-testid="group-tab-accounts">
               <ion-label>{{ 'COMMON.ACCOUNTS' | appTranslate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="5" data-testid="group-tab-documents">
+            <ion-segment-button [value]="TAB.documents" data-testid="group-tab-documents">
               <ion-label>{{ 'SAVINGS.DOCUMENTS' | appTranslate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="6" data-testid="group-tab-custom-fields">
+            <ion-segment-button [value]="TAB.customFields" data-testid="group-tab-custom-fields">
               <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="3" data-testid="group-tab-notes">
+            <ion-segment-button [value]="TAB.notes" data-testid="group-tab-notes">
               <ion-label>{{ 'GROUPS.NOTES' | appTranslate }}</ion-label>
             </ion-segment-button>
           </ion-segment>
 
-          @if (activeTab() === '0') {
+          @if (activeTab() === TAB.general) {
             <div class="tab-content">
               <ion-card>
                 <ion-card-header>
@@ -301,7 +320,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
             </div>
           }
 
-          @if (activeTab() === '1') {
+          @if (activeTab() === TAB.members) {
             <div class="tab-content">
               <div class="tab-actions">
                 <ion-button
@@ -343,7 +362,7 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
             </div>
           }
 
-          @if (activeTab() === '2') {
+          @if (activeTab() === TAB.committee) {
             <div class="tab-content">
               <div class="tab-actions">
                 <ion-button
@@ -385,25 +404,25 @@ const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
             </div>
           }
 
-          @if (activeTab() === '3') {
+          @if (activeTab() === TAB.notes) {
             <div class="tab-content">
               <app-group-notes-list [groupId]="groupId"></app-group-notes-list>
             </div>
           }
 
-          @if (activeTab() === '4') {
+          @if (activeTab() === TAB.accounts) {
             <div class="tab-content">
               <app-group-accounts-tab [groupId]="groupId"></app-group-accounts-tab>
             </div>
           }
 
-          @if (activeTab() === '5') {
+          @if (activeTab() === TAB.documents) {
             <div class="tab-content">
               <app-entity-documents entityType="groups" [entityId]="groupId"></app-entity-documents>
             </div>
           }
 
-          @if (activeTab() === '6') {
+          @if (activeTab() === TAB.customFields) {
             <div class="tab-content">
               <app-entity-datatables
                 apptableName="m_group"
@@ -503,6 +522,9 @@ export class GroupViewComponent implements OnInit {
   readonly group = signal<GroupDetail | null>(null);
   readonly isLoading = signal(false);
   readonly hasError = signal(false);
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = GROUP_TAB;
+
   readonly activeTab = signal<string>(TAB.GENERAL);
 
   /**

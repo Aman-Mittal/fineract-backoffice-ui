@@ -20,7 +20,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ClientViewComponent } from './client-view.component';
+import { CLIENT_TAB, ClientViewComponent } from './client-view.component';
 import {
   ClientService,
   NotesService,
@@ -195,7 +195,7 @@ describe('ClientViewComponent', () => {
   });
 
   describe('share accounts', () => {
-    it('shows only the accounts belonging to this client', () => {
+    beforeEach(() => {
       shareAccountServiceSpy.getAccountsType.and.returnValue(
         of({
           pageItems: [
@@ -204,10 +204,27 @@ describe('ClientViewComponent', () => {
           ],
         }) as any,
       );
+    });
 
+    it('is not fetched until the tab is opened', () => {
       component.loadClientAccounts();
 
+      // Most visits to a client never open this tab, and the request is not free.
+      expect(shareAccountServiceSpy.getAccountsType).not.toHaveBeenCalled();
+    });
+
+    it('shows only the accounts belonging to this client', () => {
+      component.onTabChange(CLIENT_TAB.shares);
+
       expect(component.shareAccounts().map((account) => account.id)).toEqual([1]);
+    });
+
+    it('does not refetch when the tab is opened again', () => {
+      component.onTabChange(CLIENT_TAB.shares);
+      component.onTabChange(CLIENT_TAB.details);
+      component.onTabChange(CLIENT_TAB.shares);
+
+      expect(shareAccountServiceSpy.getAccountsType).toHaveBeenCalledTimes(1);
     });
   });
 });

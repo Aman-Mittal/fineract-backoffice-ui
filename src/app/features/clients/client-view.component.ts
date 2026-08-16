@@ -32,6 +32,7 @@ import {
 } from '../../api';
 import { StatusBadgeComponent } from '../../shared';
 import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
+import { skipErrorToast } from '../../core/http/http-context';
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 import { ClientActionDialogComponent } from './client-action-dialog.component';
 import {
@@ -112,6 +113,30 @@ interface ShareAccountRow {
   productName?: string;
   status?: { value?: string };
 }
+
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const CLIENT_TAB = {
+  details: 'details',
+  savings: 'savings',
+  loans: 'loans',
+  identifiers: 'identifiers',
+  addresses: 'addresses',
+  familyMembers: 'familyMembers',
+  notes: 'notes',
+  documents: 'documents',
+  customFields: 'customFields',
+  deposits: 'deposits',
+  shares: 'shares',
+  standingInstructions: 'standingInstructions',
+} as const;
+
+export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
 
 @Component({
   selector: 'app-client-view',
@@ -435,46 +460,49 @@ interface ShareAccountRow {
         </ion-card>
 
         <div class="content-body">
-          <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
-            <ion-segment-button value="0">
+          <ion-segment [value]="activeTab()" (ionChange)="onTabChange($any($event).detail.value)">
+            <ion-segment-button [value]="TAB.details">
               <ion-label>{{ 'CLIENTS.DETAILS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="1">
+            <ion-segment-button [value]="TAB.savings">
               <ion-label>{{ 'CLIENTS.SAVINGS_ACCOUNTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="2">
+            <ion-segment-button [value]="TAB.loans">
               <ion-label>{{ 'CLIENTS.LOAN_ACCOUNTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="3">
+            <ion-segment-button [value]="TAB.identifiers">
               <ion-label>{{ 'CLIENTS.IDENTIFIERS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="4">
+            <ion-segment-button [value]="TAB.addresses">
               <ion-label>{{ 'CLIENTS.ADDRESSES' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="5">
+            <ion-segment-button [value]="TAB.familyMembers">
               <ion-label>{{ 'CLIENTS.FAMILY_MEMBERS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="6">
+            <ion-segment-button [value]="TAB.notes">
               <ion-label>{{ 'CLIENTS.NOTES' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="7">
+            <ion-segment-button [value]="TAB.documents">
               <ion-label>{{ 'CLIENTS.DOCUMENTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="8">
+            <ion-segment-button [value]="TAB.customFields">
               <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="9" data-testid="client-tab-deposits">
+            <ion-segment-button [value]="TAB.deposits" data-testid="client-tab-deposits">
               <ion-label>{{ 'CLIENTS.DEPOSIT_ACCOUNTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="10" data-testid="client-tab-shares">
+            <ion-segment-button [value]="TAB.shares" data-testid="client-tab-shares">
               <ion-label>{{ 'CLIENTS.SHARE_ACCOUNTS' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button value="11" data-testid="client-tab-standing-instructions">
+            <ion-segment-button
+              [value]="TAB.standingInstructions"
+              data-testid="client-tab-standing-instructions"
+            >
               <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
             </ion-segment-button>
           </ion-segment>
 
-          @if (activeTab() === '0') {
+          @if (activeTab() === TAB.details) {
             <div class="tab-content">
               <div class="info-grid">
                 <ion-card class="info-card">
@@ -529,7 +557,7 @@ interface ShareAccountRow {
               </div>
             </div>
           }
-          @if (activeTab() === '1') {
+          @if (activeTab() === TAB.savings) {
             <div class="tab-content">
               <ion-card class="table-card">
                 <ion-card-content>
@@ -651,7 +679,7 @@ interface ShareAccountRow {
               </ion-card>
             </div>
           }
-          @if (activeTab() === '2') {
+          @if (activeTab() === TAB.loans) {
             <div class="tab-content">
               <ion-card class="table-card">
                 <ion-card-content>
@@ -758,34 +786,34 @@ interface ShareAccountRow {
               </ion-card>
             </div>
           }
-          @if (activeTab() === '3') {
+          @if (activeTab() === TAB.identifiers) {
             <div class="tab-content">
               <app-client-identifiers-list [clientId]="clientId()"></app-client-identifiers-list>
             </div>
           }
-          @if (activeTab() === '4') {
+          @if (activeTab() === TAB.addresses) {
             <div class="tab-content">
               <app-client-addresses-list [clientId]="clientId()"></app-client-addresses-list>
             </div>
           }
-          @if (activeTab() === '5') {
+          @if (activeTab() === TAB.familyMembers) {
             <div class="tab-content">
               <app-client-family-members-list
                 [clientId]="clientId()"
               ></app-client-family-members-list>
             </div>
           }
-          @if (activeTab() === '6') {
+          @if (activeTab() === TAB.notes) {
             <div class="tab-content">
               <app-client-notes-list [clientId]="clientId()"></app-client-notes-list>
             </div>
           }
-          @if (activeTab() === '7') {
+          @if (activeTab() === TAB.documents) {
             <div class="tab-content">
               <app-client-documents-list [clientId]="clientId()"></app-client-documents-list>
             </div>
           }
-          @if (activeTab() === '8') {
+          @if (activeTab() === TAB.customFields) {
             <div class="tab-content">
               <app-entity-datatables
                 apptableName="m_client"
@@ -794,7 +822,7 @@ interface ShareAccountRow {
             </div>
           }
 
-          @if (activeTab() === '9') {
+          @if (activeTab() === TAB.deposits) {
             <div class="tab-content">
               <h2>{{ 'CLIENTS.FIXED_DEPOSITS' | translate }}</h2>
               @if (fixedDepositAccounts().length === 0) {
@@ -848,7 +876,7 @@ interface ShareAccountRow {
             </div>
           }
 
-          @if (activeTab() === '10') {
+          @if (activeTab() === TAB.shares) {
             <div class="tab-content">
               @if (shareAccounts().length === 0) {
                 <p class="empty-state" data-testid="client-share-accounts-empty">
@@ -876,7 +904,7 @@ interface ShareAccountRow {
             </div>
           }
 
-          @if (activeTab() === '11') {
+          @if (activeTab() === TAB.standingInstructions) {
             <div class="tab-content">
               <app-client-standing-instructions-tab
                 [clientId]="clientId()"
@@ -1044,7 +1072,10 @@ interface ShareAccountRow {
 })
 export class ClientViewComponent implements OnInit {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = CLIENT_TAB;
+
+  readonly activeTab = signal<ClientTab>(CLIENT_TAB.details);
   private readonly clientService = inject(ClientService);
   private readonly notesService = inject(NotesService);
   private readonly route = inject(ActivatedRoute);
@@ -1158,27 +1189,47 @@ export class ClientViewComponent implements OnInit {
       },
       error: (err) => console.error('Failed to load client accounts', err),
     });
-    this.loadShareAccounts();
   }
 
   /**
-   * Share accounts do not come back with the client's other accounts, so they are fetched from
-   * the share account list and matched on `clientId`.
+   * Share accounts, fetched when the tab is opened rather than with the client.
    *
-   * Worth knowing when reading this tab: that list returns only approved and active accounts. A
+   * They do not come back with the client's other accounts, so they need a request of their own —
+   * and most visits to a client never open this tab, so making it eager would add a request to
+   * every one of them. `skipErrorToast` because a tenant that does not use the shares module
+   * should not be told about it in a toast every time a client is opened.
+   *
+   * Worth knowing when reading this tab: the list returns only approved and active accounts. A
    * share application still pending approval is readable by id but absent from the list, so it
    * will not appear here — the platform omits it, this screen does not filter it out.
    */
   private loadShareAccounts(): void {
-    this.shareAccountService.getAccountsType('share', 0, 200).subscribe({
-      next: (response) => {
-        const rows = [
-          ...((response.pageItems as Iterable<ShareAccountRow & { clientId?: number }>) ?? []),
-        ];
-        this.shareAccounts.set(rows.filter((row) => row.clientId === this.clientId()));
-      },
-      error: () => this.shareAccounts.set([]),
-    });
+    if (this.shareAccountsLoaded) {
+      return;
+    }
+    this.shareAccountsLoaded = true;
+    this.shareAccountService
+      .getAccountsType('share', 0, 200, 'body', false, { context: skipErrorToast() })
+      .subscribe({
+        next: (response) => {
+          const rows = [
+            ...((response.pageItems as Iterable<ShareAccountRow & { clientId?: number }>) ?? []),
+          ];
+          this.shareAccounts.set(rows.filter((row) => row.clientId === this.clientId()));
+        },
+        error: () => this.shareAccounts.set([]),
+      });
+  }
+
+  /** Set on the first visit to the shares tab, so re-selecting it does not refetch. */
+  private shareAccountsLoaded = false;
+
+  /** Loads what a tab needs the first time it is opened. */
+  onTabChange(tab: ClientTab): void {
+    this.activeTab.set(tab);
+    if (tab === CLIENT_TAB.shares) {
+      this.loadShareAccounts();
+    }
   }
 
   onEditClient() {

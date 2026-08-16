@@ -46,6 +46,21 @@ import { RequiresPermissionDirective } from '../../../shared';
  * `m_office`. Those custom fields are the reason this screen exists at all: a tenant can register
  * a data table against an office and, without a detail screen, has nowhere to read or write it.
  */
+/**
+ * The tabs on this screen, named.
+ *
+ * They were positional strings — '0', '7' — which say nothing at the point of use and shift
+ * meaning whenever a tab is inserted in the middle. The values are still strings because
+ * `ion-segment` compares them as such.
+ */
+export const OFFICE_TAB = {
+  general: 'general',
+  staff: 'staff',
+  customFields: 'customFields',
+} as const;
+
+export type OfficeTab = (typeof OFFICE_TAB)[keyof typeof OFFICE_TAB];
+
 @Component({
   selector: 'app-office-view',
   standalone: true,
@@ -80,18 +95,18 @@ import { RequiresPermissionDirective } from '../../../shared';
               [value]="activeTab()"
               (ionChange)="activeTab.set($any($event).detail.value)"
             >
-              <ion-segment-button value="0" data-testid="office-tab-general">
+              <ion-segment-button [value]="TAB.general" data-testid="office-tab-general">
                 <ion-label>{{ 'COMMON.GENERAL' | appTranslate }}</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="1" data-testid="office-tab-staff">
+              <ion-segment-button [value]="TAB.staff" data-testid="office-tab-staff">
                 <ion-label>{{ 'OFFICES.STAFF' | appTranslate }}</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="2" data-testid="office-tab-custom-fields">
+              <ion-segment-button [value]="TAB.customFields" data-testid="office-tab-custom-fields">
                 <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</ion-label>
               </ion-segment-button>
             </ion-segment>
 
-            @if (activeTab() === '0') {
+            @if (activeTab() === TAB.general) {
               <dl class="detail-grid">
                 <dt>{{ 'COMMON.NAME' | appTranslate }}</dt>
                 <dd>{{ branch.name }}</dd>
@@ -123,7 +138,7 @@ import { RequiresPermissionDirective } from '../../../shared';
               </div>
             }
 
-            @if (activeTab() === '1') {
+            @if (activeTab() === TAB.staff) {
               @if (staff().length === 0) {
                 <p data-testid="office-staff-empty">{{ 'OFFICES.NO_STAFF' | appTranslate }}</p>
               } @else {
@@ -135,7 +150,7 @@ import { RequiresPermissionDirective } from '../../../shared';
               }
             }
 
-            @if (activeTab() === '2') {
+            @if (activeTab() === TAB.customFields) {
               <app-entity-datatables
                 apptableName="m_office"
                 [entityId]="branch.id!"
@@ -185,7 +200,10 @@ export class OfficeViewComponent implements OnInit {
   readonly office = signal<GetOfficesResponse | null>(null);
   readonly staff = signal<{ id?: number; displayName?: string }[]>([]);
   readonly isLoading = signal(true);
-  readonly activeTab = signal('0');
+  /** Exposed so the template names its tabs instead of numbering them. */
+  protected readonly TAB = OFFICE_TAB;
+
+  readonly activeTab = signal<OfficeTab>(OFFICE_TAB.general);
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
