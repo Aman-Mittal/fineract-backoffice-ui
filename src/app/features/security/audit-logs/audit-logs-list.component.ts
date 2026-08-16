@@ -304,10 +304,10 @@ export class AuditLogsListComponent implements OnInit {
           const sortOrder = this.currentSort.direction.toUpperCase() || 'DESC';
 
           const fromDate = this.activeFilters.makerDateTimeFrom
-            ? this.activeFilters.makerDateTimeFrom.toISOString().split('T')[0]
+            ? this.activeFilters.makerDateTimeFrom.toISOString().split('T', 1)[0]
             : undefined;
           const toDate = this.activeFilters.makerDateTimeTo
-            ? this.activeFilters.makerDateTimeTo.toISOString().split('T')[0]
+            ? this.activeFilters.makerDateTimeTo.toISOString().split('T', 1)[0]
             : undefined;
 
           return this.auditsService

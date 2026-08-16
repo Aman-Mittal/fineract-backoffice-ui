@@ -882,12 +882,12 @@ export class SavingsAccountViewComponent implements OnInit {
    * `reasonForBlock` drawn from a different code list per block type, which needs its own picker.
    */
   onSimpleCommand(command: string): void {
-    const titleKey = `SAVINGS.${command.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+    const titleKey = `SAVINGS.${command.replaceAll(/([A-Z])/g, '_$1').toUpperCase()}`;
     from(
       this.dialogService.confirm({
         title: this.translate.instant(titleKey),
         message: this.translate.instant(
-          `SAVINGS.CONFIRM_${command.replace(/([A-Z])/g, '_$1').toUpperCase()}`,
+          `SAVINGS.CONFIRM_${command.replaceAll(/([A-Z])/g, '_$1').toUpperCase()}`,
         ),
       }),
     ).subscribe((confirmed) => {
@@ -924,7 +924,7 @@ export class SavingsAccountViewComponent implements OnInit {
    * is passed in rather than guessed.
    */
   onDatedCommand(command: string, dateField: string): void {
-    const key = command.replace(/([A-Z])/g, '_$1').toUpperCase();
+    const key = command.replaceAll(/([A-Z])/g, '_$1').toUpperCase();
     from(
       this.dialogService.confirm({
         title: this.translate.instant(`SAVINGS.${key}`),

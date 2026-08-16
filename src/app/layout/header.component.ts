@@ -435,7 +435,7 @@ export class HeaderComponent implements OnInit {
       );
     };
     updateTime();
-    setInterval(updateTime, 60000);
+    setInterval(updateTime, 60_000);
   }
 
   onSearchInput(event: Event) {
@@ -457,12 +457,23 @@ export class HeaderComponent implements OnInit {
     this.searchQuery = '';
     this.showResults.set(false);
 
-    if (result.entityType === 'CLIENT') {
-      this.router.navigate(['/clients/view', result.entityId]);
-    } else if (result.entityType === 'LOAN') {
-      this.router.navigate(['/loans/view', result.entityId]);
-    } else if (result.entityType === 'SAVINGSACCOUNT') {
-      this.router.navigate(['/savings/view', result.entityId]);
+    switch (result.entityType) {
+      case 'CLIENT': {
+        this.router.navigate(['/clients/view', result.entityId]);
+
+        break;
+      }
+      case 'LOAN': {
+        this.router.navigate(['/loans/view', result.entityId]);
+
+        break;
+      }
+      case 'SAVINGSACCOUNT': {
+        this.router.navigate(['/savings/view', result.entityId]);
+
+        break;
+      }
+      // No default
     }
   }
 

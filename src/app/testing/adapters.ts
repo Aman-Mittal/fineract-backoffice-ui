@@ -129,7 +129,7 @@ export class FakeI18nAdapter implements I18nAdapter {
   translate(key: string, params?: TranslateParams): string {
     const template = this.catalogue.get(key) ?? key;
     if (!params) return template;
-    return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, name: string) =>
+    return template.replaceAll(/\{\{\s*(\w+)\s*\}\}/g, (match, name: string) =>
       name in params ? String(params[name]) : match,
     );
   }

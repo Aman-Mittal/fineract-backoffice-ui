@@ -537,12 +537,12 @@ export class RunReportComponent implements OnInit {
     const valueIndex = headers.findIndex((header) =>
       NUMERIC_DISPLAY_TYPES.has(String(header['columnDisplayType']).toUpperCase()),
     );
-    if (valueIndex < 0) return [];
+    if (valueIndex === -1) return [];
     const labelIndex = headers.findIndex((_, index) => index !== valueIndex);
 
     return rows
       .map((row, index) => ({
-        label: labelIndex < 0 ? String(index + 1) : this.getReportCellValue(row, labelIndex),
+        label: labelIndex === -1 ? String(index + 1) : this.getReportCellValue(row, labelIndex),
         value: Number(this.getReportCellValue(row, valueIndex)),
         color: CHART_PALETTE[index % CHART_PALETTE.length],
       }))
@@ -714,12 +714,12 @@ export class RunReportComponent implements OnInit {
       return;
     }
     const csvRows: string[] = [];
-    csvRows.push(displayedColumns.map((col) => `"${col.replace(/"/g, '""')}"`).join(','));
+    csvRows.push(displayedColumns.map((col) => `"${col.replaceAll('"', '""')}"`).join(','));
 
     for (const row of dataRows) {
       const values = displayedColumns.map((_, i) => {
         const val = this.getReportCellValue(row, i);
-        return `"${val.replace(/"/g, '""')}"`;
+        return `"${val.replaceAll('"', '""')}"`;
       });
       csvRows.push(values.join(','));
     }
@@ -804,11 +804,11 @@ export class RunReportComponent implements OnInit {
   }
 
   private safeIdentifier(value: string): string {
-    return value.replace(/[^a-zA-Z0-9_-]/g, '-');
+    return value.replaceAll(/[^a-zA-Z0-9_-]/g, '-');
   }
 
   /** Filename shared by both CSV paths, so they cannot drift apart. */
   private csvFilename(): string {
-    return `${this.reportName().replace(/\s+/g, '_')}_Report.csv`;
+    return `${this.reportName().replaceAll(/\s+/g, '_')}_Report.csv`;
   }
 }

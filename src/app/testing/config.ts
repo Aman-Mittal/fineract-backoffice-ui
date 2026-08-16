@@ -70,7 +70,7 @@ export function provideTestConfig(overrides: Partial<AppConfig> = {}): Provider 
       // Same defaulting as the real service: absent means off, so a spec that does not mention
       // developer tools gets the production behaviour.
       developerToolsEnabled: computed(() => config().developerToolsEnabled === true),
-      hiddenNavKeys: computed(() => new Set(config().nav?.hidden ?? [])),
+      hiddenNavKeys: computed(() => new Set(config().nav?.hidden)),
       get apiUrl() {
         return config().fineractApiUrl;
       },

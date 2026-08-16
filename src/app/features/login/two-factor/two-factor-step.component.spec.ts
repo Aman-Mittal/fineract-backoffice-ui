@@ -39,7 +39,7 @@ describe('TwoFactorStepComponent', () => {
   let twoFactorSpy: jasmine.SpyObj<TwoFactorAuthService>;
   let authSpy: jasmine.SpyObj<AuthService>;
 
-  const el = (id: string) => host.querySelector<HTMLElement>(`[data-testid="${id}"]`);
+  const el = (id: string) => host.querySelector<HTMLElement>(`[data-testid="${CSS.escape(id)}"]`);
 
   async function render(methods = [EMAIL]): Promise<void> {
     TestBed.resetTestingModule();
