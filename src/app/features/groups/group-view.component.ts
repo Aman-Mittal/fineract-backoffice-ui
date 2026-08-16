@@ -87,7 +87,6 @@ import { EntityDocumentsComponent } from '../../shared/components/entity-documen
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 
 /** A tab index that is also what the segment binds to; `ion-segment` deals in strings. */
-const TAB = { GENERAL: '0', MEMBERS: '1', COMMITTEE: '2', NOTES: '3' } as const;
 
 /**
  * The group detail screen: summary, membership, committee and notes, plus the lifecycle
@@ -525,7 +524,7 @@ export class GroupViewComponent implements OnInit {
   /** Exposed so the template names its tabs instead of numbering them. */
   protected readonly TAB = GROUP_TAB;
 
-  readonly activeTab = signal<string>(TAB.GENERAL);
+  readonly activeTab = signal<GroupTab>(GROUP_TAB.general);
 
   /**
    * `clientMembers` rather than `activeClientMembers`.
