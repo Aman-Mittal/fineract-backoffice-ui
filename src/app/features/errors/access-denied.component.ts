@@ -17,10 +17,12 @@
  * under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, computed, inject, viewChild } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TranslatePipe } from '../../core/adapters';
+import { REQUIRED_PERMISSIONS_PARAM } from '../../core/guards/permission.guard';
 
 /**
  * The page a user lands on when `permissionGuard` refuses a route.
@@ -30,9 +32,10 @@ import { TranslatePipe } from '../../core/adapters';
  * anything was denied, which reads as a broken link rather than a decision. So this page names
  * what happened, says who to ask, and offers the one action that is certain to work.
  *
- * It does not name the permission that was missing. A permission code is not something an end
- * user can act on, and telling an unauthorized visitor precisely which grant would unlock a
- * screen is a hint worth withholding. The administrator who has to fix it can read the role.
+ * It names the permissions the screen wanted, when the guard passed them along. Everyone who
+ * reaches this page is authenticated back-office staff, so the codes are not a hint to an
+ * outsider — they are the one piece of information that lets the user tell an administrator
+ * exactly what to grant, instead of opening a support conversation to find out.
  *
  * Accessibility carries the page. A guard redirect is a navigation the user did not ask for, so
  * the heading takes focus on activation — otherwise focus stays wherever the previous page left
@@ -56,6 +59,14 @@ import { TranslatePipe } from '../../core/adapters';
       </h1>
 
       <p class="access-denied__message">{{ 'ACCESS_DENIED.MESSAGE' | appTranslate }}</p>
+
+      @if (requiredPermissions().length) {
+        <p class="access-denied__required" data-testid="access-denied-required">
+          {{ 'ACCESS_DENIED.REQUIRES' | appTranslate }}
+          <code>{{ requiredPermissions().join(', ') }}</code>
+        </p>
+      }
+
       <p class="access-denied__hint">{{ 'ACCESS_DENIED.HINT' | appTranslate }}</p>
 
       <ion-button routerLink="/dashboard" data-testid="access-denied-dashboard">
@@ -92,6 +103,15 @@ import { TranslatePipe } from '../../core/adapters';
         margin: 0;
         max-width: 44ch;
       }
+      .access-denied__required {
+        margin: 0;
+        max-width: 44ch;
+        font-size: 0.9rem;
+      }
+      .access-denied__required code {
+        font-family: monospace;
+        word-break: break-word;
+      }
       .access-denied__hint {
         margin: 0 0 8px;
         max-width: 44ch;
@@ -103,6 +123,15 @@ import { TranslatePipe } from '../../core/adapters';
 })
 export class AccessDeniedComponent implements AfterViewInit {
   private readonly heading = viewChild.required<ElementRef<HTMLHeadingElement>>('heading');
+  private readonly queryParams = toSignal(inject(ActivatedRoute).queryParamMap);
+
+  /** Codes the refused route declared, as the guard passed them on. Empty when it did not. */
+  readonly requiredPermissions = computed(() =>
+    (this.queryParams()?.get(REQUIRED_PERMISSIONS_PARAM) ?? '')
+      .split(',')
+      .map((code) => code.trim())
+      .filter(Boolean),
+  );
 
   ngAfterViewInit(): void {
     this.heading().nativeElement.focus();

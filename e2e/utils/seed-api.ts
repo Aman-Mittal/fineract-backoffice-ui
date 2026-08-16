@@ -890,7 +890,8 @@ export async function seedRestrictedUser(
   permissions: string[],
 ): Promise<SeededRestrictedUser> {
   const roleId = await seedRole(api, permissions);
-  const username = `e2erbac${seedSuffix()}`;
+  const suffix = seedSuffix();
+  const username = `e2erbac${suffix}`;
   const password = generatePassword();
 
   const { resourceId } = await post<{ resourceId: number }>(api, '/users', {

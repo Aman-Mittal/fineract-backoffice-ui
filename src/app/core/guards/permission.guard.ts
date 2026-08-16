@@ -18,7 +18,13 @@
  */
 
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ConfigService } from '../services/config.service';
 
@@ -29,6 +35,16 @@ import { ConfigService } from '../services/config.service';
  * refused.
  */
 export const FORBIDDEN_ROUTE = '/forbidden';
+
+/**
+ * Query parameter carrying the permission codes the refused route wanted.
+ *
+ * The Access Denied page reads it so the user can tell an administrator exactly what to grant.
+ * Everyone reaching it is authenticated back-office staff, and the alternative — "you do not
+ * have permission", with no way to find out which — turns a two-minute role change into a
+ * support conversation.
+ */
+export const REQUIRED_PERMISSIONS_PARAM = 'required';
 
 /**
  * Refuses a route to a user who lacks the permission it declares.
@@ -73,7 +89,10 @@ export const FORBIDDEN_ROUTE = '/forbidden';
  * @param route - the route being activated; its `data` carries the requirement
  * @returns `true` to admit, or a `UrlTree` pointing at {@link FORBIDDEN_ROUTE} to refuse
  */
-export const permissionGuard: CanActivateFn = (route: ActivatedRouteSnapshot): true | UrlTree => {
+export const permissionGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+): true | UrlTree => {
   const config = inject(ConfigService);
   const router = inject(Router);
 
@@ -89,8 +108,25 @@ export const permissionGuard: CanActivateFn = (route: ActivatedRouteSnapshot): t
   }
 
   const matchAll = route.data['permissionsMatchAll'] === true;
+  const auth = inject(AuthService);
 
-  return inject(AuthService).hasPermission(required, matchAll)
-    ? true
-    : router.parseUrl(FORBIDDEN_ROUTE);
+  if (auth.hasPermission(required, matchAll)) {
+    return true;
+  }
+
+  const codes = Array.isArray(required) ? required : [required];
+
+  // A trace for whoever has to answer "why can I not open this?". Deliberately a console
+  // record and not an audit log: the browser is not a place anything auditable can live, and
+  // Fineract writes the authoritative entry when the request it refuses actually arrives.
+  console.warn(
+    `[rbac] refused ${state.url} — requires ${matchAll ? 'all of' : 'any of'} ` +
+      `${codes.join(', ')}; user ${auth.currentUser()?.username ?? '(none)'} does not hold ${
+        matchAll ? 'them all' : 'any'
+      }.`,
+  );
+
+  return router.createUrlTree([FORBIDDEN_ROUTE], {
+    queryParams: { [REQUIRED_PERMISSIONS_PARAM]: codes.join(',') },
+  });
 };

@@ -21,7 +21,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { permissionGuard } from './permission.guard';
+import { permissionGuard, REQUIRED_PERMISSIONS_PARAM } from './permission.guard';
 import { AuthService, UserSession } from '../services/auth.service';
 import { provideTestConfig } from '../../testing/config';
 
@@ -52,7 +52,12 @@ describe('permissionGuard', () => {
   function run(permissions: string[] | null, data: Record<string, unknown>): true | UrlTree {
     auth.currentUser.set(permissions ? session(permissions) : null);
     return TestBed.runInInjectionContext(() =>
-      permissionGuard({ data } as unknown as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+      permissionGuard(
+        { data } as unknown as ActivatedRouteSnapshot,
+        {
+          url: '/somewhere',
+        } as RouterStateSnapshot,
+      ),
     ) as true | UrlTree;
   }
 
@@ -63,8 +68,8 @@ describe('permissionGuard', () => {
    */
   function setup(rbacEnabled = true): void {
     TestBed.resetTestingModule();
-    router = jasmine.createSpyObj('Router', ['parseUrl']);
-    router.parseUrl.and.returnValue(FORBIDDEN);
+    router = jasmine.createSpyObj('Router', ['createUrlTree']);
+    router.createUrlTree.and.returnValue(FORBIDDEN);
 
     TestBed.configureTestingModule({
       providers: [
@@ -78,7 +83,12 @@ describe('permissionGuard', () => {
     auth = TestBed.inject(AuthService);
   }
 
-  beforeEach(() => setup());
+  beforeEach(() => {
+    // Once per test, not inside `setup()` — the RBAC-off case calls that a second time, and
+    // Jasmine refuses to spy on an already-spied method.
+    spyOn(console, 'warn');
+    setup();
+  });
 
   it('admits a superuser to a route they hold no specific permission for', () => {
     expect(run(['ALL_FUNCTIONS'], { permissions: 'READ_CLIENT' })).toBeTrue();
@@ -141,13 +151,28 @@ describe('permissionGuard', () => {
 
   it('sends a refused user to /forbidden', () => {
     run(['READ_LOAN'], { permissions: 'READ_CLIENT' });
-    expect(router.parseUrl).toHaveBeenCalledWith('/forbidden');
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/forbidden'], jasmine.anything());
+  });
+
+  it('passes the permissions the route wanted, so the page can name them', () => {
+    run(['READ_LOAN'], { permissions: ['READ_CLIENT', 'CREATE_CLIENT'] });
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/forbidden'], {
+      queryParams: { [REQUIRED_PERMISSIONS_PARAM]: 'READ_CLIENT,CREATE_CLIENT' },
+    });
+  });
+
+  it('leaves a trace naming the route, the requirement and the user', () => {
+    run(['READ_LOAN'], { permissions: 'READ_CLIENT' });
+    const [message] = (console.warn as jasmine.Spy).calls.mostRecent().args as [string];
+    expect(message).toContain('/somewhere');
+    expect(message).toContain('READ_CLIENT');
+    expect(message).toContain('tester');
   });
 
   it('admits everyone when the deployment has RBAC turned off', () => {
     setup(false);
     expect(run([], { permissions: 'READ_CLIENT' })).toBeTrue();
     expect(run(['READ_LOAN'], { permissions: ['CREATE_CLIENT'] })).toBeTrue();
-    expect(router.parseUrl).not.toHaveBeenCalled();
+    expect(router.createUrlTree).not.toHaveBeenCalled();
   });
 });

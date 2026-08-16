@@ -139,6 +139,12 @@ jobs:
       # missing from the menu that the URL still opens. This compares them.
       - name: Verify route permissions agree with navigation
         run: npm run check:route-permissions
+      # Nothing else type-checks e2e/: `npm run lint` covers src, and tsconfig.app.json excludes
+      # the suite. A helper referencing an identifier that no longer exists therefore compiled
+      # fine and failed only when CI ran the browser — which is a slow, expensive way to find a
+      # typo.
+      - name: Type-check the e2e suite
+        run: npm run typecheck:e2e
 
   test:
     name: Unit Tests

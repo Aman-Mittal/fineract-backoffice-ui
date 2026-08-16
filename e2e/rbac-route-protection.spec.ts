@@ -226,6 +226,14 @@ test.describe('the Access Denied page', () => {
     await expect(region).toContainText(/./);
   });
 
+  test('names the permissions the screen wanted, so the user can ask for them', async ({
+    page,
+  }) => {
+    // Everyone here is authenticated back-office staff, so the codes are actionable rather than
+    // a hint to an outsider: they are what the user tells an administrator to grant.
+    await expect(page.getByTestId('access-denied-required')).toContainText('READ_GLACCOUNT');
+  });
+
   test('offers a way back that the user is allowed to take', async ({ page }) => {
     await page.getByTestId('access-denied-dashboard').click();
     await expect(page).toHaveURL('/dashboard');

@@ -17,22 +17,44 @@
  * under the License.
  */
 
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
+import { convertToParamMap } from '@angular/router';
 import { AccessDeniedComponent } from './access-denied.component';
 import { renderComponent } from '../../testing/render';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideFakeAdapters } from '../../testing/adapters';
 
 describe('AccessDeniedComponent', () => {
+  const REQUIRED_TESTID = '[data-testid="access-denied-required"]';
+
   let fixture: ComponentFixture<AccessDeniedComponent>;
   let host: HTMLElement;
 
-  beforeEach(async () => {
+  /** Renders the page as the guard would have left it, with the given `required` query param. */
+  async function render(required?: string): Promise<void> {
+    // Each case configures its own query params, so the module from the previous one has to go.
+    TestBed.resetTestingModule();
     fixture = await renderComponent(AccessDeniedComponent, {
-      providers: [provideRouter([]), ...provideIonicTesting(), ...provideFakeAdapters().providers],
+      providers: [
+        provideRouter([]),
+        ...provideIonicTesting(),
+        ...provideFakeAdapters().providers,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParamMap: of(convertToParamMap(required ? { required } : {})),
+          },
+        },
+      ],
     });
     host = fixture.nativeElement as HTMLElement;
+  }
+
+  beforeEach(async () => {
+    await render();
   });
 
   it('states what happened in a single top-level heading', () => {
@@ -72,5 +94,27 @@ describe('AccessDeniedComponent', () => {
 
   it('hides the decorative icon from assistive technology', () => {
     expect(host.querySelector('ion-icon')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  describe('the permissions the screen wanted', () => {
+    it('names them when the guard passed them on', async () => {
+      await render('READ_JOURNALENTRY,CREATE_JOURNALENTRY');
+      const required = host.querySelector(REQUIRED_TESTID);
+      expect(required?.textContent).toContain('READ_JOURNALENTRY');
+      expect(required?.textContent).toContain('CREATE_JOURNALENTRY');
+    });
+
+    it('says nothing at all when there are none to name', () => {
+      // Reached directly rather than by refusal: inventing a requirement would be worse than
+      // leaving the sentence out.
+      expect(host.querySelector(REQUIRED_TESTID)).toBeNull();
+    });
+
+    it('ignores empty entries rather than rendering a stray separator', async () => {
+      await render('READ_CLIENT,,');
+      const required = host.querySelector(REQUIRED_TESTID);
+      expect(required?.textContent).toContain('READ_CLIENT');
+      expect(required?.textContent).not.toContain(', ,');
+    });
   });
 });

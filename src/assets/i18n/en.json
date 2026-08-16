@@ -2374,6 +2374,7 @@
     "TITLE": "Access denied",
     "MESSAGE": "You do not have permission to open this page.",
     "HINT": "If you believe you should have access, ask an administrator to review the permissions on your role.",
-    "BACK_TO_DASHBOARD": "Back to dashboard"
+    "BACK_TO_DASHBOARD": "Back to dashboard",
+    "REQUIRES": "This page requires:"
   }
 }
