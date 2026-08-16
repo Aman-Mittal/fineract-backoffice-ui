@@ -20,7 +20,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { OpeningBalancesComponent } from './opening-balances.component';
@@ -61,7 +60,7 @@ describe('OpeningBalancesComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [OpeningBalancesComponent, TranslateModule.forRoot()],
+      imports: [OpeningBalancesComponent],
       providers: [
         { provide: JournalEntriesService, useValue: journalSpy },
         { provide: OfficesService, useValue: officesSpy },
@@ -90,7 +89,7 @@ describe('OpeningBalancesComponent', () => {
 
     selectOfficeAndCurrency();
 
-    expect(component.rows().length).toBe(2);
+    expect(component.rows()).toHaveSize(2);
     expect(component.rows().map((row) => row.accountType)).toEqual(['ASSET', 'LIABILITY']);
   });
 
@@ -102,7 +101,7 @@ describe('OpeningBalancesComponent', () => {
     selectOfficeAndCurrency();
 
     expect(component.unavailableReason()).toBe('OPENING_BALANCES.CONTRA_NOT_MAPPED');
-    expect(component.rows().length).toBe(0);
+    expect(component.rows()).toHaveSize(0);
   });
 
   it('refuses to save until debits and credits agree', () => {

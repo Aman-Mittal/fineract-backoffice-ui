@@ -20,7 +20,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { WorkQueuesComponent } from './work-queues.component';
@@ -83,7 +82,7 @@ describe('WorkQueuesComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WorkQueuesComponent, TranslateModule.forRoot()],
+      imports: [WorkQueuesComponent],
       providers: [
         { provide: LoansService, useValue: loansSpy },
         { provide: ClientService, useValue: clientsSpy },
@@ -130,7 +129,7 @@ describe('WorkQueuesComponent', () => {
     await component.onRun();
 
     const requests = batchSpy.postBatches.calls.mostRecent().args[0];
-    expect(requests.length).toBe(2);
+    expect(requests).toHaveSize(2);
     expect(requests[0].relativeUrl).toBe('loans/2?command=approve');
     expect(requests[1].relativeUrl).toBe('loans/3?command=approve');
     expect(requests[0].method).toBe('POST');

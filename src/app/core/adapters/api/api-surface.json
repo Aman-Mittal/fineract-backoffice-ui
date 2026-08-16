@@ -270,6 +270,7 @@
   "GroupsService": [
     "getGroups",
     "getGroupsGroupId",
+    "getGroupsGroupIdAccounts",
     "getGroupsTemplate",
     "postGroups",
     "postGroupsGroupId",
@@ -339,7 +340,10 @@
   "JournalEntriesService": [
     "getJournalentries",
     "getJournalentriesDownloadtemplate",
+    "getJournalentriesJournalEntryId",
+    "getJournalentriesOpeningbalance",
     "postJournalentries",
+    "postJournalentriesTransactionId",
     "postJournalentriesUploadtemplate"
   ],
   "LikelihoodService": ["getLikelihoodPpiName", "putLikelihoodPpiNameLikelihoodId"],
@@ -523,7 +527,14 @@
     "postReportmailingjobs",
     "putReportmailingjobsEntityId"
   ],
-  "ReportsService": ["getReports"],
+  "ReportsService": [
+    "deleteReportsId",
+    "getReports",
+    "getReportsId",
+    "getReportsTemplate",
+    "postReports",
+    "putReportsId"
+  ],
   "RescheduleLoansService": [
     "getRescheduleloans",
     "getRescheduleloansTemplate",

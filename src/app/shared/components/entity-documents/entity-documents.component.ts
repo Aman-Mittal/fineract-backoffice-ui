@@ -20,9 +20,9 @@
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DocumentsService, DocumentData, BASE_PATH } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../directives/tooltip.directive';
@@ -41,7 +41,7 @@ import { DOWNLOAD } from '../../../core/adapters';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     IonIcon,
     IonButton,
@@ -53,18 +53,18 @@ import { DOWNLOAD } from '../../../core/adapters';
   template: `
     <div class="upload-row">
       <ion-item fill="outline">
-        <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+        <ion-label position="stacked">{{ 'COMMON.NAME' | appTranslate }}</ion-label>
         <ion-input
-          [attr.aria-label]="'COMMON.NAME' | translate"
+          [attr.aria-label]="'COMMON.NAME' | appTranslate"
           [ngModel]="newDocName()"
           (ngModelChange)="newDocName.set($event)"
           name="docName"
         ></ion-input>
       </ion-item>
       <ion-item fill="outline" class="description-input">
-        <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
+        <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | appTranslate }}</ion-label>
         <ion-input
-          [attr.aria-label]="'COMMON.DESCRIPTION' | translate"
+          [attr.aria-label]="'COMMON.DESCRIPTION' | appTranslate"
           [ngModel]="newDocDescription()"
           (ngModelChange)="newDocDescription.set($event)"
           name="docDescription"
@@ -72,44 +72,44 @@ import { DOWNLOAD } from '../../../core/adapters';
       </ion-item>
       <ion-button fill="outline" type="button" (click)="fileInput.click()">
         <ion-icon name="attach-outline"></ion-icon>
-        {{ 'DOCUMENTS.SELECT_FILE' | translate }}
+        {{ 'DOCUMENTS.SELECT_FILE' | appTranslate }}
       </ion-button>
       <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" />
       <span class="file-name">{{
-        selectedFile()?.name || ('DOCUMENTS.NO_FILE_SELECTED' | translate)
+        selectedFile()?.name || ('DOCUMENTS.NO_FILE_SELECTED' | appTranslate)
       }}</span>
       <ion-button color="primary" [disabled]="!selectedFile() || isSaving()" (click)="onUpload()">
         <ion-icon name="cloud-upload-outline"></ion-icon>
-        {{ 'DOCUMENTS.UPLOAD' | translate }}
+        {{ 'DOCUMENTS.UPLOAD' | appTranslate }}
       </ion-button>
     </div>
 
     @if (isLoading()) {
-      <p class="empty-state">{{ 'COMMON.LOADING' | translate }}</p>
+      <p class="empty-state">{{ 'COMMON.LOADING' | appTranslate }}</p>
     } @else if (documents().length === 0) {
-      <p class="empty-state">{{ 'DOCUMENTS.NONE' | translate }}</p>
+      <p class="empty-state">{{ 'DOCUMENTS.NONE' | appTranslate }}</p>
     } @else {
       <table cdk-table [dataSource]="documents()" class="full-width-table">
         <ng-container cdkColumnDef="name">
-          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | appTranslate }}</th>
           <td cdk-cell *cdkCellDef="let doc">{{ doc.name }}</td>
         </ng-container>
         <ng-container cdkColumnDef="fileName">
-          <th cdk-header-cell *cdkHeaderCellDef>{{ 'DOCUMENTS.FILE_NAME' | translate }}</th>
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'DOCUMENTS.FILE_NAME' | appTranslate }}</th>
           <td cdk-cell *cdkCellDef="let doc">{{ doc.fileName }}</td>
         </ng-container>
         <ng-container cdkColumnDef="type">
-          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | appTranslate }}</th>
           <td cdk-cell *cdkCellDef="let doc">{{ doc.type }}</td>
         </ng-container>
         <ng-container cdkColumnDef="actions">
-          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+          <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | appTranslate }}</th>
           <td cdk-cell *cdkCellDef="let doc">
             <ion-button
               fill="clear"
               color="primary"
               (click)="onDownload(doc.id)"
-              [appTooltip]="'COMMON.DOWNLOAD' | translate"
+              [appTooltip]="'COMMON.DOWNLOAD' | appTranslate"
             >
               <ion-icon name="download-outline"></ion-icon>
             </ion-button>
@@ -117,7 +117,7 @@ import { DOWNLOAD } from '../../../core/adapters';
               fill="clear"
               color="danger"
               (click)="onDelete(doc.id)"
-              [appTooltip]="'COMMON.DELETE' | translate"
+              [appTooltip]="'COMMON.DELETE' | appTranslate"
             >
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
@@ -164,7 +164,7 @@ export class EntityDocumentsComponent implements OnInit {
   private readonly documentsService = inject(DocumentsService);
   private readonly download = inject(DOWNLOAD);
   private readonly dialogService = inject(DialogService);
-  private readonly translate = inject(TranslateService);
+  private readonly i18n = inject(I18N);
   private readonly httpClient = inject(HttpClient);
   private readonly basePath = inject(BASE_PATH);
 
@@ -259,8 +259,8 @@ export class EntityDocumentsComponent implements OnInit {
   onDelete(id: number): void {
     this.dialogService
       .confirm({
-        title: this.translate.instant('COMMON.DELETE'),
-        message: this.translate.instant('DOCUMENTS.CONFIRM_DELETE'),
+        title: this.i18n.translate('COMMON.DELETE'),
+        message: this.i18n.translate('DOCUMENTS.CONFIRM_DELETE'),
         destructive: true,
       })
       .then((confirmed) => {

@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -51,7 +50,6 @@ import { RequiresPermissionDirective } from '../../../shared';
   selector: 'app-office-view',
   standalone: true,
   imports: [
-    TranslateModule,
     TranslatePipe,
     DatePipe,
     EntityDatatablesComponent,

@@ -20,7 +20,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { ReportDefinitionFormComponent } from './report-definition-form.component';
@@ -49,7 +48,7 @@ describe('ReportDefinitionFormComponent', () => {
 
   async function build(routeId: string | null) {
     await TestBed.configureTestingModule({
-      imports: [ReportDefinitionFormComponent, TranslateModule.forRoot()],
+      imports: [ReportDefinitionFormComponent],
       providers: [
         { provide: ReportsService, useValue: reportsSpy },
         { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },

@@ -20,11 +20,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { GroupAccountsTabComponent } from './group-accounts-tab.component';
 import { GroupsService } from '../../../api';
+import { provideFakeAdapters } from '../../../testing/adapters';
 
 describe('GroupAccountsTabComponent', () => {
   let component: GroupAccountsTabComponent;
@@ -45,10 +45,11 @@ describe('GroupAccountsTabComponent', () => {
     groupsSpy = jasmine.createSpyObj('GroupsService', ['getGroupsGroupIdAccounts']);
 
     await TestBed.configureTestingModule({
-      imports: [GroupAccountsTabComponent, TranslateModule.forRoot()],
+      imports: [GroupAccountsTabComponent],
       providers: [
         { provide: GroupsService, useValue: groupsSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        ...provideFakeAdapters().providers,
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -69,7 +70,7 @@ describe('GroupAccountsTabComponent', () => {
       loanAccounts: [{ id: 4, accountNo: '000000004', productName: 'Group Loan' }],
     });
 
-    expect(component.savingsAccounts().length).toBe(1);
-    expect(component.loanAccounts().length).toBe(1);
+    expect(component.savingsAccounts()).toHaveSize(1);
+    expect(component.loanAccounts()).toHaveSize(1);
   });
 });

@@ -21,7 +21,7 @@ import { Component, OnInit, inject, input, signal } from '@angular/core';
 
 import { CellTemplateDirective, ColumnDef, DataTableComponent } from '../../../shared';
 import { StandingInstructionsService } from '../../../api';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 
 /** Fineract's PortfolioAccountType. A standing instruction's account id means nothing without it. */
 const SAVINGS_ACCOUNT_TYPE = 2;
@@ -55,7 +55,7 @@ interface StandingInstructionRow {
 @Component({
   selector: 'app-savings-standing-instructions-tab',
   standalone: true,
-  imports: [DataTableComponent, CellTemplateDirective, TranslateModule],
+  imports: [DataTableComponent, CellTemplateDirective, TranslatePipe],
   template: `
     <app-data-table
       [data]="instructions()"
@@ -70,7 +70,7 @@ interface StandingInstructionRow {
           (row.toAccount?.id === savingsAccountId()
             ? 'SAVINGS.TRANSFER_IN'
             : 'SAVINGS.TRANSFER_OUT'
-          ) | translate
+          ) | appTranslate
         }}
       </ng-template>
       <ng-template appCellTemplate="status" let-row>

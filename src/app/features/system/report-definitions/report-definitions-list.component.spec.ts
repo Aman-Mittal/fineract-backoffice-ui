@@ -20,7 +20,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { ReportDefinitionsListComponent } from './report-definitions-list.component';
@@ -28,6 +27,7 @@ import { GetReportsResponse, ReportsService } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { provideFakeAdapters } from '../../../testing/adapters';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('ReportDefinitionsListComponent', () => {
   let component: ReportDefinitionsListComponent;
@@ -47,13 +47,15 @@ describe('ReportDefinitionsListComponent', () => {
     reportsSpy.deleteReportsId.and.returnValue(of({}) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [ReportDefinitionsListComponent, TranslateModule.forRoot()],
+      imports: [ReportDefinitionsListComponent],
       providers: [
         { provide: ReportsService, useValue: reportsSpy },
         { provide: DialogService, useValue: dialogSpy },
         { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
         ...provideFakeAdapters().providers,
+        // DataTableComponent has not moved to the adapter yet, so the library still has to exist.
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
       ],
     }).compileComponents();

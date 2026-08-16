@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgClass } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
 import { GetReportsResponse, ReportsService } from '../../../api';
@@ -40,15 +39,7 @@ import { CellTemplateDirective, ColumnDef, DataTableComponent } from '../../../s
 @Component({
   selector: 'app-report-definitions-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    TranslatePipe,
-    DataTableComponent,
-    CellTemplateDirective,
-    NgClass,
-    IonButton,
-    IonIcon,
-  ],
+  imports: [TranslatePipe, DataTableComponent, CellTemplateDirective, NgClass, IonButton, IonIcon],
   template: `
     <app-data-table
       title="nav.reportDefinitions"

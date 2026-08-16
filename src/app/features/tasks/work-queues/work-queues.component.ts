@@ -20,7 +20,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
   IonCheckbox,
@@ -77,7 +76,6 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
   selector: 'app-work-queues',
   standalone: true,
   imports: [
-    TranslateModule,
     TranslatePipe,
     DatePipe,
     DecimalPipe,
@@ -144,7 +142,9 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
                   ></ion-checkbox>
                 </td>
                 <td>
-                  <a class="clickable-link" (click)="openRecord(row)">{{ row.primary }}</a>
+                  <button type="button" class="clickable-link" (click)="openRecord(row)">
+                    {{ row.primary }}
+                  </button>
                 </td>
                 <td>{{ row.secondary }}</td>
                 <td>{{ row.amount !== undefined ? (row.amount | number: '1.2-2') : '-' }}</td>
@@ -200,6 +200,11 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
       .clickable-link {
         cursor: pointer;
         color: var(--ion-color-primary);
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        text-decoration: underline;
       }
       .actions {
         display: flex;

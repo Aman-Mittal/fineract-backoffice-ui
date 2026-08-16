@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -74,7 +73,6 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
     TranslatePipe,
     HelpIconComponent,
     IonCard,
@@ -332,7 +330,7 @@ export class FrequentPostingsComponent implements OnInit {
   onSubmit(): void {
     const rule = this.selectedRule;
     const amount = Number(this.amount);
-    if (!rule || !this.currencyCode || !(amount > 0)) {
+    if (!rule || !this.currencyCode || amount <= 0) {
       return;
     }
 

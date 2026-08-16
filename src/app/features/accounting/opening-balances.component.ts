@@ -21,7 +21,6 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -99,7 +98,6 @@ interface TemplateAccount {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
     TranslatePipe,
     DecimalPipe,
     HelpIconComponent,

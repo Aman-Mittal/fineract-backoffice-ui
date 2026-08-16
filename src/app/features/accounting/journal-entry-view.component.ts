@@ -20,7 +20,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -53,7 +52,6 @@ import { RequiresPermissionDirective } from '../../shared';
   selector: 'app-journal-entry-view',
   standalone: true,
   imports: [
-    TranslateModule,
     TranslatePipe,
     DatePipe,
     DecimalPipe,

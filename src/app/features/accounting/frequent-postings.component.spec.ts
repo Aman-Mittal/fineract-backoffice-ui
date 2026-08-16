@@ -20,7 +20,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { FrequentPostingsComponent } from './frequent-postings.component';
@@ -72,7 +71,7 @@ describe('FrequentPostingsComponent', () => {
     paymentSpy.getPaymenttypes.and.returnValue(of([]) as never);
 
     await TestBed.configureTestingModule({
-      imports: [FrequentPostingsComponent, TranslateModule.forRoot()],
+      imports: [FrequentPostingsComponent],
       providers: [
         { provide: JournalEntriesService, useValue: journalSpy },
         { provide: AccountingRulesService, useValue: rulesSpy },

@@ -19,10 +19,10 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { NotesService, NoteData } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angular/standalone';
 
 /**
@@ -40,7 +40,7 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     DatePipe,
     IonIcon,
     IonButton,
@@ -51,9 +51,9 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
   template: `
     <div class="add-note-row">
       <ion-item fill="outline" class="note-input">
-        <ion-label position="stacked">{{ 'NOTES.ADD' | translate }}</ion-label>
+        <ion-label position="stacked">{{ 'NOTES.ADD' | appTranslate }}</ion-label>
         <ion-textarea
-          [attr.aria-label]="'NOTES.ADD' | translate"
+          [attr.aria-label]="'NOTES.ADD' | appTranslate"
           rows="2"
           [ngModel]="newNoteText()"
           (ngModelChange)="newNoteText.set($event)"
@@ -66,14 +66,14 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
         (click)="onAddNote()"
       >
         <ion-icon name="add-outline"></ion-icon>
-        {{ 'COMMON.SAVE' | translate }}
+        {{ 'COMMON.SAVE' | appTranslate }}
       </ion-button>
     </div>
 
     @if (isLoading()) {
-      <p class="empty-state">{{ 'COMMON.LOADING' | translate }}</p>
+      <p class="empty-state">{{ 'COMMON.LOADING' | appTranslate }}</p>
     } @else if (notes().length === 0) {
-      <p class="empty-state">{{ 'LOANS.NO_NOTES' | translate }}</p>
+      <p class="empty-state">{{ 'LOANS.NO_NOTES' | appTranslate }}</p>
     } @else {
       <div class="notes-list">
         @for (note of notes(); track note.id) {
@@ -89,7 +89,7 @@ import { IonButton, IonIcon, IonItem, IonLabel, IonTextarea } from '@ionic/angul
               color="danger"
               class="delete-btn"
               (click)="onDeleteNote(note.id!)"
-              [attr.aria-label]="'LOANS.DELETE_NOTE' | translate"
+              [attr.aria-label]="'LOANS.DELETE_NOTE' | appTranslate"
             >
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
@@ -150,7 +150,7 @@ export class EntityNotesComponent implements OnInit {
 
   private readonly notesService = inject(NotesService);
   private readonly dialogService = inject(DialogService);
-  private readonly translate = inject(TranslateService);
+  private readonly i18n = inject(I18N);
 
   readonly notes = signal<NoteData[]>([]);
   readonly isLoading = signal(false);
@@ -199,8 +199,8 @@ export class EntityNotesComponent implements OnInit {
   onDeleteNote(noteId: number): void {
     this.dialogService
       .confirm({
-        title: this.translate.instant('COMMON.DELETE'),
-        message: this.translate.instant('NOTES.CONFIRM_DELETE'),
+        title: this.i18n.translate('COMMON.DELETE'),
+        message: this.i18n.translate('NOTES.CONFIRM_DELETE'),
         destructive: true,
       })
       .then((confirmed) => {

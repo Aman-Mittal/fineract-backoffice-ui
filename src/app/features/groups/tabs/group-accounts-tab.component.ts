@@ -19,11 +19,11 @@
 
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { IonSpinner } from '@ionic/angular/standalone';
 
 import { GroupsService } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared';
+import { TranslatePipe } from '../../../core/adapters';
 
 /**
  * The accounts a group holds in its own name.
@@ -36,15 +36,15 @@ import { StatusBadgeComponent } from '../../../shared';
 @Component({
   selector: 'app-group-accounts-tab',
   standalone: true,
-  imports: [TranslateModule, StatusBadgeComponent, IonSpinner],
+  imports: [StatusBadgeComponent, TranslatePipe, IonSpinner],
   template: `
     @if (isLoading()) {
       <ion-spinner data-testid="group-accounts-loading"></ion-spinner>
     } @else {
-      <h2>{{ 'GROUPS.LOAN_ACCOUNTS' | translate }}</h2>
+      <h2>{{ 'GROUPS.LOAN_ACCOUNTS' | appTranslate }}</h2>
       @if (loanAccounts().length === 0) {
         <p class="empty-state" data-testid="group-loan-accounts-empty">
-          {{ 'GROUPS.NO_LOAN_ACCOUNTS' | translate }}
+          {{ 'GROUPS.NO_LOAN_ACCOUNTS' | appTranslate }}
         </p>
       } @else {
         <table class="accounts-table" data-testid="group-loan-accounts">
@@ -60,10 +60,10 @@ import { StatusBadgeComponent } from '../../../shared';
         </table>
       }
 
-      <h2>{{ 'GROUPS.SAVINGS_ACCOUNTS' | translate }}</h2>
+      <h2>{{ 'GROUPS.SAVINGS_ACCOUNTS' | appTranslate }}</h2>
       @if (savingsAccounts().length === 0) {
         <p class="empty-state" data-testid="group-savings-accounts-empty">
-          {{ 'GROUPS.NO_SAVINGS_ACCOUNTS' | translate }}
+          {{ 'GROUPS.NO_SAVINGS_ACCOUNTS' | appTranslate }}
         </p>
       } @else {
         <table class="accounts-table" data-testid="group-savings-accounts">

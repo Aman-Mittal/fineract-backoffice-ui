@@ -20,13 +20,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { JournalEntryViewComponent } from './journal-entry-view.component';
 import { JournalEntriesService, JournalEntryTransactionItem } from '../../api';
 import { DialogService } from '../../core/services/dialog.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { provideFakeAdapters } from '../../testing/adapters';
 
 /** A journal line as the platform returns it — entryType and manualEntry decide what is allowed. */
 function line(overrides: Partial<JournalEntryTransactionItem> = {}): JournalEntryTransactionItem {
@@ -69,13 +69,14 @@ describe('JournalEntryViewComponent', () => {
     dialogSpy = jasmine.createSpyObj('DialogService', ['confirm']);
 
     await TestBed.configureTestingModule({
-      imports: [JournalEntryViewComponent, TranslateModule.forRoot()],
+      imports: [JournalEntryViewComponent],
       providers: [
         { provide: JournalEntriesService, useValue: journalSpy },
         { provide: DialogService, useValue: dialogSpy },
         { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: new Map([['id', '1']]) } } },
+        ...provideFakeAdapters().providers,
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -84,8 +85,8 @@ describe('JournalEntryViewComponent', () => {
   it('shows the whole transaction, not only the line that was clicked', () => {
     build(line(), [line({ id: 1 }), line({ id: 2, entryType: { id: 2, value: 'CREDIT' } })]);
 
-    expect(component.debits().length).toBe(1);
-    expect(component.credits().length).toBe(1);
+    expect(component.debits()).toHaveSize(1);
+    expect(component.credits()).toHaveSize(1);
     expect(component.debitTotal()).toBe(100);
     expect(component.creditTotal()).toBe(100);
   });
@@ -133,7 +134,7 @@ describe('JournalEntryViewComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.lines().length).toBe(1);
+    expect(component.lines()).toHaveSize(1);
     expect(component.isLoading()).toBeFalse();
   });
 });
