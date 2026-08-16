@@ -147,6 +147,7 @@ export class ConfirmDialogComponent {
           <ion-button
             fill="clear"
             color="primary"
+            [attr.aria-label]="'HOLIDAYS.ACTIVATE' | translate"
             [appTooltip]="'HOLIDAYS.ACTIVATE' | translate"
             (click)="onActivateHoliday(holiday)"
           >

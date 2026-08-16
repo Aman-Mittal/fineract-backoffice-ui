@@ -108,6 +108,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
               fill="clear"
               color="primary"
               (click)="onDownload(doc.id)"
+              [attr.aria-label]="'COMMON.DOWNLOAD' | appTranslate"
               [appTooltip]="'COMMON.DOWNLOAD' | appTranslate"
             >
               <ion-icon name="download-outline"></ion-icon>
@@ -116,6 +117,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
               fill="clear"
               color="danger"
               (click)="onDelete(doc.id)"
+              [attr.aria-label]="'COMMON.DELETE' | appTranslate"
               [appTooltip]="'COMMON.DELETE' | appTranslate"
             >
               <ion-icon name="trash-outline"></ion-icon>
