@@ -66,6 +66,16 @@ const HITS: SearchHit[] = [
 ];
 
 async function mockSession(page: Page) {
+  // Registered first on purpose. Playwright matches handlers most-recent-first, so this
+  // catch-all must go in before the specific ones or it answers for them too — including
+  // /authentication, which strips the user's permissions and bounces every guarded route
+  // to /forbidden. Destination screens each fan out into several endpoints and none of
+  // them are what this spec is about; an empty body keeps a landed navigation from being
+  // drowned in unrelated failures.
+  await page.route(/\/api\/v1\//, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+  });
+
   await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
@@ -99,13 +109,6 @@ async function mockSession(page: Page) {
       contentType: 'application/json',
       body: JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 8, 16] }]),
     });
-  });
-
-  // Destination screens are not what this spec is about, and each one fans out into
-  // several endpoints. Answering everything else with an empty body keeps a landed
-  // navigation from being drowned in unrelated failures.
-  await page.route(/\/api\/v1\//, async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
   });
 }
 
