@@ -469,7 +469,9 @@ export class HeaderComponent implements OnInit {
         break;
       }
       case 'SAVINGSACCOUNT': {
-        this.router.navigate(['/savings/view', result.entityId]);
+        // Savings accounts are routed under products; there is no top-level /savings,
+        // so the old target fell through to the wildcard and showed Not Found.
+        this.router.navigate(['/products/savings-accounts/view', result.entityId]);
 
         break;
       }
