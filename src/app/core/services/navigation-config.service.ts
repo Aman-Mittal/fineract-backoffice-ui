@@ -94,7 +94,16 @@ export function flattenNavRoutes(
     if (!item.route) {
       return [];
     }
-    return [{ route: item.route, labelKey: item.labelKey, groupLabelKey, icon: item.icon }];
+    // `icon` is omitted rather than set to undefined so a leaf without one has the shape
+    // its callers and specs describe, instead of a key that is present but empty.
+    return [
+      {
+        route: item.route,
+        labelKey: item.labelKey,
+        groupLabelKey,
+        ...(item.icon ? { icon: item.icon } : {}),
+      },
+    ];
   });
 }
 
@@ -980,18 +989,29 @@ export class NavigationConfigService {
       return [];
     }
 
-    return flattenNavRoutes(this.filteredNavItems())
+    const candidates = flattenNavRoutes(this.filteredNavItems())
       .filter((entry) => entry.route !== '/search')
       .map((entry) => ({
         route: entry.route,
         label: this.i18n.translate(entry.labelKey),
         groupLabel: entry.groupLabelKey ? this.i18n.translate(entry.groupLabelKey) : undefined,
         icon: entry.icon,
-      }))
-      .filter((result) => {
-        const haystack = [result.label, result.groupLabel].filter(Boolean).join(' ').toLowerCase();
-        return haystack.includes(normalizedQuery);
-      })
-      .slice(0, limit);
+      }));
+
+    // Partitioned rather than scored and sorted, because the only ordering that matters is
+    // this one: a page whose own name matches comes before a page matched only through its
+    // section. Ranking them together would let "organization" fill the whole result list
+    // with every leaf beneath Organization — and in the header, where the limit is small,
+    // that pushes the entity hits off the bottom.
+    const named = candidates.filter((result) =>
+      result.label.toLowerCase().includes(normalizedQuery),
+    );
+    const bySection = candidates.filter(
+      (result) =>
+        !result.label.toLowerCase().includes(normalizedQuery) &&
+        result.groupLabel?.toLowerCase().includes(normalizedQuery),
+    );
+
+    return [...named, ...bySection].slice(0, limit);
   }
 }
