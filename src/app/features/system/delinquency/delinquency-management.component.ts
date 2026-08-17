@@ -107,6 +107,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
                   color="primary"
                   [routerLink]="['ranges', 'edit', row.id]"
                   *appHasPermission="'UPDATE_DELINQUENCY_RANGE'"
+                  [attr.aria-label]="'COMMON.EDIT' | translate"
                   [appTooltip]="'COMMON.EDIT' | translate"
                 >
                   <ion-icon name="create-outline"></ion-icon>
@@ -116,6 +117,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
                   color="danger"
                   (click)="onDeleteRange(row.id)"
                   *appHasPermission="'DELETE_DELINQUENCY_RANGE'"
+                  [attr.aria-label]="'COMMON.DELETE' | translate"
                   [appTooltip]="'COMMON.DELETE' | translate"
                 >
                   <ion-icon name="trash-outline"></ion-icon>
@@ -157,6 +159,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
                   color="primary"
                   [routerLink]="['buckets', 'edit', row.id]"
                   *appHasPermission="'UPDATE_DELINQUENCY_BUCKET'"
+                  [attr.aria-label]="'COMMON.EDIT' | translate"
                   [appTooltip]="'COMMON.EDIT' | translate"
                 >
                   <ion-icon name="create-outline"></ion-icon>
@@ -166,6 +169,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
                   color="danger"
                   (click)="onDeleteBucket(row.id)"
                   *appHasPermission="'DELETE_DELINQUENCY_BUCKET'"
+                  [attr.aria-label]="'COMMON.DELETE' | translate"
                   [appTooltip]="'COMMON.DELETE' | translate"
                 >
                   <ion-icon name="trash-outline"></ion-icon>

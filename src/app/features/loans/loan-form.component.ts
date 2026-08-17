@@ -125,6 +125,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   <ion-button
                     fill="clear"
                     type="button"
+                    [attr.aria-label]="'CLIENTS.CREATE_CLIENT' | translate"
                     [appTooltip]="'CLIENTS.CREATE_CLIENT' | translate"
                     (click)="onCreateClient()"
                     style="margin-top: 4px;"
@@ -160,6 +161,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   <ion-button
                     fill="clear"
                     type="button"
+                    [attr.aria-label]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
                     [appTooltip]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
                     (click)="onCreateProduct()"
                     style="margin-top: 4px;"

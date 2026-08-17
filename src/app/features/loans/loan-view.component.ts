@@ -1062,6 +1062,7 @@ export type LoanTab = (typeof LOAN_TAB)[keyof typeof LOAN_TAB];
                         <ion-button
                           fill="clear"
                           (click)="onViewTransaction(tx)"
+                          [attr.aria-label]="'COMMON.VIEW' | translate"
                           [appTooltip]="'COMMON.VIEW' | translate"
                         >
                           <ion-icon name="eye-outline"></ion-icon>

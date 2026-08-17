@@ -613,6 +613,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                             color="primary"
                             (click)="onSavingsTransaction(account.id, 'deposit')"
                             appRequiresPermission="DEPOSIT_SAVINGSACCOUNT"
+                            [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
                             [appTooltip]="'SAVINGS.DEPOSIT' | translate"
                           >
                             <ion-icon name="add-circle-outline"></ion-icon>
@@ -624,6 +625,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                               color="secondary"
                               (click)="onSavingsAction(account.id, 'approve', account)"
                               appRequiresPermission="APPROVE_SAVINGSACCOUNT"
+                              [attr.aria-label]="'LOANS.APPROVE' | translate"
                               [appTooltip]="'LOANS.APPROVE' | translate"
                             >
                               <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -636,6 +638,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                               color="primary"
                               (click)="onSavingsAction(account.id, 'activate', account)"
                               appRequiresPermission="ACTIVATE_SAVINGSACCOUNT"
+                              [attr.aria-label]="'LOANS.ACTIVATE' | translate"
                               [appTooltip]="'LOANS.ACTIVATE' | translate"
                             >
                               <ion-icon name="play-circle-outline"></ion-icon>
@@ -648,6 +651,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                               color="danger"
                               (click)="onSavingsAction(account.id, 'close', account)"
                               appRequiresPermission="CLOSE_SAVINGSACCOUNT"
+                              [attr.aria-label]="'LOANS.CLOSE' | translate"
                               [appTooltip]="'LOANS.CLOSE' | translate"
                             >
                               <ion-icon name="close-circle-outline"></ion-icon>
@@ -659,6 +663,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                             color="danger"
                             (click)="onSavingsTransaction(account.id, 'withdrawal')"
                             appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
+                            [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
                             [appTooltip]="'SAVINGS.WITHDRAWAL' | translate"
                           >
                             <ion-icon name="remove-circle-outline"></ion-icon>
@@ -732,6 +737,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                             color="primary"
                             (click)="onLoanTransaction(account.id, 'repayment')"
                             appRequiresPermission="REPAYMENT_LOAN"
+                            [attr.aria-label]="'LOANS.REPAYMENT' | translate"
                             [appTooltip]="'LOANS.REPAYMENT' | translate"
                           >
                             <ion-icon name="card-outline"></ion-icon>
@@ -742,6 +748,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                               fill="clear"
                               color="secondary"
                               (click)="onLoanAction(account.id, 'approve')"
+                              [attr.aria-label]="'LOANS.APPROVE' | translate"
                               [appTooltip]="'LOANS.APPROVE' | translate"
                             >
                               <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -753,6 +760,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                               fill="clear"
                               color="secondary"
                               (click)="onLoanAction(account.id, 'disburse')"
+                              [attr.aria-label]="'LOANS.DISBURSE' | translate"
                               [appTooltip]="'LOANS.DISBURSE' | translate"
                             >
                               <ion-icon name="open-outline"></ion-icon>
@@ -765,6 +773,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                               color="danger"
                               (click)="onLoanAction(account.id, 'close')"
                               appRequiresPermission="CLOSE_LOAN"
+                              [attr.aria-label]="'LOANS.CLOSE' | translate"
                               [appTooltip]="'LOANS.CLOSE' | translate"
                             >
                               <ion-icon name="close-circle-outline"></ion-icon>
