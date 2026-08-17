@@ -30719,6 +30719,7 @@
           "longitude": { "type": "number" },
           "postalCode": { "type": "string" },
           "stateProvinceId": { "type": "integer", "format": "int64" },
+          "street": { "type": "string" },
           "townVillage": { "type": "string" },
           "updatedBy": { "type": "string" },
           "updatedOn": { "type": "string" }
