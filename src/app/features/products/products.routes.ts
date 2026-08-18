@@ -526,7 +526,7 @@ export const PRODUCTS_ROUTES: Routes = [
       ),
   },
   {
-    path: 'recurring-deposits/:accountId/transactions/create',
+    path: 'recurring-deposits/:accountId/transactions/:command',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_RECURRINGDEPOSITACCOUNT' },
     title: 'RECURRING_DEPOSIT_TRANSACTIONS.CREATE',
