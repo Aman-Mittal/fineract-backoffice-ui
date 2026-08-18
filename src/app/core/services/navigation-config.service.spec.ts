@@ -26,9 +26,11 @@ import {
   NavigationConfigService,
   NavItemConfig,
   filterNavItems,
+  flattenNavRoutes,
 } from './navigation-config.service';
 import type { AppConfig } from './config.service';
 import { provideTestConfig } from '../../testing/config';
+import { provideFakeAdapters } from '../../testing/adapters';
 
 describe('filterNavItems (pure function)', () => {
   const alwaysVisible = () => true;
@@ -92,6 +94,55 @@ describe('filterNavItems (pure function)', () => {
   });
 });
 
+describe('flattenNavRoutes (pure function)', () => {
+  const ORG_LABEL_KEY = 'nav.organization';
+  const OFFICES_LABEL_KEY = 'nav.offices';
+  const OFFICES_ROUTE = '/organization/offices';
+
+  it('collects leaf routes and preserves the parent group label key', () => {
+    const items: NavItemConfig[] = [
+      {
+        labelKey: ORG_LABEL_KEY,
+        children: [
+          { route: OFFICES_ROUTE, labelKey: OFFICES_LABEL_KEY },
+          { route: '/organization/staff', labelKey: 'nav.staff' },
+        ],
+      },
+    ];
+
+    expect(flattenNavRoutes(items)).toEqual([
+      {
+        route: OFFICES_ROUTE,
+        labelKey: OFFICES_LABEL_KEY,
+        groupLabelKey: ORG_LABEL_KEY,
+      },
+      {
+        route: '/organization/staff',
+        labelKey: 'nav.staff',
+        groupLabelKey: ORG_LABEL_KEY,
+      },
+    ]);
+  });
+
+  it('skips dividers and group headers without routes', () => {
+    const items: NavItemConfig[] = [
+      { labelKey: '', divider: true },
+      {
+        labelKey: 'nav.products',
+        children: [{ route: '/products/loan', labelKey: 'nav.loanProducts' }],
+      },
+    ];
+
+    expect(flattenNavRoutes(items)).toEqual([
+      {
+        route: '/products/loan',
+        labelKey: 'nav.loanProducts',
+        groupLabelKey: 'nav.products',
+      },
+    ]);
+  });
+});
+
 describe('NavigationConfigService', () => {
   let service: NavigationConfigService;
   let authService: AuthService;
@@ -135,6 +186,9 @@ describe('NavigationConfigService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTestConfig({ rbacEnabled: true, ...config }),
+        // searchRoutes matches on the translated label, because that is what the user
+        // typed; the fake adapter echoes the key, which is enough to exercise the match.
+        ...provideFakeAdapters().providers,
       ],
     });
     service = TestBed.inject(NavigationConfigService);
@@ -483,6 +537,52 @@ describe('NavigationConfigService', () => {
 
       expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeFalse();
       expect(findRoute(service.filteredNavItems(), SECURITY_USERS_ROUTE)).toBeTrue();
+    });
+  });
+
+  describe('searchRoutes', () => {
+    it('returns matching navigation shortcuts from the filtered tree', () => {
+      setPermissions(['ALL_FUNCTIONS']);
+      const results = service.searchRoutes('offices');
+      expect(results.some((result) => result.route === '/organization/offices')).toBeTrue();
+      expect(results[0]?.label).toBeTruthy();
+    });
+
+    it('excludes routes the user cannot access', () => {
+      setPermissions([]);
+      const results = service.searchRoutes('users');
+      expect(results.some((result) => result.route === '/security/users')).toBeFalse();
+    });
+
+    it('does not return the global search page itself', () => {
+      setPermissions(['ALL_FUNCTIONS']);
+      const results = service.searchRoutes('search');
+      expect(results.some((result) => result.route === '/search')).toBeFalse();
+    });
+
+    /**
+     * Matching the section name is useful — typing "organization" should surface that
+     * section's pages — but it must never outrank a page named for the query itself,
+     * or a small limit gets filled with siblings before the page the user asked for.
+     */
+    it('ranks a page whose own name matches above one matched by its section', () => {
+      setPermissions(['ALL_FUNCTIONS']);
+
+      const results = service.searchRoutes('offices');
+      const officesIndex = results.findIndex((result) => result.route === '/organization/offices');
+      const siblingIndex = results.findIndex(
+        (result) => result.groupLabel && !result.label.toLowerCase().includes('offices'),
+      );
+
+      expect(officesIndex).toBe(0);
+      if (siblingIndex !== -1) {
+        expect(officesIndex).toBeLessThan(siblingIndex);
+      }
+    });
+
+    it('honours the limit', () => {
+      setPermissions(['ALL_FUNCTIONS']);
+      expect(service.searchRoutes('a', 3).length).toBeLessThanOrEqual(3);
     });
   });
 });

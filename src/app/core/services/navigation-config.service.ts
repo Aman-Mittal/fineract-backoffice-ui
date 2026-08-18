@@ -18,6 +18,7 @@
  */
 
 import { InjectionToken, Injectable, Signal, computed, inject } from '@angular/core';
+import { I18N } from '../adapters';
 import { AuthService } from './auth.service';
 import { InstitutionConfigService, InstitutionFeature } from './institution-config.service';
 import { ConfigService, NavOverrides } from './config.service';
@@ -65,6 +66,45 @@ export interface NavItemConfig {
    * profile. Hidden unless the deployment sets `developerToolsEnabled`.
    */
   developerTool?: boolean;
+}
+
+/** A permission-filtered navigation leaf suitable for global search. */
+export interface NavSearchResult {
+  route: string;
+  label: string;
+  groupLabel?: string;
+  icon?: string;
+}
+
+/**
+ * Flattens a navigation tree into searchable leaf routes, carrying the parent
+ * group's label key for display context (e.g. "Organization › Offices").
+ */
+export function flattenNavRoutes(
+  items: readonly NavItemConfig[],
+  groupLabelKey?: string,
+): { route: string; labelKey: string; groupLabelKey?: string; icon?: string }[] {
+  return items.flatMap((item) => {
+    if (item.divider) {
+      return [];
+    }
+    if (item.children) {
+      return flattenNavRoutes(item.children, item.labelKey);
+    }
+    if (!item.route) {
+      return [];
+    }
+    // `icon` is omitted rather than set to undefined so a leaf without one has the shape
+    // its callers and specs describe, instead of a key that is present but empty.
+    return [
+      {
+        route: item.route,
+        labelKey: item.labelKey,
+        groupLabelKey,
+        ...(item.icon ? { icon: item.icon } : {}),
+      },
+    ];
+  });
 }
 
 /**
@@ -882,6 +922,7 @@ export class NavigationConfigService {
   private readonly institutionConfig = inject(InstitutionConfigService);
   private readonly config = inject(ConfigService);
   private readonly overrides = inject(NAV_OVERRIDES);
+  private readonly i18n = inject(I18N);
 
   /** The full, unfiltered navigation tree. */
   readonly navConfig: readonly NavItemConfig[] = NAV_CONFIG;
@@ -936,5 +977,41 @@ export class NavigationConfigService {
     }
 
     return true;
+  }
+
+  /**
+   * Returns navigation shortcuts whose translated labels match the query.
+   * Results are already filtered by the current user's permissions and institution config.
+   */
+  searchRoutes(query: string, limit = 15): NavSearchResult[] {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return [];
+    }
+
+    const candidates = flattenNavRoutes(this.filteredNavItems())
+      .filter((entry) => entry.route !== '/search')
+      .map((entry) => ({
+        route: entry.route,
+        label: this.i18n.translate(entry.labelKey),
+        groupLabel: entry.groupLabelKey ? this.i18n.translate(entry.groupLabelKey) : undefined,
+        icon: entry.icon,
+      }));
+
+    // Partitioned rather than scored and sorted, because the only ordering that matters is
+    // this one: a page whose own name matches comes before a page matched only through its
+    // section. Ranking them together would let "organization" fill the whole result list
+    // with every leaf beneath Organization — and in the header, where the limit is small,
+    // that pushes the entity hits off the bottom.
+    const named = candidates.filter((result) =>
+      result.label.toLowerCase().includes(normalizedQuery),
+    );
+    const bySection = candidates.filter(
+      (result) =>
+        !result.label.toLowerCase().includes(normalizedQuery) &&
+        result.groupLabel?.toLowerCase().includes(normalizedQuery),
+    );
+
+    return [...named, ...bySection].slice(0, limit);
   }
 }
