@@ -38,6 +38,7 @@ const BACKEND_SPECS = [
   'center-servicing.spec.ts',
   'parity-screens.spec.ts',
   'rbac-backend-restricted-user.spec.ts',
+  'rbac-multi-permission.spec.ts',
   'client-transfer.spec.ts',
   'deposit-account-servicing.spec.ts',
   'deposit-product-configuration.spec.ts',
@@ -118,6 +119,11 @@ export default defineConfig({
     // than as a CI step means a local run gets the same baseline for free, which is
     // what allows those specs to run unconditionally instead of behind an env gate.
     { name: 'setup', testMatch: /backend\.setup\.ts/ },
+    // Populates a demo dataset for manual testing. Deliberately its own project rather than
+    // a member of BACKEND_SPECS or a dependency of it: nothing here is an assertion, so it
+    // must never run as a side effect of `--project=backend` in CI, only when asked for by
+    // name (`--project=demo-seed`, or `npm run seed:demo-data`).
+    { name: 'demo-seed', testMatch: /demo-data\.setup\.ts/ },
     {
       // Everything that mocks its own backend with page.route(). Needs no Fineract
       // and no seeding, so CI can run it without the docker stack and in parallel

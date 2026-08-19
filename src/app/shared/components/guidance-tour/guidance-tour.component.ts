@@ -64,20 +64,23 @@ import { GuidanceService } from '../../../core/services/guidance.service';
             </div>
           </ion-card-content>
           <div class="guidance-actions">
-            <ion-button fill="clear" color="medium" (click)="onExit()">Exit</ion-button>
+            <ion-button fill="clear" color="medium" (click)="onExit()">
+              {{ 'COMMON.EXIT' | translate }}
+            </ion-button>
             <span class="guidance-spacer"></span>
             <ion-button
               fill="clear"
               [disabled]="guidanceService.currentStepIndex() === 0"
               (click)="onBack()"
             >
-              Back
+              {{ 'COMMON.BACK' | translate }}
             </ion-button>
             <ion-button color="primary" (click)="onNext()">
               {{
-                guidanceService.currentStepIndex() === guidanceService.activeSteps().length - 1
-                  ? 'Finish'
-                  : 'Next'
+                (guidanceService.currentStepIndex() === guidanceService.activeSteps().length - 1
+                  ? 'COMMON.FINISH'
+                  : 'COMMON.NEXT'
+                ) | translate
               }}
             </ion-button>
           </div>

@@ -18,6 +18,7 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { HeaderComponent } from './header.component';
 import { AuthService } from '../core/services/auth.service';
 import { NavigationConfigService } from '../core/services/navigation-config.service';
@@ -40,7 +41,7 @@ describe('HeaderComponent', () => {
     });
     navigationConfigSpy = jasmine.createSpyObj('NavigationConfigService', ['searchRoutes']);
     navigationConfigSpy.searchRoutes.and.returnValue([]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
 
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), HeaderComponent],
@@ -77,5 +78,38 @@ describe('HeaderComponent', () => {
     spyOn(translateService, 'use');
     component.switchLanguage('hi');
     expect(translateService.use).toHaveBeenCalledWith('hi');
+  });
+
+  it('navigates to a page result via navigateByUrl', () => {
+    component.onResultSelected({
+      kind: 'nav',
+      nav: { route: '/organization/offices', label: 'Offices' },
+    });
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/organization/offices');
+  });
+
+  it('navigates to an entity result by type', () => {
+    component.onResultSelected({
+      kind: 'entity',
+      entity: { entityType: 'LOAN', entityId: 42 } as never,
+    });
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans/view', 42]);
+  });
+
+  it('prevents the mousedown default on a result item, so the searchbar never blurs to start the 150ms hide race', () => {
+    // Drives `showResults` through the public entry point rather than reaching into the
+    // (protected) signal directly; `searchResults` is set directly since the debounced
+    // pipeline behind `onSearchInput` never resolves within a synchronous test.
+    component.onSearchInput({ detail: { value: 'Offices' } } as unknown as Event);
+    component.searchResults.set([
+      { kind: 'nav', nav: { route: '/organization/offices', label: 'Offices' } },
+    ]);
+    fixture.detectChanges();
+
+    const item = fixture.debugElement.query(By.css('ion-item'));
+    const event = jasmine.createSpyObj('MouseEvent', ['preventDefault']);
+    item.triggerEventHandler('mousedown', event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
   });
 });

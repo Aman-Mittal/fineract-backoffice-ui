@@ -81,6 +81,13 @@ The same flow runs in CI via `.github/workflows/e2e.yml`. See
 [`DOCS/E2E_TESTING.md`](DOCS/E2E_TESTING.md) for writing specs, and prefer `data-testid`
 over element selectors so tests survive markup changes.
 
+Once the backend above is up, `npm run seed:demo-data` populates it with a representative
+dataset — an office, staff, a center, a group, an active loan, a loan pending approval, a
+savings account, a fixed deposit, a share account, a manual journal entry and two reports —
+for manual sanity testing rather than the narrow fixtures an individual spec builds for
+itself. It prints what it created. This is its own Playwright project (`demo-seed`), so it
+never runs as a side effect of the `backend` project in CI.
+
 ## UI Components
 
 The UI layer is **Ionic** (`@ionic/angular` v8), configured in `mode: 'md'`.

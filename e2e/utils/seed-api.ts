@@ -857,7 +857,7 @@ const SPECIAL = '#$%&*+-=?@^';
  * is no value in having one in the tree when the account is created and used within a single
  * test run.
  */
-function generatePassword(): string {
+export function generatePassword(): string {
   const pools = [UPPER, LOWER, DIGIT, SPECIAL];
   const characters: string[] = [];
   // One from each class first, so the policy's lookaheads are satisfied by construction,
@@ -920,7 +920,7 @@ export async function seedRestrictedUser(
  */
 export async function statusAs(
   user: SeededRestrictedUser,
-  method: 'GET' | 'POST',
+  method: 'GET' | 'POST' | 'PUT',
   path: string,
   body?: unknown,
 ): Promise<number> {
@@ -935,7 +935,11 @@ export async function statusAs(
   try {
     const url = `${API_BASE}${path}`;
     const response =
-      method === 'GET' ? await context.get(url) : await context.post(url, { data: body ?? {} });
+      method === 'GET'
+        ? await context.get(url)
+        : method === 'PUT'
+          ? await context.put(url, { data: body ?? {} })
+          : await context.post(url, { data: body ?? {} });
     return response.status();
   } finally {
     await context.dispose();

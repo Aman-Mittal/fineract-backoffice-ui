@@ -127,6 +127,31 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
       import('./loans/wc-loan-action-form.component').then((m) => m.WcLoanActionFormComponent),
   },
   {
+    path: 'loans/:id/breach-action',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    loadComponent: () =>
+      import('./loans/wc-breach-action-form.component').then((m) => m.WcBreachActionFormComponent),
+  },
+  {
+    path: 'loans/:id/near-breach-action',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    loadComponent: () =>
+      import('./loans/wc-near-breach-action-form.component').then(
+        (m) => m.WcNearBreachActionFormComponent,
+      ),
+  },
+  {
+    path: 'loans/:id/delinquency-action',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    loadComponent: () =>
+      import('./loans/wc-delinquency-action-form.component').then(
+        (m) => m.WcDelinquencyActionFormComponent,
+      ),
+  },
+  {
     path: 'loans/account-locks',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_WORKINGCAPITALLOAN' },

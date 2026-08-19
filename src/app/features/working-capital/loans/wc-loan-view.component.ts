@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
@@ -32,7 +32,10 @@ import {
   IonPopover,
   IonSegment,
   IonSegmentButton,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/angular/standalone';
+import { FormsModule } from '@angular/forms';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
@@ -42,18 +45,26 @@ import {
   WorkingCapitalLoanDelinquencyActionsService,
   WorkingCapitalLoanDelinquencyRangeScheduleService,
   WorkingCapitalLoanBreachScheduleService,
+  WorkingCapitalLoanBreachActionsService,
+  WorkingCapitalLoanNearBreachActionsService,
+  WorkingCapitalLoanOriginatorsService,
+  LoanOriginatorsService,
   GetWorkingCapitalLoansLoanIdResponse,
   WorkingCapitalLoanChargeData,
   GetWorkingCapitalLoanTransactionIdResponse,
   WorkingCapitalLoanDelinquencyActionData,
   WorkingCapitalLoanDelinquencyRangeScheduleData,
   WorkingCapitalLoanBreachScheduleData,
+  WorkingCapitalLoanBreachActionData,
+  WorkingCapitalLoanNearBreachActionData,
+  LoanOriginatorData,
 } from '../../../api';
 
 /**
- * Detail view for a single Working Capital Loan. Shows a Details key/value
- * summary plus read-only tabs for charges, transactions, delinquency actions,
- * delinquency range schedule and breach schedule, each backed by its own GET.
+ * Detail view for a single Working Capital Loan. Shows a Details key/value summary plus tabs for
+ * charges, transactions, delinquency range schedule and breach schedule (read-only, each backed
+ * by its own GET), and delinquency actions, breach actions, near-breach actions and originators
+ * (read/write).
  */
 /**
  * The tabs on this screen, named.
@@ -69,6 +80,9 @@ export const WC_LOAN_TAB = {
   delinquencyActions: 'delinquencyActions',
   delinquencyRangeSchedule: 'delinquencyRangeSchedule',
   breachSchedule: 'breachSchedule',
+  breachActions: 'breachActions',
+  nearBreachActions: 'nearBreachActions',
+  originators: 'originators',
 } as const;
 
 export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
@@ -78,6 +92,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
   standalone: true,
   imports: [
     TranslateModule,
+    FormsModule,
     CdkTableModule,
     DecimalPipe,
     IonIcon,
@@ -86,6 +101,8 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
     IonCard,
     IonSegment,
     IonSegmentButton,
+    IonSelect,
+    IonSelectOption,
     IonLabel,
     IonPopover,
     IonList,
@@ -206,6 +223,15 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
         </ion-segment-button>
         <ion-segment-button [value]="TAB.breachSchedule">
           <ion-label>{{ 'WC_LOANS.TABS.BREACH_SCHEDULE' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.breachActions">
+          <ion-label>{{ 'WC_LOANS.TABS.BREACH_ACTIONS' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.nearBreachActions">
+          <ion-label>{{ 'WC_LOANS.TABS.NEAR_BREACH_ACTIONS' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.originators">
+          <ion-label>{{ 'WC_LOANS.TABS.ORIGINATORS' | translate }}</ion-label>
         </ion-segment-button>
       </ion-segment>
 
@@ -329,6 +355,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       }
       @if (activeTab() === TAB.delinquencyActions) {
         <div class="tab-content">
+          <div class="tab-toolbar">
+            <ion-button color="primary" (click)="onNewDelinquencyAction()" [disabled]="!loan()">
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'WC_LOANS.DELINQUENCY_ACTION.NEW' | translate }}
+            </ion-button>
+          </div>
           <ion-card class="table-card">
             <ion-card-content>
               @if (delinquencyActions().length > 0) {
@@ -348,6 +380,14 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                       {{ 'WC_LOANS.END_DATE' | translate }}
                     </th>
                     <td cdk-cell *cdkCellDef="let a">{{ a.endDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="frequency">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.DELINQUENCY_ACTION.FREQUENCY' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">
+                      {{ a.frequency ? a.frequency + ' ' + a.frequencyType : '-' }}
+                    </td>
                   </ng-container>
                   <tr cdk-header-row *cdkHeaderRowDef="delinquencyActionColumns"></tr>
                   <tr cdk-row *cdkRowDef="let row; columns: delinquencyActionColumns"></tr>
@@ -439,6 +479,184 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
               } @else {
                 <div class="empty-state">
                   <ion-icon name="warning-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === TAB.breachActions) {
+        <div class="tab-content">
+          <div class="tab-toolbar">
+            <ion-button color="primary" (click)="onNewBreachAction()" [disabled]="!loan()">
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'WC_LOANS.BREACH_ACTION.NEW' | translate }}
+            </ion-button>
+          </div>
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (breachActions().length > 0) {
+                <table cdk-table [dataSource]="breachActions()" class="full-width-table">
+                  <ng-container cdkColumnDef="action">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.ACTION' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.action }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="startDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.START_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.startDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="endDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.END_DATE' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.endDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="frequency">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.BREACH_ACTION.FREQUENCY' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">
+                      {{ a.frequency ? a.frequency + ' ' + a.frequencyType : '-' }}
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="breachActionColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: breachActionColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="hammer-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === TAB.nearBreachActions) {
+        <div class="tab-content">
+          <div class="tab-toolbar">
+            <ion-button color="primary" (click)="onNewNearBreachAction()" [disabled]="!loan()">
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'WC_LOANS.NEAR_BREACH_ACTION.NEW' | translate }}
+            </ion-button>
+          </div>
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (nearBreachActions().length > 0) {
+                <table cdk-table [dataSource]="nearBreachActions()" class="full-width-table">
+                  <ng-container cdkColumnDef="action">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.ACTION' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.action }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="frequency">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.NEAR_BREACH_ACTION.FREQUENCY' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.frequency }} {{ a.frequencyType }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="threshold">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.NEAR_BREACH_ACTION.THRESHOLD' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.threshold }}%</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="createdDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.NEAR_BREACH_ACTION.CREATED_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let a">{{ a.createdDate }}</td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="nearBreachActionColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: nearBreachActionColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === TAB.originators) {
+        <div class="tab-content">
+          <div class="tab-toolbar">
+            <ion-item fill="outline" class="attach-select">
+              <ion-label position="stacked">{{
+                'WC_LOANS.ORIGINATORS.SELECT_ORIGINATOR' | translate
+              }}</ion-label>
+              <ion-select
+                [attr.aria-label]="'WC_LOANS.ORIGINATORS.SELECT_ORIGINATOR' | translate"
+                interface="popover"
+                [ngModel]="originatorToAttach()"
+                (ngModelChange)="originatorToAttach.set($event)"
+              >
+                @for (opt of attachableOriginators(); track opt.id) {
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+            <ion-button
+              color="primary"
+              (click)="onAttachOriginator()"
+              [disabled]="!originatorToAttach()"
+            >
+              <ion-icon name="link-outline"></ion-icon>
+              {{ 'WC_LOANS.ORIGINATORS.ATTACH' | translate }}
+            </ion-button>
+          </div>
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (originators().length > 0) {
+                <table cdk-table [dataSource]="originators()" class="full-width-table">
+                  <ng-container cdkColumnDef="name">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.ORIGINATORS.NAME' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let o">{{ o.name }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="type">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.ORIGINATORS.TYPE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let o">{{ o.originatorType?.name }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="channel">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.ORIGINATORS.CHANNEL' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let o">{{ o.channelType?.name }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="status">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.ORIGINATORS.STATUS' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let o">{{ o.status }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="actions">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'COMMON.ACTIONS' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let o">
+                      <ion-button
+                        fill="clear"
+                        color="danger"
+                        [attr.aria-label]="'WC_LOANS.ORIGINATORS.DETACH' | translate"
+                        [appTooltip]="'WC_LOANS.ORIGINATORS.DETACH' | translate"
+                        (click)="onDetachOriginator(o)"
+                      >
+                        <ion-icon name="unlink-outline"></ion-icon>
+                      </ion-button>
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="originatorColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: originatorColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="people-outline"></ion-icon>
                   <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
                 </div>
               }
@@ -541,6 +759,17 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
         border: 1px solid var(--border-color);
         box-shadow: none;
       }
+      .tab-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .tab-toolbar .attach-select {
+        min-width: 260px;
+        --min-height: 0;
+      }
       .full-width-table {
         width: 100%;
       }
@@ -578,6 +807,10 @@ export class WcLoanViewComponent implements OnInit {
     WorkingCapitalLoanDelinquencyRangeScheduleService,
   );
   private readonly breachScheduleService = inject(WorkingCapitalLoanBreachScheduleService);
+  private readonly breachActionsService = inject(WorkingCapitalLoanBreachActionsService);
+  private readonly nearBreachActionsService = inject(WorkingCapitalLoanNearBreachActionsService);
+  private readonly wcOriginatorsService = inject(WorkingCapitalLoanOriginatorsService);
+  private readonly originatorsService = inject(LoanOriginatorsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -588,18 +821,36 @@ export class WcLoanViewComponent implements OnInit {
   readonly delinquencyActions = signal<WorkingCapitalLoanDelinquencyActionData[]>([]);
   readonly delinquencyRangeSchedule = signal<WorkingCapitalLoanDelinquencyRangeScheduleData[]>([]);
   readonly breachSchedule = signal<WorkingCapitalLoanBreachScheduleData[]>([]);
+  readonly breachActions = signal<WorkingCapitalLoanBreachActionData[]>([]);
+  readonly nearBreachActions = signal<WorkingCapitalLoanNearBreachActionData[]>([]);
+  readonly originators = signal<LoanOriginatorData[]>([]);
+  /** The full master list, used to offer only originators not already attached to this loan. */
+  private readonly allOriginators = signal<LoanOriginatorData[]>([]);
+  readonly attachableOriginators = computed(() => {
+    const attachedIds = new Set(this.originators().map((o) => o.id));
+    return this.allOriginators().filter((o) => !attachedIds.has(o.id));
+  });
+  readonly originatorToAttach = signal<number | null>(null);
 
   chargeColumns = ['name', 'amount', 'paid', 'outstanding'];
   transactionColumns = ['id', 'date', 'type', 'amount'];
-  delinquencyActionColumns = ['action', 'startDate', 'endDate'];
+  delinquencyActionColumns = ['action', 'startDate', 'endDate', 'frequency'];
   delinquencyRangeColumns = ['periodNumber', 'fromDate', 'toDate', 'outstanding'];
   breachScheduleColumns = ['periodNumber', 'fromDate', 'toDate', 'breach'];
+  breachActionColumns = ['action', 'startDate', 'endDate', 'frequency'];
+  nearBreachActionColumns = ['action', 'frequency', 'threshold', 'createdDate'];
+  originatorColumns = ['name', 'type', 'channel', 'status', 'actions'];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loanId = +id;
       this.loadData();
+    }
+
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab && Object.values(WC_LOAN_TAB).includes(tab as WcLoanTab)) {
+      this.activeTab.set(tab as WcLoanTab);
     }
   }
 
@@ -637,6 +888,32 @@ export class WcLoanViewComponent implements OnInit {
       next: (data) => this.breachSchedule.set(data ?? []),
       error: (err: unknown) => console.error('Failed to load breach schedule', err),
     });
+
+    this.breachActionsService.getWorkingCapitalLoansLoanIdBreachActions(this.loanId).subscribe({
+      next: (data) => this.breachActions.set(data ?? []),
+      error: (err: unknown) => console.error('Failed to load breach actions', err),
+    });
+
+    this.nearBreachActionsService
+      .getWorkingCapitalLoansLoanIdNearBreachActions(this.loanId)
+      .subscribe({
+        next: (data) => this.nearBreachActions.set(data ?? []),
+        error: (err: unknown) => console.error('Failed to load near-breach actions', err),
+      });
+
+    this.loadOriginators();
+
+    this.originatorsService.getLoanOriginators().subscribe({
+      next: (data) => this.allOriginators.set(data ?? []),
+      error: (err: unknown) => console.error('Failed to load loan originators', err),
+    });
+  }
+
+  loadOriginators(): void {
+    this.wcOriginatorsService.getWorkingCapitalLoansLoanIdOriginators(this.loanId).subscribe({
+      next: (data) => this.originators.set(data.originators ?? []),
+      error: (err: unknown) => console.error('Failed to load loan originators for this loan', err),
+    });
   }
 
   get isLoanPendingApproval(): boolean {
@@ -661,6 +938,42 @@ export class WcLoanViewComponent implements OnInit {
 
   onEdit(): void {
     this.router.navigate([`/working-capital/loans/edit/${this.loanId}`]);
+  }
+
+  onNewDelinquencyAction(): void {
+    this.router.navigate([`/working-capital/loans/${this.loanId}/delinquency-action`]);
+  }
+
+  onNewBreachAction(): void {
+    this.router.navigate([`/working-capital/loans/${this.loanId}/breach-action`]);
+  }
+
+  onNewNearBreachAction(): void {
+    this.router.navigate([`/working-capital/loans/${this.loanId}/near-breach-action`]);
+  }
+
+  onAttachOriginator(): void {
+    const originatorId = this.originatorToAttach();
+    if (!originatorId) return;
+    this.wcOriginatorsService
+      .postWorkingCapitalLoansLoanIdOriginatorsOriginatorId(this.loanId, originatorId)
+      .subscribe({
+        next: () => {
+          this.originatorToAttach.set(null);
+          this.loadOriginators();
+        },
+        error: (err: unknown) => console.error('Failed to attach originator', err),
+      });
+  }
+
+  onDetachOriginator(originator: LoanOriginatorData): void {
+    if (!originator.id || !confirm(`Detach ${originator.name} from this loan?`)) return;
+    this.wcOriginatorsService
+      .deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId(this.loanId, originator.id)
+      .subscribe({
+        next: () => this.loadOriginators(),
+        error: (err: unknown) => console.error('Failed to detach originator', err),
+      });
   }
 
   onDelete(): void {

@@ -220,6 +220,7 @@ export type LoanTab = (typeof LOAN_TAB)[keyof typeof LOAN_TAB];
               @if (isLoanPendingApproval) {
                 <ion-button
                   color="secondary"
+                  data-testid="loan-approve-action"
                   appRequiresPermission="APPROVE_LOAN"
                   (click)="onLoanAction('approve')"
                   [appTooltip]="'LOANS.APPROVE' | translate"

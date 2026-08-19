@@ -62,6 +62,15 @@ describe('GuidanceService', () => {
     expect(service.currentStep()).toBeNull();
   });
 
+  it('targets the dashboard System Status list specifically, not any <ul> on the page', () => {
+    // A bare 'ul' selector matches the sidebar's own `<ul class="nav-list">` first, since it
+    // sits earlier in the DOM than the dashboard content — this step ends up highlighting and
+    // scrolling to the sidebar instead of the System Status card it describes.
+    service.startTour('/dashboard');
+    service.nextStep();
+    expect(service.currentStep()?.targetSelector).toBe('.status-list');
+  });
+
   it('should match savings routes', () => {
     service.startTour('/products/savings-accounts');
     expect(service.isPlaying()).toBeTrue();
