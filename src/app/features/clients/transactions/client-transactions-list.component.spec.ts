@@ -24,17 +24,21 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ClientTransactionsListComponent', () => {
   let component: ClientTransactionsListComponent;
   let fixture: ComponentFixture<ClientTransactionsListComponent>;
   let serviceSpy: jasmine.SpyObj<ClientTransactionService>;
+  let dialogService: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj('ClientTransactionService', [
       'getClientsClientIdTransactions',
       'postClientsClientIdTransactionsTransactionId',
     ]);
+    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogService.confirm.and.resolveTo(true);
     serviceSpy.getClientsClientIdTransactions.and.returnValue(
       of({
         pageItems: [{ id: 1, amount: 100, reversed: false }],
@@ -45,6 +49,7 @@ describe('ClientTransactionsListComponent', () => {
       imports: [ClientTransactionsListComponent, TranslateModule.forRoot()],
       providers: [
         { provide: ClientTransactionService, useValue: serviceSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ clientId: '1' }) } },
@@ -64,8 +69,7 @@ describe('ClientTransactionsListComponent', () => {
     expect(component.transactions()).toHaveSize(1);
   });
 
-  it('should undo a transaction after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should undo a transaction after confirmation and reload', async () => {
     serviceSpy.postClientsClientIdTransactionsTransactionId.and.returnValue(
       of({}) as unknown as ReturnType<
         ClientTransactionService['postClientsClientIdTransactionsTransactionId']
@@ -73,6 +77,7 @@ describe('ClientTransactionsListComponent', () => {
     );
 
     component.onUndo({ id: 7 });
+    await fixture.whenStable();
 
     expect(serviceSpy.postClientsClientIdTransactionsTransactionId).toHaveBeenCalledWith(
       1,
@@ -82,9 +87,10 @@ describe('ClientTransactionsListComponent', () => {
     expect(serviceSpy.getClientsClientIdTransactions).toHaveBeenCalledTimes(2);
   });
 
-  it('should not undo when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not undo when cancelled', async () => {
+    dialogService.confirm.and.resolveTo(false);
     component.onUndo({ id: 7 });
+    await fixture.whenStable();
     expect(serviceSpy.postClientsClientIdTransactionsTransactionId).not.toHaveBeenCalled();
   });
 });

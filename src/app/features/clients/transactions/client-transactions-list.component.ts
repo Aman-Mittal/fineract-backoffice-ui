@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { ClientTransactionService, GetClientsPageItems } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -76,6 +78,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class ClientTransactionsListComponent implements OnInit {
   private readonly transactionService = inject(ClientTransactionService);
   private readonly route = inject(ActivatedRoute);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'id', label: 'CLIENT_TRANSACTIONS.ID', sortable: true },
@@ -108,8 +112,18 @@ export class ClientTransactionsListComponent implements OnInit {
     return formatArrayDate(value);
   }
 
-  onUndo(row: GetClientsPageItems): void {
-    if (!row.id || !window.confirm('Undo this transaction?')) return;
+  async onUndo(row: GetClientsPageItems): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('CLIENT_TRANSACTIONS.UNDO'),
+      message: this.i18n.translate('CLIENT_TRANSACTIONS.CONFIRM_UNDO', {
+        id: row.id,
+        amount: row.amount ?? '',
+        date: this.formatDate(row.date),
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.transactionService
       .postClientsClientIdTransactionsTransactionId(this.clientId, row.id, 'undo')
       .subscribe({

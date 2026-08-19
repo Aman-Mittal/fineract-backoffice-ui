@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { ClientCollateralManagementService, ClientCollateralManagementData } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -80,6 +82,8 @@ export class ClientCollateralListComponent implements OnInit {
   private readonly collateralService = inject(ClientCollateralManagementService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'CLIENT_COLLATERAL.NAME', sortable: true },
@@ -116,8 +120,17 @@ export class ClientCollateralListComponent implements OnInit {
     this.router.navigate(['/clients', this.clientId, 'collaterals', 'edit', row.id]);
   }
 
-  onDelete(row: ClientCollateralManagementData): void {
-    if (!row.id || !window.confirm('Delete this collateral?')) return;
+  async onDelete(row: ClientCollateralManagementData): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('COMMON.DELETE'),
+      message: this.i18n.translate('CLIENT_COLLATERAL.CONFIRM_DELETE', {
+        name: row.name ?? '',
+        quantity: row.quantity ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.collateralService
       .deleteClientsClientIdCollateralsCollateralId(this.clientId, row.id)
       .subscribe({

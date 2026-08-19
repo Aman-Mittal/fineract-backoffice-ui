@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { LoanChargesService, GetLoansLoanIdChargesChargeIdResponse } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -82,6 +84,8 @@ export class LoanChargesListComponent implements OnInit {
   private readonly loanChargesService = inject(LoanChargesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'LOAN_CHARGES.TITLE', sortable: true },
@@ -112,8 +116,17 @@ export class LoanChargesListComponent implements OnInit {
     this.router.navigate(['/loans', this.loanId, 'charges', 'add']);
   }
 
-  onDelete(row: GetLoansLoanIdChargesChargeIdResponse): void {
-    if (!row.id || !window.confirm('Delete this charge?')) return;
+  async onDelete(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('COMMON.DELETE'),
+      message: this.i18n.translate('LOAN_CHARGES.DELETE_CONFIRM', {
+        name: row.name ?? '',
+        amount: row.amount ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.loanChargesService.deleteLoansLoanIdChargesLoanChargeId(this.loanId, row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete loan charge', err),

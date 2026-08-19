@@ -24,12 +24,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('InterestPausesListComponent', () => {
   let component: InterestPausesListComponent;
   let fixture: ComponentFixture<InterestPausesListComponent>;
   let serviceSpy: jasmine.SpyObj<LoanInterestPauseService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogService: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj('LoanInterestPauseService', [
@@ -37,6 +39,8 @@ describe('InterestPausesListComponent', () => {
       'deleteLoansLoanIdInterestPausesVariationId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogService.confirm.and.resolveTo(true);
     serviceSpy.getLoansLoanIdInterestPauses.and.returnValue(
       of([
         { id: 1, startDate: '1 January 2026', endDate: '1 February 2026' },
@@ -48,6 +52,7 @@ describe('InterestPausesListComponent', () => {
       providers: [
         { provide: LoanInterestPauseService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ loanId: '1' }) } },
@@ -73,8 +78,7 @@ describe('InterestPausesListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans', 1, 'interest-pauses', 'create']);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should delete after confirmation and reload', async () => {
     serviceSpy.deleteLoansLoanIdInterestPausesVariationId.and.returnValue(
       of({}) as unknown as ReturnType<
         LoanInterestPauseService['deleteLoansLoanIdInterestPausesVariationId']
@@ -82,14 +86,16 @@ describe('InterestPausesListComponent', () => {
     );
 
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteLoansLoanIdInterestPausesVariationId).toHaveBeenCalledWith(1, 5);
     expect(serviceSpy.getLoansLoanIdInterestPauses).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.and.resolveTo(false);
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
     expect(serviceSpy.deleteLoansLoanIdInterestPausesVariationId).not.toHaveBeenCalled();
   });
 });

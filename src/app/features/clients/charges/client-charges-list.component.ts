@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { ClientChargesService, GetClientsChargesPageItems } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -81,6 +83,8 @@ export class ClientChargesListComponent implements OnInit {
   private readonly clientChargesService = inject(ClientChargesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'CLIENT_CHARGES.NAME', sortable: true },
@@ -118,8 +122,18 @@ export class ClientChargesListComponent implements OnInit {
     this.router.navigate(['/clients', this.clientId, 'charges', 'create']);
   }
 
-  onDelete(row: GetClientsChargesPageItems): void {
-    if (!row.id || !window.confirm('Delete this charge?')) return;
+  async onDelete(row: GetClientsChargesPageItems): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('COMMON.DELETE'),
+      message: this.i18n.translate('CLIENT_CHARGES.CONFIRM_DELETE', {
+        name: row.name ?? '',
+        amount: row.amount ?? '',
+        dueDate: this.formatDate(row.dueDate),
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.clientChargesService
       .deleteClientsClientIdChargesChargeId(this.clientId, row.id)
       .subscribe({

@@ -24,12 +24,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ClientCollateralListComponent', () => {
   let component: ClientCollateralListComponent;
   let fixture: ComponentFixture<ClientCollateralListComponent>;
   let serviceSpy: jasmine.SpyObj<ClientCollateralManagementService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogService: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj('ClientCollateralManagementService', [
@@ -37,6 +39,8 @@ describe('ClientCollateralListComponent', () => {
       'deleteClientsClientIdCollateralsCollateralId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogService.confirm.and.resolveTo(true);
     serviceSpy.getClientsClientIdCollaterals.and.returnValue(
       of([{ id: 1, name: 'Gold', quantity: 5 }]) as unknown as ReturnType<
         ClientCollateralManagementService['getClientsClientIdCollaterals']
@@ -48,6 +52,7 @@ describe('ClientCollateralListComponent', () => {
       providers: [
         { provide: ClientCollateralManagementService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ clientId: '1' }) } },
@@ -67,8 +72,7 @@ describe('ClientCollateralListComponent', () => {
     expect(component.collaterals()).toHaveSize(1);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should delete after confirmation and reload', async () => {
     serviceSpy.deleteClientsClientIdCollateralsCollateralId.and.returnValue(
       of({}) as unknown as ReturnType<
         ClientCollateralManagementService['deleteClientsClientIdCollateralsCollateralId']
@@ -76,14 +80,16 @@ describe('ClientCollateralListComponent', () => {
     );
 
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteClientsClientIdCollateralsCollateralId).toHaveBeenCalledWith(1, 5);
     expect(serviceSpy.getClientsClientIdCollaterals).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.and.resolveTo(false);
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteClientsClientIdCollateralsCollateralId).not.toHaveBeenCalled();
   });
 });

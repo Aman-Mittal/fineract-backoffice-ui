@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { LoanInterestPauseService, InterestPauseResponseDto } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -72,6 +74,8 @@ export class InterestPausesListComponent implements OnInit {
   private readonly pauseService = inject(LoanInterestPauseService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   loanId: number | null = null;
 
@@ -109,8 +113,17 @@ export class InterestPausesListComponent implements OnInit {
     }
   }
 
-  onDelete(row: InterestPauseResponseDto): void {
-    if (!this.loanId || !row.id || !window.confirm('Delete this interest pause?')) return;
+  async onDelete(row: InterestPauseResponseDto): Promise<void> {
+    if (!this.loanId || !row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('COMMON.DELETE'),
+      message: this.i18n.translate('INTEREST_PAUSES.CONFIRM_DELETE', {
+        startDate: row.startDate ?? '',
+        endDate: row.endDate ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.pauseService.deleteLoansLoanIdInterestPausesVariationId(this.loanId, row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete interest pause', err),

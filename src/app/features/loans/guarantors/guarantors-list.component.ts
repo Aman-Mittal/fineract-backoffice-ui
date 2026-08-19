@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { GuarantorsService, GuarantorData } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -89,6 +91,8 @@ export class GuarantorsListComponent implements OnInit {
   private readonly guarantorsService = inject(GuarantorsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'GUARANTORS.NAME', sortable: false },
@@ -126,8 +130,15 @@ export class GuarantorsListComponent implements OnInit {
     this.router.navigate(['/loans', this.loanId, 'guarantors', 'edit', row.id]);
   }
 
-  onDelete(row: GuarantorData): void {
-    if (!row.id || !window.confirm('Delete this guarantor?')) return;
+  async onDelete(row: GuarantorData): Promise<void> {
+    if (!row.id) return;
+    const name = `${row.firstname ?? ''} ${row.lastname ?? ''}`.trim();
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('COMMON.DELETE'),
+      message: this.i18n.translate('GUARANTORS.CONFIRM_DELETE', { name }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.guarantorsService.deleteLoansLoanIdGuarantorsGuarantorId(this.loanId, row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete guarantor', err),
