@@ -666,6 +666,10 @@
   "WorkingCapitalLoanAccountLockService": [
     "postInternalWorkingCapitalLoansLoanIdPlaceLockLockOwner"
   ],
+  "WorkingCapitalLoanBreachActionsService": [
+    "getWorkingCapitalLoansLoanIdBreachActions",
+    "postWorkingCapitalLoansLoanIdBreachActions"
+  ],
   "WorkingCapitalLoanBreachScheduleService": ["getWorkingCapitalLoansLoanIdBreachSchedule"],
   "WorkingCapitalLoanCOBCatchUpService": [
     "getWorkingCapitalLoansIsCatchUpRunning",
@@ -673,10 +677,22 @@
     "postWorkingCapitalLoansCatchUp"
   ],
   "WorkingCapitalLoanChargesService": ["getWorkingCapitalLoansLoanIdCharges"],
-  "WorkingCapitalLoanDelinquencyActionsService": ["getWorkingCapitalLoansLoanIdDelinquencyActions"],
+  "WorkingCapitalLoanDelinquencyActionsService": [
+    "getWorkingCapitalLoansLoanIdDelinquencyActions",
+    "postWorkingCapitalLoansLoanIdDelinquencyActions"
+  ],
   "WorkingCapitalLoanInternalCOBApiService": [
     "deleteInternalWorkingCapitalLoansInternalLastCobRun",
     "postInternalWorkingCapitalLoansInternalLastCobRun"
+  ],
+  "WorkingCapitalLoanNearBreachActionsService": [
+    "getWorkingCapitalLoansLoanIdNearBreachActions",
+    "postWorkingCapitalLoansLoanIdNearBreachActions"
+  ],
+  "WorkingCapitalLoanOriginatorsService": [
+    "deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId",
+    "getWorkingCapitalLoansLoanIdOriginators",
+    "postWorkingCapitalLoansLoanIdOriginatorsOriginatorId"
   ],
   "WorkingCapitalLoanProductsService": [
     "deleteWorkingCapitalLoanProductsProductId",
