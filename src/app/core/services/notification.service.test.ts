@@ -40,7 +40,7 @@ describe('NotificationService', () => {
   it('requests a toast', async () => {
     await service.show('hello');
 
-    expect(overlay.toasts).toHaveSize(1);
+    expect(overlay.toasts).toHaveLength(1);
     expect(overlay.lastToast!.message).toBe('hello');
   });
 
@@ -48,7 +48,7 @@ describe('NotificationService', () => {
     await service.success('saved');
 
     expect(overlay.lastToast).toEqual(
-      jasmine.objectContaining({ message: 'saved', duration: 3000, cssClass: 'success-toast' }),
+      expect.objectContaining({ message: 'saved', duration: 3000, cssClass: 'success-toast' }),
     );
   });
 
@@ -56,7 +56,7 @@ describe('NotificationService', () => {
     await service.error('boom');
 
     expect(overlay.lastToast).toEqual(
-      jasmine.objectContaining({ message: 'boom', duration: 10_000, cssClass: 'error-toast' }),
+      expect.objectContaining({ message: 'boom', duration: 10_000, cssClass: 'error-toast' }),
     );
   });
 

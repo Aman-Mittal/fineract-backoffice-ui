@@ -122,6 +122,30 @@ test.describe('Global search navigation shortcuts', () => {
     await expect(page).toHaveURL('/organization/offices');
   });
 
+  test('keeps the results open across the mousedown that starts a click, so a slow render cannot race the dropdown closed', async ({
+    page,
+  }) => {
+    await login(page);
+
+    await searchBox(page).fill('Offices');
+    await expect(offices(page)).toBeVisible();
+
+    // The bug this pins down: on a slow render, the searchbar's 150ms blur-triggered hide
+    // could fire before a click's mouseup landed, collapsing the list out from under the
+    // click and silently swallowing the navigation. `(mousedown)="$event.preventDefault()"`
+    // on each result stops the searchbar from blurring at all when a result is the click's
+    // target, so the list must still be open here even though the click has not completed.
+    const box = await offices(page).boundingBox();
+    if (!box) throw new Error('offices result not found');
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(200); // longer than the 150ms hide timeout
+    await expect(results(page)).toBeVisible();
+    await page.mouse.up();
+
+    await expect(page).toHaveURL('/organization/offices');
+  });
+
   test('withholds a shortcut the user has no permission to reach', async ({ page }) => {
     await login(page, ['READ_CLIENT']);
 

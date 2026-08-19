@@ -71,4 +71,48 @@ describe('GuidanceTourComponent', () => {
     exitBtn.nativeElement.click();
     expect(guidanceServiceSpy.endTour).toHaveBeenCalled();
   });
+
+  it('renders Exit/Back through translation keys rather than hardcoded English', () => {
+    // No loader is configured, so ngx-translate falls back to echoing the key itself — this
+    // fails against a hardcoded 'Exit'/'Back' string and passes once the template goes
+    // through `| translate`.
+    const buttons = fixture.debugElement.queryAll(By.css('ion-button'));
+    const text = (i: number) => buttons[i].nativeElement.textContent.trim();
+    expect(text(0)).toBe('COMMON.EXIT');
+    expect(text(1)).toBe('COMMON.BACK');
+  });
+
+  it('renders the Finish label translation key on the last (here, only) step', () => {
+    // The default fixture's single-step array makes index 0 both first and last.
+    const buttons = fixture.debugElement.queryAll(By.css('ion-button'));
+    expect(buttons[2].nativeElement.textContent.trim()).toBe('COMMON.FINISH');
+  });
+
+  it('renders the Next label translation key on a step that is not the last', async () => {
+    guidanceServiceSpy = jasmine.createSpyObj(
+      'GuidanceService',
+      ['nextStep', 'previousStep', 'endTour'],
+      {
+        isPlaying: signal(true),
+        currentStepIndex: signal(0),
+        activeSteps: signal([
+          { titleKey: 'Title', descriptionKey: 'Desc' },
+          { titleKey: 'Title2', descriptionKey: 'Desc2' },
+        ]),
+        currentStep: signal({ titleKey: 'Title', descriptionKey: 'Desc' }),
+      },
+    );
+
+    await TestBed.resetTestingModule()
+      .configureTestingModule({
+        imports: [GuidanceTourComponent, TranslateModule.forRoot()],
+        providers: [{ provide: GuidanceService, useValue: guidanceServiceSpy }],
+      })
+      .compileComponents();
+
+    const multiStepFixture = TestBed.createComponent(GuidanceTourComponent);
+    multiStepFixture.detectChanges();
+    const buttons = multiStepFixture.debugElement.queryAll(By.css('ion-button'));
+    expect(buttons[2].nativeElement.textContent.trim()).toBe('COMMON.NEXT');
+  });
 });

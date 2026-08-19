@@ -32,14 +32,14 @@ describe('SidebarService', () => {
 
   it('should be created and have isCollapsed signal initialized to false', () => {
     expect(service).toBeTruthy();
-    expect(service.isCollapsed()).toBeFalse();
+    expect(service.isCollapsed()).toBe(false);
   });
 
   it('should toggle isCollapsed signal value', () => {
     service.toggle();
-    expect(service.isCollapsed()).toBeTrue();
+    expect(service.isCollapsed()).toBe(true);
 
     service.toggle();
-    expect(service.isCollapsed()).toBeFalse();
+    expect(service.isCollapsed()).toBe(false);
   });
 });

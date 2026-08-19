@@ -96,6 +96,7 @@ type HeaderSearchResult =
                 button
                 role="option"
                 [attr.data-testid]="resultTestId(result)"
+                (mousedown)="$event.preventDefault()"
                 (click)="onResultSelected(result)"
               >
                 <ion-label>
@@ -474,6 +475,13 @@ export class HeaderComponent implements OnInit {
   /**
    * Hides the results after a beat — hiding immediately on blur would unmount the list
    * before the click that caused the blur lands on a result.
+   *
+   * The beat is a fallback for blurs from elsewhere (e.g. Escape, clicking outside), not the
+   * mechanism a result click relies on: `(mousedown)="$event.preventDefault()"` on each result
+   * item stops the searchbar from blurring at all when a result is the click's target, so this
+   * timeout never has to race the click under load. It used to be that race — on a slow
+   * render, the 150ms could elapse before the click event landed, collapsing the list out from
+   * under the click and silently swallowing the navigation.
    */
   onSearchBlur() {
     setTimeout(() => this.showResults.set(false), 150);

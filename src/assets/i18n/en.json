@@ -199,8 +199,10 @@
       "LOAD_FAILED": "This list could not be loaded."
     },
     "EVERY": "every",
+    "EXIT": "Exit",
     "EXTERNAL_ID": "External ID",
     "FILTERS": "Filters",
+    "FINISH": "Finish",
     "FIRST_PAGE": "First page",
     "FREQUENCY": "Frequency",
     "FROM_DATE": "From Date",
@@ -221,6 +223,7 @@
     "MOVE_DOWN": "Move down",
     "MOVE_UP": "Move up",
     "NAME": "Name",
+    "NEXT": "Next",
     "NEXT_PAGE": "Next page",
     "NO": "No",
     "NOTE": "Note",
@@ -1580,7 +1583,10 @@
       "TRANSACTIONS": "Transactions",
       "DELINQUENCY_ACTIONS": "Delinquency Actions",
       "DELINQUENCY_RANGE_SCHEDULE": "Delinquency Range Schedule",
-      "BREACH_SCHEDULE": "Breach Schedule"
+      "BREACH_SCHEDULE": "Breach Schedule",
+      "BREACH_ACTIONS": "Breach Actions",
+      "NEAR_BREACH_ACTIONS": "Near-Breach Actions",
+      "ORIGINATORS": "Originators"
     },
     "DELINQUENCY_BUCKET": "Delinquency Bucket",
     "FUND": "Fund",
@@ -1606,6 +1612,47 @@
       "REJECTED_ON_DATE": "Rejected On Date",
       "TRANSACTION_DATE": "Transaction Date",
       "NOTE": "Note"
+    },
+    "DELINQUENCY_ACTION": {
+      "TITLE": "New Delinquency Action",
+      "NEW": "New Action",
+      "ACTION": "Action",
+      "START_DATE": "Start Date",
+      "END_DATE": "End Date",
+      "FREQUENCY": "Frequency",
+      "FREQUENCY_TYPE": "Frequency Type",
+      "MINIMUM_PAYMENT": "Minimum Payment",
+      "MINIMUM_PAYMENT_TYPE": "Minimum Payment Type",
+      "START_NEW_PERIOD": "Start new period"
+    },
+    "BREACH_ACTION": {
+      "TITLE": "New Breach Action",
+      "NEW": "New Action",
+      "ACTION": "Action",
+      "START_DATE": "Start Date",
+      "END_DATE": "End Date",
+      "FREQUENCY": "Frequency",
+      "FREQUENCY_TYPE": "Frequency Type",
+      "MINIMUM_PAYMENT": "Minimum Payment",
+      "MINIMUM_PAYMENT_TYPE": "Minimum Payment Type",
+      "RESTART_PERIOD": "Restart period from reset date"
+    },
+    "NEAR_BREACH_ACTION": {
+      "TITLE": "New Near-Breach Action",
+      "NEW": "New Action",
+      "FREQUENCY": "Frequency",
+      "FREQUENCY_TYPE": "Frequency Type",
+      "THRESHOLD": "Threshold %",
+      "CREATED_DATE": "Created Date"
+    },
+    "ORIGINATORS": {
+      "ATTACH": "Attach Originator",
+      "DETACH": "Detach",
+      "SELECT_ORIGINATOR": "Select Originator",
+      "NAME": "Name",
+      "TYPE": "Type",
+      "CHANNEL": "Channel",
+      "STATUS": "Status"
     }
   },
   "LOANS_POINT_IN_TIME": {

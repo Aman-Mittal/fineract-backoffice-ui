@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { FakeStorageAdapter, provideFakeAdapters } from '../../testing/adapters';
 import { ThemeService } from './theme.service';
@@ -34,12 +35,12 @@ describe('ThemeService', () => {
     storage = fakes.storage;
     providers = fakes.providers;
 
-    spyOn(document.documentElement, 'setAttribute');
-    spyOn(document.documentElement, 'removeAttribute');
+    vi.spyOn(document.documentElement, 'setAttribute');
+    vi.spyOn(document.documentElement, 'removeAttribute');
     // With no saved theme the service falls back to the OS preference, so
     // without this stub these specs pass or fail depending on the machine
     // running them — dark-mode CI agents saw "expected true to be false".
-    spyOn(window, 'matchMedia').and.returnValue({ matches: false } as MediaQueryList);
+    vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false } as MediaQueryList);
   });
 
   const createService = () => {
@@ -50,37 +51,37 @@ describe('ThemeService', () => {
 
   it('should initialize to light mode when savedTheme is not dark', () => {
     createService();
-    expect(service.isDarkMode()).toBeFalse();
+    expect(service.isDarkMode()).toBe(false);
     expect(document.documentElement.removeAttribute).toHaveBeenCalledWith(DATA_THEME);
     expect(storage.readRaw('theme')).toBe('light');
   });
 
   it('should follow the OS preference when no theme is saved', () => {
-    (window.matchMedia as jasmine.Spy).and.returnValue({ matches: true } as MediaQueryList);
+    (window.matchMedia as Mock).mockReturnValue({ matches: true } as MediaQueryList);
     createService();
-    expect(service.isDarkMode()).toBeTrue();
+    expect(service.isDarkMode()).toBe(true);
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith(DATA_THEME, DARK_THEME);
   });
 
   it('should initialize to dark mode when savedTheme is dark', () => {
     storage.writeRaw('theme', DARK_THEME);
     createService();
-    expect(service.isDarkMode()).toBeTrue();
+    expect(service.isDarkMode()).toBe(true);
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith(DATA_THEME, DARK_THEME);
     expect(storage.readRaw('theme')).toBe(DARK_THEME);
   });
 
   it('should toggle dark mode state', () => {
     createService();
-    expect(service.isDarkMode()).toBeFalse();
+    expect(service.isDarkMode()).toBe(false);
 
     service.toggleDarkMode();
-    expect(service.isDarkMode()).toBeTrue();
+    expect(service.isDarkMode()).toBe(true);
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith(DATA_THEME, DARK_THEME);
     expect(storage.readRaw('theme')).toBe(DARK_THEME);
 
     service.toggleDarkMode();
-    expect(service.isDarkMode()).toBeFalse();
+    expect(service.isDarkMode()).toBe(false);
     expect(storage.readRaw('theme')).toBe('light');
   });
 });

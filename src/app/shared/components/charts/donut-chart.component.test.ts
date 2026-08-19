@@ -37,7 +37,7 @@ describe('DonutChartComponent', () => {
   it('should create and handle empty data', () => {
     expect(component).toBeTruthy();
     expect(component.total()).toBe(0);
-    expect(component.segments()).toHaveSize(0);
+    expect(component.segments()).toHaveLength(0);
   });
 
   it('should compute total and segments for valid data input', () => {
@@ -49,7 +49,7 @@ describe('DonutChartComponent', () => {
     fixture.detectChanges();
 
     expect(component.total()).toBe(40);
-    expect(component.segments()).toHaveSize(2);
+    expect(component.segments()).toHaveLength(2);
 
     const firstSegment = component.segments()[0];
     const secondSegment = component.segments()[1];
@@ -81,7 +81,7 @@ describe('DonutChartComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const legendItems = compiled.querySelectorAll('.legend-item');
-    expect(legendItems).toHaveSize(2);
+    expect(legendItems).toHaveLength(2);
 
     expect(legendItems[0].querySelector('.label')?.textContent).toContain('Active');
     expect(legendItems[0].querySelector('.value')?.textContent).toContain('30');

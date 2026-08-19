@@ -51,7 +51,11 @@ export class GuidanceService {
       {
         titleKey: 'GUIDE.DASHBOARD_ENV_TITLE',
         descriptionKey: 'GUIDE.DASHBOARD_ENV_DESC',
-        targetSelector: 'ul',
+        // Must be specific: a bare 'ul' matches the sidebar's own `<ul class="nav-list">`
+        // first, since it sits earlier in the DOM than the dashboard content — so this step
+        // ended up highlighting and scrolling to the sidebar's nav list instead of the
+        // System Status card it is actually describing.
+        targetSelector: '.status-list',
       },
     ],
     clients: [

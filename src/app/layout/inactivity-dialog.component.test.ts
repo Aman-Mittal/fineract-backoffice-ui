@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InactivityDialogComponent } from './inactivity-dialog.component';
 import { ModalController } from '@ionic/angular/standalone';
@@ -26,10 +27,10 @@ import { provideIonicTesting } from '../testing/ionic-testing';
 describe('InactivityDialogComponent', () => {
   let component: InactivityDialogComponent;
   let fixture: ComponentFixture<InactivityDialogComponent>;
-  let mockModalController: jasmine.SpyObj<ModalController>;
+  let mockModalController: SpyObj<ModalController>;
 
   beforeEach(async () => {
-    mockModalController = jasmine.createSpyObj<ModalController>('ModalController', ['dismiss']);
+    mockModalController = createSpyObj<ModalController>(['dismiss']);
 
     await TestBed.configureTestingModule({
       imports: [InactivityDialogComponent, TranslateModule.forRoot()],

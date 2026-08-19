@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DialogService } from '../../../core/services/dialog.service';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
@@ -29,9 +31,9 @@ import { DataTablesService, GetDataTablesResponse } from '../../../api';
 describe('EntityDatatablesComponent', () => {
   let component: EntityDatatablesComponent;
   let fixture: ComponentFixture<EntityDatatablesComponent>;
-  let datatablesServiceSpy: jasmine.SpyObj<DataTablesService>;
-  let dialogServiceSpy: jasmine.SpyObj<DialogService>;
-  let dialogSpy: jasmine.Spy;
+  let datatablesServiceSpy: SpyObj<DataTablesService>;
+  let dialogServiceSpy: SpyObj<DialogService>;
+  let dialogSpy: Mock;
 
   const mockDatatables: GetDataTablesResponse[] = [
     {
@@ -63,12 +65,9 @@ describe('EntityDatatablesComponent', () => {
   };
 
   beforeEach(async () => {
-    datatablesServiceSpy = jasmine.createSpyObj('DataTablesService', [
-      'getDatatables',
-      'getDatatablesDatatableApptableId',
-    ]);
-    dialogServiceSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
-    dialogServiceSpy.open.and.resolveTo(undefined);
+    datatablesServiceSpy = createSpyObj(['getDatatables', 'getDatatablesDatatableApptableId']);
+    dialogServiceSpy = createSpyObj<DialogService>(['open', 'confirm']);
+    dialogServiceSpy.open.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), EntityDatatablesComponent],
@@ -88,10 +87,10 @@ describe('EntityDatatablesComponent', () => {
   });
 
   it('should create and load datatables on init', () => {
-    datatablesServiceSpy.getDatatables.and.returnValue(
+    datatablesServiceSpy.getDatatables.mockReturnValue(
       of(mockDatatables) as unknown as Observable<never>,
     );
-    datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
+    datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
       of(mockTableDataResultSet) as unknown as Observable<never>,
     );
 
@@ -113,59 +112,59 @@ describe('EntityDatatablesComponent', () => {
   });
 
   it('should handle empty datatables on load', () => {
-    datatablesServiceSpy.getDatatables.and.returnValue(of([]) as unknown as Observable<never>);
+    datatablesServiceSpy.getDatatables.mockReturnValue(of([]) as unknown as Observable<never>);
 
     fixture.detectChanges();
 
-    expect(component.datatables()).toHaveSize(0);
+    expect(component.datatables()).toHaveLength(0);
     expect(datatablesServiceSpy.getDatatablesDatatableApptableId).not.toHaveBeenCalled();
   });
 
   it('should handle error when loading datatables', () => {
-    spyOn(console, 'error');
-    datatablesServiceSpy.getDatatables.and.returnValue(
+    vi.spyOn(console, 'error');
+    datatablesServiceSpy.getDatatables.mockReturnValue(
       throwError(() => new Error('API Error')) as unknown as Observable<never>,
     );
 
     fixture.detectChanges();
 
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBe(false);
     expect(console.error).toHaveBeenCalled();
   });
 
   it('should handle table data response as string', () => {
-    datatablesServiceSpy.getDatatables.and.returnValue(
+    datatablesServiceSpy.getDatatables.mockReturnValue(
       of(mockDatatables) as unknown as Observable<never>,
     );
-    datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
+    datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
       of(JSON.stringify(mockTableDataResultSet)) as unknown as Observable<never>,
     );
 
     fixture.detectChanges();
 
-    expect(component.tableData()).toHaveSize(2);
+    expect(component.tableData()).toHaveLength(2);
   });
 
   it('should handle error when loading table data', () => {
-    spyOn(console, 'error');
-    datatablesServiceSpy.getDatatables.and.returnValue(
+    vi.spyOn(console, 'error');
+    datatablesServiceSpy.getDatatables.mockReturnValue(
       of(mockDatatables) as unknown as Observable<never>,
     );
-    datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
+    datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
       throwError(() => new Error('Data Error')) as unknown as Observable<never>,
     );
 
     fixture.detectChanges();
 
-    expect(component.isTableLoading()).toBeFalse();
+    expect(component.isTableLoading()).toBe(false);
     expect(console.error).toHaveBeenCalled();
   });
 
   it('should fetch new table data on tab change', () => {
-    datatablesServiceSpy.getDatatables.and.returnValue(
+    datatablesServiceSpy.getDatatables.mockReturnValue(
       of(mockDatatables) as unknown as Observable<never>,
     );
-    datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
+    datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
       of(mockTableDataResultSet) as unknown as Observable<never>,
     );
 
@@ -185,19 +184,19 @@ describe('EntityDatatablesComponent', () => {
 
   it('should format column defs and filter out standard ID columns', () => {
     const colDefs = component.getColumnDefs(mockDatatables[0]);
-    expect(colDefs).toHaveSize(2);
+    expect(colDefs).toHaveLength(2);
     expect(colDefs[0].key).toBe('business_type');
     expect(colDefs[1].key).toBe('revenue');
   });
 
   it('should open the add-entry dialog with the table columns and entity id', async () => {
-    dialogSpy.and.resolveTo(false);
+    dialogSpy.mockResolvedValue(false);
 
     await component.onAddEntry(mockDatatables[0]);
 
     expect(dialogSpy).toHaveBeenCalledWith(
       DatatableEntryDialogComponent,
-      jasmine.objectContaining({
+      expect.objectContaining({
         data: {
           datatableName: 'm_client_details',
           apptableId: 123,
@@ -208,10 +207,10 @@ describe('EntityDatatablesComponent', () => {
   });
 
   it('should reload table data after a saved add-entry dialog closes', async () => {
-    datatablesServiceSpy.getDatatablesDatatableApptableId.and.returnValue(
+    datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
       of(mockTableDataResultSet) as unknown as Observable<never>,
     );
-    dialogSpy.and.resolveTo(true);
+    dialogSpy.mockResolvedValue(true);
 
     await component.onAddEntry(mockDatatables[0]);
 
@@ -222,8 +221,8 @@ describe('EntityDatatablesComponent', () => {
   });
 
   it('should not reload table data when the dialog is dismissed without saving', async () => {
-    dialogSpy.and.resolveTo(false);
-    datatablesServiceSpy.getDatatablesDatatableApptableId.calls.reset();
+    dialogSpy.mockResolvedValue(false);
+    datatablesServiceSpy.getDatatablesDatatableApptableId.mockClear();
 
     await component.onAddEntry(mockDatatables[0]);
 

@@ -29,7 +29,11 @@
  * PutSavingsAccountsAccountIdRequest
  */
 export interface PutSavingsAccountsAccountIdRequest { 
+    clientId?: number;
+    dateFormat?: string;
     locale?: string;
     nominalAnnualInterestRate?: number;
+    productId?: number;
+    submittedOnDate?: string;
 }
 

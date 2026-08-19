@@ -40,7 +40,9 @@ import {
   InterOperationService,
   InteropTransferRequestData,
   InteropTransferResponseData,
+  PostLoansLoanIdTransactionsRequest,
 } from '../../api';
+import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../core/utils/date-formatter';
 
 const ERROR_OCCURRED = 'Error occurred';
 
@@ -280,8 +282,16 @@ export class InteropTransfersComponent {
 
   loanRepayment(): void {
     this.result.set(null);
+    // Fineract added a request body to this endpoint (previously none was accepted); every
+    // field on it is optional, so dateFormat/locale — required by every other Fineract
+    // command on this screen — is the minimal body that is still a real request rather than
+    // an empty placeholder.
+    const body: PostLoansLoanIdTransactionsRequest = {
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    };
     this.interopService
-      .postInteroperationTransactionsAccountIdLoanrepayment(this.disburseAccountId)
+      .postInteroperationTransactionsAccountIdLoanrepayment(this.disburseAccountId, body)
       .subscribe({
         next: (data) => this.result.set(data),
         error: (err: { message?: string }) =>
