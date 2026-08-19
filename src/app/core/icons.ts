@@ -130,6 +130,7 @@ import {
   trashOutline,
   trendingDownOutline,
   trendingUpOutline,
+  unlinkOutline,
   walletOutline,
   warningOutline,
 } from 'ionicons/icons';
@@ -256,6 +257,7 @@ export const APP_ICONS: Record<string, string> = {
   'trash-outline': trashOutline,
   'trending-down-outline': trendingDownOutline,
   'trending-up-outline': trendingUpOutline,
+  'unlink-outline': unlinkOutline,
   'wallet-outline': walletOutline,
   'warning-outline': warningOutline,
 };
