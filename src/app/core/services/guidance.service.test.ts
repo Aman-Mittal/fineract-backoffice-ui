@@ -36,14 +36,14 @@ describe('GuidanceService', () => {
 
   it('should start a tour on matching route', () => {
     service.startTour('/dashboard');
-    expect(service.isPlaying()).toBeTrue();
+    expect(service.isPlaying()).toBe(true);
     expect(service.currentStepIndex()).toBe(0);
     expect(service.currentStep()?.titleKey).toBe('GUIDE.DASHBOARD_WELCOME_TITLE');
   });
 
   it('should transition to next and previous steps and end tour', () => {
     service.startTour('/clients');
-    expect(service.isPlaying()).toBeTrue();
+    expect(service.isPlaying()).toBe(true);
     expect(service.currentStepIndex()).toBe(0);
 
     service.nextStep();
@@ -58,7 +58,7 @@ describe('GuidanceService', () => {
     expect(service.currentStepIndex()).toBe(2);
 
     service.nextStep(); // Finish tour
-    expect(service.isPlaying()).toBeFalse();
+    expect(service.isPlaying()).toBe(false);
     expect(service.currentStep()).toBeNull();
   });
 
@@ -73,12 +73,12 @@ describe('GuidanceService', () => {
 
   it('should match savings routes', () => {
     service.startTour('/products/savings-accounts');
-    expect(service.isPlaying()).toBeTrue();
+    expect(service.isPlaying()).toBe(true);
     expect(service.currentStep()?.titleKey).toBe('GUIDE.SAVINGS_TITLE');
 
     service.endTour();
     service.startTour('/products/savings-accounts/view/123');
-    expect(service.isPlaying()).toBeTrue();
+    expect(service.isPlaying()).toBe(true);
     expect(service.currentStep()?.titleKey).toBe('GUIDE.SAVINGS_VIEW_TITLE');
   });
 });

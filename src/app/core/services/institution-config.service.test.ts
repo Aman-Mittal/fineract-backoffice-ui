@@ -49,9 +49,9 @@ describe('InstitutionConfigService', () => {
   it('should default to "universal" when nothing is stored', () => {
     createService();
     expect(service.institutionType()).toBe('universal');
-    expect(service.isFeatureEnabled('groups')).toBeTrue();
-    expect(service.isFeatureEnabled('centers')).toBeTrue();
-    expect(service.isFeatureEnabled('collection_sheet')).toBeTrue();
+    expect(service.isFeatureEnabled('groups')).toBe(true);
+    expect(service.isFeatureEnabled('centers')).toBe(true);
+    expect(service.isFeatureEnabled('collection_sheet')).toBe(true);
   });
 
   it('should read a valid persisted institution type on init', () => {

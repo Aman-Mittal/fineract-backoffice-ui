@@ -44,7 +44,8 @@ explaining why, start with Jira.
 5.  **Run local checks**:
     - `npm run lint`
     - `npm run format:check`
-    - `npm test -- --watch=false`
+    - `npm test -- --watch=false` — the legacy Karma suite
+    - `npm run test:unit` — the Vitest suite, where **new tests go**
     - `npm run build`
     - `npm run check:icons` — every `<ion-icon name="...">` is registered
     - `npm run i18n:check` — translations are complete
@@ -87,6 +88,33 @@ savings account, a fixed deposit, a share account, a manual journal entry and tw
 for manual sanity testing rather than the narrow fixtures an individual spec builds for
 itself. It prints what it created. This is its own Playwright project (`demo-seed`), so it
 never runs as a side effect of the `backend` project in CI.
+
+## Unit Tests
+
+Karma is deprecated and the suite is migrating to Vitest, so the runner a test lands on is
+decided by its **filename**:
+
+- `*.test.ts` — Vitest dialect, run by `npm run test:unit`. **All new tests go here.**
+- `*.spec.ts` — Jasmine dialect, run by `npm test`. Legacy, shrinking, and CI fails if the set
+  grows (`npm run check:test-runner`).
+
+Write Vitest dialect in a `.test.ts`: `vi.fn()` rather than `jasmine.createSpy()`,
+`.mockReturnValue(…)` rather than `.and.returnValue(…)`, `expect(x).toBe(true)` rather than
+`.toBeTrue()`. `describe`, `it`, `expect` and `vi` are globals — no import needed. For a mocked
+service, use `SpyObj<T>` and `createSpyObj<T>([…])` from `src/app/testing/mocks.ts`.
+
+To move an existing spec, the codemod does the dialect swap and the rename:
+
+```bash
+node scripts/codemod-jasmine-to-vitest.mjs src/app/features/foo/foo.component.spec.ts
+npm run test:unit
+node scripts/check-test-runner.mjs --write
+```
+
+It skips files whose behaviour is not a spelling — `fakeAsync`/`tick`/`flush`, `done()`
+callbacks, the object form of `createSpyObj` — and tells you which. Those need a person.
+
+Background and the open question about browser mode: [`DOCS/adr/0004-vitest-migration.md`](DOCS/adr/0004-vitest-migration.md).
 
 ## UI Components
 

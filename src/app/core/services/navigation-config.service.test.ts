@@ -64,7 +64,7 @@ describe('filterNavItems (pure function)', () => {
     const isVisible = (item: NavItemConfig) => item.route !== '/hidden';
 
     const result = filterNavItems(items, isVisible);
-    expect(result).toHaveSize(1);
+    expect(result).toHaveLength(1);
     expect(result[0].children).toEqual([{ route: '/visible', labelKey: 'visible' }]);
   });
 
@@ -220,47 +220,47 @@ describe('NavigationConfigService', () => {
     configure({ rbacEnabled: false });
     setPermissions([]);
     const items = service.filteredNavItems();
-    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBeTrue();
-    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBeTrue();
+    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBe(true);
+    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBe(true);
   });
 
   it('hides permission-gated groups from a user with no matching permissions', () => {
     setPermissions(['READ_CLIENT']);
     const items = service.filteredNavItems();
-    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBeFalse();
-    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBeFalse();
+    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBe(false);
+    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBe(false);
     // ungated items remain
-    expect(findRoute(items, '/dashboard')).toBeTrue();
+    expect(findRoute(items, '/dashboard')).toBe(true);
   });
 
   it('shows the entries a permission covers, and only those, within a gated group', () => {
     setPermissions(['READ_USER']);
     const items = service.filteredNavItems();
-    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBeTrue();
+    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBe(true);
     // Every entry now carries the permission its own route declares, so a sibling the user
     // cannot open stays hidden rather than riding in on a group-level gate.
-    expect(findRoute(items, '/security/roles')).toBeFalse();
-    expect(findRoute(items, '/security/audits')).toBeFalse();
+    expect(findRoute(items, '/security/roles')).toBe(false);
+    expect(findRoute(items, '/security/audits')).toBe(false);
     // other gated groups the user lacks permissions for stay hidden
-    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBeFalse();
+    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBe(false);
   });
 
   it('a superuser (ALL_FUNCTIONS) sees every permission-gated group', () => {
     setPermissions(['ALL_FUNCTIONS']);
     const items = service.filteredNavItems();
-    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBeTrue();
-    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBeTrue();
-    expect(findRoute(items, '/system/data-tables')).toBeTrue();
+    expect(findRoute(items, SECURITY_USERS_ROUTE)).toBe(true);
+    expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBe(true);
+    expect(findRoute(items, '/system/data-tables')).toBe(true);
   });
 
   it('filters institution-feature items by institution type', () => {
     setPermissions(['ALL_FUNCTIONS']);
     institutionConfig.setInstitutionType('cb');
     const items = service.filteredNavItems();
-    expect(findRoute(items, '/groups')).toBeFalse();
-    expect(findRoute(items, '/centers')).toBeFalse();
-    expect(findRoute(items, '/collection-sheet')).toBeFalse();
-    expect(findRoute(items, '/clients')).toBeTrue();
+    expect(findRoute(items, '/groups')).toBe(false);
+    expect(findRoute(items, '/centers')).toBe(false);
+    expect(findRoute(items, '/collection-sheet')).toBe(false);
+    expect(findRoute(items, '/clients')).toBe(true);
   });
 
   describe('deployment navigation overrides', () => {
@@ -270,9 +270,9 @@ describe('NavigationConfigService', () => {
       setPermissions(['ALL_FUNCTIONS']);
 
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/groups')).toBeFalse();
-      expect(findRoute(items, '/centers')).toBeFalse();
-      expect(findRoute(items, '/clients')).toBeTrue();
+      expect(findRoute(items, '/groups')).toBe(false);
+      expect(findRoute(items, '/centers')).toBe(false);
+      expect(findRoute(items, '/clients')).toBe(true);
     });
 
     it('hides an entry even where RBAC is off', () => {
@@ -283,8 +283,8 @@ describe('NavigationConfigService', () => {
       setPermissions([]);
 
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/groups')).toBeFalse();
-      expect(findRoute(items, '/clients')).toBeTrue();
+      expect(findRoute(items, '/groups')).toBe(false);
+      expect(findRoute(items, '/clients')).toBe(true);
     });
   });
 
@@ -307,55 +307,55 @@ describe('NavigationConfigService', () => {
       const items = service.filteredNavItems();
 
       // gated
-      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBeFalse();
-      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBeFalse();
-      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBeFalse();
-      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBeFalse();
-      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBeFalse();
-      expect(findRoute(items, WC_LOANS_ROUTE)).toBeFalse();
-      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBeFalse();
-      expect(findRoute(items, WC_BREACH_ROUTE)).toBeFalse();
-      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBeFalse();
-      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeFalse();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeFalse();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBeFalse();
+      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBe(false);
+      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBe(false);
+      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBe(false);
+      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBe(false);
+      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBe(false);
+      expect(findRoute(items, WC_LOANS_ROUTE)).toBe(false);
+      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBe(false);
+      expect(findRoute(items, WC_BREACH_ROUTE)).toBe(false);
+      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBe(false);
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBe(false);
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBe(false);
+      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBe(false);
 
       // These were the ungated siblings when this test was written. Every routed entry now
       // carries its route's permission, so a user with none of them sees none of these either.
-      expect(findRoute(items, '/interop/accounts')).toBeFalse();
-      expect(findRoute(items, '/interop/health')).toBeFalse();
-      expect(findRoute(items, '/campaigns/email-messages')).toBeFalse();
-      expect(findRoute(items, '/working-capital/loans/cob-catchup')).toBeFalse();
-      expect(findRoute(items, TRANSFER_HISTORY_ROUTE)).toBeFalse();
+      expect(findRoute(items, '/interop/accounts')).toBe(false);
+      expect(findRoute(items, '/interop/health')).toBe(false);
+      expect(findRoute(items, '/campaigns/email-messages')).toBe(false);
+      expect(findRoute(items, '/working-capital/loans/cob-catchup')).toBe(false);
+      expect(findRoute(items, TRANSFER_HISTORY_ROUTE)).toBe(false);
 
       // Hidden for a different reason than the twelve above: these drive Fineract's
       // /v1/internal endpoints and are gated by `developerToolsEnabled`, not by permission.
-      expect(findRoute(items, '/working-capital/loans/account-locks')).toBeFalse();
-      expect(findRoute(items, '/admin/wc-cob-tools')).toBeFalse();
+      expect(findRoute(items, '/working-capital/loans/account-locks')).toBe(false);
+      expect(findRoute(items, '/admin/wc-cob-tools')).toBe(false);
     });
 
     it('shows only the specific interop routes the user has permission for', () => {
       setPermissions(['READ_INTERID']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBeTrue();
-      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBeFalse();
-      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBeFalse();
+      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBe(true);
+      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBe(false);
+      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBe(false);
     });
 
     it('shows only the specific campaign routes the user has permission for', () => {
       setPermissions(['READ_SMSCAMPAIGN']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBeTrue();
-      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBeFalse();
+      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBe(true);
+      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBe(false);
     });
 
     it('shows only the specific working capital routes the user has permission for', () => {
       setPermissions(['READ_WORKINGCAPITALBREACH']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, WC_BREACH_ROUTE)).toBeTrue();
-      expect(findRoute(items, WC_LOANS_ROUTE)).toBeFalse();
-      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBeFalse();
-      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBeFalse();
+      expect(findRoute(items, WC_BREACH_ROUTE)).toBe(true);
+      expect(findRoute(items, WC_LOANS_ROUTE)).toBe(false);
+      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBe(false);
+      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBe(false);
     });
 
     it('separates reading transfers from making one', () => {
@@ -364,39 +364,39 @@ describe('NavigationConfigService', () => {
       // offering the form to a user who can only read would lead straight to a refusal.
       setPermissions(['READ_ACCOUNTTRANSFER']);
       let items = service.filteredNavItems();
-      expect(findRoute(items, TRANSFER_HISTORY_ROUTE)).toBeTrue();
-      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeFalse();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeFalse();
+      expect(findRoute(items, TRANSFER_HISTORY_ROUTE)).toBe(true);
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBe(false);
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBe(false);
 
       setPermissions(['CREATE_ACCOUNTTRANSFER']);
       items = service.filteredNavItems();
-      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeTrue();
-      expect(findRoute(items, TRANSFER_HISTORY_ROUTE)).toBeFalse();
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBe(true);
+      expect(findRoute(items, TRANSFER_HISTORY_ROUTE)).toBe(false);
     });
 
     it('shows both Standing Instructions routes once the user has READ_STANDINGINSTRUCTION', () => {
       setPermissions(['READ_STANDINGINSTRUCTION']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeTrue();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBeTrue();
-      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeFalse();
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBe(true);
+      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBe(true);
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBe(false);
     });
 
     it('a superuser (ALL_FUNCTIONS) sees all 12 newly-gated routes', () => {
       setPermissions(['ALL_FUNCTIONS']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBeTrue();
-      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBeTrue();
-      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBeTrue();
-      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBeTrue();
-      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBeTrue();
-      expect(findRoute(items, WC_LOANS_ROUTE)).toBeTrue();
-      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBeTrue();
-      expect(findRoute(items, WC_BREACH_ROUTE)).toBeTrue();
-      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBeTrue();
-      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBeTrue();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBeTrue();
-      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBeTrue();
+      expect(findRoute(items, INTEROP_PARTIES_ROUTE)).toBe(true);
+      expect(findRoute(items, INTEROP_QUOTES_ROUTE)).toBe(true);
+      expect(findRoute(items, INTEROP_TRANSFERS_ROUTE)).toBe(true);
+      expect(findRoute(items, CAMPAIGNS_EMAIL_ROUTE)).toBe(true);
+      expect(findRoute(items, CAMPAIGNS_SMS_ROUTE)).toBe(true);
+      expect(findRoute(items, WC_LOANS_ROUTE)).toBe(true);
+      expect(findRoute(items, WC_LOAN_PRODUCTS_ROUTE)).toBe(true);
+      expect(findRoute(items, WC_BREACH_ROUTE)).toBe(true);
+      expect(findRoute(items, WC_NEAR_BREACH_ROUTE)).toBe(true);
+      expect(findRoute(items, ACCOUNT_TRANSFER_ROUTE)).toBe(true);
+      expect(findRoute(items, STANDING_INSTRUCTIONS_ROUTE)).toBe(true);
+      expect(findRoute(items, STANDING_INSTRUCTIONS_HISTORY_ROUTE)).toBe(true);
     });
   });
 
@@ -406,32 +406,32 @@ describe('NavigationConfigService', () => {
       // gating list and form routes on different codes is what makes this distinction work.
       setPermissions(['ALL_FUNCTIONS_READ']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/clients')).toBeTrue();
-      expect(findRoute(items, '/loans')).toBeTrue();
-      expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBeTrue();
+      expect(findRoute(items, '/clients')).toBe(true);
+      expect(findRoute(items, '/loans')).toBe(true);
+      expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBe(true);
       // Write-only entries: no READ_* code covers them, so the read-only shortcut does not apply.
-      expect(findRoute(items, '/transfers/account-transfer')).toBeFalse();
-      expect(findRoute(items, '/loans/schedule-modify')).toBeFalse();
-      expect(findRoute(items, '/system/external-services')).toBeFalse();
+      expect(findRoute(items, '/transfers/account-transfer')).toBe(false);
+      expect(findRoute(items, '/loans/schedule-modify')).toBe(false);
+      expect(findRoute(items, '/system/external-services')).toBe(false);
     });
 
     it('hides a whole group when the user holds none of its entries permissions', () => {
       setPermissions(['READ_CLIENT']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/clients')).toBeTrue();
+      expect(findRoute(items, '/clients')).toBe(true);
       // filterNavItems drops a group once every child is filtered out; with only READ_CLIENT
       // the accounting group has nothing left to show.
-      expect(items.some((item) => item.labelKey === 'nav.accounting')).toBeFalse();
-      expect(items.some((item) => item.labelKey === 'nav.security')).toBeFalse();
+      expect(items.some((item) => item.labelKey === 'nav.accounting')).toBe(false);
+      expect(items.some((item) => item.labelKey === 'nav.security')).toBe(false);
     });
 
     it('does not let one permission leak a sibling entry in the same group', () => {
       setPermissions(['READ_OFFICE']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/organization/offices')).toBeTrue();
-      expect(findRoute(items, '/organization/staff')).toBeFalse();
-      expect(findRoute(items, '/organization/funds')).toBeFalse();
-      expect(findRoute(items, '/organization/payment-types')).toBeFalse();
+      expect(findRoute(items, '/organization/offices')).toBe(true);
+      expect(findRoute(items, '/organization/staff')).toBe(false);
+      expect(findRoute(items, '/organization/funds')).toBe(false);
+      expect(findRoute(items, '/organization/payment-types')).toBe(false);
     });
 
     it('leaves the self-service entries reachable to a user with no permissions at all', () => {
@@ -439,17 +439,17 @@ describe('NavigationConfigService', () => {
       // somewhere and be able to reach their own profile.
       setPermissions([]);
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/dashboard')).toBeTrue();
-      expect(findRoute(items, '/profile')).toBeTrue();
-      expect(findRoute(items, '/search')).toBeTrue();
-      expect(findRoute(items, '/notifications')).toBeTrue();
+      expect(findRoute(items, '/dashboard')).toBe(true);
+      expect(findRoute(items, '/profile')).toBe(true);
+      expect(findRoute(items, '/search')).toBe(true);
+      expect(findRoute(items, '/notifications')).toBe(true);
     });
 
     it('never treats an unknown permission code as a wildcard', () => {
       setPermissions(['NOT_A_REAL_PERMISSION']);
       const items = service.filteredNavItems();
-      expect(findRoute(items, '/clients')).toBeFalse();
-      expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBeFalse();
+      expect(findRoute(items, '/clients')).toBe(false);
+      expect(findRoute(items, ACCOUNTING_CHART_ROUTE)).toBe(false);
     });
   });
 
@@ -459,7 +459,7 @@ describe('NavigationConfigService', () => {
 
     it('is always visible when it has no permission or feature gate', () => {
       setPermissions([]);
-      expect(isVisible({ route: '/x', labelKey: 'x' })).toBeTrue();
+      expect(isVisible({ route: '/x', labelKey: 'x' })).toBe(true);
     });
 
     it('respects requiredAllPermissions (AND) semantics', () => {
@@ -470,10 +470,10 @@ describe('NavigationConfigService', () => {
         requiredPermissions: ['READ_CLIENT', 'CREATE_CLIENT'],
         requiredAllPermissions: true,
       };
-      expect(isVisible(item)).toBeTrue();
+      expect(isVisible(item)).toBe(true);
 
       setPermissions(['READ_CLIENT']);
-      expect(isVisible(item)).toBeFalse();
+      expect(isVisible(item)).toBe(false);
     });
 
     it('defaults to OR semantics for a requiredPermissions array', () => {
@@ -483,24 +483,24 @@ describe('NavigationConfigService', () => {
         labelKey: 'x',
         requiredPermissions: ['READ_CLIENT', 'CREATE_CLIENT'],
       };
-      expect(isVisible(item)).toBeTrue();
+      expect(isVisible(item)).toBe(true);
     });
 
     it('hides an item when the user has none of the required permissions', () => {
       setPermissions(['READ_LOAN']);
-      expect(
-        isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'READ_CLIENT' }),
-      ).toBeFalse();
+      expect(isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'READ_CLIENT' })).toBe(
+        false,
+      );
     });
 
     it('does not let ALL_FUNCTIONS_READ satisfy a non-READ_* gate', () => {
       setPermissions(['ALL_FUNCTIONS_READ']);
-      expect(
-        isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'READ_CLIENT' }),
-      ).toBeTrue();
-      expect(
-        isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'CREATE_CLIENT' }),
-      ).toBeFalse();
+      expect(isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'READ_CLIENT' })).toBe(
+        true,
+      );
+      expect(isVisible({ route: '/x', labelKey: 'x', requiredPermissions: 'CREATE_CLIENT' })).toBe(
+        false,
+      );
     });
   });
 
@@ -514,8 +514,8 @@ describe('NavigationConfigService', () => {
       configure();
       setPermissions(['ALL_FUNCTIONS']);
 
-      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeFalse();
-      expect(findRoute(service.filteredNavItems(), PLACE_LOCK_ROUTE)).toBeFalse();
+      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBe(false);
+      expect(findRoute(service.filteredNavItems(), PLACE_LOCK_ROUTE)).toBe(false);
     });
 
     it('shows them when the deployment opts in', () => {
@@ -523,8 +523,8 @@ describe('NavigationConfigService', () => {
       configure({ developerToolsEnabled: true });
       setPermissions(['ALL_FUNCTIONS']);
 
-      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeTrue();
-      expect(findRoute(service.filteredNavItems(), PLACE_LOCK_ROUTE)).toBeTrue();
+      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBe(true);
+      expect(findRoute(service.filteredNavItems(), PLACE_LOCK_ROUTE)).toBe(true);
     });
 
     /**
@@ -535,8 +535,8 @@ describe('NavigationConfigService', () => {
       TestBed.resetTestingModule();
       configure({ rbacEnabled: false });
 
-      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBeFalse();
-      expect(findRoute(service.filteredNavItems(), SECURITY_USERS_ROUTE)).toBeTrue();
+      expect(findRoute(service.filteredNavItems(), COB_TOOLS_ROUTE)).toBe(false);
+      expect(findRoute(service.filteredNavItems(), SECURITY_USERS_ROUTE)).toBe(true);
     });
   });
 
@@ -544,20 +544,20 @@ describe('NavigationConfigService', () => {
     it('returns matching navigation shortcuts from the filtered tree', () => {
       setPermissions(['ALL_FUNCTIONS']);
       const results = service.searchRoutes('offices');
-      expect(results.some((result) => result.route === '/organization/offices')).toBeTrue();
+      expect(results.some((result) => result.route === '/organization/offices')).toBe(true);
       expect(results[0]?.label).toBeTruthy();
     });
 
     it('excludes routes the user cannot access', () => {
       setPermissions([]);
       const results = service.searchRoutes('users');
-      expect(results.some((result) => result.route === '/security/users')).toBeFalse();
+      expect(results.some((result) => result.route === '/security/users')).toBe(false);
     });
 
     it('does not return the global search page itself', () => {
       setPermissions(['ALL_FUNCTIONS']);
       const results = service.searchRoutes('search');
-      expect(results.some((result) => result.route === '/search')).toBeFalse();
+      expect(results.some((result) => result.route === '/search')).toBe(false);
     });
 
     /**

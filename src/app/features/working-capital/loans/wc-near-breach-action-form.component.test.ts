@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WcNearBreachActionFormComponent } from './wc-near-breach-action-form.component';
 import {
@@ -31,15 +32,13 @@ import { provideFakeAdapters } from '../../../testing/adapters';
 describe('WcNearBreachActionFormComponent', () => {
   let component: WcNearBreachActionFormComponent;
   let fixture: ComponentFixture<WcNearBreachActionFormComponent>;
-  let nearBreachActionsSpy: jasmine.SpyObj<WorkingCapitalLoanNearBreachActionsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let nearBreachActionsSpy: SpyObj<WorkingCapitalLoanNearBreachActionsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(() => {
-    nearBreachActionsSpy = jasmine.createSpyObj('WorkingCapitalLoanNearBreachActionsService', [
-      'postWorkingCapitalLoansLoanIdNearBreachActions',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    nearBreachActionsSpy.postWorkingCapitalLoansLoanIdNearBreachActions.and.returnValue(
+    nearBreachActionsSpy = createSpyObj(['postWorkingCapitalLoansLoanIdNearBreachActions']);
+    routerSpy = createSpyObj(['navigate']);
+    nearBreachActionsSpy.postWorkingCapitalLoansLoanIdNearBreachActions.mockReturnValue(
       of({}) as ReturnType<
         WorkingCapitalLoanNearBreachActionsService['postWorkingCapitalLoansLoanIdNearBreachActions']
       >,
@@ -95,12 +94,12 @@ describe('WcNearBreachActionFormComponent', () => {
   });
 
   it('stops saving and does not navigate away when the request fails', () => {
-    nearBreachActionsSpy.postWorkingCapitalLoansLoanIdNearBreachActions.and.returnValue(
+    nearBreachActionsSpy.postWorkingCapitalLoansLoanIdNearBreachActions.mockReturnValue(
       throwError(() => new Error('boom')),
     );
     component.onSubmit();
 
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 

@@ -58,7 +58,8 @@
                 "input": "public"
               }
             ],
-            "styles": ["node_modules/@ionic/angular/css/ionic.bundle.css", "src/styles.scss"]
+            "styles": ["node_modules/@ionic/angular/css/ionic.bundle.css", "src/styles.scss"],
+            "include": ["**/*.spec.ts"]
           }
         },
         "lint": {
@@ -142,6 +143,17 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "unit-test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "fineract-backoffice-ui:esbuild:development",
+            "tsConfig": "tsconfig.vitest.json",
+            "runner": "vitest",
+            "include": ["**/*.test.ts"],
+            "runnerConfig": "vitest.config.ts",
+            "setupFiles": ["src/testing/vitest-setup.ts"]
+          }
         }
       }
     },

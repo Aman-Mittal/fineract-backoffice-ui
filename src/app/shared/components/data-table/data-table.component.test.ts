@@ -87,7 +87,7 @@ describe('DataTableComponent', () => {
   });
 
   it('renders a row per record', () => {
-    expect(component.rows()).toHaveSize(2);
+    expect(component.rows()).toHaveLength(2);
     expect(renderedNames()).toEqual(['Alice', 'Bob']);
   });
 
@@ -191,7 +191,7 @@ describe('DataTableComponent', () => {
     it('paginates and reports the filtered total', () => {
       setInputs({ pageSize: 1 });
 
-      expect(component.rows()).toHaveSize(1);
+      expect(component.rows()).toHaveLength(1);
       expect(component.displayedTotal()).toBe(2);
 
       component.onPage({ pageIndex: 1, pageSize: 1, length: 2 });
@@ -341,14 +341,14 @@ describe('DataTableComponent', () => {
 
   describe('outputs', () => {
     it('emits create', () => {
-      spyOn(component.create, 'emit');
+      vi.spyOn(component.create, 'emit');
       component.onCreate();
 
       expect(component.create.emit).toHaveBeenCalled();
     });
 
     it('emits searchChange', () => {
-      spyOn(component.searchChange, 'emit');
+      vi.spyOn(component.searchChange, 'emit');
       component.onSearch('test');
 
       expect(component.searchChange.emit).toHaveBeenCalledWith('test');
@@ -369,7 +369,7 @@ describe('DataTableComponent', () => {
       const headers = fixture.nativeElement.querySelectorAll('th[cdk-header-cell]');
       const sortButtons = fixture.nativeElement.querySelectorAll(SORT_BUTTON);
 
-      expect(sortButtons).toHaveSize(2);
+      expect(sortButtons).toHaveLength(2);
       expect(sortButtons[0].getAttribute('type')).toBe('button');
       expect(headers[0].querySelector(SORT_BUTTON)).toBe(sortButtons[0]);
       expect(headers[1].querySelector(SORT_BUTTON)).toBe(sortButtons[1]);
@@ -463,12 +463,12 @@ describe('DataTableComponent', () => {
       const host = TestBed.createComponent(HostComponent);
       host.detectChanges();
 
-      expect(host.nativeElement.querySelectorAll(CUSTOM_CELL)).toHaveSize(0);
+      expect(host.nativeElement.querySelectorAll(CUSTOM_CELL)).toHaveLength(0);
 
       host.componentInstance.showCustom.set(true);
       host.detectChanges();
 
-      expect(host.nativeElement.querySelectorAll(CUSTOM_CELL)).toHaveSize(2);
+      expect(host.nativeElement.querySelectorAll(CUSTOM_CELL)).toHaveLength(2);
       expect(host.nativeElement.querySelector(CUSTOM_CELL).textContent.trim()).toBe('custom:Alice');
     });
   });

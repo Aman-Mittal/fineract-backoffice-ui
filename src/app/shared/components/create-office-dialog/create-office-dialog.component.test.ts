@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateOfficeDialogComponent } from './create-office-dialog.component';
 import { ModalController } from '@ionic/angular/standalone';
@@ -29,19 +30,19 @@ import { HttpEvent } from '@angular/common/http';
 describe('CreateOfficeDialogComponent', () => {
   let component: CreateOfficeDialogComponent;
   let fixture: ComponentFixture<CreateOfficeDialogComponent>;
-  let mockModalController: jasmine.SpyObj<ModalController>;
-  let mockOfficesService: jasmine.SpyObj<OfficesService>;
+  let mockModalController: SpyObj<ModalController>;
+  let mockOfficesService: SpyObj<OfficesService>;
 
   beforeEach(async () => {
-    mockModalController = jasmine.createSpyObj<ModalController>('ModalController', ['dismiss']);
-    mockOfficesService = jasmine.createSpyObj('OfficesService', ['getOffices', 'postOffices']);
+    mockModalController = createSpyObj<ModalController>(['dismiss']);
+    mockOfficesService = createSpyObj(['getOffices', 'postOffices']);
 
-    mockOfficesService.getOffices.and.returnValue(
+    mockOfficesService.getOffices.mockReturnValue(
       of([{ id: 1, name: 'Head Office' }] as GetOfficesResponse[]) as unknown as Observable<
         HttpEvent<GetOfficesResponse[]>
       >,
     );
-    mockOfficesService.postOffices.and.returnValue(
+    mockOfficesService.postOffices.mockReturnValue(
       of({ resourceId: 10, officeId: 10 } as PostOfficesResponse) as unknown as Observable<
         HttpEvent<PostOfficesResponse>
       >,
@@ -64,7 +65,7 @@ describe('CreateOfficeDialogComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(mockOfficesService.getOffices).toHaveBeenCalledWith(true);
-    expect(component.offices()).toHaveSize(1);
+    expect(component.offices()).toHaveLength(1);
   });
 
   it('should close dialog on cancel', () => {
@@ -80,7 +81,7 @@ describe('CreateOfficeDialogComponent', () => {
 
     expect(component.isSaving()).toBe(true);
     expect(mockOfficesService.postOffices).toHaveBeenCalled();
-    const args = mockOfficesService.postOffices.calls.mostRecent().args[0];
+    const args = mockOfficesService.postOffices.mock.lastCall![0];
     expect(args.name).toBe('Test Office');
     expect(args.openingDate).toBe('2026-01-15');
 
@@ -88,7 +89,7 @@ describe('CreateOfficeDialogComponent', () => {
   });
 
   it('should reset isSaving to false on error during submit', () => {
-    mockOfficesService.postOffices.and.returnValue(throwError(() => new Error('Error')));
+    mockOfficesService.postOffices.mockReturnValue(throwError(() => new Error('Error')));
 
     component.onSubmit();
 

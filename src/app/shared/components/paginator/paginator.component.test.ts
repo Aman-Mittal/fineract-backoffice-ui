@@ -86,8 +86,8 @@ describe('PaginatorComponent', () => {
 
       const first = fixture.nativeElement.querySelector('[data-testid="paginator-first"]');
       const previous = fixture.nativeElement.querySelector('[data-testid="paginator-previous"]');
-      expect(first.disabled).toBeTrue();
-      expect(previous.disabled).toBeTrue();
+      expect(first.disabled).toBe(true);
+      expect(previous.disabled).toBe(true);
     });
 
     it('disables forward navigation on the last page', () => {
@@ -95,8 +95,8 @@ describe('PaginatorComponent', () => {
 
       const next = fixture.nativeElement.querySelector('[data-testid="paginator-next"]');
       const last = fixture.nativeElement.querySelector('[data-testid="paginator-last"]');
-      expect(next.disabled).toBeTrue();
-      expect(last.disabled).toBeTrue();
+      expect(next.disabled).toBe(true);
+      expect(last.disabled).toBe(true);
     });
 
     it('emits the next page when advancing', () => {
@@ -121,7 +121,7 @@ describe('PaginatorComponent', () => {
 
     it('does not emit when the target page is the current one', () => {
       setInputs({ length: 42, pageSize: 10, pageIndex: 0 });
-      const spy = jasmine.createSpy('page');
+      const spy = vi.fn();
       fixture.componentInstance.page.subscribe(spy);
 
       fixture.nativeElement.querySelector('[data-testid="paginator-first"]').click();
@@ -150,7 +150,7 @@ describe('PaginatorComponent', () => {
 
     it('ignores a change to the size already in use', () => {
       setInputs({ length: 100, pageSize: 10, pageIndex: 0 });
-      const spy = jasmine.createSpy('page');
+      const spy = vi.fn();
       fixture.componentInstance.page.subscribe(spy);
 
       changePageSize(10);

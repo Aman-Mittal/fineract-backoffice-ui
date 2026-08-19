@@ -29,12 +29,12 @@
       "count": 4
     }
   },
-  "src/app/core/services/institution-config.service.spec.ts": {
+  "src/app/core/services/institution-config.service.test.ts": {
     "no-restricted-globals": {
       "count": 5
     }
   },
-  "src/app/core/services/navigation-config.service.spec.ts": {
+  "src/app/core/services/navigation-config.service.test.ts": {
     "no-restricted-globals": {
       "count": 4
     }
@@ -1917,7 +1917,7 @@
       "count": 1
     }
   },
-  "src/app/layout/inactivity-dialog.component.spec.ts": {
+  "src/app/layout/inactivity-dialog.component.test.ts": {
     "no-restricted-imports": {
       "count": 2
     }
@@ -1932,7 +1932,7 @@
       "count": 1
     }
   },
-  "src/app/layout/sidebar.component.spec.ts": {
+  "src/app/layout/sidebar.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1957,7 +1957,7 @@
       "count": 2
     }
   },
-  "src/app/shared/components/create-office-dialog/create-office-dialog.component.spec.ts": {
+  "src/app/shared/components/create-office-dialog/create-office-dialog.component.test.ts": {
     "no-restricted-imports": {
       "count": 2
     }
@@ -1967,7 +1967,7 @@
       "count": 2
     }
   },
-  "src/app/shared/components/data-table/data-table.component.spec.ts": {
+  "src/app/shared/components/data-table/data-table.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     },
@@ -1991,7 +1991,7 @@
       "count": 2
     }
   },
-  "src/app/shared/components/entity-datatables/entity-datatables.component.spec.ts": {
+  "src/app/shared/components/entity-datatables/entity-datatables.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -2011,7 +2011,7 @@
       "count": 1
     }
   },
-  "src/app/shared/components/paginator/paginator.component.spec.ts": {
+  "src/app/shared/components/paginator/paginator.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -2021,7 +2021,7 @@
       "count": 1
     }
   },
-  "src/app/shared/directives/has-institution-feature.directive.spec.ts": {
+  "src/app/shared/directives/has-institution-feature.directive.test.ts": {
     "no-restricted-globals": {
       "count": 2
     }

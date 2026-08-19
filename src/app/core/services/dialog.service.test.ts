@@ -50,7 +50,7 @@ describe('DialogService', () => {
       const result = await service.open(StubDialogComponent, { foo: 'bar' });
 
       expect(overlay.lastModal).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           component: StubDialogComponent,
           inputs: { foo: 'bar' },
         }),
@@ -106,26 +106,26 @@ describe('DialogService', () => {
     it('resolves true only when the dialog reports confirmation', async () => {
       overlay.nextModalResult = true;
 
-      await expectAsync(service.confirm({ title: 'T', message: 'M' })).toBeResolvedTo(true);
+      await expect(service.confirm({ title: 'T', message: 'M' })).resolves.toEqual(true);
     });
 
     it('resolves false when cancelled', async () => {
       overlay.nextModalResult = false;
 
-      await expectAsync(service.confirm({ title: 'T', message: 'M' })).toBeResolvedTo(false);
+      await expect(service.confirm({ title: 'T', message: 'M' })).resolves.toEqual(false);
     });
 
     it('resolves false when dismissed via backdrop with no result', async () => {
       overlay.nextModalResult = undefined;
 
-      await expectAsync(service.confirm({ title: 'T', message: 'M' })).toBeResolvedTo(false);
+      await expect(service.confirm({ title: 'T', message: 'M' })).resolves.toEqual(false);
     });
 
     it('supplies translated default button labels that callers can override', async () => {
       await service.confirm({ title: 'T', message: 'M', confirmText: 'Delete it' });
 
       expect(overlay.lastModal!.inputs!['data']).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           title: 'T',
           message: 'M',
           confirmText: 'Delete it',

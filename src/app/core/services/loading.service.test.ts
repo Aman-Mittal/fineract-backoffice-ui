@@ -36,36 +36,36 @@ describe('LoadingService', () => {
 
   it('should be created and have isLoading initial signal value of false', () => {
     expect(service).toBeTruthy();
-    expect(service.isLoading()).toBeFalse();
+    expect(service.isLoading()).toBe(false);
   });
 
   it('should update isLoading using loading state without url', () => {
     service.setLoading(true, '');
-    expect(service.isLoading()).toBeTrue();
+    expect(service.isLoading()).toBe(true);
 
     service.setLoading(false, '');
-    expect(service.isLoading()).toBeFalse();
+    expect(service.isLoading()).toBe(false);
   });
 
   it('should track multiple concurrent loading processes using url keys', () => {
     service.setLoading(true, firstUrl);
-    expect(service.isLoading()).toBeTrue();
+    expect(service.isLoading()).toBe(true);
 
     service.setLoading(true, secondUrl);
-    expect(service.isLoading()).toBeTrue();
+    expect(service.isLoading()).toBe(true);
 
     // Finish one, should still be loading since second is pending
     service.setLoading(false, firstUrl);
-    expect(service.isLoading()).toBeTrue();
+    expect(service.isLoading()).toBe(true);
 
     // Finish second, should be false
     service.setLoading(false, secondUrl);
-    expect(service.isLoading()).toBeFalse();
+    expect(service.isLoading()).toBe(false);
   });
 
   it('should ignore finish loading if url does not exist in map', () => {
     service.setLoading(true, firstUrl);
     service.setLoading(false, '/api/non-existent');
-    expect(service.isLoading()).toBeTrue();
+    expect(service.isLoading()).toBe(true);
   });
 });

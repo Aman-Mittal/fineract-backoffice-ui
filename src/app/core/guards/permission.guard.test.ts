@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -33,7 +35,7 @@ import { provideTestConfig } from '../../testing/config';
  */
 describe('permissionGuard', () => {
   let auth: AuthService;
-  let router: jasmine.SpyObj<Router>;
+  let router: SpyObj<Router>;
   const FORBIDDEN = {} as UrlTree;
 
   function session(permissions: string[]): UserSession {
@@ -68,8 +70,8 @@ describe('permissionGuard', () => {
    */
   function setup(rbacEnabled = true): void {
     TestBed.resetTestingModule();
-    router = jasmine.createSpyObj('Router', ['createUrlTree']);
-    router.createUrlTree.and.returnValue(FORBIDDEN);
+    router = createSpyObj(['createUrlTree']);
+    router.createUrlTree.mockReturnValue(FORBIDDEN);
 
     TestBed.configureTestingModule({
       providers: [
@@ -86,16 +88,16 @@ describe('permissionGuard', () => {
   beforeEach(() => {
     // Once per test, not inside `setup()` — the RBAC-off case calls that a second time, and
     // Jasmine refuses to spy on an already-spied method.
-    spyOn(console, 'warn');
+    vi.spyOn(console, 'warn');
     setup();
   });
 
   it('admits a superuser to a route they hold no specific permission for', () => {
-    expect(run(['ALL_FUNCTIONS'], { permissions: 'READ_CLIENT' })).toBeTrue();
+    expect(run(['ALL_FUNCTIONS'], { permissions: 'READ_CLIENT' })).toBe(true);
   });
 
   it('admits a user holding exactly the permission the route declares', () => {
-    expect(run(['READ_CLIENT'], { permissions: 'READ_CLIENT' })).toBeTrue();
+    expect(run(['READ_CLIENT'], { permissions: 'READ_CLIENT' })).toBe(true);
   });
 
   it('refuses a user who holds a different permission', () => {
@@ -103,17 +105,17 @@ describe('permissionGuard', () => {
   });
 
   it('treats several permissions as OR by default', () => {
-    expect(run(['READ_LOAN'], { permissions: ['READ_CLIENT', 'READ_LOAN'] })).toBeTrue();
+    expect(run(['READ_LOAN'], { permissions: ['READ_CLIENT', 'READ_LOAN'] })).toBe(true);
   });
 
   it('requires every permission when permissionsMatchAll is set', () => {
     const data = { permissions: ['READ_CLIENT', 'READ_LOAN'], permissionsMatchAll: true };
     expect(run(['READ_LOAN'], data)).toBe(FORBIDDEN);
-    expect(run(['READ_CLIENT', 'READ_LOAN'], data)).toBeTrue();
+    expect(run(['READ_CLIENT', 'READ_LOAN'], data)).toBe(true);
   });
 
   it('admits ALL_FUNCTIONS_READ to a read route', () => {
-    expect(run(['ALL_FUNCTIONS_READ'], { permissions: 'READ_CLIENT' })).toBeTrue();
+    expect(run(['ALL_FUNCTIONS_READ'], { permissions: 'READ_CLIENT' })).toBe(true);
   });
 
   it('refuses ALL_FUNCTIONS_READ a write route', () => {
@@ -129,10 +131,10 @@ describe('permissionGuard', () => {
   });
 
   it('admits any signed-in user to a route that declares no permissions', () => {
-    expect(run([], {})).toBeTrue();
-    expect(run([], { permissions: undefined })).toBeTrue();
-    expect(run([], { permissions: [] })).toBeTrue();
-    expect(run([], { permissions: '' })).toBeTrue();
+    expect(run([], {})).toBe(true);
+    expect(run([], { permissions: undefined })).toBe(true);
+    expect(run([], { permissions: [] })).toBe(true);
+    expect(run([], { permissions: '' })).toBe(true);
   });
 
   it('refuses a user whose permission list is empty', () => {
@@ -151,7 +153,7 @@ describe('permissionGuard', () => {
 
   it('sends a refused user to /forbidden', () => {
     run(['READ_LOAN'], { permissions: 'READ_CLIENT' });
-    expect(router.createUrlTree).toHaveBeenCalledWith(['/forbidden'], jasmine.anything());
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/forbidden'], expect.anything());
   });
 
   it('passes the permissions the route wanted, so the page can name them', () => {
@@ -163,7 +165,7 @@ describe('permissionGuard', () => {
 
   it('leaves a trace naming the route, the requirement and the user', () => {
     run(['READ_LOAN'], { permissions: 'READ_CLIENT' });
-    const [message] = (console.warn as jasmine.Spy).calls.mostRecent().args as [string];
+    const [message] = (console.warn as Mock).mock.lastCall as [string];
     expect(message).toContain('/somewhere');
     expect(message).toContain('READ_CLIENT');
     expect(message).toContain('tester');
@@ -171,8 +173,8 @@ describe('permissionGuard', () => {
 
   it('admits everyone when the deployment has RBAC turned off', () => {
     setup(false);
-    expect(run([], { permissions: 'READ_CLIENT' })).toBeTrue();
-    expect(run(['READ_LOAN'], { permissions: ['CREATE_CLIENT'] })).toBeTrue();
+    expect(run([], { permissions: 'READ_CLIENT' })).toBe(true);
+    expect(run(['READ_LOAN'], { permissions: ['CREATE_CLIENT'] })).toBe(true);
     expect(router.createUrlTree).not.toHaveBeenCalled();
   });
 });

@@ -17,43 +17,39 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { WcDelinquencyActionFormComponent } from './wc-delinquency-action-form.component';
+import { WcBreachActionFormComponent } from './wc-breach-action-form.component';
 import {
-  WorkingCapitalLoanDelinquencyActionsService,
-  WorkingCapitalLoanDelinquencyActionData,
+  WorkingCapitalLoanBreachActionsService,
+  WorkingCapitalLoanBreachActionData,
 } from '../../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideFakeAdapters } from '../../../testing/adapters';
 
-const ACTIONS = WorkingCapitalLoanDelinquencyActionData.ActionEnum;
+const ACTIONS = WorkingCapitalLoanBreachActionData.ActionEnum;
 
-describe('WcDelinquencyActionFormComponent', () => {
-  let component: WcDelinquencyActionFormComponent;
-  let fixture: ComponentFixture<WcDelinquencyActionFormComponent>;
-  let delinquencyActionsSpy: jasmine.SpyObj<WorkingCapitalLoanDelinquencyActionsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('WcBreachActionFormComponent', () => {
+  let component: WcBreachActionFormComponent;
+  let fixture: ComponentFixture<WcBreachActionFormComponent>;
+  let breachActionsSpy: SpyObj<WorkingCapitalLoanBreachActionsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(() => {
-    delinquencyActionsSpy = jasmine.createSpyObj('WorkingCapitalLoanDelinquencyActionsService', [
-      'postWorkingCapitalLoansLoanIdDelinquencyActions',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    delinquencyActionsSpy.postWorkingCapitalLoansLoanIdDelinquencyActions.and.returnValue(
+    breachActionsSpy = createSpyObj(['postWorkingCapitalLoansLoanIdBreachActions']);
+    routerSpy = createSpyObj(['navigate']);
+    breachActionsSpy.postWorkingCapitalLoansLoanIdBreachActions.mockReturnValue(
       of({}) as ReturnType<
-        WorkingCapitalLoanDelinquencyActionsService['postWorkingCapitalLoansLoanIdDelinquencyActions']
+        WorkingCapitalLoanBreachActionsService['postWorkingCapitalLoansLoanIdBreachActions']
       >,
     );
 
     TestBed.configureTestingModule({
-      imports: [WcDelinquencyActionFormComponent],
+      imports: [WcBreachActionFormComponent],
       providers: [
-        {
-          provide: WorkingCapitalLoanDelinquencyActionsService,
-          useValue: delinquencyActionsSpy,
-        },
+        { provide: WorkingCapitalLoanBreachActionsService, useValue: breachActionsSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
@@ -64,7 +60,7 @@ describe('WcDelinquencyActionFormComponent', () => {
       ],
     });
 
-    fixture = TestBed.createComponent(WcDelinquencyActionFormComponent);
+    fixture = TestBed.createComponent(WcBreachActionFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -79,81 +75,70 @@ describe('WcDelinquencyActionFormComponent', () => {
     component.endDate = '2026-02-01';
     component.onSubmit();
 
-    expect(
-      delinquencyActionsSpy.postWorkingCapitalLoansLoanIdDelinquencyActions,
-    ).toHaveBeenCalledWith(
+    expect(breachActionsSpy.postWorkingCapitalLoansLoanIdBreachActions).toHaveBeenCalledWith(
       42,
-      jasmine.objectContaining({
+      expect.objectContaining({
         action: ACTIONS.Pause,
-        startDate: jasmine.any(String),
-        endDate: jasmine.any(String),
+        startDate: expect.any(String),
+        endDate: expect.any(String),
       }),
     );
   });
 
-  it('submits a RESET action with the start-new-period flag', () => {
+  it('submits a RESET action with the restart flag', () => {
     component.action = ACTIONS.Reset;
-    component.startNewPeriod = true;
+    component.restartFromReset = true;
     component.onSubmit();
 
-    expect(
-      delinquencyActionsSpy.postWorkingCapitalLoansLoanIdDelinquencyActions,
-    ).toHaveBeenCalledWith(
+    expect(breachActionsSpy.postWorkingCapitalLoansLoanIdBreachActions).toHaveBeenCalledWith(
       42,
-      jasmine.objectContaining({
+      expect.objectContaining({
         action: ACTIONS.Reset,
-        startNewPeriod: true,
+        restartPeriodFromResetDate: true,
       }),
     );
   });
 
-  it('submits a RESCHEDULE action with frequency and minimum payment fields', () => {
+  it('submits a RESCHEDULE action with frequency fields', () => {
     component.action = ACTIONS.Reschedule;
     component.request.frequency = 3;
     component.request.frequencyType = component.frequencyTypeOptions[0];
-    component.request.minimumPayment = 50;
-    component.request.minimumPaymentType = component.minimumPaymentTypeOptions[0];
     component.onSubmit();
 
-    expect(
-      delinquencyActionsSpy.postWorkingCapitalLoansLoanIdDelinquencyActions,
-    ).toHaveBeenCalledWith(
+    expect(breachActionsSpy.postWorkingCapitalLoansLoanIdBreachActions).toHaveBeenCalledWith(
       42,
-      jasmine.objectContaining({
+      expect.objectContaining({
         action: ACTIONS.Reschedule,
         frequency: 3,
-        minimumPayment: 50,
       }),
     );
   });
 
-  it('navigates back to the loan view on success, on the delinquency-actions tab', () => {
+  it('navigates back to the loan view on success, on the breach-actions tab', () => {
     component.action = ACTIONS.Resume;
     component.onSubmit();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42'], {
-      queryParams: { tab: 'delinquencyActions' },
+      queryParams: { tab: 'breachActions' },
     });
   });
 
   it('stops saving and does not navigate away when the request fails', () => {
-    delinquencyActionsSpy.postWorkingCapitalLoansLoanIdDelinquencyActions.and.returnValue(
+    breachActionsSpy.postWorkingCapitalLoansLoanIdBreachActions.mockReturnValue(
       throwError(() => new Error('boom')),
     );
     component.action = ACTIONS.Enable;
     component.onSubmit();
 
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
   it('cancel navigates back without submitting', () => {
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42'], {
-      queryParams: { tab: 'delinquencyActions' },
+      queryParams: { tab: 'breachActions' },
     });
-    expect(
-      delinquencyActionsSpy.postWorkingCapitalLoansLoanIdDelinquencyActions,
-    ).not.toHaveBeenCalled();
+    expect(breachActionsSpy.postWorkingCapitalLoansLoanIdBreachActions).not.toHaveBeenCalled();
   });
 });
