@@ -24,12 +24,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('PostDatedChecksListComponent', () => {
   let component: PostDatedChecksListComponent;
   let fixture: ComponentFixture<PostDatedChecksListComponent>;
   let serviceSpy: jasmine.SpyObj<RepaymentWithPostDatedChecksService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogService: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj('RepaymentWithPostDatedChecksService', [
@@ -37,6 +39,8 @@ describe('PostDatedChecksListComponent', () => {
       'deleteLoansLoanIdPostdatedchecksPostDatedCheckId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogService.confirm.and.resolveTo(true);
     serviceSpy.getLoansLoanIdPostdatedchecks.and.returnValue(
       of([
         { id: 1, name: 'Check A', amount: 1000, accountNo: 12, date: '2026-01-01' },
@@ -50,6 +54,7 @@ describe('PostDatedChecksListComponent', () => {
       providers: [
         { provide: RepaymentWithPostDatedChecksService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ loanId: '1' }) } },
@@ -75,8 +80,7 @@ describe('PostDatedChecksListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans', 1, 'post-dated-checks', 'edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should delete after confirmation and reload', async () => {
     serviceSpy.deleteLoansLoanIdPostdatedchecksPostDatedCheckId.and.returnValue(
       of({}) as unknown as ReturnType<
         RepaymentWithPostDatedChecksService['deleteLoansLoanIdPostdatedchecksPostDatedCheckId']
@@ -84,14 +88,16 @@ describe('PostDatedChecksListComponent', () => {
     );
 
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteLoansLoanIdPostdatedchecksPostDatedCheckId).toHaveBeenCalledWith(5, 1);
     expect(serviceSpy.getLoansLoanIdPostdatedchecks).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.and.resolveTo(false);
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteLoansLoanIdPostdatedchecksPostDatedCheckId).not.toHaveBeenCalled();
   });
 });

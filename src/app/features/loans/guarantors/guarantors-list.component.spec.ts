@@ -24,12 +24,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('GuarantorsListComponent', () => {
   let component: GuarantorsListComponent;
   let fixture: ComponentFixture<GuarantorsListComponent>;
   let serviceSpy: jasmine.SpyObj<GuarantorsService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogService: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj('GuarantorsService', [
@@ -37,6 +39,8 @@ describe('GuarantorsListComponent', () => {
       'deleteLoansLoanIdGuarantorsGuarantorId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogService.confirm.and.resolveTo(true);
     serviceSpy.getLoansLoanIdGuarantors.and.returnValue(
       of([{ id: 1, firstname: 'John', lastname: 'Doe', status: true }]) as unknown as ReturnType<
         GuarantorsService['getLoansLoanIdGuarantors']
@@ -48,6 +52,7 @@ describe('GuarantorsListComponent', () => {
       providers: [
         { provide: GuarantorsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ loanId: '1' }) } },
@@ -67,21 +72,22 @@ describe('GuarantorsListComponent', () => {
     expect(component.guarantors()).toHaveSize(1);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should delete after confirmation and reload', async () => {
     serviceSpy.deleteLoansLoanIdGuarantorsGuarantorId.and.returnValue(
       of({}) as unknown as ReturnType<GuarantorsService['deleteLoansLoanIdGuarantorsGuarantorId']>,
     );
 
     component.onDelete({ id: 5, firstname: 'Y' });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteLoansLoanIdGuarantorsGuarantorId).toHaveBeenCalledWith(1, 5);
     expect(serviceSpy.getLoansLoanIdGuarantors).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.and.resolveTo(false);
     component.onDelete({ id: 5, firstname: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteLoansLoanIdGuarantorsGuarantorId).not.toHaveBeenCalled();
   });
 });

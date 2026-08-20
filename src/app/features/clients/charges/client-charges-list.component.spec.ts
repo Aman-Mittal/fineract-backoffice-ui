@@ -24,12 +24,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ClientChargesListComponent', () => {
   let component: ClientChargesListComponent;
   let fixture: ComponentFixture<ClientChargesListComponent>;
   let serviceSpy: jasmine.SpyObj<ClientChargesService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogService: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj('ClientChargesService', [
@@ -37,6 +39,8 @@ describe('ClientChargesListComponent', () => {
       'deleteClientsClientIdChargesChargeId',
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogService.confirm.and.resolveTo(true);
     serviceSpy.getClientsClientIdCharges.and.returnValue(
       of({
         pageItems: [{ id: 1, name: 'Fee', amount: 100 }],
@@ -48,6 +52,7 @@ describe('ClientChargesListComponent', () => {
       providers: [
         { provide: ClientChargesService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ clientId: '1' }) } },
@@ -67,21 +72,22 @@ describe('ClientChargesListComponent', () => {
     expect(component.charges()).toHaveSize(1);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should delete after confirmation and reload', async () => {
     serviceSpy.deleteClientsClientIdChargesChargeId.and.returnValue(
       of({}) as unknown as ReturnType<ClientChargesService['deleteClientsClientIdChargesChargeId']>,
     );
 
     component.onDelete({ id: 5, name: 'X' });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteClientsClientIdChargesChargeId).toHaveBeenCalledWith(1, 5);
     expect(serviceSpy.getClientsClientIdCharges).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.and.resolveTo(false);
     component.onDelete({ id: 5, name: 'X' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteClientsClientIdChargesChargeId).not.toHaveBeenCalled();
   });
 });
