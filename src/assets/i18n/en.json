@@ -2074,7 +2074,11 @@
     "NO_STEPS": "No steps configured for this job."
   },
   "CHECKER_INBOX": {
-    "VIEW_PAYLOAD": "View payload"
+    "VIEW_PAYLOAD": "View payload",
+    "REJECT_TITLE": "Reject task",
+    "CONFIRM_REJECT": "Are you sure you want to reject this task?",
+    "REJECT_SUCCESS": "Task rejected successfully",
+    "REJECT_ERROR": "Failed to reject task"
   },
   "BUSINESS_DATES": {
     "TITLE": "Business Date Management",
