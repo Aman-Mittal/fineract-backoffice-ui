@@ -114,13 +114,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
+      # Keyed on the lockfile only, and bounded to one entry as a result — see the longer note
+      # in ci.yml. `.angular/cache` is content-addressed internally, so an entry built from
+      # older sources still hits for unchanged files; adding a `src/**` hash to the key would
+      # only churn the repository's shared 10 GB cache budget and evict the Playwright browsers.
       - name: Cache Angular build output
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .angular/cache
-          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-angular-e2e-
 
       - name: Run mocked E2E tests
@@ -128,7 +131,11 @@ jobs:
           SHARD_INDEX: ${{ matrix.shard }}
           SHARD_TOTAL: ${{ matrix.total }}
           PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/e2e-output
-        run: npx playwright test --project=mocked --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob
+        # `list` alongside `blob` so the job log names every test as it runs. With blob alone a
+        # shard that fails prints nothing readable and the only way to find out which test broke
+        # is to download and merge the blob — a slow round trip for a question the log should
+        # already answer.
+        run: npx playwright test --project=mocked --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob,list
 
       - name: Upload blob report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -172,7 +179,9 @@ jobs:
         env:
           PLAYWRIGHT_HTML_OPEN: 'never'
           PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
-        run: npx playwright merge-reports --reporter=line,html,json ./all-blob-reports
+        # `list` rather than `line`: `line` overwrites a single status line, so the merged log
+        # ends up with a total and nothing else. `list` leaves one line per test.
+        run: npx playwright merge-reports --reporter=list,html,json ./all-blob-reports
 
       - name: Upload merged report and videos
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -185,27 +194,37 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      # Rendered twice with different budgets. The run summary allows 1 MB, so it gets the
+      # whole listing; a PR comment is capped at 65536 characters and the API *rejects* a
+      # longer one — and since the comment step is continue-on-error, overflowing would lose
+      # the comment silently. 55000 leaves headroom for the marker, title and artifact footer
+      # the upsert script wraps around it.
       - name: Build test summary
         if: always()
+        env:
+          E2E_SUMMARY_MAX_LISTED: '1000'
         run: |
           {
             echo "## E2E — mocked backend"
-            node scripts/e2e-summary.mjs
+            E2E_SUMMARY_MAX_BYTES=900000 node scripts/e2e-summary.mjs
           } >> "$GITHUB_STEP_SUMMARY"
-          node scripts/e2e-summary.mjs > /tmp/e2e-summary.md
+          E2E_SUMMARY_MAX_BYTES=55000 node scripts/e2e-summary.mjs > /tmp/e2e-summary.md
 
-      - name: Comment PR with summary
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        continue-on-error: true
-        env:
-          REPORT_MARKER: '<!-- e2e-report-mocked -->'
-          REPORT_TITLE: 'E2E — mocked backend'
-          REPORT_ARTIFACT: 'playwright-report-mocked'
+      # The comment is posted by e2e-comment.yml, not from here.
+      #
+      # A `pull_request` run from a fork gets a read-only GITHUB_TOKEN — that is GitHub's
+      # design, not a misconfiguration — so this job cannot comment on exactly the pull
+      # requests that most need the feedback. It uploads the rendered summary instead, and a
+      # `workflow_run` workflow running from the default branch, with a writable token and
+      # none of this job's untrusted checkout, posts it. See DOCS/CI_CHECKS.md.
+      - name: Upload the summary for the commenter
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
         with:
-          script: |
-            const upsert = require('./.github/scripts/upsert-e2e-comment.js');
-            await upsert({ github, context });
+          name: pr-comment-e2e-mocked
+          path: /tmp/e2e-summary.md
+          if-no-files-found: warn
+          retention-days: 1
 
   two-factor:
     name: E2E (two-factor, real Fineract)
@@ -254,13 +273,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
+      # Keyed on the lockfile only, and bounded to one entry as a result — see the longer note
+      # in ci.yml. `.angular/cache` is content-addressed internally, so an entry built from
+      # older sources still hits for unchanged files; adding a `src/**` hash to the key would
+      # only churn the repository's shared 10 GB cache budget and evict the Playwright browsers.
       - name: Cache Angular build output
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .angular/cache
-          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-angular-e2e-
 
       - name: Run two-factor E2E tests
@@ -272,7 +294,7 @@ jobs:
           MAILPIT_URL: 'http://localhost:8025'
           PLAYWRIGHT_HTML_OPEN: 'never'
           PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/e2e-output-2fa
-        run: npx playwright test --project=two-factor --workers=1 --reporter=line,html
+        run: npx playwright test --project=two-factor --workers=1 --reporter=list,html
 
       - name: Print Fineract logs on failure
         if: failure()
@@ -352,13 +374,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
 
+      # Keyed on the lockfile only, and bounded to one entry as a result — see the longer note
+      # in ci.yml. `.angular/cache` is content-addressed internally, so an entry built from
+      # older sources still hits for unchanged files; adding a `src/**` hash to the key would
+      # only churn the repository's shared 10 GB cache budget and evict the Playwright browsers.
       - name: Cache Angular build output
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .angular/cache
-          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-angular-e2e-
 
       - name: Wait for Fineract to be ready
@@ -401,7 +426,7 @@ jobs:
         # A blob report rather than html/json: those are produced once, by the merge job below,
         # from every shard's blob. Note that Playwright runs the `setup` project in each shard,
         # so each stack gets its reference data seeded against the shard that uses it.
-        run: npx playwright test --project=backend --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob
+        run: npx playwright test --project=backend --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob,list
 
       - name: Print Fineract logs on failure
         if: failure()
@@ -462,7 +487,9 @@ jobs:
         env:
           PLAYWRIGHT_HTML_OPEN: 'never'
           PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
-        run: npx playwright merge-reports --reporter=line,html,json ./all-blob-reports
+        # `list` rather than `line`: `line` overwrites a single status line, so the merged log
+        # ends up with a total and nothing else. `list` leaves one line per test.
+        run: npx playwright merge-reports --reporter=list,html,json ./all-blob-reports
 
       - name: Upload merged report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -478,24 +505,34 @@ jobs:
       # Written to the run summary as well as the PR, because a pull_request from
       # a fork gets a read-only token and cannot be commented on — that is the
       # "Resource not accessible by integration" failure. The summary always works.
+      # Rendered twice with different budgets. The run summary allows 1 MB, so it gets the
+      # whole listing; a PR comment is capped at 65536 characters and the API *rejects* a
+      # longer one — and since the comment step is continue-on-error, overflowing would lose
+      # the comment silently. 55000 leaves headroom for the marker, title and artifact footer
+      # the upsert script wraps around it.
       - name: Build test summary
         if: always()
+        env:
+          E2E_SUMMARY_MAX_LISTED: '1000'
         run: |
           {
             echo "## E2E — real Fineract"
-            node scripts/e2e-summary.mjs
+            E2E_SUMMARY_MAX_BYTES=900000 node scripts/e2e-summary.mjs
           } >> "$GITHUB_STEP_SUMMARY"
-          node scripts/e2e-summary.mjs > /tmp/e2e-summary.md
+          E2E_SUMMARY_MAX_BYTES=55000 node scripts/e2e-summary.mjs > /tmp/e2e-summary.md
 
-      - name: Comment PR with summary
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        continue-on-error: true
-        env:
-          REPORT_MARKER: '<!-- e2e-report-backend -->'
-          REPORT_TITLE: 'E2E — real Fineract'
-          REPORT_ARTIFACT: 'playwright-report-backend'
+      # The comment is posted by e2e-comment.yml, not from here.
+      #
+      # A `pull_request` run from a fork gets a read-only GITHUB_TOKEN — that is GitHub's
+      # design, not a misconfiguration — so this job cannot comment on exactly the pull
+      # requests that most need the feedback. It uploads the rendered summary instead, and a
+      # `workflow_run` workflow running from the default branch, with a writable token and
+      # none of this job's untrusted checkout, posts it. See DOCS/CI_CHECKS.md.
+      - name: Upload the summary for the commenter
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
         with:
-          script: |
-            const upsert = require('./.github/scripts/upsert-e2e-comment.js');
-            await upsert({ github, context });
+          name: pr-comment-e2e-backend
+          path: /tmp/e2e-summary.md
+          if-no-files-found: warn
+          retention-days: 1

@@ -184,16 +184,26 @@ jobs:
           cache: 'npm'
       - run: npm ci
       # Angular's build cache, which angular.json now enables under CI (`cli.cache.environment:
-      # all`). Keyed on the lockfile and the sources, with restore-keys so a source change still
-      # starts from the previous run's cache rather than from nothing — which is the case that
-      # matters, since every push changes sources and almost none change the lockfile.
+      # all`).
+      #
+      # Keyed on the lockfile *only*, deliberately. The obvious key includes a hash of `src/**`,
+      # and that is a trap: it writes a new entry on every push that touches a source file —
+      # which is every push — so three job-kinds' worth of a few hundred megabytes each would
+      # churn through the repository's 10 GB cache budget in days and evict the Playwright and
+      # buildx entries that the rest of CI depends on. Cache eviction is not free: it converts a
+      # warm job into a cold one somewhere else in the matrix.
+      #
+      # Keying on the lockfile costs nothing in hit rate, because `.angular/cache` is
+      # content-addressed internally: an entry built from older sources still hits for every
+      # file whose content has not changed, which is almost all of them. So the entry is
+      # rewritten when dependencies move and read the rest of the time, and the number of
+      # entries stays bounded at one per job-kind.
       - name: Cache Angular build output
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .angular/cache
-          key: ${{ runner.os }}-angular-test-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          key: ${{ runner.os }}-angular-test-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-angular-test-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-angular-test-
       - name: Run Tests with Coverage
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
@@ -255,16 +265,26 @@ jobs:
           cache: 'npm'
       - run: npm ci
       # Angular's build cache, which angular.json now enables under CI (`cli.cache.environment:
-      # all`). Keyed on the lockfile and the sources, with restore-keys so a source change still
-      # starts from the previous run's cache rather than from nothing — which is the case that
-      # matters, since every push changes sources and almost none change the lockfile.
+      # all`).
+      #
+      # Keyed on the lockfile *only*, deliberately. The obvious key includes a hash of `src/**`,
+      # and that is a trap: it writes a new entry on every push that touches a source file —
+      # which is every push — so three job-kinds' worth of a few hundred megabytes each would
+      # churn through the repository's 10 GB cache budget in days and evict the Playwright and
+      # buildx entries that the rest of CI depends on. Cache eviction is not free: it converts a
+      # warm job into a cold one somewhere else in the matrix.
+      #
+      # Keying on the lockfile costs nothing in hit rate, because `.angular/cache` is
+      # content-addressed internally: an entry built from older sources still hits for every
+      # file whose content has not changed, which is almost all of them. So the entry is
+      # rewritten when dependencies move and read the rest of the time, and the number of
+      # entries stays bounded at one per job-kind.
       - name: Cache Angular build output
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .angular/cache
-          key: ${{ runner.os }}-angular-build-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          key: ${{ runner.os }}-angular-build-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-angular-build-${{ hashFiles('package-lock.json') }}-
             ${{ runner.os }}-angular-build-
       - run: npm run build
 
@@ -421,6 +441,40 @@ jobs:
       - name: Container logs
         if: always()
         run: docker logs backoffice-ui 2>&1 | tail -30
+
+  diagram:
+    name: Change Sequence Diagram
+    needs: dependencies
+    # Only a pull request has somewhere to publish the diagram to.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+          # The diagram is drawn from the files this pull request changed, so the merge base
+          # has to be reachable. `fetch-depth: 0` is blunt but reliable; a shallow fetch of the
+          # base ref alone breaks whenever the branch is behind by more than the fetch depth.
+          fetch-depth: 0
+      # No npm install: the script is dependency-free Node, and this job exists to be cheap.
+      - name: Render the diagram
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/pr-sequence-diagram.mjs "$BASE_SHA" > /tmp/pr-diagram.md
+      - name: Show it in the run summary
+        run: cat /tmp/pr-diagram.md >> "$GITHUB_STEP_SUMMARY"
+      # Uploaded rather than posted from here, for the same reason the E2E summaries are: this
+      # job runs on a fork's `pull_request` with a read-only token. pr-comments.yml publishes it.
+      - name: Upload the diagram for the commenter
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: pr-comment-diagram
+          path: /tmp/pr-diagram.md
+          if-no-files-found: warn
+          retention-days: 1
 
   rat-scan:
     name: Apache RAT Scan

@@ -383,8 +383,77 @@ migration-fresh one exposes immediately — "the list shows a badge" passes on
 leftover records and fails in CI, where nothing has created one yet. That has been
 the cause of most CI-only e2e failures here.
 
-Each job uploads its report, videos and traces, and upserts its own PR comment
-under its own marker. Artifacts land in `PLAYWRIGHT_OUTPUT_DIR` (the runner temp
+### What the summary reports
+
+Each shard runs with `--reporter=blob,list`, so the job log names every test as it goes;
+`blob` alone prints nothing readable, and a failed shard would then need a blob download to
+answer "which test broke". The merge steps use `list` rather than `line` for the same
+reason — `line` overwrites one status line and leaves only a total.
+
+`scripts/e2e-summary.mjs` renders the merged JSON into the run summary and the PR comment:
+the verdict, failures with their (ANSI-stripped) first error line, anything that passed only
+on retry, a per-spec-file table, the full per-test listing folded into a `<details>` block,
+and the slowest ten.
+
+The per-file table and full listing exist because totals alone cannot distinguish a spec
+that passed from one that stopped running — a renamed file, a stray `test.skip`, or a shard
+that died before reaching it all report as "not failed". Sharding makes that failure mode
+easier to hit, so the summary names what ran.
+
+It is rendered twice with different budgets, because a run summary allows 1 MB and a PR
+comment is rejected above 65536 characters — and the comment step is `continue-on-error`, so
+an oversized comment would vanish silently. `E2E_SUMMARY_MAX_BYTES` drops sections from the
+least important upward until the output fits, and always states what it dropped.
+
+### Commenting, including on forks
+
+Each job uploads its report, videos and traces, and its rendered summary. The summary is
+**not** posted from inside `e2e.yml`: a `pull_request` run from a fork gets a read-only
+`GITHUB_TOKEN` — GitHub's design, since the run executes the contributor's code — so that job
+cannot comment on exactly the pull requests that most need the feedback.
+
+`e2e-comment.yml` does it instead, on `workflow_run`. It fires after the E2E run finishes and
+executes the copy of itself on the **default branch**, with a token this repository controls.
+Two consequences:
+
+- **Edits to it do not take effect until merged.** A pull request changing `e2e-comment.yml`
+  or `post-e2e-comments.js` cannot exercise them; the first real run is the first after merge.
+- **It must never check out or run the pull request's code.** Writable token plus untrusted
+  code is the "pwn request" vulnerability. The checkout is deliberately ref-less and
+  sparse — the base repository's default branch, `.github/scripts` only.
+
+The downloaded summary is untrusted input, because the run that produced it can modify
+`scripts/e2e-summary.mjs` freely. So:
+
+| Rule                                                                          | Why                                                    |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------ |
+| The pull request is resolved from `workflow_run.head_sha`, never the artifact | Otherwise a fork could direct the comment at any issue |
+| Marker and title come from an allow-list in the script                        | The marker decides which comment is overwritten        |
+| Unrecognised artifact names are ignored                                       | Artifact names are chosen by the untrusted run         |
+| `@mentions` and `#refs` are defused, and length capped                        | Otherwise the summary is a notification-spam primitive |
+
+`pr-comments.yml` publishes anything a run leaves in a `pr-comment-*` artifact, so it also
+carries the **change sequence diagram** that `ci.yml`'s `diagram` job renders with
+`scripts/pr-sequence-diagram.mjs` — a Mermaid diagram of which services and API clients the
+changed TypeScript talks to.
+
+That script is deliberately not the widely-copied version of this idea, which reads
+constructor parameters for dependency injection and `this.http.get(...)` for backend calls.
+Both are near-useless here: this codebase has ~991 `inject()` fields against ~181 constructors
+of any kind, and ~11 raw `HttpClient` calls outside the generated `src/app/api` client. It
+reads `inject()` fields instead, and collapses the generated clients into a single `Fineract`
+participant. It is regex static analysis, not a call graph, and the comment says so rather
+than implying a trace.
+
+Every identifier reaching the diagram is filtered to `[A-Za-z0-9_]` and every label to a set
+excluding backticks, newlines and angle brackets. That is not cosmetic: the output is posted
+as a comment, so a class name containing a backtick would otherwise escape the ```mermaid`
+fence and inject arbitrary Markdown under the Actions bot's name.
+
+The residual risk is inherent to the feature: a contributor can make the summary text say
+anything, and it is posted under the Actions bot on their own pull request. Every comment
+therefore carries the run id, the short SHA, and — for forks — a note that the contents are
+unverified. Artifacts land in `PLAYWRIGHT_OUTPUT_DIR` (the runner temp
 directory) rather than the repo — the dev server watches the working tree, and
 Playwright's artifact churn used to race the watcher and kill the server mid-run.
 
@@ -418,6 +487,11 @@ What it reliably catches here:
   comment. Dependabot reads that comment, so keep it accurate.
 - **`artipacked`** — `persist-credentials: false` on every checkout.
 - **`cache-poisoning`** — caching actions in a workflow that can write.
+- **`dangerous-triggers`** — `workflow_run` in `pr-comments.yml` carries a documented
+  `# zizmor: ignore[dangerous-triggers]`. It is the one suppression this repository adds on
+  top of the baseline, and it is load-bearing: removing it produces a `high` finding. The
+  reasoning is in that workflow's header — no checkout of the pull request's code, and the
+  downloaded artifact is treated as untrusted data.
 
 To check before pushing (the image cannot mount every path; copy the workflows
 somewhere Docker is allowed to read):
