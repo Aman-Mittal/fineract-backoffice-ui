@@ -49,6 +49,7 @@
  */
 
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const REPORT = process.env.PLAYWRIGHT_JSON_OUTPUT_NAME ?? 'playwright-results.json';
 
@@ -116,9 +117,23 @@ function humanDuration(ms) {
   return `${minutes}m ${Math.round((ms % 60000) / 1000)}s`;
 }
 
-/** Pipes would break out of the markdown table cell they are rendered into. */
+/**
+ * Escapes a value for a Markdown table cell.
+ *
+ * Both replacements are load-bearing, and the order they happen in is why this is one pass
+ * rather than two:
+ *
+ *   - **Backslash, then pipe.** Escaping only the pipe leaves `a\\|b` — a literal backslash
+ *     followed by an *unescaped* pipe, which ends the cell. Escaping backslashes in a second
+ *     `.replace` would then double the ones this call just added. A single pass over a
+ *     character class avoids both traps.
+ *   - **Whitespace collapse.** A newline in a test title ends the table row, not just the
+ *     cell, so the rest of the table renders as prose.
+ *
+ * Reported by CodeQL as an incomplete escaping, which it was.
+ */
 function cell(text) {
-  return String(text).replace(/\|/g, '\\|');
+  return String(text).replace(/\s+/g, ' ').replace(/[\\|]/g, '\\$&').trim();
 }
 
 function firstErrorLine(error) {
@@ -311,4 +326,9 @@ function main() {
   console.log(output);
 }
 
-main();
+export { cell, humanDuration, firstErrorLine };
+
+// Only render when invoked as a command; importing this module (the tests do) must not print.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

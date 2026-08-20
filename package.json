@@ -41,6 +41,7 @@
     "check:licenses:selftest": "node scripts/check-dependency-licenses.mjs --self-test",
     "check:version": "node scripts/check-version.mjs",
     "test:eslint-rules": "node --test \"eslint-rules/*.test.js\"",
+    "test:scripts": "node --test \"scripts/*.test.mjs\"",
     "typecheck:e2e": "tsc -p tsconfig.e2e.json",
     "api:surface": "node scripts/check-api-surface.mjs",
     "ga:check": "node scripts/ga-check.mjs",

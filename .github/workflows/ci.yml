@@ -83,6 +83,11 @@ jobs:
       # silent drift into being stricter or laxer than what it replaced fails here.
       - name: Test the repository's own ESLint rules
         run: npm run test:eslint-rules
+      # `scripts/` is outside `src`, so neither `npm run lint` nor either unit runner covers
+      # it — and it renders the Markdown that gets posted to pull requests. CodeQL found an
+      # incomplete escaping in that renderer, which is what these tests pin.
+      - name: Test the reporting scripts
+        run: npm run test:scripts
 
   html-lint:
     name: HTML Lint
