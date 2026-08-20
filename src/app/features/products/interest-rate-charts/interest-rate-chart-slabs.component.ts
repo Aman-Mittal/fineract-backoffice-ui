@@ -28,6 +28,8 @@ import {
   EnumOptionData,
 } from '../../../api';
 import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
   IonButton,
@@ -258,6 +260,8 @@ export class InterestRateChartSlabsComponent implements OnInit {
   private readonly slabService = inject(InterestRateSlabAKAInterestBandsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   private readonly LIST_PATH = '/products/interest-rate-charts';
 
@@ -334,8 +338,18 @@ export class InterestRateChartSlabsComponent implements OnInit {
     });
   }
 
-  onDelete(slab: InterestRateChartSlabData): void {
-    if (!this.chartId || !slab.id || !window.confirm('Delete this slab?')) return;
+  async onDelete(slab: InterestRateChartSlabData): Promise<void> {
+    if (!this.chartId || !slab.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('INTEREST_RATE_CHARTS.DELETE_SLAB'),
+      message: this.i18n.translate('INTEREST_RATE_CHARTS.CONFIRM_DELETE_SLAB', {
+        rate: slab.annualInterestRate ?? '',
+        fromPeriod: slab.fromPeriod ?? '',
+        toPeriod: slab.toPeriod ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.slabService
       .deleteInterestratechartsChartIdChartslabsChartSlabId(this.chartId, slab.id)
       .subscribe({

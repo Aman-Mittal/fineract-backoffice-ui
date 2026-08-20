@@ -17,37 +17,41 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReportMailingJobsListComponent } from './report-mailing-jobs-list.component';
 import { ReportMailingJobsService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ReportMailingJobsListComponent', () => {
   let component: ReportMailingJobsListComponent;
   let fixture: ComponentFixture<ReportMailingJobsListComponent>;
-  let serviceSpy: jasmine.SpyObj<ReportMailingJobsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<ReportMailingJobsService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ReportMailingJobsService', [
-      'getReportmailingjobs',
-      'deleteReportmailingjobsEntityId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getReportmailingjobs.and.returnValue(
+    serviceSpy = createSpyObj(['getReportmailingjobs', 'deleteReportmailingjobsEntityId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getReportmailingjobs.mockReturnValue(
       of([{ id: 1, name: 'Job', emailRecipients: 'a@b.c' }]) as unknown as ReturnType<
         ReportMailingJobsService['getReportmailingjobs']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [ReportMailingJobsListComponent, TranslateModule.forRoot()],
+      imports: [ReportMailingJobsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ReportMailingJobsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -60,7 +64,7 @@ describe('ReportMailingJobsListComponent', () => {
   it('should load jobs on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getReportmailingjobs).toHaveBeenCalled();
-    expect(component.jobs()).toHaveSize(1);
+    expect(component.jobs()).toHaveLength(1);
   });
 
   it('should navigate to edit with the job id', () => {
@@ -68,21 +72,23 @@ describe('ReportMailingJobsListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/report-mailing-jobs/edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteReportmailingjobsEntityId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteReportmailingjobsEntityId.mockReturnValue(
       of({}) as unknown as ReturnType<ReportMailingJobsService['deleteReportmailingjobsEntityId']>,
     );
 
     component.onDelete({ id: 5, name: 'Y' });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteReportmailingjobsEntityId).toHaveBeenCalledWith(5);
     expect(serviceSpy.getReportmailingjobs).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteReportmailingjobsEntityId).not.toHaveBeenCalled();
   });
 });

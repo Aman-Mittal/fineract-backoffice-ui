@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { InterestRateChartService, GetInterestRateChartsResponse } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -89,6 +91,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class InterestRateChartsListComponent implements OnInit {
   private readonly chartService = inject(InterestRateChartService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'id', label: 'INTEREST_RATE_CHARTS.ID', sortable: true },
@@ -126,8 +130,17 @@ export class InterestRateChartsListComponent implements OnInit {
     this.router.navigate(['/products/interest-rate-charts', row.id, 'slabs']);
   }
 
-  onDelete(row: GetInterestRateChartsResponse): void {
-    if (!row.id || !window.confirm('Delete this interest rate chart?')) return;
+  async onDelete(row: GetInterestRateChartsResponse): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('INTEREST_RATE_CHARTS.DELETE'),
+      message: this.i18n.translate('INTEREST_RATE_CHARTS.CONFIRM_DELETE', {
+        id: row.id,
+        product: row.savingsProductName ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.chartService.deleteInterestratechartsChartId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete interest rate chart', err),

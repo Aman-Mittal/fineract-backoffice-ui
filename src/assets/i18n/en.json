@@ -698,7 +698,8 @@
     "TYPE_SMS": "SMS",
     "SAVE": "Save",
     "CANCEL": "Cancel",
-    "DELETE_CONFIRM": "Are you sure you want to delete this template?"
+    "DELETE_CONFIRM": "Delete the template “{{name}}”? Anything generating a document from it no longer finds it.",
+    "DELETE": "Delete Template"
   },
   "TELLERS": {
     "CREATE_TELLER": "Create Teller",
@@ -953,7 +954,13 @@
     "CREATE_BUCKET": "Create Bucket",
     "MIN_AGE_DAYS": "Min Age Days",
     "MAX_AGE_DAYS": "Max Age Days",
-    "RANGES": "Ranges"
+    "RANGES": "Ranges",
+    "DELETE_DELINQUENCY_RANGE": "Delete Delinquency Range",
+    "CONFIRM_DELETE_DELINQUENCY_RANGE": "Delete the delinquency range “{{classification}}”? Buckets built from it lose that band, and the next classification run uses whatever is left.",
+    "DELETE_DELINQUENCY_BUCKET": "Delete Delinquency Bucket",
+    "CONFIRM_DELETE_DELINQUENCY_BUCKET": "Delete the delinquency bucket “{{name}}”? Loan products using it need a different bucket before they classify again.",
+    "DELETE_DATA_TABLE": "Delete Data Table",
+    "CONFIRM_DELETE_DATA_TABLE": "Delete the data table “{{name}}”? The table and everything recorded in it are removed."
   },
   "ACCOUNTING_RULES": {
     "CREATE": "Create Accounting Rule",
@@ -1691,7 +1698,9 @@
     "EXTERNAL_ID": "External ID",
     "ORIGINATOR_TYPE": "Originator Type",
     "CHANNEL_TYPE": "Channel Type",
-    "STATUS": "Status"
+    "STATUS": "Status",
+    "DELETE": "Delete Loan Originator",
+    "CONFIRM_DELETE": "Delete the loan originator “{{name}}”? It will no longer be selectable when attributing a loan to an originator."
   },
   "CODE_VALUES": {
     "TITLE": "Code Values",
@@ -1746,7 +1755,9 @@
     "UNIT_TYPE": "Unit Type",
     "BASE_PRICE": "Base Price",
     "PCT_TO_BASE": "Percentage to Base",
-    "CURRENCY": "Currency"
+    "CURRENCY": "Currency",
+    "DELETE": "Delete Collateral",
+    "CONFIRM_DELETE": "Delete the collateral “{{name}}” (quality {{quality}})? It will no longer be available when recording collateral against a loan."
   },
   "BULK_LOANS": {
     "TITLE": "Bulk Loan Reassignment",
@@ -1875,12 +1886,17 @@
     "TO_PERIOD": "To Period",
     "AMOUNT_RANGE_FROM": "Amount Range From",
     "AMOUNT_RANGE_TO": "Amount Range To",
-    "ANNUAL_INTEREST_RATE": "Annual Interest Rate"
+    "ANNUAL_INTEREST_RATE": "Annual Interest Rate",
+    "DELETE": "Delete Interest Rate Chart",
+    "CONFIRM_DELETE": "Delete interest rate chart #{{id}} for {{product}}? Every slab defined under it goes with it.",
+    "DELETE_SLAB": "Delete Slab",
+    "CONFIRM_DELETE_SLAB": "Delete the slab paying {{rate}} over periods {{fromPeriod}} to {{toPeriod}}? The chart will no longer offer that band."
   },
   "PRODUCT_MIX": {
     "TITLE": "Product Mix",
     "RESTRICTED_PRODUCTS": "Restricted Products",
-    "CLEAR": "Clear Mix"
+    "CLEAR": "Clear Mix",
+    "CONFIRM_CLEAR": "Clear the product mix for this loan product? All {{count}} restriction(s) are removed and the product can then be taken alongside any other."
   },
   "SAVINGS_CHARGES": {
     "TITLE": "Savings Charges",
@@ -1889,14 +1905,18 @@
     "AMOUNT": "Amount",
     "AMOUNT_OUTSTANDING": "Outstanding",
     "CHARGE": "Charge",
-    "DUE_DATE": "Due Date"
+    "DUE_DATE": "Due Date",
+    "DELETE": "Delete Charge",
+    "CONFIRM_DELETE": "Delete the charge “{{name}}” for {{amount}} from this savings account?"
   },
   "SHARE_DIVIDENDS": {
     "TITLE": "Share Dividends",
     "CREATE": "Declare Dividend",
     "AMOUNT": "Amount",
     "PERIOD_START_DATE": "Period Start Date",
-    "PERIOD_END_DATE": "Period End Date"
+    "PERIOD_END_DATE": "Period End Date",
+    "DELETE": "Delete Dividend",
+    "CONFIRM_DELETE": "Delete the dividend of {{amount}} declared for {{startDate}} to {{endDate}}?"
   },
   "FIXED_DEPOSIT_TRANSACTIONS": {
     "AMOUNT": "Amount",
@@ -1968,7 +1988,9 @@
     "EDIT": "Edit Hook",
     "NAME": "Hook Template",
     "DISPLAY_NAME": "Display Name",
-    "IS_ACTIVE": "Active"
+    "IS_ACTIVE": "Active",
+    "DELETE": "Delete Hook",
+    "CONFIRM_DELETE": "Delete the hook “{{name}}”? Outbound calls stop immediately, and anything listening on it goes quiet without further warning."
   },
   "ADHOC_QUERY": {
     "CREATE": "Create Ad-Hoc Query",
@@ -1977,14 +1999,18 @@
     "QUERY": "Query",
     "TABLE_NAME": "Table Name",
     "REPORT_RUN_FREQUENCY": "Report Run Frequency",
-    "IS_ACTIVE": "Active"
+    "IS_ACTIVE": "Active",
+    "DELETE": "Delete Ad-Hoc Query",
+    "CONFIRM_DELETE": "Delete the ad-hoc query “{{name}}” reading from {{tableName}}? The query definition is removed and stops running."
   },
   "SMS": {
     "CREATE": "Create SMS Message",
     "EDIT": "Edit SMS Message",
     "MESSAGE": "Message",
     "MOBILE_NO": "Mobile Number",
-    "CLIENT_ID": "Client ID"
+    "CLIENT_ID": "Client ID",
+    "DELETE": "Delete SMS Message",
+    "CONFIRM_DELETE": "Delete the SMS message to {{mobileNo}}? It is removed from the message list."
   },
   "REPORT_MAILING_JOBS": {
     "CREATE": "Create Report Mailing Job",
@@ -1994,7 +2020,9 @@
     "EMAIL_RECIPIENTS": "Email Recipients",
     "EMAIL_SUBJECT": "Email Subject",
     "STRETCHY_REPORT_ID": "Report ID",
-    "IS_ACTIVE": "Active"
+    "IS_ACTIVE": "Active",
+    "DELETE": "Delete Report-Mailing Job",
+    "CONFIRM_DELETE": "Delete the report-mailing job “{{name}}”? The report stops being sent to {{recipients}}, and no one on that list is told."
   },
   "REPORT_MAILING": {
     "RUN_HISTORY": "Run History",
@@ -2009,7 +2037,9 @@
     "DATATABLE_NAME": "Data Table Name",
     "STATUS": "Status",
     "PRODUCT": "Product",
-    "PRODUCT_ID": "Product ID"
+    "PRODUCT_ID": "Product ID",
+    "DELETE": "Delete Data-Table Check",
+    "CONFIRM_DELETE": "Delete the check requiring {{datatable}} on {{entity}}? That data table stops being mandatory at this point in the workflow."
   },
   "ENTITY_MAPPING": {
     "CREATE": "Create Entity Mapping",
@@ -2017,7 +2047,9 @@
     "ID": "ID",
     "REL_ID": "Relationship ID",
     "FROM_ID": "From ID",
-    "TO_ID": "To ID"
+    "TO_ID": "To ID",
+    "DELETE": "Delete Entity Mapping",
+    "CONFIRM_DELETE": "Delete entity mapping #{{id}}, from {{fromId}} to {{toId}}? The pairing it defines no longer applies."
   },
   "BUSINESS_STEPS": {
     "TITLE": "Business Step Configuration",

@@ -25,6 +25,8 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { FineractEntityService } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /**
  * Local view of an entity-to-entity mapping row. The generated service returns the raw
@@ -91,6 +93,8 @@ interface EntityToEntityMapping {
 export class EntityMappingListComponent implements OnInit {
   private readonly entityService = inject(FineractEntityService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'id', label: 'ENTITY_MAPPING.ID', sortable: true },
@@ -124,8 +128,18 @@ export class EntityMappingListComponent implements OnInit {
     this.router.navigate(['/system/entity-mapping/edit', row.id]);
   }
 
-  onDelete(row: EntityToEntityMapping): void {
-    if (!row.id || !window.confirm('Delete this entity mapping?')) return;
+  async onDelete(row: EntityToEntityMapping): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('ENTITY_MAPPING.DELETE'),
+      message: this.i18n.translate('ENTITY_MAPPING.CONFIRM_DELETE', {
+        id: row.id,
+        fromId: row.fromId ?? '',
+        toId: row.toId ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.entityService.deleteEntitytoentitymappingMapId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete entity mapping', err),

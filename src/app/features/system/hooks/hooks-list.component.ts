@@ -25,6 +25,8 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { HooksService, HookData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /**
  * Lists configured Fineract hooks (webhook / template integrations).
@@ -81,6 +83,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class HooksListComponent implements OnInit {
   private readonly hooksService = inject(HooksService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'HOOKS.NAME', sortable: true },
@@ -114,8 +118,16 @@ export class HooksListComponent implements OnInit {
     this.router.navigate(['/system/hooks/edit', row.id]);
   }
 
-  onDelete(row: HookData): void {
-    if (!row.id || !window.confirm('Delete this hook?')) return;
+  async onDelete(row: HookData): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('HOOKS.DELETE'),
+      message: this.i18n.translate('HOOKS.CONFIRM_DELETE', {
+        name: row.displayName || row.name || '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.hooksService.deleteHooksHookId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete hook', err),

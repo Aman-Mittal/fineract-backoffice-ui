@@ -17,37 +17,44 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareDividendsListComponent } from './share-dividends-list.component';
 import { SelfDividendService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ShareDividendsListComponent', () => {
   let component: ShareDividendsListComponent;
   let fixture: ComponentFixture<ShareDividendsListComponent>;
-  let serviceSpy: jasmine.SpyObj<SelfDividendService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<SelfDividendService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SelfDividendService', [
+    serviceSpy = createSpyObj([
       'getShareproductProductIdDividend',
       'deleteShareproductProductIdDividendDividendId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getShareproductProductIdDividend.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getShareproductProductIdDividend.mockReturnValue(
       of(
         JSON.stringify([{ id: 1, amount: 100, dividendPeriodStartDate: [2026, 1, 1] }]),
       ) as unknown as ReturnType<SelfDividendService['getShareproductProductIdDividend']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [ShareDividendsListComponent, TranslateModule.forRoot()],
+      imports: [ShareDividendsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SelfDividendService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ productId: '1' }) } },
@@ -64,13 +71,12 @@ describe('ShareDividendsListComponent', () => {
   it('should load and parse dividends on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getShareproductProductIdDividend).toHaveBeenCalledWith(1);
-    expect(component.dividends()).toHaveSize(1);
+    expect(component.dividends()).toHaveLength(1);
     expect(component.dividends()[0].amount).toBe(100);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteShareproductProductIdDividendDividendId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteShareproductProductIdDividendDividendId.mockReturnValue(
       of('') as unknown as ReturnType<
         SelfDividendService['deleteShareproductProductIdDividendDividendId']
       >,
@@ -78,13 +84,16 @@ describe('ShareDividendsListComponent', () => {
 
     component.onDelete({ id: 5 });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteShareproductProductIdDividendDividendId).toHaveBeenCalledWith(1, 5);
     expect(serviceSpy.getShareproductProductIdDividend).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
     expect(serviceSpy.deleteShareproductProductIdDividendDividendId).not.toHaveBeenCalled();
   });
 });

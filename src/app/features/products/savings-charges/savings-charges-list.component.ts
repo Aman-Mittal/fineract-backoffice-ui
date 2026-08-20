@@ -24,6 +24,8 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   SavingsChargesService,
   GetSavingsAccountsSavingsAccountIdChargesResponse,
@@ -75,6 +77,8 @@ export class SavingsChargesListComponent implements OnInit {
   private readonly savingsChargesService = inject(SavingsChargesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'SAVINGS_CHARGES.NAME', sortable: true },
@@ -111,8 +115,17 @@ export class SavingsChargesListComponent implements OnInit {
     ]);
   }
 
-  onDelete(row: GetSavingsAccountsSavingsAccountIdChargesResponse): void {
-    if (!row.id || !window.confirm('Delete this charge?')) return;
+  async onDelete(row: GetSavingsAccountsSavingsAccountIdChargesResponse): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('SAVINGS_CHARGES.DELETE'),
+      message: this.i18n.translate('SAVINGS_CHARGES.CONFIRM_DELETE', {
+        name: row.name ?? '',
+        amount: row.amount ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.savingsChargesService
       .deleteSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId(
         this.savingsAccountId,

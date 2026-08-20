@@ -21,6 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { TemplatesService, TemplateData } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { CdkTableModule } from '@angular/cdk/table';
 import {
   IonButton,
@@ -117,6 +119,8 @@ import {
 export class TemplatesListComponent implements OnInit {
   private readonly templatesService = inject(TemplatesService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly templates = signal<TemplateData[]>([]);
   displayedColumns = ['name', 'entity', 'type', 'actions'];
@@ -151,11 +155,16 @@ export class TemplatesListComponent implements OnInit {
     this.router.navigate(['/system/templates/edit', row.id]);
   }
 
-  onDelete(row: TemplateData): void {
-    if (confirm(`Delete template "${row.name}"?`)) {
-      this.templatesService.deleteTemplatesTemplateId(row.id!).subscribe(() => {
-        this.loadTemplates();
-      });
-    }
+  async onDelete(row: TemplateData): Promise<void> {
+    if (row.id === undefined) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('TEMPLATES.DELETE'),
+      message: this.i18n.translate('TEMPLATES.DELETE_CONFIRM', { name: row.name ?? '' }),
+      destructive: true,
+    });
+    if (!confirmed) return;
+    this.templatesService.deleteTemplatesTemplateId(row.id).subscribe(() => {
+      this.loadTemplates();
+    });
   }
 }

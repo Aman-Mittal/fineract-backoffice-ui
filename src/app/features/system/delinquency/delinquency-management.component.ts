@@ -21,6 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   IonButton,
   IonIcon,
@@ -115,7 +117,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
                 <ion-button
                   fill="clear"
                   color="danger"
-                  (click)="onDeleteRange(row.id)"
+                  (click)="onDeleteRange(row)"
                   *appHasPermission="'DELETE_DELINQUENCY_RANGE'"
                   [attr.aria-label]="'COMMON.DELETE' | translate"
                   [appTooltip]="'COMMON.DELETE' | translate"
@@ -167,7 +169,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
                 <ion-button
                   fill="clear"
                   color="danger"
-                  (click)="onDeleteBucket(row.id)"
+                  (click)="onDeleteBucket(row)"
                   *appHasPermission="'DELETE_DELINQUENCY_BUCKET'"
                   [attr.aria-label]="'COMMON.DELETE' | translate"
                   [appTooltip]="'COMMON.DELETE' | translate"
@@ -203,6 +205,8 @@ export class DelinquencyManagementComponent implements OnInit {
 
   readonly activeTab = signal<DelinquencyTab>(DELINQUENCY_TAB.ranges);
   private readonly delinquencyService = inject(DelinquencyRangeAndBucketsManagementService);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly ranges = signal<DelinquencyRangeData[]>([]);
   readonly buckets = signal<DelinquencyBucketResponse[]>([]);
@@ -255,21 +259,35 @@ export class DelinquencyManagementComponent implements OnInit {
     });
   }
 
-  onDeleteRange(id: number): void {
-    if (confirm('Are you sure you want to delete this delinquency range?')) {
-      this.delinquencyService.deleteDelinquencyRangesDelinquencyRangeId(id).subscribe({
-        next: () => this.loadRanges(),
-        error: (err) => console.error('Delete range failed', err),
-      });
-    }
+  async onDeleteRange(row: DelinquencyRangeData): Promise<void> {
+    if (row.id === undefined) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('SYSTEM.DELETE_DELINQUENCY_RANGE'),
+      message: this.i18n.translate('SYSTEM.CONFIRM_DELETE_DELINQUENCY_RANGE', {
+        classification: row.classification ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
+    this.delinquencyService.deleteDelinquencyRangesDelinquencyRangeId(row.id).subscribe({
+      next: () => this.loadRanges(),
+      error: (err) => console.error('Delete range failed', err),
+    });
   }
 
-  onDeleteBucket(id: number): void {
-    if (confirm('Are you sure you want to delete this delinquency bucket?')) {
-      this.delinquencyService.deleteDelinquencyBucketsDelinquencyBucketId(id).subscribe({
-        next: () => this.loadBuckets(),
-        error: (err) => console.error('Delete bucket failed', err),
-      });
-    }
+  async onDeleteBucket(row: DelinquencyBucketResponse): Promise<void> {
+    if (row.id === undefined) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('SYSTEM.DELETE_DELINQUENCY_BUCKET'),
+      message: this.i18n.translate('SYSTEM.CONFIRM_DELETE_DELINQUENCY_BUCKET', {
+        name: row.name ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
+    this.delinquencyService.deleteDelinquencyBucketsDelinquencyBucketId(row.id).subscribe({
+      next: () => this.loadBuckets(),
+      error: (err) => console.error('Delete bucket failed', err),
+    });
   }
 }

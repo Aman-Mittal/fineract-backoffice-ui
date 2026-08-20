@@ -25,6 +25,8 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { AdhocQueryApiService, AdHocData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /**
  * Lists ad-hoc SQL queries that can be scheduled to write into report tables.
@@ -81,6 +83,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class AdhocQueryListComponent implements OnInit {
   private readonly adhocService = inject(AdhocQueryApiService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'ADHOC_QUERY.NAME', sortable: true },
@@ -114,8 +118,17 @@ export class AdhocQueryListComponent implements OnInit {
     this.router.navigate(['/system/adhoc-query/edit', row.id]);
   }
 
-  onDelete(row: AdHocData): void {
-    if (!row.id || !window.confirm('Delete this ad-hoc query?')) return;
+  async onDelete(row: AdHocData): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('ADHOC_QUERY.DELETE'),
+      message: this.i18n.translate('ADHOC_QUERY.CONFIRM_DELETE', {
+        name: row.name ?? '',
+        tableName: row.tableName ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.adhocService.deleteAdhocqueryAdHocId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete ad-hoc query', err),

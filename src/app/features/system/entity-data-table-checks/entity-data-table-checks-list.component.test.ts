@@ -17,37 +17,44 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EntityDataTableChecksListComponent } from './entity-data-table-checks-list.component';
 import { EntityDataTableService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('EntityDataTableChecksListComponent', () => {
   let component: EntityDataTableChecksListComponent;
   let fixture: ComponentFixture<EntityDataTableChecksListComponent>;
-  let serviceSpy: jasmine.SpyObj<EntityDataTableService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<EntityDataTableService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('EntityDataTableService', [
+    serviceSpy = createSpyObj([
       'getEntityDatatableChecks',
       'deleteEntityDatatableChecksEntityDatatableCheckId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getEntityDatatableChecks.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getEntityDatatableChecks.mockReturnValue(
       of({
         pageItems: [{ id: 1, entity: 'm_client', datatableName: 'dt' }],
       }) as unknown as ReturnType<EntityDataTableService['getEntityDatatableChecks']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [EntityDataTableChecksListComponent, TranslateModule.forRoot()],
+      imports: [EntityDataTableChecksListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: EntityDataTableService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -60,7 +67,7 @@ describe('EntityDataTableChecksListComponent', () => {
   it('should load checks on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityDatatableChecks).toHaveBeenCalled();
-    expect(component.checks()).toHaveSize(1);
+    expect(component.checks()).toHaveLength(1);
   });
 
   it('should navigate to create', () => {
@@ -68,9 +75,8 @@ describe('EntityDataTableChecksListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/entity-data-table-checks/create']);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteEntityDatatableChecksEntityDatatableCheckId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteEntityDatatableChecksEntityDatatableCheckId.mockReturnValue(
       of({}) as unknown as ReturnType<
         EntityDataTableService['deleteEntityDatatableChecksEntityDatatableCheckId']
       >,
@@ -78,13 +84,16 @@ describe('EntityDataTableChecksListComponent', () => {
 
     component.onDelete({ id: 5 });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteEntityDatatableChecksEntityDatatableCheckId).toHaveBeenCalledWith(5);
     expect(serviceSpy.getEntityDatatableChecks).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
     expect(serviceSpy.deleteEntityDatatableChecksEntityDatatableCheckId).not.toHaveBeenCalled();
   });
 });

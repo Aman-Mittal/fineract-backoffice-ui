@@ -34,6 +34,8 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { ProductMixService, LoanProductData } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /**
  * Manages the product mix for a single loan product. The mix defines which other loan
@@ -158,6 +160,8 @@ export class ProductMixComponent implements OnInit {
   private readonly productMixService = inject(ProductMixService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   private readonly LIST_PATH = '/products/loan';
 
@@ -200,8 +204,15 @@ export class ProductMixComponent implements OnInit {
     });
   }
 
-  onDelete(): void {
-    if (!window.confirm('Clear this product mix?')) return;
+  async onDelete(): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('PRODUCT_MIX.CLEAR'),
+      message: this.i18n.translate('PRODUCT_MIX.CONFIRM_CLEAR', {
+        count: this.restrictedProducts().length,
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.isSaving.set(true);
     this.productMixService.deleteLoanproductsProductIdProductmix(this.productId).subscribe({
       next: () => this.router.navigate([this.LIST_PATH]),

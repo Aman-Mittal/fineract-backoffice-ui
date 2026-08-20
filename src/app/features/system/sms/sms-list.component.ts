@@ -25,6 +25,8 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { SMSService, SmsData } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /**
  * Lists individual outbound SMS messages.
@@ -78,6 +80,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class SmsListComponent implements OnInit {
   private readonly smsService = inject(SMSService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'mobileNo', label: 'SMS.MOBILE_NO', sortable: true },
@@ -110,8 +114,14 @@ export class SmsListComponent implements OnInit {
     this.router.navigate(['/system/sms/edit', row.id]);
   }
 
-  onDelete(row: SmsData): void {
-    if (!row.id || !window.confirm('Delete this SMS message?')) return;
+  async onDelete(row: SmsData): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('SMS.DELETE'),
+      message: this.i18n.translate('SMS.CONFIRM_DELETE', { mobileNo: row.mobileNo ?? '' }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.smsService.deleteSmsResourceId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete SMS message', err),
