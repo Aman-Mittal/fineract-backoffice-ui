@@ -352,16 +352,29 @@ shard, which is what makes per-shard seeding work without extra wiring.
 
 ### What CI caches
 
-| Cache                    | Key                                 | Saves                                             |
-| ------------------------ | ----------------------------------- | ------------------------------------------------- |
-| npm (via `setup-node`)   | `package-lock.json`                 | registry fetches on every job                     |
-| `~/.cache/ms-playwright` | lockfile, with `restore-keys`       | a ~150 MB browser download per job                |
-| `.angular/cache`         | lockfile + `src/**`, `restore-keys` | recompiling from scratch on `ng serve`/`ng build` |
-| `type=gha` (buildx)      | layer digests                       | `npm ci` + prod build inside the image            |
-| `apache-rat-0.17.jar`    | the pinned version                  | one jar download                                  |
-| `~/.openapi-generator`   | `openapitools.json`                 | a ~25 MB generator download                       |
+| Cache                    | Key                           | Saves                                             |
+| ------------------------ | ----------------------------- | ------------------------------------------------- |
+| npm (via `setup-node`)   | `package-lock.json`           | registry fetches on every job                     |
+| `~/.cache/ms-playwright` | lockfile, with `restore-keys` | a ~150 MB browser download per job                |
+| `.angular/cache`         | lockfile, with `restore-keys` | recompiling from scratch on `ng serve`/`ng build` |
+| `apache-rat-0.17.jar`    | the pinned version            | one jar download                                  |
+| `~/.openapi-generator`   | `openapitools.json`           | a ~25 MB generator download                       |
 
-Two of these need a note:
+Note that **the container image has no layer cache**. buildx with `cache-to: type=gha` is the
+obvious speed-up and is unavailable: the ASF enterprise restricts workflows to an allow-list of
+actions, and `docker/setup-buildx-action` and `docker/build-push-action` are not on it — a run
+using them fails before any job starts. Any new third-party action has to clear that list
+first, so prefer a GitHub-owned action or a plain `run:` step. `ci.yml` records why the buildx
+CLI fallback was judged not worth its complexity.
+
+Three of the entries above need a note:
+
+- **`.angular/cache` is keyed on the lockfile alone, not the sources.** Adding a `src/**` hash
+  writes a new entry on every push that touches a source file — every push — and three
+  job-kinds at a few hundred megabytes each churn through the repository's shared 10 GB cache
+  budget in days, evicting the Playwright and RAT entries other jobs depend on. It costs
+  nothing in hit rate: `.angular/cache` is content-addressed internally, so an entry built from
+  older sources still hits for every file whose content has not changed.
 
 - **`.angular/cache` only works because `angular.json` sets `cli.cache.environment: "all"`.**
   Angular's default is `"local"`, which disables the build cache whenever `CI` is set — a

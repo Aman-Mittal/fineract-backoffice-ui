@@ -338,23 +338,24 @@ jobs:
         with:
           persist-credentials: false
 
-      # buildx rather than plain `docker build`, purely for the layer cache: the image is a
-      # multi-stage build whose first stage is `npm ci` plus a production Angular build, and
-      # nothing about that stage changes unless the lockfile or the sources do. `mode=max`
-      # exports the intermediate stages too, which is the half that matters here — caching only
-      # the final nginx layer would save nothing.
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
-
+      # Deliberately a plain `docker build`, with no layer cache.
+      #
+      # The obvious speed-up is buildx with `cache-to: type=gha`, which would cache this
+      # image's first stage — `npm ci` plus a production Angular build. It is not available
+      # here: the ASF enterprise restricts workflows to an allow-list of actions, and
+      # `docker/setup-buildx-action` and `docker/build-push-action` are not on it. A run using
+      # them fails before any job starts, so this is a hard constraint rather than a
+      # preference.
+      #
+      # The remaining route would be the buildx CLI, which ubuntu-latest already ships, with
+      # `--cache-to type=local` behind `actions/cache`. That was judged not worth it: only the
+      # dependency stage is cacheable — every source change invalidates the build stage
+      # regardless — so it buys roughly a minute, in exchange for the docker-container driver,
+      # an export step to get the image back into the daemon, and a local cache that grows
+      # without bound unless it is pruned by hand. Worth revisiting if this job becomes the
+      # critical path.
       - name: Build the image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-        with:
-          context: .
-          file: deploy/Dockerfile
-          tags: fineract-backoffice-ui:ci
-          load: true
-          cache-from: type=gha,scope=backoffice-ui
-          cache-to: type=gha,mode=max,scope=backoffice-ui
+        run: docker build -f deploy/Dockerfile -t fineract-backoffice-ui:ci .
 
       # The reason this job exists. The image built and served its landing page for months while
       # answering every single API call with the application's own HTML, because nginx had no
