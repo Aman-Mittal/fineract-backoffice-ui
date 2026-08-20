@@ -585,4 +585,47 @@ describe('NavigationConfigService', () => {
       expect(service.searchRoutes('a', 3).length).toBeLessThanOrEqual(3);
     });
   });
+
+  describe('navDestinationsForPermissions', () => {
+    const routes = (permissions: string[]) =>
+      service.navDestinationsForPermissions(permissions).map((entry) => entry.route);
+
+    it('answers for the permissions passed in, not the signed-in user', () => {
+      setPermissions([]);
+      expect(routes(['READ_USER'])).toContain(SECURITY_USERS_ROUTE);
+    });
+
+    it('omits a destination the permissions do not cover', () => {
+      setPermissions(['ALL_FUNCTIONS']);
+      expect(routes(['READ_USER'])).not.toContain(ACCOUNTING_CHART_ROUTE);
+    });
+
+    it('keeps ungated destinations for an empty permission set', () => {
+      expect(routes([])).toContain('/dashboard');
+      expect(routes([])).not.toContain(SECURITY_USERS_ROUTE);
+    });
+
+    it('trims the trailing spaces Fineract seed data carries on some codes', () => {
+      expect(routes(['READ_USER '])).toContain(SECURITY_USERS_ROUTE);
+    });
+
+    it('honours ALL_FUNCTIONS', () => {
+      const all = routes(['ALL_FUNCTIONS']);
+      expect(all).toContain(SECURITY_USERS_ROUTE);
+      expect(all).toContain(ACCOUNTING_CHART_ROUTE);
+    });
+
+    it('carries the label and group needed to name a destination', () => {
+      const entry = service
+        .navDestinationsForPermissions(['READ_USER'])
+        .find((item) => item.route === SECURITY_USERS_ROUTE);
+      expect(entry?.labelKey).toBeTruthy();
+    });
+
+    it('returns the whole tree when the deployment has RBAC turned off', () => {
+      TestBed.resetTestingModule();
+      configure({ rbacEnabled: false });
+      expect(routes([])).toContain(SECURITY_USERS_ROUTE);
+    });
+  });
 });

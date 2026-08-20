@@ -1234,9 +1234,6 @@
   "src/app/features/security/roles/role-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
     }
   },
   "src/app/features/security/roles/roles-list.component.spec.ts": {

@@ -277,7 +277,9 @@
     "NOTES": "Notes",
     "DATA_TABLES": "Data Tables",
     "UNASSIGNED": "Unassigned",
-    "ACCOUNTS": "Accounts"
+    "ACCOUNTS": "Accounts",
+    "CHECK_ALL": "Check All",
+    "UNCHECK_ALL": "Uncheck All"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -974,7 +976,22 @@
     "CREATE": "Create Role",
     "CREATE_ROLE": "Create Role",
     "EDIT_ROLE": "Edit Role",
-    "PERMISSIONS": "Granular Permissions"
+    "PERMISSIONS": "Granular Permissions",
+    "PERMISSIONS_AFTER_CREATE": "A new role starts with no permissions. Save it first — you will land on its permission matrix next.",
+    "FILTER_PERMISSIONS": "Filter permissions",
+    "NO_PERMISSIONS_MATCH": "No permission code matches that filter.",
+    "IMPACT_TITLE": "Impact of your changes",
+    "IMPACT_NO_CHANGES": "No permission has changed yet.",
+    "IMPACT_RBAC_DISABLED": "This deployment does not gate navigation on permissions, so the sidebar shows every entry regardless. Permission changes still apply on the server.",
+    "IMPACT_PERMISSIONS_ADDED": "{{count}} permission(s) added",
+    "IMPACT_PERMISSIONS_REMOVED": "{{count}} permission(s) removed",
+    "IMPACT_ADDED": "Permissions added",
+    "IMPACT_REMOVED": "Permissions removed",
+    "IMPACT_NAV_GAINED": "Screens this role gains",
+    "IMPACT_NAV_LOST": "Screens this role loses",
+    "IMPACT_NAV_UNCHANGED": "No screen appears or disappears from the sidebar — these permissions gate actions within screens the role already reaches.",
+    "CONFIRM_PERMISSIONS_TITLE": "Apply permission changes",
+    "CONFIRM_PERMISSIONS_MESSAGE": "Save these permissions for the role “{{name}}”? Everyone holding it is affected the next time they sign in, and no one is told."
   },
   "HELP": {
     "SEARCH_DESC": "Use this field to search or filter the table records.",

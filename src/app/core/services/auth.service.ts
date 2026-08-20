@@ -23,6 +23,7 @@ import { Observable, tap } from 'rxjs';
 import { ConfigService } from './config.service';
 import { STORAGE } from '../adapters';
 import { skipErrorToast } from '../http/http-context';
+import { permissionsSatisfy } from '../utils/permission-matcher';
 
 /**
  * Interface representing a user role within Fineract.
@@ -290,28 +291,6 @@ export class AuthService {
     if (!user || !user.permissions) {
       return false;
     }
-
-    // Special superuser permission "ALL_FUNCTIONS" bypasses every check.
-    if (user.permissions.includes('ALL_FUNCTIONS')) {
-      return true;
-    }
-
-    const required = Array.isArray(permission) ? permission : [permission];
-
-    // Read-only superuser shortcut: grants any request made up entirely of
-    // READ_* permissions, but never write/approve actions. A mixed request
-    // (e.g. a READ_* permission combined with a non-READ_* one) falls through
-    // to the normal permission-list check below.
-    if (
-      user.permissions.includes('ALL_FUNCTIONS_READ') &&
-      required.every((p) => p.startsWith('READ_'))
-    ) {
-      return true;
-    }
-
-    if (matchAll) {
-      return required.every((p) => user.permissions.includes(p));
-    }
-    return required.some((p) => user.permissions.includes(p));
+    return permissionsSatisfy(user.permissions, permission, matchAll);
   }
 }
