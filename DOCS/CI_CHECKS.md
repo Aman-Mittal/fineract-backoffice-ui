@@ -320,17 +320,56 @@ reaches a browser.
 
 ## `e2e.yml` — E2E Tests
 
-Runs on pull requests to `main`/`develop`, and on demand. Two jobs, in parallel,
+Runs on pull requests to `main`/`develop`, and on demand. Three halves, in parallel,
 because they have very different costs:
 
-| Job       | Tests | Fineract     | Roughly              |
-| --------- | ----- | ------------ | -------------------- |
-| `mocked`  | 188   | not needed   | ~6 min               |
-| `backend` | 16    | docker stack | ~4 min + ~2 min boot |
+| Job          | Fineract     | Shards | Cost per shard      |
+| ------------ | ------------ | ------ | ------------------- |
+| `mocked`     | not needed   | 4      | checkout + install  |
+| `backend`    | docker stack | 3      | + ~2 min stack boot |
+| `two-factor` | its own      | 1      | + ~2 min stack boot |
 
-The split is defined in `playwright.config.ts` as two projects, so `--project=mocked`
+The split is defined in `playwright.config.ts` as projects, so `--project=mocked`
 and `--project=backend` mean the same thing locally as in CI. A spec belongs to
 `backend` if it has no `page.route()` mocks; the list is `BACKEND_SPECS` in that file.
+
+### Sharding
+
+Both `mocked` and `backend` run as a matrix, each shard producing a **blob report**; a
+`*-report` job downloads every blob, merges them with `playwright merge-reports`, and
+publishes the single HTML report and PR comment. The shard counts differ because the costs
+do — a mocked shard is a checkout and an npm install, while a backend shard brings up its
+own PostgreSQL and Fineract before the first test runs.
+
+Each backend shard gets a **separate stack**, not a share of one. The specs create and
+mutate real records and `backend.setup.ts` seeds reference data, so a shared instance would
+make them order-dependent across shards. Playwright runs a project's `dependencies` in every
+shard, which is what makes per-shard seeding work without extra wiring.
+
+> **Branch protection** must require all four `E2E (mocked backend, shard n/4)` checks and
+> all three `E2E (real Fineract, shard n/3)` checks — never the `... report` jobs, which can
+> succeed while a shard failed.
+
+### What CI caches
+
+| Cache                    | Key                                 | Saves                                             |
+| ------------------------ | ----------------------------------- | ------------------------------------------------- |
+| npm (via `setup-node`)   | `package-lock.json`                 | registry fetches on every job                     |
+| `~/.cache/ms-playwright` | lockfile, with `restore-keys`       | a ~150 MB browser download per job                |
+| `.angular/cache`         | lockfile + `src/**`, `restore-keys` | recompiling from scratch on `ng serve`/`ng build` |
+| `type=gha` (buildx)      | layer digests                       | `npm ci` + prod build inside the image            |
+| `apache-rat-0.17.jar`    | the pinned version                  | one jar download                                  |
+| `~/.openapi-generator`   | `openapitools.json`                 | a ~25 MB generator download                       |
+
+Two of these need a note:
+
+- **`.angular/cache` only works because `angular.json` sets `cli.cache.environment: "all"`.**
+  Angular's default is `"local"`, which disables the build cache whenever `CI` is set — a
+  sensible default for a fresh machine every run, and exactly wrong once `actions/cache`
+  restores the directory first.
+- **The RAT jar's checksum is verified on every run, cache hit included.** A cache is
+  writable from any branch, so a cached jar is untrusted input; skipping the check on a hit
+  would turn a saving into a supply-chain hole.
 
 ```bash
 npm run e2e:stack          # bring the stack up

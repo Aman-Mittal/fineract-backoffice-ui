@@ -58,10 +58,18 @@ permissions: {}
 #
 # The split lives in playwright.config.ts as two projects, so `--project=mocked`
 # and `--project=backend` mean the same thing locally as they do here.
-# Branch protection must replace the former `E2E (mocked backend)` requirement
-# with all four shard checks. Do not require `E2E (mocked backend report)`
-# instead: merging reports can succeed when a shard fails, so only the shard
-# jobs enforce the mocked E2E result.
+#
+# Both halves are sharded, and the shard counts differ for a reason. A mocked shard costs
+# nothing but a checkout, so four of them is close to free. A backend shard brings up its own
+# PostgreSQL and Fineract — roughly two minutes before the first test runs — so each one is paid
+# for in bring-up time as well as runner minutes, and three is where that stops paying for
+# itself against a 21-file suite. Each backend shard gets a *separate* stack rather than sharing
+# one: the specs create and mutate real records, and `backend.setup.ts` seeds reference data, so
+# a shared instance would make them order-dependent across shards.
+#
+# Branch protection must require all four `E2E (mocked backend, shard n/4)` checks and all three
+# `E2E (real Fineract, shard n/3)` checks. Do not require either `... report` job instead:
+# merging reports can succeed when a shard fails, so only the shard jobs enforce the result.
 jobs:
   mocked:
     name: E2E (mocked backend, shard ${{ matrix.shard }}/${{ matrix.total }})
@@ -96,10 +104,24 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
+          # restore-keys, so a lockfile bump that does not change Playwright's version reuses
+          # the browsers already downloaded instead of paying ~150 MB again on every job.
+          # `playwright install` re-downloads only when the binary it wants is genuinely absent.
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
+
+      - name: Cache Angular build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-
+            ${{ runner.os }}-angular-e2e-
 
       - name: Run mocked E2E tests
         env:
@@ -222,10 +244,24 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
+          # restore-keys, so a lockfile bump that does not change Playwright's version reuses
+          # the browsers already downloaded instead of paying ~150 MB again on every job.
+          # `playwright install` re-downloads only when the binary it wants is genuinely absent.
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
         run: npx playwright install chromium --with-deps
+
+      - name: Cache Angular build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-
+            ${{ runner.os }}-angular-e2e-
 
       - name: Run two-factor E2E tests
         env:
@@ -254,13 +290,19 @@ jobs:
             ${{ runner.temp }}/e2e-output-2fa/
           if-no-files-found: warn
           retention-days: 7
-
   backend:
-    name: E2E (real Fineract)
+    name: E2E (real Fineract, shard ${{ matrix.shard }}/${{ matrix.total }})
     runs-on: ubuntu-latest
+    strategy:
+      # Every shard runs to completion. A stack that failed to come up in shard 2 says nothing
+      # about shards 1 and 3, and cancelling them turns one infrastructure blip into a run with
+      # no result at all.
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+        total: [3]
     permissions:
       contents: read # checkout
-      pull-requests: write # upsert this job's summary comment
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
         with:
@@ -277,6 +319,9 @@ jobs:
           mkdir -p ssl
           openssl req -new -x509 -keyout ssl/localhost.key -out ssl/localhost.crt -days 365 -nodes -subj "/CN=localhost"
 
+      # Started before `npm ci` rather than after it, so the two minutes of database migration
+      # overlap the install instead of following it. The wait loop below is what synchronises
+      # them again.
       - name: Start PostgreSQL Database
         run: |
           docker compose -f deploy/docker-compose-e2e.yml up -d --wait fineract-db
@@ -292,6 +337,29 @@ jobs:
       - name: Start Apache Fineract Backend
         run: |
           docker compose -f deploy/docker-compose-e2e.yml up -d fineract-backend
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright Browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Cache Angular build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-e2e-${{ hashFiles('package-lock.json') }}-
+            ${{ runner.os }}-angular-e2e-
 
       - name: Wait for Fineract to be ready
         run: |
@@ -310,18 +378,6 @@ jobs:
           docker compose -f deploy/docker-compose-e2e.yml logs fineract-backend
           exit 1
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Cache Playwright Browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-
-      - name: Install Playwright Browsers
-        run: npx playwright install chromium --with-deps
-
       # No build step: playwright.config.ts serves the app with `ng serve`, which
       # compiles from source. A production build is already gated by ci.yml.
 
@@ -336,25 +392,86 @@ jobs:
           FINERACT_TENANT_ID: 'default'
           FINERACT_USERNAME: 'mifos'
           FINERACT_PASSWORD: 'password'
-          PLAYWRIGHT_HTML_OPEN: 'never'
-          PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_TOTAL: ${{ matrix.total }}
           # Videos and traces land here rather than in the repo, so the dev server's
           # file watcher cannot race Playwright's artifact churn — see the note in
           # playwright.config.ts.
           PLAYWRIGHT_OUTPUT_DIR: ${{ runner.temp }}/e2e-output
-        run: npx playwright test --project=backend --reporter=line,html,json
+        # A blob report rather than html/json: those are produced once, by the merge job below,
+        # from every shard's blob. Note that Playwright runs the `setup` project in each shard,
+        # so each stack gets its reference data seeded against the shard that uses it.
+        run: npx playwright test --project=backend --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob
 
-      - name: Upload report and videos
+      - name: Print Fineract logs on failure
+        if: failure()
+        run: |
+          docker compose -f deploy/docker-compose-e2e.yml logs --tail=100 fineract-backend
+
+      - name: Upload blob report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-blob-backend-${{ matrix.shard }}
+          path: blob-report/
+          if-no-files-found: warn
+          retention-days: 1
+
+      # Kept as its own artifact rather than merged into the report: videos and traces are per
+      # shard and are what a failure is actually diagnosed from, whereas the merged report is
+      # what a passing run is read from.
+      - name: Upload videos and traces
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
+        with:
+          name: playwright-artifacts-backend-${{ matrix.shard }}
+          path: ${{ runner.temp }}/e2e-output/
+          if-no-files-found: warn
+          retention-days: 7
+
+  backend-report:
+    name: E2E (real Fineract report)
+    if: ${{ !cancelled() }}
+    needs: backend
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout
+      pull-requests: write # upsert this job's summary comment
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download blob reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: all-blob-reports
+          pattern: playwright-blob-backend-*
+          merge-multiple: true
+
+      - name: Merge real-backend E2E reports
+        env:
+          PLAYWRIGHT_HTML_OPEN: 'never'
+          PLAYWRIGHT_JSON_OUTPUT_NAME: 'playwright-results.json'
+        run: npx playwright merge-reports --reporter=line,html,json ./all-blob-reports
+
+      - name: Upload merged report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
         with:
           name: playwright-report-backend
-          # Videos and traces are written to PLAYWRIGHT_OUTPUT_DIR, not playwright-report/,
-          # so both paths are needed. if-no-files-found: warn keeps a run that
-          # produced neither from silently uploading an empty artifact.
           path: |
             playwright-report/
-            ${{ runner.temp }}/e2e-output/
+            playwright-results.json
           if-no-files-found: warn
           retention-days: 7
 
