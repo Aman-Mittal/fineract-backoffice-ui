@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { Subject } from 'rxjs';
@@ -31,13 +32,13 @@ const SPINNER_SELECTOR = 'ion-spinner';
 describe('InteropHealthComponent', () => {
   let fixture: ComponentFixture<InteropHealthComponent>;
   let component: InteropHealthComponent;
-  let interopService: jasmine.SpyObj<InterOperationService>;
+  let interopService: SpyObj<InterOperationService>;
   let healthResponse: Subject<unknown>;
 
   beforeEach(async () => {
     healthResponse = new Subject<unknown>();
-    interopService = jasmine.createSpyObj('InterOperationService', ['getInteroperationHealth']);
-    interopService.getInteroperationHealth.and.returnValue(healthResponse as never);
+    interopService = createSpyObj(['getInteroperationHealth']);
+    interopService.getInteroperationHealth.mockReturnValue(healthResponse as never);
 
     await TestBed.configureTestingModule({
       imports: [InteropHealthComponent],
@@ -64,9 +65,9 @@ describe('InteropHealthComponent', () => {
   it('requests health and exposes the pending state', () => {
     const button = checkHealth();
 
-    expect(interopService.getInteroperationHealth).toHaveBeenCalledOnceWith();
-    expect(component.isLoading()).toBeTrue();
-    expect(button.disabled).toBeTrue();
+    expect(interopService.getInteroperationHealth).toHaveBeenCalledExactlyOnceWith();
+    expect(component.isLoading()).toBe(true);
+    expect(button.disabled).toBe(true);
     expect(fixture.nativeElement.querySelector(SPINNER_SELECTOR)).not.toBeNull();
   });
 
@@ -78,8 +79,8 @@ describe('InteropHealthComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('pre')?.textContent).toContain('"status": "UP"');
-    expect(component.isLoading()).toBeFalse();
-    expect(button.disabled).toBeFalse();
+    expect(component.isLoading()).toBe(false);
+    expect(button.disabled).toBe(false);
     expect(fixture.nativeElement.querySelector(SPINNER_SELECTOR)).toBeNull();
   });
 
@@ -90,8 +91,8 @@ describe('InteropHealthComponent', () => {
     fixture.detectChanges();
 
     expect(component.health()).toBeNull();
-    expect(component.isLoading()).toBeFalse();
-    expect(button.disabled).toBeFalse();
+    expect(component.isLoading()).toBe(false);
+    expect(button.disabled).toBe(false);
     expect(fixture.nativeElement.querySelector(SPINNER_SELECTOR)).toBeNull();
   });
 });

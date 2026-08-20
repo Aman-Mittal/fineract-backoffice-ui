@@ -58,7 +58,6 @@
     "src/app/features/groups/group-members-dialog.component.spec.ts",
     "src/app/features/groups/group-view.component.spec.ts",
     "src/app/features/groups/tabs/group-accounts-tab.component.spec.ts",
-    "src/app/features/interop/interop-health.component.spec.ts",
     "src/app/features/loans/bulk-reassignment/bulk-reassignment.component.spec.ts",
     "src/app/features/loans/collateral/collateral-form.component.spec.ts",
     "src/app/features/loans/collateral/collateral-list.component.spec.ts",
