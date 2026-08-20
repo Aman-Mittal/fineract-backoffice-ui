@@ -17,37 +17,41 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdhocQueryListComponent } from './adhoc-query-list.component';
 import { AdhocQueryApiService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('AdhocQueryListComponent', () => {
   let component: AdhocQueryListComponent;
   let fixture: ComponentFixture<AdhocQueryListComponent>;
-  let serviceSpy: jasmine.SpyObj<AdhocQueryApiService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<AdhocQueryApiService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('AdhocQueryApiService', [
-      'getAdhocquery',
-      'deleteAdhocqueryAdHocId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getAdhocquery.and.returnValue(
+    serviceSpy = createSpyObj(['getAdhocquery', 'deleteAdhocqueryAdHocId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getAdhocquery.mockReturnValue(
       of([{ id: 1, name: 'Q', tableName: 't', isActive: true }]) as unknown as ReturnType<
         AdhocQueryApiService['getAdhocquery']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [AdhocQueryListComponent, TranslateModule.forRoot()],
+      imports: [AdhocQueryListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AdhocQueryApiService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -60,7 +64,7 @@ describe('AdhocQueryListComponent', () => {
   it('should load queries on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getAdhocquery).toHaveBeenCalled();
-    expect(component.queries()).toHaveSize(1);
+    expect(component.queries()).toHaveLength(1);
   });
 
   it('should navigate to edit with the query id', () => {
@@ -68,21 +72,23 @@ describe('AdhocQueryListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/adhoc-query/edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteAdhocqueryAdHocId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteAdhocqueryAdHocId.mockReturnValue(
       of({}) as unknown as ReturnType<AdhocQueryApiService['deleteAdhocqueryAdHocId']>,
     );
 
     component.onDelete({ id: 5, name: 'Y' });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteAdhocqueryAdHocId).toHaveBeenCalledWith(5);
     expect(serviceSpy.getAdhocquery).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteAdhocqueryAdHocId).not.toHaveBeenCalled();
   });
 });

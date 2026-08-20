@@ -29,6 +29,8 @@ import {
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-datatables-list',
@@ -98,6 +100,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 })
 export class DatatablesListComponent implements OnInit {
   private readonly datatablesService = inject(DataTablesService);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly datatables = signal<GetDataTablesResponse[]>([]);
   readonly isLoading = signal<boolean>(false);
@@ -137,12 +141,16 @@ export class DatatablesListComponent implements OnInit {
     });
   }
 
-  onDelete(name: string): void {
-    if (confirm(`Are you sure you want to delete data table '${name}'?`)) {
-      this.datatablesService.deleteDatatablesDatatableName(name).subscribe({
-        next: () => this.loadDatatables(),
-        error: (err) => console.error('Failed to delete datatable', err),
-      });
-    }
+  async onDelete(name: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('SYSTEM.DELETE_DATA_TABLE'),
+      message: this.i18n.translate('SYSTEM.CONFIRM_DELETE_DATA_TABLE', { name }),
+      destructive: true,
+    });
+    if (!confirmed) return;
+    this.datatablesService.deleteDatatablesDatatableName(name).subscribe({
+      next: () => this.loadDatatables(),
+      error: (err) => console.error('Failed to delete datatable', err),
+    });
   }
 }

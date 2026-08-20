@@ -17,34 +17,41 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SmsListComponent } from './sms-list.component';
 import { SMSService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('SmsListComponent', () => {
   let component: SmsListComponent;
   let fixture: ComponentFixture<SmsListComponent>;
-  let serviceSpy: jasmine.SpyObj<SMSService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<SMSService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SMSService', ['getSms', 'deleteSmsResourceId']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getSms.and.returnValue(
+    serviceSpy = createSpyObj(['getSms', 'deleteSmsResourceId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getSms.mockReturnValue(
       of([{ id: 1, message: 'Hi', mobileNo: '123' }]) as unknown as ReturnType<
         SMSService['getSms']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [SmsListComponent, TranslateModule.forRoot()],
+      imports: [SmsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SMSService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -57,7 +64,7 @@ describe('SmsListComponent', () => {
   it('should load messages on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSms).toHaveBeenCalled();
-    expect(component.messages()).toHaveSize(1);
+    expect(component.messages()).toHaveLength(1);
   });
 
   it('should navigate to edit with the message id', () => {
@@ -65,21 +72,23 @@ describe('SmsListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/sms/edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteSmsResourceId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteSmsResourceId.mockReturnValue(
       of({}) as unknown as ReturnType<SMSService['deleteSmsResourceId']>,
     );
 
     component.onDelete({ id: 5 });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteSmsResourceId).toHaveBeenCalledWith(5);
     expect(serviceSpy.getSms).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
     expect(serviceSpy.deleteSmsResourceId).not.toHaveBeenCalled();
   });
 });

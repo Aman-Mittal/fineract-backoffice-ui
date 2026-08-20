@@ -23,6 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { LoanOriginatorsService, GetLoanOriginatorsResponse } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -85,6 +87,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class LoanOriginatorsListComponent implements OnInit {
   private readonly originatorsService = inject(LoanOriginatorsService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'LOAN_ORIGINATORS.NAME', sortable: true },
@@ -120,8 +124,14 @@ export class LoanOriginatorsListComponent implements OnInit {
     this.router.navigate(['/products/loan-originators/edit', row.id]);
   }
 
-  onDelete(row: GetLoanOriginatorsResponse): void {
-    if (!row.id || !window.confirm('Delete this loan originator?')) return;
+  async onDelete(row: GetLoanOriginatorsResponse): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('LOAN_ORIGINATORS.DELETE'),
+      message: this.i18n.translate('LOAN_ORIGINATORS.CONFIRM_DELETE', { name: row.name ?? '' }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.originatorsService.deleteLoanOriginatorsOriginatorId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete loan originator', err),

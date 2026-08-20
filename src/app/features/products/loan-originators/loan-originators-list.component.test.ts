@@ -17,37 +17,41 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoanOriginatorsListComponent } from './loan-originators-list.component';
 import { LoanOriginatorsService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('LoanOriginatorsListComponent', () => {
   let component: LoanOriginatorsListComponent;
   let fixture: ComponentFixture<LoanOriginatorsListComponent>;
-  let serviceSpy: jasmine.SpyObj<LoanOriginatorsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<LoanOriginatorsService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('LoanOriginatorsService', [
-      'getLoanOriginators',
-      'deleteLoanOriginatorsOriginatorId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getLoanOriginators.and.returnValue(
+    serviceSpy = createSpyObj(['getLoanOriginators', 'deleteLoanOriginatorsOriginatorId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getLoanOriginators.mockReturnValue(
       of([{ id: 1, name: 'Originator A', externalId: 'EXT-1' }]) as unknown as ReturnType<
         LoanOriginatorsService['getLoanOriginators']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [LoanOriginatorsListComponent, TranslateModule.forRoot()],
+      imports: [LoanOriginatorsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: LoanOriginatorsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -60,7 +64,7 @@ describe('LoanOriginatorsListComponent', () => {
   it('should load originators on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanOriginators).toHaveBeenCalled();
-    expect(component.originators()).toHaveSize(1);
+    expect(component.originators()).toHaveLength(1);
   });
 
   it('should navigate to edit with the originator id', () => {
@@ -68,21 +72,23 @@ describe('LoanOriginatorsListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/loan-originators/edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteLoanOriginatorsOriginatorId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteLoanOriginatorsOriginatorId.mockReturnValue(
       of({}) as unknown as ReturnType<LoanOriginatorsService['deleteLoanOriginatorsOriginatorId']>,
     );
 
     component.onDelete({ id: 5, name: 'Y' });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteLoanOriginatorsOriginatorId).toHaveBeenCalledWith(5);
     expect(serviceSpy.getLoanOriginators).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteLoanOriginatorsOriginatorId).not.toHaveBeenCalled();
   });
 });

@@ -827,11 +827,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/collateral-management/collateral-management-list.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/collateral-management/collateral-management-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -927,17 +922,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/interest-rate-charts/interest-rate-chart-slabs.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/interest-rate-charts/interest-rate-chart-slabs.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/interest-rate-charts/interest-rate-charts-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -953,11 +938,6 @@
     }
   },
   "src/app/features/products/loan-originators/loan-originator-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/loan-originators/loan-originators-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -998,11 +978,6 @@
     }
   },
   "src/app/features/products/payment-credit-allocation-editor.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/product-mix/product-mix.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1097,11 +1072,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/savings-charges/savings-charges-list.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/savings-charges/savings-charges-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1123,11 +1093,6 @@
     }
   },
   "src/app/features/products/share-dividends/share-dividend-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/share-dividends/share-dividends-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1269,9 +1234,6 @@
   "src/app/features/security/roles/role-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
     }
   },
   "src/app/features/security/roles/roles-list.component.spec.ts": {
@@ -1404,11 +1366,6 @@
       "count": 1
     }
   },
-  "src/app/features/system/adhoc-query/adhoc-query-list.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/adhoc-query/adhoc-query-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1512,11 +1469,6 @@
       "count": 1
     }
   },
-  "src/app/features/system/entity-data-table-checks/entity-data-table-checks-list.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/entity-data-table-checks/entity-data-table-checks-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1528,11 +1480,6 @@
     }
   },
   "src/app/features/system/entity-mapping/entity-mapping-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/entity-mapping/entity-mapping-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1578,11 +1525,6 @@
     }
   },
   "src/app/features/system/hooks/hooks-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/hooks/hooks-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1662,11 +1604,6 @@
       "count": 1
     }
   },
-  "src/app/features/system/report-mailing-jobs/report-mailing-jobs-list.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/report-mailing-jobs/report-mailing-jobs-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1698,11 +1635,6 @@
     }
   },
   "src/app/features/system/sms/sms-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/sms/sms-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }

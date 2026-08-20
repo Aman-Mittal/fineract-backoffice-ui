@@ -25,6 +25,8 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { EntityDataTableService, GetEntityDatatableChecksResponse } from '../../../api';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 
 /**
  * Lists entity data-table checks. These records have no update endpoint, so the table
@@ -73,6 +75,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 export class EntityDataTableChecksListComponent implements OnInit {
   private readonly checksService = inject(EntityDataTableService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'entity', label: 'ENTITY_DATA_TABLE_CHECKS.ENTITY', sortable: true },
@@ -103,8 +107,17 @@ export class EntityDataTableChecksListComponent implements OnInit {
     this.router.navigate(['/system/entity-data-table-checks/create']);
   }
 
-  onDelete(row: GetEntityDatatableChecksResponse): void {
-    if (!row.id || !window.confirm('Delete this data-table check?')) return;
+  async onDelete(row: GetEntityDatatableChecksResponse): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('ENTITY_DATA_TABLE_CHECKS.DELETE'),
+      message: this.i18n.translate('ENTITY_DATA_TABLE_CHECKS.CONFIRM_DELETE', {
+        datatable: row.datatableName ?? '',
+        entity: row.entity ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.checksService.deleteEntityDatatableChecksEntityDatatableCheckId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete data-table check', err),

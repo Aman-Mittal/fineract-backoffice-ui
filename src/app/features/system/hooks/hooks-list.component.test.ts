@@ -17,34 +17,41 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HooksListComponent } from './hooks-list.component';
 import { HooksService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('HooksListComponent', () => {
   let component: HooksListComponent;
   let fixture: ComponentFixture<HooksListComponent>;
-  let serviceSpy: jasmine.SpyObj<HooksService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<HooksService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('HooksService', ['getHooks', 'deleteHooksHookId']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getHooks.and.returnValue(
+    serviceSpy = createSpyObj(['getHooks', 'deleteHooksHookId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getHooks.mockReturnValue(
       of([{ id: 1, name: 'Web', displayName: 'My Hook', isActive: true }]) as unknown as ReturnType<
         HooksService['getHooks']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [HooksListComponent, TranslateModule.forRoot()],
+      imports: [HooksListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: HooksService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -57,7 +64,7 @@ describe('HooksListComponent', () => {
   it('should load hooks on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getHooks).toHaveBeenCalled();
-    expect(component.hooks()).toHaveSize(1);
+    expect(component.hooks()).toHaveLength(1);
   });
 
   it('should navigate to edit with the hook id', () => {
@@ -65,21 +72,23 @@ describe('HooksListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/hooks/edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteHooksHookId.and.returnValue(
+  it('should delete after confirmation and reload', async () => {
+    serviceSpy.deleteHooksHookId.mockReturnValue(
       of({}) as unknown as ReturnType<HooksService['deleteHooksHookId']>,
     );
 
     component.onDelete({ id: 5, name: 'Y' });
 
+    await fixture.whenStable();
+
     expect(serviceSpy.deleteHooksHookId).toHaveBeenCalledWith(5);
     expect(serviceSpy.getHooks).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, name: 'Y' });
+    await fixture.whenStable();
     expect(serviceSpy.deleteHooksHookId).not.toHaveBeenCalled();
   });
 });

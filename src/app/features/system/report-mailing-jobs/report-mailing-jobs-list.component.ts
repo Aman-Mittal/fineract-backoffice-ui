@@ -33,6 +33,8 @@ import {
 } from '@ionic/angular/standalone';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   ReportMailingJobsService,
   GetReportMailingJobsResponse,
@@ -204,6 +206,8 @@ export class ReportMailingJobsListComponent implements OnInit {
   private readonly jobsService = inject(ReportMailingJobsService);
   private readonly historyService = inject(ListReportMailingJobHistoryService);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'REPORT_MAILING_JOBS.NAME', sortable: true },
@@ -269,8 +273,17 @@ export class ReportMailingJobsListComponent implements OnInit {
     this.router.navigate(['/system/report-mailing-jobs/edit', row.id]);
   }
 
-  onDelete(row: GetReportMailingJobsResponse): void {
-    if (!row.id || !window.confirm('Delete this report-mailing job?')) return;
+  async onDelete(row: GetReportMailingJobsResponse): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('REPORT_MAILING_JOBS.DELETE'),
+      message: this.i18n.translate('REPORT_MAILING_JOBS.CONFIRM_DELETE', {
+        name: row.name ?? '',
+        recipients: row.emailRecipients ?? '',
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.jobsService.deleteReportmailingjobsEntityId(row.id).subscribe({
       next: () => this.load(),
       error: (err: unknown) => console.error('Failed to delete report-mailing job', err),

@@ -22,6 +22,7 @@ import { I18N } from '../adapters';
 import { AuthService } from './auth.service';
 import { InstitutionConfigService, InstitutionFeature } from './institution-config.service';
 import { ConfigService, NavOverrides } from './config.service';
+import { permissionsSatisfy } from '../utils/permission-matcher';
 
 // Icon names shared by several nav items, hoisted so the strings are not duplicated.
 const ICON_BUSINESS_OUTLINE = 'business-outline';
@@ -944,7 +945,37 @@ export class NavigationConfigService {
     return filterNavItems(NAV_CONFIG, (item) => this.isItemVisible(item));
   });
 
-  private isItemVisible(item: NavItemConfig): boolean {
+  /**
+   * Navigation leaves a principal holding exactly `permissions` would see, keyed by route.
+   *
+   * The whole point is that this runs the *same* gates as {@link filteredNavItems} — the
+   * deployment's `hidden` list, developer tools, institution features and the permission check —
+   * with the signed-in user's codes swapped for the ones passed in. A role editor can then show
+   * what its pending selection actually changes, rather than a second guess at the rule.
+   *
+   * Note that when `rbacEnabled` is false the sidebar shows everything regardless of
+   * permissions, so every call here returns the whole tree. That is not a bug in the preview;
+   * it is what the deployment does, and a caller showing this to a user should say so.
+   */
+  navDestinationsForPermissions(
+    permissions: readonly string[],
+  ): { route: string; labelKey: string; groupLabelKey?: string; icon?: string }[] {
+    const held = new Set(permissions.map((code) => code.trim()));
+    const tree = filterNavItems(NAV_CONFIG, (item) =>
+      this.isItemVisible(item, (required, matchAll) =>
+        permissionsSatisfy(held, required, matchAll),
+      ),
+    );
+    return flattenNavRoutes(tree);
+  }
+
+  private isItemVisible(
+    item: NavItemConfig,
+    hasPermission: (required: string | string[], matchAll: boolean) => boolean = (
+      required,
+      matchAll,
+    ) => this.authService.hasPermission(required, matchAll),
+  ): boolean {
     // Checked before the RBAC short-circuit: hiding an entry is what this deployment offers,
     // which is a separate question from what this user is allowed to reach.
     if (this.hidden().has(item.labelKey)) {
@@ -968,10 +999,7 @@ export class NavigationConfigService {
 
     if (
       item.requiredPermissions &&
-      !this.authService.hasPermission(
-        item.requiredPermissions,
-        item.requiredAllPermissions ?? false,
-      )
+      !hasPermission(item.requiredPermissions, item.requiredAllPermissions ?? false)
     ) {
       return false;
     }

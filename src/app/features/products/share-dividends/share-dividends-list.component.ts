@@ -24,6 +24,8 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
 import { SelfDividendService } from '../../../api';
+import { I18N } from '../../../core/adapters';
+import { DialogService } from '../../../core/services/dialog.service';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -91,6 +93,8 @@ export class ShareDividendsListComponent implements OnInit {
   private readonly selfDividendService = inject(SelfDividendService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
     { key: 'dividendPeriodStartDate', label: 'SHARE_DIVIDENDS.PERIOD_START_DATE', sortable: false },
@@ -133,8 +137,18 @@ export class ShareDividendsListComponent implements OnInit {
     this.router.navigate(['/products/shares', this.productId, 'dividends', 'create']);
   }
 
-  onDelete(row: ShareDividendRow): void {
-    if (!row.id || !window.confirm('Delete this dividend?')) return;
+  async onDelete(row: ShareDividendRow): Promise<void> {
+    if (!row.id) return;
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('SHARE_DIVIDENDS.DELETE'),
+      message: this.i18n.translate('SHARE_DIVIDENDS.CONFIRM_DELETE', {
+        amount: row.amount ?? '',
+        startDate: this.formatDate(row.dividendPeriodStartDate),
+        endDate: this.formatDate(row.dividendPeriodEndDate),
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
     this.selfDividendService
       .deleteShareproductProductIdDividendDividendId(this.productId, row.id)
       .subscribe({

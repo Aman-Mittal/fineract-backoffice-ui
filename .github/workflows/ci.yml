@@ -83,6 +83,11 @@ jobs:
       # silent drift into being stricter or laxer than what it replaced fails here.
       - name: Test the repository's own ESLint rules
         run: npm run test:eslint-rules
+      # `scripts/` is outside `src`, so neither `npm run lint` nor either unit runner covers
+      # it — and it renders the Markdown that gets posted to pull requests. CodeQL found an
+      # incomplete escaping in that renderer, which is what these tests pin.
+      - name: Test the reporting scripts
+        run: npm run test:scripts
 
   html-lint:
     name: HTML Lint
@@ -183,6 +188,28 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
+      # Angular's build cache, which angular.json now enables under CI (`cli.cache.environment:
+      # all`).
+      #
+      # Keyed on the lockfile *only*, deliberately. The obvious key includes a hash of `src/**`,
+      # and that is a trap: it writes a new entry on every push that touches a source file —
+      # which is every push — so three job-kinds' worth of a few hundred megabytes each would
+      # churn through the repository's 10 GB cache budget in days and evict the Playwright and
+      # buildx entries that the rest of CI depends on. Cache eviction is not free: it converts a
+      # warm job into a cold one somewhere else in the matrix.
+      #
+      # Keying on the lockfile costs nothing in hit rate, because `.angular/cache` is
+      # content-addressed internally: an entry built from older sources still hits for every
+      # file whose content has not changed, which is almost all of them. So the entry is
+      # rewritten when dependencies move and read the rest of the time, and the number of
+      # entries stays bounded at one per job-kind.
+      - name: Cache Angular build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-test-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-test-
       - name: Run Tests with Coverage
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
       # The migrated half of the suite. Runs as its own step rather than replacing the one
@@ -217,6 +244,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - run: npm ci
+      # openapi-generator-cli downloads its ~25 MB generator jar on first use. The version is
+      # pinned in openapitools.json, so the download is the same bytes on every run.
+      - name: Cache the OpenAPI generator
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.openapi-generator
+          key: ${{ runner.os }}-openapi-generator-${{ hashFiles('openapitools.json') }}
       - name: Verify generated API client matches the committed spec
         run: npm run verify-api-client
 
@@ -235,6 +269,28 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
+      # Angular's build cache, which angular.json now enables under CI (`cli.cache.environment:
+      # all`).
+      #
+      # Keyed on the lockfile *only*, deliberately. The obvious key includes a hash of `src/**`,
+      # and that is a trap: it writes a new entry on every push that touches a source file —
+      # which is every push — so three job-kinds' worth of a few hundred megabytes each would
+      # churn through the repository's 10 GB cache budget in days and evict the Playwright and
+      # buildx entries that the rest of CI depends on. Cache eviction is not free: it converts a
+      # warm job into a cold one somewhere else in the matrix.
+      #
+      # Keying on the lockfile costs nothing in hit rate, because `.angular/cache` is
+      # content-addressed internally: an entry built from older sources still hits for every
+      # file whose content has not changed, which is almost all of them. So the entry is
+      # rewritten when dependencies move and read the rest of the time, and the number of
+      # entries stays bounded at one per job-kind.
+      - name: Cache Angular build output
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-build-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-angular-build-
       - run: npm run build
 
   compliance:
@@ -282,6 +338,22 @@ jobs:
         with:
           persist-credentials: false
 
+      # Deliberately a plain `docker build`, with no layer cache.
+      #
+      # The obvious speed-up is buildx with `cache-to: type=gha`, which would cache this
+      # image's first stage — `npm ci` plus a production Angular build. It is not available
+      # here: the ASF enterprise restricts workflows to an allow-list of actions, and
+      # `docker/setup-buildx-action` and `docker/build-push-action` are not on it. A run using
+      # them fails before any job starts, so this is a hard constraint rather than a
+      # preference.
+      #
+      # The remaining route would be the buildx CLI, which ubuntu-latest already ships, with
+      # `--cache-to type=local` behind `actions/cache`. That was judged not worth it: only the
+      # dependency stage is cacheable — every source change invalidates the build stage
+      # regardless — so it buys roughly a minute, in exchange for the docker-container driver,
+      # an export step to get the image back into the daemon, and a local cache that grows
+      # without bound unless it is pruned by hand. Worth revisiting if this job becomes the
+      # critical path.
       - name: Build the image
         run: docker build -f deploy/Dockerfile -t fineract-backoffice-ui:ci .
 
@@ -376,6 +448,40 @@ jobs:
         if: always()
         run: docker logs backoffice-ui 2>&1 | tail -30
 
+  diagram:
+    name: Change Sequence Diagram
+    needs: dependencies
+    # Only a pull request has somewhere to publish the diagram to.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+          # The diagram is drawn from the files this pull request changed, so the merge base
+          # has to be reachable. `fetch-depth: 0` is blunt but reliable; a shallow fetch of the
+          # base ref alone breaks whenever the branch is behind by more than the fetch depth.
+          fetch-depth: 0
+      # No npm install: the script is dependency-free Node, and this job exists to be cheap.
+      - name: Render the diagram
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/pr-sequence-diagram.mjs "$BASE_SHA" > /tmp/pr-diagram.md
+      - name: Show it in the run summary
+        run: cat /tmp/pr-diagram.md >> "$GITHUB_STEP_SUMMARY"
+      # Uploaded rather than posted from here, for the same reason the E2E summaries are: this
+      # job runs on a fork's `pull_request` with a read-only token. pr-comments.yml publishes it.
+      - name: Upload the diagram for the commenter
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: pr-comment-diagram
+          path: /tmp/pr-diagram.md
+          if-no-files-found: warn
+          retention-days: 1
+
   rat-scan:
     name: Apache RAT Scan
     runs-on: ubuntu-latest
@@ -390,9 +496,20 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      # The jar is immutable at a pinned version, so it is fetched once and read from the cache
+      # afterwards. The checksum is still verified on every run, cache hit included: a cache is
+      # writable from any branch, so trusting its contents unverified would be the more
+      # interesting half of a supply-chain problem rather than a saving.
+      - name: Cache Apache RAT
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: apache-rat-0.17.jar
+          key: ${{ runner.os }}-apache-rat-0.17
       - name: Download Apache RAT
         run: |
-          curl -sL https://repo1.maven.org/maven2/org/apache/rat/apache-rat/0.17/apache-rat-0.17.jar -o apache-rat-0.17.jar
+          if [ ! -f apache-rat-0.17.jar ]; then
+            curl -sL https://repo1.maven.org/maven2/org/apache/rat/apache-rat/0.17/apache-rat-0.17.jar -o apache-rat-0.17.jar
+          fi
           echo "401939ebe5a52c6ed524029897bf914eaaba503d36c069ebcdbd8847a9e7cf93  apache-rat-0.17.jar" | sha256sum --check --status || {
             echo "::error::Apache RAT jar checksum verification failed. Aborting."
             exit 1

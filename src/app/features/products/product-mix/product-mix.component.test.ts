@@ -17,29 +17,34 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductMixComponent } from './product-mix.component';
 import { ProductMixService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ProductMixComponent', () => {
   let component: ProductMixComponent;
   let fixture: ComponentFixture<ProductMixComponent>;
-  let serviceSpy: jasmine.SpyObj<ProductMixService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<ProductMixService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ProductMixService', [
+    serviceSpy = createSpyObj([
       'getLoanproductsProductIdProductmix',
       'postLoanproductsProductIdProductmix',
       'putLoanproductsProductIdProductmix',
       'deleteLoanproductsProductIdProductmix',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getLoanproductsProductIdProductmix.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getLoanproductsProductIdProductmix.mockReturnValue(
       of({
         productOptions: [{ id: 2, name: 'Product B' }],
         restrictedProducts: [],
@@ -47,10 +52,12 @@ describe('ProductMixComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ProductMixComponent, TranslateModule.forRoot()],
+      imports: [ProductMixComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProductMixService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ productId: '1' }) } },
@@ -67,12 +74,12 @@ describe('ProductMixComponent', () => {
   it('should load product mix options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanproductsProductIdProductmix).toHaveBeenCalledWith(1);
-    expect(component.productOptions()).toHaveSize(1);
-    expect(component.hasMix()).toBeFalse();
+    expect(component.productOptions()).toHaveLength(1);
+    expect(component.hasMix()).toBe(false);
   });
 
   it('should post when no mix exists and navigate to the list', () => {
-    serviceSpy.postLoanproductsProductIdProductmix.and.returnValue(
+    serviceSpy.postLoanproductsProductIdProductmix.mockReturnValue(
       of({}) as unknown as ReturnType<ProductMixService['postLoanproductsProductIdProductmix']>,
     );
     component.restrictedProducts.set([2]);
@@ -86,7 +93,7 @@ describe('ProductMixComponent', () => {
 
   it('should put when a mix already exists', () => {
     component.hasMix.set(true);
-    serviceSpy.putLoanproductsProductIdProductmix.and.returnValue(
+    serviceSpy.putLoanproductsProductIdProductmix.mockReturnValue(
       of({}) as unknown as ReturnType<ProductMixService['putLoanproductsProductIdProductmix']>,
     );
     component.restrictedProducts.set([2]);
@@ -97,13 +104,20 @@ describe('ProductMixComponent', () => {
     });
   });
 
-  it('should delete after confirmation and navigate to the list', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteLoanproductsProductIdProductmix.and.returnValue(
+  it('should delete after confirmation and navigate to the list', async () => {
+    serviceSpy.deleteLoanproductsProductIdProductmix.mockReturnValue(
       of({}) as unknown as ReturnType<ProductMixService['deleteLoanproductsProductIdProductmix']>,
     );
     component.onDelete();
+    await fixture.whenStable();
     expect(serviceSpy.deleteLoanproductsProductIdProductmix).toHaveBeenCalledWith(1);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/loan']);
+  });
+
+  it('should not clear the mix when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
+    component.onDelete();
+    await fixture.whenStable();
+    expect(serviceSpy.deleteLoanproductsProductIdProductmix).not.toHaveBeenCalled();
   });
 });
