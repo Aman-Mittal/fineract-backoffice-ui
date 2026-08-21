@@ -1654,11 +1654,6 @@
       "count": 1
     }
   },
-  "src/app/features/tasks/checker-inbox/checker-inbox.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/tasks/checker-inbox/view-payload-dialog.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
