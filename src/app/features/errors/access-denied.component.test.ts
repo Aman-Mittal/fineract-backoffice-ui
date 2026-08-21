@@ -57,7 +57,7 @@ describe('AccessDeniedComponent', () => {
 
   it('states what happened in a single top-level heading', () => {
     const headings = host.querySelectorAll('h1');
-    expect(headings).toHaveSize(1);
+    expect(headings).toHaveLength(1);
     expect(headings[0].textContent?.trim()).toBeTruthy();
   });
 
