@@ -52,7 +52,6 @@
     "src/app/features/clients/tabs/client-documents-list.component.spec.ts",
     "src/app/features/clients/transactions/client-transactions-list.component.spec.ts",
     "src/app/features/dashboard/system-status.component.spec.ts",
-    "src/app/features/errors/access-denied.component.spec.ts",
     "src/app/features/groups/group-action-dialog.component.spec.ts",
     "src/app/features/groups/group-form.component.spec.ts",
     "src/app/features/groups/group-members-dialog.component.spec.ts",
