@@ -23,6 +23,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SavingsAccountViewComponent } from './savings-account-view.component';
 import { SavingsAccountService } from '../../api';
 import { AuthService } from '../../core/services/auth.service';
+import { DialogService } from '../../core/services/dialog.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -36,10 +37,12 @@ describe('SavingsAccountViewComponent', () => {
   let savingsServiceSpy: jasmine.SpyObj<SavingsAccountService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogServiceSpy: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     savingsServiceSpy = jasmine.createSpyObj('SavingsAccountService', [
       'getSavingsaccountsAccountId',
+      'postSavingsaccountsAccountId',
     ]);
     authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
       currentUser: signal({
@@ -53,6 +56,7 @@ describe('SavingsAccountViewComponent', () => {
       }),
     });
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogServiceSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
 
     await TestBed.configureTestingModule({
       imports: [SavingsAccountViewComponent, TranslateModule.forRoot()],
@@ -62,6 +66,7 @@ describe('SavingsAccountViewComponent', () => {
         { provide: SavingsAccountService, useValue: savingsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -72,6 +77,10 @@ describe('SavingsAccountViewComponent', () => {
         },
       ],
     }).compileComponents();
+
+    savingsServiceSpy.postSavingsaccountsAccountId.and.returnValue(
+      of({}) as unknown as ReturnType<SavingsAccountService['postSavingsaccountsAccountId']>,
+    );
 
     savingsServiceSpy.getSavingsaccountsAccountId.and.returnValue(
       of({
@@ -213,6 +222,49 @@ describe('SavingsAccountViewComponent', () => {
       expect(component.canRelease(openHold as any)).toBeTrue();
       expect(component.canRelease(releasedHold as any)).toBeFalse();
       expect(component.canRelease(deposit as any)).toBeFalse();
+    });
+  });
+
+  /**
+   * `undoapproval` rejects `dateFormat`/`locale` — the platform answers 400 for parameters it
+   * does not expect there, unlike almost every other command on this account. The dialog must
+   * therefore send an empty body, or one carrying only `note`, never the pair every other
+   * command on this screen sends by default.
+   */
+  describe('undo approval', () => {
+    it('sends an empty body when the dialog is confirmed with no note', async () => {
+      dialogServiceSpy.open.and.resolveTo({});
+
+      component.onUndoApproval();
+      await Promise.resolve();
+
+      expect(savingsServiceSpy.postSavingsaccountsAccountId).toHaveBeenCalledWith(
+        789,
+        {},
+        'undoapproval',
+      );
+    });
+
+    it('sends only the note when the dialog is confirmed with one', async () => {
+      dialogServiceSpy.open.and.resolveTo({ note: 'Approved amount was wrong' });
+
+      component.onUndoApproval();
+      await Promise.resolve();
+
+      expect(savingsServiceSpy.postSavingsaccountsAccountId).toHaveBeenCalledWith(
+        789,
+        { note: 'Approved amount was wrong' } as never,
+        'undoapproval',
+      );
+    });
+
+    it('does nothing when the dialog is dismissed without a result', async () => {
+      dialogServiceSpy.open.and.resolveTo(undefined);
+
+      component.onUndoApproval();
+      await Promise.resolve();
+
+      expect(savingsServiceSpy.postSavingsaccountsAccountId).not.toHaveBeenCalled();
     });
   });
 });

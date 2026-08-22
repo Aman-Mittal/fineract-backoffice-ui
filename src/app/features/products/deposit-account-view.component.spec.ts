@@ -30,6 +30,7 @@ import {
   FixedDepositAccountTransactionsService,
   RecurringDepositAccountService,
   RecurringDepositAccountTransactionsService,
+  StandingInstructionsService,
 } from '../../api';
 import { BASE_PATH } from '../../api/variables';
 import { DialogService } from '../../core/services/dialog.service';
@@ -51,10 +52,11 @@ describe('DepositAccountViewComponent', () => {
   let fdService: jasmine.SpyObj<FixedDepositAccountService>;
   let fdTransactions: jasmine.SpyObj<FixedDepositAccountTransactionsService>;
   let dialogService: jasmine.SpyObj<DialogService>;
+  let standingInstructions: jasmine.SpyObj<StandingInstructionsService>;
 
   /** The account as the platform returns it, with the timeline the commands are floored on. */
   function account(status: object, timeline: object = { submittedOnDate: [2026, 8, 9] }): object {
-    return { id: 7, status, timeline, currency: { displaySymbol: '$' } };
+    return { id: 7, clientId: 42, status, timeline, currency: { displaySymbol: '$' } };
   }
 
   async function setup(
@@ -96,6 +98,11 @@ describe('DepositAccountViewComponent', () => {
     dialogService = jasmine.createSpyObj('DialogService', ['confirm', 'open']);
     dialogService.confirm.and.resolveTo(true);
 
+    standingInstructions = jasmine.createSpyObj('StandingInstructionsService', [
+      'getStandinginstructions',
+    ]);
+    standingInstructions.getStandinginstructions.and.returnValue(of({ pageItems: [] }) as never);
+
     await TestBed.configureTestingModule({
       imports: [DepositAccountViewComponent],
       providers: [
@@ -108,6 +115,7 @@ describe('DepositAccountViewComponent', () => {
         { provide: RecurringDepositAccountService, useValue: rdService },
         { provide: FixedDepositAccountTransactionsService, useValue: fdTransactions },
         { provide: RecurringDepositAccountTransactionsService, useValue: rdTransactions },
+        { provide: StandingInstructionsService, useValue: standingInstructions },
         { provide: BASE_PATH, useValue: 'https://example.test/fineract-provider/api' },
         { provide: DialogService, useValue: dialogService },
         { provide: Router, useValue: { url, navigate: () => undefined } },
@@ -301,12 +309,14 @@ describe('DepositAccountViewComponent', () => {
     );
 
     expect(component.isRD).toBeTrue();
+    // The charges tab issues its own `associations=all` request against the same URL, so the
+    // transactions request is picked out by its distinct `associations` value.
     const request = TestBed.inject(HttpTestingController).expectOne(
       (candidate) =>
         candidate.url ===
-        'https://example.test/fineract-provider/api/v1/recurringdepositaccounts/7',
+          'https://example.test/fineract-provider/api/v1/recurringdepositaccounts/7' &&
+        candidate.params.get('associations') === 'transactions',
     );
-    expect(request.request.params.get('associations')).toBe('transactions');
     request.flush({ transactions: [{ id: 21, amount: 100, reversed: false }] });
 
     expect(component.transactions()).toHaveSize(1);
@@ -314,5 +324,125 @@ describe('DepositAccountViewComponent', () => {
     expect(
       fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions,
     ).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Standing instructions target deposit accounts the same way they target ordinary savings —
+   * Fineract has no separate portfolio account type for a recurring or fixed deposit — so this
+   * reuses `app-savings-standing-instructions-tab` rather than a bespoke deposit version.
+   */
+  describe('standing instructions tab', () => {
+    it('passes this account and its client through to the shared standing instructions tab', async () => {
+      await setup(account({ id: 300, value: 'Active', active: true }));
+
+      component.activeTab.set('standingInstructions');
+      fixture.detectChanges();
+
+      expect(standingInstructions.getStandinginstructions).toHaveBeenCalled();
+      const tabElement = fixture.nativeElement.querySelector(
+        'app-savings-standing-instructions-tab',
+      );
+      expect(tabElement).not.toBeNull();
+    });
+  });
+
+  /**
+   * `GET /fixeddepositaccounts/{id}` and `GET /recurringdepositaccounts/{id}` both omit
+   * `charges` unless asked with `?associations=all` — the same class of gap `loadTransactions`
+   * already works around for a recurring deposit's transaction list.
+   */
+  describe('charges tab', () => {
+    it('reads charges through the associations escape hatch and renders them', async () => {
+      await setup(account({ id: 300, value: 'Active', active: true }));
+
+      const request = TestBed.inject(HttpTestingController).expectOne(
+        (candidate) =>
+          candidate.url ===
+            'https://example.test/fineract-provider/api/v1/fixeddepositaccounts/7' &&
+          candidate.params.get('associations') === 'all',
+      );
+      request.flush({
+        charges: [{ name: 'Withdrawal Fee', amount: 5, amountOutstanding: 5 }],
+      });
+
+      expect(component.charges()).toHaveSize(1);
+      expect(component.charges()[0].name).toBe('Withdrawal Fee');
+    });
+
+    it('shows no charges rather than failing the screen when the read errors', async () => {
+      await setup(account({ id: 300, value: 'Active', active: true }));
+
+      TestBed.inject(HttpTestingController)
+        .expectOne((candidate) => candidate.params.get('associations') === 'all')
+        .flush('boom', { status: 500, statusText: 'Server Error' });
+
+      expect(component.charges()).toEqual([]);
+      expect(component.hasError()).toBeFalse();
+    });
+  });
+
+  /**
+   * `accountChart.chartSlabs` comes off the exact same `associations=all` response the charges
+   * tab reads — one request answers both tabs, not two.
+   */
+  describe('interest rate chart tab', () => {
+    const SLAB = {
+      fromPeriod: 0,
+      toPeriod: 6,
+      periodType: { value: 'Months' },
+      amountRangeFrom: 0,
+      amountRangeTo: 10_000,
+      annualInterestRate: 5,
+      description: 'Base rate',
+      incentives: [
+        {
+          entityType: { value: 'Client' },
+          attributeName: { value: 'Gender' },
+          conditionType: { value: 'Equals' },
+          attributeValueDesc: 'Female',
+          incentiveType: { value: 'Rate' },
+          amount: 0.5,
+        },
+      ],
+    };
+
+    it('reads the chart slabs off the same associations response as the charges tab', async () => {
+      await setup(account({ id: 300, value: 'Active', active: true }));
+
+      TestBed.inject(HttpTestingController)
+        .expectOne((candidate) => candidate.params.get('associations') === 'all')
+        .flush({ accountChart: { chartSlabs: [SLAB] } });
+
+      expect(component.chartSlabs()).toEqual([SLAB] as never);
+    });
+
+    it('toggles a slab open and closed rather than opening every slab at once', async () => {
+      await setup(account({ id: 300, value: 'Active', active: true }));
+      TestBed.inject(HttpTestingController)
+        .expectOne((candidate) => candidate.params.get('associations') === 'all')
+        .flush({ accountChart: { chartSlabs: [SLAB, SLAB] } });
+
+      expect(component.expandedSlabIndex()).toBeNull();
+
+      component.onToggleIncentives(0);
+      expect(component.expandedSlabIndex()).toBe(0);
+
+      component.onToggleIncentives(1);
+      expect(component.expandedSlabIndex()).toBe(1);
+
+      component.onToggleIncentives(1);
+      expect(component.expandedSlabIndex()).toBeNull();
+    });
+
+    it('shows no chart rather than failing the screen when the read errors', async () => {
+      await setup(account({ id: 300, value: 'Active', active: true }));
+
+      TestBed.inject(HttpTestingController)
+        .expectOne((candidate) => candidate.params.get('associations') === 'all')
+        .flush('boom', { status: 500, statusText: 'Server Error' });
+
+      expect(component.chartSlabs()).toEqual([]);
+      expect(component.hasError()).toBeFalse();
+    });
   });
 });

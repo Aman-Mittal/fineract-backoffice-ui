@@ -25,14 +25,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
+import { SavingsStandingInstructionsTabComponent } from './savings/savings-standing-instructions-tab.component';
 import {
   FixedDepositAccountService,
   FixedDepositAccountTransactionsService,
   RecurringDepositAccountService,
   RecurringDepositAccountTransactionsService,
+  SavingsAccountChargeData,
 } from '../../api';
 import { BASE_PATH } from '../../api/variables';
-import { I18N } from '../../core/adapters';
+import { I18N, TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
 import {
@@ -64,6 +66,37 @@ import {
 } from '@ionic/angular/standalone';
 
 /**
+ * One row of a deposit product's interest rate chart.
+ *
+ * Read off `accountChart.chartSlabs` on the same `associations=all` response
+ * `loadCharges` already fetches for the charges tab — no separate request. The generated
+ * `GetFixedDepositAccountsChartSlabs`/`GetRecurringDepositAccountsChartSlabs` models describe
+ * only `annualInterestRate`, `currency`, `fromPeriod`, `id`, `periodType` and `toPeriod`; the
+ * amount range, description and incentives fields the real response carries (and web-app's own
+ * `interest-rate-chart-tab` renders) aren't in either generated model, so this is typed locally
+ * from what is actually read off the wire rather than forced through the incomplete type.
+ */
+interface ChartSlabIncentive {
+  entityType?: { value?: string };
+  attributeName?: { value?: string };
+  conditionType?: { value?: string };
+  attributeValueDesc?: string;
+  incentiveType?: { value?: string };
+  amount?: number;
+}
+
+interface ChartSlab {
+  fromPeriod?: number;
+  toPeriod?: number;
+  periodType?: { value?: string };
+  amountRangeFrom?: number;
+  amountRangeTo?: number;
+  annualInterestRate?: number;
+  description?: string;
+  incentives?: ChartSlabIncentive[];
+}
+
+/**
  * The tabs on this screen, named.
  *
  * They were positional strings — '0', '7' — which say nothing at the point of use and shift
@@ -73,6 +106,9 @@ import {
 export const DEPOSIT_TAB = {
   overview: 'overview',
   transactions: 'transactions',
+  charges: 'charges',
+  interestRateChart: 'interestRateChart',
+  standingInstructions: 'standingInstructions',
   customFields: 'customFields',
 } as const;
 
@@ -83,9 +119,11 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
   standalone: true,
   imports: [
     TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     StatusBadgeComponent,
     EntityDatatablesComponent,
+    SavingsStandingInstructionsTabComponent,
     DecimalPipe,
     NgClass,
     IonIcon,
@@ -225,6 +263,21 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
           <ion-segment-button [value]="TAB.transactions" data-testid="deposit-tab-transactions">
             <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
           </ion-segment-button>
+          <ion-segment-button [value]="TAB.charges" data-testid="deposit-tab-charges">
+            <ion-label>{{ 'LOANS.CHARGES' | appTranslate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button
+            [value]="TAB.interestRateChart"
+            data-testid="deposit-tab-interest-rate-chart"
+          >
+            <ion-label>{{ 'INTEREST_RATE_CHARTS.TAB_LABEL' | appTranslate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button
+            [value]="TAB.standingInstructions"
+            data-testid="deposit-tab-standing-instructions"
+          >
+            <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | appTranslate }}</ion-label>
+          </ion-segment-button>
           <ion-segment-button [value]="TAB.customFields">
             <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
           </ion-segment-button>
@@ -337,6 +390,156 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                 <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
               </div>
             }
+          </div>
+        }
+        @if (activeTab() === TAB.charges) {
+          <div class="tab-content">
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if (charges().length > 0) {
+                  <table cdk-table [dataSource]="charges()" class="full-width-table">
+                    <ng-container cdkColumnDef="name">
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | appTranslate }}</th>
+                      <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="amount">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.AMOUNT' | appTranslate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ getCurrencySymbol() }} {{ c.amount | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container cdkColumnDef="outstanding">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | appTranslate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let c">
+                        {{ getCurrencySymbol() }} {{ c.amountOutstanding | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+
+                    <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: chargeColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state" data-testid="deposit-no-charges">
+                    <ion-icon name="cash-outline"></ion-icon>
+                    <p>{{ 'SAVINGS.NO_CHARGES' | appTranslate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === TAB.interestRateChart) {
+          <div class="tab-content">
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if (chartSlabs().length > 0) {
+                  <table class="full-width-table" data-testid="deposit-interest-rate-chart">
+                    <thead>
+                      <tr>
+                        <th>{{ 'COMMON.PERIOD' | appTranslate }}</th>
+                        <th>
+                          {{ 'INTEREST_RATE_CHARTS.AMOUNT_RANGE_FROM' | appTranslate }} -
+                          {{ 'INTEREST_RATE_CHARTS.AMOUNT_RANGE_TO' | appTranslate }}
+                        </th>
+                        <th>{{ 'INTEREST_RATE_CHARTS.ANNUAL_INTEREST_RATE' | appTranslate }}</th>
+                        <th>{{ 'INTEREST_RATE_CHARTS.DESCRIPTION' | appTranslate }}</th>
+                        <th>{{ 'COMMON.ACTIONS' | appTranslate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (slab of chartSlabs(); track $index) {
+                        <tr>
+                          <td>
+                            {{ slab.fromPeriod }} - {{ slab.toPeriod }} {{ slab.periodType?.value }}
+                          </td>
+                          <td>
+                            {{ slab.amountRangeFrom | number: '1.2-2' }} -
+                            {{ slab.amountRangeTo | number: '1.2-2' }}
+                          </td>
+                          <td>{{ slab.annualInterestRate | number: '1.2-2' }} %</td>
+                          <td>{{ slab.description }}</td>
+                          <td>
+                            @if (slab.incentives?.length) {
+                              <ion-button
+                                fill="clear"
+                                size="small"
+                                [attr.data-testid]="'deposit-toggle-incentives-' + $index"
+                                (click)="onToggleIncentives($index)"
+                              >
+                                {{
+                                  (expandedSlabIndex() === $index
+                                    ? 'INTEREST_RATE_CHARTS.HIDE_INCENTIVES'
+                                    : 'INTEREST_RATE_CHARTS.VIEW_INCENTIVES'
+                                  ) | appTranslate
+                                }}
+                              </ion-button>
+                            }
+                          </td>
+                        </tr>
+                        @if (expandedSlabIndex() === $index && slab.incentives?.length) {
+                          <tr>
+                            <td colspan="5">
+                              <h4>{{ 'INTEREST_RATE_CHARTS.INCENTIVES' | appTranslate }}</h4>
+                              <table class="full-width-table incentives-table">
+                                <thead>
+                                  <tr>
+                                    <th>{{ 'SYSTEM.ENTITY_TYPE' | appTranslate }}</th>
+                                    <th>
+                                      {{ 'INTEREST_RATE_CHARTS.ATTRIBUTE_NAME' | appTranslate }}
+                                    </th>
+                                    <th>
+                                      {{ 'INTEREST_RATE_CHARTS.CONDITION_TYPE' | appTranslate }}
+                                    </th>
+                                    <th>
+                                      {{ 'INTEREST_RATE_CHARTS.ATTRIBUTE_VALUE' | appTranslate }}
+                                    </th>
+                                    <th>
+                                      {{ 'INTEREST_RATE_CHARTS.INCENTIVE_TYPE' | appTranslate }}
+                                    </th>
+                                    <th>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (incentive of slab.incentives; track $index) {
+                                    <tr>
+                                      <td>{{ incentive.entityType?.value }}</td>
+                                      <td>{{ incentive.attributeName?.value }}</td>
+                                      <td>{{ incentive.conditionType?.value }}</td>
+                                      <td>{{ incentive.attributeValueDesc }}</td>
+                                      <td>{{ incentive.incentiveType?.value }}</td>
+                                      <td>{{ incentive.amount | number: '1.2-2' }}</td>
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        }
+                      }
+                    </tbody>
+                  </table>
+                } @else {
+                  <div class="empty-state" data-testid="deposit-no-interest-rate-chart">
+                    <ion-icon name="trending-up-outline"></ion-icon>
+                    <p>{{ 'INTEREST_RATE_CHARTS.NO_CHART' | appTranslate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          </div>
+        }
+        @if (activeTab() === TAB.standingInstructions) {
+          <div class="tab-content">
+            <app-savings-standing-instructions-tab
+              [savingsAccountId]="accountId"
+              [clientId]="clientId()"
+            ></app-savings-standing-instructions-tab>
           </div>
         }
         @if (activeTab() === TAB.customFields) {
@@ -461,6 +664,10 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
       .empty-state ion-icon {
         font-size: 40px;
       }
+      .incentives-table {
+        margin-top: 8px;
+        background: var(--ion-color-light, #f4f5f8);
+      }
     `,
   ],
 })
@@ -486,10 +693,14 @@ export class DepositAccountViewComponent implements OnInit {
   isRD = false;
   readonly account = signal<Record<string, unknown> | null>(null);
   readonly transactions = signal<Record<string, unknown>[]>([]);
+  readonly charges = signal<SavingsAccountChargeData[]>([]);
+  readonly chartSlabs = signal<ChartSlab[]>([]);
+  readonly expandedSlabIndex = signal<number | null>(null);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
 
   readonly transactionColumns = ['id', 'date', 'type', 'amount', 'runningBalance', 'actions'];
+  readonly chargeColumns = ['name', 'amount', 'outstanding'];
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('id'));
@@ -524,12 +735,50 @@ export class DepositAccountViewComponent implements OnInit {
         this.hasError.set(false);
         this.isLoading.set(false);
         this.loadTransactions();
+        this.loadCharges();
       },
       error: () => {
         this.hasError.set(true);
         this.isLoading.set(false);
       },
     });
+  }
+
+  /**
+   * Reads the charges on this account, which — like the recurring-deposit transaction list
+   * above — the plain account read does not carry. Fineract adds `charges` to the response only
+   * when asked with `?associations=all`, a parameter neither deposit endpoint's generated method
+   * can send, so this goes through the same `HttpClient` escape hatch as `loadTransactions`.
+   */
+  /**
+   * Reads the charges and the interest rate chart in one call — both live under the same
+   * `associations=all` response as `loadTransactions`'s recurring-deposit branch, so there is no
+   * reason to ask for them separately.
+   */
+  private loadCharges(): void {
+    const path = this.isRD
+      ? `${this.basePath}/v1/recurringdepositaccounts/${this.accountId}`
+      : `${this.basePath}/v1/fixeddepositaccounts/${this.accountId}`;
+
+    this.httpClient
+      .get<{
+        charges?: SavingsAccountChargeData[];
+        accountChart?: { chartSlabs?: ChartSlab[] };
+      }>(path, { params: { associations: 'all' } })
+      .subscribe({
+        next: (response) => {
+          this.charges.set(response.charges ?? []);
+          this.chartSlabs.set(response.accountChart?.chartSlabs ?? []);
+        },
+        error: () => {
+          this.charges.set([]);
+          this.chartSlabs.set([]);
+        },
+      });
+  }
+
+  onToggleIncentives(index: number): void {
+    this.expandedSlabIndex.set(this.expandedSlabIndex() === index ? null : index);
   }
 
   /**
@@ -651,6 +900,8 @@ export class DepositAccountViewComponent implements OnInit {
   getBalance(): number {
     return (this.account()?.['accountBalance'] as number) || 0;
   }
+
+  readonly clientId = computed(() => this.account()?.['clientId'] as number | undefined);
 
   formatDate(date: unknown): string {
     if (Array.isArray(date)) {

@@ -21,6 +21,7 @@ import { computed, inject, signal, Component, OnInit } from '@angular/core';
 import { from } from 'rxjs';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
@@ -45,6 +46,10 @@ import {
   SavingsOfficerDialogComponent,
   SavingsOfficerResult,
 } from './savings-officer-dialog.component';
+import {
+  SavingsUndoApprovalDialogComponent,
+  SavingsUndoApprovalResult,
+} from './savings-undo-approval-dialog.component';
 import {
   formatDateToFineract,
   toIsoDate,
@@ -102,6 +107,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
     SavingsStandingInstructionsTabComponent,
     RouterModule,
     TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     StatusBadgeComponent,
     RequiresPermissionDirective,
@@ -194,6 +200,17 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   <ion-icon name="play-circle-outline"></ion-icon>
                   {{ 'SAVINGS.ACTIVATE' | translate }}
                 </ion-button>
+                <ion-button
+                  color="medium"
+                  fill="outline"
+                  data-testid="savings-undo-approval"
+                  appRequiresPermission="APPROVALUNDO_SAVINGSACCOUNT"
+                  (click)="onUndoApproval()"
+                  [appTooltip]="'SAVINGS.UNDOAPPROVAL' | appTranslate"
+                >
+                  <ion-icon name="arrow-undo-outline"></ion-icon>
+                  {{ 'SAVINGS.UNDOAPPROVAL' | appTranslate }}
+                </ion-button>
               }
               @if (account()?.status?.active) {
                 <ion-button
@@ -248,6 +265,15 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                       >
                         <ion-icon slot="start" name="trending-up-outline"></ion-icon>
                         <ion-label>{{ 'SAVINGS.POST_INTEREST' | translate }}</ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="savings-post-interest-as-on"
+                        (click)="onTransaction('postInterestAsOn')"
+                      >
+                        <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                        <ion-label>{{ 'SAVINGS.POST_INTEREST_AS_ON' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -938,6 +964,22 @@ export class SavingsAccountViewComponent implements OnInit {
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
       });
+    });
+  }
+
+  /**
+   * Returns an approved savings account to `Submitted and pending approval`.
+   *
+   * Not sent through {@link runCommand} with the usual `dateFormat`/`locale` — like the loan
+   * equivalent, `undoapproval` rejects both, answering 400 for parameters it does not expect.
+   * It accepts an empty body, or one carrying only `note`.
+   */
+  onUndoApproval(): void {
+    from(
+      this.dialogService.open<SavingsUndoApprovalResult>(SavingsUndoApprovalDialogComponent),
+    ).subscribe((result) => {
+      if (!result) return;
+      this.runCommand('undoapproval', result as Record<string, unknown>);
     });
   }
 
