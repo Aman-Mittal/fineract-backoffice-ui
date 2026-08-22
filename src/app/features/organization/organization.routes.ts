@@ -170,6 +170,7 @@ export const ORGANIZATION_ROUTES: Routes = [
     path: 'loan-portfolio-summary',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_LOAN' },
+    title: 'ORGANIZATION.LOAN_PORTFOLIO_SUMMARY',
     loadComponent: () =>
       import('./loan-portfolio-summary/loan-portfolio-summary.component').then(
         (m) => m.LoanPortfolioSummaryComponent,
