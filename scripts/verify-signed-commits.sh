@@ -18,6 +18,20 @@
 # under the License.
 
 # Usage: ./scripts/verify-signed-commits.sh [--base-ref <ref>] [--head-ref <ref>] [--strict] [--help]
+#
+# A local pre-push aid, NOT the CI gate. It answers "is a signature attached?", which is a
+# weaker question than the one that decides whether a pull request can merge: GitHub asks
+# whether the signature was made by a key registered to an account whose verified email
+# matches the committer. A commit can pass here and still show as Unverified — a key GitHub
+# has never seen, or a `user.email` that is not an address on any account, both look signed
+# to git and are refused by GitHub.
+#
+# It cannot be strengthened to close that gap: a checkout holds no contributor public keys,
+# so the runner has nothing to verify against. The gate therefore asks GitHub instead, in
+# .github/workflows/signed-commit.yml — which also comments on the pull request explaining
+# which of several distinct problems applies.
+#
+# Use this to catch the obvious case (forgot to sign at all) before pushing.
 set -e
 
 BASE_REF="origin/main"
