@@ -19,11 +19,12 @@
 
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 
 import { GroupsService } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared';
 import { TranslatePipe } from '../../../core/adapters';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
 /**
  * The accounts a group holds in its own name.
@@ -36,11 +37,36 @@ import { TranslatePipe } from '../../../core/adapters';
 @Component({
   selector: 'app-group-accounts-tab',
   standalone: true,
-  imports: [StatusBadgeComponent, TranslatePipe, IonSpinner],
+  imports: [StatusBadgeComponent, TranslatePipe, IonSpinner, IonButton, HasPermissionDirective],
   template: `
     @if (isLoading()) {
       <ion-spinner data-testid="group-accounts-loading"></ion-spinner>
     } @else {
+      <div class="tab-actions">
+        <ion-button
+          *appHasPermission="'CREATE_LOAN'"
+          fill="outline"
+          size="small"
+          (click)="onCreateGlim()"
+        >
+          {{ 'GROUPS.CREATE_GLIM_LOAN' | appTranslate }}
+        </ion-button>
+        <ion-button
+          *appHasPermission="'CREATE_SAVINGSACCOUNT'"
+          fill="outline"
+          size="small"
+          (click)="onCreateGsim()"
+        >
+          {{ 'GROUPS.CREATE_GSIM_SAVINGS' | appTranslate }}
+        </ion-button>
+        <ion-button fill="clear" size="small" (click)="onViewGlim()">
+          {{ 'GROUPS.GLIM_ACCOUNT_OVERVIEW' | appTranslate }}
+        </ion-button>
+        <ion-button fill="clear" size="small" (click)="onViewGsim()">
+          {{ 'GROUPS.GSIM_ACCOUNT_OVERVIEW' | appTranslate }}
+        </ion-button>
+      </div>
+
       <h2>{{ 'GROUPS.LOAN_ACCOUNTS' | appTranslate }}</h2>
       @if (loanAccounts().length === 0) {
         <p class="empty-state" data-testid="group-loan-accounts-empty">
@@ -82,6 +108,12 @@ import { TranslatePipe } from '../../../core/adapters';
   `,
   styles: [
     `
+      .tab-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
       h2 {
         font-size: 1rem;
         margin: 16px 0 8px;
@@ -141,6 +173,22 @@ export class GroupAccountsTabComponent implements OnInit {
     if (id !== undefined) {
       void this.router.navigate(['/products/savings-accounts/view', id]);
     }
+  }
+
+  onCreateGlim(): void {
+    void this.router.navigate(['/groups', this.groupId(), 'glim', 'create']);
+  }
+
+  onCreateGsim(): void {
+    void this.router.navigate(['/groups', this.groupId(), 'gsim', 'create']);
+  }
+
+  onViewGlim(): void {
+    void this.router.navigate(['/groups', this.groupId(), 'glim', 'view']);
+  }
+
+  onViewGsim(): void {
+    void this.router.navigate(['/groups', this.groupId(), 'gsim', 'view']);
   }
 }
 

@@ -66,4 +66,44 @@ export const GROUPS_ROUTES: Routes = [
     loadComponent: () =>
       import('./group-note-form.component').then((m) => m.GroupNoteFormComponent),
   },
+  {
+    path: ':groupId/glim/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_LOAN' },
+    title: 'GROUPS.CREATE_GLIM_LOAN',
+    loadComponent: () =>
+      import('./glim/create-glim-account.component').then((m) => m.CreateGlimAccountComponent),
+  },
+  {
+    path: ':groupId/glim/view',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_LOAN' },
+    title: 'GROUPS.GLIM_ACCOUNT_OVERVIEW',
+    loadComponent: () =>
+      import('./glim/glim-account-view.component').then((m) => m.GlimAccountViewComponent),
+  },
+  {
+    path: ':groupId/glim/view/:glimId',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_LOAN' },
+    title: 'GROUPS.GLIM_ACCOUNT_OVERVIEW',
+    loadComponent: () =>
+      import('./glim/glim-account-view.component').then((m) => m.GlimAccountViewComponent),
+  },
+  {
+    path: ':groupId/gsim/create',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CREATE_SAVINGSACCOUNT' },
+    title: 'GROUPS.CREATE_GSIM_SAVINGS',
+    loadComponent: () =>
+      import('./gsim/create-gsim-account.component').then((m) => m.CreateGsimAccountComponent),
+  },
+  {
+    path: ':groupId/gsim/view',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_SAVINGSACCOUNT' },
+    title: 'GROUPS.GSIM_ACCOUNT_OVERVIEW',
+    loadComponent: () =>
+      import('./gsim/gsim-account-view.component').then((m) => m.GsimAccountViewComponent),
+  },
 ];
