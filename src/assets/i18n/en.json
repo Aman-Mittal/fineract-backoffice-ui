@@ -2720,6 +2720,8 @@
     "APPROVE_SELECTED": "Approve Selected",
     "DISBURSE_SELECTED": "Disburse Selected",
     "ACTIVATE_SELECTED": "Activate Selected",
+    "REJECT_SELECTED": "Reject Selected",
+    "UNASSIGNED_OFFICE": "Unassigned",
     "CONFIRM": "This applies the action to {{count}} record(s) in one request.",
     "ALL_SUCCEEDED": "{{count}} record(s) processed successfully.",
     "PARTIAL": "{{succeeded}} of {{total}} succeeded. These were refused: {{names}}"

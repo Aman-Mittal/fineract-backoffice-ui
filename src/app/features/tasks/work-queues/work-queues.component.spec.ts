@@ -23,7 +23,13 @@ import { Observable, of } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { WorkQueuesComponent } from './work-queues.component';
-import { BatchAPIService, ClientService, LoansService, RescheduleLoansService } from '../../../api';
+import {
+  BatchAPIService,
+  ClientService,
+  LoansService,
+  OfficesService,
+  RescheduleLoansService,
+} from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { provideFakeAdapters } from '../../../testing/adapters';
@@ -47,6 +53,11 @@ describe('WorkQueuesComponent', () => {
     const rescheduleSpy = jasmine.createSpyObj('RescheduleLoansService', ['getRescheduleloans']);
     rescheduleSpy.getRescheduleloans.and.returnValue(of([]) as never);
 
+    const officesSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
+    officesSpy.getOffices.and.returnValue(
+      of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
+    );
+
     loansSpy.getLoans.and.returnValue(
       of({
         pageItems: [
@@ -56,6 +67,7 @@ describe('WorkQueuesComponent', () => {
             clientName: 'A Client',
             loanProductName: 'P',
             principal: 1000,
+            clientOfficeId: 1,
           },
           {
             id: 3,
@@ -63,6 +75,7 @@ describe('WorkQueuesComponent', () => {
             clientName: 'B Client',
             loanProductName: 'P',
             principal: 500,
+            clientOfficeId: 1,
           },
         ],
       }) as unknown as Observable<never>,
@@ -87,6 +100,7 @@ describe('WorkQueuesComponent', () => {
         { provide: LoansService, useValue: loansSpy },
         { provide: ClientService, useValue: clientsSpy },
         { provide: RescheduleLoansService, useValue: rescheduleSpy },
+        { provide: OfficesService, useValue: officesSpy },
         { provide: BatchAPIService, useValue: batchSpy },
         { provide: DialogService, useValue: dialogSpy },
         { provide: NotificationService, useValue: notificationsSpy },
@@ -173,5 +187,34 @@ describe('WorkQueuesComponent', () => {
 
     component.onQueueChange('rescheduleApproval');
     expect(component.requiredPermission()).toBe('APPROVE_RESCHEDULELOAN');
+  });
+
+  it('groups loans by the office resolved from clientOfficeId', () => {
+    expect(component.isGroupedQueue()).toBeTrue();
+    expect(component.groupedRows()).toEqual([
+      { officeName: 'Head Office', rows: component.rows() },
+    ]);
+  });
+
+  it('does not group the reschedule queue, which carries no office of its own', () => {
+    component.onQueueChange('rescheduleApproval');
+    expect(component.isGroupedQueue()).toBeFalse();
+  });
+
+  it('sends the reject command and a rejectedOnDate when rejecting reschedule requests', async () => {
+    component.onQueueChange('rescheduleApproval');
+    component.rows.set([{ id: 5, primary: '5', secondary: '', selected: true }]);
+    dialogSpy.confirm.and.resolveTo(true);
+    batchSpy.postBatches.and.returnValue(
+      of([{ requestId: 1, statusCode: 200 }]) as unknown as Observable<never>,
+    );
+
+    await component.onRun('reject');
+
+    const requests = batchSpy.postBatches.calls.mostRecent().args[0];
+    expect(requests[0].relativeUrl).toBe('rescheduleloans/5?command=reject');
+    const body = JSON.parse(requests[0].body as string);
+    expect(body.rejectedOnDate).toBeTruthy();
+    expect(body.approvedOnDate).toBeUndefined();
   });
 });
