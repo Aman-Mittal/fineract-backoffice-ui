@@ -981,6 +981,13 @@
     "IMPORT_TIME": "Import Time",
     "CREATED_BY": "Created By",
     "DOWNLOAD_RESULT": "Download Result",
+    "BULK_IMPORT_LOAN_REPAYMENTS": "Loan Repayments",
+    "BULK_IMPORT_SAVINGS_TRANSACTIONS": "Savings Transactions",
+    "BULK_IMPORT_FIXED_DEPOSIT_TRANSACTIONS": "Fixed Deposit Transactions",
+    "BULK_IMPORT_RECURRING_DEPOSIT_TRANSACTIONS": "Recurring Deposit Transactions",
+    "BULK_IMPORT_GUARANTORS": "Guarantors",
+    "BULK_IMPORT_LOAN_ID": "Loan ID",
+    "BULK_IMPORT_LOAN_ID_REQUIRED": "Enter the loan account this guarantors file applies to before downloading or uploading a template.",
     "DELINQUENCY_RANGES": "Delinquency Ranges",
     "DELINQUENCY_BUCKETS": "Delinquency Buckets",
     "CREATE_RANGE": "Create Range",
@@ -2205,7 +2212,11 @@
     "START_TIME": "Start Time",
     "END_TIME": "End Time",
     "STATUS": "Status",
-    "TRIGGER_TYPE": "Trigger Type"
+    "TRIGGER_TYPE": "Trigger Type",
+    "SELECT_JOB": "Select job",
+    "SELECT_ALL": "Select All",
+    "RUN_SELECTED": "Run Selected",
+    "RUN_SELECTED_CONFIRM": "Run {{count}} selected job(s) now?"
   },
   "PERMISSIONS": {
     "TITLE": "Maker-Checker Permissions",
