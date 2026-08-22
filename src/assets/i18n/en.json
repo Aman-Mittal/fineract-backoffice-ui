@@ -1413,6 +1413,7 @@
     "ADD_LEDGER_ACCOUNT": "Add Ledger Account",
     "EDIT_ACCOUNT": "Edit Account",
     "DEFINE_MAPPING": "Define Mapping",
+    "EDIT_MAPPING": "Edit Financial Activity Mapping",
     "GL_CODE": "GL Code",
     "ACCOUNT_TYPE": "Account Type",
     "ACCOUNT_USAGE": "Account Usage",
