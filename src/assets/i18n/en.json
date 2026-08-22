@@ -1276,7 +1276,13 @@
     "REVERSED": "Reversed",
     "REVERSED_SUCCESS": "Transaction reversed",
     "SYSTEM_ENTRY_NOT_REVERSIBLE": "This entry was created by the platform from a portfolio transaction. Reverse the transaction that produced it instead.",
-    "NOT_FOUND": "That journal entry could not be found."
+    "NOT_FOUND": "That journal entry could not be found.",
+    "GL_ACCOUNT": "GL Account",
+    "MANUAL_ENTRIES_ONLY": "Entry Type",
+    "ALL_OFFICES": "All Offices",
+    "ALL_ACCOUNTS": "All Accounts",
+    "ALL_ENTRIES": "All Entries",
+    "MANUAL_ENTRIES": "Manual Entries Only"
   },
   "OFFICES": {
     "CREATE_OFFICE": "Create Office",
