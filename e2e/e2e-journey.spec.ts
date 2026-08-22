@@ -845,7 +845,10 @@ test.describe('E2E: Other Products Pages', () => {
     });
     await page.getByRole('link', { name: 'Recurring Deposit Products' }).click();
     await expect(page).toHaveURL('/products/recurring');
-    await expect(page.getByText('Recurring Deposit Products')).toBeVisible();
+    // The breadcrumb's current crumb, not the bare text: the sidebar link reads the same.
+    await expect(
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByText('Recurring Deposit Products'),
+    ).toBeVisible();
   });
 
   test('Share Products page loads', async ({ page }) => {
@@ -854,7 +857,10 @@ test.describe('E2E: Other Products Pages', () => {
     });
     await page.getByRole('link', { name: 'Share Products' }).click();
     await expect(page).toHaveURL('/products/share');
-    await expect(page.getByText('Share Products')).toBeVisible();
+    // The breadcrumb's current crumb, not the bare text: the sidebar link reads the same.
+    await expect(
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByText('Share Products'),
+    ).toBeVisible();
   });
 
   test('Tax Components page loads', async ({ page }) => {

@@ -296,8 +296,10 @@ test.describe('Client View & Status Transitions', () => {
     await setupClientMocks(page, [ACTIVE_CLIENT]);
 
     await page.goto(URL_CLIENT_2001);
-    await expect(page.locator('.breadcrumb')).toContainText('Clients');
-    await expect(page.locator('.breadcrumb')).toContainText('Test User');
+    // The trail comes from the route titles, so it names the screen; the client is in the heading.
+    const breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(breadcrumb).toContainText('Clients');
+    await expect(breadcrumb).toContainText('Client Details');
     await expect(page.locator('h2')).toContainText('Test User');
     await expect(page.getByText('#000000001')).toBeVisible();
   });
