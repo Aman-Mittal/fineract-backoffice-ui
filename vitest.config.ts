@@ -34,6 +34,14 @@ import { defineConfig } from 'vitest/config';
  */
 export default defineConfig({
   test: {
+    /**
+     * Vitest's 5s default is a poor fit for Angular TestBed. The first `createComponent()` in a
+     * file compiles the component and everything it imports, which for the larger screens runs
+     * past 5s on a cold Vite cache even though the test body itself is synchronous — so a spec
+     * passes locally on a warm re-run and fails in CI, which is always cold. The cost is paid
+     * once per file, not per test, so a higher ceiling costs nothing on the passing path.
+     */
+    testTimeout: 30_000,
     server: {
       deps: {
         inline: [/@ionic\/angular/, /@ionic\/core/],

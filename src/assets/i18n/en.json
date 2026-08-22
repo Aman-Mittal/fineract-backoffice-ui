@@ -200,6 +200,7 @@
     },
     "EVERY": "every",
     "EXIT": "Exit",
+    "EXPORT_CSV": "Export CSV",
     "EXTERNAL_ID": "External ID",
     "FILTERS": "Filters",
     "FINISH": "Finish",
@@ -731,6 +732,11 @@
   "CLIENTS": {
     "CREATE_CLIENT": "Create Client",
     "EDIT_CLIENT": "Edit Client",
+    "WIZARD": {
+      "STEP_TYPE": "Client Type",
+      "STEP_PERSONAL": "Personal Details",
+      "STEP_CONTACT": "Contact Details"
+    },
     "LEGAL_FORM": "Legal Form",
     "PERSON": "Person",
     "ENTITY": "Entity",
@@ -857,6 +863,10 @@
     "WITHDRAW_CASH": "Withdraw Cash",
     "APPROVE": "Approve Savings Account",
     "ACTIVATE": "Activate Savings Account",
+    "UNDOAPPROVAL": "Undo Approval",
+    "CONFIRM_UNDOAPPROVAL": "Undo the approval of this savings account? It returns to pending approval.",
+    "UNDOAPPROVAL_REASON": "Reason",
+    "POST_INTEREST_AS_ON": "Post Interest As On",
     "CLOSE": "Close Savings Account",
     "CALCULATE_INTEREST": "Calculate Interest",
     "POST_INTEREST": "Post Interest",
@@ -919,7 +929,29 @@
     "STAFF": "Staff",
     "CREATE_STAFF": "Create Staff Member",
     "EDIT_STAFF": "Edit Staff Member",
-    "IS_LOAN_OFFICER": "Is Loan Officer"
+    "IS_LOAN_OFFICER": "Is Loan Officer",
+    "LOAN_PORTFOLIO_SUMMARY": "Loan Portfolio Summary",
+    "LOAN_STATUS": "Loan Status",
+    "LOAN_STATUS_CLOSED": "Closed (Obligations Met)",
+    "LOAN_STATUS_OVERPAID": "Overpaid",
+    "LOAN_STATUS_WRITTEN_OFF": "Closed (Written-Off)",
+    "LOAN_PRODUCTS": "Loan Products",
+    "LOAN_DATE_OPTION": "Date Type",
+    "APPROVAL_DATE": "Approval Date",
+    "CREATION_DATE": "Creation Date",
+    "FROM_DATE": "From Date",
+    "TO_DATE": "To Date",
+    "OUTSTANDING_PERCENTAGE": "Outstanding Percentage",
+    "OUTSTANDING_AMOUNT": "Outstanding Amount",
+    "COMPARISON_CONDITION": "Comparison Condition",
+    "MINIMUM_VALUE": "Minimum Value",
+    "MAXIMUM_VALUE": "Maximum Value",
+    "COMPARISON_VALUE": "Comparison Value",
+    "EDIT_PARAMETERS": "Edit Parameters",
+    "COUNT": "Count",
+    "PERCENTAGE": "Percentage",
+    "TEMPLATE_LOAD_FAILED": "Failed to load search parameters. Please try again.",
+    "SEARCH_FAILED": "Search failed. Please try again."
   },
   "SECURITY": {
     "AUDIT_LOGS": "Audit Logs"
@@ -950,6 +982,13 @@
     "IMPORT_TIME": "Import Time",
     "CREATED_BY": "Created By",
     "DOWNLOAD_RESULT": "Download Result",
+    "BULK_IMPORT_LOAN_REPAYMENTS": "Loan Repayments",
+    "BULK_IMPORT_SAVINGS_TRANSACTIONS": "Savings Transactions",
+    "BULK_IMPORT_FIXED_DEPOSIT_TRANSACTIONS": "Fixed Deposit Transactions",
+    "BULK_IMPORT_RECURRING_DEPOSIT_TRANSACTIONS": "Recurring Deposit Transactions",
+    "BULK_IMPORT_GUARANTORS": "Guarantors",
+    "BULK_IMPORT_LOAN_ID": "Loan ID",
+    "BULK_IMPORT_LOAN_ID_REQUIRED": "Enter the loan account this guarantors file applies to before downloading or uploading a template.",
     "DELINQUENCY_RANGES": "Delinquency Ranges",
     "DELINQUENCY_BUCKETS": "Delinquency Buckets",
     "CREATE_RANGE": "Create Range",
@@ -1099,6 +1138,7 @@
     "DATE_OF_BIRTH_DESC": "The client's date of birth.",
     "LOAN_PRODUCT_DESC": "Select the loan product this application is based on.",
     "FUNDS_DESC": "Funds are sources of money that can be linked to loans for tracking and reporting.",
+    "LOAN_PORTFOLIO_SUMMARY_DESC": "Search the loan portfolio by status, product, office and date range, optionally filtering by outstanding amount or percentage, and see the result grouped by office and product.",
     "WC_BREACH_DESC": "Covenant breach definitions set the amount and frequency thresholds that flag a working-capital loan as breached.",
     "WC_NEAR_BREACH_DESC": "Near-breach definitions trigger early-warning alerts before a working-capital covenant is fully breached.",
     "WC_LOANS_DESC": "Manage working-capital loan applications: create new loans and view loan details, charges, transactions, and delinquency information.",
@@ -1248,7 +1288,13 @@
     "REVERSED": "Reversed",
     "REVERSED_SUCCESS": "Transaction reversed",
     "SYSTEM_ENTRY_NOT_REVERSIBLE": "This entry was created by the platform from a portfolio transaction. Reverse the transaction that produced it instead.",
-    "NOT_FOUND": "That journal entry could not be found."
+    "NOT_FOUND": "That journal entry could not be found.",
+    "GL_ACCOUNT": "GL Account",
+    "MANUAL_ENTRIES_ONLY": "Entry Type",
+    "ALL_OFFICES": "All Offices",
+    "ALL_ACCOUNTS": "All Accounts",
+    "ALL_ENTRIES": "All Entries",
+    "MANUAL_ENTRIES": "Manual Entries Only"
   },
   "OFFICES": {
     "CREATE_OFFICE": "Create Office",
@@ -1610,7 +1656,10 @@
       "BREACH_SCHEDULE": "Breach Schedule",
       "BREACH_ACTIONS": "Breach Actions",
       "NEAR_BREACH_ACTIONS": "Near-Breach Actions",
-      "ORIGINATORS": "Originators"
+      "ORIGINATORS": "Originators",
+      "RATE_CHANGES": "Rate Changes",
+      "AMORTIZATION_SCHEDULE": "Amortization Schedule",
+      "DELINQUENCY_RANGE_TAGS": "Delinquency Range Tags"
     },
     "DELINQUENCY_BUCKET": "Delinquency Bucket",
     "FUND": "Fund",
@@ -1635,7 +1684,11 @@
       "DISCOUNT_AMOUNT": "Discount Amount",
       "REJECTED_ON_DATE": "Rejected On Date",
       "TRANSACTION_DATE": "Transaction Date",
-      "NOTE": "Note"
+      "NOTE": "Note",
+      "MARK_AS_FRAUD": "Mark as Fraud",
+      "APPLY_DISCOUNT": "Apply Discount",
+      "CHANGE_PAYMENT_RATE": "Change Payment Rate",
+      "EFFECTIVE_DATE": "Effective Date"
     },
     "DELINQUENCY_ACTION": {
       "TITLE": "New Delinquency Action",
@@ -1677,6 +1730,31 @@
       "TYPE": "Type",
       "CHANNEL": "Channel",
       "STATUS": "Status"
+    },
+    "CHARGE": {
+      "NEW": "Add Charge",
+      "ADD": "Add Charge",
+      "SELECT_CHARGE": "Select Charge",
+      "DUE_DATE": "Due Date",
+      "WAIVE": "Waive Charge"
+    },
+    "RATE_CHANGE": {
+      "EFFECTIVE_DATE": "Effective Date",
+      "PREVIOUS_RATE": "Previous Rate",
+      "NEW_RATE": "New Rate",
+      "REVERSED": "Reversed"
+    },
+    "AMORTIZATION": {
+      "NET_DISBURSEMENT_AMOUNT": "Net Disbursement Amount",
+      "PAYMENT_NO": "Payment No.",
+      "PAYMENT_DATE": "Payment Date",
+      "EXPECTED_PAYMENT_AMOUNT": "Expected Payment Amount"
+    },
+    "RANGE_TAG": {
+      "DELINQUENCY_RANGE": "Delinquency Range",
+      "DELINQUENT_DAYS": "Delinquent Days",
+      "DELINQUENT_AMOUNT": "Delinquent Amount",
+      "ADDED_ON_DATE": "Added On Date"
     }
   },
   "LOANS_POINT_IN_TIME": {
@@ -1907,7 +1985,17 @@
     "DELETE": "Delete Interest Rate Chart",
     "CONFIRM_DELETE": "Delete interest rate chart #{{id}} for {{product}}? Every slab defined under it goes with it.",
     "DELETE_SLAB": "Delete Slab",
-    "CONFIRM_DELETE_SLAB": "Delete the slab paying {{rate}} over periods {{fromPeriod}} to {{toPeriod}}? The chart will no longer offer that band."
+    "CONFIRM_DELETE_SLAB": "Delete the slab paying {{rate}} over periods {{fromPeriod}} to {{toPeriod}}? The chart will no longer offer that band.",
+    "TAB_LABEL": "Interest Rate Chart",
+    "NO_CHART": "This account has no interest rate chart.",
+    "VIEW_INCENTIVES": "View Incentives",
+    "HIDE_INCENTIVES": "Hide Incentives",
+    "INCENTIVES": "Incentives",
+    "NO_INCENTIVES": "No incentives on this slab.",
+    "ATTRIBUTE_NAME": "Attribute Name",
+    "CONDITION_TYPE": "Condition Type",
+    "ATTRIBUTE_VALUE": "Attribute Value",
+    "INCENTIVE_TYPE": "Incentive Type"
   },
   "PRODUCT_MIX": {
     "TITLE": "Product Mix",
@@ -2125,7 +2213,11 @@
     "START_TIME": "Start Time",
     "END_TIME": "End Time",
     "STATUS": "Status",
-    "TRIGGER_TYPE": "Trigger Type"
+    "TRIGGER_TYPE": "Trigger Type",
+    "SELECT_JOB": "Select job",
+    "SELECT_ALL": "Select All",
+    "RUN_SELECTED": "Run Selected",
+    "RUN_SELECTED_CONFIRM": "Run {{count}} selected job(s) now?"
   },
   "PERMISSIONS": {
     "TITLE": "Maker-Checker Permissions",
@@ -2629,6 +2721,8 @@
     "APPROVE_SELECTED": "Approve Selected",
     "DISBURSE_SELECTED": "Disburse Selected",
     "ACTIVATE_SELECTED": "Activate Selected",
+    "REJECT_SELECTED": "Reject Selected",
+    "UNASSIGNED_OFFICE": "Unassigned",
     "CONFIRM": "This applies the action to {{count}} record(s) in one request.",
     "ALL_SUCCEEDED": "{{count}} record(s) processed successfully.",
     "PARTIAL": "{{succeeded}} of {{total}} succeeded. These were refused: {{names}}"

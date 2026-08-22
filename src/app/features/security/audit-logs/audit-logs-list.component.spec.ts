@@ -26,18 +26,21 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { DialogService } from '../../../core/services/dialog.service';
+import { DOWNLOAD, DownloadAdapter } from '../../../core/adapters';
 
 describe('AuditLogsListComponent', () => {
   let component: AuditLogsListComponent;
   let fixture: ComponentFixture<AuditLogsListComponent>;
   let auditsServiceSpy: jasmine.SpyObj<AuditsService>;
   let dialogSpy: jasmine.SpyObj<DialogService>;
+  let downloadSpy: jasmine.SpyObj<DownloadAdapter>;
 
   const MOCK_PAYLOAD = '{"key":"value"}';
 
   beforeEach(async () => {
     auditsServiceSpy = jasmine.createSpyObj('AuditsService', ['getAudits']);
     dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
+    downloadSpy = jasmine.createSpyObj<DownloadAdapter>('DownloadAdapter', ['save', 'saveText']);
 
     const mockResponse = {
       pageItems: [
@@ -65,6 +68,7 @@ describe('AuditLogsListComponent', () => {
         provideIonicTesting(),
         { provide: AuditsService, useValue: auditsServiceSpy },
         { provide: DialogService, useValue: dialogSpy },
+        { provide: DOWNLOAD, useValue: downloadSpy },
         provideNoopAnimations(),
       ],
     })
@@ -133,5 +137,19 @@ describe('AuditLogsListComponent', () => {
       jasmine.any(Function),
       jasmine.objectContaining({ data: { payload: MOCK_PAYLOAD } }),
     );
+  });
+
+  it('exports the currently-loaded rows as CSV, excluding the actions column', () => {
+    fixture.detectChanges();
+
+    component.onExportCsv();
+
+    expect(downloadSpy.saveText).toHaveBeenCalledTimes(1);
+    const [csv, filename, mimeType] = downloadSpy.saveText.calls.mostRecent().args;
+    expect(filename).toBe('audit-logs.csv');
+    expect(mimeType).toBe('text/csv');
+    expect(csv).toContain('Client');
+    expect(csv).toContain('CREATE');
+    expect(csv).not.toContain('COMMON.ACTIONS');
   });
 });

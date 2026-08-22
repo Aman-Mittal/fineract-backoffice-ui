@@ -30,6 +30,8 @@ import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-paylo
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { DialogService } from '../../../core/services/dialog.service';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { DOWNLOAD, TranslatePipe } from '../../../core/adapters';
+import { toCsv } from '../../../core/utils/csv';
 import {
   IonAccordion,
   IonAccordionGroup,
@@ -60,6 +62,7 @@ export interface AuditFilters {
   standalone: true,
   imports: [
     TranslateModule,
+    TranslatePipe,
     FormsModule,
     DataTableComponent,
     CellTemplateDirective,
@@ -202,6 +205,16 @@ export interface AuditFilters {
         (pageChange)="onPage($event)"
         (sortChange)="onSort($event)"
       >
+        <ion-button
+          headerActions
+          fill="outline"
+          (click)="onExportCsv()"
+          [disabled]="auditLogs().length === 0"
+        >
+          <ion-icon name="download-outline" slot="start"></ion-icon>
+          {{ 'COMMON.EXPORT_CSV' | appTranslate }}
+        </ion-button>
+
         <ng-template appCellTemplate="madeOnDate" let-row>
           {{ row['madeOnDate'] | date: 'medium' }}
         </ng-template>
@@ -257,6 +270,7 @@ export class AuditLogsListComponent implements OnInit {
 
   private readonly auditsService = inject(AuditsService);
   private readonly dialogService = inject(DialogService);
+  private readonly download = inject(DOWNLOAD);
 
   columns: ColumnDef[] = [
     { key: 'id', label: 'ID', sortable: true },
@@ -420,5 +434,12 @@ export class AuditLogsListComponent implements OnInit {
 
   onRetry(): void {
     this.retrySubject.next();
+  }
+
+  /** Exports the currently-loaded page — matches what the table shows, not the full result set. */
+  onExportCsv(): void {
+    const exportColumns = this.columns.filter((c) => c.key !== 'actions');
+    const csv = toCsv(exportColumns, this.auditLogs());
+    this.download.saveText(csv, 'audit-logs.csv', 'text/csv');
   }
 }

@@ -21,10 +21,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BulkImportComponent } from './bulk-import.component';
 import {
   BulkImportService,
+  CentersService,
   ClientService,
-  LoansService,
-  SavingsAccountService,
+  FixedDepositAccountService,
+  GeneralLedgerAccountService,
+  GroupsService,
+  GuarantorsService,
   JournalEntriesService,
+  LoansService,
+  OfficesService,
+  RecurringDepositAccountService,
+  SavingsAccountService,
+  ShareAccountService,
+  StaffService,
+  UsersService,
 } from '../../../api';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,6 +44,10 @@ describe('BulkImportComponent', () => {
   let component: BulkImportComponent;
   let fixture: ComponentFixture<BulkImportComponent>;
   let bulkImportServiceSpy: jasmine.SpyObj<BulkImportService>;
+  let glAccountServiceSpy: jasmine.SpyObj<GeneralLedgerAccountService>;
+  let journalEntriesServiceSpy: jasmine.SpyObj<JournalEntriesService>;
+  let guarantorsServiceSpy: jasmine.SpyObj<GuarantorsService>;
+  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
 
   beforeEach(async () => {
     bulkImportServiceSpy = jasmine.createSpyObj('BulkImportService', [
@@ -44,6 +58,23 @@ describe('BulkImportComponent', () => {
       of([]) as unknown as ReturnType<BulkImportService['getImports']>,
     );
 
+    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', [
+      'getGlaccountsDownloadtemplate',
+      'postGlaccountsUploadtemplate',
+    ]);
+    journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', [
+      'getJournalentriesDownloadtemplate',
+      'postJournalentriesUploadtemplate',
+    ]);
+    guarantorsServiceSpy = jasmine.createSpyObj('GuarantorsService', [
+      'getLoansLoanIdGuarantorsDownloadtemplate',
+      'postLoansLoanIdGuarantorsUploadtemplate',
+    ]);
+    officesServiceSpy = jasmine.createSpyObj('OfficesService', [
+      'getOfficesDownloadtemplate',
+      'postOfficesUploadtemplate',
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [BulkImportComponent, TranslateModule.forRoot()],
       providers: [
@@ -51,7 +82,17 @@ describe('BulkImportComponent', () => {
         { provide: ClientService, useValue: {} },
         { provide: LoansService, useValue: {} },
         { provide: SavingsAccountService, useValue: {} },
-        { provide: JournalEntriesService, useValue: {} },
+        { provide: JournalEntriesService, useValue: journalEntriesServiceSpy },
+        { provide: GeneralLedgerAccountService, useValue: glAccountServiceSpy },
+        { provide: OfficesService, useValue: officesServiceSpy },
+        { provide: UsersService, useValue: {} },
+        { provide: GroupsService, useValue: {} },
+        { provide: CentersService, useValue: {} },
+        { provide: StaffService, useValue: {} },
+        { provide: FixedDepositAccountService, useValue: {} },
+        { provide: RecurringDepositAccountService, useValue: {} },
+        { provide: ShareAccountService, useValue: {} },
+        { provide: GuarantorsService, useValue: guarantorsServiceSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -78,5 +119,121 @@ describe('BulkImportComponent', () => {
     component.onDownloadResult('42');
 
     expect(bulkImportServiceSpy.getImportsDownloadOutputTemplate).toHaveBeenCalledWith(42);
+  });
+
+  it('offers every entity web-app supports, not just the original four', () => {
+    const values = component.entityTypes.map((entity) => entity.value);
+    expect(values).toEqual(
+      jasmine.arrayContaining([
+        'clients',
+        'loans',
+        'savingsaccounts',
+        'glaccounts',
+        'journalentries',
+        'offices',
+        'users',
+        'groups',
+        'centers',
+        'staff',
+        'fixeddepositaccounts',
+        'recurringdepositaccounts',
+        'shareaccounts',
+        'loanrepayments',
+        'savingstransactions',
+        'fixeddeposittransactions',
+        'recurringdeposittransactions',
+        'guarantors',
+      ]),
+    );
+  });
+
+  /**
+   * "Chart of Accounts" used to call the journal-entries template by mistake — every other
+   * entity here names its own resource, so this was a copy-pasted service, not a deliberate
+   * shared endpoint. "Journal Entries" is now its own, separate entity for that endpoint.
+   */
+  it('downloads the chart-of-accounts template from its own endpoint, not the journal-entries one', () => {
+    glAccountServiceSpy.getGlaccountsDownloadtemplate.and.returnValue(
+      of(new Blob()) as unknown as ReturnType<
+        GeneralLedgerAccountService['getGlaccountsDownloadtemplate']
+      >,
+    );
+    component.selectedEntity = 'glaccounts';
+
+    component.onDownloadTemplate();
+
+    expect(glAccountServiceSpy.getGlaccountsDownloadtemplate).toHaveBeenCalled();
+    expect(journalEntriesServiceSpy.getJournalentriesDownloadtemplate).not.toHaveBeenCalled();
+  });
+
+  it('downloads the journal-entries template as its own distinct entity', () => {
+    journalEntriesServiceSpy.getJournalentriesDownloadtemplate.and.returnValue(
+      of(new Blob()) as unknown as ReturnType<
+        JournalEntriesService['getJournalentriesDownloadtemplate']
+      >,
+    );
+    component.selectedEntity = 'journalentries';
+
+    component.onDownloadTemplate();
+
+    expect(journalEntriesServiceSpy.getJournalentriesDownloadtemplate).toHaveBeenCalled();
+  });
+
+  it('reaches the offices template through its own service', () => {
+    officesServiceSpy.getOfficesDownloadtemplate.and.returnValue(
+      of(new Blob()) as unknown as ReturnType<OfficesService['getOfficesDownloadtemplate']>,
+    );
+    component.selectedEntity = 'offices';
+
+    component.onDownloadTemplate();
+
+    expect(officesServiceSpy.getOfficesDownloadtemplate).toHaveBeenCalled();
+  });
+
+  /**
+   * Guarantors are scoped to one loan — the only entity here whose template endpoint takes a
+   * loan id — so the screen must not call it until that id is known.
+   */
+  describe('guarantors, which are scoped to one loan', () => {
+    beforeEach(() => {
+      component.selectedEntity = 'guarantors';
+    });
+
+    it('requires a loan id before either action is available', () => {
+      expect(component.requiresLoanId()).toBe(true);
+    });
+
+    it('does not call the template endpoint without a loan id', () => {
+      component.guarantorLoanId = null;
+
+      component.onDownloadTemplate();
+
+      expect(guarantorsServiceSpy.getLoansLoanIdGuarantorsDownloadtemplate).not.toHaveBeenCalled();
+    });
+
+    it('calls the template endpoint with the entered loan id', () => {
+      guarantorsServiceSpy.getLoansLoanIdGuarantorsDownloadtemplate.and.returnValue(
+        of(new Blob()) as unknown as ReturnType<
+          GuarantorsService['getLoansLoanIdGuarantorsDownloadtemplate']
+        >,
+      );
+      component.guarantorLoanId = 7;
+
+      component.onDownloadTemplate();
+
+      expect(guarantorsServiceSpy.getLoansLoanIdGuarantorsDownloadtemplate).toHaveBeenCalledWith(
+        7,
+        undefined,
+        jasmine.any(String),
+      );
+    });
+
+    it('clears the loan id when switching away to another entity', () => {
+      component.guarantorLoanId = 7;
+
+      component.onEntityChange();
+
+      expect(component.guarantorLoanId).toBeNull();
+    });
   });
 });

@@ -127,6 +127,13 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
       import('./loans/wc-loan-action-form.component').then((m) => m.WcLoanActionFormComponent),
   },
   {
+    path: 'loans/:id/charge',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    loadComponent: () =>
+      import('./loans/wc-loan-charge-form.component').then((m) => m.WcLoanChargeFormComponent),
+  },
+  {
     path: 'loans/:id/breach-action',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },

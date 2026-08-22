@@ -17,12 +17,13 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { HelpIconComponent } from '../../shared';
+import { HelpIconComponent, StepperComponent } from '../../shared';
+import { TranslatePipe } from '../../core/adapters';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import { DialogService } from '../../core/services/dialog.service';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
@@ -65,7 +66,9 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
+    TranslatePipe,
     HelpIconComponent,
+    StepperComponent,
     IonIcon,
     IonButton,
     IonSpinner,
@@ -100,7 +103,16 @@ import {
 
         <ion-card-content>
           <form #clientForm="ngForm" (ngSubmit)="onSubmit()" class="client-form">
-            <div class="form-grid">
+            @if (showWizard()) {
+              <app-stepper [labels]="stepLabels" [currentIndex]="currentStep()" />
+            }
+
+            <div
+              class="form-grid"
+              [class.hidden]="showWizard() && currentStep() !== 0"
+              ngModelGroup="step1"
+              #step1Group="ngModelGroup"
+            >
               <!-- Legal Form -->
               <ion-item fill="outline" [appTooltip]="'HELP.LEGAL_FORM_DESC' | translate">
                 <ion-label position="stacked">{{ 'CLIENTS.LEGAL_FORM' | translate }}</ion-label>
@@ -152,6 +164,25 @@ import {
                 }
               </div>
 
+              <!-- Active -->
+              <div class="checkbox-container">
+                <ion-checkbox name="active" [(ngModel)]="client().active" [disabled]="isEditMode()">
+                  {{ 'COMMON.ACTIVE' | translate }}
+                </ion-checkbox>
+                <ion-icon
+                  [appTooltip]="'HELP.ACTIVE_DESC' | translate"
+                  class="help-icon"
+                  name="help-circle-outline"
+                ></ion-icon>
+              </div>
+            </div>
+
+            <div
+              class="form-grid"
+              [class.hidden]="showWizard() && currentStep() !== 1"
+              ngModelGroup="step2"
+              #step2Group="ngModelGroup"
+            >
               <!-- Submitted On Date -->
               <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
@@ -191,18 +222,6 @@ import {
                   </ng-template>
                 </ion-modal>
               </ion-item>
-
-              <!-- Active -->
-              <div class="checkbox-container">
-                <ion-checkbox name="active" [(ngModel)]="client().active" [disabled]="isEditMode()">
-                  {{ 'COMMON.ACTIVE' | translate }}
-                </ion-checkbox>
-                <ion-icon
-                  [appTooltip]="'HELP.ACTIVE_DESC' | translate"
-                  class="help-icon"
-                  name="help-circle-outline"
-                ></ion-icon>
-              </div>
 
               <!-- Entity fields -->
               @if (client().legalFormId === 2) {
@@ -271,7 +290,13 @@ import {
                   </ion-modal>
                 </ion-item>
               }
+            </div>
 
+            <div
+              class="form-grid"
+              [class.hidden]="showWizard() && currentStep() !== 2"
+              ngModelGroup="step3"
+            >
               <!-- Common fields -->
               <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
@@ -302,6 +327,16 @@ import {
             </div>
 
             <div class="form-actions">
+              @if (showWizard() && currentStep() > 0) {
+                <ion-button
+                  fill="outline"
+                  type="button"
+                  (click)="onPreviousStep()"
+                  [disabled]="isSaving()"
+                >
+                  {{ 'COMMON.BACK' | appTranslate }}
+                </ion-button>
+              }
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                 {{ 'COMMON.CANCEL' | translate }}
               </ion-button>
@@ -320,18 +355,29 @@ import {
                   }
                 </ion-button>
               }
-              <ion-button
-                color="primary"
-                type="submit"
-                [disabled]="clientForm.invalid || isSaving()"
-              >
-                @if (isSaving()) {
-                  <ion-spinner name="crescent"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
-                } @else {
-                  {{ 'COMMON.SAVE' | translate }}
-                }
-              </ion-button>
+              @if (showWizard() && currentStep() < 2) {
+                <ion-button
+                  color="primary"
+                  type="button"
+                  (click)="onNextStep()"
+                  [disabled]="currentStep() === 0 ? step1Group.invalid : step2Group.invalid"
+                >
+                  {{ 'COMMON.NEXT' | appTranslate }}
+                </ion-button>
+              } @else {
+                <ion-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="clientForm.invalid || isSaving()"
+                >
+                  @if (isSaving()) {
+                    <ion-spinner name="crescent"></ion-spinner>
+                    {{ 'COMMON.SAVING' | translate }}
+                  } @else {
+                    {{ 'COMMON.SAVE' | translate }}
+                  }
+                </ion-button>
+              }
             </div>
           </form>
         </ion-card-content>
@@ -354,6 +400,9 @@ import {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
+      }
+      .form-grid.hidden {
+        display: none;
       }
       .office-field-container {
         display: flex;
@@ -391,6 +440,19 @@ export class ClientFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
   readonly originalActive = signal(false);
+
+  /**
+   * The wizard applies to creation only. Editing reuses this same template but shows every
+   * step's fields flat at once — someone fixing one field on an existing client benefits from
+   * seeing (and jumping straight to) all of them, not from being paced through steps again.
+   */
+  readonly showWizard = computed(() => !this.isEditMode());
+  readonly currentStep = signal(0);
+  readonly stepLabels = [
+    'CLIENTS.WIZARD.STEP_TYPE',
+    'CLIENTS.WIZARD.STEP_PERSONAL',
+    'CLIENTS.WIZARD.STEP_CONTACT',
+  ];
 
   // Use strictly typed OpenAPI models
   readonly client = signal<PostClientsRequest>({
@@ -555,5 +617,13 @@ export class ClientFormComponent implements OnInit {
 
   onCancel() {
     this.router.navigate([this.LIST_PATH]);
+  }
+
+  onNextStep(): void {
+    this.currentStep.update((step) => Math.min(step + 1, this.stepLabels.length - 1));
+  }
+
+  onPreviousStep(): void {
+    this.currentStep.update((step) => Math.max(step - 1, 0));
   }
 }

@@ -19,7 +19,12 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JournalEntriesListComponent } from './journal-entries-list.component';
-import { JournalEntriesService, GetJournalEntriesTransactionIdResponse } from '../../api';
+import {
+  GeneralLedgerAccountService,
+  GetJournalEntriesTransactionIdResponse,
+  JournalEntriesService,
+  OfficesService,
+} from '../../api';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,16 +35,29 @@ describe('JournalEntriesListComponent', () => {
   let component: JournalEntriesListComponent;
   let fixture: ComponentFixture<JournalEntriesListComponent>;
   let journalEntriesServiceSpy: jasmine.SpyObj<JournalEntriesService>;
+  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
+  let glAccountServiceSpy: jasmine.SpyObj<GeneralLedgerAccountService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
     journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['getJournalentries']);
+    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
+    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', ['getGlaccounts']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+    officesServiceSpy.getOffices.and.returnValue(
+      of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
+    );
+    glAccountServiceSpy.getGlaccounts.and.returnValue(
+      of([{ id: 2, name: 'Cash' }]) as unknown as Observable<never>,
+    );
 
     await TestBed.configureTestingModule({
       imports: [JournalEntriesListComponent, TranslateModule.forRoot()],
       providers: [
         { provide: JournalEntriesService, useValue: journalEntriesServiceSpy },
+        { provide: OfficesService, useValue: officesServiceSpy },
+        { provide: GeneralLedgerAccountService, useValue: glAccountServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
@@ -63,8 +81,59 @@ describe('JournalEntriesListComponent', () => {
     expect(journalEntriesServiceSpy.getJournalentries).toHaveBeenCalled();
   });
 
+  it('loads offices and GL accounts to populate the filter panel', () => {
+    expect(officesServiceSpy.getOffices).toHaveBeenCalled();
+    expect(glAccountServiceSpy.getGlaccounts).toHaveBeenCalled();
+    expect(component.offices()).toEqual([{ id: 1, name: 'Head Office' }] as never);
+    expect(component.glAccounts()).toEqual([{ id: 2, name: 'Cash' }] as never);
+  });
+
   it('should navigate to create on onCreateEntry', () => {
     component.onCreateEntry();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/accounting/journal-entries/create']);
+  });
+
+  /**
+   * `officeId`/`glAccountId`/`manualEntriesOnly`/`fromDate`/`toDate` sit right after
+   * `transactionId` in `getJournalentries`'s positional signature, so a filter sent in the wrong
+   * slot still compiles — only a call-arguments assertion catches that.
+   */
+  describe('filters', () => {
+    it('sends the selected office, GL account and manual-entries flag', () => {
+      component.activeFilters.officeId = 1;
+      component.activeFilters.glAccountId = 2;
+      component.activeFilters.manualEntriesOnly = 'true';
+
+      component.onApplyFilters();
+
+      const args = journalEntriesServiceSpy.getJournalentries.calls.mostRecent().args;
+      expect(args[0]).toBe(1);
+      expect(args[1]).toBe(2);
+      expect(args[2]).toBe(true);
+    });
+
+    it('formats the date range the way Fineract documents for this endpoint', () => {
+      component.activeFilters.fromDate = new Date(2026, 0, 1);
+      component.activeFilters.toDate = new Date(2026, 0, 31);
+
+      component.onApplyFilters();
+
+      const args = journalEntriesServiceSpy.getJournalentries.calls.mostRecent().args;
+      expect(args[3] as unknown as string).toBe('01 January 2026');
+      expect(args[4] as unknown as string).toBe('31 January 2026');
+    });
+
+    it('resets every filter and reruns the query', () => {
+      component.activeFilters.officeId = 1;
+      component.activeFilters.manualEntriesOnly = 'true';
+
+      component.onResetFilters();
+
+      expect(component.activeFilters.officeId).toBeUndefined();
+      expect(component.activeFilters.manualEntriesOnly).toBe('');
+      const args = journalEntriesServiceSpy.getJournalentries.calls.mostRecent().args;
+      expect(args[0]).toBeUndefined();
+      expect(args[2]).toBeUndefined();
+    });
   });
 });

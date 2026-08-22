@@ -705,6 +705,12 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         labelKey: 'OFFICE_TRANSACTIONS.TITLE',
         icon: ICON_SWAP_HORIZONTAL_OUTLINE,
       },
+      {
+        route: '/organization/loan-portfolio-summary',
+        requiredPermissions: 'READ_LOAN',
+        labelKey: 'ORGANIZATION.LOAN_PORTFOLIO_SUMMARY',
+        icon: 'bar-chart-outline',
+      },
     ],
   },
   {

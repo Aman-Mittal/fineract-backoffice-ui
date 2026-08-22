@@ -22,6 +22,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -53,6 +54,7 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,
@@ -78,7 +80,9 @@ import {
             {{
               command() === 'deposit'
                 ? ('SAVINGS.DEPOSIT' | translate)
-                : ('SAVINGS.WITHDRAWAL' | translate)
+                : command() === 'withdrawal'
+                  ? ('SAVINGS.WITHDRAWAL' | translate)
+                  : ('SAVINGS.POST_INTEREST_AS_ON' | appTranslate)
             }}
           </ion-card-title>
         </ion-card-header>
@@ -107,49 +111,51 @@ import {
                 </ion-modal>
               </ion-item>
 
-              <!-- Transaction Amount -->
-              <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
-                <ion-label position="stacked">{{
-                  'COMMON.TRANSACTION_AMOUNT' | translate
-                }}</ion-label>
-                <ion-input
-                  [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
-                  type="number"
-                  name="transactionAmount"
-                  [(ngModel)]="transaction.transactionAmount"
-                  required
-                ></ion-input>
-              </ion-item>
+              @if (command() !== 'postInterestAsOn') {
+                <!-- Transaction Amount -->
+                <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
+                  <ion-label position="stacked">{{
+                    'COMMON.TRANSACTION_AMOUNT' | translate
+                  }}</ion-label>
+                  <ion-input
+                    [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
+                    type="number"
+                    name="transactionAmount"
+                    [(ngModel)]="transaction.transactionAmount"
+                    required
+                  ></ion-input>
+                </ion-item>
 
-              <!-- Payment Type -->
-              <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
-                <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
-                <ion-select
-                  [attr.aria-label]="'COMMON.PAYMENT_TYPE' | translate"
-                  interface="popover"
-                  name="paymentTypeId"
-                  [(ngModel)]="transaction.paymentTypeId"
+                <!-- Payment Type -->
+                <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
+                  <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
+                  <ion-select
+                    [attr.aria-label]="'COMMON.PAYMENT_TYPE' | translate"
+                    interface="popover"
+                    name="paymentTypeId"
+                    [(ngModel)]="transaction.paymentTypeId"
+                  >
+                    @for (type of paymentTypeOptions(); track type['id']) {
+                      <ion-select-option [value]="type['id']">{{ type['name'] }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+
+                <!-- Note -->
+                <ion-item
+                  fill="outline"
+                  [appTooltip]="'HELP.NOTE_DESC' | translate"
+                  class="full-width"
                 >
-                  @for (type of paymentTypeOptions(); track type['id']) {
-                    <ion-select-option [value]="type['id']">{{ type['name'] }}</ion-select-option>
-                  }
-                </ion-select>
-              </ion-item>
-
-              <!-- Note -->
-              <ion-item
-                fill="outline"
-                [appTooltip]="'HELP.NOTE_DESC' | translate"
-                class="full-width"
-              >
-                <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
-                <ion-textarea
-                  [attr.aria-label]="'COMMON.NOTE' | translate"
-                  name="note"
-                  [(ngModel)]="note"
-                  rows="3"
-                ></ion-textarea>
-              </ion-item>
+                  <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                  <ion-textarea
+                    [attr.aria-label]="'COMMON.NOTE' | translate"
+                    name="note"
+                    [(ngModel)]="note"
+                    rows="3"
+                  ></ion-textarea>
+                </ion-item>
+              }
             </div>
 
             <div class="form-actions">
@@ -247,11 +253,17 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
     this.transaction.dateFormat = 'yyyy-MM-dd';
     this.transaction.locale = 'en';
 
-    // Incorporate note into payload
-    const payload: Record<string, unknown> = {
-      ...this.transaction,
-      note: this.note,
-    };
+    // `postInterestAsOn` takes only a date (plus the flag naming it) — the amount, payment
+    // type, and note above are for deposit/withdrawal and don't apply here.
+    const payload: Record<string, unknown> =
+      this.command() === 'postInterestAsOn'
+        ? {
+            transactionDate: formattedDate,
+            dateFormat: this.transaction.dateFormat,
+            locale: this.transaction.locale,
+            isPostInterestAsOn: true,
+          }
+        : { ...this.transaction, note: this.note };
 
     this.transactionService
       .postSavingsaccountsSavingsIdTransactions(

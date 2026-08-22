@@ -24,14 +24,24 @@ import { Observable } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import {
   BulkImportService,
+  CentersService,
   ClientService,
-  LoansService,
-  SavingsAccountService,
+  FixedDepositAccountService,
+  GeneralLedgerAccountService,
+  GroupsService,
+  GuarantorsService,
   JournalEntriesService,
+  LoansService,
+  OfficesService,
+  RecurringDepositAccountService,
+  SavingsAccountService,
+  ShareAccountService,
+  StaffService,
+  UsersService,
 } from '../../../api';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
-import { DOWNLOAD } from '../../../core/adapters';
+import { DOWNLOAD, TranslatePipe } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -39,6 +49,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonSelect,
@@ -51,11 +62,13 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,
     IonIcon,
     IonButton,
+    IonInput,
     IonItem,
     IonLabel,
     IonCardContent,
@@ -90,13 +103,42 @@ import {
               </ion-select>
             </ion-item>
 
+            @if (requiresLoanId()) {
+              <div class="loan-id-field">
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'SYSTEM.BULK_IMPORT_LOAN_ID' | appTranslate
+                  }}</ion-label>
+                  <ion-input
+                    type="number"
+                    [attr.aria-label]="'SYSTEM.BULK_IMPORT_LOAN_ID' | appTranslate"
+                    [(ngModel)]="guarantorLoanId"
+                  ></ion-input>
+                </ion-item>
+                @if (!guarantorLoanId) {
+                  <p class="loan-id-hint">
+                    {{ 'SYSTEM.BULK_IMPORT_LOAN_ID_REQUIRED' | appTranslate }}
+                  </p>
+                }
+              </div>
+            }
+
             <div class="actions">
-              <ion-button fill="outline" color="primary" (click)="onDownloadTemplate()">
+              <ion-button
+                fill="outline"
+                color="primary"
+                [disabled]="requiresLoanId() && !guarantorLoanId"
+                (click)="onDownloadTemplate()"
+              >
                 <ion-icon name="download-outline"></ion-icon>
                 {{ 'SYSTEM.DOWNLOAD_TEMPLATE' | translate }}
               </ion-button>
 
-              <ion-button color="primary" (click)="fileInput.click()">
+              <ion-button
+                color="primary"
+                [disabled]="requiresLoanId() && !guarantorLoanId"
+                (click)="fileInput.click()"
+              >
                 <ion-icon name="cloud-upload-outline"></ion-icon>
                 {{ 'SYSTEM.UPLOAD_CSV' | translate }}
               </ion-button>
@@ -157,6 +199,11 @@ import {
       ion-item {
         min-width: 250px;
       }
+      .loan-id-hint {
+        color: var(--text-muted, #6b7280);
+        font-size: 0.85rem;
+        margin: 4px 0 0;
+      }
     `,
   ],
 })
@@ -167,15 +214,53 @@ export class BulkImportComponent implements OnInit {
   private readonly loansService = inject(LoansService);
   private readonly savingsService = inject(SavingsAccountService);
   private readonly journalEntriesService = inject(JournalEntriesService);
+  private readonly officesService = inject(OfficesService);
+  private readonly usersService = inject(UsersService);
+  private readonly groupsService = inject(GroupsService);
+  private readonly centersService = inject(CentersService);
+  private readonly staffService = inject(StaffService);
+  private readonly fixedDepositService = inject(FixedDepositAccountService);
+  private readonly recurringDepositService = inject(RecurringDepositAccountService);
+  private readonly shareAccountService = inject(ShareAccountService);
+  private readonly guarantorsService = inject(GuarantorsService);
+  private readonly glAccountService = inject(GeneralLedgerAccountService);
 
+  /**
+   * Mirrors web-app's `BulkImports` list (`organization/bulk-import/view-bulk-import/bulk-imports.ts`).
+   * `glaccounts` used to call the journal-entries template by mistake — every other bulk-import
+   * screen names its own resource in the `value`, so "Chart of Accounts" downloading the journal
+   * entries file was a copy-paste of the wrong service, not a deliberate choice. `journalentries`
+   * is its own, separate entry here, wired to the endpoint `glaccounts` was wrongly borrowing.
+   */
   entityTypes = [
     { label: 'nav.clients', value: 'clients' },
     { label: 'nav.loans', value: 'loans' },
     { label: 'nav.savingsAccounts', value: 'savingsaccounts' },
     { label: 'nav.chartOfAccounts', value: 'glaccounts' },
+    { label: 'nav.journalEntries', value: 'journalentries' },
+    { label: 'nav.offices', value: 'offices' },
+    { label: 'nav.users', value: 'users' },
+    { label: 'nav.groups', value: 'groups' },
+    { label: 'nav.centers', value: 'centers' },
+    { label: 'nav.staff', value: 'staff' },
+    { label: 'nav.fixedDeposits', value: 'fixeddepositaccounts' },
+    { label: 'nav.recurringDeposits', value: 'recurringdepositaccounts' },
+    { label: 'nav.shares', value: 'shareaccounts' },
+    { label: 'SYSTEM.BULK_IMPORT_LOAN_REPAYMENTS', value: 'loanrepayments' },
+    { label: 'SYSTEM.BULK_IMPORT_SAVINGS_TRANSACTIONS', value: 'savingstransactions' },
+    { label: 'SYSTEM.BULK_IMPORT_FIXED_DEPOSIT_TRANSACTIONS', value: 'fixeddeposittransactions' },
+    {
+      label: 'SYSTEM.BULK_IMPORT_RECURRING_DEPOSIT_TRANSACTIONS',
+      value: 'recurringdeposittransactions',
+    },
+    { label: 'SYSTEM.BULK_IMPORT_GUARANTORS', value: 'guarantors' },
   ];
 
+  /** Entity types whose template is scoped to one loan rather than to the whole tenant. */
+  private readonly loanScopedEntities = new Set(['guarantors']);
+
   selectedEntity = 'clients';
+  guarantorLoanId: number | null = null;
   readonly importHistory = signal<Record<string, unknown>[]>([]);
   readonly isLoading = signal<boolean>(false);
 
@@ -194,7 +279,12 @@ export class BulkImportComponent implements OnInit {
   }
 
   onEntityChange(): void {
+    this.guarantorLoanId = null;
     this.loadImportHistory();
+  }
+
+  requiresLoanId(): boolean {
+    return this.loanScopedEntities.has(this.selectedEntity);
   }
 
   loadImportHistory(): void {
@@ -242,10 +332,95 @@ export class BulkImportComponent implements OnInit {
         );
         break;
       case 'glaccounts':
+        template$ = this.glAccountService.getGlaccountsDownloadtemplate(this.dateFormat);
+        break;
+      case 'journalentries':
         template$ = this.journalEntriesService.getJournalentriesDownloadtemplate(
           undefined,
           this.dateFormat,
         );
+        break;
+      case 'offices':
+        template$ = this.officesService.getOfficesDownloadtemplate(this.dateFormat);
+        break;
+      case 'users':
+        template$ = this.usersService.getUsersDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'groups':
+        template$ = this.groupsService.getGroupsDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'centers':
+        template$ = this.centersService.getCentersDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'staff':
+        template$ = this.staffService.getStaffDownloadtemplate(undefined, this.dateFormat);
+        break;
+      case 'fixeddepositaccounts':
+        template$ = this.fixedDepositService.getFixeddepositaccountsDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'recurringdepositaccounts':
+        template$ = this.recurringDepositService.getRecurringdepositaccountsDownloadtemplate(
+          undefined,
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'shareaccounts':
+        template$ = this.shareAccountService.getAccountsTypeDownloadtemplate(
+          'share',
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'loanrepayments':
+        template$ = this.loansService.getLoansRepaymentsDownloadtemplate(
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'savingstransactions':
+        template$ = this.savingsService.getSavingsaccountsTransactionsDownloadtemplate(
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'fixeddeposittransactions':
+        template$ = this.fixedDepositService.getFixeddepositaccountsTransactionDownloadtemplate(
+          undefined,
+          this.dateFormat,
+        );
+        break;
+      case 'recurringdeposittransactions':
+        template$ =
+          this.recurringDepositService.getRecurringdepositaccountsTransactionsDownloadtemplate(
+            undefined,
+            this.dateFormat,
+          );
+        break;
+      case 'guarantors':
+        if (this.guarantorLoanId) {
+          template$ = this.guarantorsService.getLoansLoanIdGuarantorsDownloadtemplate(
+            this.guarantorLoanId,
+            undefined,
+            this.dateFormat,
+          );
+        }
         break;
     }
 
@@ -289,11 +464,86 @@ export class BulkImportComponent implements OnInit {
         );
         break;
       case 'glaccounts':
+        upload$ = this.glAccountService.postGlaccountsUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'journalentries':
         upload$ = this.journalEntriesService.postJournalentriesUploadtemplate(
           this.dateFormat,
           'en',
           file,
         );
+        break;
+      case 'offices':
+        upload$ = this.officesService.postOfficesUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'users':
+        upload$ = this.usersService.postUsersUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'groups':
+        upload$ = this.groupsService.postGroupsUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'centers':
+        upload$ = this.centersService.postCentersUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'staff':
+        upload$ = this.staffService.postStaffUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'fixeddepositaccounts':
+        upload$ = this.fixedDepositService.postFixeddepositaccountsUploadtemplate(
+          this.dateFormat,
+          'en',
+          file,
+        );
+        break;
+      case 'recurringdepositaccounts':
+        upload$ = this.recurringDepositService.postRecurringdepositaccountsUploadtemplate(
+          this.dateFormat,
+          'en',
+          file,
+        );
+        break;
+      case 'shareaccounts':
+        upload$ = this.shareAccountService.postAccountsTypeUploadtemplate(
+          'share',
+          this.dateFormat,
+          'en',
+          file,
+        );
+        break;
+      case 'loanrepayments':
+        upload$ = this.loansService.postLoansRepaymentsUploadtemplate(this.dateFormat, 'en', file);
+        break;
+      case 'savingstransactions':
+        upload$ = this.savingsService.postSavingsaccountsTransactionsUploadtemplate(
+          this.dateFormat,
+          'en',
+          file,
+        );
+        break;
+      case 'fixeddeposittransactions':
+        upload$ = this.fixedDepositService.postFixeddepositaccountsTransactionUploadtemplate(
+          this.dateFormat,
+          'en',
+          file,
+        );
+        break;
+      case 'recurringdeposittransactions':
+        upload$ =
+          this.recurringDepositService.postRecurringdepositaccountsTransactionsUploadtemplate(
+            this.dateFormat,
+            'en',
+            file,
+          );
+        break;
+      case 'guarantors':
+        if (this.guarantorLoanId) {
+          upload$ = this.guarantorsService.postLoansLoanIdGuarantorsUploadtemplate(
+            this.guarantorLoanId,
+            this.dateFormat,
+            'en',
+            file,
+          );
+        }
         break;
     }
 
@@ -307,6 +557,10 @@ export class BulkImportComponent implements OnInit {
           this.isLoading.set(false);
         },
       });
+    } else {
+      // No request went out — e.g. guarantors without a loan id yet — so nothing will ever
+      // clear the loading flag the top of this method set.
+      this.isLoading.set(false);
     }
   }
 

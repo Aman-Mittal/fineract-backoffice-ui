@@ -35,6 +35,9 @@ describe('WcLoanActionFormComponent', () => {
   function createComponent(command: string) {
     loansSpy = jasmine.createSpyObj('WorkingCapitalLoansService', [
       'postWorkingCapitalLoansLoanId',
+      'putWorkingCapitalLoansLoanIdMarkAsFraud',
+      'putWorkingCapitalLoansLoanIdDiscount',
+      'putWorkingCapitalLoansLoanIdPaymentRate',
     ]);
     txSpy = jasmine.createSpyObj('WorkingCapitalLoanTransactionsService', [
       'postWorkingCapitalLoansLoanIdTransactions',
@@ -42,6 +45,15 @@ describe('WcLoanActionFormComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     loansSpy.postWorkingCapitalLoansLoanId.and.returnValue(
       of({}) as ReturnType<WorkingCapitalLoansService['postWorkingCapitalLoansLoanId']>,
+    );
+    loansSpy.putWorkingCapitalLoansLoanIdMarkAsFraud.and.returnValue(
+      of({}) as ReturnType<WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdMarkAsFraud']>,
+    );
+    loansSpy.putWorkingCapitalLoansLoanIdDiscount.and.returnValue(
+      of({}) as ReturnType<WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdDiscount']>,
+    );
+    loansSpy.putWorkingCapitalLoansLoanIdPaymentRate.and.returnValue(
+      of({}) as ReturnType<WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdPaymentRate']>,
     );
     txSpy.postWorkingCapitalLoansLoanIdTransactions.and.returnValue(
       of({}) as ReturnType<
@@ -109,5 +121,40 @@ describe('WcLoanActionFormComponent', () => {
       'repayment',
       jasmine.any(Object),
     );
+  });
+
+  it('should call putWorkingCapitalLoansLoanIdMarkAsFraud for markasfraud command', () => {
+    createComponent('markasfraud');
+    component.fraud = true;
+    component.onSubmit();
+    expect(loansSpy.putWorkingCapitalLoansLoanIdMarkAsFraud).toHaveBeenCalledWith(42, {
+      fraud: true,
+    });
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42']);
+  });
+
+  it('should call putWorkingCapitalLoansLoanIdDiscount for discount command', () => {
+    createComponent('discount');
+    component.discount.discountAmount = 50;
+    component.onSubmit();
+    expect(loansSpy.putWorkingCapitalLoansLoanIdDiscount).toHaveBeenCalledWith(
+      42,
+      jasmine.objectContaining({ discountAmount: 50 }),
+    );
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42']);
+  });
+
+  it('should call putWorkingCapitalLoansLoanIdPaymentRate for paymentrate command, and route to the rate-changes tab', () => {
+    createComponent('paymentrate');
+    component.paymentRateEffectiveDate = '2026-03-01';
+    component.paymentRate.periodPaymentRate = 8;
+    component.onSubmit();
+    expect(loansSpy.putWorkingCapitalLoansLoanIdPaymentRate).toHaveBeenCalledWith(
+      42,
+      jasmine.objectContaining({ periodPaymentRate: 8, effectiveDate: jasmine.any(String) }),
+    );
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42'], {
+      queryParams: { tab: 'rateChanges' },
+    });
   });
 });

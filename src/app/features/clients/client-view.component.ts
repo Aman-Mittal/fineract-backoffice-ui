@@ -172,11 +172,6 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
   template: `
     <div class="view-container">
       @if (client()) {
-        <div class="breadcrumb">
-          <a routerLink="/clients">Clients</a> /
-          <span>{{ client()?.displayName }}</span>
-        </div>
-
         <ion-card class="header-card">
           <ion-card-content class="header-content">
             <div class="client-title-area">
@@ -933,14 +928,6 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
         display: flex;
         flex-direction: column;
         gap: 24px;
-      }
-      .breadcrumb {
-        font-size: 14px;
-        margin-bottom: -8px;
-      }
-      .breadcrumb a {
-        text-decoration: none;
-        color: var(--primary-color);
       }
       .header-card {
         border-radius: 12px;

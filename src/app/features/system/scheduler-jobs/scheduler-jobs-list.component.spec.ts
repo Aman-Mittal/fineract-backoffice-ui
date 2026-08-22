@@ -24,6 +24,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../../core/services/dialog.service';
 
 describe('SchedulerJobsListComponent', () => {
   let component: SchedulerJobsListComponent;
@@ -31,16 +32,19 @@ describe('SchedulerJobsListComponent', () => {
   let jobSpy: jasmine.SpyObj<SCHEDULERJOBService>;
   let schedulerSpy: jasmine.SpyObj<SchedulerService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let dialogSpy: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     jobSpy = jasmine.createSpyObj('SCHEDULERJOBService', ['getJobs', 'postJobsJobId']);
     schedulerSpy = jasmine.createSpyObj('SchedulerService', ['getScheduler', 'postScheduler']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['confirm']);
 
     jobSpy.getJobs.and.returnValue(
-      of([{ jobId: 1, displayName: 'Job A', active: true }]) as unknown as ReturnType<
-        SCHEDULERJOBService['getJobs']
-      >,
+      of([
+        { jobId: 1, displayName: 'Job A', active: true },
+        { jobId: 2, displayName: 'Job B', active: true },
+      ]) as unknown as ReturnType<SCHEDULERJOBService['getJobs']>,
     );
     jobSpy.postJobsJobId.and.returnValue(
       of({}) as unknown as ReturnType<SCHEDULERJOBService['postJobsJobId']>,
@@ -51,6 +55,7 @@ describe('SchedulerJobsListComponent', () => {
     schedulerSpy.postScheduler.and.returnValue(
       of({}) as unknown as ReturnType<SchedulerService['postScheduler']>,
     );
+    dialogSpy.confirm.and.resolveTo(true);
 
     await TestBed.configureTestingModule({
       imports: [SchedulerJobsListComponent, TranslateModule.forRoot()],
@@ -58,6 +63,7 @@ describe('SchedulerJobsListComponent', () => {
         { provide: SCHEDULERJOBService, useValue: jobSpy },
         { provide: SchedulerService, useValue: schedulerSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -70,7 +76,7 @@ describe('SchedulerJobsListComponent', () => {
   it('should load jobs and scheduler status on init', () => {
     expect(component).toBeTruthy();
     expect(jobSpy.getJobs).toHaveBeenCalled();
-    expect(component.jobs()).toHaveSize(1);
+    expect(component.jobs()).toHaveSize(2);
     expect(component.schedulerActive()).toBeTrue();
   });
 
@@ -92,5 +98,55 @@ describe('SchedulerJobsListComponent', () => {
   it('should navigate to history', () => {
     component.onHistory({ jobId: 9 });
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/scheduler-jobs', 9, 'history']);
+  });
+
+  it('should track individual row selection', () => {
+    expect(component.isSelected({ jobId: 1 })).toBeFalse();
+
+    component.onToggleSelect({ jobId: 1 }, true);
+    expect(component.isSelected({ jobId: 1 })).toBeTrue();
+    expect(component.isSelected({ jobId: 2 })).toBeFalse();
+
+    component.onToggleSelect({ jobId: 1 }, false);
+    expect(component.isSelected({ jobId: 1 })).toBeFalse();
+  });
+
+  it('should select and clear all jobs', () => {
+    component.onToggleSelectAll(true);
+    expect(component.selectedJobIds()).toEqual(new Set([1, 2]));
+    expect(component.allSelected()).toBeTrue();
+
+    component.onToggleSelectAll(false);
+    expect(component.selectedJobIds().size).toBe(0);
+    expect(component.allSelected()).toBeFalse();
+  });
+
+  it('should run every selected job after confirming, then clear selection and reload', async () => {
+    component.onToggleSelect({ jobId: 1 }, true);
+    component.onToggleSelect({ jobId: 2 }, true);
+    jobSpy.getJobs.calls.reset();
+
+    await component.onRunSelected();
+
+    expect(dialogSpy.confirm).toHaveBeenCalled();
+    expect(jobSpy.postJobsJobId).toHaveBeenCalledWith(1, 'executeJob');
+    expect(jobSpy.postJobsJobId).toHaveBeenCalledWith(2, 'executeJob');
+    expect(component.selectedJobIds().size).toBe(0);
+    expect(jobSpy.getJobs).toHaveBeenCalled();
+  });
+
+  it('should not run anything if the confirmation is declined', async () => {
+    dialogSpy.confirm.and.resolveTo(false);
+    component.onToggleSelect({ jobId: 1 }, true);
+
+    await component.onRunSelected();
+
+    expect(jobSpy.postJobsJobId).not.toHaveBeenCalled();
+    expect(component.selectedJobIds().size).toBe(1);
+  });
+
+  it('should do nothing when running with no selection', async () => {
+    await component.onRunSelected();
+    expect(dialogSpy.confirm).not.toHaveBeenCalled();
   });
 });

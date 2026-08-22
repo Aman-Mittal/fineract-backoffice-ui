@@ -20,6 +20,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { Observable, map, of } from 'rxjs';
 import {
   IonButton,
   IonCheckbox,
@@ -34,6 +35,7 @@ import {
   BatchRequest,
   ClientService,
   LoansService,
+  OfficesService,
   RescheduleLoansService,
 } from '../../../api';
 import { I18N, TranslatePipe } from '../../../core/adapters';
@@ -54,7 +56,13 @@ interface QueueRow {
   secondary: string;
   amount?: number;
   date?: string;
+  officeName?: string;
   selected: boolean;
+}
+
+interface OfficeGroup {
+  officeName: string;
+  rows: QueueRow[];
 }
 
 type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'rescheduleApproval';
@@ -113,63 +121,129 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
           {{ 'WORK_QUEUES.EMPTY' | appTranslate }}
         </p>
       } @else {
-        <table class="queue-table" data-testid="queue-table">
-          <thead>
-            <tr>
-              <th>
-                <ion-checkbox
-                  data-testid="queue-select-all"
-                  [checked]="allSelected()"
-                  [attr.aria-label]="'WORK_QUEUES.SELECT_ALL' | appTranslate"
-                  (ionChange)="onSelectAll($any($event).detail.checked)"
-                ></ion-checkbox>
-              </th>
-              <th>{{ 'COMMON.NAME' | appTranslate }}</th>
-              <th>{{ 'COMMON.DETAILS' | appTranslate }}</th>
-              <th>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
-              <th>{{ 'COMMON.DATE' | appTranslate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of rows(); track row.id) {
+        <div class="select-all-row">
+          <ion-checkbox
+            data-testid="queue-select-all"
+            [checked]="allSelected()"
+            [attr.aria-label]="'WORK_QUEUES.SELECT_ALL' | appTranslate"
+            (ionChange)="onSelectAll($any($event).detail.checked)"
+          ></ion-checkbox>
+          <ion-label>{{ 'WORK_QUEUES.SELECT_ALL' | appTranslate }}</ion-label>
+        </div>
+
+        @if (isGroupedQueue()) {
+          @for (group of groupedRows(); track group.officeName) {
+            <h3 class="office-heading">{{ group.officeName }}</h3>
+            <table class="queue-table" [attr.data-testid]="'queue-table-' + group.officeName">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>{{ 'COMMON.NAME' | appTranslate }}</th>
+                  <th>{{ 'COMMON.DETAILS' | appTranslate }}</th>
+                  <th>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
+                  <th>{{ 'COMMON.DATE' | appTranslate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of group.rows; track row.id) {
+                  <tr>
+                    <td>
+                      <ion-checkbox
+                        [attr.data-testid]="'queue-select-' + row.id"
+                        [checked]="row.selected"
+                        [attr.aria-label]="row.primary"
+                        (ionChange)="onSelectRow(row, $any($event).detail.checked)"
+                      ></ion-checkbox>
+                    </td>
+                    <td>
+                      <button type="button" class="clickable-link" (click)="openRecord(row)">
+                        {{ row.primary }}
+                      </button>
+                    </td>
+                    <td>{{ row.secondary }}</td>
+                    <td>{{ row.amount !== undefined ? (row.amount | number: '1.2-2') : '-' }}</td>
+                    <td>{{ row.date ? (row.date | date: 'mediumDate') : '-' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        } @else {
+          <table class="queue-table" data-testid="queue-table">
+            <thead>
               <tr>
-                <td>
-                  <ion-checkbox
-                    [attr.data-testid]="'queue-select-' + row.id"
-                    [checked]="row.selected"
-                    [attr.aria-label]="row.primary"
-                    (ionChange)="onSelectRow(row, $any($event).detail.checked)"
-                  ></ion-checkbox>
-                </td>
-                <td>
-                  <button type="button" class="clickable-link" (click)="openRecord(row)">
-                    {{ row.primary }}
-                  </button>
-                </td>
-                <td>{{ row.secondary }}</td>
-                <td>{{ row.amount !== undefined ? (row.amount | number: '1.2-2') : '-' }}</td>
-                <td>{{ row.date ? (row.date | date: 'mediumDate') : '-' }}</td>
+                <th></th>
+                <th>{{ 'COMMON.NAME' | appTranslate }}</th>
+                <th>{{ 'COMMON.DETAILS' | appTranslate }}</th>
+                <th>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
+                <th>{{ 'COMMON.DATE' | appTranslate }}</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (row of rows(); track row.id) {
+                <tr>
+                  <td>
+                    <ion-checkbox
+                      [attr.data-testid]="'queue-select-' + row.id"
+                      [checked]="row.selected"
+                      [attr.aria-label]="row.primary"
+                      (ionChange)="onSelectRow(row, $any($event).detail.checked)"
+                    ></ion-checkbox>
+                  </td>
+                  <td>
+                    <button type="button" class="clickable-link" (click)="openRecord(row)">
+                      {{ row.primary }}
+                    </button>
+                  </td>
+                  <td>{{ row.secondary }}</td>
+                  <td>{{ row.amount !== undefined ? (row.amount | number: '1.2-2') : '-' }}</td>
+                  <td>{{ row.date ? (row.date | date: 'mediumDate') : '-' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
 
         <div class="actions">
           <span data-testid="queue-selected-count">
             {{ 'WORK_QUEUES.SELECTED' | appTranslate }}: {{ selectedRows().length }}
           </span>
-          <ion-button
-            data-testid="queue-run"
-            [disabled]="selectedRows().length === 0 || isRunning()"
-            [appRequiresPermission]="requiredPermission()"
-            (click)="onRun()"
-          >
-            @if (isRunning()) {
-              <ion-spinner name="dots"></ion-spinner>
-            } @else {
-              {{ actionLabel() | appTranslate }}
-            }
-          </ion-button>
+          @if (activeQueue() === 'rescheduleApproval') {
+            <ion-button
+              data-testid="queue-run"
+              [disabled]="selectedRows().length === 0 || isRunning()"
+              [appRequiresPermission]="requiredPermission()"
+              (click)="onRun('approve')"
+            >
+              @if (isRunning()) {
+                <ion-spinner name="dots"></ion-spinner>
+              } @else {
+                {{ 'WORK_QUEUES.APPROVE_SELECTED' | appTranslate }}
+              }
+            </ion-button>
+            <ion-button
+              data-testid="queue-reject"
+              color="danger"
+              [disabled]="selectedRows().length === 0 || isRunning()"
+              [appRequiresPermission]="rejectPermission"
+              (click)="onRun('reject')"
+            >
+              {{ 'WORK_QUEUES.REJECT_SELECTED' | appTranslate }}
+            </ion-button>
+          } @else {
+            <ion-button
+              data-testid="queue-run"
+              [disabled]="selectedRows().length === 0 || isRunning()"
+              [appRequiresPermission]="requiredPermission()"
+              (click)="onRun()"
+            >
+              @if (isRunning()) {
+                <ion-spinner name="dots"></ion-spinner>
+              } @else {
+                {{ actionLabel() | appTranslate }}
+              }
+            </ion-button>
+          }
         </div>
       }
 
@@ -216,6 +290,16 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
         color: #95a5a6;
         padding: 24px 0;
       }
+      .select-all-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .office-heading {
+        margin: 16px 0 4px;
+        font-size: 1rem;
+      }
     `,
   ],
 })
@@ -223,11 +307,15 @@ export class WorkQueuesComponent implements OnInit {
   private readonly loansService = inject(LoansService);
   private readonly clientService = inject(ClientService);
   private readonly rescheduleService = inject(RescheduleLoansService);
+  private readonly officesService = inject(OfficesService);
   private readonly batchService = inject(BatchAPIService);
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly i18n = inject(I18N);
+
+  /** Cached once, since offices are shared master data that does not change mid-session. */
+  private officeNameById: Map<number, string> | null = null;
 
   readonly activeQueue = signal<QueueKey>('loanApproval');
   readonly rows = signal<QueueRow[]>([]);
@@ -240,6 +328,30 @@ export class WorkQueuesComponent implements OnInit {
     () => this.rows().length > 0 && this.rows().every((row) => row.selected),
   );
 
+  /**
+   * Reschedule requests carry no office of their own on the list response, so that queue stays
+   * a flat list — the other three group by the office the loan or client belongs to, the same
+   * way a branch works through them.
+   */
+  readonly isGroupedQueue = computed(() => this.activeQueue() !== 'rescheduleApproval');
+
+  readonly groupedRows = computed<OfficeGroup[]>(() => {
+    const groups = new Map<string, QueueRow[]>();
+    for (const row of this.rows()) {
+      const key = row.officeName ?? this.i18n.translate('WORK_QUEUES.UNASSIGNED_OFFICE');
+      const group = groups.get(key);
+      if (group) {
+        group.push(row);
+      } else {
+        groups.set(key, [row]);
+      }
+    }
+    return [...groups.entries()].map(([officeName, groupRows]) => ({
+      officeName,
+      rows: groupRows,
+    }));
+  });
+
   readonly requiredPermission = computed(
     () =>
       ({
@@ -249,6 +361,9 @@ export class WorkQueuesComponent implements OnInit {
         rescheduleApproval: 'APPROVE_RESCHEDULELOAN',
       })[this.activeQueue()],
   );
+
+  /** Mirrors `APPROVE_RESCHEDULELOAN`, which the same screen already depends on above. */
+  readonly rejectPermission = 'REJECT_RESCHEDULELOAN';
 
   readonly actionLabel = computed(
     () =>
@@ -290,36 +405,64 @@ export class WorkQueuesComponent implements OnInit {
     }
   }
 
+  /**
+   * The office name a loan or client belongs to, resolved once and cached: the loan list answers
+   * only `clientOfficeId`, a number, so grouping by name needs the office list fetched separately.
+   */
+  private loadOfficeNames(): Observable<Map<number, string>> {
+    if (this.officeNameById) {
+      return of(this.officeNameById);
+    }
+    return this.officesService.getOffices(true).pipe(
+      map((offices) => {
+        const byId = new Map<number, string>();
+        offices.forEach((office) => {
+          if (office.id !== undefined && office.name !== undefined) {
+            byId.set(office.id, office.name);
+          }
+        });
+        this.officeNameById = byId;
+        return byId;
+      }),
+    );
+  }
+
   private loadLoans(status: number): void {
-    this.loansService
-      .getLoans(
-        undefined,
-        0,
-        200,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        `${status}`,
-      )
-      .subscribe({
-        next: (page) => {
-          const items = [...((page?.pageItems as Iterable<LoanQueueItem>) ?? [])];
-          this.rows.set(
-            items.map((loan) => ({
-              id: loan.id as number,
-              primary: loan.accountNo ?? `${loan.id}`,
-              secondary: `${loan.clientName ?? ''} — ${loan.loanProductName ?? ''}`,
-              amount: loan.principal,
-              date: undefined,
-              selected: false,
-            })),
-          );
-          this.isLoading.set(false);
-        },
-        error: () => this.isLoading.set(false),
-      });
+    this.loadOfficeNames().subscribe((officeNames) => {
+      this.loansService
+        .getLoans(
+          undefined,
+          0,
+          200,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          `${status}`,
+        )
+        .subscribe({
+          next: (page) => {
+            const items = [...((page?.pageItems as Iterable<LoanQueueItem>) ?? [])];
+            this.rows.set(
+              items.map((loan) => ({
+                id: loan.id as number,
+                primary: loan.accountNo ?? `${loan.id}`,
+                secondary: `${loan.clientName ?? ''} — ${loan.loanProductName ?? ''}`,
+                amount: loan.principal,
+                date: undefined,
+                officeName:
+                  loan.clientOfficeId !== undefined
+                    ? officeNames.get(loan.clientOfficeId)
+                    : undefined,
+                selected: false,
+              })),
+            );
+            this.isLoading.set(false);
+          },
+          error: () => this.isLoading.set(false),
+        });
+    });
   }
 
   private loadPendingClients(): void {
@@ -398,14 +541,20 @@ export class WorkQueuesComponent implements OnInit {
     void this.router.navigate(target);
   }
 
-  async onRun(): Promise<void> {
+  /**
+   * `command` only ever varies for the reschedule queue, which is the one place this screen
+   * offers two distinct actions on the same selection — every other queue calls this with its
+   * one fixed command.
+   */
+  async onRun(command: 'approve' | 'reject' = 'approve'): Promise<void> {
     const selected = this.selectedRows();
     if (selected.length === 0) {
       return;
     }
 
+    const label = command === 'reject' ? 'WORK_QUEUES.REJECT_SELECTED' : this.actionLabel();
     const confirmed = await this.dialog.confirm({
-      title: this.i18n.translate(this.actionLabel()),
+      title: this.i18n.translate(label),
       message: this.i18n.translate('WORK_QUEUES.CONFIRM', { count: selected.length }),
     });
     if (!confirmed) {
@@ -414,7 +563,7 @@ export class WorkQueuesComponent implements OnInit {
 
     this.isRunning.set(true);
     this.batchService
-      .postBatches(selected.map((row, index) => this.toBatchRequest(row, index)))
+      .postBatches(selected.map((row, index) => this.toBatchRequest(row, index, command)))
       .subscribe({
         next: (responses) => {
           this.isRunning.set(false);
@@ -428,7 +577,11 @@ export class WorkQueuesComponent implements OnInit {
       });
   }
 
-  private toBatchRequest(row: QueueRow, index: number): BatchRequest {
+  private toBatchRequest(
+    row: QueueRow,
+    index: number,
+    command: 'approve' | 'reject',
+  ): BatchRequest {
     const today = formatDateToFineract(new Date());
     const dated = (field: string) =>
       JSON.stringify({ [field]: today, locale: 'en', dateFormat: FINERACT_DATE_FORMAT });
@@ -447,8 +600,8 @@ export class WorkQueuesComponent implements OnInit {
         body: dated('activationDate'),
       },
       rescheduleApproval: {
-        relativeUrl: `rescheduleloans/${row.id}?command=approve`,
-        body: dated('approvedOnDate'),
+        relativeUrl: `rescheduleloans/${row.id}?command=${command}`,
+        body: dated(command === 'reject' ? 'rejectedOnDate' : 'approvedOnDate'),
       },
     };
 
@@ -492,6 +645,7 @@ interface LoanQueueItem {
   clientName?: string;
   loanProductName?: string;
   principal?: number;
+  clientOfficeId?: number;
 }
 
 interface ClientQueueItem {

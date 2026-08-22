@@ -47,9 +47,11 @@
   "CentersService": [
     "getCenters",
     "getCentersCenterId",
+    "getCentersDownloadtemplate",
     "getCentersTemplate",
     "postCenters",
     "postCentersCenterId",
+    "postCentersUploadtemplate",
     "putCentersCenterId"
   ],
   "ChargesService": [
@@ -234,9 +236,13 @@
     "getFixeddepositaccounts",
     "getFixeddepositaccountsAccountId",
     "getFixeddepositaccountsAccountIdTemplate",
+    "getFixeddepositaccountsDownloadtemplate",
     "getFixeddepositaccountsTemplate",
+    "getFixeddepositaccountsTransactionDownloadtemplate",
     "postFixeddepositaccounts",
     "postFixeddepositaccountsAccountId",
+    "postFixeddepositaccountsTransactionUploadtemplate",
+    "postFixeddepositaccountsUploadtemplate",
     "putFixeddepositaccountsAccountId"
   ],
   "FixedDepositAccountTransactionsService": [
@@ -261,27 +267,33 @@
   "FundsService": ["getFunds", "getFundsFundId", "postFunds", "putFundsFundId"],
   "GeneralLedgerAccountService": [
     "getGlaccounts",
+    "getGlaccountsDownloadtemplate",
     "getGlaccountsGlAccountId",
     "postGlaccounts",
+    "postGlaccountsUploadtemplate",
     "putGlaccountsGlAccountId"
   ],
   "GlobalConfigurationService": ["getConfigurations", "putConfigurationsConfigId"],
   "GroupsLevelService": ["getGrouplevels"],
   "GroupsService": [
     "getGroups",
+    "getGroupsDownloadtemplate",
     "getGroupsGroupId",
     "getGroupsGroupIdAccounts",
     "getGroupsTemplate",
     "postGroups",
     "postGroupsGroupId",
+    "postGroupsUploadtemplate",
     "putGroupsGroupId"
   ],
   "GuarantorsService": [
     "deleteLoansLoanIdGuarantorsGuarantorId",
     "getLoansLoanIdGuarantors",
+    "getLoansLoanIdGuarantorsDownloadtemplate",
     "getLoansLoanIdGuarantorsGuarantorId",
     "getLoansLoanIdGuarantorsTemplate",
     "postLoansLoanIdGuarantors",
+    "postLoansLoanIdGuarantorsUploadtemplate",
     "putLoansLoanIdGuarantorsGuarantorId"
   ],
   "HolidaysService": [
@@ -414,16 +426,14 @@
     "getLoansLoanId",
     "getLoansLoanIdDelinquencyActions",
     "getLoansLoanIdDelinquencytags",
+    "getLoansRepaymentsDownloadtemplate",
     "postLoans",
     "postLoansLoanId",
+    "postLoansRepaymentsUploadtemplate",
     "postLoansUploadtemplate",
     "putLoansLoanId"
   ],
-  "MakerCheckerOr4EyeFunctionalityService": [
-    "deleteMakercheckersAuditId",
-    "getMakercheckers",
-    "postMakercheckersAuditId"
-  ],
+  "MakerCheckerOr4EyeFunctionalityService": ["getMakercheckers", "postMakercheckersAuditId"],
   "MappingFinancialActivitiesToAccountsService": [
     "deleteFinancialactivityaccountsMappingId",
     "getFinancialactivityaccounts",
@@ -448,7 +458,14 @@
     "putResourceTypeResourceIdNotesNoteId"
   ],
   "NotificationService": ["getNotifications", "putNotifications"],
-  "OfficesService": ["getOffices", "getOfficesOfficeId", "postOffices", "putOfficesOfficeId"],
+  "OfficesService": [
+    "getOffices",
+    "getOfficesDownloadtemplate",
+    "getOfficesOfficeId",
+    "postOffices",
+    "postOfficesUploadtemplate",
+    "putOfficesOfficeId"
+  ],
   "PasswordManagementService": ["postPasswordForgot"],
   "PasswordPreferencesService": ["getPasswordpreferences", "putPasswordpreferences"],
   "PaymentTypeService": [
@@ -498,9 +515,13 @@
     "getRecurringdepositaccounts",
     "getRecurringdepositaccountsAccountId",
     "getRecurringdepositaccountsAccountIdTemplate",
+    "getRecurringdepositaccountsDownloadtemplate",
     "getRecurringdepositaccountsTemplate",
+    "getRecurringdepositaccountsTransactionsDownloadtemplate",
     "postRecurringdepositaccounts",
     "postRecurringdepositaccountsAccountId",
+    "postRecurringdepositaccountsTransactionsUploadtemplate",
+    "postRecurringdepositaccountsUploadtemplate",
     "putRecurringdepositaccountsAccountId"
   ],
   "RecurringDepositAccountTransactionsService": [
@@ -561,8 +582,10 @@
     "getSavingsaccounts",
     "getSavingsaccountsAccountId",
     "getSavingsaccountsDownloadtemplate",
+    "getSavingsaccountsTransactionsDownloadtemplate",
     "postSavingsaccounts",
     "postSavingsaccountsAccountId",
+    "postSavingsaccountsTransactionsUploadtemplate",
     "postSavingsaccountsUploadtemplate",
     "putSavingsaccountsAccountId"
   ],
@@ -586,7 +609,7 @@
   ],
   "SchedulerService": ["getScheduler", "postScheduler"],
   "ScoreCardService": ["getSurveysScorecardsSurveyId"],
-  "SearchAPIService": ["getSearch", "getSearchTemplate"],
+  "SearchAPIService": ["getSearch", "getSearchTemplate", "postSearchAdvance"],
   "SelfDividendService": [
     "deleteShareproductProductIdDividendDividendId",
     "getShareproductProductIdDividend",
@@ -595,13 +618,22 @@
   "ShareAccountService": [
     "getAccountsType",
     "getAccountsTypeAccountId",
+    "getAccountsTypeDownloadtemplate",
     "getAccountsTypeTemplate",
     "postAccountsType",
     "postAccountsTypeAccountId",
+    "postAccountsTypeUploadtemplate",
     "putAccountsTypeAccountId"
   ],
   "SpmSurveysService": ["getSurveys", "getSurveysId", "postSurveys", "putSurveysId"],
-  "StaffService": ["getStaff", "getStaffStaffId", "postStaff", "putStaffStaffId"],
+  "StaffService": [
+    "getStaff",
+    "getStaffDownloadtemplate",
+    "getStaffStaffId",
+    "postStaff",
+    "postStaffUploadtemplate",
+    "putStaffStaffId"
+  ],
   "StandingInstructionsHistoryService": ["getStandinginstructionrunhistory"],
   "StandingInstructionsService": [
     "getStandinginstructions",
@@ -654,7 +686,15 @@
     "postTenantsTenantIdOidcConfig",
     "putTenantsTenantIdOidcConfig"
   ],
-  "UsersService": ["getUsers", "getUsersTemplate", "getUsersUserId", "postUsers", "putUsersUserId"],
+  "UsersService": [
+    "getUsers",
+    "getUsersDownloadtemplate",
+    "getUsersTemplate",
+    "getUsersUserId",
+    "postUsers",
+    "postUsersUploadtemplate",
+    "putUsersUserId"
+  ],
   "WorkingCapitalBreachService": [
     "deleteWorkingCapitalBreachBreachesBreachId",
     "getWorkingCapitalBreachBreaches",
@@ -676,7 +716,12 @@
     "getWorkingCapitalLoansOldestCobClosed",
     "postWorkingCapitalLoansCatchUp"
   ],
-  "WorkingCapitalLoanChargesService": ["getWorkingCapitalLoansLoanIdCharges"],
+  "WorkingCapitalLoanChargesService": [
+    "getWorkingCapitalLoansLoanIdCharges",
+    "getWorkingCapitalLoansLoanIdChargesTemplate",
+    "postWorkingCapitalLoansLoanIdCharges",
+    "postWorkingCapitalLoansLoanIdChargesLoanChargeId"
+  ],
   "WorkingCapitalLoanDelinquencyActionsService": [
     "getWorkingCapitalLoansLoanIdDelinquencyActions",
     "postWorkingCapitalLoansLoanIdDelinquencyActions"
@@ -710,9 +755,15 @@
     "deleteWorkingCapitalLoansLoanId",
     "getWorkingCapitalLoans",
     "getWorkingCapitalLoansLoanId",
+    "getWorkingCapitalLoansLoanIdAmortizationSchedule",
+    "getWorkingCapitalLoansLoanIdDelinquencyrangetags",
+    "getWorkingCapitalLoansLoanIdRateChanges",
     "getWorkingCapitalLoansTemplate",
     "postWorkingCapitalLoans",
-    "postWorkingCapitalLoansLoanId"
+    "postWorkingCapitalLoansLoanId",
+    "putWorkingCapitalLoansLoanIdDiscount",
+    "putWorkingCapitalLoansLoanIdMarkAsFraud",
+    "putWorkingCapitalLoansLoanIdPaymentRate"
   ],
   "WorkingCapitalNearBreachService": [
     "deleteWorkingCapitalNearBreachBreachId",

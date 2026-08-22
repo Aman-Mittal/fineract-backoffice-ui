@@ -17,15 +17,18 @@
  * under the License.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { IonProgressBar } from '@ionic/angular/standalone';
 import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
+import { BreadcrumbComponent } from './breadcrumb.component';
 import { GuidanceTourComponent } from '../shared';
 import { LoadingService } from '../core/services/loading.service';
 import { SidebarService } from '../core/services/sidebar.service';
+import { GuidanceService } from '../core/services/guidance.service';
+import { isTypingTarget, matchShortcut } from './keyboard-shortcuts';
 
 /**
  * The primary application layout component (App Shell).
@@ -36,7 +39,14 @@ import { SidebarService } from '../core/services/sidebar.service';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterModule, IonProgressBar, HeaderComponent, SidebarComponent, GuidanceTourComponent],
+  imports: [
+    RouterModule,
+    IonProgressBar,
+    HeaderComponent,
+    SidebarComponent,
+    BreadcrumbComponent,
+    GuidanceTourComponent,
+  ],
   template: `
     <div class="app-container" [class.sidebar-collapsed]="sidebarService.isCollapsed()">
       @if (loadingService.isLoading()) {
@@ -46,6 +56,7 @@ import { SidebarService } from '../core/services/sidebar.service';
       <div class="main-wrapper">
         <app-sidebar />
         <main class="content-area" role="main">
+          <app-breadcrumb />
           <router-outlet />
         </main>
       </div>
@@ -89,4 +100,22 @@ import { SidebarService } from '../core/services/sidebar.service';
 export class MainLayoutComponent {
   protected readonly loadingService = inject(LoadingService);
   protected readonly sidebarService = inject(SidebarService);
+  private readonly guidanceService = inject(GuidanceService);
+  private readonly router = inject(Router);
+
+  /** Global navigation shortcuts (Alt+letter) — see `keyboard-shortcuts.ts` for the bindings. */
+  @HostListener('window:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (isTypingTarget(event.target)) return;
+
+    const shortcut = matchShortcut(event);
+    if (!shortcut) return;
+
+    event.preventDefault();
+    if (shortcut.action === 'help') {
+      this.guidanceService.startTour(this.router.url);
+    } else if (shortcut.route) {
+      this.router.navigate([shortcut.route]);
+    }
+  }
 }

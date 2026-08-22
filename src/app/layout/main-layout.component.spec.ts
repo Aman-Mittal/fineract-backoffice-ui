@@ -20,9 +20,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MainLayoutComponent } from './main-layout.component';
 import { AuthService, UserSession } from '../core/services/auth.service';
+import { GuidanceService } from '../core/services/guidance.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { signal } from '@angular/core';
+
+function keydown(overrides: Partial<KeyboardEvent> & { target: EventTarget }): KeyboardEvent {
+  return {
+    key: '',
+    altKey: false,
+    ctrlKey: false,
+    shiftKey: false,
+    preventDefault: jasmine.createSpy('preventDefault'),
+    ...overrides,
+  } as unknown as KeyboardEvent;
+}
 
 describe('MainLayoutComponent', () => {
   let component: MainLayoutComponent;
@@ -65,5 +77,41 @@ describe('MainLayoutComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-header')).toBeTruthy();
     expect(compiled.querySelector('app-sidebar')).toBeTruthy();
+  });
+
+  describe('global keyboard shortcuts', () => {
+    it('navigates to the bound route on a shortcut keydown', () => {
+      const navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
+
+      component.onKeydown(keydown({ key: 'c', altKey: true, target: document.body }));
+
+      expect(navigateSpy).toHaveBeenCalledWith(['/clients/create']);
+    });
+
+    it('starts the guidance tour for the current route on the help shortcut', () => {
+      spyOnProperty(TestBed.inject(Router), 'url').and.returnValue('/dashboard');
+      const startTourSpy = spyOn(TestBed.inject(GuidanceService), 'startTour');
+
+      component.onKeydown(keydown({ key: 'h', altKey: true, target: document.body }));
+
+      expect(startTourSpy).toHaveBeenCalledWith('/dashboard');
+    });
+
+    it('ignores keydown events while typing into a form control', () => {
+      const navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
+      const input = document.createElement('input');
+
+      component.onKeydown(keydown({ key: 'c', altKey: true, target: input }));
+
+      expect(navigateSpy).not.toHaveBeenCalled();
+    });
+
+    it('ignores unbound key combinations', () => {
+      const navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
+
+      component.onKeydown(keydown({ key: 'z', altKey: true, target: document.body }));
+
+      expect(navigateSpy).not.toHaveBeenCalled();
+    });
   });
 });

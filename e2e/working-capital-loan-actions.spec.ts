@@ -18,10 +18,11 @@
  */
 
 /**
- * Cover for the four Working Capital gaps that had backend endpoints but no UI: delinquency
- * actions, breach actions, near-breach actions, and per-loan loan-originator attach/detach.
- * Mocked throughout — these endpoints are Fineract 1.15.0-only and unreachable on the public
- * community sandbox.
+ * Cover for the Working Capital gaps that had backend endpoints but no UI: delinquency actions,
+ * breach actions, near-breach actions, per-loan loan-originator attach/detach, charge add/waive,
+ * the read-only rate-change/amortization-schedule/delinquency-range-tag views, and mark-as-fraud
+ * / discount / payment-rate change. Mocked throughout — these endpoints are Fineract
+ * 1.15.0-only and unreachable on the public community sandbox.
  */
 
 import { test, expect, Page } from './fixtures';
@@ -83,12 +84,7 @@ async function mockLoanView(page: Page) {
       }),
     });
   });
-  for (const resource of [
-    'charges',
-    'transactions',
-    'delinquency-range-schedule',
-    'breach-schedule',
-  ]) {
+  for (const resource of ['transactions', 'delinquency-range-schedule', 'breach-schedule']) {
     await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/${resource}`, async (route) => {
       await route.fulfill({
         status: 200,
@@ -97,6 +93,40 @@ async function mockLoanView(page: Page) {
       });
     });
   }
+
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/charges`, async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ id: 1, name: 'Processing Fee', amount: 100, paid: false }]),
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ resourceId: 9 }),
+    });
+  });
+  // Registered before the /charges/template route below: Playwright checks routes in reverse
+  // registration order, so the more specific template route must be added last to win over
+  // this wildcard for that one URL.
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/charges/*`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+  });
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/charges/template`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        chargeOptions: [
+          { id: 10, name: 'Processing Fee' },
+          { id: 11, name: 'Late Fee' },
+        ],
+      }),
+    });
+  });
 
   await page.route(
     `**/api/v1/working-capital-loans/${LOAN_ID}/delinquency-actions`,
@@ -184,6 +214,62 @@ async function mockLoanView(page: Page) {
         { id: 6, name: 'Other Originator' },
       ]),
     });
+  });
+
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/rate-changes`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { id: 1, effectiveDate: '01 January 2026', previousRate: 5, newRate: 8 },
+      ]),
+    });
+  });
+
+  await page.route(
+    `**/api/v1/working-capital-loans/${LOAN_ID}/amortization-schedule`,
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          periodPaymentRate: 5,
+          netDisbursementAmount: 9800,
+          totalPaymentVolume: 12_000,
+          payments: [{ paymentNo: 1, paymentDate: '01 February 2026', expectedPaymentAmount: 500 }],
+        }),
+      });
+    },
+  );
+
+  await page.route(
+    `**/api/v1/working-capital-loans/${LOAN_ID}/delinquencyrangetags`,
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 1,
+            periodNumber: 1,
+            delinquencyRange: { classification: '1-30 Days' },
+            delinquentDays: 5,
+            delinquentAmount: 25,
+            addedOnDate: '01 January 2026',
+          },
+        ]),
+      });
+    },
+  );
+
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/mark-as-fraud`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+  });
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/discount`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+  });
+  await page.route(`**/api/v1/working-capital-loans/${LOAN_ID}/payment-rate`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
   });
 }
 
@@ -327,5 +413,98 @@ test.describe('Working Capital loan delinquency, breach and near-breach actions,
       .getByRole('button', { name: 'Detach' })
       .click();
     await detachRequest;
+  });
+
+  test('adds a new charge and waives an existing one', async ({ page }) => {
+    await selectTab(page, 'Charges');
+    await expect(page.getByRole('cell', { name: 'Processing Fee' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Add Charge' }).click();
+    await expect(page).toHaveURL(`/working-capital/loans/${LOAN_ID}/charge`);
+
+    await selectOption(page, 'Select Charge', 'Late Fee');
+    await page.locator('input[name="amount"]').fill('25');
+
+    const postRequest = page.waitForRequest(
+      (req) =>
+        req.url().endsWith(`/working-capital-loans/${LOAN_ID}/charges`) && req.method() === 'POST',
+    );
+    await page.getByRole('button', { name: 'Submit' }).click();
+    const request = await postRequest;
+    expect(request.postDataJSON()).toMatchObject({ chargeId: 11, amount: 25 });
+    await expect(page).toHaveURL(`/working-capital/loans/view/${LOAN_ID}?tab=charges`);
+
+    page.on('dialog', (dialog) => dialog.accept());
+    const waiveRequest = page.waitForRequest(
+      (req) =>
+        req.url().includes(`/working-capital-loans/${LOAN_ID}/charges/1`) &&
+        req.url().includes('command=waive') &&
+        req.method() === 'POST',
+    );
+    await page
+      .getByRole('row', { name: /Processing Fee/ })
+      .getByRole('button', { name: 'Waive Charge' })
+      .click();
+    await waiveRequest;
+  });
+
+  test('shows rate-change history, amortization schedule, and delinquency range tags', async ({
+    page,
+  }) => {
+    await selectTab(page, 'Rate Changes');
+    await expect(page.getByRole('cell', { name: '8', exact: true })).toBeVisible();
+
+    await selectTab(page, 'Amortization Schedule');
+    await expect(page.getByText('500', { exact: false })).toBeVisible();
+
+    await selectTab(page, 'Delinquency Range Tags');
+    await expect(page.getByRole('cell', { name: '5', exact: true })).toBeVisible();
+  });
+
+  test('marks the loan as fraud, applies a discount, and changes the payment rate', async ({
+    page,
+  }) => {
+    await page.locator('#loanMenu-trigger').click();
+    await page.locator('ion-popover:visible').getByText('Mark as Fraud').click();
+    await expect(page).toHaveURL(`/working-capital/loans/${LOAN_ID}/action/markasfraud`);
+
+    const fraudRequest = page.waitForRequest(
+      (req) =>
+        req.url().includes(`/working-capital-loans/${LOAN_ID}/mark-as-fraud`) &&
+        req.method() === 'PUT',
+    );
+    await page.locator('ion-checkbox[name="fraud"]').click();
+    await page.getByRole('button', { name: 'Submit' }).click();
+    const request = await fraudRequest;
+    expect(request.postDataJSON()).toEqual({ fraud: true });
+    await expect(page).toHaveURL(`/working-capital/loans/view/${LOAN_ID}`);
+
+    await page.locator('#loanMenu-trigger').click();
+    await page.locator('ion-popover:visible').getByText('Apply Discount').click();
+    await expect(page).toHaveURL(`/working-capital/loans/${LOAN_ID}/action/discount`);
+
+    const discountRequest = page.waitForRequest(
+      (req) =>
+        req.url().includes(`/working-capital-loans/${LOAN_ID}/discount`) && req.method() === 'PUT',
+    );
+    await page.locator('input[name="discountAmount"]').fill('50');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    const discountReq = await discountRequest;
+    expect(discountReq.postDataJSON()).toMatchObject({ discountAmount: 50 });
+
+    await page.locator('#loanMenu-trigger').click();
+    await page.locator('ion-popover:visible').getByText('Change Payment Rate').click();
+    await expect(page).toHaveURL(`/working-capital/loans/${LOAN_ID}/action/paymentrate`);
+
+    const rateRequest = page.waitForRequest(
+      (req) =>
+        req.url().includes(`/working-capital-loans/${LOAN_ID}/payment-rate`) &&
+        req.method() === 'PUT',
+    );
+    await page.locator('input[name="periodPaymentRate"]').fill('8');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    const rateReq = await rateRequest;
+    expect(rateReq.postDataJSON()).toMatchObject({ periodPaymentRate: 8 });
+    await expect(page).toHaveURL(`/working-capital/loans/view/${LOAN_ID}?tab=rateChanges`);
   });
 });

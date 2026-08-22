@@ -166,4 +166,13 @@ export const ORGANIZATION_ROUTES: Routes = [
         (m) => m.OfficeTransactionFormComponent,
       ),
   },
+  {
+    path: 'loan-portfolio-summary',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_LOAN' },
+    loadComponent: () =>
+      import('./loan-portfolio-summary/loan-portfolio-summary.component').then(
+        (m) => m.LoanPortfolioSummaryComponent,
+      ),
+  },
 ];

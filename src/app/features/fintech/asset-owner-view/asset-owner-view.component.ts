@@ -82,10 +82,6 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
   template: `
     @if (transfer$ | async; as transfer) {
       <div class="container">
-        <div class="breadcrumb">
-          <a routerLink="/fintech/asset-owners">External Asset Owners</a> /
-          <span>{{ transfer.owner?.externalId }}</span>
-        </div>
         <ion-card class="header-card">
           <ion-card-header>
             <ion-card-title>
@@ -188,14 +184,6 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
     `
       .container {
         padding: 24px;
-      }
-      .breadcrumb {
-        margin-bottom: 16px;
-        font-size: 14px;
-      }
-      .breadcrumb a {
-        text-decoration: none;
-        color: #1976d2;
       }
       .header-card {
         margin-bottom: 24px;

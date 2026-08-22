@@ -1042,6 +1042,11 @@
       "count": 1
     }
   },
+  "src/app/features/products/savings-account-transaction-form.component.test.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
   "src/app/features/products/savings-account-transaction-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
