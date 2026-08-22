@@ -52,7 +52,12 @@ describe('WcLoanViewComponent', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    loansSpy = jasmine.createSpyObj('WorkingCapitalLoansService', ['getWorkingCapitalLoansLoanId']);
+    loansSpy = jasmine.createSpyObj('WorkingCapitalLoansService', [
+      'getWorkingCapitalLoansLoanId',
+      'getWorkingCapitalLoansLoanIdRateChanges',
+      'getWorkingCapitalLoansLoanIdAmortizationSchedule',
+      'getWorkingCapitalLoansLoanIdDelinquencyrangetags',
+    ]);
     chargesSpy = jasmine.createSpyObj('WorkingCapitalLoanChargesService', [
       'getWorkingCapitalLoansLoanIdCharges',
     ]);
@@ -90,6 +95,27 @@ describe('WcLoanViewComponent', () => {
         client: { id: 7, displayName: 'Acme Ltd' },
         status: { value: 'Active' },
       }) as unknown as ReturnType<WorkingCapitalLoansService['getWorkingCapitalLoansLoanId']>,
+    );
+    loansSpy.getWorkingCapitalLoansLoanIdRateChanges.and.returnValue(
+      of([
+        { id: 1, effectiveDate: '01 January 2026', previousRate: 5, newRate: 6 },
+      ]) as unknown as ReturnType<
+        WorkingCapitalLoansService['getWorkingCapitalLoansLoanIdRateChanges']
+      >,
+    );
+    loansSpy.getWorkingCapitalLoansLoanIdAmortizationSchedule.and.returnValue(
+      of({
+        periodPaymentRate: 5,
+        netDisbursementAmount: 9800,
+        payments: [],
+      }) as unknown as ReturnType<
+        WorkingCapitalLoansService['getWorkingCapitalLoansLoanIdAmortizationSchedule']
+      >,
+    );
+    loansSpy.getWorkingCapitalLoansLoanIdDelinquencyrangetags.and.returnValue(
+      of([{ id: 1, periodNumber: 1, delinquentDays: 5 }]) as unknown as ReturnType<
+        WorkingCapitalLoansService['getWorkingCapitalLoansLoanIdDelinquencyrangetags']
+      >,
     );
     chargesSpy.getWorkingCapitalLoansLoanIdCharges.and.returnValue(
       of([{ id: 1, name: 'Fee', amount: 100 }]) as unknown as ReturnType<

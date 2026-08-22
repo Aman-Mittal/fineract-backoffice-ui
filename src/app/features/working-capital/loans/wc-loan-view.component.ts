@@ -58,6 +58,9 @@ import {
   WorkingCapitalLoanBreachActionData,
   WorkingCapitalLoanNearBreachActionData,
   LoanOriginatorData,
+  WorkingCapitalLoanPeriodPaymentRateChangeData,
+  ProjectedAmortizationScheduleData,
+  GetWorkingCapitalLoanDelinquencyRangeScheduleTagHistoryResponse,
 } from '../../../api';
 
 /**
@@ -83,6 +86,9 @@ export const WC_LOAN_TAB = {
   breachActions: 'breachActions',
   nearBreachActions: 'nearBreachActions',
   originators: 'originators',
+  rateChanges: 'rateChanges',
+  amortizationSchedule: 'amortizationSchedule',
+  delinquencyRangeTags: 'delinquencyRangeTags',
 } as const;
 
 export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
@@ -193,6 +199,20 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                       <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
                     </ion-item>
+                    <ion-item button (click)="onAction('markasfraud')">
+                      <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.MARK_AS_FRAUD' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item button (click)="onAction('discount')">
+                      <ion-icon slot="start" name="pricetag-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.APPLY_DISCOUNT' | translate }}</ion-label>
+                    </ion-item>
+                    <ion-item button (click)="onAction('paymentrate')">
+                      <ion-icon slot="start" name="trending-up-outline"></ion-icon>
+                      <ion-label>{{
+                        'WC_LOANS.ACTIONS.CHANGE_PAYMENT_RATE' | translate
+                      }}</ion-label>
+                    </ion-item>
                   }
                   <ion-item button (click)="onDelete()">
                     <ion-icon slot="start" name="trash-outline"></ion-icon>
@@ -232,6 +252,15 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
         </ion-segment-button>
         <ion-segment-button [value]="TAB.originators">
           <ion-label>{{ 'WC_LOANS.TABS.ORIGINATORS' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.rateChanges">
+          <ion-label>{{ 'WC_LOANS.TABS.RATE_CHANGES' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.amortizationSchedule">
+          <ion-label>{{ 'WC_LOANS.TABS.AMORTIZATION_SCHEDULE' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.delinquencyRangeTags">
+          <ion-label>{{ 'WC_LOANS.TABS.DELINQUENCY_RANGE_TAGS' | translate }}</ion-label>
         </ion-segment-button>
       </ion-segment>
 
@@ -279,6 +308,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       }
       @if (activeTab() === TAB.charges) {
         <div class="tab-content">
+          <div class="tab-toolbar">
+            <ion-button color="primary" (click)="onAddCharge()" [disabled]="!loan()">
+              <ion-icon name="add-outline"></ion-icon>
+              {{ 'WC_LOANS.CHARGE.ADD' | translate }}
+            </ion-button>
+          </div>
           <ion-card class="table-card">
             <ion-card-content>
               @if (charges().length > 0) {
@@ -301,6 +336,22 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                     </th>
                     <td cdk-cell *cdkCellDef="let c">
                       {{ c.amountOutstanding | number: '1.2-2' }}
+                    </td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="actions">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let c">
+                      @if (!c.paid) {
+                        <ion-button
+                          fill="clear"
+                          color="danger"
+                          [attr.aria-label]="'WC_LOANS.CHARGE.WAIVE' | translate"
+                          [appTooltip]="'WC_LOANS.CHARGE.WAIVE' | translate"
+                          (click)="onWaiveCharge(c)"
+                        >
+                          {{ 'WC_LOANS.CHARGE.WAIVE' | translate }}
+                        </ion-button>
+                      }
                     </td>
                   </ng-container>
                   <tr cdk-header-row *cdkHeaderRowDef="chargeColumns"></tr>
@@ -664,6 +715,162 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
           </ion-card>
         </div>
       }
+      @if (activeTab() === TAB.rateChanges) {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (rateChanges().length > 0) {
+                <table cdk-table [dataSource]="rateChanges()" class="full-width-table">
+                  <ng-container cdkColumnDef="effectiveDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RATE_CHANGE.EFFECTIVE_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">{{ r.effectiveDate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="previousRate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RATE_CHANGE.PREVIOUS_RATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">{{ r.previousRate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="newRate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RATE_CHANGE.NEW_RATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">{{ r.newRate }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="reversed">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RATE_CHANGE.REVERSED' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let r">
+                      {{ (r.reversed ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+                    </td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="rateChangeColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: rateChangeColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="trending-up-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
+      @if (activeTab() === TAB.amortizationSchedule) {
+        <div class="tab-content">
+          @if (amortizationSchedule(); as schedule) {
+            <ion-card class="info-card">
+              <ion-card-content class="details-list">
+                <div class="detail-item">
+                  <span class="label">{{ 'WC_LOANS.PERIOD_PAYMENT_RATE' | translate }}</span>
+                  <span class="value">{{ schedule.periodPaymentRate ?? '-' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">
+                    {{ 'WC_LOANS.AMORTIZATION.NET_DISBURSEMENT_AMOUNT' | translate }}
+                  </span>
+                  <span class="value">{{ schedule.netDisbursementAmount | number: '1.2-2' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">{{ 'WC_LOANS.TOTAL_PAYMENT_VOLUME' | translate }}</span>
+                  <span class="value">{{ schedule.totalPaymentVolume | number: '1.2-2' }}</span>
+                </div>
+              </ion-card-content>
+            </ion-card>
+            <ion-card class="table-card">
+              <ion-card-content>
+                @if ((schedule.payments ?? []).length > 0) {
+                  <table cdk-table [dataSource]="schedule.payments ?? []" class="full-width-table">
+                    <ng-container cdkColumnDef="paymentNo">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'WC_LOANS.AMORTIZATION.PAYMENT_NO' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">{{ p.paymentNo }}</td>
+                    </ng-container>
+                    <ng-container cdkColumnDef="paymentDate">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'WC_LOANS.AMORTIZATION.PAYMENT_DATE' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">{{ p.paymentDate }}</td>
+                    </ng-container>
+                    <ng-container cdkColumnDef="expectedPaymentAmount">
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'WC_LOANS.AMORTIZATION.EXPECTED_PAYMENT_AMOUNT' | translate }}
+                      </th>
+                      <td cdk-cell *cdkCellDef="let p">
+                        {{ p.expectedPaymentAmount | number: '1.2-2' }}
+                      </td>
+                    </ng-container>
+                    <tr cdk-header-row *cdkHeaderRowDef="amortizationColumns"></tr>
+                    <tr cdk-row *cdkRowDef="let row; columns: amortizationColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="empty-state">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          } @else {
+            <div class="empty-state">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+            </div>
+          }
+        </div>
+      }
+      @if (activeTab() === TAB.delinquencyRangeTags) {
+        <div class="tab-content">
+          <ion-card class="table-card">
+            <ion-card-content>
+              @if (delinquencyRangeTags().length > 0) {
+                <table cdk-table [dataSource]="delinquencyRangeTags()" class="full-width-table">
+                  <ng-container cdkColumnDef="periodNumber">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'WC_LOANS.PERIOD' | translate }}</th>
+                    <td cdk-cell *cdkCellDef="let t">{{ t.periodNumber }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="delinquencyRange">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RANGE_TAG.DELINQUENCY_RANGE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let t">{{ t.delinquencyRange?.classification }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="delinquentDays">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RANGE_TAG.DELINQUENT_DAYS' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let t">{{ t.delinquentDays }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="delinquentAmount">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RANGE_TAG.DELINQUENT_AMOUNT' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let t">{{ t.delinquentAmount | number: '1.2-2' }}</td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="addedOnDate">
+                    <th cdk-header-cell *cdkHeaderCellDef>
+                      {{ 'WC_LOANS.RANGE_TAG.ADDED_ON_DATE' | translate }}
+                    </th>
+                    <td cdk-cell *cdkCellDef="let t">{{ t.addedOnDate }}</td>
+                  </ng-container>
+                  <tr cdk-header-row *cdkHeaderRowDef="rangeTagColumns"></tr>
+                  <tr cdk-row *cdkRowDef="let row; columns: rangeTagColumns"></tr>
+                </table>
+              } @else {
+                <div class="empty-state">
+                  <ion-icon name="flag-outline"></ion-icon>
+                  <p>{{ 'WC_LOANS.NO_DATA' | translate }}</p>
+                </div>
+              }
+            </ion-card-content>
+          </ion-card>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -831,8 +1038,13 @@ export class WcLoanViewComponent implements OnInit {
     return this.allOriginators().filter((o) => !attachedIds.has(o.id));
   });
   readonly originatorToAttach = signal<number | null>(null);
+  readonly rateChanges = signal<WorkingCapitalLoanPeriodPaymentRateChangeData[]>([]);
+  readonly amortizationSchedule = signal<ProjectedAmortizationScheduleData | null>(null);
+  readonly delinquencyRangeTags = signal<
+    GetWorkingCapitalLoanDelinquencyRangeScheduleTagHistoryResponse[]
+  >([]);
 
-  chargeColumns = ['name', 'amount', 'paid', 'outstanding'];
+  chargeColumns = ['name', 'amount', 'paid', 'outstanding', 'actions'];
   transactionColumns = ['id', 'date', 'type', 'amount'];
   delinquencyActionColumns = ['action', 'startDate', 'endDate', 'frequency'];
   delinquencyRangeColumns = ['periodNumber', 'fromDate', 'toDate', 'outstanding'];
@@ -840,6 +1052,15 @@ export class WcLoanViewComponent implements OnInit {
   breachActionColumns = ['action', 'startDate', 'endDate', 'frequency'];
   nearBreachActionColumns = ['action', 'frequency', 'threshold', 'createdDate'];
   originatorColumns = ['name', 'type', 'channel', 'status', 'actions'];
+  rateChangeColumns = ['effectiveDate', 'previousRate', 'newRate', 'reversed'];
+  amortizationColumns = ['paymentNo', 'paymentDate', 'expectedPaymentAmount'];
+  rangeTagColumns = [
+    'periodNumber',
+    'delinquencyRange',
+    'delinquentDays',
+    'delinquentAmount',
+    'addedOnDate',
+  ];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -860,10 +1081,7 @@ export class WcLoanViewComponent implements OnInit {
       error: (err: unknown) => console.error('Failed to load working-capital loan', err),
     });
 
-    this.chargesService.getWorkingCapitalLoansLoanIdCharges(this.loanId).subscribe({
-      next: (data) => this.charges.set(data ?? []),
-      error: (err: unknown) => console.error('Failed to load loan charges', err),
-    });
+    this.loadCharges();
 
     this.transactionsService.getWorkingCapitalLoansLoanIdTransactions(this.loanId).subscribe({
       next: (data) => this.transactions.set(data.content ?? []),
@@ -907,6 +1125,28 @@ export class WcLoanViewComponent implements OnInit {
       next: (data) => this.allOriginators.set(data ?? []),
       error: (err: unknown) => console.error('Failed to load loan originators', err),
     });
+
+    this.loansService.getWorkingCapitalLoansLoanIdRateChanges(this.loanId).subscribe({
+      next: (data) => this.rateChanges.set(data ?? []),
+      error: (err: unknown) => console.error('Failed to load rate changes', err),
+    });
+
+    this.loansService.getWorkingCapitalLoansLoanIdAmortizationSchedule(this.loanId).subscribe({
+      next: (data) => this.amortizationSchedule.set(data ?? null),
+      error: (err: unknown) => console.error('Failed to load amortization schedule', err),
+    });
+
+    this.loansService.getWorkingCapitalLoansLoanIdDelinquencyrangetags(this.loanId).subscribe({
+      next: (data) => this.delinquencyRangeTags.set(data ?? []),
+      error: (err: unknown) => console.error('Failed to load delinquency range tags', err),
+    });
+  }
+
+  loadCharges(): void {
+    this.chargesService.getWorkingCapitalLoansLoanIdCharges(this.loanId).subscribe({
+      next: (data) => this.charges.set(data ?? []),
+      error: (err: unknown) => console.error('Failed to load loan charges', err),
+    });
   }
 
   loadOriginators(): void {
@@ -942,6 +1182,20 @@ export class WcLoanViewComponent implements OnInit {
 
   onNewDelinquencyAction(): void {
     this.router.navigate([`/working-capital/loans/${this.loanId}/delinquency-action`]);
+  }
+
+  onAddCharge(): void {
+    this.router.navigate([`/working-capital/loans/${this.loanId}/charge`]);
+  }
+
+  onWaiveCharge(charge: WorkingCapitalLoanChargeData): void {
+    if (!charge.id || !confirm(`Waive the charge "${charge.name}"?`)) return;
+    this.chargesService
+      .postWorkingCapitalLoansLoanIdChargesLoanChargeId(this.loanId, charge.id, {}, 'waive')
+      .subscribe({
+        next: () => this.loadCharges(),
+        error: (err: unknown) => console.error('Failed to waive loan charge', err),
+      });
   }
 
   onNewBreachAction(): void {

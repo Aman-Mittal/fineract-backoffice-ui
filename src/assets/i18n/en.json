@@ -1648,7 +1648,10 @@
       "BREACH_SCHEDULE": "Breach Schedule",
       "BREACH_ACTIONS": "Breach Actions",
       "NEAR_BREACH_ACTIONS": "Near-Breach Actions",
-      "ORIGINATORS": "Originators"
+      "ORIGINATORS": "Originators",
+      "RATE_CHANGES": "Rate Changes",
+      "AMORTIZATION_SCHEDULE": "Amortization Schedule",
+      "DELINQUENCY_RANGE_TAGS": "Delinquency Range Tags"
     },
     "DELINQUENCY_BUCKET": "Delinquency Bucket",
     "FUND": "Fund",
@@ -1673,7 +1676,11 @@
       "DISCOUNT_AMOUNT": "Discount Amount",
       "REJECTED_ON_DATE": "Rejected On Date",
       "TRANSACTION_DATE": "Transaction Date",
-      "NOTE": "Note"
+      "NOTE": "Note",
+      "MARK_AS_FRAUD": "Mark as Fraud",
+      "APPLY_DISCOUNT": "Apply Discount",
+      "CHANGE_PAYMENT_RATE": "Change Payment Rate",
+      "EFFECTIVE_DATE": "Effective Date"
     },
     "DELINQUENCY_ACTION": {
       "TITLE": "New Delinquency Action",
@@ -1715,6 +1722,31 @@
       "TYPE": "Type",
       "CHANNEL": "Channel",
       "STATUS": "Status"
+    },
+    "CHARGE": {
+      "NEW": "Add Charge",
+      "ADD": "Add Charge",
+      "SELECT_CHARGE": "Select Charge",
+      "DUE_DATE": "Due Date",
+      "WAIVE": "Waive Charge"
+    },
+    "RATE_CHANGE": {
+      "EFFECTIVE_DATE": "Effective Date",
+      "PREVIOUS_RATE": "Previous Rate",
+      "NEW_RATE": "New Rate",
+      "REVERSED": "Reversed"
+    },
+    "AMORTIZATION": {
+      "NET_DISBURSEMENT_AMOUNT": "Net Disbursement Amount",
+      "PAYMENT_NO": "Payment No.",
+      "PAYMENT_DATE": "Payment Date",
+      "EXPECTED_PAYMENT_AMOUNT": "Expected Payment Amount"
+    },
+    "RANGE_TAG": {
+      "DELINQUENCY_RANGE": "Delinquency Range",
+      "DELINQUENT_DAYS": "Delinquent Days",
+      "DELINQUENT_AMOUNT": "Delinquent Amount",
+      "ADDED_ON_DATE": "Added On Date"
     }
   },
   "LOANS_POINT_IN_TIME": {

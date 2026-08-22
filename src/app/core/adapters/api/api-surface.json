@@ -672,7 +672,12 @@
     "getWorkingCapitalLoansOldestCobClosed",
     "postWorkingCapitalLoansCatchUp"
   ],
-  "WorkingCapitalLoanChargesService": ["getWorkingCapitalLoansLoanIdCharges"],
+  "WorkingCapitalLoanChargesService": [
+    "getWorkingCapitalLoansLoanIdCharges",
+    "getWorkingCapitalLoansLoanIdChargesTemplate",
+    "postWorkingCapitalLoansLoanIdCharges",
+    "postWorkingCapitalLoansLoanIdChargesLoanChargeId"
+  ],
   "WorkingCapitalLoanDelinquencyActionsService": [
     "getWorkingCapitalLoansLoanIdDelinquencyActions",
     "postWorkingCapitalLoansLoanIdDelinquencyActions"
@@ -706,9 +711,15 @@
     "deleteWorkingCapitalLoansLoanId",
     "getWorkingCapitalLoans",
     "getWorkingCapitalLoansLoanId",
+    "getWorkingCapitalLoansLoanIdAmortizationSchedule",
+    "getWorkingCapitalLoansLoanIdDelinquencyrangetags",
+    "getWorkingCapitalLoansLoanIdRateChanges",
     "getWorkingCapitalLoansTemplate",
     "postWorkingCapitalLoans",
-    "postWorkingCapitalLoansLoanId"
+    "postWorkingCapitalLoansLoanId",
+    "putWorkingCapitalLoansLoanIdDiscount",
+    "putWorkingCapitalLoansLoanIdMarkAsFraud",
+    "putWorkingCapitalLoansLoanIdPaymentRate"
   ],
   "WorkingCapitalNearBreachService": [
     "deleteWorkingCapitalNearBreachBreachId",

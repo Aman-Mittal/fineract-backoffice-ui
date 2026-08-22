@@ -27,6 +27,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonCheckbox,
   IonDatetime,
   IonDatetimeButton,
   IonInput,
@@ -41,6 +42,8 @@ import {
   WorkingCapitalLoanTransactionsService,
   PostWorkingCapitalLoansLoanIdRequest,
   PostWorkingCapitalLoanTransactionsRequest,
+  PutWorkingCapitalLoansLoanIdDiscountRequest,
+  PutWorkingCapitalLoansLoanIdRateRequest,
 } from '../../../api';
 import {
   FINERACT_DATE_FORMAT,
@@ -62,6 +65,7 @@ import {
     TranslateModule,
     IonButton,
     IonSpinner,
+    IonCheckbox,
     IonInput,
     IonTextarea,
     IonItem,
@@ -240,7 +244,84 @@ import {
               </ion-item>
             }
 
-            @if (command !== 'repayment') {
+            @if (command === 'markasfraud') {
+              <ion-item>
+                <ion-checkbox name="fraud" [(ngModel)]="fraud">
+                  {{ 'WC_LOANS.ACTIONS.MARK_AS_FRAUD' | translate }}
+                </ion-checkbox>
+              </ion-item>
+            }
+
+            @if (command === 'discount') {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.DISCOUNT_AMOUNT' | translate
+                }}</ion-label>
+                <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.DISCOUNT_AMOUNT' | translate"
+                  type="number"
+                  name="discountAmount"
+                  [(ngModel)]="discount.discountAmount"
+                ></ion-input>
+              </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'WC_LOANS.ACTIONS.NOTE' | translate }}</ion-label>
+                <ion-textarea
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.NOTE' | translate"
+                  name="discountNote"
+                  [(ngModel)]="discount.note"
+                ></ion-textarea>
+              </ion-item>
+            }
+
+            @if (command === 'paymentrate') {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.EFFECTIVE_DATE' | translate
+                }}</ion-label>
+                <ion-datetime-button
+                  datetime="paymentRateEffectiveDate-picker"
+                ></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="paymentRateEffectiveDate-picker"
+                      data-testid="paymentRateEffectiveDate-picker"
+                      presentation="date"
+                      name="paymentRateEffectiveDate"
+                      [(ngModel)]="paymentRateEffectiveDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.PERIOD_PAYMENT_RATE' | translate
+                }}</ion-label>
+                <ion-input
+                  [attr.aria-label]="'WC_LOANS.PERIOD_PAYMENT_RATE' | translate"
+                  type="number"
+                  name="periodPaymentRate"
+                  [(ngModel)]="paymentRate.periodPaymentRate"
+                ></ion-input>
+              </ion-item>
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ 'WC_LOANS.ACTIONS.NOTE' | translate }}</ion-label>
+                <ion-textarea
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.NOTE' | translate"
+                  name="paymentRateNote"
+                  [(ngModel)]="paymentRate.note"
+                ></ion-textarea>
+              </ion-item>
+            }
+
+            @if (
+              command !== 'repayment' &&
+              command !== 'markasfraud' &&
+              command !== 'discount' &&
+              command !== 'paymentrate'
+            ) {
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'WC_LOANS.ACTIONS.NOTE' | translate }}</ion-label>
                 <ion-textarea
@@ -306,12 +387,23 @@ export class WcLoanActionFormComponent implements OnInit {
     dateFormat: FINERACT_DATE_FORMAT,
     locale: FINERACT_LOCALE,
   };
+  discount: PutWorkingCapitalLoansLoanIdDiscountRequest = {
+    dateFormat: FINERACT_DATE_FORMAT,
+    locale: FINERACT_LOCALE,
+  };
+  paymentRate: PutWorkingCapitalLoansLoanIdRateRequest = {
+    dateFormat: FINERACT_DATE_FORMAT,
+    locale: FINERACT_LOCALE,
+    effectiveDate: '',
+  };
+  fraud = false;
 
   approvedOnDate: string | null = null;
   expectedDisbursementDate: string | null = null;
   actualDisbursementDate: string | null = null;
   rejectedOnDate: string | null = null;
   transactionDate: string | null = toIsoDate(new Date());
+  paymentRateEffectiveDate: string | null = toIsoDate(new Date());
 
   get title(): string {
     const map: Record<string, string> = {
@@ -321,6 +413,9 @@ export class WcLoanActionFormComponent implements OnInit {
       undoapproval: 'WC_LOANS.ACTIONS.UNDO_APPROVAL',
       undodisbursal: 'WC_LOANS.ACTIONS.UNDO_DISBURSAL',
       repayment: 'WC_LOANS.REPAYMENT',
+      markasfraud: 'WC_LOANS.ACTIONS.MARK_AS_FRAUD',
+      discount: 'WC_LOANS.ACTIONS.APPLY_DISCOUNT',
+      paymentrate: 'WC_LOANS.ACTIONS.CHANGE_PAYMENT_RATE',
     };
     return map[this.command] ?? this.command;
   }
@@ -335,19 +430,64 @@ export class WcLoanActionFormComponent implements OnInit {
   onSubmit(): void {
     this.isSaving.set(true);
 
-    if (this.command === 'repayment') {
-      if (this.transactionDate) {
-        this.repayment.transactionDate = formatDateToFineract(this.transactionDate);
-      }
-      this.transactionsService
-        .postWorkingCapitalLoansLoanIdTransactions(this.loanId, 'repayment', this.repayment)
-        .subscribe({
-          next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
-          error: () => this.isSaving.set(false),
-        });
-      return;
+    switch (this.command) {
+      case 'repayment':
+        return this.submitRepayment();
+      case 'markasfraud':
+        return this.submitMarkAsFraud();
+      case 'discount':
+        return this.submitDiscount();
+      case 'paymentrate':
+        return this.submitPaymentRate();
+      default:
+        return this.submitLifecycleCommand();
     }
+  }
 
+  private submitRepayment(): void {
+    if (this.transactionDate) {
+      this.repayment.transactionDate = formatDateToFineract(this.transactionDate);
+    }
+    this.transactionsService
+      .postWorkingCapitalLoansLoanIdTransactions(this.loanId, 'repayment', this.repayment)
+      .subscribe({
+        next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
+        error: () => this.isSaving.set(false),
+      });
+  }
+
+  private submitMarkAsFraud(): void {
+    this.loansService
+      .putWorkingCapitalLoansLoanIdMarkAsFraud(this.loanId, { fraud: this.fraud })
+      .subscribe({
+        next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
+        error: () => this.isSaving.set(false),
+      });
+  }
+
+  private submitDiscount(): void {
+    this.loansService.putWorkingCapitalLoansLoanIdDiscount(this.loanId, this.discount).subscribe({
+      next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
+      error: () => this.isSaving.set(false),
+    });
+  }
+
+  private submitPaymentRate(): void {
+    if (this.paymentRateEffectiveDate) {
+      this.paymentRate.effectiveDate = formatDateToFineract(this.paymentRateEffectiveDate);
+    }
+    this.loansService
+      .putWorkingCapitalLoansLoanIdPaymentRate(this.loanId, this.paymentRate)
+      .subscribe({
+        next: () =>
+          this.router.navigate([`/working-capital/loans/view/${this.loanId}`], {
+            queryParams: { tab: 'rateChanges' },
+          }),
+        error: () => this.isSaving.set(false),
+      });
+  }
+
+  private submitLifecycleCommand(): void {
     if (this.command === 'approve' && this.approvedOnDate) {
       this.lifecycle.approvedOnDate = formatDateToFineract(this.approvedOnDate);
     }
