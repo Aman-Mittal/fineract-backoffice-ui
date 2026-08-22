@@ -181,8 +181,8 @@ test.describe('Client CRUD Workflow', () => {
     await expect(page).toHaveURL(URL_CLIENTS_CREATE);
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Create Client/i);
 
-    /* save button should be disabled when required fields are empty */
-    await expect(page.getByRole('button', { name: BTN_SAVE })).toBeDisabled();
+    /* step 1 (Client Type): Next disabled until office is picked */
+    await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
 
     /* fill required fields */
     await page.locator(SELECT_LEGAL_FORM).click();
@@ -194,18 +194,21 @@ test.describe('Client CRUD Workflow', () => {
     await page.locator(SELECT_OFFICE).click();
     await page.locator(OPTION).first().click();
 
-    /* submitted on / activation date already default to today; no interaction needed */
+    await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Next' }).click();
+
+    /* step 2 (Personal Details): submitted on / activation date already default to today */
+    await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
 
     /* fill required name fields */
     await page.locator('input[name="firstname"]').fill('Test');
     await page.locator('input[name="lastname"]').fill('User');
 
-    /* now save button should be enabled */
-    await expect(page.getByRole('button', { name: BTN_SAVE })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Next' }).click();
 
-    /* fill optional fields */
-    await page.locator('input[name="firstname"]').fill('Test');
-    await page.locator('input[name="lastname"]').fill('User');
+    /* step 3 (Contact Details, all optional): save should already be enabled */
+    await expect(page.getByRole('button', { name: BTN_SAVE })).toBeEnabled();
     await page.locator('input[name="externalId"]').fill('EXT-TEST-001');
     await page.locator('input[name="mobileNo"]').fill('9876543210');
     await page.locator('input[name="emailAddress"]').fill('test@example.com');
@@ -221,8 +224,8 @@ test.describe('Client CRUD Workflow', () => {
     await page.getByRole('button', { name: /Create/i }).click();
     await expect(page).toHaveURL(URL_CLIENTS_CREATE);
 
-    /* save disabled initially */
-    await expect(page.getByRole('button', { name: BTN_SAVE })).toBeDisabled();
+    /* Next disabled initially — office not yet picked */
+    await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
 
     /* select Entity legal form */
     await page.locator(SELECT_LEGAL_FORM).click();
@@ -235,13 +238,19 @@ test.describe('Client CRUD Workflow', () => {
     await page.locator(SELECT_OFFICE).click();
     await page.locator(OPTION).first().click();
 
-    /* submitted on / activation date already default to today; no interaction needed */
+    await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Next' }).click();
 
+    /* step 2 (Personal Details): submitted on / activation date already default to today */
     /* entity shows fullname field instead of first/last */
     const fullname = page.locator('input[name="fullname"]');
     await expect(fullname).toBeVisible();
     await fullname.fill('Acme Corporation');
 
+    await expect(page.getByRole('button', { name: 'Next' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Next' }).click();
+
+    /* step 3 (Contact Details, all optional) */
     await expect(page.getByRole('button', { name: BTN_SAVE })).toBeEnabled();
   });
 

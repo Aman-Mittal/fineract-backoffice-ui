@@ -18,6 +18,7 @@
  */
 
 export * from './components/help-icon/help-icon.component';
+export * from './components/stepper/stepper.component';
 export * from './components/status-badge/status-badge.component';
 export * from './components/search-filter/search-filter.component';
 export * from './components/data-table/data-table.component';

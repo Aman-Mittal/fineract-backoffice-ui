@@ -148,6 +148,43 @@ describe('ClientFormComponent', () => {
       component.onCancel();
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients']);
     });
+
+    it('shows the wizard stepper and only the first step initially', () => {
+      expect(component.showWizard()).toBeTrue();
+      expect(component.currentStep()).toBe(0);
+
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('app-stepper')).not.toBeNull();
+
+      const steps = el.querySelectorAll('.form-grid');
+      expect(steps).toHaveSize(3);
+      expect(steps[0].classList).not.toContain('hidden');
+      expect(steps[1].classList).toContain('hidden');
+      expect(steps[2].classList).toContain('hidden');
+    });
+
+    it('advances through steps with Next and back with Back', () => {
+      component.client.set({ legalFormId: 1, officeId: 1, active: true });
+      fixture.detectChanges();
+
+      component.onNextStep();
+      expect(component.currentStep()).toBe(1);
+
+      component.onNextStep();
+      expect(component.currentStep()).toBe(2);
+
+      // Clamped at the last step.
+      component.onNextStep();
+      expect(component.currentStep()).toBe(2);
+
+      component.onPreviousStep();
+      expect(component.currentStep()).toBe(1);
+
+      component.onPreviousStep();
+      component.onPreviousStep();
+      // Clamped at the first step.
+      expect(component.currentStep()).toBe(0);
+    });
   });
 
   describe('Edit Mode', () => {
@@ -194,6 +231,47 @@ describe('ClientFormComponent', () => {
 
       expect(clientServiceSpy.putClientsClientId).toHaveBeenCalled();
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients']);
+    });
+
+    it('shows every step flat, with no stepper, when editing an existing client', async () => {
+      TestBed.resetTestingModule();
+
+      await TestBed.configureTestingModule({
+        imports: [ClientFormComponent, TranslateModule.forRoot()],
+        providers: [
+          { provide: ClientService, useValue: clientServiceSpy },
+          { provide: OfficesService, useValue: officesServiceSpy },
+          { provide: Router, useValue: routerSpy },
+          { provide: DialogService, useValue: dialogSpy },
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              paramMap: of({
+                get: (key: string) => (key === 'id' ? '10' : null),
+              }),
+              snapshot: {
+                paramMap: {
+                  get: (key: string) => (key === 'id' ? '10' : null),
+                },
+              },
+            },
+          },
+          provideNoopAnimations(),
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ClientFormComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.showWizard()).toBeFalse();
+
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('app-stepper')).toBeNull();
+
+      const steps = el.querySelectorAll('.form-grid');
+      expect(steps).toHaveSize(3);
+      steps.forEach((step) => expect(step.classList).not.toContain('hidden'));
     });
   });
 });

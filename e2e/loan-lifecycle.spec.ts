@@ -53,8 +53,10 @@ async function createClient(page: Page): Promise<string> {
   // dropdown has resolved before opening it — otherwise it opens empty.
   await page.goto('/clients/create', { waitUntil: 'networkidle' });
   await selectOption(page, 'Office', 'Head Office');
+  await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('textbox', { name: 'First Name' }).fill(firstName);
   await page.getByRole('textbox', { name: 'Last Name' }).fill(lastName);
+  await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page).toHaveURL(/\/clients$/, { timeout: 15000 });
 

@@ -731,6 +731,11 @@
   "CLIENTS": {
     "CREATE_CLIENT": "Create Client",
     "EDIT_CLIENT": "Edit Client",
+    "WIZARD": {
+      "STEP_TYPE": "Client Type",
+      "STEP_PERSONAL": "Personal Details",
+      "STEP_CONTACT": "Contact Details"
+    },
     "LEGAL_FORM": "Legal Form",
     "PERSON": "Person",
     "ENTITY": "Entity",

@@ -135,21 +135,26 @@ test.describe('Client Management', () => {
     await expect(page).toHaveURL('/clients/create');
     await expect(page.locator('ion-card-title').first()).toContainText('Create Client');
 
-    // Fill Client Form
+    // Step 1 — Client Type: legal form, office. Wizard-only for create; edit stays flat.
     await page.locator('ion-select[name="legalFormId"]').click();
     await page.locator('ion-alert, ion-popover').getByRole('radio', { name: 'Person' }).click();
 
+    await page.locator('ion-select[name="officeId"]').click();
+    await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
+
+    await page.getByRole('button', { name: 'Next' }).click();
+
+    // Step 2 — Personal Details: submitted-on/activation dates default to today, so only the
+    // name fields are needed here.
     const firstName = `TestUser${Date.now()}`;
     const lastName = 'E2E';
 
     await page.locator('input[name="firstname"]').fill(firstName);
     await page.locator('input[name="lastname"]').fill(lastName);
 
-    // Select Office (assuming HEAD_OFFICE is available)
-    await page.locator('ion-select[name="officeId"]').click();
-    await page.locator('ion-alert, ion-popover').getByRole('radio').first().click();
+    await page.getByRole('button', { name: 'Next' }).click();
 
-    // Submit
+    // Step 3 — Contact Details (all optional): submit straight away.
     await page.getByRole('button', { name: 'Save' }).click();
 
     // Verify redirection to list and presence of new client
