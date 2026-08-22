@@ -582,7 +582,7 @@
   ],
   "SchedulerService": ["getScheduler", "postScheduler"],
   "ScoreCardService": ["getSurveysScorecardsSurveyId"],
-  "SearchAPIService": ["getSearch", "getSearchTemplate"],
+  "SearchAPIService": ["getSearch", "getSearchTemplate", "postSearchAdvance"],
   "SelfDividendService": [
     "deleteShareproductProductIdDividendDividendId",
     "getShareproductProductIdDividend",
