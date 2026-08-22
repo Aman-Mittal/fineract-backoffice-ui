@@ -419,11 +419,7 @@
     "postLoansUploadtemplate",
     "putLoansLoanId"
   ],
-  "MakerCheckerOr4EyeFunctionalityService": [
-    "deleteMakercheckersAuditId",
-    "getMakercheckers",
-    "postMakercheckersAuditId"
-  ],
+  "MakerCheckerOr4EyeFunctionalityService": ["getMakercheckers", "postMakercheckersAuditId"],
   "MappingFinancialActivitiesToAccountsService": [
     "deleteFinancialactivityaccountsMappingId",
     "getFinancialactivityaccounts",

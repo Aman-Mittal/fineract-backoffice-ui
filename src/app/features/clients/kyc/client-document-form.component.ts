@@ -203,7 +203,9 @@ export class ClientDocumentFormComponent implements OnInit {
           this.docId!,
           undefined, // contentLength
           this.document().description,
+          undefined, // expiryDate
           undefined, // file
+          undefined, // issuanceDate
           this.document().name,
         )
         .subscribe({
@@ -217,7 +219,9 @@ export class ClientDocumentFormComponent implements OnInit {
           this.clientId,
           this.selectedFile!.size,
           this.document().description,
+          undefined, // expiryDate
           this.selectedFile!,
+          undefined, // issuanceDate
           this.document().name,
         )
         .subscribe({

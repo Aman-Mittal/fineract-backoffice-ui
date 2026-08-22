@@ -71,13 +71,16 @@ describe('ClientDocumentFormComponent', () => {
 
     component.onSubmit();
 
-    // New 1.15 signature: (entityType, entityId, contentLength, description, file, name)
+    // New 1.16 signature: (entityType, entityId, contentLength, description, expiryDate, file,
+    // issuanceDate, name) — expiryDate/issuanceDate inserted alphabetically before file/name.
     expect(documentServiceSpy.postEntityTypeEntityIdDocuments).toHaveBeenCalledWith(
       'clients',
       9,
       file.size,
       'ID proof',
+      undefined,
       file,
+      undefined,
       'Passport',
     );
   });
