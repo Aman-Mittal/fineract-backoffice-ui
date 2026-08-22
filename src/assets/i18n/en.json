@@ -200,6 +200,7 @@
     },
     "EVERY": "every",
     "EXIT": "Exit",
+    "EXPORT_CSV": "Export CSV",
     "EXTERNAL_ID": "External ID",
     "FILTERS": "Filters",
     "FINISH": "Finish",

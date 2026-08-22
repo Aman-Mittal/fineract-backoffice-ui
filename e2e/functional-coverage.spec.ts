@@ -1011,6 +1011,44 @@ test.describe('Security CRUD', () => {
     await expect(page.getByText('Maker Date From')).toBeVisible();
     await expect(page.getByText('Maker Date To')).toBeVisible();
   });
+
+  test('audit logs list exports the loaded page as CSV', async ({ page }) => {
+    await page.route('**/api/v1/audits**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalFilteredRecords: 1,
+          pageItems: [
+            {
+              id: 1,
+              resourceId: 10,
+              entityName: 'Client',
+              actionName: 'CREATE',
+              maker: 'mifos',
+              madeOnDate: '2026-06-16T12:00:00Z',
+              checker: 'mifos',
+              checkedOnDate: '2026-06-16T12:05:00Z',
+              processingResult: 'success',
+            },
+          ],
+        }),
+      });
+    });
+    await page.route(ROUTE_OFFICES_WILDCARD, async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: OFFICE_ARRAY });
+    });
+
+    await page.getByRole('link', { name: 'Audit Logs' }).click();
+    await expect(page).toHaveURL('/security/audits');
+    await expect(page.getByRole('cell', { name: 'Client' })).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export CSV' }).click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toBe('audit-logs.csv');
+  });
 });
 
 /* ═══════════════════════════════════════════════════════════════════════════════
