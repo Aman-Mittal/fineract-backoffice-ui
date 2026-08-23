@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WcLoanViewComponent } from './wc-loan-view.component';
 import {
@@ -39,56 +40,41 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('WcLoanViewComponent', () => {
   let component: WcLoanViewComponent;
   let fixture: ComponentFixture<WcLoanViewComponent>;
-  let loansSpy: jasmine.SpyObj<WorkingCapitalLoansService>;
-  let chargesSpy: jasmine.SpyObj<WorkingCapitalLoanChargesService>;
-  let transactionsSpy: jasmine.SpyObj<WorkingCapitalLoanTransactionsService>;
-  let delinquencyActionsSpy: jasmine.SpyObj<WorkingCapitalLoanDelinquencyActionsService>;
-  let delinquencyRangeSpy: jasmine.SpyObj<WorkingCapitalLoanDelinquencyRangeScheduleService>;
-  let breachScheduleSpy: jasmine.SpyObj<WorkingCapitalLoanBreachScheduleService>;
-  let breachActionsSpy: jasmine.SpyObj<WorkingCapitalLoanBreachActionsService>;
-  let nearBreachActionsSpy: jasmine.SpyObj<WorkingCapitalLoanNearBreachActionsService>;
-  let wcOriginatorsSpy: jasmine.SpyObj<WorkingCapitalLoanOriginatorsService>;
-  let originatorsSpy: jasmine.SpyObj<LoanOriginatorsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let loansSpy: SpyObj<WorkingCapitalLoansService>;
+  let chargesSpy: SpyObj<WorkingCapitalLoanChargesService>;
+  let transactionsSpy: SpyObj<WorkingCapitalLoanTransactionsService>;
+  let delinquencyActionsSpy: SpyObj<WorkingCapitalLoanDelinquencyActionsService>;
+  let delinquencyRangeSpy: SpyObj<WorkingCapitalLoanDelinquencyRangeScheduleService>;
+  let breachScheduleSpy: SpyObj<WorkingCapitalLoanBreachScheduleService>;
+  let breachActionsSpy: SpyObj<WorkingCapitalLoanBreachActionsService>;
+  let nearBreachActionsSpy: SpyObj<WorkingCapitalLoanNearBreachActionsService>;
+  let wcOriginatorsSpy: SpyObj<WorkingCapitalLoanOriginatorsService>;
+  let originatorsSpy: SpyObj<LoanOriginatorsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    loansSpy = jasmine.createSpyObj('WorkingCapitalLoansService', [
+    loansSpy = createSpyObj([
       'getWorkingCapitalLoansLoanId',
       'getWorkingCapitalLoansLoanIdRateChanges',
       'getWorkingCapitalLoansLoanIdAmortizationSchedule',
       'getWorkingCapitalLoansLoanIdDelinquencyrangetags',
     ]);
-    chargesSpy = jasmine.createSpyObj('WorkingCapitalLoanChargesService', [
-      'getWorkingCapitalLoansLoanIdCharges',
-    ]);
-    transactionsSpy = jasmine.createSpyObj('WorkingCapitalLoanTransactionsService', [
-      'getWorkingCapitalLoansLoanIdTransactions',
-    ]);
-    delinquencyActionsSpy = jasmine.createSpyObj('WorkingCapitalLoanDelinquencyActionsService', [
-      'getWorkingCapitalLoansLoanIdDelinquencyActions',
-    ]);
-    delinquencyRangeSpy = jasmine.createSpyObj(
-      'WorkingCapitalLoanDelinquencyRangeScheduleService',
-      ['getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule'],
-    );
-    breachScheduleSpy = jasmine.createSpyObj('WorkingCapitalLoanBreachScheduleService', [
-      'getWorkingCapitalLoansLoanIdBreachSchedule',
-    ]);
-    breachActionsSpy = jasmine.createSpyObj('WorkingCapitalLoanBreachActionsService', [
-      'getWorkingCapitalLoansLoanIdBreachActions',
-    ]);
-    nearBreachActionsSpy = jasmine.createSpyObj('WorkingCapitalLoanNearBreachActionsService', [
-      'getWorkingCapitalLoansLoanIdNearBreachActions',
-    ]);
-    wcOriginatorsSpy = jasmine.createSpyObj('WorkingCapitalLoanOriginatorsService', [
+    chargesSpy = createSpyObj(['getWorkingCapitalLoansLoanIdCharges']);
+    transactionsSpy = createSpyObj(['getWorkingCapitalLoansLoanIdTransactions']);
+    delinquencyActionsSpy = createSpyObj(['getWorkingCapitalLoansLoanIdDelinquencyActions']);
+    delinquencyRangeSpy = createSpyObj(['getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule']);
+    breachScheduleSpy = createSpyObj(['getWorkingCapitalLoansLoanIdBreachSchedule']);
+    breachActionsSpy = createSpyObj(['getWorkingCapitalLoansLoanIdBreachActions']);
+    nearBreachActionsSpy = createSpyObj(['getWorkingCapitalLoansLoanIdNearBreachActions']);
+    wcOriginatorsSpy = createSpyObj([
       'getWorkingCapitalLoansLoanIdOriginators',
       'postWorkingCapitalLoansLoanIdOriginatorsOriginatorId',
       'deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId',
     ]);
-    originatorsSpy = jasmine.createSpyObj('LoanOriginatorsService', ['getLoanOriginators']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    originatorsSpy = createSpyObj(['getLoanOriginators']);
+    routerSpy = createSpyObj(['navigate']);
 
-    loansSpy.getWorkingCapitalLoansLoanId.and.returnValue(
+    loansSpy.getWorkingCapitalLoansLoanId.mockReturnValue(
       of({
         id: 1,
         accountNo: '000001',
@@ -96,14 +82,14 @@ describe('WcLoanViewComponent', () => {
         status: { value: 'Active' },
       }) as unknown as ReturnType<WorkingCapitalLoansService['getWorkingCapitalLoansLoanId']>,
     );
-    loansSpy.getWorkingCapitalLoansLoanIdRateChanges.and.returnValue(
+    loansSpy.getWorkingCapitalLoansLoanIdRateChanges.mockReturnValue(
       of([
         { id: 1, effectiveDate: '01 January 2026', previousRate: 5, newRate: 6 },
       ]) as unknown as ReturnType<
         WorkingCapitalLoansService['getWorkingCapitalLoansLoanIdRateChanges']
       >,
     );
-    loansSpy.getWorkingCapitalLoansLoanIdAmortizationSchedule.and.returnValue(
+    loansSpy.getWorkingCapitalLoansLoanIdAmortizationSchedule.mockReturnValue(
       of({
         periodPaymentRate: 5,
         netDisbursementAmount: 9800,
@@ -112,62 +98,62 @@ describe('WcLoanViewComponent', () => {
         WorkingCapitalLoansService['getWorkingCapitalLoansLoanIdAmortizationSchedule']
       >,
     );
-    loansSpy.getWorkingCapitalLoansLoanIdDelinquencyrangetags.and.returnValue(
+    loansSpy.getWorkingCapitalLoansLoanIdDelinquencyrangetags.mockReturnValue(
       of([{ id: 1, periodNumber: 1, delinquentDays: 5 }]) as unknown as ReturnType<
         WorkingCapitalLoansService['getWorkingCapitalLoansLoanIdDelinquencyrangetags']
       >,
     );
-    chargesSpy.getWorkingCapitalLoansLoanIdCharges.and.returnValue(
+    chargesSpy.getWorkingCapitalLoansLoanIdCharges.mockReturnValue(
       of([{ id: 1, name: 'Fee', amount: 100 }]) as unknown as ReturnType<
         WorkingCapitalLoanChargesService['getWorkingCapitalLoansLoanIdCharges']
       >,
     );
-    transactionsSpy.getWorkingCapitalLoansLoanIdTransactions.and.returnValue(
+    transactionsSpy.getWorkingCapitalLoansLoanIdTransactions.mockReturnValue(
       of({ content: [{ id: 1, transactionAmount: 500 }] }) as unknown as ReturnType<
         WorkingCapitalLoanTransactionsService['getWorkingCapitalLoansLoanIdTransactions']
       >,
     );
-    delinquencyActionsSpy.getWorkingCapitalLoansLoanIdDelinquencyActions.and.returnValue(
+    delinquencyActionsSpy.getWorkingCapitalLoansLoanIdDelinquencyActions.mockReturnValue(
       of([{ id: 1, action: 'PAUSE' }]) as unknown as ReturnType<
         WorkingCapitalLoanDelinquencyActionsService['getWorkingCapitalLoansLoanIdDelinquencyActions']
       >,
     );
-    delinquencyRangeSpy.getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule.and.returnValue(
+    delinquencyRangeSpy.getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule.mockReturnValue(
       of([{ id: 1, periodNumber: 1 }]) as unknown as ReturnType<
         WorkingCapitalLoanDelinquencyRangeScheduleService['getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule']
       >,
     );
-    breachScheduleSpy.getWorkingCapitalLoansLoanIdBreachSchedule.and.returnValue(
+    breachScheduleSpy.getWorkingCapitalLoansLoanIdBreachSchedule.mockReturnValue(
       of([{ id: 1, periodNumber: 1, breach: true }]) as unknown as ReturnType<
         WorkingCapitalLoanBreachScheduleService['getWorkingCapitalLoansLoanIdBreachSchedule']
       >,
     );
-    breachActionsSpy.getWorkingCapitalLoansLoanIdBreachActions.and.returnValue(
+    breachActionsSpy.getWorkingCapitalLoansLoanIdBreachActions.mockReturnValue(
       of([{ id: 1, action: 'PAUSE' }]) as unknown as ReturnType<
         WorkingCapitalLoanBreachActionsService['getWorkingCapitalLoansLoanIdBreachActions']
       >,
     );
-    nearBreachActionsSpy.getWorkingCapitalLoansLoanIdNearBreachActions.and.returnValue(
+    nearBreachActionsSpy.getWorkingCapitalLoansLoanIdNearBreachActions.mockReturnValue(
       of([{ id: 1, action: 'RESCHEDULE', threshold: 80 }]) as unknown as ReturnType<
         WorkingCapitalLoanNearBreachActionsService['getWorkingCapitalLoansLoanIdNearBreachActions']
       >,
     );
-    wcOriginatorsSpy.getWorkingCapitalLoansLoanIdOriginators.and.returnValue(
+    wcOriginatorsSpy.getWorkingCapitalLoansLoanIdOriginators.mockReturnValue(
       of({ originators: [{ id: 5, name: 'Acme Originator' }] }) as unknown as ReturnType<
         WorkingCapitalLoanOriginatorsService['getWorkingCapitalLoansLoanIdOriginators']
       >,
     );
-    wcOriginatorsSpy.postWorkingCapitalLoansLoanIdOriginatorsOriginatorId.and.returnValue(
+    wcOriginatorsSpy.postWorkingCapitalLoansLoanIdOriginatorsOriginatorId.mockReturnValue(
       of({}) as unknown as ReturnType<
         WorkingCapitalLoanOriginatorsService['postWorkingCapitalLoansLoanIdOriginatorsOriginatorId']
       >,
     );
-    wcOriginatorsSpy.deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId.and.returnValue(
+    wcOriginatorsSpy.deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId.mockReturnValue(
       of({}) as unknown as ReturnType<
         WorkingCapitalLoanOriginatorsService['deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId']
       >,
     );
-    originatorsSpy.getLoanOriginators.and.returnValue(
+    originatorsSpy.getLoanOriginators.mockReturnValue(
       of([
         { id: 5, name: 'Acme Originator' },
         { id: 6, name: 'Other Originator' },
@@ -214,13 +200,13 @@ describe('WcLoanViewComponent', () => {
     expect(component.loanId).toBe(1);
     expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledWith(1);
     expect(component.loan()?.accountNo).toBe('000001');
-    expect(component.charges()).toHaveSize(1);
-    expect(component.transactions()).toHaveSize(1);
-    expect(component.delinquencyActions()).toHaveSize(1);
-    expect(component.delinquencyRangeSchedule()).toHaveSize(1);
-    expect(component.breachSchedule()).toHaveSize(1);
-    expect(component.breachActions()).toHaveSize(1);
-    expect(component.nearBreachActions()).toHaveSize(1);
+    expect(component.charges()).toHaveLength(1);
+    expect(component.transactions()).toHaveLength(1);
+    expect(component.delinquencyActions()).toHaveLength(1);
+    expect(component.delinquencyRangeSchedule()).toHaveLength(1);
+    expect(component.breachSchedule()).toHaveLength(1);
+    expect(component.breachActions()).toHaveLength(1);
+    expect(component.nearBreachActions()).toHaveLength(1);
     expect(component.originators()).toEqual([{ id: 5, name: 'Acme Originator' }]);
   });
 
@@ -306,7 +292,7 @@ describe('WcLoanViewComponent', () => {
   });
 
   it('detaches an originator after confirmation', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     component.onDetachOriginator({ id: 5, name: 'Acme Originator' });
 
@@ -316,7 +302,7 @@ describe('WcLoanViewComponent', () => {
   });
 
   it('does not detach an originator when the confirmation is declined', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     component.onDetachOriginator({ id: 5, name: 'Acme Originator' });
 

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PaymentTypesListComponent } from './payment-types-list.component';
 import { PaymentTypeService } from '../../../api';
@@ -28,16 +29,13 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('PaymentTypesListComponent', () => {
   let component: PaymentTypesListComponent;
   let fixture: ComponentFixture<PaymentTypesListComponent>;
-  let paymentTypeServiceSpy: jasmine.SpyObj<PaymentTypeService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let paymentTypeServiceSpy: SpyObj<PaymentTypeService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    paymentTypeServiceSpy = jasmine.createSpyObj('PaymentTypeService', [
-      'getPaymenttypes',
-      'deletePaymenttypesPaymentTypeId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    paymentTypeServiceSpy.getPaymenttypes.and.returnValue(
+    paymentTypeServiceSpy = createSpyObj(['getPaymenttypes', 'deletePaymenttypesPaymentTypeId']);
+    routerSpy = createSpyObj(['navigate']);
+    paymentTypeServiceSpy.getPaymenttypes.mockReturnValue(
       of([
         { id: 1, name: 'Cash', isCashPayment: true, isSystemDefined: false },
       ]) as unknown as ReturnType<PaymentTypeService['getPaymenttypes']>,
@@ -60,12 +58,12 @@ describe('PaymentTypesListComponent', () => {
   it('should load payment types on init', () => {
     expect(component).toBeTruthy();
     expect(paymentTypeServiceSpy.getPaymenttypes).toHaveBeenCalled();
-    expect(component.paymentTypes()).toHaveSize(1);
+    expect(component.paymentTypes()).toHaveLength(1);
   });
 
   it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    paymentTypeServiceSpy.deletePaymenttypesPaymentTypeId.and.returnValue(
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    paymentTypeServiceSpy.deletePaymenttypesPaymentTypeId.mockReturnValue(
       of({}) as unknown as ReturnType<PaymentTypeService['deletePaymenttypesPaymentTypeId']>,
     );
 
@@ -76,7 +74,7 @@ describe('PaymentTypesListComponent', () => {
   });
 
   it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
     component.onDelete({ id: 5, name: 'Cheque' });
     expect(paymentTypeServiceSpy.deletePaymenttypesPaymentTypeId).not.toHaveBeenCalled();
   });
