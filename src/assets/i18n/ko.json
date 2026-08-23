@@ -524,5 +524,12 @@
     "CONFIRM": "{{count}}건에 대해 한 번의 요청으로 처리합니다.",
     "ALL_SUCCEEDED": "{{count}}건이 성공적으로 처리되었습니다.",
     "PARTIAL": "{{total}}건 중 {{succeeded}}건 성공. 거부된 항목: {{names}}"
+  },
+  "SECURITY": {
+    "AUDIT_LOGS": "감사 로그"
+  },
+  "USERS": {
+    "CREATE_USER": "사용자 생성",
+    "EDIT_USER": "사용자 편집"
   }
 }
