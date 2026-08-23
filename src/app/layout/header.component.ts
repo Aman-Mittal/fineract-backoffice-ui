@@ -302,6 +302,11 @@ type HeaderSearchResult =
         display: flex;
         justify-content: space-between;
         align-items: center;
+        /* The containing block for the expanded phone search field, which is positioned against
+           the bar. Without it that field resolves against .app-container and lands in the page
+           content. It also makes the z-index below apply at all -- z-index is ignored on a
+           statically positioned element. */
+        position: relative;
         padding: 0 1.5rem;
         height: 64px;
         background-color: var(--card-bg);

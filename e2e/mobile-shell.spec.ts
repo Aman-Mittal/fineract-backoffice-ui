@@ -178,6 +178,26 @@ test.describe('the shell at a phone viewport', () => {
     expect(cellBox!.width).toBeGreaterThan(rowBox!.width * 0.8);
   });
 
+  test('expands search inside the bar, not over the page', async ({ page }) => {
+    // The field is positioned against the header, which only works while the header is itself a
+    // containing block. When it was not, this rendered in the page content over the dashboard
+    // cards — and every other case here still passed, because none of them asks where it went.
+    await page.locator('button.icon-btn').first().tap();
+
+    const field = page.locator('ion-searchbar#global-search');
+    await expect(field).toBeVisible();
+
+    const [fieldBox, headerBox] = await Promise.all([
+      field.boundingBox(),
+      page.locator('.header').boundingBox(),
+    ]);
+    expect(fieldBox && headerBox).toBeTruthy();
+    expect(fieldBox!.y).toBeGreaterThanOrEqual(headerBox!.y - 1);
+    expect(fieldBox!.y + fieldBox!.height).toBeLessThanOrEqual(
+      headerBox!.y + headerBox!.height + 1,
+    );
+  });
+
   test('gives every header control a thumb-sized target', async ({ page }) => {
     const controls = page.locator('.header button:visible');
     const count = await controls.count();
