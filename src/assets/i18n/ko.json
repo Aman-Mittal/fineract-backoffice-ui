@@ -120,7 +120,11 @@
     "openingBalances": "기초 잔액",
     "reportDefinitions": "보고서 정의",
     "workQueues": "승인 대기열",
-    "opensInNewTab": "새 탭에서 열림"
+    "opensInNewTab": "새 탭에서 열림",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "toggleSidebar": "사이드바 전환",
+    "moreActions": "추가 작업"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "시스템 운영 상태",

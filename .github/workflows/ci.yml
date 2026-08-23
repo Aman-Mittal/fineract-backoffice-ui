@@ -170,6 +170,12 @@ jobs:
       # passing while an id or token a real deployment names disappears.
       - name: Verify the reference downstream config still resolves
         run: npm run check:reference-downstream
+      # The narrow layout rests on three invariants a diff cannot show: one breakpoint shared
+      # between the CSS and ViewportService, no 100vh (which overflows under mobile browser
+      # chrome), and no unbounded fixed width. The e2e `mobile` project covers behaviour; this
+      # covers the rules that are about to break it.
+      - name: Verify responsive layout invariants
+        run: npm run check:responsive
       # Nothing else type-checks e2e/: `npm run lint` covers src, and tsconfig.app.json excludes
       # the suite. A helper referencing an identifier that no longer exists therefore compiled
       # fine and failed only when CI ran the browser — which is a slow, expensive way to find a
