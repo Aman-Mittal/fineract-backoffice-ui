@@ -34,11 +34,7 @@ describe('FundFormComponent', () => {
   let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    fundsServiceSpy = createSpyObj([
-      'getFundsFundId',
-      'postFunds',
-      'putFundsFundId',
-    ]);
+    fundsServiceSpy = createSpyObj(['getFundsFundId', 'postFunds', 'putFundsFundId']);
 
     routerSpy = createSpyObj(['navigate']);
 
@@ -86,8 +82,6 @@ describe('FundFormComponent', () => {
       externalId: 'RF-9',
     });
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/organization/funds',
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/organization/funds']);
   });
 });

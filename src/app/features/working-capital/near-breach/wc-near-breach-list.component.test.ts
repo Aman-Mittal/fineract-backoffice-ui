@@ -55,9 +55,7 @@ describe('WcNearBreachListComponent', () => {
           name: 'Warn A',
           threshold: 80,
         },
-      ]) as unknown as ReturnType<
-        WorkingCapitalNearBreachService['getWorkingCapitalNearBreach']
-      >,
+      ]) as unknown as ReturnType<WorkingCapitalNearBreachService['getWorkingCapitalNearBreach']>,
     );
 
     dialogService.confirm.mockResolvedValue(true);
@@ -102,10 +100,7 @@ describe('WcNearBreachListComponent', () => {
       name: 'X',
     });
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/working-capital/near-breach/edit',
-      7,
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach/edit', 7]);
   });
 
   it('should delete after confirmation and reload', async () => {
@@ -124,9 +119,7 @@ describe('WcNearBreachListComponent', () => {
 
     await fixture.whenStable();
 
-    expect(
-      serviceSpy.deleteWorkingCapitalNearBreachBreachId,
-    ).toHaveBeenCalledWith(5);
+    expect(serviceSpy.deleteWorkingCapitalNearBreachBreachId).toHaveBeenCalledWith(5);
 
     expect(serviceSpy.getWorkingCapitalNearBreach).toHaveBeenCalledTimes(2);
   });
@@ -141,8 +134,6 @@ describe('WcNearBreachListComponent', () => {
 
     await fixture.whenStable();
 
-    expect(
-      serviceSpy.deleteWorkingCapitalNearBreachBreachId,
-    ).not.toHaveBeenCalled();
+    expect(serviceSpy.deleteWorkingCapitalNearBreachBreachId).not.toHaveBeenCalled();
   });
 });

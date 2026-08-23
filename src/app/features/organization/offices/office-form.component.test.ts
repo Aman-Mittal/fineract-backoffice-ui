@@ -50,9 +50,7 @@ describe('OfficeFormComponent', () => {
 
     routerSpy = createSpyObj(['navigate']);
 
-    officesServiceSpy.getOffices.mockReturnValue(
-      of([]) as unknown as Observable<never>,
-    );
+    officesServiceSpy.getOffices.mockReturnValue(of([]) as unknown as Observable<never>);
 
     officesServiceSpy.getOfficesOfficeId.mockReturnValue(
       of({
@@ -98,9 +96,7 @@ describe('OfficeFormComponent', () => {
     });
 
     it('should submit form in create mode', () => {
-      officesServiceSpy.postOffices.mockReturnValue(
-        of({}) as unknown as Observable<never>,
-      );
+      officesServiceSpy.postOffices.mockReturnValue(of({}) as unknown as Observable<never>);
 
       component.office.set({
         name: NEW_OFFICE,
@@ -177,13 +173,10 @@ describe('OfficeFormComponent', () => {
         ],
       });
 
-      const options =
-        rendered.nativeElement.querySelectorAll('ion-select-option');
+      const options = rendered.nativeElement.querySelectorAll('ion-select-option');
 
       expect(
-        Array.from(options).map(
-          (option) => (option as HTMLElement).textContent?.trim(),
-        ),
+        Array.from(options).map((option) => (option as HTMLElement).textContent?.trim()),
       ).toEqual(['Head Office', 'Branch Office']);
     });
   });
@@ -222,24 +215,18 @@ describe('OfficeFormComponent', () => {
       expect(component.isEditMode()).toBe(true);
       expect(component.officeId).toBe(12);
 
-      expect(
-        officesServiceSpy.getOfficesOfficeId,
-      ).toHaveBeenCalledWith(12);
+      expect(officesServiceSpy.getOfficesOfficeId).toHaveBeenCalledWith(12);
 
       expect(component.office().name).toBe(TEST_OFFICE);
       expect(component.openingDate()).toBe(TEST_OPENING_DATE);
 
-      officesServiceSpy.putOfficesOfficeId.mockReturnValue(
-        of({}) as unknown as Observable<never>,
-      );
+      officesServiceSpy.putOfficesOfficeId.mockReturnValue(of({}) as unknown as Observable<never>);
 
       component.openingDate.set(TEST_OPENING_DATE);
 
       component.onSubmit();
 
-      expect(
-        officesServiceSpy.putOfficesOfficeId,
-      ).toHaveBeenCalledWith(
+      expect(officesServiceSpy.putOfficesOfficeId).toHaveBeenCalledWith(
         12,
         expect.objectContaining({
           name: TEST_OFFICE,

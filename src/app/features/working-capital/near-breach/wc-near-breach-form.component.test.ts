@@ -23,10 +23,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
 import { WcNearBreachFormComponent } from './wc-near-breach-form.component';
-import {
-  WorkingCapitalBreachService,
-  WorkingCapitalNearBreachService,
-} from '../../../api';
+import { WorkingCapitalBreachService, WorkingCapitalNearBreachService } from '../../../api';
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
@@ -44,16 +41,12 @@ describe('WcNearBreachFormComponent', () => {
       'putWorkingCapitalNearBreachBreachId',
     ]);
 
-    breachServiceSpy = createSpyObj([
-      'getWorkingCapitalBreachTemplate',
-    ]);
+    breachServiceSpy = createSpyObj(['getWorkingCapitalBreachTemplate']);
 
     breachServiceSpy.getWorkingCapitalBreachTemplate.mockReturnValue(
       of({
         breachFrequencyTypeOptions: [],
-      }) as unknown as ReturnType<
-        WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']
-      >,
+      }) as unknown as ReturnType<WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']>,
     );
 
     routerSpy = createSpyObj(['navigate']);
@@ -106,8 +99,6 @@ describe('WcNearBreachFormComponent', () => {
 
     expect(serviceSpy.postWorkingCapitalNearBreach).toHaveBeenCalled();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/working-capital/near-breach',
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach']);
   });
 });
