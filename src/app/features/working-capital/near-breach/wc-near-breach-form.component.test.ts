@@ -17,9 +17,10 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WcNearBreachFormComponent } from './wc-near-breach-form.component';
-import { WorkingCapitalNearBreachService } from '../../../api';
+import { WorkingCapitalBreachService, WorkingCapitalNearBreachService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,21 +29,29 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('WcNearBreachFormComponent', () => {
   let component: WcNearBreachFormComponent;
   let fixture: ComponentFixture<WcNearBreachFormComponent>;
-  let serviceSpy: jasmine.SpyObj<WorkingCapitalNearBreachService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<WorkingCapitalNearBreachService>;
+  let breachServiceSpy: SpyObj<WorkingCapitalBreachService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('WorkingCapitalNearBreachService', [
+    serviceSpy = createSpyObj([
       'getWorkingCapitalNearBreachBreachId',
       'postWorkingCapitalNearBreach',
       'putWorkingCapitalNearBreachBreachId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    breachServiceSpy = createSpyObj(['getWorkingCapitalBreachTemplate']);
+    breachServiceSpy.getWorkingCapitalBreachTemplate.mockReturnValue(
+      of({ breachFrequencyTypeOptions: [] }) as unknown as ReturnType<
+        WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']
+      >,
+    );
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [WcNearBreachFormComponent, TranslateModule.forRoot()],
       providers: [
         { provide: WorkingCapitalNearBreachService, useValue: serviceSpy },
+        { provide: WorkingCapitalBreachService, useValue: breachServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
         provideNoopAnimations(),
@@ -55,7 +64,7 @@ describe('WcNearBreachFormComponent', () => {
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postWorkingCapitalNearBreach.and.returnValue(
+    serviceSpy.postWorkingCapitalNearBreach.mockReturnValue(
       of({}) as unknown as ReturnType<
         WorkingCapitalNearBreachService['postWorkingCapitalNearBreach']
       >,
