@@ -32,7 +32,7 @@ import {
 } from '../../api';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
@@ -53,8 +53,9 @@ describe('JournalEntryFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [JournalEntryFormComponent, TranslateModule.forRoot()],
+      imports: [JournalEntryFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: JournalEntriesService, useValue: journalServiceSpy },
         { provide: GeneralLedgerAccountService, useValue: glAccountServiceSpy },

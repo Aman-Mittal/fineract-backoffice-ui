@@ -23,7 +23,7 @@ import { ProvisioningEntriesListComponent } from './provisioning-entries-list.co
 import { ProvisioningEntriesService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ProvisioningEntriesListComponent', () => {
@@ -43,8 +43,9 @@ describe('ProvisioningEntriesListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningEntriesListComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningEntriesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningEntriesService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

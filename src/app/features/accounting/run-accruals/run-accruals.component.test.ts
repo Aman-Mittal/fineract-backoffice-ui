@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RunAccrualsComponent } from './run-accruals.component';
 import { PeriodicAccrualAccountingService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('RunAccrualsComponent', () => {
@@ -34,8 +34,9 @@ describe('RunAccrualsComponent', () => {
     serviceSpy = createSpyObj(['postRunaccruals']);
 
     await TestBed.configureTestingModule({
-      imports: [RunAccrualsComponent, TranslateModule.forRoot()],
+      imports: [RunAccrualsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: PeriodicAccrualAccountingService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

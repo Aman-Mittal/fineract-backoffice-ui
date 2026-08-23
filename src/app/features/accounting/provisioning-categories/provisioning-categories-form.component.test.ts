@@ -23,7 +23,7 @@ import { ProvisioningCategoriesFormComponent } from './provisioning-categories-f
 import { ProvisioningCategoryService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ProvisioningCategoriesFormComponent', () => {
@@ -41,8 +41,9 @@ describe('ProvisioningCategoriesFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningCategoriesFormComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningCategoriesFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningCategoryService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

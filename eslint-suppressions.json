@@ -44,17 +44,7 @@
       "count": 2
     }
   },
-  "src/app/features/accounting/accounting-closure-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/accounting-closure-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/accounting-closures-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -84,17 +74,7 @@
       "count": 1
     }
   },
-  "src/app/features/accounting/journal-entries-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/journal-entries-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/journal-entry-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -104,17 +84,7 @@
       "count": 1
     }
   },
-  "src/app/features/accounting/provisioning-categories/provisioning-categories-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/provisioning-categories/provisioning-categories-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/provisioning-categories/provisioning-categories-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -124,17 +94,7 @@
       "count": 1
     }
   },
-  "src/app/features/accounting/provisioning-criteria/provisioning-criteria-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/provisioning-criteria/provisioning-criteria-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/provisioning-criteria/provisioning-criteria-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -144,27 +104,12 @@
       "count": 1
     }
   },
-  "src/app/features/accounting/provisioning-entries/provisioning-entries-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/provisioning-entries/provisioning-entries-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
-  "src/app/features/accounting/provisioning-entries/provisioning-entries-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/provisioning-entries/provisioning-entries-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/run-accruals/run-accruals.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }

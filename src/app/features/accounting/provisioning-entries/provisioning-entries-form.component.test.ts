@@ -23,7 +23,7 @@ import { ProvisioningEntriesFormComponent } from './provisioning-entries-form.co
 import { ProvisioningEntriesService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ProvisioningEntriesFormComponent', () => {
@@ -37,8 +37,9 @@ describe('ProvisioningEntriesFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningEntriesFormComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningEntriesFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningEntriesService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

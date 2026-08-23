@@ -27,7 +27,7 @@ import {
 } from '../../api';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
@@ -42,8 +42,9 @@ describe('AccountingClosuresListComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [AccountingClosuresListComponent, TranslateModule.forRoot()],
+      imports: [AccountingClosuresListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

@@ -23,7 +23,7 @@ import { ProvisioningCriteriaListComponent } from './provisioning-criteria-list.
 import { ProvisioningCriteriaService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
@@ -46,8 +46,9 @@ describe('ProvisioningCriteriaListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningCriteriaListComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningCriteriaListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningCriteriaService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },

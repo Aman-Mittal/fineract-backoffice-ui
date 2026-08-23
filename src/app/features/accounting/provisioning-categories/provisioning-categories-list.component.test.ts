@@ -23,7 +23,7 @@ import { ProvisioningCategoriesListComponent } from './provisioning-categories-l
 import { ProvisioningCategoryService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
@@ -46,8 +46,9 @@ describe('ProvisioningCategoriesListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningCategoriesListComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningCategoriesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningCategoryService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },
