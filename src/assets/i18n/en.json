@@ -121,7 +121,10 @@
     "openingBalances": "Opening Balances",
     "reportDefinitions": "Report Definitions",
     "workQueues": "Approval Queues",
-    "opensInNewTab": "Opens in a new tab"
+    "opensInNewTab": "Opens in a new tab",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "toggleSidebar": "Toggle sidebar"
   },
   "SIDEBAR": {
     "SEARCH": "Search",

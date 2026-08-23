@@ -28,6 +28,7 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap, of, map, catchE
 import { GuidanceService } from '../core/services/guidance.service';
 import { SidebarService } from '../core/services/sidebar.service';
 import { BrandingService } from '../core/services/branding.service';
+import { ViewportService } from '../core/services/viewport.service';
 
 /** The shipped mark, used when the deployment names none of its own. */
 const DEFAULT_LOGO = 'favicon.png';
@@ -66,12 +67,26 @@ type HeaderSearchResult =
   template: `
     <header class="header" role="banner">
       <div class="logo-section">
+        <!--
+          One control, two meanings. Narrow: opens the drawer, so it needs the dialog wiring
+          (aria-expanded, aria-controls) and a hamburger. Wide: narrows the permanent column,
+          which is a preference rather than a disclosure, so it carries neither.
+        -->
         <button
           class="toggle-btn"
           (click)="sidebarService.toggle()"
-          [attr.aria-label]="'Toggle Sidebar'"
+          [attr.aria-expanded]="viewport.isMobile() ? sidebarService.isDrawerOpen() : null"
+          [attr.aria-controls]="viewport.isMobile() ? 'app-navigation' : null"
+          [attr.aria-label]="
+            (viewport.isMobile()
+              ? sidebarService.isDrawerOpen()
+                ? 'nav.closeMenu'
+                : 'nav.openMenu'
+              : 'nav.toggleSidebar'
+            ) | translate
+          "
         >
-          @if (sidebarService.isCollapsed()) {
+          @if (viewport.isMobile() || sidebarService.isCollapsed()) {
             <ion-icon name="menu-outline"></ion-icon>
           } @else {
             <ion-icon name="chevron-back-outline"></ion-icon>
@@ -411,6 +426,43 @@ type HeaderSearchResult =
         width: 18px;
         height: 18px;
       }
+      /* ---- narrow viewport ----------------------------------------------------------
+         The header carries eight controls, which does not fit 360px. The ones that survive
+         are the ones needed to move: navigation, search, and signing out. Business date,
+         render time, the guide, the user's name and the language select are all reachable
+         from elsewhere and are hidden rather than crushed.
+         Breakpoint matches ViewportService.MOBILE_BREAKPOINT_PX; see DOCS/MOBILE.md. */
+      @media (max-width: 768px) {
+        .header {
+          padding: 0 var(--space-2);
+          gap: var(--space-2);
+        }
+        .system-info,
+        .tour-btn,
+        .user-info,
+        #lang-select {
+          display: none;
+        }
+        .app-title {
+          /* The mark still identifies the deployment; the wordmark is what does not fit. */
+          display: none;
+        }
+        .logout-btn {
+          padding: 0 var(--space-3);
+          white-space: nowrap;
+        }
+        .search-section {
+          flex: 1 1 auto;
+          min-width: 0;
+        }
+        /* Every header control is a touch target below the breakpoint. */
+        .toggle-btn,
+        .theme-toggle-btn,
+        .logout-btn {
+          min-width: 44px;
+          min-height: 44px;
+        }
+      }
     `,
   ],
 })
@@ -425,6 +477,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly navigationConfig = inject(NavigationConfigService);
   private readonly businessDateService = inject(BusinessDateManagementService);
   private readonly branding = inject(BrandingService);
+  protected readonly viewport = inject(ViewportService);
   private readonly themeIsDark = this.themeService.isDarkMode;
 
   /**
