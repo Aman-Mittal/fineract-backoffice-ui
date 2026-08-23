@@ -23,7 +23,7 @@ import { SchedulerJobsListComponent } from './scheduler-jobs-list.component';
 import { SCHEDULERJOBService, SchedulerService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
@@ -59,8 +59,9 @@ describe('SchedulerJobsListComponent', () => {
     dialogSpy.confirm.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
-      imports: [SchedulerJobsListComponent, TranslateModule.forRoot()],
+      imports: [SchedulerJobsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SCHEDULERJOBService, useValue: jobSpy },
         { provide: SchedulerService, useValue: schedulerSpy },
         { provide: Router, useValue: routerSpy },

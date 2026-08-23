@@ -23,7 +23,7 @@ import { AdhocQueryFormComponent } from './adhoc-query-form.component';
 import { AdhocQueryApiService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('AdhocQueryFormComponent', () => {
@@ -47,8 +47,9 @@ describe('AdhocQueryFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [AdhocQueryFormComponent, TranslateModule.forRoot()],
+      imports: [AdhocQueryFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AdhocQueryApiService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

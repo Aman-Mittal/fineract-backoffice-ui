@@ -23,7 +23,7 @@ import { HooksFormComponent } from './hooks-form.component';
 import { HooksService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('HooksFormComponent', () => {
@@ -47,8 +47,9 @@ describe('HooksFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [HooksFormComponent, TranslateModule.forRoot()],
+      imports: [HooksFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: HooksService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

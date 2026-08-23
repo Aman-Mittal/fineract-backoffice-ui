@@ -23,7 +23,7 @@ import { SchedulerJobHistoryComponent } from './scheduler-job-history.component'
 import { SCHEDULERJOBService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('SchedulerJobHistoryComponent', () => {
@@ -42,8 +42,9 @@ describe('SchedulerJobHistoryComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [SchedulerJobHistoryComponent, TranslateModule.forRoot()],
+      imports: [SchedulerJobHistoryComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SCHEDULERJOBService, useValue: jobSpy },
         { provide: Router, useValue: routerSpy },
         {

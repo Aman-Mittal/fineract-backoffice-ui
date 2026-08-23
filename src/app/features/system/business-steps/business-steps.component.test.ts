@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BusinessStepsComponent } from './business-steps.component';
 import { BusinessStepConfigurationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('BusinessStepsComponent', () => {
@@ -48,8 +48,9 @@ describe('BusinessStepsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [BusinessStepsComponent, TranslateModule.forRoot()],
+      imports: [BusinessStepsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: BusinessStepConfigurationService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

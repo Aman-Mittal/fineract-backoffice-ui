@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PasswordPreferencesComponent } from './password-preferences.component';
 import { PasswordPreferencesService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('PasswordPreferencesComponent', () => {
@@ -40,8 +40,9 @@ describe('PasswordPreferencesComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [PasswordPreferencesComponent, TranslateModule.forRoot()],
+      imports: [PasswordPreferencesComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: PasswordPreferencesService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

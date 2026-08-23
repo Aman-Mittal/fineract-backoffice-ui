@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoanProductDetailsComponent } from './loan-product-details.component';
 import { LoanProductsDetailsService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('LoanProductDetailsComponent', () => {
@@ -39,8 +39,9 @@ describe('LoanProductDetailsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [LoanProductDetailsComponent, TranslateModule.forRoot()],
+      imports: [LoanProductDetailsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: LoanProductsDetailsService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

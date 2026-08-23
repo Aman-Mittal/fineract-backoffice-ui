@@ -23,7 +23,7 @@ import { EntityDataTableChecksFormComponent } from './entity-data-table-checks-f
 import { EntityDataTableService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('EntityDataTableChecksFormComponent', () => {
@@ -42,8 +42,9 @@ describe('EntityDataTableChecksFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [EntityDataTableChecksFormComponent, TranslateModule.forRoot()],
+      imports: [EntityDataTableChecksFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: EntityDataTableService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

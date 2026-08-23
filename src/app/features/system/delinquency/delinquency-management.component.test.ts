@@ -23,7 +23,7 @@ import { DelinquencyManagementComponent } from './delinquency-management.compone
 import { DelinquencyRangeAndBucketsManagementService } from '../../../api';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('DelinquencyManagementComponent', () => {
@@ -50,8 +50,9 @@ describe('DelinquencyManagementComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [DelinquencyManagementComponent, TranslateModule.forRoot()],
+      imports: [DelinquencyManagementComponent],
       providers: [
+        ...provideTranslateTesting(),
         {
           provide: DelinquencyRangeAndBucketsManagementService,
           useValue: delinquencyServiceSpy,

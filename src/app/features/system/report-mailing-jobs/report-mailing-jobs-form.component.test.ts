@@ -23,7 +23,7 @@ import { ReportMailingJobsFormComponent } from './report-mailing-jobs-form.compo
 import { ReportMailingJobsService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ReportMailingJobsFormComponent', () => {
@@ -41,8 +41,9 @@ describe('ReportMailingJobsFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ReportMailingJobsFormComponent, TranslateModule.forRoot()],
+      imports: [ReportMailingJobsFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ReportMailingJobsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

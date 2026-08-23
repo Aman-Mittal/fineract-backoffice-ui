@@ -1316,22 +1316,12 @@
       "count": 1
     }
   },
-  "src/app/features/system/adhoc-query/adhoc-query-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/adhoc-query/adhoc-query-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
   "src/app/features/system/adhoc-query/adhoc-query-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/bulk-import/bulk-import.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1346,21 +1336,11 @@
       "count": 1
     }
   },
-  "src/app/features/system/business-steps/business-steps.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/business-steps/business-steps.component.ts": {
     "no-restricted-imports": {
       "count": 1
     },
     "unicorn/no-array-sort": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/cache/cache.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1389,11 +1369,6 @@
       "count": 1
     }
   },
-  "src/app/features/system/credit-bureau-config/credit-bureau-config.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/credit-bureau-config/credit-bureau-config.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1409,17 +1384,7 @@
       "count": 1
     }
   },
-  "src/app/features/system/delinquency/delinquency-management.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/delinquency/delinquency-management.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/entity-data-table-checks/entity-data-table-checks-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1434,11 +1399,6 @@
       "count": 1
     }
   },
-  "src/app/features/system/entity-mapping/entity-mapping-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/entity-mapping/entity-mapping-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1449,17 +1409,7 @@
       "count": 1
     }
   },
-  "src/app/features/system/external-events/external-events.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/external-events/external-events.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/external-services/external-services.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1469,17 +1419,7 @@
       "count": 1
     }
   },
-  "src/app/features/system/field-configuration/field-configuration.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/field-configuration/field-configuration.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/hooks/hooks-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1494,17 +1434,7 @@
       "count": 1
     }
   },
-  "src/app/features/system/instance-mode/instance-mode.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/instance-mode/instance-mode.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/loan-product-details/loan-product-details.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1514,17 +1444,7 @@
       "count": 1
     }
   },
-  "src/app/features/system/notifications-config/notifications-config.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/notifications-config/notifications-config.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/oidc-config/oidc-config.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1534,27 +1454,12 @@
       "count": 1
     }
   },
-  "src/app/features/system/password-preferences/password-preferences.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/password-preferences/password-preferences.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
-  "src/app/features/system/permissions/permissions.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/permissions/permissions.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/report-mailing-jobs/report-mailing-jobs-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1569,27 +1474,12 @@
       "count": 1
     }
   },
-  "src/app/features/system/scheduler-jobs/scheduler-job-history.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/scheduler-jobs/scheduler-job-history.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
-  "src/app/features/system/scheduler-jobs/scheduler-jobs-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/scheduler-jobs/scheduler-jobs-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/system/sms/sms-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }

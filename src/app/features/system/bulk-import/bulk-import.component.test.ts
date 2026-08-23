@@ -38,7 +38,7 @@ import {
   UsersService,
 } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('BulkImportComponent', () => {
@@ -71,8 +71,9 @@ describe('BulkImportComponent', () => {
     officesServiceSpy = createSpyObj(['getOfficesDownloadtemplate', 'postOfficesUploadtemplate']);
 
     await TestBed.configureTestingModule({
-      imports: [BulkImportComponent, TranslateModule.forRoot()],
+      imports: [BulkImportComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: BulkImportService, useValue: bulkImportServiceSpy },
         { provide: ClientService, useValue: {} },
         { provide: LoansService, useValue: {} },

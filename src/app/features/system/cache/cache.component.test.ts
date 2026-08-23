@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CacheComponent } from './cache.component';
 import { CacheService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('CacheComponent', () => {
@@ -40,8 +40,12 @@ describe('CacheComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [CacheComponent, TranslateModule.forRoot()],
-      providers: [{ provide: CacheService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [CacheComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: CacheService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CacheComponent);

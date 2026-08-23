@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InstanceModeComponent } from './instance-mode.component';
 import { InstanceModeService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('InstanceModeComponent', () => {
@@ -34,8 +34,12 @@ describe('InstanceModeComponent', () => {
     serviceSpy = createSpyObj(['putInstanceMode']);
 
     await TestBed.configureTestingModule({
-      imports: [InstanceModeComponent, TranslateModule.forRoot()],
-      providers: [{ provide: InstanceModeService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [InstanceModeComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: InstanceModeService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InstanceModeComponent);

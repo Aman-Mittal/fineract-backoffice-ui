@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreditBureauConfigComponent } from './credit-bureau-config.component';
 import { CreditBureauConfigurationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('CreditBureauConfigComponent', () => {
@@ -49,8 +49,9 @@ describe('CreditBureauConfigComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [CreditBureauConfigComponent, TranslateModule.forRoot()],
+      imports: [CreditBureauConfigComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: CreditBureauConfigurationService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

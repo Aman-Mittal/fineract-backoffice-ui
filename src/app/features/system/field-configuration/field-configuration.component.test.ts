@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FieldConfigurationComponent } from './field-configuration.component';
 import { EntityFieldConfigurationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('FieldConfigurationComponent', () => {
@@ -39,8 +39,9 @@ describe('FieldConfigurationComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [FieldConfigurationComponent, TranslateModule.forRoot()],
+      imports: [FieldConfigurationComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: EntityFieldConfigurationService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

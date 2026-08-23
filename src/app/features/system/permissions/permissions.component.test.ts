@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PermissionsListComponent } from './permissions.component';
 import { PermissionsService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('PermissionsListComponent', () => {
@@ -43,8 +43,12 @@ describe('PermissionsListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [PermissionsListComponent, TranslateModule.forRoot()],
-      providers: [{ provide: PermissionsService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [PermissionsListComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: PermissionsService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PermissionsListComponent);

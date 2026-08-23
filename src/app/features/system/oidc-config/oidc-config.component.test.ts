@@ -21,7 +21,7 @@ import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { OidcConfigComponent } from './oidc-config.component';
 import { TenantOIDCConfigurationService } from '../../../api';
@@ -83,8 +83,9 @@ describe('OidcConfigComponent', () => {
     dialogsSpy.confirm.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
-      imports: [OidcConfigComponent, TranslateModule.forRoot()],
+      imports: [OidcConfigComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: TenantOIDCConfigurationService, useValue: serviceSpy },
         { provide: NotificationService, useValue: notificationsSpy },
         { provide: DialogService, useValue: dialogsSpy },

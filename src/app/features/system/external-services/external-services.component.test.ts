@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ExternalServicesComponent } from './external-services.component';
 import { ExternalServicesService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ExternalServicesComponent', () => {
@@ -40,8 +40,9 @@ describe('ExternalServicesComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ExternalServicesComponent, TranslateModule.forRoot()],
+      imports: [ExternalServicesComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ExternalServicesService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],

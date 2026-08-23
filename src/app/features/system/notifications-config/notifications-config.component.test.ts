@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NotificationsConfigComponent } from './notifications-config.component';
 import { NotificationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('NotificationsConfigComponent', () => {
@@ -43,8 +43,12 @@ describe('NotificationsConfigComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [NotificationsConfigComponent, TranslateModule.forRoot()],
-      providers: [{ provide: NotificationService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [NotificationsConfigComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: NotificationService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NotificationsConfigComponent);

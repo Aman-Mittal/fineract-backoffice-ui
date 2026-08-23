@@ -23,7 +23,7 @@ import { SmsFormComponent } from './sms-form.component';
 import { SMSService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('SmsFormComponent', () => {
@@ -37,8 +37,9 @@ describe('SmsFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [SmsFormComponent, TranslateModule.forRoot()],
+      imports: [SmsFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SMSService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

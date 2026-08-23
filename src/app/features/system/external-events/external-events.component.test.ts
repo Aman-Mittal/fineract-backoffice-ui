@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ExternalEventsComponent } from './external-events.component';
 import { ExternalEventConfigurationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ExternalEventsComponent', () => {
@@ -44,8 +44,9 @@ describe('ExternalEventsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ExternalEventsComponent, TranslateModule.forRoot()],
+      imports: [ExternalEventsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ExternalEventConfigurationService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],
