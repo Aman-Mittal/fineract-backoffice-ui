@@ -17,14 +17,15 @@
  * under the License.
  */
 
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
+
 import { WcNearBreachFormComponent } from './wc-near-breach-form.component';
 import { WorkingCapitalBreachService, WorkingCapitalNearBreachService } from '../../../api';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('WcNearBreachFormComponent', () => {
   let component: WcNearBreachFormComponent;
@@ -39,27 +40,46 @@ describe('WcNearBreachFormComponent', () => {
       'postWorkingCapitalNearBreach',
       'putWorkingCapitalNearBreachBreachId',
     ]);
+
     breachServiceSpy = createSpyObj(['getWorkingCapitalBreachTemplate']);
+
     breachServiceSpy.getWorkingCapitalBreachTemplate.mockReturnValue(
-      of({ breachFrequencyTypeOptions: [] }) as unknown as ReturnType<
-        WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']
-      >,
+      of({
+        breachFrequencyTypeOptions: [],
+      }) as unknown as ReturnType<WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']>,
     );
+
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [WcNearBreachFormComponent, TranslateModule.forRoot()],
+      imports: [WcNearBreachFormComponent],
       providers: [
-        { provide: WorkingCapitalNearBreachService, useValue: serviceSpy },
-        { provide: WorkingCapitalBreachService, useValue: breachServiceSpy },
-        { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        {
+          provide: WorkingCapitalNearBreachService,
+          useValue: serviceSpy,
+        },
+        {
+          provide: WorkingCapitalBreachService,
+          useValue: breachServiceSpy,
+        },
+        {
+          provide: Router,
+          useValue: routerSpy,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of(convertToParamMap({})),
+          },
+        },
         provideNoopAnimations(),
+        ...provideTranslateTesting(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WcNearBreachFormComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 
@@ -69,9 +89,16 @@ describe('WcNearBreachFormComponent', () => {
         WorkingCapitalNearBreachService['postWorkingCapitalNearBreach']
       >,
     );
-    component.item.set({ nearBreachName: 'Warn', nearBreachThreshold: 75 });
+
+    component.item.set({
+      nearBreachName: 'Warn',
+      nearBreachThreshold: 75,
+    });
+
     component.onSubmit();
+
     expect(serviceSpy.postWorkingCapitalNearBreach).toHaveBeenCalled();
+
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach']);
   });
 });

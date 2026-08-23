@@ -23,7 +23,7 @@ import { OfficesListComponent } from './offices-list.component';
 import { OfficesService, GetOfficesResponse } from '../../../api';
 import { Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('OfficesListComponent', () => {
@@ -39,8 +39,9 @@ describe('OfficesListComponent', () => {
     officesServiceSpy.getOffices.mockReturnValue(of([]) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [OfficesListComponent, TranslateModule.forRoot()],
+      imports: [OfficesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

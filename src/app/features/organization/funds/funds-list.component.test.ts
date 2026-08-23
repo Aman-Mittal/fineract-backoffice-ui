@@ -23,7 +23,7 @@ import { FundsListComponent } from './funds-list.component';
 import { FundsService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('FundsListComponent', () => {
@@ -42,8 +42,9 @@ describe('FundsListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [FundsListComponent, TranslateModule.forRoot()],
+      imports: [FundsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: FundsService, useValue: fundsServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

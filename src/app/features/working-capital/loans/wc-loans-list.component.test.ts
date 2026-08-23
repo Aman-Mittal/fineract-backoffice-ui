@@ -23,7 +23,7 @@ import { WcLoansListComponent } from './wc-loans-list.component';
 import { WorkingCapitalLoansService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('WcLoansListComponent', () => {
@@ -51,8 +51,9 @@ describe('WcLoansListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcLoansListComponent, TranslateModule.forRoot()],
+      imports: [WcLoansListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalLoansService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

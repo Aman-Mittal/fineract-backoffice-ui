@@ -23,7 +23,7 @@ import { WcBreachListComponent } from './wc-breach-list.component';
 import { WorkingCapitalBreachService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
@@ -49,8 +49,9 @@ describe('WcBreachListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcBreachListComponent, TranslateModule.forRoot()],
+      imports: [WcBreachListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalBreachService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },

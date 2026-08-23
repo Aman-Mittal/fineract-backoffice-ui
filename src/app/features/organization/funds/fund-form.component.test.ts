@@ -17,14 +17,15 @@
  * under the License.
  */
 
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
+
 import { FundFormComponent } from './fund-form.component';
 import { FundsService } from '../../../api';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('FundFormComponent', () => {
   let component: FundFormComponent;
@@ -34,20 +35,28 @@ describe('FundFormComponent', () => {
 
   beforeEach(async () => {
     fundsServiceSpy = createSpyObj(['getFundsFundId', 'postFunds', 'putFundsFundId']);
+
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [FundFormComponent, TranslateModule.forRoot()],
+      imports: [FundFormComponent],
       providers: [
         { provide: FundsService, useValue: fundsServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of(convertToParamMap({})),
+          },
+        },
         provideNoopAnimations(),
+        ...provideTranslateTesting(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FundFormComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 
@@ -60,7 +69,11 @@ describe('FundFormComponent', () => {
     fundsServiceSpy.postFunds.mockReturnValue(
       of({}) as unknown as ReturnType<FundsService['postFunds']>,
     );
-    component.fund.set({ name: 'Relief Fund', externalId: 'RF-9' });
+
+    component.fund.set({
+      name: 'Relief Fund',
+      externalId: 'RF-9',
+    });
 
     component.onSubmit();
 
@@ -68,6 +81,7 @@ describe('FundFormComponent', () => {
       name: 'Relief Fund',
       externalId: 'RF-9',
     });
+
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/organization/funds']);
   });
 });

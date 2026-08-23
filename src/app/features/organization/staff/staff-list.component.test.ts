@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StaffListComponent } from './staff-list.component';
 import { StaffService, StaffData } from '../../../api';
 import { of, throwError, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { ActivatedRoute } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
@@ -36,8 +36,9 @@ describe('StaffListComponent', () => {
     staffServiceSpy.getStaff.mockReturnValue(of([]) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [StaffListComponent, TranslateModule.forRoot()],
+      imports: [StaffListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: StaffService, useValue: staffServiceSpy },
         { provide: ActivatedRoute, useValue: {} },
         provideNoopAnimations(),
