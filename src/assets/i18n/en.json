@@ -124,7 +124,8 @@
     "opensInNewTab": "Opens in a new tab",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "toggleSidebar": "Toggle sidebar"
+    "toggleSidebar": "Toggle sidebar",
+    "moreActions": "More actions"
   },
   "SIDEBAR": {
     "SEARCH": "Search",

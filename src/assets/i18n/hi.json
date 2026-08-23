@@ -123,7 +123,8 @@
     "opensInNewTab": "नए टैब में खुलता है",
     "openMenu": "मेन्यू खोलें",
     "closeMenu": "मेन्यू बंद करें",
-    "toggleSidebar": "साइडबार टॉगल करें"
+    "toggleSidebar": "साइडबार टॉगल करें",
+    "moreActions": "अधिक क्रियाएँ"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "सिस्टम परिचालन स्थिति",

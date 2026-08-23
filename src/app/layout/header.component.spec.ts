@@ -24,6 +24,7 @@ import { AuthService } from '../core/services/auth.service';
 import { NavigationConfigService } from '../core/services/navigation-config.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
+import { EMPTY } from 'rxjs';
 import { signal } from '@angular/core';
 
 describe('HeaderComponent', () => {
@@ -41,7 +42,13 @@ describe('HeaderComponent', () => {
     });
     navigationConfigSpy = jasmine.createSpyObj('NavigationConfigService', ['searchRoutes']);
     navigationConfigSpy.searchRoutes.and.returnValue([]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
+    // `routerState` and `events` are properties, not methods, so createSpyObj needs them in the
+    // property bag. The header reads the route tree for the phone header's page title, the same
+    // way BreadcrumbComponent does; without them it throws in ngOnInit.
+    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl'], {
+      routerState: { snapshot: { root: { url: [], routeConfig: null, firstChild: null } } },
+      events: EMPTY,
+    });
 
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), HeaderComponent],

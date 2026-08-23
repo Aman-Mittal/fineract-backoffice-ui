@@ -17,18 +17,47 @@
  * under the License.
  */
 
-import { Component, computed, inject, signal, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  Injector,
+  OnDestroy,
+  OnInit,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
-import { Router, RouterModule } from '@angular/router';
-import { IonIcon, IonItem, IonLabel, IonList, IonSearchbar } from '@ionic/angular/standalone';
+import { NgTemplateOutlet } from '@angular/common';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import {
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
+  IonSearchbar,
+} from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of, map, catchError } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  of,
+  switchMap,
+} from 'rxjs';
 import { GuidanceService } from '../core/services/guidance.service';
 import { SidebarService } from '../core/services/sidebar.service';
 import { BrandingService } from '../core/services/branding.service';
 import { ViewportService } from '../core/services/viewport.service';
+import { buildBreadcrumbs } from './breadcrumb';
 
 /** The shipped mark, used when the deployment names none of its own. */
 const DEFAULT_LOGO = 'favicon.png';
@@ -54,6 +83,7 @@ type HeaderSearchResult =
   selector: 'app-header',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     RouterModule,
     TranslateModule,
     IonIcon,
@@ -63,9 +93,10 @@ type HeaderSearchResult =
     IonLabel,
     FormsModule,
     TooltipDirective,
+    IonPopover,
   ],
   template: `
-    <header class="header" role="banner">
+    <header class="header" role="banner" [class.searching]="mobileSearchOpen()">
       <div class="logo-section">
         <!--
           One control, two meanings. Narrow: opens the drawer, so it needs the dialog wiring
@@ -103,6 +134,14 @@ type HeaderSearchResult =
           class="logo"
         />
         <span class="app-title">{{ brandName() || ('app.title' | translate) }}</span>
+        @if (viewport.isMobile() && !mobileSearchOpen()) {
+          <!--
+            On a phone the bar answers "where am I", which the product name cannot: the name is
+            the same on every screen, and the mark already carries it. Falls back to the product
+            name on a route with no title of its own.
+          -->
+          <h1 class="page-title">{{ pageTitle() || brandName() || ('app.title' | translate) }}</h1>
+        }
       </div>
 
       <div class="search-section">
@@ -150,63 +189,106 @@ type HeaderSearchResult =
         }
       </div>
 
+      @if (viewport.isMobile()) {
+        <div class="mobile-actions">
+          <button
+            class="icon-btn"
+            (click)="toggleMobileSearch()"
+            [attr.aria-expanded]="mobileSearchOpen()"
+            [attr.aria-label]="(mobileSearchOpen() ? 'COMMON.CLOSE' : 'COMMON.SEARCH') | translate"
+          >
+            <ion-icon [name]="mobileSearchOpen() ? 'close-outline' : 'search-outline'"></ion-icon>
+          </button>
+          <button
+            id="header-overflow"
+            class="icon-btn"
+            [attr.aria-label]="'nav.moreActions' | translate"
+          >
+            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!--
+          Everything the wide header shows in a row lives here instead. Same template, so a
+          control cannot be added to one layout and forgotten in the other.
+        -->
+        <ion-popover
+          trigger="header-overflow"
+          [dismissOnSelect]="true"
+          side="bottom"
+          alignment="end"
+        >
+          <ng-template>
+            <div class="overflow-menu">
+              <ng-container *ngTemplateOutlet="headerActions"></ng-container>
+            </div>
+          </ng-template>
+        </ion-popover>
+      }
+
       <div class="header-actions">
-        <div class="system-info">
-          <div class="info-group">
-            <span class="label">{{ 'COMMON.BUSINESS_DATE' | translate }}:</span>
-            <span class="value">{{ businessDate() }}</span>
-          </div>
-          <div class="info-group">
-            <span class="label">{{ 'COMMON.RENDER_TIME' | translate }}:</span>
-            <span class="value">{{ renderTime() }}</span>
-          </div>
-        </div>
-
-        <button
-          class="theme-toggle-btn"
-          (click)="themeService.toggleDarkMode()"
-          [appTooltip]="'COMMON.TOGGLE_THEME' | translate"
-          [attr.aria-label]="'COMMON.TOGGLE_THEME' | translate"
-        >
-          @if (themeService.isDarkMode()) {
-            <ion-icon name="sunny-outline"></ion-icon>
-          } @else {
-            <ion-icon name="moon-outline"></ion-icon>
-          }
-        </button>
-
-        <button class="tour-btn" (click)="startTour()" [attr.aria-label]="'Help Tour'">
-          <ion-icon name="compass-outline"></ion-icon>
-          Guide
-        </button>
-
-        <div class="user-info">
-          <span class="username">{{ authService.username() }}</span>
-          <span class="office">{{ authService.officeName() }}</span>
-        </div>
-
-        <select
-          id="lang-select"
-          #langSelect
-          (change)="switchLanguage(langSelect.value)"
-          [attr.aria-label]="'app.language.select' | translate"
-        >
-          <option value="en" [selected]="translate.getCurrentLang() === 'en'">
-            {{ 'app.language.en' | translate }}
-          </option>
-          <option value="hi" [selected]="translate.getCurrentLang() === 'hi'">
-            {{ 'app.language.hi' | translate }}
-          </option>
-          <option value="ko" [selected]="translate.getCurrentLang() === 'ko'">
-            {{ 'app.language.ko' | translate }}
-          </option>
-        </select>
-
-        <button class="logout-btn" (click)="logout()" [attr.aria-label]="'app.logout' | translate">
-          {{ 'app.logout' | translate }}
-        </button>
+        @if (!viewport.isMobile()) {
+          <ng-container *ngTemplateOutlet="headerActions"></ng-container>
+        }
       </div>
     </header>
+
+    <ng-template #headerActions>
+      <div class="system-info">
+        <div class="info-group">
+          <span class="label">{{ 'COMMON.BUSINESS_DATE' | translate }}:</span>
+          <span class="value">{{ businessDate() }}</span>
+        </div>
+        <div class="info-group">
+          <span class="label">{{ 'COMMON.RENDER_TIME' | translate }}:</span>
+          <span class="value">{{ renderTime() }}</span>
+        </div>
+      </div>
+
+      <button
+        class="theme-toggle-btn"
+        (click)="themeService.toggleDarkMode()"
+        [appTooltip]="'COMMON.TOGGLE_THEME' | translate"
+        [attr.aria-label]="'COMMON.TOGGLE_THEME' | translate"
+      >
+        @if (themeService.isDarkMode()) {
+          <ion-icon name="sunny-outline"></ion-icon>
+        } @else {
+          <ion-icon name="moon-outline"></ion-icon>
+        }
+      </button>
+
+      <button class="tour-btn" (click)="startTour()" [attr.aria-label]="'Help Tour'">
+        <ion-icon name="compass-outline"></ion-icon>
+        Guide
+      </button>
+
+      <div class="user-info">
+        <span class="username">{{ authService.username() }}</span>
+        <span class="office">{{ authService.officeName() }}</span>
+      </div>
+
+      <select
+        id="lang-select"
+        #langSelect
+        (change)="switchLanguage(langSelect.value)"
+        [attr.aria-label]="'app.language.select' | translate"
+      >
+        <option value="en" [selected]="translate.getCurrentLang() === 'en'">
+          {{ 'app.language.en' | translate }}
+        </option>
+        <option value="hi" [selected]="translate.getCurrentLang() === 'hi'">
+          {{ 'app.language.hi' | translate }}
+        </option>
+        <option value="ko" [selected]="translate.getCurrentLang() === 'ko'">
+          {{ 'app.language.ko' | translate }}
+        </option>
+      </select>
+
+      <button class="logout-btn" (click)="logout()" [attr.aria-label]="'app.logout' | translate">
+        {{ 'app.logout' | translate }}
+      </button>
+    </ng-template>
   `,
   styles: [
     `
@@ -426,42 +508,167 @@ type HeaderSearchResult =
         width: 18px;
         height: 18px;
       }
-      /* ---- narrow viewport ----------------------------------------------------------
-         The header carries eight controls, which does not fit 360px. The ones that survive
-         are the ones needed to move: navigation, search, and signing out. Business date,
-         render time, the guide, the user's name and the language select are all reachable
-         from elsewhere and are hidden rather than crushed.
+      /* ---- narrow viewport: an app bar, not a squeezed desktop header ------------------
+         The wide header carries eight controls. Crushing them into 412px produced a searchbar
+         too narrow to read its own placeholder and a Logout button louder than anything on the
+         page — the least frequent action given the most weight.
+
+         The phone bar is: navigation, where you are, search, everything else. Search expands
+         over the title when asked for; the rest moves into an overflow menu that reuses the
+         same template, so a control cannot be added to one layout and forgotten in the other.
+
          Breakpoint matches ViewportService.MOBILE_BREAKPOINT_PX; see DOCS/MOBILE.md. */
       @media (max-width: 768px) {
         .header {
-          padding: 0 var(--space-2);
-          gap: var(--space-2);
+          padding: 0 var(--space-1) 0 0;
+          gap: var(--space-1);
         }
-        .system-info,
-        .tour-btn,
-        .user-info,
-        #lang-select {
-          display: none;
-        }
-        .app-title {
-          /* The mark still identifies the deployment; the wordmark is what does not fit. */
-          display: none;
-        }
-        .logout-btn {
-          padding: 0 var(--space-3);
-          white-space: nowrap;
-        }
-        .search-section {
+
+        .logo-section {
           flex: 1 1 auto;
           min-width: 0;
+          gap: var(--space-1);
         }
-        /* Every header control is a touch target below the breakpoint. */
-        .toggle-btn,
-        .theme-toggle-btn,
-        .logout-btn {
+
+        /* The wordmark repeats on every screen and the mark already carries it; the screen name
+           does not. */
+        .app-title {
+          display: none;
+        }
+
+        .logo {
+          width: 28px;
+          height: 28px;
+        }
+
+        .page-title {
+          font-size: 1.05rem;
+          font-weight: 600;
+          margin: 0;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: var(--text-color);
+        }
+
+        .mobile-actions {
+          display: flex;
+          align-items: center;
+          flex: 0 0 auto;
+        }
+
+        /* The hamburger is a touch target like the two on the right; it is styled elsewhere,
+           so the floor has to be restated here or it renders at its desktop 40px. */
+        .toggle-btn {
           min-width: 44px;
           min-height: 44px;
         }
+
+        .icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 44px;
+          min-height: 44px;
+          background: none;
+          border: none;
+          color: var(--text-color);
+          font-size: 22px;
+          cursor: pointer;
+          border-radius: var(--border-radius);
+        }
+
+        .icon-btn:hover {
+          background-color: var(--hover-bg);
+        }
+
+        /* Search takes the whole bar when open, and is out of the way when not. */
+        .search-section {
+          display: none;
+        }
+
+        .header.searching .search-section {
+          display: block;
+          position: absolute;
+          inset: 0 44px 0 var(--space-2);
+          z-index: 2;
+          align-self: center;
+        }
+
+        .header.searching .logo-section {
+          /* The hamburger stays reachable; the mark and title yield to the field. */
+          flex: 0 0 auto;
+        }
+
+        .header.searching .logo,
+        .header.searching .app-title {
+          display: none;
+        }
+
+        .search-results {
+          position: fixed;
+          left: 0;
+          right: 0;
+          top: var(--header-height);
+          max-height: 60dvh;
+          overflow-y: auto;
+        }
+
+        /* Everything else now lives in the overflow popover. */
+        .header-actions {
+          display: none;
+        }
+      }
+
+      /* The overflow menu, which is the same #headerActions template stacked instead of in a
+         row. Only rendered inside the popover, so these rules are viewport-independent. */
+      /* Labels for controls that are icon-only in the wide header. */
+      .action-label {
+        display: none;
+      }
+      .overflow-menu .action-label {
+        display: inline;
+      }
+
+      .overflow-menu {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-1);
+        padding: var(--space-2);
+        min-width: 220px;
+      }
+
+      .overflow-menu .system-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: var(--space-2);
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: var(--space-1);
+      }
+
+      .overflow-menu .user-info {
+        display: flex;
+        flex-direction: column;
+        padding: var(--space-2);
+        border-top: 1px solid var(--border-color);
+        margin-top: var(--space-1);
+      }
+
+      .overflow-menu .theme-toggle-btn,
+      .overflow-menu .tour-btn,
+      .overflow-menu .logout-btn {
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 44px;
+        gap: var(--space-2);
+      }
+
+      .overflow-menu #lang-select {
+        width: 100%;
+        min-height: 44px;
       }
     `,
   ],
@@ -473,11 +680,48 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly sidebarService = inject(SidebarService);
   protected readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly searchService = inject(SearchAPIService);
   private readonly navigationConfig = inject(NavigationConfigService);
   private readonly businessDateService = inject(BusinessDateManagementService);
   private readonly branding = inject(BrandingService);
   protected readonly viewport = inject(ViewportService);
+
+  /**
+   * Whether the phone header has swapped its title row for the search field.
+   *
+   * A permanently-visible searchbar at 412px is a box too narrow to read the placeholder in, let
+   * alone a result — it took a third of the bar and could not be used. It becomes an icon that
+   * expands, which is the room search actually needs.
+   */
+  private readonly _mobileSearchOpen = signal(false);
+  readonly mobileSearchOpen = this._mobileSearchOpen.asReadonly();
+
+  /**
+   * The current screen's name, from the same route `title` the breadcrumb and the tab title use.
+   *
+   * Reused rather than re-derived: a second walk over the route tree would drift from the first
+   * the day someone retitles a route.
+   */
+  protected readonly pageTitle = signal('');
+
+  private trackPageTitle(): void {
+    const update = () => {
+      const crumbs = buildBreadcrumbs(this.router.routerState.snapshot.root);
+      const key = crumbs.at(-1)?.labelKey;
+      this.pageTitle.set(key ? this.translate.instant(key) : '');
+    };
+    update();
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(update);
+    // Re-resolve on a language change; `instant` is a snapshot, not a binding.
+    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(update);
+  }
   private readonly themeIsDark = this.themeService.isDarkMode;
 
   /**
@@ -502,6 +746,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private renderTimeInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
+    this.trackPageTitle();
     this.loadSystemInfo();
     this.searchSubject
       .pipe(
@@ -642,6 +887,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /**
    * Triggers the global logout process and redirects to the login screen.
    */
+  protected toggleMobileSearch(): void {
+    const opening = !this._mobileSearchOpen();
+    this._mobileSearchOpen.set(opening);
+    if (!opening) {
+      this.searchQuery = '';
+      this.searchResults.set([]);
+      this.showResults.set(false);
+      return;
+    }
+    // The field is only in the DOM once the row has swapped, so focus waits for the render.
+    afterNextRender(() => document.querySelector<HTMLElement>('#global-search input')?.focus(), {
+      injector: this.injector,
+    });
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
