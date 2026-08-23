@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnDestroy, OnInit } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
@@ -401,7 +401,7 @@ type HeaderSearchResult =
     `,
   ],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly authService = inject(AuthService);
   protected readonly translate = inject(TranslateService);
   protected readonly guidanceService = inject(GuidanceService);
@@ -419,6 +419,7 @@ export class HeaderComponent implements OnInit {
 
   readonly businessDate = signal<string>('-');
   readonly renderTime = signal<string>('-');
+  private renderTimeInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.loadSystemInfo();
@@ -462,7 +463,17 @@ export class HeaderComponent implements OnInit {
       );
     };
     updateTime();
-    setInterval(updateTime, 60_000);
+    // Held so ngOnDestroy can stop it — the header is destroyed on sign-out and
+    // rebuilt on the next sign-in; an uncleared interval would keep ticking (and
+    // writing to a signal no one reads) once per session.
+    this.renderTimeInterval = setInterval(updateTime, 60_000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.renderTimeInterval !== null) {
+      clearInterval(this.renderTimeInterval);
+      this.renderTimeInterval = null;
+    }
   }
 
   onSearchInput(event: Event) {
