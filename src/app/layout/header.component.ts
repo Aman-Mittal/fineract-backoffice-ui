@@ -19,7 +19,6 @@
 
 import {
   Component,
-  DestroyRef,
   Injector,
   OnDestroy,
   OnInit,
@@ -28,7 +27,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
@@ -51,6 +50,7 @@ import {
   filter,
   map,
   of,
+  startWith,
   switchMap,
 } from 'rxjs';
 import { GuidanceService } from '../core/services/guidance.service';
@@ -140,7 +140,13 @@ type HeaderSearchResult =
             the same on every screen, and the mark already carries it. Falls back to the product
             name on a route with no title of its own.
           -->
-          <h1 class="page-title">{{ pageTitle() || brandName() || ('app.title' | translate) }}</h1>
+          <h1 class="page-title">
+            {{
+              pageTitleKey()
+                ? (pageTitleKey() | translate)
+                : brandName() || ('app.title' | translate)
+            }}
+          </h1>
         }
       </div>
 
@@ -680,7 +686,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly sidebarService = inject(SidebarService);
   protected readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly searchService = inject(SearchAPIService);
   private readonly navigationConfig = inject(NavigationConfigService);
@@ -699,29 +704,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly mobileSearchOpen = this._mobileSearchOpen.asReadonly();
 
   /**
-   * The current screen's name, from the same route `title` the breadcrumb and the tab title use.
+   * The current screen's name, as a translation key, from the same route `title` the breadcrumb
+   * and the tab title already use. Reused rather than re-derived: a second walk over the route
+   * tree would drift from the first the day someone retitles a route.
    *
-   * Reused rather than re-derived: a second walk over the route tree would drift from the first
-   * the day someone retitles a route.
+   * A key rather than a resolved string, and a `toSignal` in a field initialiser rather than a
+   * signal written from `ngOnInit` — both deliberate. Writing a signal the template reads while
+   * change detection is running is the NG0100 pattern, and this suite runs against a build with
+   * `checkNoChanges({ exhaustive: true })`. Leaving it as a key also means the template's
+   * `| translate` pipe handles a language change, so there is no second subscription for that.
+   *
+   * Mirrors BreadcrumbComponent, which solves the same problem the same way.
    */
-  protected readonly pageTitle = signal('');
-
-  private trackPageTitle(): void {
-    const update = () => {
-      const crumbs = buildBreadcrumbs(this.router.routerState.snapshot.root);
-      const key = crumbs.at(-1)?.labelKey;
-      this.pageTitle.set(key ? this.translate.instant(key) : '');
-    };
-    update();
-    this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(update);
-    // Re-resolve on a language change; `instant` is a snapshot, not a binding.
-    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(update);
-  }
+  protected readonly pageTitleKey = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      startWith(null),
+      map(() => buildBreadcrumbs(this.router.routerState.snapshot.root).at(-1)?.labelKey ?? ''),
+    ),
+    {
+      initialValue: buildBreadcrumbs(this.router.routerState.snapshot.root).at(-1)?.labelKey ?? '',
+    },
+  );
   private readonly themeIsDark = this.themeService.isDarkMode;
 
   /**
@@ -746,7 +750,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private renderTimeInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
-    this.trackPageTitle();
     this.loadSystemInfo();
     this.searchSubject
       .pipe(
