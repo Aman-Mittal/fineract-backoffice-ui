@@ -39,6 +39,14 @@ const clearStore = (): void => localStorage.clear();
 /* eslint-enable no-restricted-globals */
 const TEST_TENANT = 'test-tenant';
 const CONFIG_FILE = 'config.json';
+const OVERLAY_FILE = 'branding/config.json';
+
+/** The upstream layer. Matched narrowly so it cannot also catch the overlay below it. */
+const isBaseConfig = (request: { url: string }): boolean =>
+  request.url.includes(CONFIG_FILE) && !request.url.includes('branding/');
+
+/** The deployment-owned layer, read after the base and merged over it. */
+const isOverlay = (request: { url: string }): boolean => request.url.includes(OVERLAY_FILE);
 
 describe('ConfigService', () => {
   let service: ConfigService;
@@ -61,10 +69,39 @@ describe('ConfigService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   }
 
-  /** Runs a full load cycle, serving `body` as the contents of config.json. */
-  async function load(body: Partial<AppConfig>): Promise<void> {
+  /**
+   * Flushes the next request matching `predicate`, waiting for it to be issued.
+   *
+   * The two config layers are fetched in sequence, so the second request does not exist until
+   * the first has resolved and its continuation has run. Draining the microtask queue is what
+   * lets a synchronous `expectOne` see it.
+   */
+  async function flushNext(
+    predicate: (request: { url: string }) => boolean,
+    body: Partial<AppConfig> | null,
+    opts?: { status: number; statusText: string },
+  ): Promise<void> {
+    let matched = httpMock.match(predicate);
+    for (let attempt = 0; attempt < 50 && matched.length === 0; attempt++) {
+      await Promise.resolve();
+      matched = httpMock.match(predicate);
+    }
+    expect(matched.length).toBe(1);
+    matched[0].flush(body, opts);
+  }
+
+  const NOT_FOUND = { status: 404, statusText: 'Not Found' };
+
+  /**
+   * Runs a full load cycle: `body` as config.json, `overlay` as the deployment's own layer.
+   *
+   * The overlay defaults to absent, which is what almost every deployment serves and therefore
+   * the case most of these tests are about.
+   */
+  async function load(body: Partial<AppConfig>, overlay?: Partial<AppConfig>): Promise<void> {
     const loading = service.loadConfig();
-    httpMock.expectOne((request) => request.url.includes(CONFIG_FILE)).flush(body);
+    await flushNext(isBaseConfig, body);
+    await (overlay ? flushNext(isOverlay, overlay) : flushNext(isOverlay, null, NOT_FOUND));
     await loading;
   }
 
@@ -100,24 +137,48 @@ describe('ConfigService', () => {
 
   it('should fall back to defaults when config.json cannot be read', async () => {
     const loading = service.loadConfig();
-    httpMock
-      .expectOne((request) => request.url.includes(CONFIG_FILE))
-      .flush(null, { status: 404, statusText: 'Not Found' });
+    await flushNext(isBaseConfig, null, NOT_FOUND);
+    await flushNext(isOverlay, null, NOT_FOUND);
     await loading;
 
-    // Bootstrap must not depend on the file being present.
+    // Bootstrap must not depend on either file being present.
     expect(service.rbacEnabled()).toBeTrue();
     expect(service.config().defaultTenant).toBe('default');
   });
 
-  it('should not raise a toast or a progress bar while bootstrapping', () => {
-    void service.loadConfig();
+  it('should merge the deployment overlay over config.json', async () => {
+    await load(
+      { fineractApiUrl: '/api/v1', defaultTenant: TEST_TENANT, rbacEnabled: true },
+      { branding: { appName: 'Any Community Bank' }, nav: { hidden: ['spm'] } },
+    );
 
-    const req = httpMock.expectOne((request) => request.url.includes(CONFIG_FILE));
+    // The overlay named neither, and must not have discarded them.
+    expect(service.apiUrl).toBe('/api/v1');
+    expect(service.config().defaultTenant).toBe(TEST_TENANT);
+
+    expect(service.config().branding?.appName).toBe('Any Community Bank');
+    expect(service.hiddenNavKeys().has('spm')).toBeTrue();
+  });
+
+  it('should keep the base layer when the overlay is absent', async () => {
+    // The state every existing deployment is in: a 404 means "said nothing", not "reset".
+    await load({ fineractApiUrl: '/api/v1', defaultTenant: TEST_TENANT, rbacEnabled: false });
+
+    expect(service.config().defaultTenant).toBe(TEST_TENANT);
+    expect(service.rbacEnabled()).toBeFalse();
+  });
+
+  it('should not raise a toast or a progress bar while bootstrapping', async () => {
+    const loading = service.loadConfig();
+
+    const [base] = httpMock.match(isBaseConfig);
     // There is no route to show a toast on and no progress bar to drive yet.
-    expect(req.request.context.get(SKIP_LOADING)).toBeTrue();
-    expect(req.request.context.get(SKIP_ERROR_TOAST)).toBeTrue();
-    req.flush(mockConfig);
+    expect(base.request.context.get(SKIP_LOADING)).toBeTrue();
+    expect(base.request.context.get(SKIP_ERROR_TOAST)).toBeTrue();
+    base.flush(mockConfig);
+
+    await flushNext(isOverlay, null, NOT_FOUND);
+    await loading;
   });
 
   it('should set and persist a same-origin API URL', () => {

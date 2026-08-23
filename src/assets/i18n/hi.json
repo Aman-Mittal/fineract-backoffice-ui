@@ -119,7 +119,8 @@
     "frequentPostings": "बार-बार की जाने वाली प्रविष्टियाँ",
     "openingBalances": "प्रारंभिक शेष",
     "reportDefinitions": "रिपोर्ट परिभाषाएँ",
-    "workQueues": "अनुमोदन कतारें"
+    "workQueues": "अनुमोदन कतारें",
+    "opensInNewTab": "नए टैब में खुलता है"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "सिस्टम परिचालन स्थिति",

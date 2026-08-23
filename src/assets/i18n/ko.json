@@ -119,7 +119,8 @@
     "frequentPostings": "자주 쓰는 분개",
     "openingBalances": "기초 잔액",
     "reportDefinitions": "보고서 정의",
-    "workQueues": "승인 대기열"
+    "workQueues": "승인 대기열",
+    "opensInNewTab": "새 탭에서 열림"
   },
   "DASHBOARD": {
     "SYSTEM_STATUS": "시스템 운영 상태",

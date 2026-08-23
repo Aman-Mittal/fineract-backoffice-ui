@@ -21,6 +21,7 @@ import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IdleService } from './core/services/idle.service';
+import { DeploymentTranslationsService } from './core/services/deployment-translations.service';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,9 @@ import { IdleService } from './core/services/idle.service';
 export class AppComponent {
   private readonly translate = inject(TranslateService);
   private readonly idleService = inject(IdleService);
+  // Injected for its side effect: it watches the active language and layers the deployment's own
+  // strings over the shipped catalogue on every switch. Nothing reads it back.
+  private readonly deploymentTranslations = inject(DeploymentTranslationsService);
   protected readonly title = signal('fineract-backoffice-ui');
 
   constructor() {

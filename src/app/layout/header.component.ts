@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, inject, signal, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnDestroy, OnInit } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
@@ -27,6 +27,10 @@ import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of, map, catchError } from 'rxjs';
 import { GuidanceService } from '../core/services/guidance.service';
 import { SidebarService } from '../core/services/sidebar.service';
+import { BrandingService } from '../core/services/branding.service';
+
+/** The shipped mark, used when the deployment names none of its own. */
+const DEFAULT_LOGO = 'favicon.png';
 import { ThemeService } from '../core/services/theme.service';
 import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } from '../api';
 import {
@@ -73,8 +77,13 @@ type HeaderSearchResult =
             <ion-icon name="chevron-back-outline"></ion-icon>
           }
         </button>
-        <img src="favicon.png" alt="Fineract Logo" class="logo" />
-        <span class="app-title">{{ 'app.title' | translate }}</span>
+        <!--
+          Logo and product name come from the deployment's branding overlay when it sets them,
+          and fall back to the shipped mark otherwise. 'alt' follows the name rather than saying
+          "Fineract Logo", which is wrong the moment a deployment rebrands.
+        -->
+        <img [src]="logoSrc()" [alt]="appName() + ' logo'" class="logo" />
+        <span class="app-title">{{ appName() }}</span>
       </div>
 
       <div class="search-section">
@@ -411,6 +420,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly searchService = inject(SearchAPIService);
   private readonly navigationConfig = inject(NavigationConfigService);
   private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly branding = inject(BrandingService);
+  private readonly themeIsDark = this.themeService.isDarkMode;
+
+  /** The deployment's product name, or the shipped default. */
+  protected readonly appName = computed(
+    () => this.branding.appName() ?? this.translate.instant('app.title'),
+  );
+
+  /** The deployment's mark for the active theme, or the shipped favicon. */
+  protected readonly logoSrc = computed(() => {
+    const configured = this.themeIsDark() ? this.branding.logoDarkUrl() : this.branding.logoUrl();
+    return this.branding.resolveLogo(configured) ?? DEFAULT_LOGO;
+  });
 
   searchQuery = '';
   readonly searchResults = signal<HeaderSearchResult[]>([]);

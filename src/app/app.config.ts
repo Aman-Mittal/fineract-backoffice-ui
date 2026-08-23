@@ -23,13 +23,13 @@ import {
   provideBrowserGlobalErrorListeners,
   provideCheckNoChangesConfig,
   provideZoneChangeDetection,
-  APP_INITIALIZER,
+  provideAppInitializer,
   ApplicationConfig,
   ErrorHandler,
+  inject,
 } from '@angular/core';
 import { TitleStrategy, provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -41,16 +41,28 @@ import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { retryInterceptor } from './core/interceptors/retry.interceptor';
 import { GlobalErrorHandler } from './core/errors/global-error-handler';
 import { ConfigService } from './core/services/config.service';
+import { BrandingService } from './core/services/branding.service';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { BASE_PATH } from './api/variables';
 import { TranslatedTitleStrategy } from './core/router/translated-title.strategy';
 
 /**
- * Factory function to load configuration before app bootstrap
+ * Loads configuration before the application bootstraps.
+ *
+ * Branding is applied in the same step, immediately after the config resolves and before the
+ * first render, so the application never paints in the shipped colours and then repaints in the
+ * deployment's.
  */
-export function initializeApp(configService: ConfigService) {
-  return () => configService.loadConfig();
+export async function initializeApp(): Promise<void> {
+  // Both resolved before the first `await`. An injection context does not survive one, so
+  // `inject()` after the config has loaded throws NG0203 — at startup, in production, where the
+  // failure is a blank page.
+  const config = inject(ConfigService);
+  const branding = inject(BrandingService);
+
+  await config.loadConfig();
+  branding.apply();
 }
 
 export const appConfig: ApplicationConfig = {
@@ -90,13 +102,11 @@ export const appConfig: ApplicationConfig = {
         retryInterceptor,
       ]),
     ),
-    provideAnimationsAsync(),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeApp,
-      deps: [ConfigService],
-      multi: true,
-    },
+    // No `provideAnimationsAsync()`. It is deprecated as of Angular 20.2 in favour of the
+    // `animate.enter` / `animate.leave` template APIs, and nothing here needed it: the app
+    // declares no `@angular/animations` triggers, and Ionic drives its own transitions through
+    // the Web Animations API rather than Angular's.
+    provideAppInitializer(initializeApp),
     {
       provide: BASE_PATH,
       useFactory: (configService: ConfigService) => {
