@@ -702,27 +702,12 @@
       "count": 1
     }
   },
-  "src/app/features/organization/funds/fund-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/funds/fund-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
-  "src/app/features/organization/funds/funds-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/funds/funds-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/organization/group-levels/group-levels-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -742,17 +727,7 @@
       "count": 1
     }
   },
-  "src/app/features/organization/offices/office-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/offices/office-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/organization/offices/offices-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -762,17 +737,7 @@
       "count": 1
     }
   },
-  "src/app/features/organization/payment-types/payment-type-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/payment-types/payment-type-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/organization/payment-types/payment-types-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -782,17 +747,7 @@
       "count": 1
     }
   },
-  "src/app/features/organization/staff/staff-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/staff/staff-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/organization/staff/staff-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1729,17 +1684,7 @@
       "count": 1
     }
   },
-  "src/app/features/working-capital/breach/wc-breach-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/working-capital/breach/wc-breach-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/working-capital/breach/wc-breach-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1749,17 +1694,7 @@
       "count": 1
     }
   },
-  "src/app/features/working-capital/loan-products/wc-loan-product-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/working-capital/loan-products/wc-loan-product-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/working-capital/loan-products/wc-loan-products-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1779,17 +1714,7 @@
       "count": 1
     }
   },
-  "src/app/features/working-capital/loans/wc-loan-action-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/working-capital/loans/wc-loan-action-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/working-capital/loans/wc-loan-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1799,17 +1724,7 @@
       "count": 1
     }
   },
-  "src/app/features/working-capital/loans/wc-loan-view.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/working-capital/loans/wc-loan-view.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/working-capital/loans/wc-loans-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1819,17 +1734,7 @@
       "count": 1
     }
   },
-  "src/app/features/working-capital/near-breach/wc-near-breach-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/working-capital/near-breach/wc-near-breach-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/working-capital/near-breach/wc-near-breach-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
