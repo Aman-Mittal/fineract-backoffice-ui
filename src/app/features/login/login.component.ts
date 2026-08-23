@@ -26,6 +26,8 @@ import { map } from 'rxjs/operators';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
+import { BrandingService } from '../../core/services/branding.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { SESSION_EXPIRED_REASON } from '../../core/interceptors/error.interceptor';
 import { TwoFactorStepComponent } from './two-factor/two-factor-step.component';
 import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
@@ -61,8 +63,8 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
           </select>
         </div>
         <div class="login-header">
-          <img src="favicon.png" alt="Fineract Logo" class="login-logo" />
-          <h1>{{ 'app.title' | translate }}</h1>
+          <img [src]="logoSrc()" [alt]="appName() + ' logo'" class="login-logo" />
+          <h1>{{ appName() }}</h1>
           <p class="subtitle">{{ 'login.welcome' | translate }}</p>
         </div>
 
@@ -319,6 +321,25 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   protected readonly authService = inject(AuthService);
   protected readonly configService = inject(ConfigService);
+  private readonly branding = inject(BrandingService);
+  private readonly themeService = inject(ThemeService);
+
+  /**
+   * The deployment's product name and mark, falling back to the shipped ones.
+   *
+   * The sign-in screen is the first thing anyone sees, so leaving it on the Fineract wordmark
+   * while the rest of the application carries the institution's makes the branding look broken
+   * rather than absent.
+   */
+  protected readonly appName = computed(
+    () => this.branding.appName() ?? this.translate.instant('app.title'),
+  );
+  protected readonly logoSrc = computed(() => {
+    const configured = this.themeService.isDarkMode()
+      ? this.branding.logoDarkUrl()
+      : this.branding.logoUrl();
+    return this.branding.resolveLogo(configured) ?? 'favicon.png';
+  });
 
   /** Absolute endpoints this deployment permits, offered alongside the default and the proxy. */
   protected readonly allowedOrigins = computed(

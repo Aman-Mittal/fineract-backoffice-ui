@@ -261,6 +261,28 @@ function ionicCompanions(name: string, hex: string): [string, string][] {
   ];
 }
 
+/**
+ * One CSS rule for a token set, or `null` when nothing in it survived validation.
+ *
+ * Each colour brings its Ionic companions with it, so a rebranded button ripples and labels in
+ * the deployment's colour rather than the shipped one.
+ */
+function declarationsFor(
+  tokens: Record<string, string>,
+  defects: BrandingDefect[],
+  selector: string,
+): string | null {
+  const declarations = Object.entries(tokens)
+    .map(([name, raw]) => [name, validateToken(name, raw, defects)] as const)
+    .filter((entry): entry is readonly [string, string] => entry[1] !== null)
+    .flatMap(([name, value]) => [
+      `  --${name}: ${value};`,
+      ...ionicCompanions(name, value).map(([prop, companion]) => `  ${prop}: ${companion};`),
+    ]);
+
+  return declarations.length > 0 ? `${selector} {\n${declarations.join('\n')}\n}` : null;
+}
+
 function validateAssetPath(key: string, raw: string, defects: BrandingDefect[]): string | null {
   const value = raw.trim();
   if (!value) return null;
@@ -332,31 +354,27 @@ export class BrandingService {
     light: Record<string, string>,
     dark: Record<string, string>,
   ): void {
-    for (const [name, raw] of Object.entries(light)) {
-      const value = validateToken(name, raw, this.defects);
-      if (value === null) continue;
-      doc.documentElement.style.setProperty(`--${name}`, value);
-      for (const [prop, companion] of ionicCompanions(name, value)) {
-        doc.documentElement.style.setProperty(prop, companion);
-      }
-    }
+    const rules = [
+      declarationsFor(light, this.defects, ':root'),
+      declarationsFor(dark, this.defects, "[data-theme='dark']"),
+    ].filter((rule) => rule !== null);
 
-    const darkDeclarations = Object.entries(dark)
-      .map(([name, raw]) => [name, validateToken(name, raw, this.defects)] as const)
-      .filter((entry): entry is readonly [string, string] => entry[1] !== null)
-      .flatMap(([name, value]) => [
-        `  --${name}: ${value};`,
-        ...ionicCompanions(name, value).map(([prop, companion]) => `  ${prop}: ${companion};`),
-      ]);
+    if (rules.length === 0) return;
 
-    if (darkDeclarations.length === 0) return;
-
-    // One stylesheet, replaced wholesale, so re-applying is idempotent rather than additive.
-    const id = 'fineract-branding-dark';
+    // One stylesheet holding both themes, appended to head, replaced wholesale so re-applying is
+    // idempotent.
+    //
+    // Not inline styles on documentElement, which is what this did first. An inline style beats
+    // every stylesheet rule regardless of specificity, so a light `--primary-color` set that way
+    // silently outranked the `[data-theme='dark']` block and dark-mode branding never applied at
+    // all. Emitting both as rules puts them on equal footing, and `:root` and `[data-theme=...]`
+    // have equal specificity, so source order decides — which is why dark is written second.
+    const id = 'fineract-branding';
     const style = doc.getElementById(id) ?? doc.createElement('style');
     style.id = id;
-    style.textContent = `[data-theme='dark'] {\n${darkDeclarations.join('\n')}\n}`;
+    style.textContent = rules.join('\n\n');
     if (!style.isConnected) {
+      // Appended last so it follows the application's own token block in _common.scss.
       doc.head.append(style);
     }
   }

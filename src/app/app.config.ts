@@ -30,8 +30,7 @@ import {
 } from '@angular/core';
 import { TitleStrategy, provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -42,6 +41,7 @@ import { retryInterceptor } from './core/interceptors/retry.interceptor';
 import { GlobalErrorHandler } from './core/errors/global-error-handler';
 import { ConfigService } from './core/services/config.service';
 import { BrandingService } from './core/services/branding.service';
+import { DeploymentTranslateLoader } from './core/adapters/i18n/deployment-translate.loader';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { BASE_PATH } from './api/variables';
@@ -129,10 +129,10 @@ export const appConfig: ApplicationConfig = {
     // half-built chain and never resolves, so every key renders as its own name and the
     // login button reads `login.submit`. Caught by e2e/all-functions-read-shortcut.spec.ts.
     importProvidersFrom(TranslateModule.forRoot()),
-    provideTranslateHttpLoader({
-      prefix: 'assets/i18n/',
-      suffix: '.json',
-    }),
+    // Replaces provideTranslateHttpLoader so the shipped catalogue and a deployment's own
+    // string overrides arrive as one already-merged object. See DeploymentTranslateLoader for
+    // why the merge cannot be applied after the fact.
+    { provide: TranslateLoader, useClass: DeploymentTranslateLoader },
     // The adapter tokens (`OVERLAY`, `I18N`) resolve to their default implementations
     // without a provider here — see `core/adapters/`. A deployment swapping the component
     // library or the i18n library overrides them at this point in the list.
