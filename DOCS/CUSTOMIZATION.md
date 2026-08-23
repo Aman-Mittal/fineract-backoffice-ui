@@ -89,6 +89,9 @@ npm run branding:demo -- --clean
 }
 ```
 
+The name and mark appear on the sign-in screen as well as in the header, so the first screen a
+user sees is yours rather than Fineract's. Both fall back to the shipped ones when you set none.
+
 **Assets are same-origin.** Mount your logo into the image beside the config and name it with a
 relative path. Absolute URLs are rejected: the deployed Content-Security-Policy is
 `img-src 'self' data:`, so an off-origin image would not render anyway, and widening that policy

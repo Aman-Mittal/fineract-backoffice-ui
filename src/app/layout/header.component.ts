@@ -82,8 +82,12 @@ type HeaderSearchResult =
           and fall back to the shipped mark otherwise. 'alt' follows the name rather than saying
           "Fineract Logo", which is wrong the moment a deployment rebrands.
         -->
-        <img [src]="logoSrc()" [alt]="appName() + ' logo'" class="logo" />
-        <span class="app-title">{{ appName() }}</span>
+        <img
+          [src]="logoSrc()"
+          [alt]="(brandName() || ('app.title' | translate)) + ' logo'"
+          class="logo"
+        />
+        <span class="app-title">{{ brandName() || ('app.title' | translate) }}</span>
       </div>
 
       <div class="search-section">
@@ -423,10 +427,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly branding = inject(BrandingService);
   private readonly themeIsDark = this.themeService.isDarkMode;
 
-  /** The deployment's product name, or the shipped default. */
-  protected readonly appName = computed(
-    () => this.branding.appName() ?? this.translate.instant('app.title'),
-  );
+  /**
+   * The deployment's product name, or `null` when it sets none, so the template can fall back
+   * through the `translate` pipe. See the note on the same member in `LoginComponent`.
+   */
+  protected readonly brandName = computed(() => this.branding.appName());
 
   /** The deployment's mark for the active theme, or the shipped favicon. */
   protected readonly logoSrc = computed(() => {

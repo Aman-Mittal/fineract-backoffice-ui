@@ -63,8 +63,12 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
           </select>
         </div>
         <div class="login-header">
-          <img [src]="logoSrc()" [alt]="appName() + ' logo'" class="login-logo" />
-          <h1>{{ appName() }}</h1>
+          <img
+            [src]="logoSrc()"
+            [alt]="(brandName() || ('app.title' | translate)) + ' logo'"
+            class="login-logo"
+          />
+          <h1>{{ brandName() || ('app.title' | translate) }}</h1>
           <p class="subtitle">{{ 'login.welcome' | translate }}</p>
         </div>
 
@@ -325,15 +329,17 @@ export class LoginComponent {
   private readonly themeService = inject(ThemeService);
 
   /**
-   * The deployment's product name and mark, falling back to the shipped ones.
+   * The deployment's product name, or `null` when it sets none.
    *
    * The sign-in screen is the first thing anyone sees, so leaving it on the Fineract wordmark
    * while the rest of the application carries the institution's makes the branding look broken
    * rather than absent.
+   *
+   * Null rather than a resolved fallback, so the template can fall back through the `translate`
+   * pipe. `translate.instant` inside a computed would not do: it is not reactive, and this screen
+   * can render before the catalogue has loaded — which would pin the heading to the raw key.
    */
-  protected readonly appName = computed(
-    () => this.branding.appName() ?? this.translate.instant('app.title'),
-  );
+  protected readonly brandName = computed(() => this.branding.appName());
   protected readonly logoSrc = computed(() => {
     const configured = this.themeService.isDarkMode()
       ? this.branding.logoDarkUrl()
