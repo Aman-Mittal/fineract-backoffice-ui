@@ -120,7 +120,8 @@
     "frequentPostings": "Frequent Postings",
     "openingBalances": "Opening Balances",
     "reportDefinitions": "Report Definitions",
-    "workQueues": "Approval Queues"
+    "workQueues": "Approval Queues",
+    "opensInNewTab": "Opens in a new tab"
   },
   "SIDEBAR": {
     "SEARCH": "Search",

@@ -63,7 +63,7 @@ function entityOf(code: string): string | null {
     </nav>
 
     <ng-template #itemList let-items="items" let-depth="depth">
-      @for (item of items; track item.route ?? item.labelKey) {
+      @for (item of items; track item.id ?? item.route ?? item.labelKey) {
         @if (item.divider) {
           <li class="nav-divider"></li>
         } @else if (item.children) {
@@ -76,6 +76,29 @@ function entityOf(code: string): string | null {
                 ></ng-container>
               </ul>
             </div>
+          </li>
+        } @else if (item.kind === 'external') {
+          <li>
+            <!--
+              A deployment's link to a system that sits beside Fineract. 'rel' is not optional:
+              'noopener' denies the opened page a handle on this one via window.opener, and
+              'noreferrer' keeps the back-office URL — which carries entity ids — out of the
+              third party's referrer log.
+            -->
+            <a
+              [href]="item.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="nav-item"
+              [class.sub-item]="depth > 0"
+            >
+              @if (item.icon) {
+                <ion-icon class="nav-icon" [name]="item.icon"></ion-icon>
+              }
+              <span class="nav-text">{{ item.labelKey | translate }}</span>
+              <ion-icon class="nav-external" name="open-outline" aria-hidden="true"></ion-icon>
+              <span class="sr-only">{{ 'nav.opensInNewTab' | translate }}</span>
+            </a>
           </li>
         } @else {
           <li>
@@ -134,6 +157,15 @@ function entityOf(code: string): string | null {
         list-style: none;
         padding: 0;
         margin: 0;
+      }
+      .nav-external {
+        margin-left: auto;
+        font-size: 0.85rem;
+        opacity: 0.6;
+        flex-shrink: 0;
+      }
+      .sidebar.collapsed .nav-external {
+        display: none;
       }
       .nav-item {
         display: flex;
