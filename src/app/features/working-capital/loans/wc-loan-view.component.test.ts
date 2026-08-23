@@ -76,30 +76,25 @@ describe('WcLoanViewComponent', () => {
       'getWorkingCapitalLoansLoanIdTransactions',
     ]);
 
-    delinquencyActionsSpy =
-      createSpyObj<WorkingCapitalLoanDelinquencyActionsService>([
-        'getWorkingCapitalLoansLoanIdDelinquencyActions',
-      ]);
+    delinquencyActionsSpy = createSpyObj<WorkingCapitalLoanDelinquencyActionsService>([
+      'getWorkingCapitalLoansLoanIdDelinquencyActions',
+    ]);
 
-    delinquencyRangeSpy =
-      createSpyObj<WorkingCapitalLoanDelinquencyRangeScheduleService>([
-        'getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule',
-      ]);
+    delinquencyRangeSpy = createSpyObj<WorkingCapitalLoanDelinquencyRangeScheduleService>([
+      'getWorkingCapitalLoansLoanIdDelinquencyRangeSchedule',
+    ]);
 
-    breachScheduleSpy =
-      createSpyObj<WorkingCapitalLoanBreachScheduleService>([
-        'getWorkingCapitalLoansLoanIdBreachSchedule',
-      ]);
+    breachScheduleSpy = createSpyObj<WorkingCapitalLoanBreachScheduleService>([
+      'getWorkingCapitalLoansLoanIdBreachSchedule',
+    ]);
 
-    breachActionsSpy =
-      createSpyObj<WorkingCapitalLoanBreachActionsService>([
-        'getWorkingCapitalLoansLoanIdBreachActions',
-      ]);
+    breachActionsSpy = createSpyObj<WorkingCapitalLoanBreachActionsService>([
+      'getWorkingCapitalLoansLoanIdBreachActions',
+    ]);
 
-    nearBreachActionsSpy =
-      createSpyObj<WorkingCapitalLoanNearBreachActionsService>([
-        'getWorkingCapitalLoansLoanIdNearBreachActions',
-      ]);
+    nearBreachActionsSpy = createSpyObj<WorkingCapitalLoanNearBreachActionsService>([
+      'getWorkingCapitalLoansLoanIdNearBreachActions',
+    ]);
 
     wcOriginatorsSpy = createSpyObj<WorkingCapitalLoanOriginatorsService>([
       'getWorkingCapitalLoansLoanIdOriginators',
@@ -107,9 +102,7 @@ describe('WcLoanViewComponent', () => {
       'deleteWorkingCapitalLoansLoanIdOriginatorsOriginatorId',
     ]);
 
-    originatorsSpy = createSpyObj<LoanOriginatorsService>([
-      'getLoanOriginators',
-    ]);
+    originatorsSpy = createSpyObj<LoanOriginatorsService>(['getLoanOriginators']);
 
     routerSpy = createSpyObj<Router>(['navigate']);
 
@@ -124,9 +117,7 @@ describe('WcLoanViewComponent', () => {
         status: {
           value: 'Active',
         },
-      }) as unknown as ReturnType<
-        WorkingCapitalLoansService['getWorkingCapitalLoansLoanId']
-      >,
+      }) as unknown as ReturnType<WorkingCapitalLoansService['getWorkingCapitalLoansLoanId']>,
     );
 
     loansSpy.getWorkingCapitalLoansLoanIdRateChanges.mockReturnValue(
@@ -281,9 +272,7 @@ describe('WcLoanViewComponent', () => {
           id: 6,
           name: 'Other Originator',
         },
-      ]) as unknown as ReturnType<
-        LoanOriginatorsService['getLoanOriginators']
-      >,
+      ]) as unknown as ReturnType<LoanOriginatorsService['getLoanOriginators']>,
     );
 
     await TestBed.configureTestingModule({
@@ -357,9 +346,7 @@ describe('WcLoanViewComponent', () => {
     expect(component).toBeTruthy();
     expect(component.loanId).toBe(1);
 
-    expect(
-      loansSpy.getWorkingCapitalLoansLoanId,
-    ).toHaveBeenCalledWith(1);
+    expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledWith(1);
 
     expect(component.loan()?.accountNo).toBe('000001');
     expect(component.charges()).toHaveLength(1);
@@ -381,9 +368,7 @@ describe('WcLoanViewComponent', () => {
   it('should navigate back to the list', () => {
     component.onBack();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/working-capital/loans',
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans']);
   });
 
   it('should navigate to the delinquency-action form', () => {
@@ -397,9 +382,7 @@ describe('WcLoanViewComponent', () => {
   it('should navigate to the breach-action form', () => {
     component.onNewBreachAction();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/working-capital/loans/1/breach-action',
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/1/breach-action']);
   });
 
   it('should navigate to the near-breach-action form', () => {
@@ -477,14 +460,11 @@ describe('WcLoanViewComponent', () => {
       ],
     }).compileComponents();
 
-    const taggedFixture =
-      TestBed.createComponent(WcLoanViewComponent);
+    const taggedFixture = TestBed.createComponent(WcLoanViewComponent);
 
     taggedFixture.detectChanges();
 
-    expect(
-      taggedFixture.componentInstance.activeTab(),
-    ).toBe('originators');
+    expect(taggedFixture.componentInstance.activeTab()).toBe('originators');
   });
 
   it('attaches the selected originator and reloads the attached list', () => {
@@ -498,9 +478,7 @@ describe('WcLoanViewComponent', () => {
 
     expect(component.originatorToAttach()).toBeNull();
 
-    expect(
-      wcOriginatorsSpy.getWorkingCapitalLoansLoanIdOriginators,
-    ).toHaveBeenCalledTimes(2);
+    expect(wcOriginatorsSpy.getWorkingCapitalLoansLoanIdOriginators).toHaveBeenCalledTimes(2);
   });
 
   it('does nothing when attaching without a selection', () => {

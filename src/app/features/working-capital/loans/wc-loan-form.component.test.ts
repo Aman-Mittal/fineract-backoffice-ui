@@ -23,10 +23,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WcLoanFormComponent } from './wc-loan-form.component';
 
-import {
-  WorkingCapitalLoansService,
-  WorkingCapitalNearBreachService,
-} from '../../../api';
+import { WorkingCapitalLoansService, WorkingCapitalNearBreachService } from '../../../api';
 
 import { Router } from '@angular/router';
 
@@ -48,10 +45,7 @@ describe('WcLoanFormComponent', () => {
   let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = createSpyObj([
-      'getWorkingCapitalLoansTemplate',
-      'postWorkingCapitalLoans',
-    ]);
+    serviceSpy = createSpyObj(['getWorkingCapitalLoansTemplate', 'postWorkingCapitalLoans']);
 
     nearBreachServiceSpy = createSpyObj(['getWorkingCapitalNearBreach']);
 
@@ -62,9 +56,7 @@ describe('WcLoanFormComponent', () => {
         productOptions: [{ id: 1, name: 'WC Product' }],
         breachOptions: [{ id: 2, name: 'Covenant A' }],
         periodFrequencyTypeOptions: [{ id: '0', code: 'DAYS', value: 'Days' }],
-      }) as unknown as ReturnType<
-        WorkingCapitalLoansService['getWorkingCapitalLoansTemplate']
-      >,
+      }) as unknown as ReturnType<WorkingCapitalLoansService['getWorkingCapitalLoansTemplate']>,
     );
 
     nearBreachServiceSpy.getWorkingCapitalNearBreach.mockReturnValue(
@@ -111,9 +103,7 @@ describe('WcLoanFormComponent', () => {
 
   it('should post on submit and navigate to the list', () => {
     serviceSpy.postWorkingCapitalLoans.mockReturnValue(
-      of({}) as unknown as ReturnType<
-        WorkingCapitalLoansService['postWorkingCapitalLoans']
-      >,
+      of({}) as unknown as ReturnType<WorkingCapitalLoansService['postWorkingCapitalLoans']>,
     );
 
     component.loan = {
@@ -131,9 +121,7 @@ describe('WcLoanFormComponent', () => {
 
   it('should format provided dates into the request', () => {
     serviceSpy.postWorkingCapitalLoans.mockReturnValue(
-      of({}) as unknown as ReturnType<
-        WorkingCapitalLoansService['postWorkingCapitalLoans']
-      >,
+      of({}) as unknown as ReturnType<WorkingCapitalLoansService['postWorkingCapitalLoans']>,
     );
 
     component.loan = {

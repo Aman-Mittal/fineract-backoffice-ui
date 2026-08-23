@@ -23,16 +23,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WcNearBreachFormComponent } from './wc-near-breach-form.component';
 
-import {
-  WorkingCapitalBreachService,
-  WorkingCapitalNearBreachService,
-} from '../../../api';
+import { WorkingCapitalBreachService, WorkingCapitalNearBreachService } from '../../../api';
 
-import {
-  ActivatedRoute,
-  Router,
-  convertToParamMap,
-} from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 
 import { of } from 'rxjs';
 
@@ -55,16 +48,12 @@ describe('WcNearBreachFormComponent', () => {
       'putWorkingCapitalNearBreachBreachId',
     ]);
 
-    breachServiceSpy = createSpyObj([
-      'getWorkingCapitalBreachTemplate',
-    ]);
+    breachServiceSpy = createSpyObj(['getWorkingCapitalBreachTemplate']);
 
     breachServiceSpy.getWorkingCapitalBreachTemplate.mockReturnValue(
       of({
         breachFrequencyTypeOptions: [],
-      }) as unknown as ReturnType<
-        WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']
-      >,
+      }) as unknown as ReturnType<WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']>,
     );
 
     routerSpy = createSpyObj(['navigate']);
@@ -113,12 +102,8 @@ describe('WcNearBreachFormComponent', () => {
 
     component.onSubmit();
 
-    expect(
-      serviceSpy.postWorkingCapitalNearBreach,
-    ).toHaveBeenCalled();
+    expect(serviceSpy.postWorkingCapitalNearBreach).toHaveBeenCalled();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/working-capital/near-breach',
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach']);
   });
 });

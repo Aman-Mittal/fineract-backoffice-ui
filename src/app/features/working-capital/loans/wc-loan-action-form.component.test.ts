@@ -23,10 +23,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WcLoanActionFormComponent } from './wc-loan-action-form.component';
 
-import {
-  WorkingCapitalLoansService,
-  WorkingCapitalLoanTransactionsService,
-} from '../../../api';
+import { WorkingCapitalLoansService, WorkingCapitalLoanTransactionsService } from '../../../api';
 
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -64,21 +61,15 @@ describe('WcLoanActionFormComponent', () => {
     );
 
     loansSpy.putWorkingCapitalLoansLoanIdMarkAsFraud.mockReturnValue(
-      of({}) as ReturnType<
-        WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdMarkAsFraud']
-      >,
+      of({}) as ReturnType<WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdMarkAsFraud']>,
     );
 
     loansSpy.putWorkingCapitalLoansLoanIdDiscount.mockReturnValue(
-      of({}) as ReturnType<
-        WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdDiscount']
-      >,
+      of({}) as ReturnType<WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdDiscount']>,
     );
 
     loansSpy.putWorkingCapitalLoansLoanIdPaymentRate.mockReturnValue(
-      of({}) as ReturnType<
-        WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdPaymentRate']
-      >,
+      of({}) as ReturnType<WorkingCapitalLoansService['putWorkingCapitalLoansLoanIdPaymentRate']>,
     );
 
     txSpy.postWorkingCapitalLoansLoanIdTransactions.mockReturnValue(

@@ -94,9 +94,7 @@ describe('StaffFormComponent', () => {
 
   it('should format the joining date returned by the API', () => {
     staffServiceSpy.getStaffStaffId.mockReturnValue(
-      of({ joiningDate: [2026, 1, 5] }) as unknown as ReturnType<
-        StaffService['getStaffStaffId']
-      >,
+      of({ joiningDate: [2026, 1, 5] }) as unknown as ReturnType<StaffService['getStaffStaffId']>,
     );
 
     component.staffId = 7;
