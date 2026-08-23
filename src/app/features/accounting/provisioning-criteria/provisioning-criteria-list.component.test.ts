@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProvisioningCriteriaListComponent } from './provisioning-criteria-list.component';
 import { ProvisioningCriteriaService } from '../../../api';
@@ -29,19 +30,16 @@ import { DialogService } from '../../../core/services/dialog.service';
 describe('ProvisioningCriteriaListComponent', () => {
   let component: ProvisioningCriteriaListComponent;
   let fixture: ComponentFixture<ProvisioningCriteriaListComponent>;
-  let serviceSpy: jasmine.SpyObj<ProvisioningCriteriaService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogService: jasmine.SpyObj<DialogService>;
+  let serviceSpy: SpyObj<ProvisioningCriteriaService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ProvisioningCriteriaService', [
-      'getProvisioningcriteria',
-      'deleteProvisioningcriteriaCriteriaId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.getProvisioningcriteria.and.returnValue(
+    serviceSpy = createSpyObj(['getProvisioningcriteria', 'deleteProvisioningcriteriaCriteriaId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getProvisioningcriteria.mockReturnValue(
       of([{ criteriaId: 1, criteriaName: 'Default', createdBy: 'admin' }]) as unknown as ReturnType<
         ProvisioningCriteriaService['getProvisioningcriteria']
       >,
@@ -65,7 +63,7 @@ describe('ProvisioningCriteriaListComponent', () => {
   it('should load criteria on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getProvisioningcriteria).toHaveBeenCalled();
-    expect(component.criteria()).toHaveSize(1);
+    expect(component.criteria()).toHaveLength(1);
   });
 
   it('should navigate to edit with the criteria id', () => {
@@ -74,8 +72,8 @@ describe('ProvisioningCriteriaListComponent', () => {
   });
 
   it('should delete after confirmation and reload', async () => {
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.deleteProvisioningcriteriaCriteriaId.and.returnValue(
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.deleteProvisioningcriteriaCriteriaId.mockReturnValue(
       of({}) as unknown as ReturnType<
         ProvisioningCriteriaService['deleteProvisioningcriteriaCriteriaId']
       >,
@@ -89,7 +87,7 @@ describe('ProvisioningCriteriaListComponent', () => {
   });
 
   it('should not delete when cancelled', async () => {
-    dialogService.confirm.and.resolveTo(false);
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ criteriaId: 5, criteriaName: 'Y' });
     await fixture.whenStable();
     expect(serviceSpy.deleteProvisioningcriteriaCriteriaId).not.toHaveBeenCalled();

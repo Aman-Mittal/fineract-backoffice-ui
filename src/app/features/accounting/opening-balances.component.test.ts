@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
@@ -45,17 +46,14 @@ const TEMPLATE = {
 describe('OpeningBalancesComponent', () => {
   let component: OpeningBalancesComponent;
   let fixture: ComponentFixture<OpeningBalancesComponent>;
-  let journalSpy: jasmine.SpyObj<JournalEntriesService>;
+  let journalSpy: SpyObj<JournalEntriesService>;
 
   beforeEach(async () => {
-    journalSpy = jasmine.createSpyObj('JournalEntriesService', [
-      'getJournalentriesOpeningbalance',
-      'postJournalentries',
-    ]);
-    const officesSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    officesSpy.getOffices.and.returnValue(of([{ id: 1, name: 'Head Office' }]) as never);
-    const currencySpy = jasmine.createSpyObj('CurrencyService', ['getCurrencies']);
-    currencySpy.getCurrencies.and.returnValue(
+    journalSpy = createSpyObj(['getJournalentriesOpeningbalance', 'postJournalentries']);
+    const officesSpy = createSpyObj(['getOffices']);
+    officesSpy.getOffices.mockReturnValue(of([{ id: 1, name: 'Head Office' }]) as never);
+    const currencySpy = createSpyObj(['getCurrencies']);
+    currencySpy.getCurrencies.mockReturnValue(
       of({ selectedCurrencyOptions: [{ code: 'USD', name: 'US Dollar' }] }) as never,
     );
 
@@ -65,7 +63,7 @@ describe('OpeningBalancesComponent', () => {
         { provide: JournalEntriesService, useValue: journalSpy },
         { provide: OfficesService, useValue: officesSpy },
         { provide: CurrencyService, useValue: currencySpy },
-        { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },
+        { provide: NotificationService, useValue: createSpyObj(['success', 'error']) },
         ...provideFakeAdapters().providers,
         provideNoopAnimations(),
       ],
@@ -83,47 +81,47 @@ describe('OpeningBalancesComponent', () => {
   }
 
   it('reads every account group, including the one the platform misspells', () => {
-    journalSpy.getJournalentriesOpeningbalance.and.returnValue(
+    journalSpy.getJournalentriesOpeningbalance.mockReturnValue(
       of(TEMPLATE) as unknown as Observable<never>,
     );
 
     selectOfficeAndCurrency();
 
-    expect(component.rows()).toHaveSize(2);
+    expect(component.rows()).toHaveLength(2);
     expect(component.rows().map((row) => row.accountType)).toEqual(['ASSET', 'LIABILITY']);
   });
 
   it('explains a 404 as an unmapped contra account rather than a missing screen', () => {
-    journalSpy.getJournalentriesOpeningbalance.and.returnValue(
+    journalSpy.getJournalentriesOpeningbalance.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 404 })),
     );
 
     selectOfficeAndCurrency();
 
     expect(component.unavailableReason()).toBe('OPENING_BALANCES.CONTRA_NOT_MAPPED');
-    expect(component.rows()).toHaveSize(0);
+    expect(component.rows()).toHaveLength(0);
   });
 
   it('refuses to save until debits and credits agree', () => {
-    journalSpy.getJournalentriesOpeningbalance.and.returnValue(
+    journalSpy.getJournalentriesOpeningbalance.mockReturnValue(
       of(TEMPLATE) as unknown as Observable<never>,
     );
     selectOfficeAndCurrency();
 
     component.rows()[0].debit = 100;
     component.recalculate();
-    expect(component.isBalanced()).toBeFalse();
+    expect(component.isBalanced()).toBe(false);
 
     component.rows()[1].credit = 100;
     component.recalculate();
-    expect(component.isBalanced()).toBeTrue();
+    expect(component.isBalanced()).toBe(true);
   });
 
   it('sends the date the platform proposed, not one derived in the browser', () => {
-    journalSpy.getJournalentriesOpeningbalance.and.returnValue(
+    journalSpy.getJournalentriesOpeningbalance.mockReturnValue(
       of(TEMPLATE) as unknown as Observable<never>,
     );
-    journalSpy.postJournalentries.and.returnValue(of({}) as unknown as Observable<never>);
+    journalSpy.postJournalentries.mockReturnValue(of({}) as unknown as Observable<never>);
     selectOfficeAndCurrency();
 
     component.rows()[0].debit = 100;
@@ -131,7 +129,7 @@ describe('OpeningBalancesComponent', () => {
     component.recalculate();
     component.onSave();
 
-    const [command, payload] = journalSpy.postJournalentries.calls.mostRecent().args;
+    const [command, payload] = journalSpy.postJournalentries.mock.lastCall!;
     expect(command).toBe('defineOpeningBalance');
     expect(payload?.transactionDate).toBe('16 August 2026');
     expect(payload?.debits).toEqual([{ glAccountId: 1, amount: 100 }]);
@@ -139,7 +137,7 @@ describe('OpeningBalancesComponent', () => {
   });
 
   it('does not post an unbalanced set even if asked to', () => {
-    journalSpy.getJournalentriesOpeningbalance.and.returnValue(
+    journalSpy.getJournalentriesOpeningbalance.mockReturnValue(
       of(TEMPLATE) as unknown as Observable<never>,
     );
     selectOfficeAndCurrency();

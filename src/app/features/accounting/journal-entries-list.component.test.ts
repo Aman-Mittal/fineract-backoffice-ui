@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JournalEntriesListComponent } from './journal-entries-list.component';
 import {
@@ -34,21 +35,21 @@ import { HttpEvent } from '@angular/common/http';
 describe('JournalEntriesListComponent', () => {
   let component: JournalEntriesListComponent;
   let fixture: ComponentFixture<JournalEntriesListComponent>;
-  let journalEntriesServiceSpy: jasmine.SpyObj<JournalEntriesService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let glAccountServiceSpy: jasmine.SpyObj<GeneralLedgerAccountService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let journalEntriesServiceSpy: SpyObj<JournalEntriesService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let glAccountServiceSpy: SpyObj<GeneralLedgerAccountService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['getJournalentries']);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', ['getGlaccounts']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    journalEntriesServiceSpy = createSpyObj(['getJournalentries']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    glAccountServiceSpy = createSpyObj(['getGlaccounts']);
+    routerSpy = createSpyObj(['navigate']);
 
-    officesServiceSpy.getOffices.and.returnValue(
+    officesServiceSpy.getOffices.mockReturnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
     );
-    glAccountServiceSpy.getGlaccounts.and.returnValue(
+    glAccountServiceSpy.getGlaccounts.mockReturnValue(
       of([{ id: 2, name: 'Cash' }]) as unknown as Observable<never>,
     );
 
@@ -63,7 +64,7 @@ describe('JournalEntriesListComponent', () => {
       ],
     }).compileComponents();
 
-    journalEntriesServiceSpy.getJournalentries.and.returnValue(
+    journalEntriesServiceSpy.getJournalentries.mockReturnValue(
       of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
         HttpEvent<GetJournalEntriesTransactionIdResponse>
       >,
@@ -106,7 +107,7 @@ describe('JournalEntriesListComponent', () => {
 
       component.onApplyFilters();
 
-      const args = journalEntriesServiceSpy.getJournalentries.calls.mostRecent().args;
+      const args = journalEntriesServiceSpy.getJournalentries.mock.lastCall!;
       expect(args[0]).toBe(1);
       expect(args[1]).toBe(2);
       expect(args[2]).toBe(true);
@@ -118,7 +119,7 @@ describe('JournalEntriesListComponent', () => {
 
       component.onApplyFilters();
 
-      const args = journalEntriesServiceSpy.getJournalentries.calls.mostRecent().args;
+      const args = journalEntriesServiceSpy.getJournalentries.mock.lastCall!;
       expect(args[3] as unknown as string).toBe('01 January 2026');
       expect(args[4] as unknown as string).toBe('31 January 2026');
     });
@@ -131,7 +132,7 @@ describe('JournalEntriesListComponent', () => {
 
       expect(component.activeFilters.officeId).toBeUndefined();
       expect(component.activeFilters.manualEntriesOnly).toBe('');
-      const args = journalEntriesServiceSpy.getJournalentries.calls.mostRecent().args;
+      const args = journalEntriesServiceSpy.getJournalentries.mock.lastCall!;
       expect(args[0]).toBeUndefined();
       expect(args[2]).toBeUndefined();
     });

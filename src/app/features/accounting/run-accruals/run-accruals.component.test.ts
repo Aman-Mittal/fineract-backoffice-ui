@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RunAccrualsComponent } from './run-accruals.component';
 import { PeriodicAccrualAccountingService } from '../../../api';
@@ -27,10 +28,10 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('RunAccrualsComponent', () => {
   let component: RunAccrualsComponent;
   let fixture: ComponentFixture<RunAccrualsComponent>;
-  let serviceSpy: jasmine.SpyObj<PeriodicAccrualAccountingService>;
+  let serviceSpy: SpyObj<PeriodicAccrualAccountingService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('PeriodicAccrualAccountingService', ['postRunaccruals']);
+    serviceSpy = createSpyObj(['postRunaccruals']);
 
     await TestBed.configureTestingModule({
       imports: [RunAccrualsComponent, TranslateModule.forRoot()],
@@ -50,7 +51,7 @@ describe('RunAccrualsComponent', () => {
   });
 
   it('should call postRunaccruals with the chosen till date and show a success message', () => {
-    serviceSpy.postRunaccruals.and.returnValue(
+    serviceSpy.postRunaccruals.mockReturnValue(
       of({}) as unknown as ReturnType<PeriodicAccrualAccountingService['postRunaccruals']>,
     );
 
@@ -58,7 +59,7 @@ describe('RunAccrualsComponent', () => {
     component.onSubmit();
 
     expect(serviceSpy.postRunaccruals).toHaveBeenCalled();
-    const arg = serviceSpy.postRunaccruals.calls.mostRecent().args[0];
+    const arg = serviceSpy.postRunaccruals.mock.lastCall![0];
     expect(arg.tillDate).toBe('15 January 2026');
     expect(component.successMessage()).toBeTruthy();
   });

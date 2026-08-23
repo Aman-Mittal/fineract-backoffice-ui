@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -30,13 +31,13 @@ import { provideTranslateTesting } from '../../../testing/i18n-testing';
 describe('ChargesListComponent', () => {
   let component: ChargesListComponent;
   let fixture: ComponentFixture<ChargesListComponent>;
-  let serviceSpy: jasmine.SpyObj<ChargesService>;
+  let serviceSpy: SpyObj<ChargesService>;
 
   const charges = [{ id: 1, name: 'Processing fee', amount: 10 }];
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ChargesService', ['getCharges']);
-    serviceSpy.getCharges.and.returnValue(
+    serviceSpy = createSpyObj(['getCharges']);
+    serviceSpy.getCharges.mockReturnValue(
       of(charges) as unknown as ReturnType<ChargesService['getCharges']>,
     );
 
@@ -47,7 +48,7 @@ describe('ChargesListComponent', () => {
         provideIonicTesting(),
         ...provideTranslateTesting(),
         { provide: ChargesService, useValue: serviceSpy },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
       ],
     }).compileComponents();
 
@@ -59,36 +60,36 @@ describe('ChargesListComponent', () => {
   it('loads charges on init', () => {
     expect(serviceSpy.getCharges).toHaveBeenCalledTimes(1);
     expect(component.charges()).toEqual(charges);
-    expect(component.hasError()).toBeFalse();
+    expect(component.hasError()).toBe(false);
   });
 
   it('shows a load error instead of an empty table', () => {
-    serviceSpy.getCharges.and.returnValue(
+    serviceSpy.getCharges.mockReturnValue(
       throwError(() => new Error('boom')) as unknown as ReturnType<ChargesService['getCharges']>,
     );
 
     component.onRetry();
     fixture.detectChanges();
 
-    expect(component.hasError()).toBeTrue();
+    expect(component.hasError()).toBe(true);
     expect(component.charges()).toEqual([]);
     expect(fixture.nativeElement.querySelector('[data-testid="data-table-error"]')).not.toBeNull();
   });
 
   it('clears the error after a successful retry', () => {
-    serviceSpy.getCharges.and.returnValue(
+    serviceSpy.getCharges.mockReturnValue(
       throwError(() => new Error('boom')) as unknown as ReturnType<ChargesService['getCharges']>,
     );
     component.onRetry();
-    expect(component.hasError()).toBeTrue();
+    expect(component.hasError()).toBe(true);
 
-    serviceSpy.getCharges.and.returnValue(
+    serviceSpy.getCharges.mockReturnValue(
       of(charges) as unknown as ReturnType<ChargesService['getCharges']>,
     );
 
     component.onRetry();
 
-    expect(component.hasError()).toBeFalse();
+    expect(component.hasError()).toBe(false);
     expect(component.charges()).toEqual(charges);
   });
 });

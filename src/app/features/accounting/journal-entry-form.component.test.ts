@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JournalEntryFormComponent } from './journal-entry-form.component';
 import {
@@ -38,18 +39,18 @@ import { HttpEvent } from '@angular/common/http';
 describe('JournalEntryFormComponent', () => {
   let component: JournalEntryFormComponent;
   let fixture: ComponentFixture<JournalEntryFormComponent>;
-  let journalServiceSpy: jasmine.SpyObj<JournalEntriesService>;
-  let glAccountServiceSpy: jasmine.SpyObj<GeneralLedgerAccountService>;
-  let officeServiceSpy: jasmine.SpyObj<OfficesService>;
-  let currencyServiceSpy: jasmine.SpyObj<CurrencyService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let journalServiceSpy: SpyObj<JournalEntriesService>;
+  let glAccountServiceSpy: SpyObj<GeneralLedgerAccountService>;
+  let officeServiceSpy: SpyObj<OfficesService>;
+  let currencyServiceSpy: SpyObj<CurrencyService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    journalServiceSpy = jasmine.createSpyObj('JournalEntriesService', ['postJournalentries']);
-    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', ['getGlaccounts']);
-    officeServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getCurrencies']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    journalServiceSpy = createSpyObj(['postJournalentries']);
+    glAccountServiceSpy = createSpyObj(['getGlaccounts']);
+    officeServiceSpy = createSpyObj(['getOffices']);
+    currencyServiceSpy = createSpyObj(['getCurrencies']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [JournalEntryFormComponent, TranslateModule.forRoot()],
@@ -63,15 +64,15 @@ describe('JournalEntryFormComponent', () => {
       ],
     }).compileComponents();
 
-    officeServiceSpy.getOffices.and.returnValue(
+    officeServiceSpy.getOffices.mockReturnValue(
       of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
     );
-    currencyServiceSpy.getCurrencies.and.returnValue(
+    currencyServiceSpy.getCurrencies.mockReturnValue(
       of({ selectedCurrencyOptions: [] }) as unknown as Observable<
         HttpEvent<CurrencyConfigurationData>
       >,
     );
-    glAccountServiceSpy.getGlaccounts.and.returnValue(
+    glAccountServiceSpy.getGlaccounts.mockReturnValue(
       of([]) as unknown as Observable<HttpEvent<GetGLAccountsResponse[]>>,
     );
 
@@ -87,10 +88,10 @@ describe('JournalEntryFormComponent', () => {
   it('should validate balance', () => {
     component.debits = [{ glAccountId: 1, amount: 100 }];
     component.credits = [{ glAccountId: 2, amount: 100 }];
-    expect(component.isBalanced()).toBeTrue();
+    expect(component.isBalanced()).toBe(true);
 
     component.credits[0].amount = 50;
-    expect(component.isBalanced()).toBeFalse();
+    expect(component.isBalanced()).toBe(false);
   });
 
   it('should format payload correctly on submission', () => {
@@ -100,7 +101,7 @@ describe('JournalEntryFormComponent', () => {
     component.debits = [{ glAccountId: 10, amount: 500 }];
     component.credits = [{ glAccountId: 20, amount: 500 }];
 
-    journalServiceSpy.postJournalentries.and.returnValue(
+    journalServiceSpy.postJournalentries.mockReturnValue(
       of({}) as unknown as Observable<HttpEvent<PostJournalEntriesResponse>>,
     );
 
@@ -108,7 +109,7 @@ describe('JournalEntryFormComponent', () => {
 
     expect(journalServiceSpy.postJournalentries).toHaveBeenCalledWith(
       undefined,
-      jasmine.objectContaining({
+      expect.objectContaining({
         officeId: 1,
         currencyCode: 'USD',
         transactionDate: '2026-05-15',
