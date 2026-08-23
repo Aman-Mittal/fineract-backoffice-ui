@@ -227,6 +227,24 @@ test.describe('a fully branded deployment', () => {
     expect(await token(page, 'ion-color-primary-contrast')).toBe('#000000');
   });
 
+  test('does not leak a light colour into the dark palette', async ({ page }) => {
+    // The overlay sets --secondary-color for light and says nothing about dark. That token is the
+    // sidebar ground in light and a near-white *foreground* in dark, so carrying the light value
+    // over would paint navy text on a near-black page. The application's dark value has to win.
+    //
+    // This is specificity, not preference: the branding stylesheet is appended after the
+    // application's, and a plain `:root` ties with `[data-theme='dark']`, so the later rule would
+    // take dark mode too.
+    expect(EXAMPLE.branding.tokens.light['secondary-color']).toBeTruthy();
+    expect(EXAMPLE.branding.tokens.dark['secondary-color']).toBeUndefined();
+
+    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+
+    expect(await token(page, 'secondary-color')).toBe('#ecf0f1');
+    // A token the application does not re-theme still carries over, in both directions.
+    expect(await token(page, 'border-radius')).toBe(EXAMPLE.branding.tokens.light['border-radius']);
+  });
+
   test('reports no configuration defects for the published example', async ({ page }) => {
     // The example is what deployments copy. If the application finds anything wrong with it,
     // every one of them inherits the mistake.

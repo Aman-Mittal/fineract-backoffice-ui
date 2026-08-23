@@ -54,6 +54,26 @@ export const BRANDABLE_TOKENS: readonly string[] = [
 const BRANDABLE = new Set(BRANDABLE_TOKENS);
 
 /**
+ * Tokens `_common.scss` gives a different value under `[data-theme='dark']`.
+ *
+ * These must not carry a deployment's light value into dark mode. Several change *role* between
+ * themes rather than just shade — `--secondary-color` is the sidebar ground in light and a
+ * near-white foreground in dark — so leaking the light value paints navy text on a near-black
+ * page. Everything else (lengths, and the colours the application does not re-theme) is
+ * theme-independent and applies to both.
+ */
+const THEME_SCOPED = new Set([
+  'primary-color',
+  'primary-dark',
+  'secondary-color',
+  'bg-color',
+  'card-bg',
+  'text-color',
+  'text-muted',
+  'border-color',
+]);
+
+/**
  * Smallest contrast a deployment's colour may have against the text drawn on it.
  *
  * WCAG 2.1 AA for normal text. Checked rather than trusted because the people setting these are,
@@ -354,27 +374,37 @@ export class BrandingService {
     light: Record<string, string>,
     dark: Record<string, string>,
   ): void {
+    const lightEntries = Object.entries(light);
+    const themeScoped = lightEntries.filter(([name]) => THEME_SCOPED.has(name));
+    const themeFree = lightEntries.filter(([name]) => !THEME_SCOPED.has(name));
+
     const rules = [
-      declarationsFor(light, this.defects, ':root'),
+      // Applies in both themes: nothing here is re-themed by the application.
+      declarationsFor(Object.fromEntries(themeFree), this.defects, ':root'),
+      // `:not([data-theme='dark'])` is load-bearing. This stylesheet is appended after the
+      // application's own, and `:root` ties with `[data-theme='dark']` on specificity, so a plain
+      // `:root` here would beat the dark palette and win in dark mode too.
+      declarationsFor(
+        Object.fromEntries(themeScoped),
+        this.defects,
+        ":root:not([data-theme='dark'])",
+      ),
       declarationsFor(dark, this.defects, "[data-theme='dark']"),
     ].filter((rule) => rule !== null);
 
     if (rules.length === 0) return;
 
-    // One stylesheet holding both themes, appended to head, replaced wholesale so re-applying is
+    // One stylesheet holding every theme, appended to head, replaced wholesale so re-applying is
     // idempotent.
     //
     // Not inline styles on documentElement, which is what this did first. An inline style beats
     // every stylesheet rule regardless of specificity, so a light `--primary-color` set that way
-    // silently outranked the `[data-theme='dark']` block and dark-mode branding never applied at
-    // all. Emitting both as rules puts them on equal footing, and `:root` and `[data-theme=...]`
-    // have equal specificity, so source order decides — which is why dark is written second.
+    // silently outranked the dark block and dark-mode branding never applied at all.
     const id = 'fineract-branding';
     const style = doc.getElementById(id) ?? doc.createElement('style');
     style.id = id;
     style.textContent = rules.join('\n\n');
     if (!style.isConnected) {
-      // Appended last so it follows the application's own token block in _common.scss.
       doc.head.append(style);
     }
   }
