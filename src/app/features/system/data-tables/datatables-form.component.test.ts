@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -28,19 +29,19 @@ import { DatatablesFormComponent } from './datatables-form.component';
 describe('DatatablesFormComponent', () => {
   let fixture: ComponentFixture<DatatablesFormComponent>;
   let component: DatatablesFormComponent;
-  let datatablesServiceSpy: jasmine.SpyObj<DataTablesService>;
-  let codesServiceSpy: jasmine.SpyObj<CodesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let datatablesServiceSpy: SpyObj<DataTablesService>;
+  let codesServiceSpy: SpyObj<CodesService>;
+  let routerSpy: SpyObj<Router>;
 
   async function configure(name: string | null = null): Promise<void> {
-    datatablesServiceSpy = jasmine.createSpyObj('DataTablesService', [
+    datatablesServiceSpy = createSpyObj([
       'getDatatablesDatatable',
       'postDatatables',
       'putDatatablesDatatableName',
     ]);
-    codesServiceSpy = jasmine.createSpyObj('CodesService', ['getCodes']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    codesServiceSpy.getCodes.and.returnValue(of([]) as unknown as Observable<never>);
+    codesServiceSpy = createSpyObj(['getCodes']);
+    routerSpy = createSpyObj(['navigate']);
+    codesServiceSpy.getCodes.mockReturnValue(of([]) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
       imports: [DatatablesFormComponent],
@@ -67,11 +68,11 @@ describe('DatatablesFormComponent', () => {
 
   it('includes unique and indexed values in the create request', async () => {
     await configure();
-    datatablesServiceSpy.postDatatables.and.returnValue(of({}) as unknown as Observable<never>);
+    datatablesServiceSpy.postDatatables.mockReturnValue(of({}) as unknown as Observable<never>);
     fixture.detectChanges();
 
     expect(component.datatable().columns[0]).toEqual(
-      jasmine.objectContaining({ unique: false, indexed: false }),
+      expect.objectContaining({ unique: false, indexed: false }),
     );
 
     component.datatable.set({
@@ -92,15 +93,14 @@ describe('DatatablesFormComponent', () => {
 
     component.onSubmit();
 
-    const request = datatablesServiceSpy.postDatatables.calls.mostRecent()
-      .args[0] as PostDataTablesRequest;
-    expect(request.columns[0]).toEqual(jasmine.objectContaining({ unique: true, indexed: true }));
+    const request = datatablesServiceSpy.postDatatables.mock.lastCall![0] as PostDataTablesRequest;
+    expect(request.columns[0]).toEqual(expect.objectContaining({ unique: true, indexed: true }));
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/data-tables']);
   });
 
   it('maps unique and indexed values from an existing datatable', async () => {
     await configure('client_identifiers');
-    datatablesServiceSpy.getDatatablesDatatable.and.returnValue(
+    datatablesServiceSpy.getDatatablesDatatable.mockReturnValue(
       of({
         registeredTableName: 'client_identifiers',
         applicationTableName: 'm_client',
@@ -118,9 +118,9 @@ describe('DatatablesFormComponent', () => {
     );
     fixture.detectChanges();
 
-    expect(component.isEditMode).toBeTrue();
+    expect(component.isEditMode).toBe(true);
     expect(component.datatable().columns[0]).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         name: 'external_reference',
         mandatory: true,
         unique: true,

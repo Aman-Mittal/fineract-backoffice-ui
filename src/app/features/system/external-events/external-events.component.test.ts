@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ExternalEventsComponent } from './external-events.component';
 import { ExternalEventConfigurationService } from '../../../api';
@@ -27,14 +28,11 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ExternalEventsComponent', () => {
   let component: ExternalEventsComponent;
   let fixture: ComponentFixture<ExternalEventsComponent>;
-  let serviceSpy: jasmine.SpyObj<ExternalEventConfigurationService>;
+  let serviceSpy: SpyObj<ExternalEventConfigurationService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ExternalEventConfigurationService', [
-      'getExternaleventsConfiguration',
-      'putExternaleventsConfiguration',
-    ]);
-    serviceSpy.getExternaleventsConfiguration.and.returnValue(
+    serviceSpy = createSpyObj(['getExternaleventsConfiguration', 'putExternaleventsConfiguration']);
+    serviceSpy.getExternaleventsConfiguration.mockReturnValue(
       of({
         externalEventConfiguration: [
           { type: 'LoanApprovedBusinessEvent', enabled: true },
@@ -59,11 +57,11 @@ describe('ExternalEventsComponent', () => {
   });
 
   it('should load events on init', () => {
-    expect(component.events()).toHaveSize(2);
+    expect(component.events()).toHaveLength(2);
   });
 
   it('should put a map of toggles on save', () => {
-    serviceSpy.putExternaleventsConfiguration.and.returnValue(
+    serviceSpy.putExternaleventsConfiguration.mockReturnValue(
       of({}) as unknown as ReturnType<
         ExternalEventConfigurationService['putExternaleventsConfiguration']
       >,

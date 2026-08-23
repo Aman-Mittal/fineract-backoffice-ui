@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PasswordPreferencesComponent } from './password-preferences.component';
 import { PasswordPreferencesService } from '../../../api';
@@ -27,14 +28,11 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('PasswordPreferencesComponent', () => {
   let component: PasswordPreferencesComponent;
   let fixture: ComponentFixture<PasswordPreferencesComponent>;
-  let serviceSpy: jasmine.SpyObj<PasswordPreferencesService>;
+  let serviceSpy: SpyObj<PasswordPreferencesService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('PasswordPreferencesService', [
-      'getPasswordpreferences',
-      'putPasswordpreferences',
-    ]);
-    serviceSpy.getPasswordpreferences.and.returnValue(
+    serviceSpy = createSpyObj(['getPasswordpreferences', 'putPasswordpreferences']);
+    serviceSpy.getPasswordpreferences.mockReturnValue(
       of([
         { id: 1, key: 'simple', description: 'Simple', active: false },
         { id: 2, key: 'strong', description: 'Strong', active: true },
@@ -55,12 +53,12 @@ describe('PasswordPreferencesComponent', () => {
   });
 
   it('should select the active policy on load', () => {
-    expect(component.policies()).toHaveSize(2);
+    expect(component.policies()).toHaveLength(2);
     expect(component.selectedPolicyId()).toBe(2);
   });
 
   it('should put the selected policy on save', () => {
-    serviceSpy.putPasswordpreferences.and.returnValue(
+    serviceSpy.putPasswordpreferences.mockReturnValue(
       of({}) as unknown as ReturnType<PasswordPreferencesService['putPasswordpreferences']>,
     );
     component.selectedPolicyId.set(1);

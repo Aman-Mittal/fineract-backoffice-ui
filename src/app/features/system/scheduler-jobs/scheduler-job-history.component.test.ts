@@ -17,52 +17,57 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SmsFormComponent } from './sms-form.component';
-import { SMSService } from '../../../api';
+import { SchedulerJobHistoryComponent } from './scheduler-job-history.component';
+import { SCHEDULERJOBService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('SmsFormComponent', () => {
-  let component: SmsFormComponent;
-  let fixture: ComponentFixture<SmsFormComponent>;
-  let serviceSpy: jasmine.SpyObj<SMSService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('SchedulerJobHistoryComponent', () => {
+  let component: SchedulerJobHistoryComponent;
+  let fixture: ComponentFixture<SchedulerJobHistoryComponent>;
+  let jobSpy: SpyObj<SCHEDULERJOBService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SMSService', [
-      'getSmsResourceId',
-      'postSms',
-      'putSmsResourceId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    jobSpy = createSpyObj(['getJobsJobIdRunhistory']);
+    routerSpy = createSpyObj(['navigate']);
+    jobSpy.getJobsJobIdRunhistory.mockReturnValue(
+      of({ pageItems: [{ id: 1, status: 'success' }] }) as unknown as ReturnType<
+        SCHEDULERJOBService['getJobsJobIdRunhistory']
+      >,
+    );
 
     await TestBed.configureTestingModule({
-      imports: [SmsFormComponent, TranslateModule.forRoot()],
+      imports: [SchedulerJobHistoryComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: SMSService, useValue: serviceSpy },
+        { provide: SCHEDULERJOBService, useValue: jobSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: '5' }) } },
+        },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SmsFormComponent);
+    fixture = TestBed.createComponent(SchedulerJobHistoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should load run history for the job id', () => {
     expect(component).toBeTruthy();
+    expect(component.jobId).toBe(5);
+    expect(jobSpy.getJobsJobIdRunhistory).toHaveBeenCalledWith(5);
+    expect(component.history()).toHaveLength(1);
   });
 
-  it('should post on create and navigate to the list', () => {
-    serviceSpy.postSms.and.returnValue(of({}) as unknown as ReturnType<SMSService['postSms']>);
-    component.message.set('Hello');
-    component.onSubmit();
-    expect(serviceSpy.postSms).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/sms']);
+  it('should navigate back to the jobs list', () => {
+    component.onBack();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/scheduler-jobs']);
   });
 });

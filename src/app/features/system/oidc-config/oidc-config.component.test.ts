@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
@@ -54,9 +55,9 @@ describe('OidcConfigComponent', () => {
   const TENANT = 'default';
   let component: OidcConfigComponent;
   let fixture: ComponentFixture<OidcConfigComponent>;
-  let serviceSpy: jasmine.SpyObj<TenantOIDCConfigurationService>;
-  let notificationsSpy: jasmine.SpyObj<NotificationService>;
-  let dialogsSpy: jasmine.SpyObj<DialogService>;
+  let serviceSpy: SpyObj<TenantOIDCConfigurationService>;
+  let notificationsSpy: SpyObj<NotificationService>;
+  let dialogsSpy: SpyObj<DialogService>;
 
   type Api = TenantOIDCConfigurationService;
   const asGet = (v: unknown) => v as ReturnType<Api['getTenantsTenantIdOidcConfig']>;
@@ -66,20 +67,20 @@ describe('OidcConfigComponent', () => {
     getResponse: unknown = of(JSON.stringify(PLATFORM_RESPONSE)),
   ): Promise<void> {
     TestBed.resetTestingModule();
-    serviceSpy = jasmine.createSpyObj('TenantOIDCConfigurationService', [
+    serviceSpy = createSpyObj([
       'getTenantsTenantIdOidcConfig',
       'postTenantsTenantIdOidcConfig',
       'putTenantsTenantIdOidcConfig',
       'deleteTenantsTenantIdOidcConfig',
     ]);
-    serviceSpy.getTenantsTenantIdOidcConfig.and.returnValue(asGet(getResponse));
-    serviceSpy.putTenantsTenantIdOidcConfig.and.returnValue(asWrite(of('')));
-    serviceSpy.postTenantsTenantIdOidcConfig.and.returnValue(asWrite(of('')));
-    serviceSpy.deleteTenantsTenantIdOidcConfig.and.returnValue(asWrite(of('')));
+    serviceSpy.getTenantsTenantIdOidcConfig.mockReturnValue(asGet(getResponse));
+    serviceSpy.putTenantsTenantIdOidcConfig.mockReturnValue(asWrite(of('')));
+    serviceSpy.postTenantsTenantIdOidcConfig.mockReturnValue(asWrite(of('')));
+    serviceSpy.deleteTenantsTenantIdOidcConfig.mockReturnValue(asWrite(of('')));
 
-    notificationsSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
-    dialogsSpy = jasmine.createSpyObj('DialogService', ['confirm']);
-    dialogsSpy.confirm.and.resolveTo(true);
+    notificationsSpy = createSpyObj(['success', 'error']);
+    dialogsSpy = createSpyObj(['confirm']);
+    dialogsSpy.confirm.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [OidcConfigComponent, TranslateModule.forRoot()],
@@ -106,7 +107,7 @@ describe('OidcConfigComponent', () => {
       // The previous field set (`issuer`, `authorizationEndpoint`, `tokenEndpoint`, `jwksUrl`)
       // matched none of these, so a configured tenant opened this screen to a blank form.
       expect(serviceSpy.getTenantsTenantIdOidcConfig).toHaveBeenCalledWith(TENANT);
-      expect(component.exists).toBeTrue();
+      expect(component.exists).toBe(true);
       expect(component.config().issuerUri).toBe(PLATFORM_RESPONSE.issuerUri);
       expect(component.config().providerType).toBe('KEYCLOAK');
       expect(component.config().clientId).toBe('fineract-backoffice');
@@ -118,12 +119,12 @@ describe('OidcConfigComponent', () => {
     it('treats a 404 as "no configuration yet" rather than as a failure', async () => {
       await render(throwError(() => new HttpErrorResponse({ status: 404 })));
 
-      expect(component.exists).toBeFalse();
+      expect(component.exists).toBe(false);
       expect(notificationsSpy.error).not.toHaveBeenCalled();
       // Opens on the platform's own defaults, so a new configuration starts somewhere valid.
       expect(component.config().providerType).toBe('KEYCLOAK');
       expect(component.config().usernameClaim).toBe('preferred_username');
-      expect(component.config().enabled).toBeTrue();
+      expect(component.config().enabled).toBe(true);
     });
 
     it('reports a real load failure instead of only logging it', async () => {
@@ -142,7 +143,7 @@ describe('OidcConfigComponent', () => {
       component.config.set({ issuerUri: 'https://new.invalid', providerType: 'KEYCLOAK' });
       component.onSave();
 
-      const [tenant, body] = serviceSpy.putTenantsTenantIdOidcConfig.calls.mostRecent().args;
+      const [tenant, body] = serviceSpy.putTenantsTenantIdOidcConfig.mock.lastCall!;
       expect(tenant).toBe(TENANT);
       expect(JSON.parse(body as string)).toEqual({
         issuerUri: 'https://new.invalid',
@@ -163,7 +164,7 @@ describe('OidcConfigComponent', () => {
       component.config.set({ issuerUri: 'https://x.invalid', clientSecret: '' });
       component.onSave();
 
-      const [, body] = serviceSpy.putTenantsTenantIdOidcConfig.calls.mostRecent().args;
+      const [, body] = serviceSpy.putTenantsTenantIdOidcConfig.mock.lastCall!;
       expect(JSON.parse(body as string).clientSecret).toBeUndefined();
     });
 
@@ -171,7 +172,7 @@ describe('OidcConfigComponent', () => {
       component.config.set({ issuerUri: 'https://x.invalid', clientSecret: 'a-new-secret' });
       component.onSave();
 
-      const [, body] = serviceSpy.putTenantsTenantIdOidcConfig.calls.mostRecent().args;
+      const [, body] = serviceSpy.putTenantsTenantIdOidcConfig.mock.lastCall!;
       expect(JSON.parse(body as string).clientSecret).toBe('a-new-secret');
     });
 
@@ -182,11 +183,11 @@ describe('OidcConfigComponent', () => {
 
     it('stops the spinner when the platform refuses the save', () => {
       // Whatever the platform's reason, the form must not stay stuck saving.
-      serviceSpy.putTenantsTenantIdOidcConfig.and.returnValue(
+      serviceSpy.putTenantsTenantIdOidcConfig.mockReturnValue(
         asWrite(throwError(() => new HttpErrorResponse({ status: 500 }))),
       );
       component.onSave();
-      expect(component.isSaving()).toBeFalse();
+      expect(component.isSaving()).toBe(false);
     });
   });
 
@@ -194,12 +195,12 @@ describe('OidcConfigComponent', () => {
     it('asks first, through the shared dialog rather than window.confirm', async () => {
       await component.onDelete();
       expect(dialogsSpy.confirm).toHaveBeenCalled();
-      expect(dialogsSpy.confirm.calls.mostRecent().args[0].destructive).toBeTrue();
+      expect(dialogsSpy.confirm.mock.lastCall![0].destructive).toBe(true);
       expect(serviceSpy.deleteTenantsTenantIdOidcConfig).toHaveBeenCalledWith(TENANT);
     });
 
     it('does nothing when the user declines', async () => {
-      dialogsSpy.confirm.and.resolveTo(false);
+      dialogsSpy.confirm.mockResolvedValue(false);
       await component.onDelete();
       expect(serviceSpy.deleteTenantsTenantIdOidcConfig).not.toHaveBeenCalled();
     });

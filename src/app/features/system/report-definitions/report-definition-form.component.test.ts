@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -44,15 +45,15 @@ const TENANT_REPORT = { ...CORE_REPORT, id: 2, reportName: 'Branch Arrears', cor
 describe('ReportDefinitionFormComponent', () => {
   let component: ReportDefinitionFormComponent;
   let fixture: ComponentFixture<ReportDefinitionFormComponent>;
-  let reportsSpy: jasmine.SpyObj<ReportsService>;
+  let reportsSpy: SpyObj<ReportsService>;
 
   async function build(routeId: string | null) {
     await TestBed.configureTestingModule({
       imports: [ReportDefinitionFormComponent],
       providers: [
         { provide: ReportsService, useValue: reportsSpy },
-        { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: NotificationService, useValue: createSpyObj(['success', 'error']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => routeId } } },
@@ -68,43 +69,43 @@ describe('ReportDefinitionFormComponent', () => {
   }
 
   beforeEach(() => {
-    reportsSpy = jasmine.createSpyObj('ReportsService', [
+    reportsSpy = createSpyObj([
       'getReportsTemplate',
       'getReportsId',
       'postReports',
       'putReportsId',
     ]);
-    reportsSpy.getReportsTemplate.and.returnValue(
+    reportsSpy.getReportsTemplate.mockReturnValue(
       of({
         allowedReportTypes: ['Table', 'Chart', 'SMS'],
         allowedReportSubTypes: ['Bar', 'Pie'],
       }) as never,
     );
-    reportsSpy.putReportsId.and.returnValue(of({}) as unknown as Observable<never>);
-    reportsSpy.postReports.and.returnValue(of({}) as unknown as Observable<never>);
+    reportsSpy.putReportsId.mockReturnValue(of({}) as unknown as Observable<never>);
+    reportsSpy.postReports.mockReturnValue(of({}) as unknown as Observable<never>);
   });
 
   it('sends only the in-use flag for a core report, because the platform refuses the rest', async () => {
-    reportsSpy.getReportsId.and.returnValue(of(CORE_REPORT) as unknown as Observable<never>);
+    reportsSpy.getReportsId.mockReturnValue(of(CORE_REPORT) as unknown as Observable<never>);
     await build('1');
 
-    expect(component.isCoreReport()).toBeTrue();
+    expect(component.isCoreReport()).toBe(true);
     component.report.useReport = false;
     component.onSave();
 
-    const [id, payload] = reportsSpy.putReportsId.calls.mostRecent().args;
+    const [id, payload] = reportsSpy.putReportsId.mock.lastCall!;
     expect(id).toBe(1);
     expect(payload).toEqual({ useReport: false } as never);
   });
 
   it('sends the whole definition for a tenant report', async () => {
-    reportsSpy.getReportsId.and.returnValue(of(TENANT_REPORT) as unknown as Observable<never>);
+    reportsSpy.getReportsId.mockReturnValue(of(TENANT_REPORT) as unknown as Observable<never>);
     await build('2');
 
     component.report.description = 'edited';
     component.onSave();
 
-    const payload = reportsSpy.putReportsId.calls.mostRecent().args[1] as Record<string, unknown>;
+    const payload = reportsSpy.putReportsId.mock.lastCall![1] as Record<string, unknown>;
     expect(payload['description']).toBe('edited');
     expect(payload['reportSql']).toBe('SELECT 1');
   });
@@ -123,8 +124,8 @@ describe('ReportDefinitionFormComponent', () => {
   it('will not create a report without a name and a type', async () => {
     await build(null);
 
-    expect(component.canSave).toBeFalse();
+    expect(component.canSave).toBe(false);
     component.report.reportName = 'New Report';
-    expect(component.canSave).toBeTrue();
+    expect(component.canSave).toBe(true);
   });
 });

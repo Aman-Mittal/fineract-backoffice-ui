@@ -17,39 +17,36 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReportMailingJobsFormComponent } from './report-mailing-jobs-form.component';
-import { ReportMailingJobsService } from '../../../api';
+import { SmsFormComponent } from './sms-form.component';
+import { SMSService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('ReportMailingJobsFormComponent', () => {
-  let component: ReportMailingJobsFormComponent;
-  let fixture: ComponentFixture<ReportMailingJobsFormComponent>;
-  let serviceSpy: jasmine.SpyObj<ReportMailingJobsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('SmsFormComponent', () => {
+  let component: SmsFormComponent;
+  let fixture: ComponentFixture<SmsFormComponent>;
+  let serviceSpy: SpyObj<SMSService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ReportMailingJobsService', [
-      'getReportmailingjobsEntityId',
-      'postReportmailingjobs',
-      'putReportmailingjobsEntityId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    serviceSpy = createSpyObj(['getSmsResourceId', 'postSms', 'putSmsResourceId']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ReportMailingJobsFormComponent, TranslateModule.forRoot()],
+      imports: [SmsFormComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: ReportMailingJobsService, useValue: serviceSpy },
+        { provide: SMSService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ReportMailingJobsFormComponent);
+    fixture = TestBed.createComponent(SmsFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -59,18 +56,10 @@ describe('ReportMailingJobsFormComponent', () => {
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postReportmailingjobs.and.returnValue(
-      of({}) as unknown as ReturnType<ReportMailingJobsService['postReportmailingjobs']>,
-    );
-    component.job.set({
-      name: 'New',
-      emailRecipients: 'a@b.c',
-      emailSubject: 'Sub',
-      stretchyReportId: 1,
-      isActive: true,
-    });
+    serviceSpy.postSms.mockReturnValue(of({}) as unknown as ReturnType<SMSService['postSms']>);
+    component.message.set('Hello');
     component.onSubmit();
-    expect(serviceSpy.postReportmailingjobs).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/report-mailing-jobs']);
+    expect(serviceSpy.postSms).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/sms']);
   });
 });

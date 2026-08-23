@@ -17,62 +17,63 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AdhocQueryFormComponent } from './adhoc-query-form.component';
-import { AdhocQueryApiService } from '../../../api';
+import { HooksFormComponent } from './hooks-form.component';
+import { HooksService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('AdhocQueryFormComponent', () => {
-  let component: AdhocQueryFormComponent;
-  let fixture: ComponentFixture<AdhocQueryFormComponent>;
-  let serviceSpy: jasmine.SpyObj<AdhocQueryApiService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('HooksFormComponent', () => {
+  let component: HooksFormComponent;
+  let fixture: ComponentFixture<HooksFormComponent>;
+  let serviceSpy: SpyObj<HooksService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('AdhocQueryApiService', [
-      'getAdhocqueryTemplate',
-      'getAdhocqueryAdHocId',
-      'postAdhocquery',
-      'putAdhocqueryAdHocId',
+    serviceSpy = createSpyObj([
+      'getHooksTemplate',
+      'getHooksHookId',
+      'postHooks',
+      'putHooksHookId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getAdhocqueryTemplate.and.returnValue(
-      of({
-        reportRunFrequencies: [{ id: 1, code: 'daily', value: 'Daily' }],
-      }) as unknown as ReturnType<AdhocQueryApiService['getAdhocqueryTemplate']>,
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getHooksTemplate.mockReturnValue(
+      of({ templates: [{ id: 1, name: 'Web' }] }) as unknown as ReturnType<
+        HooksService['getHooksTemplate']
+      >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [AdhocQueryFormComponent, TranslateModule.forRoot()],
+      imports: [HooksFormComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: AdhocQueryApiService, useValue: serviceSpy },
+        { provide: HooksService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AdhocQueryFormComponent);
+    fixture = TestBed.createComponent(HooksFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
-    expect(serviceSpy.getAdhocqueryTemplate).toHaveBeenCalled();
-    expect(component.frequencyOptions()).toHaveSize(1);
+    expect(serviceSpy.getHooksTemplate).toHaveBeenCalled();
+    expect(component.templateOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postAdhocquery.and.returnValue(
-      of({}) as unknown as ReturnType<AdhocQueryApiService['postAdhocquery']>,
+    serviceSpy.postHooks.mockReturnValue(
+      of({}) as unknown as ReturnType<HooksService['postHooks']>,
     );
-    component.query.set({ name: 'New', query: 'select 1', tableName: 't' });
+    component.hook.set({ name: 'Web', displayName: 'New', isActive: true });
     component.onSubmit();
-    expect(serviceSpy.postAdhocquery).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/adhoc-query']);
+    expect(serviceSpy.postHooks).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/hooks']);
   });
 });

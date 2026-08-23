@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreditBureauConfigComponent } from './credit-bureau-config.component';
 import { CreditBureauConfigurationService } from '../../../api';
@@ -27,19 +28,19 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('CreditBureauConfigComponent', () => {
   let component: CreditBureauConfigComponent;
   let fixture: ComponentFixture<CreditBureauConfigComponent>;
-  let serviceSpy: jasmine.SpyObj<CreditBureauConfigurationService>;
+  let serviceSpy: SpyObj<CreditBureauConfigurationService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('CreditBureauConfigurationService', [
+    serviceSpy = createSpyObj([
       'getCreditBureauConfiguration',
       'getCreditBureauConfigurationLoanProduct',
     ]);
-    serviceSpy.getCreditBureauConfiguration.and.returnValue(
+    serviceSpy.getCreditBureauConfiguration.mockReturnValue(
       of(
         JSON.stringify([{ id: 1, name: 'Equifax', product: 'Thin file' }]),
       ) as unknown as ReturnType<CreditBureauConfigurationService['getCreditBureauConfiguration']>,
     );
-    serviceSpy.getCreditBureauConfigurationLoanProduct.and.returnValue(
+    serviceSpy.getCreditBureauConfigurationLoanProduct.mockReturnValue(
       of(
         JSON.stringify([{ loanProductName: 'Microloan', organisationCreditBureauId: 5 }]),
       ) as unknown as ReturnType<
@@ -63,13 +64,13 @@ describe('CreditBureauConfigComponent', () => {
   it('should load and parse credit bureaus on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getCreditBureauConfiguration).toHaveBeenCalled();
-    expect(component.bureaus()).toHaveSize(1);
+    expect(component.bureaus()).toHaveLength(1);
     expect(component.bureaus()[0].name).toBe('Equifax');
   });
 
   it('should load and parse loan-product mappings on init', () => {
     expect(serviceSpy.getCreditBureauConfigurationLoanProduct).toHaveBeenCalled();
-    expect(component.mappings()).toHaveSize(1);
+    expect(component.mappings()).toHaveLength(1);
     expect(component.mappings()[0].organisationCreditBureauId).toBe(5);
   });
 });

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EntityMappingFormComponent } from './entity-mapping-form.component';
 import { FineractEntityService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('EntityMappingFormComponent', () => {
   let component: EntityMappingFormComponent;
   let fixture: ComponentFixture<EntityMappingFormComponent>;
-  let serviceSpy: jasmine.SpyObj<FineractEntityService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<FineractEntityService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('FineractEntityService', [
+    serviceSpy = createSpyObj([
       'getEntitytoentitymappingMapId',
       'postEntitytoentitymappingRelId',
       'putEntitytoentitymappingMapId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [EntityMappingFormComponent, TranslateModule.forRoot()],
@@ -59,7 +60,7 @@ describe('EntityMappingFormComponent', () => {
   });
 
   it('should post a stringified body on create and navigate to the list', () => {
-    serviceSpy.postEntitytoentitymappingRelId.and.returnValue(
+    serviceSpy.postEntitytoentitymappingRelId.mockReturnValue(
       of('{}') as unknown as ReturnType<FineractEntityService['postEntitytoentitymappingRelId']>,
     );
     component.relId.set(1);

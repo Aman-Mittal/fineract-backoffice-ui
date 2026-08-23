@@ -17,44 +17,44 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { LoanProductDetailsComponent } from './loan-product-details.component';
-import { LoanProductsDetailsService } from '../../../api';
+import { InstanceModeComponent } from './instance-mode.component';
+import { InstanceModeService } from '../../../api';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('LoanProductDetailsComponent', () => {
-  let component: LoanProductDetailsComponent;
-  let fixture: ComponentFixture<LoanProductDetailsComponent>;
-  let serviceSpy: jasmine.SpyObj<LoanProductsDetailsService>;
+describe('InstanceModeComponent', () => {
+  let component: InstanceModeComponent;
+  let fixture: ComponentFixture<InstanceModeComponent>;
+  let serviceSpy: SpyObj<InstanceModeService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('LoanProductsDetailsService', [
-      'getLoanproductsBasicDetails',
-    ]);
-    serviceSpy.getLoanproductsBasicDetails.and.returnValue(
-      of([{ id: 1, name: 'Standard Loan', shortName: 'STD' }]) as unknown as ReturnType<
-        LoanProductsDetailsService['getLoanproductsBasicDetails']
-      >,
-    );
+    serviceSpy = createSpyObj(['putInstanceMode']);
 
     await TestBed.configureTestingModule({
-      imports: [LoanProductDetailsComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: LoanProductsDetailsService, useValue: serviceSpy },
-        provideNoopAnimations(),
-      ],
+      imports: [InstanceModeComponent, TranslateModule.forRoot()],
+      providers: [{ provide: InstanceModeService, useValue: serviceSpy }, provideNoopAnimations()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LoanProductDetailsComponent);
+    fixture = TestBed.createComponent(InstanceModeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should load loan product basic details on init', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    expect(serviceSpy.getLoanproductsBasicDetails).toHaveBeenCalled();
-    expect(component.details()).toHaveSize(1);
+  });
+
+  it('should put the instance mode on save', () => {
+    serviceSpy.putInstanceMode.mockReturnValue(
+      of({}) as unknown as ReturnType<InstanceModeService['putInstanceMode']>,
+    );
+    component.mode.writeEnabled = false;
+    component.onSave();
+    expect(serviceSpy.putInstanceMode).toHaveBeenCalledWith(
+      expect.objectContaining({ writeEnabled: false }) as never,
+    );
   });
 });
