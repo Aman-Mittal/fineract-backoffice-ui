@@ -23,7 +23,7 @@ import { WcNearBreachListComponent } from './wc-near-breach-list.component';
 import { WorkingCapitalNearBreachService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
@@ -49,7 +49,7 @@ describe('WcNearBreachListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcNearBreachListComponent, TranslateModule.forRoot()],
+      imports: [WcNearBreachListComponent, provideTranslateTesting()],
       providers: [
         { provide: WorkingCapitalNearBreachService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },

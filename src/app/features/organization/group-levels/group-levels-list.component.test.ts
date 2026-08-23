@@ -22,7 +22,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GroupLevelsListComponent } from './group-levels-list.component';
 import { GroupsLevelService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('GroupLevelsListComponent', () => {
@@ -40,7 +40,7 @@ describe('GroupLevelsListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [GroupLevelsListComponent, TranslateModule.forRoot()],
+      imports: [GroupLevelsListComponent, provideTranslateTesting()],
       providers: [{ provide: GroupsLevelService, useValue: serviceSpy }, provideNoopAnimations()],
     }).compileComponents();
 

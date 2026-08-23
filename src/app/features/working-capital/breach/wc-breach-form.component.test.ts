@@ -23,7 +23,7 @@ import { WcBreachFormComponent } from './wc-breach-form.component';
 import { WorkingCapitalBreachService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('WcBreachFormComponent', () => {
@@ -48,7 +48,7 @@ describe('WcBreachFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcBreachFormComponent, TranslateModule.forRoot()],
+      imports: [WcBreachFormComponent, provideTranslateTesting()],
       providers: [
         { provide: WorkingCapitalBreachService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },

@@ -23,7 +23,7 @@ import { OfficeFormComponent } from './office-form.component';
 import { OfficesService } from '../../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { asyncOf, renderComponent } from '../../../testing/render';
 
@@ -63,7 +63,7 @@ describe('OfficeFormComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [OfficeFormComponent, TranslateModule.forRoot()],
+      imports: [OfficeFormComponent, provideTranslateTesting()],
       providers: [
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -148,7 +148,7 @@ describe('OfficeFormComponent', () => {
       );
 
       const rendered = await renderComponent(OfficeFormComponent, {
-        imports: [TranslateModule.forRoot()],
+        imports: [provideTranslateTesting()],
         providers: [
           { provide: OfficesService, useValue: officesServiceSpy },
           { provide: Router, useValue: routerSpy },
@@ -177,7 +177,7 @@ describe('OfficeFormComponent', () => {
       });
 
       await TestBed.configureTestingModule({
-        imports: [OfficeFormComponent, TranslateModule.forRoot()],
+        imports: [OfficeFormComponent, provideTranslateTesting()],
         providers: [
           { provide: OfficesService, useValue: officesServiceSpy },
           { provide: Router, useValue: routerSpy },
