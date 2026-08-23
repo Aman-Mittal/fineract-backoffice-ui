@@ -62,9 +62,10 @@ describe('StaffFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [StaffFormComponent, provideTranslateTesting()],
+      imports: [StaffFormComponent],
 
       providers: [
+        ...provideTranslateTesting(),
         { provide: StaffService, useValue: staffServiceSpy },
 
         { provide: OfficesService, useValue: officesServiceSpy },

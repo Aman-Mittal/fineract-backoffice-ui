@@ -51,8 +51,9 @@ describe('WcLoanProductFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcLoanProductFormComponent, provideTranslateTesting()],
+      imports: [WcLoanProductFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalLoanProductsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

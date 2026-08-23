@@ -39,8 +39,9 @@ describe('OfficesListComponent', () => {
     officesServiceSpy.getOffices.mockReturnValue(of([]) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [OfficesListComponent, provideTranslateTesting()],
+      imports: [OfficesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

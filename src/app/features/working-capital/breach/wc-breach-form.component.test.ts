@@ -48,8 +48,9 @@ describe('WcBreachFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcBreachFormComponent, provideTranslateTesting()],
+      imports: [WcBreachFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalBreachService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

@@ -51,8 +51,9 @@ describe('WcLoanProductsListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcLoanProductsListComponent, provideTranslateTesting()],
+      imports: [WcLoanProductsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalLoanProductsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },

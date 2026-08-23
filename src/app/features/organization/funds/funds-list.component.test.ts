@@ -42,8 +42,9 @@ describe('FundsListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [FundsListComponent, provideTranslateTesting()],
+      imports: [FundsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: FundsService, useValue: fundsServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),

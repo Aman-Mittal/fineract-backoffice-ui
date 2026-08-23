@@ -49,8 +49,9 @@ describe('WcBreachListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcBreachListComponent, provideTranslateTesting()],
+      imports: [WcBreachListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalBreachService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },

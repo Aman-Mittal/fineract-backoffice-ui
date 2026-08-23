@@ -17,19 +17,23 @@
  * under the License.
  */
 
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { WcNearBreachListComponent } from './wc-near-breach-list.component';
-import { WorkingCapitalNearBreachService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { provideTranslateTesting } from '../../../testing/i18n-testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+
+import { WcNearBreachListComponent } from './wc-near-breach-list.component';
+
+import { WorkingCapitalNearBreachService } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
+
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('WcNearBreachListComponent', () => {
   let component: WcNearBreachListComponent;
   let fixture: ComponentFixture<WcNearBreachListComponent>;
+
   let serviceSpy: SpyObj<WorkingCapitalNearBreachService>;
   let routerSpy: SpyObj<Router>;
   let dialogService: SpyObj<DialogService>;
@@ -39,60 +43,106 @@ describe('WcNearBreachListComponent', () => {
       'getWorkingCapitalNearBreach',
       'deleteWorkingCapitalNearBreachBreachId',
     ]);
+
     routerSpy = createSpyObj(['navigate']);
+
     dialogService = createSpyObj(['confirm']);
-    dialogService.confirm.mockResolvedValue(true);
+
     serviceSpy.getWorkingCapitalNearBreach.mockReturnValue(
-      of([{ id: 1, name: 'Warn A', threshold: 80 }]) as unknown as ReturnType<
+      of([
+        {
+          id: 1,
+          name: 'Warn A',
+          threshold: 80,
+        },
+      ]) as unknown as ReturnType<
         WorkingCapitalNearBreachService['getWorkingCapitalNearBreach']
       >,
     );
 
+    dialogService.confirm.mockResolvedValue(true);
+
     await TestBed.configureTestingModule({
-      imports: [WcNearBreachListComponent, provideTranslateTesting()],
+      imports: [WcNearBreachListComponent],
       providers: [
-        { provide: WorkingCapitalNearBreachService, useValue: serviceSpy },
-        { provide: Router, useValue: routerSpy },
-        { provide: DialogService, useValue: dialogService },
+        {
+          provide: WorkingCapitalNearBreachService,
+          useValue: serviceSpy,
+        },
+        {
+          provide: Router,
+          useValue: routerSpy,
+        },
+        {
+          provide: DialogService,
+          useValue: dialogService,
+        },
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WcNearBreachListComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 
   it('should load near-breaches on init', () => {
     expect(component).toBeTruthy();
+
     expect(serviceSpy.getWorkingCapitalNearBreach).toHaveBeenCalled();
+
     expect(component.items()).toHaveLength(1);
   });
 
   it('should navigate to edit with the id', () => {
-    component.onEdit({ id: 7, name: 'X' });
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach/edit', 7]);
+    component.onEdit({
+      id: 7,
+      name: 'X',
+    });
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith([
+      '/working-capital/near-breach/edit',
+      7,
+    ]);
   });
 
   it('should delete after confirmation and reload', async () => {
     dialogService.confirm.mockResolvedValue(true);
+
     serviceSpy.deleteWorkingCapitalNearBreachBreachId.mockReturnValue(
       of({}) as unknown as ReturnType<
         WorkingCapitalNearBreachService['deleteWorkingCapitalNearBreachBreachId']
       >,
     );
 
-    component.onDelete({ id: 5, name: 'Y' });
+    component.onDelete({
+      id: 5,
+      name: 'Y',
+    });
+
     await fixture.whenStable();
 
-    expect(serviceSpy.deleteWorkingCapitalNearBreachBreachId).toHaveBeenCalledWith(5);
+    expect(
+      serviceSpy.deleteWorkingCapitalNearBreachBreachId,
+    ).toHaveBeenCalledWith(5);
+
     expect(serviceSpy.getWorkingCapitalNearBreach).toHaveBeenCalledTimes(2);
   });
 
   it('should not delete when cancelled', async () => {
     dialogService.confirm.mockResolvedValue(false);
-    component.onDelete({ id: 5, name: 'Y' });
+
+    component.onDelete({
+      id: 5,
+      name: 'Y',
+    });
+
     await fixture.whenStable();
-    expect(serviceSpy.deleteWorkingCapitalNearBreachBreachId).not.toHaveBeenCalled();
+
+    expect(
+      serviceSpy.deleteWorkingCapitalNearBreachBreachId,
+    ).not.toHaveBeenCalled();
   });
 });

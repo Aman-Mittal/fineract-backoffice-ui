@@ -79,9 +79,10 @@ describe('WcLoanActionFormComponent', () => {
     );
 
     TestBed.configureTestingModule({
-      imports: [WcLoanActionFormComponent, provideTranslateTesting()],
+      imports: [WcLoanActionFormComponent],
 
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalLoansService, useValue: loansSpy },
 
         {

@@ -36,8 +36,9 @@ describe('StaffListComponent', () => {
     staffServiceSpy.getStaff.mockReturnValue(of([]) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [StaffListComponent, provideTranslateTesting()],
+      imports: [StaffListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: StaffService, useValue: staffServiceSpy },
         { provide: ActivatedRoute, useValue: {} },
         provideNoopAnimations(),

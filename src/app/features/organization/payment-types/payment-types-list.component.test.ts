@@ -54,9 +54,10 @@ describe('PaymentTypesListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [PaymentTypesListComponent, provideTranslateTesting()],
+      imports: [PaymentTypesListComponent],
 
       providers: [
+        ...provideTranslateTesting(),
         { provide: PaymentTypeService, useValue: paymentTypeServiceSpy },
 
         { provide: Router, useValue: routerSpy },

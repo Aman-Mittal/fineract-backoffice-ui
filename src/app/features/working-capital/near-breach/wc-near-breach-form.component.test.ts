@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,26 +17,22 @@
  * under the License.
  */
 
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { WcNearBreachFormComponent } from './wc-near-breach-form.component';
-
-import { WorkingCapitalBreachService, WorkingCapitalNearBreachService } from '../../../api';
-
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
+import { WcNearBreachFormComponent } from './wc-near-breach-form.component';
+import {
+  WorkingCapitalBreachService,
+  WorkingCapitalNearBreachService,
+} from '../../../api';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
-
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('WcNearBreachFormComponent', () => {
   let component: WcNearBreachFormComponent;
   let fixture: ComponentFixture<WcNearBreachFormComponent>;
-
   let serviceSpy: SpyObj<WorkingCapitalNearBreachService>;
   let breachServiceSpy: SpyObj<WorkingCapitalBreachService>;
   let routerSpy: SpyObj<Router>;
@@ -48,18 +44,22 @@ describe('WcNearBreachFormComponent', () => {
       'putWorkingCapitalNearBreachBreachId',
     ]);
 
-    breachServiceSpy = createSpyObj(['getWorkingCapitalBreachTemplate']);
+    breachServiceSpy = createSpyObj([
+      'getWorkingCapitalBreachTemplate',
+    ]);
 
     breachServiceSpy.getWorkingCapitalBreachTemplate.mockReturnValue(
       of({
         breachFrequencyTypeOptions: [],
-      }) as unknown as ReturnType<WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']>,
+      }) as unknown as ReturnType<
+        WorkingCapitalBreachService['getWorkingCapitalBreachTemplate']
+      >,
     );
 
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [WcNearBreachFormComponent, provideTranslateTesting()],
+      imports: [WcNearBreachFormComponent],
       providers: [
         {
           provide: WorkingCapitalNearBreachService,
@@ -80,11 +80,13 @@ describe('WcNearBreachFormComponent', () => {
           },
         },
         provideNoopAnimations(),
+        ...provideTranslateTesting(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WcNearBreachFormComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 
@@ -104,6 +106,8 @@ describe('WcNearBreachFormComponent', () => {
 
     expect(serviceSpy.postWorkingCapitalNearBreach).toHaveBeenCalled();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/near-breach']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([
+      '/working-capital/near-breach',
+    ]);
   });
 });

@@ -41,8 +41,9 @@ describe('PaymentTypeFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [PaymentTypeFormComponent, provideTranslateTesting()],
+      imports: [PaymentTypeFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: PaymentTypeService, useValue: paymentTypeServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },

@@ -66,9 +66,10 @@ describe('WcLoanFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcLoanFormComponent, provideTranslateTesting()],
+      imports: [WcLoanFormComponent],
 
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingCapitalLoansService, useValue: serviceSpy },
 
         {

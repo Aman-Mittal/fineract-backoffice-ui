@@ -276,8 +276,9 @@ describe('WcLoanViewComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [WcLoanViewComponent, provideTranslateTesting()],
+      imports: [WcLoanViewComponent],
       providers: [
+        ...provideTranslateTesting(),
         {
           provide: WorkingCapitalLoansService,
           useValue: loansSpy,
@@ -397,8 +398,9 @@ describe('WcLoanViewComponent', () => {
     TestBed.resetTestingModule();
 
     await TestBed.configureTestingModule({
-      imports: [WcLoanViewComponent, provideTranslateTesting()],
+      imports: [WcLoanViewComponent],
       providers: [
+        ...provideTranslateTesting(),
         {
           provide: WorkingCapitalLoansService,
           useValue: loansSpy,
