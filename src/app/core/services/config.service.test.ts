@@ -130,7 +130,7 @@ describe('ConfigService', () => {
     // A deployment writes only what it is changing; the rest must not be blanked out.
     await load({ rbacEnabled: false });
 
-    expect(service.rbacEnabled()).toBeFalse();
+    expect(service.rbacEnabled()).toBe(false);
     expect(service.config().institutionType).toBe('universal');
     expect(service.config().defaultTenant).toBe('default');
   });
@@ -142,7 +142,7 @@ describe('ConfigService', () => {
     await loading;
 
     // Bootstrap must not depend on either file being present.
-    expect(service.rbacEnabled()).toBeTrue();
+    expect(service.rbacEnabled()).toBe(true);
     expect(service.config().defaultTenant).toBe('default');
   });
 
@@ -157,7 +157,7 @@ describe('ConfigService', () => {
     expect(service.config().defaultTenant).toBe(TEST_TENANT);
 
     expect(service.config().branding?.appName).toBe('Any Community Bank');
-    expect(service.hiddenNavKeys().has('spm')).toBeTrue();
+    expect(service.hiddenNavKeys().has('spm')).toBe(true);
   });
 
   it('should keep the base layer when the overlay is absent', async () => {
@@ -165,7 +165,7 @@ describe('ConfigService', () => {
     await load({ fineractApiUrl: '/api/v1', defaultTenant: TEST_TENANT, rbacEnabled: false });
 
     expect(service.config().defaultTenant).toBe(TEST_TENANT);
-    expect(service.rbacEnabled()).toBeFalse();
+    expect(service.rbacEnabled()).toBe(false);
   });
 
   it('should not raise a toast or a progress bar while bootstrapping', async () => {
@@ -173,8 +173,8 @@ describe('ConfigService', () => {
 
     const [base] = httpMock.match(isBaseConfig);
     // There is no route to show a toast on and no progress bar to drive yet.
-    expect(base.request.context.get(SKIP_LOADING)).toBeTrue();
-    expect(base.request.context.get(SKIP_ERROR_TOAST)).toBeTrue();
+    expect(base.request.context.get(SKIP_LOADING)).toBe(true);
+    expect(base.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
     base.flush(mockConfig);
 
     await flushNext(isOverlay, null, NOT_FOUND);
@@ -183,7 +183,7 @@ describe('ConfigService', () => {
 
   it('should set and persist a same-origin API URL', () => {
     const newUrl = '/some-other-fineract/api/v1';
-    expect(service.setApiUrl(newUrl)).toBeTrue();
+    expect(service.setApiUrl(newUrl)).toBe(true);
 
     expect(service.apiUrl).toBe(newUrl);
     expect(JSON.parse(storedRaw()!).fineractApiUrl).toBe(newUrl);
@@ -197,7 +197,7 @@ describe('ConfigService', () => {
   it('refuses an endpoint the deployment did not allow-list', () => {
     const before = service.apiUrl;
 
-    expect(service.setApiUrl('https://attacker.example/api/v1')).toBeFalse();
+    expect(service.setApiUrl('https://attacker.example/api/v1')).toBe(false);
 
     expect(service.apiUrl).toBe(before);
     expect(storedRaw()).toBeNull();
@@ -207,7 +207,7 @@ describe('ConfigService', () => {
     create();
     await load({ ...mockConfig, allowedApiOrigins: ['https://fineract.example'] });
 
-    expect(service.setApiUrl('https://fineract.example/fineract-provider/api/v1')).toBeTrue();
+    expect(service.setApiUrl('https://fineract.example/fineract-provider/api/v1')).toBe(true);
     expect(service.apiUrl).toBe('https://fineract.example/fineract-provider/api/v1');
   });
 
@@ -232,7 +232,7 @@ describe('ConfigService', () => {
     await load({ rbacEnabled: true });
 
     expect(service.apiUrl).toBe('/old/api/v1');
-    expect(service.rbacEnabled()).toBeTrue();
+    expect(service.rbacEnabled()).toBe(true);
   });
 
   /**
@@ -252,7 +252,7 @@ describe('ConfigService', () => {
   it('should expose the navigation entries a deployment hides', async () => {
     await load({ nav: { hidden: ['nav.groups'] } });
 
-    expect(service.hiddenNavKeys().has('nav.groups')).toBeTrue();
-    expect(service.hiddenNavKeys().has('nav.clients')).toBeFalse();
+    expect(service.hiddenNavKeys().has('nav.groups')).toBe(true);
+    expect(service.hiddenNavKeys().has('nav.clients')).toBe(false);
   });
 });
