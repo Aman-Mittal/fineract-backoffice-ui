@@ -17,31 +17,33 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProvisioningCategoriesFormComponent } from './provisioning-categories-form.component';
 import { ProvisioningCategoryService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ProvisioningCategoriesFormComponent', () => {
   let component: ProvisioningCategoriesFormComponent;
   let fixture: ComponentFixture<ProvisioningCategoriesFormComponent>;
-  let serviceSpy: jasmine.SpyObj<ProvisioningCategoryService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<ProvisioningCategoryService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ProvisioningCategoryService', [
+    serviceSpy = createSpyObj([
       'getProvisioningcategory',
       'postProvisioningcategory',
       'putProvisioningcategoryCategoryId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningCategoriesFormComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningCategoriesFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningCategoryService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
@@ -56,11 +58,11 @@ describe('ProvisioningCategoriesFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode()).toBeFalse();
+    expect(component.isEditMode()).toBe(false);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postProvisioningcategory.and.returnValue(
+    serviceSpy.postProvisioningcategory.mockReturnValue(
       of({}) as unknown as ReturnType<ProvisioningCategoryService['postProvisioningcategory']>,
     );
     component.category.set({ categoryName: 'New', categoryDescription: 'Desc' });

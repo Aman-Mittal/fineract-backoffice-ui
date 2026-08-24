@@ -17,39 +17,38 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProvisioningCategoriesListComponent } from './provisioning-categories-list.component';
 import { ProvisioningCategoryService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
 describe('ProvisioningCategoriesListComponent', () => {
   let component: ProvisioningCategoriesListComponent;
   let fixture: ComponentFixture<ProvisioningCategoriesListComponent>;
-  let serviceSpy: jasmine.SpyObj<ProvisioningCategoryService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogService: jasmine.SpyObj<DialogService>;
+  let serviceSpy: SpyObj<ProvisioningCategoryService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ProvisioningCategoryService', [
-      'getProvisioningcategory',
-      'deleteProvisioningcategoryCategoryId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.getProvisioningcategory.and.returnValue(
+    serviceSpy = createSpyObj(['getProvisioningcategory', 'deleteProvisioningcategoryCategoryId']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getProvisioningcategory.mockReturnValue(
       of([
         { id: 1, categoryName: 'STANDARD', categoryDescription: 'Standard' },
       ]) as unknown as ReturnType<ProvisioningCategoryService['getProvisioningcategory']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningCategoriesListComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningCategoriesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningCategoryService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },
@@ -65,7 +64,7 @@ describe('ProvisioningCategoriesListComponent', () => {
   it('should load categories on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getProvisioningcategory).toHaveBeenCalled();
-    expect(component.categories()).toHaveSize(1);
+    expect(component.categories()).toHaveLength(1);
   });
 
   it('should navigate to edit with the category id', () => {
@@ -77,8 +76,8 @@ describe('ProvisioningCategoriesListComponent', () => {
   });
 
   it('should delete after confirmation and reload', async () => {
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.deleteProvisioningcategoryCategoryId.and.returnValue(
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.deleteProvisioningcategoryCategoryId.mockReturnValue(
       of({}) as unknown as ReturnType<
         ProvisioningCategoryService['deleteProvisioningcategoryCategoryId']
       >,
@@ -92,7 +91,7 @@ describe('ProvisioningCategoriesListComponent', () => {
   });
 
   it('should not delete when cancelled', async () => {
-    dialogService.confirm.and.resolveTo(false);
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, categoryName: 'Y' });
     await fixture.whenStable();
     expect(serviceSpy.deleteProvisioningcategoryCategoryId).not.toHaveBeenCalled();

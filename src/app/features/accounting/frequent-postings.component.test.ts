@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -53,22 +54,22 @@ const MULTI_ACCOUNT_RULE = {
 describe('FrequentPostingsComponent', () => {
   let component: FrequentPostingsComponent;
   let fixture: ComponentFixture<FrequentPostingsComponent>;
-  let journalSpy: jasmine.SpyObj<JournalEntriesService>;
-  let notificationsSpy: jasmine.SpyObj<NotificationService>;
+  let journalSpy: SpyObj<JournalEntriesService>;
+  let notificationsSpy: SpyObj<NotificationService>;
 
   beforeEach(async () => {
-    journalSpy = jasmine.createSpyObj('JournalEntriesService', ['postJournalentries']);
-    notificationsSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
-    const rulesSpy = jasmine.createSpyObj('AccountingRulesService', ['getAccountingrules']);
-    rulesSpy.getAccountingrules.and.returnValue(
+    journalSpy = createSpyObj(['postJournalentries']);
+    notificationsSpy = createSpyObj(['success', 'error']);
+    const rulesSpy = createSpyObj(['getAccountingrules']);
+    rulesSpy.getAccountingrules.mockReturnValue(
       of([SINGLE_ACCOUNT_RULE, MULTI_ACCOUNT_RULE]) as never,
     );
-    const currencySpy = jasmine.createSpyObj('CurrencyService', ['getCurrencies']);
-    currencySpy.getCurrencies.and.returnValue(
+    const currencySpy = createSpyObj(['getCurrencies']);
+    currencySpy.getCurrencies.mockReturnValue(
       of({ selectedCurrencyOptions: [{ code: 'USD', name: 'US Dollar' }] }) as never,
     );
-    const paymentSpy = jasmine.createSpyObj('PaymentTypeService', ['getPaymenttypes']);
-    paymentSpy.getPaymenttypes.and.returnValue(of([]) as never);
+    const paymentSpy = createSpyObj(['getPaymenttypes']);
+    paymentSpy.getPaymenttypes.mockReturnValue(of([]) as never);
 
     await TestBed.configureTestingModule({
       imports: [FrequentPostingsComponent],
@@ -79,7 +80,7 @@ describe('FrequentPostingsComponent', () => {
         { provide: PaymentTypeService, useValue: paymentSpy },
         { provide: NotificationService, useValue: notificationsSpy },
         ...provideFakeAdapters().providers,
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         provideNoopAnimations(),
       ],
     }).compileComponents();
@@ -90,7 +91,7 @@ describe('FrequentPostingsComponent', () => {
   });
 
   it('expands the rule into debit and credit lines and never sends accountingRuleId', () => {
-    journalSpy.postJournalentries.and.returnValue(of({}) as unknown as Observable<never>);
+    journalSpy.postJournalentries.mockReturnValue(of({}) as unknown as Observable<never>);
     component.ruleId = 1;
     component.currencyCode = 'USD';
     component.amount = 250;
@@ -98,7 +99,7 @@ describe('FrequentPostingsComponent', () => {
 
     component.onSubmit();
 
-    const [command, payload] = journalSpy.postJournalentries.calls.mostRecent().args;
+    const [command, payload] = journalSpy.postJournalentries.mock.lastCall!;
     expect(command).toBeUndefined();
     expect(payload).toBeDefined();
     expect((payload as Record<string, unknown>)['accountingRuleId']).toBeUndefined();
@@ -119,15 +120,15 @@ describe('FrequentPostingsComponent', () => {
   });
 
   it('cannot be submitted without a rule, a currency and an amount', () => {
-    expect(component.canSubmit).toBeFalse();
+    expect(component.canSubmit).toBe(false);
 
     component.ruleId = 1;
-    expect(component.canSubmit).toBeFalse();
+    expect(component.canSubmit).toBe(false);
 
     component.currencyCode = 'USD';
-    expect(component.canSubmit).toBeFalse();
+    expect(component.canSubmit).toBe(false);
 
     component.amount = 100;
-    expect(component.canSubmit).toBeTrue();
+    expect(component.canSubmit).toBe(true);
   });
 });

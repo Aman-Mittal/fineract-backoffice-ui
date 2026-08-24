@@ -17,52 +17,58 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ProvisioningEntriesListComponent } from './provisioning-entries-list.component';
+import { ProvisioningEntriesFormComponent } from './provisioning-entries-form.component';
 import { ProvisioningEntriesService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('ProvisioningEntriesListComponent', () => {
-  let component: ProvisioningEntriesListComponent;
-  let fixture: ComponentFixture<ProvisioningEntriesListComponent>;
-  let serviceSpy: jasmine.SpyObj<ProvisioningEntriesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('ProvisioningEntriesFormComponent', () => {
+  let component: ProvisioningEntriesFormComponent;
+  let fixture: ComponentFixture<ProvisioningEntriesFormComponent>;
+  let serviceSpy: SpyObj<ProvisioningEntriesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ProvisioningEntriesService', ['getProvisioningentries']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getProvisioningentries.and.returnValue(
-      of({
-        pageItems: [{ id: 1, createdUser: 'admin', reservedAmount: 1000 }],
-        totalFilteredRecords: 1,
-      }) as unknown as ReturnType<ProvisioningEntriesService['getProvisioningentries']>,
-    );
+    serviceSpy = createSpyObj(['postProvisioningentries']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ProvisioningEntriesListComponent, TranslateModule.forRoot()],
+      imports: [ProvisioningEntriesFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ProvisioningEntriesService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProvisioningEntriesListComponent);
+    fixture = TestBed.createComponent(ProvisioningEntriesFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should load entries on init', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    expect(serviceSpy.getProvisioningentries).toHaveBeenCalled();
-    expect(component.entries()).toHaveSize(1);
   });
 
-  it('should navigate to create', () => {
-    component.onCreate();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/accounting/provisioning-entries/create']);
+  it('should post on submit and navigate to the list', () => {
+    serviceSpy.postProvisioningentries.mockReturnValue(
+      of({}) as unknown as ReturnType<ProvisioningEntriesService['postProvisioningentries']>,
+    );
+    component.date = '2026-06-15';
+    component.createjournalentries = true;
+    component.onSubmit();
+    expect(serviceSpy.postProvisioningentries).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/accounting/provisioning-entries']);
+  });
+
+  it('should not post when no date selected', () => {
+    component.date = null;
+    component.onSubmit();
+    expect(serviceSpy.postProvisioningentries).not.toHaveBeenCalled();
   });
 });

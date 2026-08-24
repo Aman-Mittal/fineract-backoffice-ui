@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -45,14 +46,14 @@ function line(overrides: Partial<JournalEntryTransactionItem> = {}): JournalEntr
 describe('JournalEntryViewComponent', () => {
   let component: JournalEntryViewComponent;
   let fixture: ComponentFixture<JournalEntryViewComponent>;
-  let journalSpy: jasmine.SpyObj<JournalEntriesService>;
-  let dialogSpy: jasmine.SpyObj<DialogService>;
+  let journalSpy: SpyObj<JournalEntriesService>;
+  let dialogSpy: SpyObj<DialogService>;
 
   function build(entry: JournalEntryTransactionItem, siblings: JournalEntryTransactionItem[]) {
-    journalSpy.getJournalentriesJournalEntryId.and.returnValue(
+    journalSpy.getJournalentriesJournalEntryId.mockReturnValue(
       of(entry) as unknown as Observable<never>,
     );
-    journalSpy.getJournalentries.and.returnValue(
+    journalSpy.getJournalentries.mockReturnValue(
       of({ pageItems: siblings }) as unknown as Observable<never>,
     );
     fixture = TestBed.createComponent(JournalEntryViewComponent);
@@ -61,20 +62,20 @@ describe('JournalEntryViewComponent', () => {
   }
 
   beforeEach(async () => {
-    journalSpy = jasmine.createSpyObj('JournalEntriesService', [
+    journalSpy = createSpyObj([
       'getJournalentriesJournalEntryId',
       'getJournalentries',
       'postJournalentriesTransactionId',
     ]);
-    dialogSpy = jasmine.createSpyObj('DialogService', ['confirm']);
+    dialogSpy = createSpyObj(['confirm']);
 
     await TestBed.configureTestingModule({
       imports: [JournalEntryViewComponent],
       providers: [
         { provide: JournalEntriesService, useValue: journalSpy },
         { provide: DialogService, useValue: dialogSpy },
-        { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: NotificationService, useValue: createSpyObj(['success', 'error']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: new Map([['id', '1']]) } } },
         ...provideFakeAdapters().providers,
         provideNoopAnimations(),
@@ -85,8 +86,8 @@ describe('JournalEntryViewComponent', () => {
   it('shows the whole transaction, not only the line that was clicked', () => {
     build(line(), [line({ id: 1 }), line({ id: 2, entryType: { id: 2, value: 'CREDIT' } })]);
 
-    expect(component.debits()).toHaveSize(1);
-    expect(component.credits()).toHaveSize(1);
+    expect(component.debits()).toHaveLength(1);
+    expect(component.credits()).toHaveLength(1);
     expect(component.debitTotal()).toBe(100);
     expect(component.creditTotal()).toBe(100);
   });
@@ -94,13 +95,13 @@ describe('JournalEntryViewComponent', () => {
   it('treats the transaction as reversed when any of its lines is', () => {
     build(line(), [line({ id: 1 }), line({ id: 2, reversed: true })]);
 
-    expect(component.isReversed()).toBeTrue();
+    expect(component.isReversed()).toBe(true);
   });
 
   it('reverses the transaction, not the line, once confirmed', async () => {
     build(line(), [line()]);
-    dialogSpy.confirm.and.resolveTo(true);
-    journalSpy.postJournalentriesTransactionId.and.returnValue(
+    dialogSpy.confirm.mockResolvedValue(true);
+    journalSpy.postJournalentriesTransactionId.mockReturnValue(
       of({ transactionId: 'a28401fa7347' }) as unknown as Observable<never>,
     );
 
@@ -115,7 +116,7 @@ describe('JournalEntryViewComponent', () => {
 
   it('does not reverse when the confirmation is declined', async () => {
     build(line(), [line()]);
-    dialogSpy.confirm.and.resolveTo(false);
+    dialogSpy.confirm.mockResolvedValue(false);
 
     await component.onReverse();
 
@@ -144,10 +145,10 @@ describe('JournalEntryViewComponent', () => {
   });
 
   it('falls back to the single line when the transaction lookup fails', () => {
-    journalSpy.getJournalentriesJournalEntryId.and.returnValue(
+    journalSpy.getJournalentriesJournalEntryId.mockReturnValue(
       of(line()) as unknown as Observable<never>,
     );
-    journalSpy.getJournalentries.and.returnValue(
+    journalSpy.getJournalentries.mockReturnValue(
       new Observable((subscriber) => subscriber.error(new Error('boom'))),
     );
 
@@ -155,7 +156,7 @@ describe('JournalEntryViewComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.lines()).toHaveSize(1);
-    expect(component.isLoading()).toBeFalse();
+    expect(component.lines()).toHaveLength(1);
+    expect(component.isLoading()).toBe(false);
   });
 });

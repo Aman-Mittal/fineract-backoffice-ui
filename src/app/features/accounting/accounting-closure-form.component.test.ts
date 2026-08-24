@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountingClosureFormComponent } from './accounting-closure-form.component';
 import {
@@ -28,31 +29,32 @@ import {
 import { Router } from '@angular/router';
 import { of, Observable } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('AccountingClosureFormComponent', () => {
   let component: AccountingClosureFormComponent;
   let fixture: ComponentFixture<AccountingClosureFormComponent>;
-  let closureServiceSpy: jasmine.SpyObj<AccountingClosureService>;
-  let officeServiceSpy: jasmine.SpyObj<OfficesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let closureServiceSpy: SpyObj<AccountingClosureService>;
+  let officeServiceSpy: SpyObj<OfficesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', ['postGlclosures']);
-    officeServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    closureServiceSpy = createSpyObj(['postGlclosures']);
+    officeServiceSpy = createSpyObj(['getOffices']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [AccountingClosureFormComponent, TranslateModule.forRoot()],
+      imports: [AccountingClosureFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: OfficesService, useValue: officeServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
-    officeServiceSpy.getOffices.and.returnValue(
+    officeServiceSpy.getOffices.mockReturnValue(
       of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
     );
     fixture = TestBed.createComponent(AccountingClosureFormComponent);
@@ -69,14 +71,14 @@ describe('AccountingClosureFormComponent', () => {
     component.closingDate = '2026-05-31';
     component.request.comments = 'Monthly closure';
 
-    closureServiceSpy.postGlclosures.and.returnValue(
+    closureServiceSpy.postGlclosures.mockReturnValue(
       of({}) as unknown as Observable<HttpEvent<PostGlClosuresResponse>>,
     );
 
     component.onSubmit();
 
     expect(closureServiceSpy.postGlclosures).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+      expect.objectContaining({
         officeId: 1,
         closingDate: '2026-05-31',
         comments: 'Monthly closure',

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountingClosuresListComponent } from './accounting-closures-list.component';
 import {
@@ -26,33 +27,31 @@ import {
 } from '../../api';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { HttpEvent } from '@angular/common/http';
 
 describe('AccountingClosuresListComponent', () => {
   let component: AccountingClosuresListComponent;
   let fixture: ComponentFixture<AccountingClosuresListComponent>;
-  let closureServiceSpy: jasmine.SpyObj<AccountingClosureService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let closureServiceSpy: SpyObj<AccountingClosureService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    closureServiceSpy = jasmine.createSpyObj('AccountingClosureService', [
-      'getGlclosures',
-      'deleteGlclosuresGlClosureId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    closureServiceSpy = createSpyObj(['getGlclosures', 'deleteGlclosuresGlClosureId']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [AccountingClosuresListComponent, TranslateModule.forRoot()],
+      imports: [AccountingClosuresListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AccountingClosureService, useValue: closureServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    closureServiceSpy.getGlclosures.and.returnValue(
+    closureServiceSpy.getGlclosures.mockReturnValue(
       of([]) as unknown as Observable<HttpEvent<GetGlClosureResponse[]>>,
     );
     fixture = TestBed.createComponent(AccountingClosuresListComponent);
@@ -74,8 +73,8 @@ describe('AccountingClosuresListComponent', () => {
   });
 
   it('should delete closure when confirmed', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    closureServiceSpy.deleteGlclosuresGlClosureId.and.returnValue(
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    closureServiceSpy.deleteGlclosuresGlClosureId.mockReturnValue(
       of({}) as unknown as Observable<HttpEvent<DeleteGlClosuresResponse>>,
     );
 
