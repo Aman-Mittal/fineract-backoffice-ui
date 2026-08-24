@@ -17,8 +17,9 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { UserProfileComponent } from './user-profile.component';
@@ -40,13 +41,14 @@ const USER = {
 describe('UserProfileComponent', () => {
   let fixture: ComponentFixture<UserProfileComponent>;
   let component: UserProfileComponent;
-  let usersSpy: jasmine.SpyObj<UsersService>;
+  let usersSpy: SpyObj<UsersService>;
 
   const setup = async (currentUser: { userId: number } | null) => {
-    usersSpy = jasmine.createSpyObj<UsersService>('UsersService', ['getUsersUserId']);
+    usersSpy = createSpyObj<UsersService>(['getUsersUserId']);
     await TestBed.configureTestingModule({
-      imports: [UserProfileComponent, TranslateModule.forRoot()],
+      imports: [UserProfileComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideIonicTesting(),
         { provide: UsersService, useValue: usersSpy },
         { provide: AuthService, useValue: { currentUser: signal(currentUser) } },
@@ -59,7 +61,7 @@ describe('UserProfileComponent', () => {
 
   it('reads the profile from /users/{id} using the session user id', async () => {
     await setup({ userId: 7 });
-    usersSpy.getUsersUserId.and.returnValue(of(USER) as never);
+    usersSpy.getUsersUserId.mockReturnValue(of(USER) as never);
 
     fixture.detectChanges();
 
@@ -68,9 +70,9 @@ describe('UserProfileComponent', () => {
     expect(component.displayName).toBe('App Administrator');
     expect(component.email).toBe('demomfi@mifos.org');
     expect(component.officeName).toBe('Head Office');
-    expect(component.roles).toHaveSize(1);
-    expect(component.isLoading()).toBeFalse();
-    expect(component.loadError()).toBeFalse();
+    expect(component.roles).toHaveLength(1);
+    expect(component.isLoading()).toBe(false);
+    expect(component.loadError()).toBe(false);
   });
 
   /*
@@ -81,12 +83,12 @@ describe('UserProfileComponent', () => {
    */
   it('surfaces an error instead of spinning when the request fails', async () => {
     await setup({ userId: 7 });
-    usersSpy.getUsersUserId.and.returnValue(throwError(() => ({ status: 404 })));
+    usersSpy.getUsersUserId.mockReturnValue(throwError(() => ({ status: 404 })));
 
     fixture.detectChanges();
 
-    expect(component.isLoading()).toBeFalse();
-    expect(component.loadError()).toBeTrue();
+    expect(component.isLoading()).toBe(false);
+    expect(component.loadError()).toBe(true);
 
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('[data-testid="profile-load-error"]')).toBeTruthy();
@@ -99,7 +101,7 @@ describe('UserProfileComponent', () => {
     fixture.detectChanges();
 
     expect(usersSpy.getUsersUserId).not.toHaveBeenCalled();
-    expect(component.isLoading()).toBeFalse();
-    expect(component.loadError()).toBeTrue();
+    expect(component.isLoading()).toBe(false);
+    expect(component.loadError()).toBe(true);
   });
 });

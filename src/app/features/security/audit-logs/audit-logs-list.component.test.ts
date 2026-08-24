@@ -17,11 +17,12 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AuditLogsListComponent } from './audit-logs-list.component';
 import { AuditsService } from '../../../api';
 import { of, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
@@ -31,16 +32,16 @@ import { DOWNLOAD, DownloadAdapter } from '../../../core/adapters';
 describe('AuditLogsListComponent', () => {
   let component: AuditLogsListComponent;
   let fixture: ComponentFixture<AuditLogsListComponent>;
-  let auditsServiceSpy: jasmine.SpyObj<AuditsService>;
-  let dialogSpy: jasmine.SpyObj<DialogService>;
-  let downloadSpy: jasmine.SpyObj<DownloadAdapter>;
+  let auditsServiceSpy: SpyObj<AuditsService>;
+  let dialogSpy: SpyObj<DialogService>;
+  let downloadSpy: SpyObj<DownloadAdapter>;
 
   const MOCK_PAYLOAD = '{"key":"value"}';
 
   beforeEach(async () => {
-    auditsServiceSpy = jasmine.createSpyObj('AuditsService', ['getAudits']);
-    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
-    downloadSpy = jasmine.createSpyObj<DownloadAdapter>('DownloadAdapter', ['save', 'saveText']);
+    auditsServiceSpy = createSpyObj(['getAudits']);
+    dialogSpy = createSpyObj<DialogService>(['open', 'confirm']);
+    downloadSpy = createSpyObj<DownloadAdapter>(['save', 'saveText']);
 
     const mockResponse = {
       pageItems: [
@@ -60,11 +61,12 @@ describe('AuditLogsListComponent', () => {
       totalFilteredRecords: 1,
       totalRecords: 1,
     };
-    auditsServiceSpy.getAudits.and.returnValue(of(mockResponse) as unknown as Observable<never>);
+    auditsServiceSpy.getAudits.mockReturnValue(of(mockResponse) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [AuditLogsListComponent, TranslateModule.forRoot()],
+      imports: [AuditLogsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideIonicTesting(),
         { provide: AuditsService, useValue: auditsServiceSpy },
         { provide: DialogService, useValue: dialogSpy },
@@ -88,7 +90,7 @@ describe('AuditLogsListComponent', () => {
 
     expect(component).toBeTruthy();
     expect(auditsServiceSpy.getAudits).toHaveBeenCalled();
-    expect(component.auditLogs()).toHaveSize(1);
+    expect(component.auditLogs()).toHaveLength(1);
     expect(component.auditLogs()[0]['entityName']).toBe('Client');
   });
 
@@ -129,13 +131,13 @@ describe('AuditLogsListComponent', () => {
       id: 1,
       commandAsJson: MOCK_PAYLOAD,
     };
-    dialogSpy.open.and.resolveTo(undefined);
+    dialogSpy.open.mockResolvedValue(undefined);
 
     await component.onViewDetails(mockRow);
 
     expect(dialogSpy.open).toHaveBeenCalledWith(
-      jasmine.any(Function),
-      jasmine.objectContaining({ data: { payload: MOCK_PAYLOAD } }),
+      expect.any(Function),
+      expect.objectContaining({ data: { payload: MOCK_PAYLOAD } }),
     );
   });
 
@@ -145,7 +147,7 @@ describe('AuditLogsListComponent', () => {
     component.onExportCsv();
 
     expect(downloadSpy.saveText).toHaveBeenCalledTimes(1);
-    const [csv, filename, mimeType] = downloadSpy.saveText.calls.mostRecent().args;
+    const [csv, filename, mimeType] = downloadSpy.saveText.mock.lastCall!;
     expect(filename).toBe('audit-logs.csv');
     expect(mimeType).toBe('text/csv');
     expect(csv).toContain('Client');

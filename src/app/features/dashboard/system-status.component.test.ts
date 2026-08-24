@@ -17,13 +17,17 @@
  * under the License.
  */
 
+import { Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { SystemStatusComponent } from './system-status.component';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService, UserSession } from '../../core/services/auth.service';
 import { provideTestConfig } from '../../testing/config';
+import {
+  provideTranslateTesting,
+  setTranslateTestingTranslations,
+} from '../../testing/i18n-testing';
 
 describe('SystemStatusComponent', () => {
   let component: SystemStatusComponent;
@@ -46,8 +50,9 @@ describe('SystemStatusComponent', () => {
   async function render(permissions: string[] = ['ALL_FUNCTIONS']): Promise<void> {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), SystemStatusComponent],
+      imports: [SystemStatusComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideTestConfig({ fineractApiUrl: 'https://localhost:8443/fineract-provider/api/v1' }),
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -65,8 +70,7 @@ describe('SystemStatusComponent', () => {
   }
 
   function setUpTranslations(): void {
-    const translateService = TestBed.inject(TranslateService);
-    translateService.setTranslation('en', {
+    setTranslateTestingTranslations(TestBed.inject(Injector), 'en', {
       DASHBOARD: {
         RUNTIME_API: 'Runtime API URL',
         FALLBACK_API: 'Fallback API URL',
@@ -74,7 +78,6 @@ describe('SystemStatusComponent', () => {
         ACTIVE_TENANT: 'Active Tenant',
       },
     });
-    translateService.use('en');
   }
 
   beforeEach(async () => {
@@ -88,7 +91,7 @@ describe('SystemStatusComponent', () => {
   it('should display environment information', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const listItems = compiled.querySelectorAll('li');
-    expect(listItems).toHaveSize(4);
+    expect(listItems).toHaveLength(4);
     expect(compiled.textContent).toContain('Runtime API URL:');
     expect(compiled.textContent).toContain('Fallback API URL:');
     expect(compiled.textContent).toContain('Environment:');
@@ -120,12 +123,12 @@ describe('SystemStatusComponent', () => {
     it('does not request the metrics behind a widget it will not show', async () => {
       await render(['READ_CLIENT']);
       const urls = requested();
-      expect(urls.some((u) => u.includes('/clients'))).toBeTrue();
+      expect(urls.some((u) => u.includes('/clients'))).toBe(true);
       // The dashboard is the landing page, so an ungated request here met every user on
       // arrival: a row of 403s and their toasts, and — forkJoin failing fast — every other
       // metric zeroed alongside them.
-      expect(urls.some((u) => u.includes('/loans'))).toBeFalse();
-      expect(urls.some((u) => u.includes('/savingsaccounts'))).toBeFalse();
+      expect(urls.some((u) => u.includes('/loans'))).toBe(false);
+      expect(urls.some((u) => u.includes('/savingsaccounts'))).toBe(false);
     });
 
     it('requests nothing for a user with no permissions, and still renders', async () => {
@@ -138,8 +141,9 @@ describe('SystemStatusComponent', () => {
     it('shows everything again where the deployment has RBAC turned off', async () => {
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
-        imports: [TranslateModule.forRoot(), SystemStatusComponent],
+        imports: [SystemStatusComponent],
         providers: [
+          ...provideTranslateTesting(),
           provideTestConfig({ rbacEnabled: false }),
           provideHttpClient(),
           provideHttpClientTesting(),
@@ -152,7 +156,7 @@ describe('SystemStatusComponent', () => {
       fixture.detectChanges();
 
       expect(widget('clients')).toBeTruthy();
-      expect(requested().some((u) => u.includes('/clients'))).toBeTrue();
+      expect(requested().some((u) => u.includes('/clients'))).toBe(true);
     });
   });
 });

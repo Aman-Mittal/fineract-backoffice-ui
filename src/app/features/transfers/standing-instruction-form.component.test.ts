@@ -17,42 +17,40 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StandingInstructionFormComponent } from './standing-instruction-form.component';
 import { StandingInstructionsService, OfficesService, ClientService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('StandingInstructionFormComponent', () => {
   let component: StandingInstructionFormComponent;
   let fixture: ComponentFixture<StandingInstructionFormComponent>;
-  let instructionsServiceSpy: jasmine.SpyObj<StandingInstructionsService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let instructionsServiceSpy: SpyObj<StandingInstructionsService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let clientServiceSpy: SpyObj<ClientService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    instructionsServiceSpy = jasmine.createSpyObj('StandingInstructionsService', [
+    instructionsServiceSpy = createSpyObj([
       'getStandinginstructionsStandingInstructionId',
       'postStandinginstructions',
       'putStandinginstructionsStandingInstructionId',
     ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    clientServiceSpy = jasmine.createSpyObj('ClientService', [
-      'getClients',
-      'getClientsClientIdAccounts',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    clientServiceSpy = createSpyObj(['getClients', 'getClientsClientIdAccounts']);
+    routerSpy = createSpyObj(['navigate']);
 
-    officesServiceSpy.getOffices.and.returnValue(
+    officesServiceSpy.getOffices.mockReturnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
     );
-    clientServiceSpy.getClients.and.returnValue(
+    clientServiceSpy.getClients.mockReturnValue(
       of({ pageItems: [{ id: 10, displayName: 'John Doe' }] }) as unknown as Observable<never>,
     );
-    clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+    clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
       of({
         savingsAccounts: [{ id: 22, accountNo: 'S01', productName: 'Savings A' }],
         loanAccounts: [{ id: 11, accountNo: 'L01', productName: 'Loan A' }],
@@ -60,8 +58,9 @@ describe('StandingInstructionFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [StandingInstructionFormComponent, TranslateModule.forRoot()],
+      imports: [StandingInstructionFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: StandingInstructionsService, useValue: instructionsServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: ClientService, useValue: clientServiceSpy },
@@ -86,14 +85,14 @@ describe('StandingInstructionFormComponent', () => {
       fixture = TestBed.createComponent(StandingInstructionFormComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      routerSpy.navigate.calls.reset();
+      routerSpy.navigate.mockClear();
     });
 
     it('should create and load initial metadata', () => {
       expect(component).toBeTruthy();
       expect(officesServiceSpy.getOffices).toHaveBeenCalled();
       expect(clientServiceSpy.getClients).toHaveBeenCalled();
-      expect(component.isEditMode).toBeFalse();
+      expect(component.isEditMode).toBe(false);
     });
 
     it('should load loan accounts when account type changes to loan', () => {
@@ -106,7 +105,7 @@ describe('StandingInstructionFormComponent', () => {
     });
 
     it('should submit create request successfully', () => {
-      instructionsServiceSpy.postStandinginstructions.and.returnValue(
+      instructionsServiceSpy.postStandinginstructions.mockReturnValue(
         of({}) as unknown as Observable<never>,
       );
       component.request.name = 'Test SI';
@@ -141,7 +140,7 @@ describe('StandingInstructionFormComponent', () => {
         get: (key: string) => (key === 'id' ? '99' : null),
       };
 
-      instructionsServiceSpy.getStandinginstructionsStandingInstructionId.and.returnValue(
+      instructionsServiceSpy.getStandinginstructionsStandingInstructionId.mockReturnValue(
         of({
           id: 99,
           name: 'Existing SI',
@@ -165,13 +164,14 @@ describe('StandingInstructionFormComponent', () => {
         }) as unknown as Observable<never>,
       );
 
-      instructionsServiceSpy.putStandinginstructionsStandingInstructionId.and.returnValue(
+      instructionsServiceSpy.putStandinginstructionsStandingInstructionId.mockReturnValue(
         of({}) as unknown as Observable<never>,
       );
 
       await TestBed.configureTestingModule({
-        imports: [StandingInstructionFormComponent, TranslateModule.forRoot()],
+        imports: [StandingInstructionFormComponent],
         providers: [
+          ...provideTranslateTesting(),
           { provide: StandingInstructionsService, useValue: instructionsServiceSpy },
           { provide: OfficesService, useValue: officesServiceSpy },
           { provide: ClientService, useValue: clientServiceSpy },
@@ -192,7 +192,7 @@ describe('StandingInstructionFormComponent', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.isEditMode).toBeTrue();
+      expect(component.isEditMode).toBe(true);
       expect(component.instructionId).toBe(99);
       expect(
         instructionsServiceSpy.getStandinginstructionsStandingInstructionId,

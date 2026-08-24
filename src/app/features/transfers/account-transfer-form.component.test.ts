@@ -17,39 +17,37 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountTransferFormComponent } from './account-transfer-form.component';
 import { AccountTransfersService, OfficesService, ClientService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('AccountTransferFormComponent', () => {
   let component: AccountTransferFormComponent;
   let fixture: ComponentFixture<AccountTransferFormComponent>;
-  let transfersServiceSpy: jasmine.SpyObj<AccountTransfersService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let transfersServiceSpy: SpyObj<AccountTransfersService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let clientServiceSpy: SpyObj<ClientService>;
+  let routerSpy: SpyObj<Router>;
   let activatedRouteQueryParams: Record<string, string>;
 
   beforeEach(async () => {
-    transfersServiceSpy = jasmine.createSpyObj('AccountTransfersService', ['postAccounttransfers']);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    clientServiceSpy = jasmine.createSpyObj('ClientService', [
-      'getClients',
-      'getClientsClientIdAccounts',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    transfersServiceSpy = createSpyObj(['postAccounttransfers']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    clientServiceSpy = createSpyObj(['getClients', 'getClientsClientIdAccounts']);
+    routerSpy = createSpyObj(['navigate']);
 
-    officesServiceSpy.getOffices.and.returnValue(
+    officesServiceSpy.getOffices.mockReturnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
     );
-    clientServiceSpy.getClients.and.returnValue(
+    clientServiceSpy.getClients.mockReturnValue(
       of({ pageItems: [{ id: 10, displayName: 'John Doe' }] }) as unknown as Observable<never>,
     );
-    clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+    clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
       of({
         savingsAccounts: [{ id: 22, accountNo: 'S01', productName: 'Savings A' }],
         loanAccounts: [{ id: 11, accountNo: 'L01', productName: 'Loan A' }],
@@ -64,8 +62,9 @@ describe('AccountTransferFormComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [AccountTransferFormComponent, TranslateModule.forRoot()],
+      imports: [AccountTransferFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AccountTransfersService, useValue: transfersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: ClientService, useValue: clientServiceSpy },
@@ -84,7 +83,7 @@ describe('AccountTransferFormComponent', () => {
 
     fixture = TestBed.createComponent(AccountTransferFormComponent);
     component = fixture.componentInstance;
-    routerSpy.navigate.calls.reset();
+    routerSpy.navigate.mockClear();
   });
 
   it('should create and load offices, client list, and accounts on init', () => {
@@ -94,7 +93,7 @@ describe('AccountTransferFormComponent', () => {
     expect(officesServiceSpy.getOffices).toHaveBeenCalled();
     expect(clientServiceSpy.getClients).toHaveBeenCalled();
     expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(10);
-    expect(component.fromAccounts()).toHaveSize(1);
+    expect(component.fromAccounts()).toHaveLength(1);
     expect(component.fromAccounts()[0].id).toBe(22);
   });
 
@@ -118,7 +117,7 @@ describe('AccountTransferFormComponent', () => {
       undefined,
       undefined,
     );
-    expect(component.toClients()).toHaveSize(1);
+    expect(component.toClients()).toHaveLength(1);
   });
 
   it('should load loan accounts when account type changes to loan', () => {
@@ -128,12 +127,12 @@ describe('AccountTransferFormComponent', () => {
     component.onAccountTypeChange('to');
 
     expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(10);
-    expect(component.toAccounts()).toHaveSize(1);
+    expect(component.toAccounts()).toHaveLength(1);
     expect(component.toAccounts()[0].id).toBe(11); // Loan A
   });
 
   it('should submit transfer request successfully', () => {
-    transfersServiceSpy.postAccounttransfers.and.returnValue(
+    transfersServiceSpy.postAccounttransfers.mockReturnValue(
       of({}) as unknown as Observable<never>,
     );
     fixture.detectChanges();
@@ -157,10 +156,10 @@ describe('AccountTransferFormComponent', () => {
   });
 
   it('should handle submission error', () => {
-    transfersServiceSpy.postAccounttransfers.and.returnValue(
+    transfersServiceSpy.postAccounttransfers.mockReturnValue(
       throwError(() => new Error('Error')) as unknown as Observable<never>,
     );
-    spyOn(console, 'error');
+    vi.spyOn(console, 'error');
     fixture.detectChanges();
 
     component.onSubmit();
@@ -169,7 +168,7 @@ describe('AccountTransferFormComponent', () => {
 
   it('should navigate away on cancel', () => {
     fixture.detectChanges();
-    routerSpy.navigate.calls.reset();
+    routerSpy.navigate.mockClear();
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients/view', '10']);
   });
@@ -177,7 +176,7 @@ describe('AccountTransferFormComponent', () => {
   it('should navigate to clients list on cancel if no client ID is set', () => {
     fixture.detectChanges();
     component.request.fromClientId = undefined;
-    routerSpy.navigate.calls.reset();
+    routerSpy.navigate.mockClear();
     component.onCancel();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients']);
   });
