@@ -712,7 +712,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/deposit-account-view.component.spec.ts": {
+  "src/app/features/products/deposit-account-view.component.test.ts": {
     "unicorn/no-object-as-default-parameter": {
       "count": 1
     }

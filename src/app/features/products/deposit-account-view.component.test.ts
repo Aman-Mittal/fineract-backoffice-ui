@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -49,10 +50,10 @@ const PENDING = {
 describe('DepositAccountViewComponent', () => {
   let fixture: ComponentFixture<DepositAccountViewComponent>;
   let component: DepositAccountViewComponent;
-  let fdService: jasmine.SpyObj<FixedDepositAccountService>;
-  let fdTransactions: jasmine.SpyObj<FixedDepositAccountTransactionsService>;
-  let dialogService: jasmine.SpyObj<DialogService>;
-  let standingInstructions: jasmine.SpyObj<StandingInstructionsService>;
+  let fdService: SpyObj<FixedDepositAccountService>;
+  let fdTransactions: SpyObj<FixedDepositAccountTransactionsService>;
+  let dialogService: SpyObj<DialogService>;
+  let standingInstructions: SpyObj<StandingInstructionsService>;
 
   /** The account as the platform returns it, with the timeline the commands are floored on. */
   function account(status: object, timeline: object = { submittedOnDate: [2026, 8, 9] }): object {
@@ -66,42 +67,40 @@ describe('DepositAccountViewComponent', () => {
   ): Promise<void> {
     TestBed.resetTestingModule();
 
-    fdService = jasmine.createSpyObj('FixedDepositAccountService', [
+    fdService = createSpyObj([
       'getFixeddepositaccountsAccountId',
       'postFixeddepositaccountsAccountId',
     ]);
-    fdService.getFixeddepositaccountsAccountId.and.returnValue(of(data) as never);
-    fdService.postFixeddepositaccountsAccountId.and.returnValue(of({}) as never);
+    fdService.getFixeddepositaccountsAccountId.mockReturnValue(of(data) as never);
+    fdService.postFixeddepositaccountsAccountId.mockReturnValue(of({}) as never);
 
-    const rdService = jasmine.createSpyObj('RecurringDepositAccountService', [
+    const rdService = createSpyObj([
       'getRecurringdepositaccountsAccountId',
       'postRecurringdepositaccountsAccountId',
     ]);
-    rdService.getRecurringdepositaccountsAccountId.and.returnValue(of(data) as never);
-    rdService.postRecurringdepositaccountsAccountId.and.returnValue(of({}) as never);
+    rdService.getRecurringdepositaccountsAccountId.mockReturnValue(of(data) as never);
+    rdService.postRecurringdepositaccountsAccountId.mockReturnValue(of({}) as never);
 
-    fdTransactions = jasmine.createSpyObj('FixedDepositAccountTransactionsService', [
+    fdTransactions = createSpyObj([
       'getFixeddepositaccountsFixedDepositAccountIdTransactions',
       'postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId',
     ]);
-    fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions.and.returnValue(
+    fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
       of(transactions) as never,
     );
-    fdTransactions.postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.and.returnValue(
+    fdTransactions.postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.mockReturnValue(
       of({}) as never,
     );
 
-    const rdTransactions = jasmine.createSpyObj('RecurringDepositAccountTransactionsService', [
+    const rdTransactions = createSpyObj([
       'postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId',
     ]);
 
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm', 'open']);
-    dialogService.confirm.and.resolveTo(true);
+    dialogService = createSpyObj(['confirm', 'open']);
+    dialogService.confirm.mockResolvedValue(true);
 
-    standingInstructions = jasmine.createSpyObj('StandingInstructionsService', [
-      'getStandinginstructions',
-    ]);
-    standingInstructions.getStandinginstructions.and.returnValue(of({ pageItems: [] }) as never);
+    standingInstructions = createSpyObj(['getStandinginstructions']);
+    standingInstructions.getStandinginstructions.mockReturnValue(of({ pageItems: [] }) as never);
 
     await TestBed.configureTestingModule({
       imports: [DepositAccountViewComponent],
@@ -130,7 +129,7 @@ describe('DepositAccountViewComponent', () => {
 
   /** The body of the most recent command, and the command name. */
   function lastCommand(): { command: string; body: Record<string, unknown> } {
-    const args = fdService.postFixeddepositaccountsAccountId.calls.mostRecent().args;
+    const args = fdService.postFixeddepositaccountsAccountId.mock.lastCall!;
     return { body: args[1] as Record<string, unknown>, command: args[2] as string };
   }
 
@@ -198,7 +197,7 @@ describe('DepositAccountViewComponent', () => {
     await setup(
       account({ id: 300, value: 'Active', active: true }, { activatedOnDate: [2026, 1, 1] }),
     );
-    dialogService.open.and.resolveTo({ onAccountClosureId: 100 });
+    dialogService.open.mockResolvedValue({ onAccountClosureId: 100 });
 
     component.onPrematureClose();
     await fixture.whenStable();
@@ -214,7 +213,7 @@ describe('DepositAccountViewComponent', () => {
 
   it('sends nothing when the closure dialog is dismissed', async () => {
     await setup(account({ id: 300, value: 'Active', active: true }));
-    dialogService.open.and.resolveTo(undefined);
+    dialogService.open.mockResolvedValue(undefined);
 
     component.onClose();
     await fixture.whenStable();
@@ -238,20 +237,20 @@ describe('DepositAccountViewComponent', () => {
       expect(
         fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions,
       ).toHaveBeenCalledWith(7);
-      expect(component.transactions()).toHaveSize(1);
+      expect(component.transactions()).toHaveLength(1);
     });
 
     it('offers undo on a live row and not on a reversed one', async () => {
       await setup(account(ACTIVE), [deposit, reversedDeposit]);
 
-      expect(component.canUndo(deposit)).toBeTrue();
-      expect(component.canUndo(reversedDeposit)).toBeFalse();
+      expect(component.canUndo(deposit)).toBe(true);
+      expect(component.canUndo(reversedDeposit)).toBe(false);
     });
 
     it('withholds undo entirely once the account is no longer active', async () => {
       await setup(account(PENDING), [deposit]);
 
-      expect(component.canUndo(deposit)).toBeFalse();
+      expect(component.canUndo(deposit)).toBe(false);
     });
 
     it('undoes through the transaction endpoint and re-reads the account', async () => {
@@ -261,8 +260,8 @@ describe('DepositAccountViewComponent', () => {
       await fixture.whenStable();
 
       const args =
-        fdTransactions.postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.calls.mostRecent()
-          .args;
+        fdTransactions.postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId.mock
+          .lastCall!;
       expect(args[0]).toBe(7);
       expect(args[1]).toBe(11);
       expect(args[3]).toBe('undo');
@@ -272,7 +271,7 @@ describe('DepositAccountViewComponent', () => {
 
     it('posts nothing when the confirmation is declined', async () => {
       await setup(account(ACTIVE), [deposit]);
-      dialogService.confirm.and.resolveTo(false);
+      dialogService.confirm.mockResolvedValue(false);
 
       component.onUndoTransaction(deposit);
       await fixture.whenStable();
@@ -284,14 +283,14 @@ describe('DepositAccountViewComponent', () => {
 
     it('leaves the account on screen when the transaction read fails', async () => {
       await setup(account(ACTIVE));
-      fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions.and.returnValue(
+      fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
         throwError(() => new Error('unavailable')) as never,
       );
 
       component.loadData();
 
       expect(component.transactions()).toEqual([]);
-      expect(component.hasError()).toBeFalse();
+      expect(component.hasError()).toBe(false);
       expect(component.account()).toBeTruthy();
     });
   });
@@ -308,7 +307,7 @@ describe('DepositAccountViewComponent', () => {
       '/products/recurring-deposits/view/7',
     );
 
-    expect(component.isRD).toBeTrue();
+    expect(component.isRD).toBe(true);
     // The charges tab issues its own `associations=all` request against the same URL, so the
     // transactions request is picked out by its distinct `associations` value.
     const request = TestBed.inject(HttpTestingController).expectOne(
@@ -319,7 +318,7 @@ describe('DepositAccountViewComponent', () => {
     );
     request.flush({ transactions: [{ id: 21, amount: 100, reversed: false }] });
 
-    expect(component.transactions()).toHaveSize(1);
+    expect(component.transactions()).toHaveLength(1);
     // The fixed-deposit list endpoint must not be reached for a recurring deposit.
     expect(
       fdTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactions,
@@ -365,7 +364,7 @@ describe('DepositAccountViewComponent', () => {
         charges: [{ name: 'Withdrawal Fee', amount: 5, amountOutstanding: 5 }],
       });
 
-      expect(component.charges()).toHaveSize(1);
+      expect(component.charges()).toHaveLength(1);
       expect(component.charges()[0].name).toBe('Withdrawal Fee');
     });
 
@@ -377,7 +376,7 @@ describe('DepositAccountViewComponent', () => {
         .flush('boom', { status: 500, statusText: 'Server Error' });
 
       expect(component.charges()).toEqual([]);
-      expect(component.hasError()).toBeFalse();
+      expect(component.hasError()).toBe(false);
     });
   });
 
@@ -442,7 +441,7 @@ describe('DepositAccountViewComponent', () => {
         .flush('boom', { status: 500, statusText: 'Server Error' });
 
       expect(component.chartSlabs()).toEqual([]);
-      expect(component.hasError()).toBeFalse();
+      expect(component.hasError()).toBe(false);
     });
   });
 });
