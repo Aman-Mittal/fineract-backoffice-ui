@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -76,16 +77,13 @@ describe('GroupViewComponent', () => {
   let fixture: ComponentFixture<GroupViewComponent>;
   let component: GroupViewComponent;
   let httpMock: HttpTestingController;
-  let groupsService: jasmine.SpyObj<GroupsService>;
+  let groupsService: SpyObj<GroupsService>;
   let overlay: FakeOverlayAdapter;
 
   beforeEach(async () => {
-    groupsService = jasmine.createSpyObj('GroupsService', [
-      'postGroupsGroupId',
-      'getGroupsTemplate',
-    ]);
-    groupsService.postGroupsGroupId.and.returnValue(of({}) as never);
-    groupsService.getGroupsTemplate.and.returnValue(of({}) as never);
+    groupsService = createSpyObj(['postGroupsGroupId', 'getGroupsTemplate']);
+    groupsService.postGroupsGroupId.mockReturnValue(of({}) as never);
+    groupsService.getGroupsTemplate.mockReturnValue(of({}) as never);
 
     const adapters = provideFakeAdapters();
     overlay = adapters.overlay;
@@ -99,7 +97,7 @@ describe('GroupViewComponent', () => {
         ...adapters.providers,
         { provide: BASE_PATH, useValue: API },
         { provide: GroupsService, useValue: groupsService },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '7' } } } },
       ],
     }).compileComponents();
@@ -139,7 +137,7 @@ describe('GroupViewComponent', () => {
       .flush('boom', { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 
-    expect(component.hasError()).toBeTrue();
+    expect(component.hasError()).toBe(true);
     expect(component.group()).toBeNull();
     const error = fixture.nativeElement.querySelector('[data-testid="group-load-error"]');
     expect(error).not.toBeNull();
@@ -151,11 +149,11 @@ describe('GroupViewComponent', () => {
     overlay.nextModalResult = { actionDate: '2026-03-09', closureReasonId: 42 };
     await component.onClose();
 
-    const [groupId, body, command] = groupsService.postGroupsGroupId.calls.mostRecent().args;
+    const [groupId, body, command] = groupsService.postGroupsGroupId.mock.lastCall!;
     expect(groupId).toBe(7);
     expect(command).toBe('close');
     expect(body).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         // Zero-padded: Fineract parses strictly against `dd MMMM yyyy` and a bare '9' 500s.
         closureDate: '09 March 2026',
         closureReasonId: 42,
@@ -175,7 +173,7 @@ describe('GroupViewComponent', () => {
     overlay.nextModalResult = true; // the confirmation
     await component.onUnassignRole(component.roles()[0]);
 
-    const [groupId, , command, roleId] = groupsService.postGroupsGroupId.calls.mostRecent().args;
+    const [groupId, , command, roleId] = groupsService.postGroupsGroupId.mock.lastCall!;
     expect(groupId).toBe(7);
     expect(command).toBe('unassignRole');
     // 3 is the assignment id; 13 is the role's code-value id. Sending 13 answers 404 for a
@@ -193,7 +191,7 @@ describe('GroupViewComponent', () => {
 
     const request = overlay.modals.at(-1);
     expect(request?.inputs?.['data']).toEqual(
-      jasmine.objectContaining({ mode: 'add', officeId: 1 }),
+      expect.objectContaining({ mode: 'add', officeId: 1 }),
     );
     // Without the exclusion the dialog offers a client who is already in the group, and the
     // platform rejects associating them twice.
@@ -205,8 +203,8 @@ describe('GroupViewComponent', () => {
   it('gates the lifecycle actions on the status id', () => {
     flushGroup({ ...GROUP, status: { id: 100, value: 'Pending' } });
 
-    expect(component.isPending()).toBeTrue();
-    expect(component.isActive()).toBeFalse();
-    expect(component.isClosed()).toBeFalse();
+    expect(component.isPending()).toBe(true);
+    expect(component.isActive()).toBe(false);
+    expect(component.isClosed()).toBe(false);
   });
 });
