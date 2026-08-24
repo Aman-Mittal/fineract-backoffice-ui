@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -32,27 +33,27 @@ import { provideTranslateTesting } from '../../../testing/i18n-testing';
 describe('ReportDefinitionsListComponent', () => {
   let component: ReportDefinitionsListComponent;
   let fixture: ComponentFixture<ReportDefinitionsListComponent>;
-  let reportsSpy: jasmine.SpyObj<ReportsService>;
-  let dialogSpy: jasmine.SpyObj<DialogService>;
+  let reportsSpy: SpyObj<ReportsService>;
+  let dialogSpy: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    reportsSpy = jasmine.createSpyObj('ReportsService', ['getReports', 'deleteReportsId']);
-    dialogSpy = jasmine.createSpyObj('DialogService', ['confirm']);
-    reportsSpy.getReports.and.returnValue(
+    reportsSpy = createSpyObj(['getReports', 'deleteReportsId']);
+    dialogSpy = createSpyObj(['confirm']);
+    reportsSpy.getReports.mockReturnValue(
       of([
         { id: 1, reportName: 'Client Listing', coreReport: true },
         { id: 2, reportName: 'Branch Arrears', coreReport: false },
       ]) as unknown as Observable<never>,
     );
-    reportsSpy.deleteReportsId.and.returnValue(of({}) as unknown as Observable<never>);
+    reportsSpy.deleteReportsId.mockReturnValue(of({}) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
       imports: [ReportDefinitionsListComponent],
       providers: [
         { provide: ReportsService, useValue: reportsSpy },
         { provide: DialogService, useValue: dialogSpy },
-        { provide: NotificationService, useValue: jasmine.createSpyObj('N', ['success', 'error']) },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: NotificationService, useValue: createSpyObj(['success', 'error']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         ...provideFakeAdapters().providers,
         // DataTableComponent has not moved to the adapter yet, so the library still has to exist.
         ...provideTranslateTesting(),
@@ -66,7 +67,7 @@ describe('ReportDefinitionsListComponent', () => {
   });
 
   it('will not delete a core report, which the database refuses anyway', async () => {
-    dialogSpy.confirm.and.resolveTo(true);
+    dialogSpy.confirm.mockResolvedValue(true);
 
     await component.onDelete({ id: 1, coreReport: true } as GetReportsResponse);
 
@@ -75,7 +76,7 @@ describe('ReportDefinitionsListComponent', () => {
   });
 
   it('deletes a tenant report once confirmed, then reloads', async () => {
-    dialogSpy.confirm.and.resolveTo(true);
+    dialogSpy.confirm.mockResolvedValue(true);
 
     await component.onDelete({ id: 2, coreReport: false } as GetReportsResponse);
 
@@ -84,12 +85,12 @@ describe('ReportDefinitionsListComponent', () => {
   });
 
   it('offers a retry rather than an empty list when the load fails', () => {
-    reportsSpy.getReports.and.returnValue(
+    reportsSpy.getReports.mockReturnValue(
       new Observable((subscriber) => subscriber.error(new Error('boom'))),
     );
 
     component.load();
 
-    expect(component.hasError()).toBeTrue();
+    expect(component.hasError()).toBe(true);
   });
 });

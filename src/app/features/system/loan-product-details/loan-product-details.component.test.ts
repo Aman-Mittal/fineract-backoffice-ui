@@ -17,31 +17,31 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoanProductDetailsComponent } from './loan-product-details.component';
 import { LoanProductsDetailsService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('LoanProductDetailsComponent', () => {
   let component: LoanProductDetailsComponent;
   let fixture: ComponentFixture<LoanProductDetailsComponent>;
-  let serviceSpy: jasmine.SpyObj<LoanProductsDetailsService>;
+  let serviceSpy: SpyObj<LoanProductsDetailsService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('LoanProductsDetailsService', [
-      'getLoanproductsBasicDetails',
-    ]);
-    serviceSpy.getLoanproductsBasicDetails.and.returnValue(
+    serviceSpy = createSpyObj(['getLoanproductsBasicDetails']);
+    serviceSpy.getLoanproductsBasicDetails.mockReturnValue(
       of([{ id: 1, name: 'Standard Loan', shortName: 'STD' }]) as unknown as ReturnType<
         LoanProductsDetailsService['getLoanproductsBasicDetails']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [LoanProductDetailsComponent, TranslateModule.forRoot()],
+      imports: [LoanProductDetailsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: LoanProductsDetailsService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],
@@ -55,6 +55,6 @@ describe('LoanProductDetailsComponent', () => {
   it('should load loan product basic details on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanproductsBasicDetails).toHaveBeenCalled();
-    expect(component.details()).toHaveSize(1);
+    expect(component.details()).toHaveLength(1);
   });
 });

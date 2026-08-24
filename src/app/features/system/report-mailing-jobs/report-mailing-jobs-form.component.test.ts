@@ -17,39 +17,41 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EntityMappingFormComponent } from './entity-mapping-form.component';
-import { FineractEntityService } from '../../../api';
+import { ReportMailingJobsFormComponent } from './report-mailing-jobs-form.component';
+import { ReportMailingJobsService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('EntityMappingFormComponent', () => {
-  let component: EntityMappingFormComponent;
-  let fixture: ComponentFixture<EntityMappingFormComponent>;
-  let serviceSpy: jasmine.SpyObj<FineractEntityService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('ReportMailingJobsFormComponent', () => {
+  let component: ReportMailingJobsFormComponent;
+  let fixture: ComponentFixture<ReportMailingJobsFormComponent>;
+  let serviceSpy: SpyObj<ReportMailingJobsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('FineractEntityService', [
-      'getEntitytoentitymappingMapId',
-      'postEntitytoentitymappingRelId',
-      'putEntitytoentitymappingMapId',
+    serviceSpy = createSpyObj([
+      'getReportmailingjobsEntityId',
+      'postReportmailingjobs',
+      'putReportmailingjobsEntityId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [EntityMappingFormComponent, TranslateModule.forRoot()],
+      imports: [ReportMailingJobsFormComponent],
       providers: [
-        { provide: FineractEntityService, useValue: serviceSpy },
+        ...provideTranslateTesting(),
+        { provide: ReportMailingJobsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EntityMappingFormComponent);
+    fixture = TestBed.createComponent(ReportMailingJobsFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -58,17 +60,19 @@ describe('EntityMappingFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should post a stringified body on create and navigate to the list', () => {
-    serviceSpy.postEntitytoentitymappingRelId.and.returnValue(
-      of('{}') as unknown as ReturnType<FineractEntityService['postEntitytoentitymappingRelId']>,
+  it('should post on create and navigate to the list', () => {
+    serviceSpy.postReportmailingjobs.mockReturnValue(
+      of({}) as unknown as ReturnType<ReportMailingJobsService['postReportmailingjobs']>,
     );
-    component.relId.set(1);
-    component.payload.set({ fromId: 10, toId: 20 });
+    component.job.set({
+      name: 'New',
+      emailRecipients: 'a@b.c',
+      emailSubject: 'Sub',
+      stretchyReportId: 1,
+      isActive: true,
+    });
     component.onSubmit();
-    expect(serviceSpy.postEntitytoentitymappingRelId).toHaveBeenCalledWith(
-      1,
-      JSON.stringify({ fromId: 10, toId: 20 }),
-    );
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/entity-mapping']);
+    expect(serviceSpy.postReportmailingjobs).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/report-mailing-jobs']);
   });
 });

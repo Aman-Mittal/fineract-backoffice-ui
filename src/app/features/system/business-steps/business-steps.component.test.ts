@@ -17,30 +17,27 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BusinessStepsComponent } from './business-steps.component';
 import { BusinessStepConfigurationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('BusinessStepsComponent', () => {
   let component: BusinessStepsComponent;
   let fixture: ComponentFixture<BusinessStepsComponent>;
-  let serviceSpy: jasmine.SpyObj<BusinessStepConfigurationService>;
+  let serviceSpy: SpyObj<BusinessStepConfigurationService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('BusinessStepConfigurationService', [
-      'getJobsNames',
-      'getJobsJobNameSteps',
-      'putJobsJobNameSteps',
-    ]);
-    serviceSpy.getJobsNames.and.returnValue(
+    serviceSpy = createSpyObj(['getJobsNames', 'getJobsJobNameSteps', 'putJobsJobNameSteps']);
+    serviceSpy.getJobsNames.mockReturnValue(
       of({ businessJobs: ['LOAN_CLOSE_OF_BUSINESS'] }) as unknown as ReturnType<
         BusinessStepConfigurationService['getJobsNames']
       >,
     );
-    serviceSpy.getJobsJobNameSteps.and.returnValue(
+    serviceSpy.getJobsJobNameSteps.mockReturnValue(
       of({
         jobName: 'LOAN_CLOSE_OF_BUSINESS',
         businessSteps: [
@@ -51,8 +48,9 @@ describe('BusinessStepsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [BusinessStepsComponent, TranslateModule.forRoot()],
+      imports: [BusinessStepsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: BusinessStepConfigurationService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],
@@ -64,7 +62,7 @@ describe('BusinessStepsComponent', () => {
   });
 
   it('should load job names on init', () => {
-    expect(component.jobNames()).toHaveSize(1);
+    expect(component.jobNames()).toHaveLength(1);
   });
 
   it('should load and sort steps by order', () => {
@@ -74,7 +72,7 @@ describe('BusinessStepsComponent', () => {
   });
 
   it('should save reordered steps', () => {
-    serviceSpy.putJobsJobNameSteps.and.returnValue(
+    serviceSpy.putJobsJobNameSteps.mockReturnValue(
       of({}) as unknown as ReturnType<BusinessStepConfigurationService['putJobsJobNameSteps']>,
     );
     component.selectedJob = 'LOAN_CLOSE_OF_BUSINESS';

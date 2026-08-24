@@ -17,21 +17,22 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CacheComponent } from './cache.component';
 import { CacheService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('CacheComponent', () => {
   let component: CacheComponent;
   let fixture: ComponentFixture<CacheComponent>;
-  let serviceSpy: jasmine.SpyObj<CacheService>;
+  let serviceSpy: SpyObj<CacheService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('CacheService', ['getCaches', 'putCaches']);
-    serviceSpy.getCaches.and.returnValue(
+    serviceSpy = createSpyObj(['getCaches', 'putCaches']);
+    serviceSpy.getCaches.mockReturnValue(
       of([
         { cacheType: { id: 1, value: 'No Cache' }, enabled: false },
         { cacheType: { id: 2, value: 'Single Node' }, enabled: true },
@@ -39,8 +40,12 @@ describe('CacheComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [CacheComponent, TranslateModule.forRoot()],
-      providers: [{ provide: CacheService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [CacheComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: CacheService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CacheComponent);
@@ -49,12 +54,12 @@ describe('CacheComponent', () => {
   });
 
   it('should select the enabled cache on load', () => {
-    expect(component.caches()).toHaveSize(2);
+    expect(component.caches()).toHaveLength(2);
     expect(component.selectedCacheType()).toBe(2);
   });
 
   it('should put the selected cache type on save', () => {
-    serviceSpy.putCaches.and.returnValue(
+    serviceSpy.putCaches.mockReturnValue(
       of({}) as unknown as ReturnType<CacheService['putCaches']>,
     );
     component.selectedCacheType.set(1);

@@ -17,49 +17,51 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SchedulerJobsListComponent } from './scheduler-jobs-list.component';
 import { SCHEDULERJOBService, SchedulerService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
 
 describe('SchedulerJobsListComponent', () => {
   let component: SchedulerJobsListComponent;
   let fixture: ComponentFixture<SchedulerJobsListComponent>;
-  let jobSpy: jasmine.SpyObj<SCHEDULERJOBService>;
-  let schedulerSpy: jasmine.SpyObj<SchedulerService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogSpy: jasmine.SpyObj<DialogService>;
+  let jobSpy: SpyObj<SCHEDULERJOBService>;
+  let schedulerSpy: SpyObj<SchedulerService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogSpy: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    jobSpy = jasmine.createSpyObj('SCHEDULERJOBService', ['getJobs', 'postJobsJobId']);
-    schedulerSpy = jasmine.createSpyObj('SchedulerService', ['getScheduler', 'postScheduler']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['confirm']);
+    jobSpy = createSpyObj(['getJobs', 'postJobsJobId']);
+    schedulerSpy = createSpyObj(['getScheduler', 'postScheduler']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogSpy = createSpyObj<DialogService>(['confirm']);
 
-    jobSpy.getJobs.and.returnValue(
+    jobSpy.getJobs.mockReturnValue(
       of([
         { jobId: 1, displayName: 'Job A', active: true },
         { jobId: 2, displayName: 'Job B', active: true },
       ]) as unknown as ReturnType<SCHEDULERJOBService['getJobs']>,
     );
-    jobSpy.postJobsJobId.and.returnValue(
+    jobSpy.postJobsJobId.mockReturnValue(
       of({}) as unknown as ReturnType<SCHEDULERJOBService['postJobsJobId']>,
     );
-    schedulerSpy.getScheduler.and.returnValue(
+    schedulerSpy.getScheduler.mockReturnValue(
       of({ active: true }) as unknown as ReturnType<SchedulerService['getScheduler']>,
     );
-    schedulerSpy.postScheduler.and.returnValue(
+    schedulerSpy.postScheduler.mockReturnValue(
       of({}) as unknown as ReturnType<SchedulerService['postScheduler']>,
     );
-    dialogSpy.confirm.and.resolveTo(true);
+    dialogSpy.confirm.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
-      imports: [SchedulerJobsListComponent, TranslateModule.forRoot()],
+      imports: [SchedulerJobsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SCHEDULERJOBService, useValue: jobSpy },
         { provide: SchedulerService, useValue: schedulerSpy },
         { provide: Router, useValue: routerSpy },
@@ -76,8 +78,8 @@ describe('SchedulerJobsListComponent', () => {
   it('should load jobs and scheduler status on init', () => {
     expect(component).toBeTruthy();
     expect(jobSpy.getJobs).toHaveBeenCalled();
-    expect(component.jobs()).toHaveSize(2);
-    expect(component.schedulerActive()).toBeTrue();
+    expect(component.jobs()).toHaveLength(2);
+    expect(component.schedulerActive()).toBe(true);
   });
 
   it('should run a job now with executeJob command', () => {
@@ -101,30 +103,30 @@ describe('SchedulerJobsListComponent', () => {
   });
 
   it('should track individual row selection', () => {
-    expect(component.isSelected({ jobId: 1 })).toBeFalse();
+    expect(component.isSelected({ jobId: 1 })).toBe(false);
 
     component.onToggleSelect({ jobId: 1 }, true);
-    expect(component.isSelected({ jobId: 1 })).toBeTrue();
-    expect(component.isSelected({ jobId: 2 })).toBeFalse();
+    expect(component.isSelected({ jobId: 1 })).toBe(true);
+    expect(component.isSelected({ jobId: 2 })).toBe(false);
 
     component.onToggleSelect({ jobId: 1 }, false);
-    expect(component.isSelected({ jobId: 1 })).toBeFalse();
+    expect(component.isSelected({ jobId: 1 })).toBe(false);
   });
 
   it('should select and clear all jobs', () => {
     component.onToggleSelectAll(true);
     expect(component.selectedJobIds()).toEqual(new Set([1, 2]));
-    expect(component.allSelected()).toBeTrue();
+    expect(component.allSelected()).toBe(true);
 
     component.onToggleSelectAll(false);
     expect(component.selectedJobIds().size).toBe(0);
-    expect(component.allSelected()).toBeFalse();
+    expect(component.allSelected()).toBe(false);
   });
 
   it('should run every selected job after confirming, then clear selection and reload', async () => {
     component.onToggleSelect({ jobId: 1 }, true);
     component.onToggleSelect({ jobId: 2 }, true);
-    jobSpy.getJobs.calls.reset();
+    jobSpy.getJobs.mockClear();
 
     await component.onRunSelected();
 
@@ -136,7 +138,7 @@ describe('SchedulerJobsListComponent', () => {
   });
 
   it('should not run anything if the confirmation is declined', async () => {
-    dialogSpy.confirm.and.resolveTo(false);
+    dialogSpy.confirm.mockResolvedValue(false);
     component.onToggleSelect({ jobId: 1 }, true);
 
     await component.onRunSelected();

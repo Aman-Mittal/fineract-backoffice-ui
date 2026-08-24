@@ -17,39 +17,32 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SmsFormComponent } from './sms-form.component';
-import { SMSService } from '../../../api';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { InstanceModeComponent } from './instance-mode.component';
+import { InstanceModeService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('SmsFormComponent', () => {
-  let component: SmsFormComponent;
-  let fixture: ComponentFixture<SmsFormComponent>;
-  let serviceSpy: jasmine.SpyObj<SMSService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('InstanceModeComponent', () => {
+  let component: InstanceModeComponent;
+  let fixture: ComponentFixture<InstanceModeComponent>;
+  let serviceSpy: SpyObj<InstanceModeService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SMSService', [
-      'getSmsResourceId',
-      'postSms',
-      'putSmsResourceId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    serviceSpy = createSpyObj(['putInstanceMode']);
 
     await TestBed.configureTestingModule({
-      imports: [SmsFormComponent, TranslateModule.forRoot()],
+      imports: [InstanceModeComponent],
       providers: [
-        { provide: SMSService, useValue: serviceSpy },
-        { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
+        ...provideTranslateTesting(),
+        { provide: InstanceModeService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SmsFormComponent);
+    fixture = TestBed.createComponent(InstanceModeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -58,11 +51,14 @@ describe('SmsFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should post on create and navigate to the list', () => {
-    serviceSpy.postSms.and.returnValue(of({}) as unknown as ReturnType<SMSService['postSms']>);
-    component.message.set('Hello');
-    component.onSubmit();
-    expect(serviceSpy.postSms).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/system/sms']);
+  it('should put the instance mode on save', () => {
+    serviceSpy.putInstanceMode.mockReturnValue(
+      of({}) as unknown as ReturnType<InstanceModeService['putInstanceMode']>,
+    );
+    component.mode.writeEnabled = false;
+    component.onSave();
+    expect(serviceSpy.putInstanceMode).toHaveBeenCalledWith(
+      expect.objectContaining({ writeEnabled: false }) as never,
+    );
   });
 });

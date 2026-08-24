@@ -17,33 +17,38 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PermissionsListComponent } from './permissions.component';
 import { PermissionsService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('PermissionsListComponent', () => {
   let component: PermissionsListComponent;
   let fixture: ComponentFixture<PermissionsListComponent>;
-  let serviceSpy: jasmine.SpyObj<PermissionsService>;
+  let serviceSpy: SpyObj<PermissionsService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('PermissionsService', ['getPermissions', 'putPermissions']);
-    serviceSpy.getPermissions.and.returnValue(
+    serviceSpy = createSpyObj(['getPermissions', 'putPermissions']);
+    serviceSpy.getPermissions.mockReturnValue(
       of([
         { code: 'CREATE_CLIENT', grouping: 'portfolio', selected: false },
         { code: 'CREATE_LOAN', grouping: 'transaction', selected: true },
       ]) as unknown as ReturnType<PermissionsService['getPermissions']>,
     );
-    serviceSpy.putPermissions.and.returnValue(
+    serviceSpy.putPermissions.mockReturnValue(
       of({}) as unknown as ReturnType<PermissionsService['putPermissions']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [PermissionsListComponent, TranslateModule.forRoot()],
-      providers: [{ provide: PermissionsService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [PermissionsListComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: PermissionsService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PermissionsListComponent);
@@ -55,12 +60,12 @@ describe('PermissionsListComponent', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getPermissions).toHaveBeenCalled();
     expect(component.groupNames()).toEqual(['portfolio', 'transaction']);
-    expect(component.grouped()['portfolio']).toHaveSize(1);
+    expect(component.grouped()['portfolio']).toHaveLength(1);
   });
 
   it('should track toggled permissions and save them', () => {
     component.onToggle({ code: 'CREATE_CLIENT', selected: true });
-    expect(component.changed['CREATE_CLIENT']).toBeTrue();
+    expect(component.changed['CREATE_CLIENT']).toBe(true);
 
     component.onSave();
     expect(serviceSpy.putPermissions).toHaveBeenCalledWith({

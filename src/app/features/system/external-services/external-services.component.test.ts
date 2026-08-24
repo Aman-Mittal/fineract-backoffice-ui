@@ -17,24 +17,22 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ExternalServicesComponent } from './external-services.component';
 import { ExternalServicesService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ExternalServicesComponent', () => {
   let component: ExternalServicesComponent;
   let fixture: ComponentFixture<ExternalServicesComponent>;
-  let serviceSpy: jasmine.SpyObj<ExternalServicesService>;
+  let serviceSpy: SpyObj<ExternalServicesService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ExternalServicesService', [
-      'getExternalserviceServicename',
-      'putExternalserviceServicename',
-    ]);
-    serviceSpy.getExternalserviceServicename.and.returnValue(
+    serviceSpy = createSpyObj(['getExternalserviceServicename', 'putExternalserviceServicename']);
+    serviceSpy.getExternalserviceServicename.mockReturnValue(
       of([
         { name: 's3_access_key', value: 'abc' },
         { name: 's3_bucket_name', value: 'bucket' },
@@ -42,8 +40,9 @@ describe('ExternalServicesComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ExternalServicesComponent, TranslateModule.forRoot()],
+      imports: [ExternalServicesComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ExternalServicesService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],
@@ -56,17 +55,17 @@ describe('ExternalServicesComponent', () => {
 
   it('should load properties for the default service on init', () => {
     expect(component.selectedService).toBe('S3');
-    expect(component.properties()).toHaveSize(2);
+    expect(component.properties()).toHaveLength(2);
   });
 
   it('should put a name/value map on save', () => {
-    serviceSpy.putExternalserviceServicename.and.returnValue(
+    serviceSpy.putExternalserviceServicename.mockReturnValue(
       of({}) as unknown as ReturnType<ExternalServicesService['putExternalserviceServicename']>,
     );
     component.onSave();
     expect(serviceSpy.putExternalserviceServicename).toHaveBeenCalledWith(
       'S3',
-      jasmine.objectContaining({ s3_access_key: 'abc' }) as never,
+      expect.objectContaining({ s3_access_key: 'abc' }) as never,
     );
   });
 });

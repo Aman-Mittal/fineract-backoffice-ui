@@ -17,37 +17,39 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HooksFormComponent } from './hooks-form.component';
 import { HooksService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('HooksFormComponent', () => {
   let component: HooksFormComponent;
   let fixture: ComponentFixture<HooksFormComponent>;
-  let serviceSpy: jasmine.SpyObj<HooksService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<HooksService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('HooksService', [
+    serviceSpy = createSpyObj([
       'getHooksTemplate',
       'getHooksHookId',
       'postHooks',
       'putHooksHookId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getHooksTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getHooksTemplate.mockReturnValue(
       of({ templates: [{ id: 1, name: 'Web' }] }) as unknown as ReturnType<
         HooksService['getHooksTemplate']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [HooksFormComponent, TranslateModule.forRoot()],
+      imports: [HooksFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: HooksService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
@@ -63,11 +65,11 @@ describe('HooksFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getHooksTemplate).toHaveBeenCalled();
-    expect(component.templateOptions()).toHaveSize(1);
+    expect(component.templateOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postHooks.and.returnValue(
+    serviceSpy.postHooks.mockReturnValue(
       of({}) as unknown as ReturnType<HooksService['postHooks']>,
     );
     component.hook.set({ name: 'Web', displayName: 'New', isActive: true });

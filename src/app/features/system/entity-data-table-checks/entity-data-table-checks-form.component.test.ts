@@ -17,35 +17,34 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EntityDataTableChecksFormComponent } from './entity-data-table-checks-form.component';
 import { EntityDataTableService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('EntityDataTableChecksFormComponent', () => {
   let component: EntityDataTableChecksFormComponent;
   let fixture: ComponentFixture<EntityDataTableChecksFormComponent>;
-  let serviceSpy: jasmine.SpyObj<EntityDataTableService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<EntityDataTableService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('EntityDataTableService', [
-      'getEntityDatatableChecksTemplate',
-      'postEntityDatatableChecks',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getEntityDatatableChecksTemplate.and.returnValue(
+    serviceSpy = createSpyObj(['getEntityDatatableChecksTemplate', 'postEntityDatatableChecks']);
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getEntityDatatableChecksTemplate.mockReturnValue(
       of({ entities: ['m_client', 'm_loan'] }) as unknown as ReturnType<
         EntityDataTableService['getEntityDatatableChecksTemplate']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [EntityDataTableChecksFormComponent, TranslateModule.forRoot()],
+      imports: [EntityDataTableChecksFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: EntityDataTableService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
@@ -60,11 +59,11 @@ describe('EntityDataTableChecksFormComponent', () => {
   it('should load template entities on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityDatatableChecksTemplate).toHaveBeenCalled();
-    expect(component.entityOptions()).toHaveSize(2);
+    expect(component.entityOptions()).toHaveLength(2);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postEntityDatatableChecks.and.returnValue(
+    serviceSpy.postEntityDatatableChecks.mockReturnValue(
       of({}) as unknown as ReturnType<EntityDataTableService['postEntityDatatableChecks']>,
     );
     component.check = { entity: 'm_client', datatableName: 'dt', status: 100 };

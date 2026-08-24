@@ -17,40 +17,42 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DelinquencyManagementComponent } from './delinquency-management.component';
 import { DelinquencyRangeAndBucketsManagementService } from '../../../api';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('DelinquencyManagementComponent', () => {
   let component: DelinquencyManagementComponent;
   let fixture: ComponentFixture<DelinquencyManagementComponent>;
-  let delinquencyServiceSpy: jasmine.SpyObj<DelinquencyRangeAndBucketsManagementService>;
+  let delinquencyServiceSpy: SpyObj<DelinquencyRangeAndBucketsManagementService>;
 
   beforeEach(async () => {
-    delinquencyServiceSpy = jasmine.createSpyObj('DelinquencyRangeAndBucketsManagementService', [
+    delinquencyServiceSpy = createSpyObj([
       'getDelinquencyRanges',
       'getDelinquencyBuckets',
       'deleteDelinquencyRangesDelinquencyRangeId',
       'deleteDelinquencyBucketsDelinquencyBucketId',
     ]);
-    delinquencyServiceSpy.getDelinquencyRanges.and.returnValue(
+    delinquencyServiceSpy.getDelinquencyRanges.mockReturnValue(
       of([{ id: 1 }]) as unknown as ReturnType<
         DelinquencyRangeAndBucketsManagementService['getDelinquencyRanges']
       >,
     );
-    delinquencyServiceSpy.getDelinquencyBuckets.and.returnValue(
+    delinquencyServiceSpy.getDelinquencyBuckets.mockReturnValue(
       of([{ id: 2 }]) as unknown as ReturnType<
         DelinquencyRangeAndBucketsManagementService['getDelinquencyBuckets']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [DelinquencyManagementComponent, TranslateModule.forRoot()],
+      imports: [DelinquencyManagementComponent],
       providers: [
+        ...provideTranslateTesting(),
         {
           provide: DelinquencyRangeAndBucketsManagementService,
           useValue: delinquencyServiceSpy,
@@ -72,7 +74,7 @@ describe('DelinquencyManagementComponent', () => {
   it('should load ranges and buckets on init', () => {
     expect(delinquencyServiceSpy.getDelinquencyRanges).toHaveBeenCalled();
     expect(delinquencyServiceSpy.getDelinquencyBuckets).toHaveBeenCalled();
-    expect(component.ranges()).toHaveSize(1);
-    expect(component.buckets()).toHaveSize(1);
+    expect(component.ranges()).toHaveLength(1);
+    expect(component.buckets()).toHaveLength(1);
   });
 });

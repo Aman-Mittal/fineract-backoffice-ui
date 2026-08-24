@@ -17,32 +17,34 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SchedulerJobHistoryComponent } from './scheduler-job-history.component';
 import { SCHEDULERJOBService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('SchedulerJobHistoryComponent', () => {
   let component: SchedulerJobHistoryComponent;
   let fixture: ComponentFixture<SchedulerJobHistoryComponent>;
-  let jobSpy: jasmine.SpyObj<SCHEDULERJOBService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let jobSpy: SpyObj<SCHEDULERJOBService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    jobSpy = jasmine.createSpyObj('SCHEDULERJOBService', ['getJobsJobIdRunhistory']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    jobSpy.getJobsJobIdRunhistory.and.returnValue(
+    jobSpy = createSpyObj(['getJobsJobIdRunhistory']);
+    routerSpy = createSpyObj(['navigate']);
+    jobSpy.getJobsJobIdRunhistory.mockReturnValue(
       of({ pageItems: [{ id: 1, status: 'success' }] }) as unknown as ReturnType<
         SCHEDULERJOBService['getJobsJobIdRunhistory']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [SchedulerJobHistoryComponent, TranslateModule.forRoot()],
+      imports: [SchedulerJobHistoryComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SCHEDULERJOBService, useValue: jobSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -62,7 +64,7 @@ describe('SchedulerJobHistoryComponent', () => {
     expect(component).toBeTruthy();
     expect(component.jobId).toBe(5);
     expect(jobSpy.getJobsJobIdRunhistory).toHaveBeenCalledWith(5);
-    expect(component.history()).toHaveSize(1);
+    expect(component.history()).toHaveLength(1);
   });
 
   it('should navigate back to the jobs list', () => {

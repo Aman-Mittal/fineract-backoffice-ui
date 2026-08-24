@@ -17,37 +17,39 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdhocQueryFormComponent } from './adhoc-query-form.component';
 import { AdhocQueryApiService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('AdhocQueryFormComponent', () => {
   let component: AdhocQueryFormComponent;
   let fixture: ComponentFixture<AdhocQueryFormComponent>;
-  let serviceSpy: jasmine.SpyObj<AdhocQueryApiService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<AdhocQueryApiService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('AdhocQueryApiService', [
+    serviceSpy = createSpyObj([
       'getAdhocqueryTemplate',
       'getAdhocqueryAdHocId',
       'postAdhocquery',
       'putAdhocqueryAdHocId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getAdhocqueryTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getAdhocqueryTemplate.mockReturnValue(
       of({
         reportRunFrequencies: [{ id: 1, code: 'daily', value: 'Daily' }],
       }) as unknown as ReturnType<AdhocQueryApiService['getAdhocqueryTemplate']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [AdhocQueryFormComponent, TranslateModule.forRoot()],
+      imports: [AdhocQueryFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AdhocQueryApiService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
@@ -63,11 +65,11 @@ describe('AdhocQueryFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getAdhocqueryTemplate).toHaveBeenCalled();
-    expect(component.frequencyOptions()).toHaveSize(1);
+    expect(component.frequencyOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postAdhocquery.and.returnValue(
+    serviceSpy.postAdhocquery.mockReturnValue(
       of({}) as unknown as ReturnType<AdhocQueryApiService['postAdhocquery']>,
     );
     component.query.set({ name: 'New', query: 'select 1', tableName: 't' });

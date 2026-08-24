@@ -17,24 +17,22 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NotificationsConfigComponent } from './notifications-config.component';
 import { NotificationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('NotificationsConfigComponent', () => {
   let component: NotificationsConfigComponent;
   let fixture: ComponentFixture<NotificationsConfigComponent>;
-  let serviceSpy: jasmine.SpyObj<NotificationService>;
+  let serviceSpy: SpyObj<NotificationService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('NotificationService', [
-      'getNotifications',
-      'putNotifications',
-    ]);
-    serviceSpy.getNotifications.and.returnValue(
+    serviceSpy = createSpyObj(['getNotifications', 'putNotifications']);
+    serviceSpy.getNotifications.mockReturnValue(
       of({
         pageItems: [
           { id: 1, content: 'Hello', isRead: false },
@@ -45,8 +43,12 @@ describe('NotificationsConfigComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [NotificationsConfigComponent, TranslateModule.forRoot()],
-      providers: [{ provide: NotificationService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [NotificationsConfigComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: NotificationService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NotificationsConfigComponent);
@@ -55,11 +57,11 @@ describe('NotificationsConfigComponent', () => {
   });
 
   it('should load notifications on init', () => {
-    expect(component.notifications()).toHaveSize(2);
+    expect(component.notifications()).toHaveLength(2);
   });
 
   it('should mark all read on action', () => {
-    serviceSpy.putNotifications.and.returnValue(
+    serviceSpy.putNotifications.mockReturnValue(
       of({}) as unknown as ReturnType<NotificationService['putNotifications']>,
     );
     component.onMarkAllRead();

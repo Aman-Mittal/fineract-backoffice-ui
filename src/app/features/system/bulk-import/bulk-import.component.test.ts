@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BulkImportComponent } from './bulk-import.component';
 import {
@@ -37,47 +38,42 @@ import {
   UsersService,
 } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('BulkImportComponent', () => {
   let component: BulkImportComponent;
   let fixture: ComponentFixture<BulkImportComponent>;
-  let bulkImportServiceSpy: jasmine.SpyObj<BulkImportService>;
-  let glAccountServiceSpy: jasmine.SpyObj<GeneralLedgerAccountService>;
-  let journalEntriesServiceSpy: jasmine.SpyObj<JournalEntriesService>;
-  let guarantorsServiceSpy: jasmine.SpyObj<GuarantorsService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
+  let bulkImportServiceSpy: SpyObj<BulkImportService>;
+  let glAccountServiceSpy: SpyObj<GeneralLedgerAccountService>;
+  let journalEntriesServiceSpy: SpyObj<JournalEntriesService>;
+  let guarantorsServiceSpy: SpyObj<GuarantorsService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
 
   beforeEach(async () => {
-    bulkImportServiceSpy = jasmine.createSpyObj('BulkImportService', [
-      'getImports',
-      'getImportsDownloadOutputTemplate',
-    ]);
-    bulkImportServiceSpy.getImports.and.returnValue(
+    bulkImportServiceSpy = createSpyObj(['getImports', 'getImportsDownloadOutputTemplate']);
+    bulkImportServiceSpy.getImports.mockReturnValue(
       of([]) as unknown as ReturnType<BulkImportService['getImports']>,
     );
 
-    glAccountServiceSpy = jasmine.createSpyObj('GeneralLedgerAccountService', [
+    glAccountServiceSpy = createSpyObj([
       'getGlaccountsDownloadtemplate',
       'postGlaccountsUploadtemplate',
     ]);
-    journalEntriesServiceSpy = jasmine.createSpyObj('JournalEntriesService', [
+    journalEntriesServiceSpy = createSpyObj([
       'getJournalentriesDownloadtemplate',
       'postJournalentriesUploadtemplate',
     ]);
-    guarantorsServiceSpy = jasmine.createSpyObj('GuarantorsService', [
+    guarantorsServiceSpy = createSpyObj([
       'getLoansLoanIdGuarantorsDownloadtemplate',
       'postLoansLoanIdGuarantorsUploadtemplate',
     ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', [
-      'getOfficesDownloadtemplate',
-      'postOfficesUploadtemplate',
-    ]);
+    officesServiceSpy = createSpyObj(['getOfficesDownloadtemplate', 'postOfficesUploadtemplate']);
 
     await TestBed.configureTestingModule({
-      imports: [BulkImportComponent, TranslateModule.forRoot()],
+      imports: [BulkImportComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: BulkImportService, useValue: bulkImportServiceSpy },
         { provide: ClientService, useValue: {} },
         { provide: LoansService, useValue: {} },
@@ -108,9 +104,9 @@ describe('BulkImportComponent', () => {
   });
 
   it('should download a result by coercing the id to a number', () => {
-    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:fake');
-    spyOn(window.URL, 'revokeObjectURL');
-    bulkImportServiceSpy.getImportsDownloadOutputTemplate.and.returnValue(
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:fake');
+    vi.spyOn(window.URL, 'revokeObjectURL');
+    bulkImportServiceSpy.getImportsDownloadOutputTemplate.mockReturnValue(
       of(new Blob()) as unknown as ReturnType<
         BulkImportService['getImportsDownloadOutputTemplate']
       >,
@@ -124,7 +120,7 @@ describe('BulkImportComponent', () => {
   it('offers every entity web-app supports, not just the original four', () => {
     const values = component.entityTypes.map((entity) => entity.value);
     expect(values).toEqual(
-      jasmine.arrayContaining([
+      expect.arrayContaining([
         'clients',
         'loans',
         'savingsaccounts',
@@ -153,7 +149,7 @@ describe('BulkImportComponent', () => {
    * shared endpoint. "Journal Entries" is now its own, separate entity for that endpoint.
    */
   it('downloads the chart-of-accounts template from its own endpoint, not the journal-entries one', () => {
-    glAccountServiceSpy.getGlaccountsDownloadtemplate.and.returnValue(
+    glAccountServiceSpy.getGlaccountsDownloadtemplate.mockReturnValue(
       of(new Blob()) as unknown as ReturnType<
         GeneralLedgerAccountService['getGlaccountsDownloadtemplate']
       >,
@@ -167,7 +163,7 @@ describe('BulkImportComponent', () => {
   });
 
   it('downloads the journal-entries template as its own distinct entity', () => {
-    journalEntriesServiceSpy.getJournalentriesDownloadtemplate.and.returnValue(
+    journalEntriesServiceSpy.getJournalentriesDownloadtemplate.mockReturnValue(
       of(new Blob()) as unknown as ReturnType<
         JournalEntriesService['getJournalentriesDownloadtemplate']
       >,
@@ -180,7 +176,7 @@ describe('BulkImportComponent', () => {
   });
 
   it('reaches the offices template through its own service', () => {
-    officesServiceSpy.getOfficesDownloadtemplate.and.returnValue(
+    officesServiceSpy.getOfficesDownloadtemplate.mockReturnValue(
       of(new Blob()) as unknown as ReturnType<OfficesService['getOfficesDownloadtemplate']>,
     );
     component.selectedEntity = 'offices';
@@ -212,7 +208,7 @@ describe('BulkImportComponent', () => {
     });
 
     it('calls the template endpoint with the entered loan id', () => {
-      guarantorsServiceSpy.getLoansLoanIdGuarantorsDownloadtemplate.and.returnValue(
+      guarantorsServiceSpy.getLoansLoanIdGuarantorsDownloadtemplate.mockReturnValue(
         of(new Blob()) as unknown as ReturnType<
           GuarantorsService['getLoansLoanIdGuarantorsDownloadtemplate']
         >,
@@ -224,7 +220,7 @@ describe('BulkImportComponent', () => {
       expect(guarantorsServiceSpy.getLoansLoanIdGuarantorsDownloadtemplate).toHaveBeenCalledWith(
         7,
         undefined,
-        jasmine.any(String),
+        expect.any(String),
       );
     });
 

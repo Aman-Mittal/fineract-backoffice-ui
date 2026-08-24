@@ -17,31 +17,31 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FieldConfigurationComponent } from './field-configuration.component';
 import { EntityFieldConfigurationService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('FieldConfigurationComponent', () => {
   let component: FieldConfigurationComponent;
   let fixture: ComponentFixture<FieldConfigurationComponent>;
-  let serviceSpy: jasmine.SpyObj<EntityFieldConfigurationService>;
+  let serviceSpy: SpyObj<EntityFieldConfigurationService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('EntityFieldConfigurationService', [
-      'getFieldconfigurationEntity',
-    ]);
-    serviceSpy.getFieldconfigurationEntity.and.returnValue(
+    serviceSpy = createSpyObj(['getFieldconfigurationEntity']);
+    serviceSpy.getFieldconfigurationEntity.mockReturnValue(
       of([{ entity: 'CLIENT', field: 'firstname', isEnabled: true }]) as unknown as ReturnType<
         EntityFieldConfigurationService['getFieldconfigurationEntity']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [FieldConfigurationComponent, TranslateModule.forRoot()],
+      imports: [FieldConfigurationComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: EntityFieldConfigurationService, useValue: serviceSpy },
         provideNoopAnimations(),
       ],
@@ -55,7 +55,7 @@ describe('FieldConfigurationComponent', () => {
   it('should load field config for the default entity', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getFieldconfigurationEntity).toHaveBeenCalledWith('CLIENT');
-    expect(component.fields()).toHaveSize(1);
+    expect(component.fields()).toHaveLength(1);
   });
 
   it('should reload when the entity changes', () => {
