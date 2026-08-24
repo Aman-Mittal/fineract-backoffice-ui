@@ -17,37 +17,39 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MeetingFormComponent } from './meeting-form.component';
 import { MeetingsService } from '../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('MeetingFormComponent', () => {
   let component: MeetingFormComponent;
   let fixture: ComponentFixture<MeetingFormComponent>;
-  let serviceSpy: jasmine.SpyObj<MeetingsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<MeetingsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('MeetingsService', [
+    serviceSpy = createSpyObj([
       'getEntityTypeEntityIdMeetingsTemplate',
       'getEntityTypeEntityIdMeetingsMeetingId',
       'postEntityTypeEntityIdMeetings',
       'putEntityTypeEntityIdMeetingsMeetingId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getEntityTypeEntityIdMeetingsTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getEntityTypeEntityIdMeetingsTemplate.mockReturnValue(
       of({ calendarData: { id: 7 } }) as unknown as ReturnType<
         MeetingsService['getEntityTypeEntityIdMeetingsTemplate']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [MeetingFormComponent, TranslateModule.forRoot()],
+      imports: [MeetingFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: MeetingsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -72,7 +74,7 @@ describe('MeetingFormComponent', () => {
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postEntityTypeEntityIdMeetings.and.returnValue(
+    serviceSpy.postEntityTypeEntityIdMeetings.mockReturnValue(
       of({}) as unknown as ReturnType<MeetingsService['postEntityTypeEntityIdMeetings']>,
     );
     component.meetingDate.set('2026-01-15');

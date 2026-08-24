@@ -17,40 +17,34 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HolidayFormComponent } from './holiday-form.component';
 import { HolidaysService, OfficesService } from '../../api';
 import { Router } from '@angular/router';
 import { of, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../core/services/notification.service';
 
 describe('HolidayFormComponent', () => {
   let component: HolidayFormComponent;
   let fixture: ComponentFixture<HolidayFormComponent>;
-  let holidaysServiceSpy: jasmine.SpyObj<HolidaysService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let notificationsSpy: jasmine.SpyObj<NotificationService>;
+  let holidaysServiceSpy: SpyObj<HolidaysService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let routerSpy: SpyObj<Router>;
+  let notificationsSpy: SpyObj<NotificationService>;
 
   beforeEach(async () => {
-    holidaysServiceSpy = jasmine.createSpyObj('HolidaysService', [
-      'getHolidaysTemplate',
-      'postHolidays',
-    ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
-      'success',
-      'error',
-      'show',
-    ]);
+    holidaysServiceSpy = createSpyObj(['getHolidaysTemplate', 'postHolidays']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    routerSpy = createSpyObj(['navigate']);
+    notificationsSpy = createSpyObj<NotificationService>(['success', 'error', 'show']);
 
-    officesServiceSpy.getOffices.and.returnValue(
+    officesServiceSpy.getOffices.mockReturnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
     );
-    holidaysServiceSpy.getHolidaysTemplate.and.returnValue(
+    holidaysServiceSpy.getHolidaysTemplate.mockReturnValue(
       of([
         { id: 1, value: 'Reschedule to next repayment date' },
         { id: 2, value: 'Reschedule to specified date' },
@@ -58,8 +52,9 @@ describe('HolidayFormComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [HolidayFormComponent, TranslateModule.forRoot()],
+      imports: [HolidayFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: HolidaysService, useValue: holidaysServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -84,11 +79,11 @@ describe('HolidayFormComponent', () => {
     expect(officesServiceSpy.getOffices).toHaveBeenCalledWith(true);
     expect(holidaysServiceSpy.getHolidaysTemplate).toHaveBeenCalled();
     expect(component.offices()).toEqual([{ id: 1, name: 'Head Office' }]);
-    expect(component.reschedulingTypeOptions()).toHaveSize(2);
+    expect(component.reschedulingTypeOptions()).toHaveLength(2);
   });
 
   it('should submit new holiday form successfully', () => {
-    holidaysServiceSpy.postHolidays.and.returnValue(of({}) as unknown as Observable<never>);
+    holidaysServiceSpy.postHolidays.mockReturnValue(of({}) as unknown as Observable<never>);
     component.holiday = {
       name: 'Christmas',
       description: 'Merry Christmas',
@@ -101,9 +96,9 @@ describe('HolidayFormComponent', () => {
 
     component.onSubmit();
 
-    expect(component.isSaving()).toBeTrue();
+    expect(component.isSaving()).toBe(true);
     expect(holidaysServiceSpy.postHolidays).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+      expect.objectContaining({
         name: 'Christmas',
         description: 'Merry Christmas',
         fromDate: '25 December 2026',

@@ -17,34 +17,31 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TellerFormComponent } from './teller-form.component';
 import { TellerCashManagementService, OfficesService, PostTellersRequest } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('TellerFormComponent', () => {
   let component: TellerFormComponent;
   let fixture: ComponentFixture<TellerFormComponent>;
-  let tellerServiceSpy: jasmine.SpyObj<TellerCashManagementService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let tellerServiceSpy: SpyObj<TellerCashManagementService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    tellerServiceSpy = jasmine.createSpyObj('TellerCashManagementService', [
-      'getTellersTellerId',
-      'postTellers',
-      'putTellersTellerId',
-      'getFixeddepositaccountsTemplate',
-    ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    tellerServiceSpy = createSpyObj(['getTellersTellerId', 'postTellers', 'putTellersTellerId']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [TellerFormComponent, TranslateModule.forRoot()],
+      imports: [TellerFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: TellerCashManagementService, useValue: tellerServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
@@ -59,7 +56,7 @@ describe('TellerFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    officesServiceSpy.getOffices.and.returnValue(of([]) as any);
+    officesServiceSpy.getOffices.mockReturnValue(of([]) as any);
     fixture = TestBed.createComponent(TellerFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -76,11 +73,11 @@ describe('TellerFormComponent', () => {
     component.startDate = new Date(2026, 4, 9);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tellerServiceSpy.postTellers.and.returnValue(of({}) as any);
+    tellerServiceSpy.postTellers.mockReturnValue(of({}) as any);
 
     component.onSubmit();
 
-    const expectedPayload = jasmine.objectContaining({
+    const expectedPayload = expect.objectContaining({
       name: 'Test Teller',
       officeId: 1,
       status: 300, // Numeric for Active

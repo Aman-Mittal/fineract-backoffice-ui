@@ -154,17 +154,7 @@
       "count": 1
     }
   },
-  "src/app/features/calendars/calendar-form.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/calendars/calendar-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/calendars/calendars-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -607,17 +597,7 @@
       "count": 1
     }
   },
-  "src/app/features/meetings/meeting-form.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/meetings/meeting-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/meetings/meetings-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1171,17 +1151,7 @@
       "count": 1
     }
   },
-  "src/app/features/settings/holiday-form.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/settings/holiday-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/holidays-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1196,17 +1166,7 @@
       "count": 1
     }
   },
-  "src/app/features/settings/working-days.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/settings/working-days.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/spm/likelihood/likelihood.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1216,17 +1176,7 @@
       "count": 1
     }
   },
-  "src/app/features/spm/poverty-line/poverty-line.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/spm/poverty-line/poverty-line.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/spm/scorecards/scorecards.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1241,17 +1191,7 @@
       "count": 1
     }
   },
-  "src/app/features/spm/surveys/spm-surveys-form.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/spm/surveys/spm-surveys-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/spm/surveys/spm-surveys-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1465,11 +1405,6 @@
     }
   },
   "src/app/features/tellers/cashiers/cashiers-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/tellers/teller-form.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }

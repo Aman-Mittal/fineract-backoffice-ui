@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -28,8 +29,8 @@ import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 
 describe('CashierTransactionsComponent', () => {
-  let tellerServiceSpy: jasmine.SpyObj<TellerCashManagementService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let tellerServiceSpy: SpyObj<TellerCashManagementService>;
+  let routerSpy: SpyObj<Router>;
 
   const AUG_5 = '2026-08-05';
   const TELLER_ID = 7;
@@ -54,19 +55,19 @@ describe('CashierTransactionsComponent', () => {
   }
 
   beforeEach(() => {
-    tellerServiceSpy = jasmine.createSpyObj('TellerCashManagementService', [
+    tellerServiceSpy = createSpyObj([
       'getTellersTellerIdCashiersCashierIdTransactionsTemplate',
       'getTellersTellerIdCashiersCashierIdSummaryandtransactions',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
-    tellerServiceSpy.getTellersTellerIdCashiersCashierIdTransactionsTemplate.and.returnValue(
+    tellerServiceSpy.getTellersTellerIdCashiersCashierIdTransactionsTemplate.mockReturnValue(
       asyncOf({
         currencyOptions: [{ code: 'USD', name: 'US Dollar', displayLabel: 'US Dollar ($)' }],
       }) as unknown as Observable<never>,
     );
 
-    tellerServiceSpy.getTellersTellerIdCashiersCashierIdSummaryandtransactions.and.returnValue(
+    tellerServiceSpy.getTellersTellerIdCashiersCashierIdSummaryandtransactions.mockReturnValue(
       asyncOf({
         cashierName: 'Officer, Probe',
         tellerName: 'Main Teller',
@@ -109,8 +110,7 @@ describe('CashierTransactionsComponent', () => {
     // zero and no transactions, so a cashier holding cash renders identically to one that never
     // transacted. The bug is silent by construction, which is why it is asserted here.
     const args =
-      tellerServiceSpy.getTellersTellerIdCashiersCashierIdSummaryandtransactions.calls.mostRecent()
-        .args;
+      tellerServiceSpy.getTellersTellerIdCashiersCashierIdSummaryandtransactions.mock.lastCall!;
     expect(args[0]).toBe(TELLER_ID);
     expect(args[1]).toBe(CASHIER_ID);
     expect(args[2]).toBe('USD');
@@ -128,7 +128,7 @@ describe('CashierTransactionsComponent', () => {
   it('exposes the transactions the summary carried', async () => {
     const fixture = await render();
 
-    expect(fixture.componentInstance.transactions()).toHaveSize(1);
+    expect(fixture.componentInstance.transactions()).toHaveLength(1);
     expect(fixture.componentInstance.transactions()[0].txnNote).toBe('vault float');
   });
 
@@ -157,7 +157,7 @@ describe('CashierTransactionsComponent', () => {
   });
 
   it('shows an empty table rather than failing when the summary cannot be read', async () => {
-    tellerServiceSpy.getTellersTellerIdCashiersCashierIdSummaryandtransactions.and.returnValue(
+    tellerServiceSpy.getTellersTellerIdCashiersCashierIdSummaryandtransactions.mockReturnValue(
       new Observable((subscriber) => subscriber.error(new Error('boom'))) as Observable<never>,
     );
     const fixture = await render();
