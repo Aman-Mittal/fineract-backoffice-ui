@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -27,8 +28,8 @@ import { provideFakeAdapters } from '../../../testing/adapters';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 
 describe('CashierTransactionFormComponent', () => {
-  let tellerServiceSpy: jasmine.SpyObj<TellerCashManagementService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let tellerServiceSpy: SpyObj<TellerCashManagementService>;
+  let routerSpy: SpyObj<Router>;
 
   const TELLER_ID = 7;
   const CASHIER_ID = 3;
@@ -53,24 +54,24 @@ describe('CashierTransactionFormComponent', () => {
   }
 
   beforeEach(() => {
-    tellerServiceSpy = jasmine.createSpyObj('TellerCashManagementService', [
+    tellerServiceSpy = createSpyObj([
       'getTellersTellerIdCashiersCashierIdTransactionsTemplate',
       'postTellersTellerIdCashiersCashierIdAllocate',
       'postTellersTellerIdCashiersCashierIdSettle',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
-    tellerServiceSpy.getTellersTellerIdCashiersCashierIdTransactionsTemplate.and.returnValue(
+    tellerServiceSpy.getTellersTellerIdCashiersCashierIdTransactionsTemplate.mockReturnValue(
       asyncOf({
         cashierName: 'Officer, Probe',
         tellerName: 'Main Teller',
         currencyOptions: [{ code: 'USD', name: 'US Dollar', displayLabel: 'US Dollar ($)' }],
       }) as unknown as Observable<never>,
     );
-    tellerServiceSpy.postTellersTellerIdCashiersCashierIdAllocate.and.returnValue(
+    tellerServiceSpy.postTellersTellerIdCashiersCashierIdAllocate.mockReturnValue(
       of({ resourceId: 1 }) as unknown as Observable<never>,
     );
-    tellerServiceSpy.postTellersTellerIdCashiersCashierIdSettle.and.returnValue(
+    tellerServiceSpy.postTellersTellerIdCashiersCashierIdSettle.mockReturnValue(
       of({ resourceId: 1 }) as unknown as Observable<never>,
     );
   });
@@ -94,7 +95,7 @@ describe('CashierTransactionFormComponent', () => {
 
     expect(tellerServiceSpy.postTellersTellerIdCashiersCashierIdSettle).not.toHaveBeenCalled();
     const [tellerId, cashierId, payload] =
-      tellerServiceSpy.postTellersTellerIdCashiersCashierIdAllocate.calls.mostRecent().args;
+      tellerServiceSpy.postTellersTellerIdCashiersCashierIdAllocate.mock.lastCall!;
 
     expect(tellerId).toBe(TELLER_ID);
     expect(cashierId).toBe(CASHIER_ID);
@@ -145,7 +146,7 @@ describe('CashierTransactionFormComponent', () => {
   });
 
   it('re-enables the submit button when the post fails', async () => {
-    tellerServiceSpy.postTellersTellerIdCashiersCashierIdAllocate.and.returnValue(
+    tellerServiceSpy.postTellersTellerIdCashiersCashierIdAllocate.mockReturnValue(
       new Observable((subscriber) => subscriber.error(new Error('rejected'))) as Observable<never>,
     );
     const fixture = await render('allocate');
@@ -155,7 +156,7 @@ describe('CashierTransactionFormComponent', () => {
 
     // Fineract rejects a settlement above the cashier's balance and an allocation outside the
     // cashier's date range. The form has to stay usable so the amount or date can be corrected.
-    expect(fixture.componentInstance.isSaving()).toBeFalse();
+    expect(fixture.componentInstance.isSaving()).toBe(false);
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 });

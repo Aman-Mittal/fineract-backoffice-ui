@@ -17,55 +17,58 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SpmSurveysFormComponent } from './spm-surveys-form.component';
+import { SpmSurveysListComponent } from './spm-surveys-list.component';
 import { SpmSurveysService } from '../../../api';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('SpmSurveysFormComponent', () => {
-  let component: SpmSurveysFormComponent;
-  let fixture: ComponentFixture<SpmSurveysFormComponent>;
-  let serviceSpy: jasmine.SpyObj<SpmSurveysService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('SpmSurveysListComponent', () => {
+  let component: SpmSurveysListComponent;
+  let fixture: ComponentFixture<SpmSurveysListComponent>;
+  let serviceSpy: SpyObj<SpmSurveysService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SpmSurveysService', [
-      'getSurveysId',
-      'postSurveys',
-      'putSurveysId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    serviceSpy = createSpyObj(['getSurveys']);
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getSurveys.mockReturnValue(
+      of([{ id: 1, key: 'PPI', name: 'Poverty Index' }]) as unknown as ReturnType<
+        SpmSurveysService['getSurveys']
+      >,
+    );
 
     await TestBed.configureTestingModule({
-      imports: [SpmSurveysFormComponent, TranslateModule.forRoot()],
+      imports: [SpmSurveysListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: SpmSurveysService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SpmSurveysFormComponent);
+    fixture = TestBed.createComponent(SpmSurveysListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create in non-edit mode', () => {
+  it('should load surveys on init', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode()).toBeFalse();
+    expect(serviceSpy.getSurveys).toHaveBeenCalled();
+    expect(component.surveys()).toHaveLength(1);
   });
 
-  it('should post on create and navigate to the list', () => {
-    serviceSpy.postSurveys.and.returnValue(
-      of({}) as unknown as ReturnType<SpmSurveysService['postSurveys']>,
-    );
-    component.survey.set({ key: 'PPI', name: 'New Survey' });
-    component.onSubmit();
-    expect(serviceSpy.postSurveys).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/spm/surveys']);
+  it('should navigate to edit with the survey id', () => {
+    component.onEdit({ id: 3, name: 'X' });
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/spm/surveys/edit', 3]);
+  });
+
+  it('should navigate to scorecards for a survey', () => {
+    component.onScorecards({ id: 7, name: 'Y' });
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/spm/surveys', 7, 'scorecards']);
   });
 });

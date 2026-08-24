@@ -17,35 +17,37 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MeetingsListComponent } from './meetings-list.component';
 import { MeetingsService } from '../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('MeetingsListComponent', () => {
   let component: MeetingsListComponent;
   let fixture: ComponentFixture<MeetingsListComponent>;
-  let serviceSpy: jasmine.SpyObj<MeetingsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<MeetingsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('MeetingsService', [
+    serviceSpy = createSpyObj([
       'getEntityTypeEntityIdMeetings',
       'deleteEntityTypeEntityIdMeetingsMeetingId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getEntityTypeEntityIdMeetings.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getEntityTypeEntityIdMeetings.mockReturnValue(
       of([{ id: 1, meetingDate: '2026-01-15' }]) as unknown as ReturnType<
         MeetingsService['getEntityTypeEntityIdMeetings']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [MeetingsListComponent, TranslateModule.forRoot()],
+      imports: [MeetingsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: MeetingsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -66,7 +68,7 @@ describe('MeetingsListComponent', () => {
   it('should load meetings on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityTypeEntityIdMeetings).toHaveBeenCalledWith('groups', 1);
-    expect(component.meetings()).toHaveSize(1);
+    expect(component.meetings()).toHaveLength(1);
   });
 
   it('should navigate to edit with the entity and meeting ids', () => {
@@ -75,8 +77,8 @@ describe('MeetingsListComponent', () => {
   });
 
   it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteEntityTypeEntityIdMeetingsMeetingId.and.returnValue(
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    serviceSpy.deleteEntityTypeEntityIdMeetingsMeetingId.mockReturnValue(
       of({}) as unknown as ReturnType<MeetingsService['deleteEntityTypeEntityIdMeetingsMeetingId']>,
     );
 
@@ -91,7 +93,7 @@ describe('MeetingsListComponent', () => {
   });
 
   it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
     component.onDelete({ id: 5 });
     expect(serviceSpy.deleteEntityTypeEntityIdMeetingsMeetingId).not.toHaveBeenCalled();
   });

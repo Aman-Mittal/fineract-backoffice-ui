@@ -17,22 +17,23 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ScorecardsComponent } from './scorecards.component';
 import { ScoreCardService } from '../../../api';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('ScorecardsComponent', () => {
   let component: ScorecardsComponent;
   let fixture: ComponentFixture<ScorecardsComponent>;
-  let serviceSpy: jasmine.SpyObj<ScoreCardService>;
+  let serviceSpy: SpyObj<ScoreCardService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ScoreCardService', ['getSurveysScorecardsSurveyId']);
-    serviceSpy.getSurveysScorecardsSurveyId.and.returnValue(
+    serviceSpy = createSpyObj(['getSurveysScorecardsSurveyId']);
+    serviceSpy.getSurveysScorecardsSurveyId.mockReturnValue(
       of([
         {
           id: 1,
@@ -45,8 +46,9 @@ describe('ScorecardsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ScorecardsComponent, TranslateModule.forRoot()],
+      imports: [ScorecardsComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ScoreCardService, useValue: serviceSpy },
         {
           provide: ActivatedRoute,
@@ -64,7 +66,7 @@ describe('ScorecardsComponent', () => {
   it('should load and flatten scorecards on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSurveysScorecardsSurveyId).toHaveBeenCalledWith(4);
-    expect(component.rows()).toHaveSize(1);
+    expect(component.rows()).toHaveLength(1);
     expect(component.rows()[0].client).toBe('John Doe');
     expect(component.rows()[0].question).toBe('How many?');
   });

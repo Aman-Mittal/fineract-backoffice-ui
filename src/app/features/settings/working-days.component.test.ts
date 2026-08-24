@@ -17,49 +17,47 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WorkingDaysComponent } from './working-days.component';
 import { WorkingDaysService } from '../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../core/services/notification.service';
 
 describe('WorkingDaysComponent', () => {
   let component: WorkingDaysComponent;
   let fixture: ComponentFixture<WorkingDaysComponent>;
-  let workingDaysServiceSpy: jasmine.SpyObj<WorkingDaysService>;
+  let workingDaysServiceSpy: SpyObj<WorkingDaysService>;
 
   beforeEach(async () => {
-    workingDaysServiceSpy = jasmine.createSpyObj('WorkingDaysService', [
+    workingDaysServiceSpy = createSpyObj([
       'getWorkingdays',
       'getWorkingdaysTemplate',
       'putWorkingdays',
     ]);
-    workingDaysServiceSpy.getWorkingdays.and.returnValue(
+    workingDaysServiceSpy.getWorkingdays.mockReturnValue(
       of({
         repaymentRescheduleType: { id: 1 },
         extendTermForDailyRepayments: false,
         recurrence: 'FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR',
       }) as unknown as ReturnType<WorkingDaysService['getWorkingdays']>,
     );
-    workingDaysServiceSpy.getWorkingdaysTemplate.and.returnValue(
+    workingDaysServiceSpy.getWorkingdaysTemplate.mockReturnValue(
       of({ repaymentRescheduleOptions: [] }) as unknown as ReturnType<
         WorkingDaysService['getWorkingdaysTemplate']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [WorkingDaysComponent, TranslateModule.forRoot()],
+      imports: [WorkingDaysComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: WorkingDaysService, useValue: workingDaysServiceSpy },
         {
           provide: NotificationService,
-          useValue: jasmine.createSpyObj<NotificationService>('NotificationService', [
-            'success',
-            'error',
-            'show',
-          ]),
+          useValue: createSpyObj<NotificationService>(['success', 'error', 'show']),
         },
         provideNoopAnimations(),
       ],
@@ -76,14 +74,14 @@ describe('WorkingDaysComponent', () => {
   });
 
   it('should submit a WorkingDaysUpdateRequest on save', () => {
-    workingDaysServiceSpy.putWorkingdays.and.returnValue(
+    workingDaysServiceSpy.putWorkingdays.mockReturnValue(
       of({}) as unknown as ReturnType<WorkingDaysService['putWorkingdays']>,
     );
 
     component.onSubmit();
 
     expect(workingDaysServiceSpy.putWorkingdays).toHaveBeenCalledWith(
-      jasmine.objectContaining({ locale: 'en' }),
+      expect.objectContaining({ locale: 'en' }),
     );
   });
 });

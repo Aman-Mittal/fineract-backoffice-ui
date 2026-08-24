@@ -17,29 +17,34 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PovertyLineComponent } from './poverty-line.component';
 import { PovertyLineService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('PovertyLineComponent', () => {
   let component: PovertyLineComponent;
   let fixture: ComponentFixture<PovertyLineComponent>;
-  let serviceSpy: jasmine.SpyObj<PovertyLineService>;
+  let serviceSpy: SpyObj<PovertyLineService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('PovertyLineService', ['getPovertyLinePpiName']);
-    serviceSpy.getPovertyLinePpiName.and.returnValue(
+    serviceSpy = createSpyObj(['getPovertyLinePpiName']);
+    serviceSpy.getPovertyLinePpiName.mockReturnValue(
       of(
         JSON.stringify([{ scoreFrom: 0, scoreTo: 10, povertyLine: 100, enabled: true }]),
       ) as unknown as ReturnType<PovertyLineService['getPovertyLinePpiName']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [PovertyLineComponent, TranslateModule.forRoot()],
-      providers: [{ provide: PovertyLineService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [PovertyLineComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: PovertyLineService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PovertyLineComponent);
@@ -57,7 +62,7 @@ describe('PovertyLineComponent', () => {
     component.ppiName = 'PPI_INDIA';
     component.load();
     expect(serviceSpy.getPovertyLinePpiName).toHaveBeenCalledWith('PPI_INDIA');
-    expect(component.rows()).toHaveSize(1);
+    expect(component.rows()).toHaveLength(1);
     expect(component.rows()[0].povertyLine).toBe(100);
   });
 });

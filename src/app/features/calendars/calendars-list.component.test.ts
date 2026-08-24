@@ -17,35 +17,37 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarsListComponent } from './calendars-list.component';
 import { CalendarService } from '../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('CalendarsListComponent', () => {
   let component: CalendarsListComponent;
   let fixture: ComponentFixture<CalendarsListComponent>;
-  let serviceSpy: jasmine.SpyObj<CalendarService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<CalendarService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('CalendarService', [
+    serviceSpy = createSpyObj([
       'getEntityTypeEntityIdCalendars',
       'deleteEntityTypeEntityIdCalendarsCalendarId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getEntityTypeEntityIdCalendars.mockReturnValue(
       of([{ id: 1, title: 'Weekly Meeting', startDate: '2026-01-15' }]) as unknown as ReturnType<
         CalendarService['getEntityTypeEntityIdCalendars']
       >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [CalendarsListComponent, TranslateModule.forRoot()],
+      imports: [CalendarsListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: CalendarService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         {
@@ -66,7 +68,7 @@ describe('CalendarsListComponent', () => {
   it('should load calendars on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getEntityTypeEntityIdCalendars).toHaveBeenCalledWith('centers', 2);
-    expect(component.calendars()).toHaveSize(1);
+    expect(component.calendars()).toHaveLength(1);
   });
 
   it('should navigate to edit with the entity and calendar ids', () => {
@@ -75,8 +77,8 @@ describe('CalendarsListComponent', () => {
   });
 
   it('should delete after confirmation and reload', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId.and.returnValue(
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId.mockReturnValue(
       of({}) as unknown as ReturnType<
         CalendarService['deleteEntityTypeEntityIdCalendarsCalendarId']
       >,
@@ -93,13 +95,13 @@ describe('CalendarsListComponent', () => {
   });
 
   it('should not delete when cancelled', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
     component.onDelete({ id: 5 });
     expect(serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId).not.toHaveBeenCalled();
   });
 
   it('reports a failed load instead of an empty list', () => {
-    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+    serviceSpy.getEntityTypeEntityIdCalendars.mockReturnValue(
       throwError(() => new Error('boom')) as unknown as ReturnType<
         CalendarService['getEntityTypeEntityIdCalendars']
       >,
@@ -107,20 +109,20 @@ describe('CalendarsListComponent', () => {
 
     component.load();
 
-    expect(component.hasError()).toBeTrue();
-    expect(component.calendars()).toHaveSize(0);
+    expect(component.hasError()).toBe(true);
+    expect(component.calendars()).toHaveLength(0);
   });
 
   it('clears the error after a successful retry', () => {
-    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+    serviceSpy.getEntityTypeEntityIdCalendars.mockReturnValue(
       throwError(() => new Error('boom')) as unknown as ReturnType<
         CalendarService['getEntityTypeEntityIdCalendars']
       >,
     );
     component.load();
-    expect(component.hasError()).toBeTrue();
+    expect(component.hasError()).toBe(true);
 
-    serviceSpy.getEntityTypeEntityIdCalendars.and.returnValue(
+    serviceSpy.getEntityTypeEntityIdCalendars.mockReturnValue(
       of([{ id: 1, title: 'Weekly Meeting', startDate: '2026-01-15' }]) as unknown as ReturnType<
         CalendarService['getEntityTypeEntityIdCalendars']
       >,
@@ -128,7 +130,7 @@ describe('CalendarsListComponent', () => {
 
     component.onRetry();
 
-    expect(component.hasError()).toBeFalse();
-    expect(component.calendars()).toHaveSize(1);
+    expect(component.hasError()).toBe(false);
+    expect(component.calendars()).toHaveLength(1);
   });
 });

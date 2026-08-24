@@ -17,32 +17,34 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LikelihoodComponent } from './likelihood.component';
 import { LikelihoodService } from '../../../api';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('LikelihoodComponent', () => {
   let component: LikelihoodComponent;
   let fixture: ComponentFixture<LikelihoodComponent>;
-  let serviceSpy: jasmine.SpyObj<LikelihoodService>;
+  let serviceSpy: SpyObj<LikelihoodService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('LikelihoodService', [
-      'getLikelihoodPpiName',
-      'putLikelihoodPpiNameLikelihoodId',
-    ]);
-    serviceSpy.getLikelihoodPpiName.and.returnValue(
+    serviceSpy = createSpyObj(['getLikelihoodPpiName', 'putLikelihoodPpiNameLikelihoodId']);
+    serviceSpy.getLikelihoodPpiName.mockReturnValue(
       of(
         JSON.stringify([{ id: 1, name: 'Likely', likelihood: 1.5, enabled: 100 }]),
       ) as unknown as ReturnType<LikelihoodService['getLikelihoodPpiName']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [LikelihoodComponent, TranslateModule.forRoot()],
-      providers: [{ provide: LikelihoodService, useValue: serviceSpy }, provideNoopAnimations()],
+      imports: [LikelihoodComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: LikelihoodService, useValue: serviceSpy },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LikelihoodComponent);
@@ -54,12 +56,12 @@ describe('LikelihoodComponent', () => {
     component.ppiName = 'PPI_INDIA';
     component.load();
     expect(serviceSpy.getLikelihoodPpiName).toHaveBeenCalledWith('PPI_INDIA');
-    expect(component.rows()).toHaveSize(1);
+    expect(component.rows()).toHaveLength(1);
     expect(component.rows()[0].name).toBe('Likely');
   });
 
   it('should put the updated likelihood with a JSON string body', () => {
-    serviceSpy.putLikelihoodPpiNameLikelihoodId.and.returnValue(
+    serviceSpy.putLikelihoodPpiNameLikelihoodId.mockReturnValue(
       of('{}') as unknown as ReturnType<LikelihoodService['putLikelihoodPpiNameLikelihoodId']>,
     );
     component.ppiName = 'PPI_INDIA';
