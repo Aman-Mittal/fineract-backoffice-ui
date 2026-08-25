@@ -58,7 +58,7 @@ describe('AuthService', () => {
   it('should login successfully and set state', () => {
     service.login('mifos', 'password', 'default').subscribe((session) => {
       expect(session).toEqual(mockSession);
-      expect(service.isAuthenticated()).toBeTrue();
+      expect(service.isAuthenticated()).toBe(true);
       expect(service.username()).toBe('mifos');
     });
 
@@ -71,17 +71,17 @@ describe('AuthService', () => {
   it('should logout and clear state', () => {
     // Access private setSession for testing
     (service as unknown as { setSession: (s: UserSession) => void }).setSession(mockSession);
-    expect(service.isAuthenticated()).toBeTrue();
+    expect(service.isAuthenticated()).toBe(true);
 
     service.logout();
-    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
     expect(sessionStorage.getItem('fineract_session')).toBeNull();
   });
 
   describe('hasPermission', () => {
     it('should return false if user is not authenticated', () => {
-      expect(service.hasPermission('CREATE_CLIENT')).toBeFalse();
+      expect(service.hasPermission('CREATE_CLIENT')).toBe(false);
     });
 
     it('should return true for any permission if user is superuser', () => {
@@ -89,8 +89,8 @@ describe('AuthService', () => {
         ...mockSession,
         permissions: ['ALL_FUNCTIONS'],
       });
-      expect(service.hasPermission('CREATE_CLIENT')).toBeTrue();
-      expect(service.hasPermission('DELETE_LOAN')).toBeTrue();
+      expect(service.hasPermission('CREATE_CLIENT')).toBe(true);
+      expect(service.hasPermission('DELETE_LOAN')).toBe(true);
     });
 
     it('should correctly evaluate single and multiple permissions', () => {
@@ -98,15 +98,15 @@ describe('AuthService', () => {
         ...mockSession,
         permissions: ['READ_CLIENT', 'CREATE_CLIENT'],
       });
-      expect(service.hasPermission('READ_CLIENT')).toBeTrue();
-      expect(service.hasPermission('DELETE_LOAN')).toBeFalse();
+      expect(service.hasPermission('READ_CLIENT')).toBe(true);
+      expect(service.hasPermission('DELETE_LOAN')).toBe(false);
 
       // Check any matching permission (matchAll = false)
-      expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'])).toBeTrue();
+      expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'])).toBe(true);
 
       // Check all matching permissions (matchAll = true)
-      expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeTrue();
-      expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'], true)).toBeFalse();
+      expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBe(true);
+      expect(service.hasPermission(['READ_CLIENT', 'DELETE_LOAN'], true)).toBe(false);
     });
 
     describe('ALL_FUNCTIONS_READ shortcut', () => {
@@ -118,24 +118,24 @@ describe('AuthService', () => {
       });
 
       it('grants any single READ_* permission', () => {
-        expect(service.hasPermission('READ_CLIENT')).toBeTrue();
-        expect(service.hasPermission('READ_LOAN')).toBeTrue();
+        expect(service.hasPermission('READ_CLIENT')).toBe(true);
+        expect(service.hasPermission('READ_LOAN')).toBe(true);
       });
 
       it('denies a single non-READ_* permission', () => {
-        expect(service.hasPermission('CREATE_CLIENT')).toBeFalse();
-        expect(service.hasPermission('DELETE_LOAN')).toBeFalse();
-        expect(service.hasPermission('APPROVE_LOAN')).toBeFalse();
+        expect(service.hasPermission('CREATE_CLIENT')).toBe(false);
+        expect(service.hasPermission('DELETE_LOAN')).toBe(false);
+        expect(service.hasPermission('APPROVE_LOAN')).toBe(false);
       });
 
       it('grants an array made up entirely of READ_* permissions', () => {
-        expect(service.hasPermission(['READ_CLIENT', 'READ_LOAN'])).toBeTrue();
-        expect(service.hasPermission(['READ_CLIENT', 'READ_LOAN'], true)).toBeTrue();
+        expect(service.hasPermission(['READ_CLIENT', 'READ_LOAN'])).toBe(true);
+        expect(service.hasPermission(['READ_CLIENT', 'READ_LOAN'], true)).toBe(true);
       });
 
       it('does not grant a mixed array via the shortcut, falling back to real permissions', () => {
-        expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'])).toBeFalse();
-        expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeFalse();
+        expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'])).toBe(false);
+        expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBe(false);
       });
     });
 
@@ -144,7 +144,7 @@ describe('AuthService', () => {
         ...mockSession,
         permissions: ['ALL_FUNCTIONS'],
       });
-      expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBeTrue();
+      expect(service.hasPermission(['READ_CLIENT', 'CREATE_CLIENT'], true)).toBe(true);
     });
   });
 
@@ -168,8 +168,8 @@ describe('AuthService', () => {
       signIn(twoFactorSession);
 
       expect(service.currentUser()).not.toBeNull();
-      expect(service.twoFactorPending()).toBeTrue();
-      expect(service.isAuthenticated()).toBeFalse();
+      expect(service.twoFactorPending()).toBe(true);
+      expect(service.isAuthenticated()).toBe(false);
       expect(service.getTfaToken()).toBeNull();
     });
 
@@ -177,8 +177,8 @@ describe('AuthService', () => {
       signIn(twoFactorSession);
       service.completeTwoFactorAuthentication(TFA_TOKEN);
 
-      expect(service.isAuthenticated()).toBeTrue();
-      expect(service.twoFactorPending()).toBeFalse();
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.twoFactorPending()).toBe(false);
       expect(service.getTfaToken()).toBe(TFA_TOKEN);
     });
 
@@ -187,8 +187,8 @@ describe('AuthService', () => {
       // must not change.
       signIn(mockSession);
 
-      expect(service.isAuthenticated()).toBeTrue();
-      expect(service.twoFactorPending()).toBeFalse();
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.twoFactorPending()).toBe(false);
       expect(service.getTfaToken()).toBeNull();
     });
 
@@ -198,8 +198,8 @@ describe('AuthService', () => {
       // A fresh service over the same session storage, as a refresh would produce.
       const reloaded = TestBed.runInInjectionContext(() => new AuthService());
       expect(reloaded.currentUser()).not.toBeNull();
-      expect(reloaded.isAuthenticated()).toBeFalse();
-      expect(reloaded.twoFactorPending()).toBeTrue();
+      expect(reloaded.isAuthenticated()).toBe(false);
+      expect(reloaded.twoFactorPending()).toBe(true);
     });
 
     it('restores a completed session across a reload', () => {
@@ -207,8 +207,8 @@ describe('AuthService', () => {
       service.completeTwoFactorAuthentication(TFA_TOKEN);
 
       const reloaded = TestBed.runInInjectionContext(() => new AuthService());
-      expect(reloaded.isAuthenticated()).toBeTrue();
-      expect(reloaded.twoFactorPending()).toBeFalse();
+      expect(reloaded.isAuthenticated()).toBe(true);
+      expect(reloaded.twoFactorPending()).toBe(false);
       expect(reloaded.getTfaToken()).toBe(TFA_TOKEN);
     });
 
@@ -224,7 +224,7 @@ describe('AuthService', () => {
       expect(invalidate.request.body).toEqual({ token: TFA_TOKEN });
       invalidate.flush({});
 
-      expect(service.isAuthenticated()).toBeFalse();
+      expect(service.isAuthenticated()).toBe(false);
       expect(service.getTfaToken()).toBeNull();
     });
 
@@ -237,7 +237,7 @@ describe('AuthService', () => {
         .expectOne((r) => r.url.includes(INVALIDATE))
         .flush(null, { status: 500, statusText: 'Server Error' });
 
-      expect(service.isAuthenticated()).toBeFalse();
+      expect(service.isAuthenticated()).toBe(false);
       expect(service.currentUser()).toBeNull();
     });
 
@@ -245,7 +245,7 @@ describe('AuthService', () => {
       signIn(mockSession);
       service.logout();
       httpMock.expectNone((r) => r.url.includes(INVALIDATE));
-      expect(service.isAuthenticated()).toBeFalse();
+      expect(service.isAuthenticated()).toBe(false);
     });
   });
 
@@ -255,7 +255,7 @@ describe('AuthService', () => {
         ...mockSession,
         permissions: ['READ_STANDINGINSTRUCTION '],
       });
-      expect(service.hasPermission('READ_STANDINGINSTRUCTION')).toBeTrue();
+      expect(service.hasPermission('READ_STANDINGINSTRUCTION')).toBe(true);
     });
 
     it('dedupes a clean/trailing-space duplicate pair into a single entry on setSession', () => {
@@ -264,7 +264,7 @@ describe('AuthService', () => {
         permissions: ['READ_CLIENT ', 'READ_CLIENT'],
       });
       expect(service.currentUser()?.permissions).toEqual(['READ_CLIENT']);
-      expect(service.hasPermission('READ_CLIENT')).toBeTrue();
+      expect(service.hasPermission('READ_CLIENT')).toBe(true);
     });
 
     it('normalizes a dirty session read back from sessionStorage on init', () => {
@@ -289,7 +289,7 @@ describe('AuthService', () => {
         'CREATE_STANDINGINSTRUCTION',
         'READ_X',
       ]);
-      expect(freshService.hasPermission('READ_X')).toBeTrue();
+      expect(freshService.hasPermission('READ_X')).toBe(true);
     });
   });
 });

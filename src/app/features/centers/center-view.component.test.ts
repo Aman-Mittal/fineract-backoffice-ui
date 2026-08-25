@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -65,8 +66,8 @@ describe('CenterViewComponent', () => {
   let fixture: ComponentFixture<CenterViewComponent>;
   let component: CenterViewComponent;
   let http: HttpTestingController;
-  let dialog: jasmine.SpyObj<DialogService>;
-  let router: jasmine.SpyObj<Router>;
+  let dialog: SpyObj<DialogService>;
+  let router: SpyObj<Router>;
 
   function create(): void {
     fixture = TestBed.createComponent(CenterViewComponent);
@@ -87,8 +88,8 @@ describe('CenterViewComponent', () => {
   }
 
   beforeEach(async () => {
-    dialog = jasmine.createSpyObj('DialogService', ['open', 'confirm']);
-    router = jasmine.createSpyObj('Router', ['navigate']);
+    dialog = createSpyObj(['open', 'confirm']);
+    router = createSpyObj(['navigate']);
     const adapters = provideFakeAdapters();
 
     await TestBed.configureTestingModule({
@@ -122,7 +123,7 @@ describe('CenterViewComponent', () => {
     flushCenter();
 
     expect(component.center()?.name).toBe(CENTER_NAME);
-    expect(component.groupMembers()).toHaveSize(1);
+    expect(component.groupMembers()).toHaveLength(1);
     expect(
       fixture.nativeElement.querySelector('[data-testid="center-name"]').textContent,
     ).toContain('Kibera Center');
@@ -138,7 +139,7 @@ describe('CenterViewComponent', () => {
       .flush('boom', { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 
-    expect(component.loadFailed()).toBeTrue();
+    expect(component.loadFailed()).toBe(true);
     expect(fixture.nativeElement.querySelector('[data-testid="center-load-error"]')).not.toBeNull();
   });
 
@@ -146,23 +147,23 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter({ ...ACTIVE_CENTER, status: { id: 100, value: 'Pending' }, active: false });
 
-    expect(component.canActivate()).toBeTrue();
-    expect(component.canClose()).toBeFalse();
+    expect(component.canActivate()).toBe(true);
+    expect(component.canClose()).toBe(false);
 
     component.center.set(ACTIVE_CENTER);
-    expect(component.canActivate()).toBeFalse();
-    expect(component.canClose()).toBeTrue();
+    expect(component.canActivate()).toBe(false);
+    expect(component.canClose()).toBe(true);
 
     component.center.set({ ...ACTIVE_CENTER, status: { id: 600, value: 'Closed' } });
-    expect(component.isClosed()).toBeTrue();
-    expect(component.canClose()).toBeFalse();
+    expect(component.isClosed()).toBe(true);
+    expect(component.canClose()).toBe(false);
   });
 
   it('posts activate with the date the dialog returned', async () => {
     create();
     flushCenter({ ...ACTIVE_CENTER, status: { id: 100, value: 'Pending' } });
 
-    dialog.open.and.resolveTo({ date: '2026-02-01T00:00:00.000Z' });
+    dialog.open.mockResolvedValue({ date: '2026-02-01T00:00:00.000Z' });
     await component.onAction('activate');
 
     const request = http.expectOne(
@@ -182,7 +183,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.open.and.resolveTo({ date: '2026-03-02T00:00:00.000Z', closureReasonId: 9 });
+    dialog.open.mockResolvedValue({ date: '2026-03-02T00:00:00.000Z', closureReasonId: 9 });
     await component.onAction('close');
 
     const request = http.expectOne(
@@ -207,7 +208,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.open.and.resolveTo({ staffId: 7 });
+    dialog.open.mockResolvedValue({ staffId: 7 });
     await component.onAssignStaff();
 
     const request = http.expectOne(
@@ -232,7 +233,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.confirm.and.resolveTo(true);
+    dialog.confirm.mockResolvedValue(true);
     await component.onUnassignStaff();
 
     const request = http.expectOne(
@@ -248,7 +249,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.confirm.and.resolveTo(false);
+    dialog.confirm.mockResolvedValue(false);
     await component.onUnassignStaff();
 
     http.expectNone((candidate) => candidate.method === 'POST');
@@ -258,7 +259,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.open.and.resolveTo({ groupMembers: [11, 12] });
+    dialog.open.mockResolvedValue({ groupMembers: [11, 12] });
     await component.onManageGroups('add');
 
     const attach = http.expectOne(
@@ -269,7 +270,7 @@ describe('CenterViewComponent', () => {
     attach.flush({});
     flushCenter();
 
-    dialog.open.and.resolveTo({ groupMembers: [5] });
+    dialog.open.mockResolvedValue({ groupMembers: [5] });
     await component.onManageGroups('remove');
 
     const detach = http.expectOne(
@@ -283,7 +284,7 @@ describe('CenterViewComponent', () => {
   it('shows the meeting, and offers scheduling only once the center is active', () => {
     create();
     flushCenter({ ...ACTIVE_CENTER, status: { id: 100, value: 'Pending' } });
-    expect(component.canScheduleMeeting()).toBeFalse();
+    expect(component.canScheduleMeeting()).toBe(false);
 
     component.center.set(ACTIVE_CENTER);
     component.meeting.set({
@@ -291,7 +292,7 @@ describe('CenterViewComponent', () => {
       title: WEEKLY_COLLECTION,
       frequency: { id: 2, value: 'WEEKLY' },
     });
-    expect(component.canScheduleMeeting()).toBeTrue();
+    expect(component.canScheduleMeeting()).toBe(true);
     expect(component.meetingSummary()).toBe(`${WEEKLY_COLLECTION} (WEEKLY)`);
   });
 
@@ -303,7 +304,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.open.and.resolveTo({
+    dialog.open.mockResolvedValue({
       title: WEEKLY_COLLECTION,
       startDate: '2026-04-06T00:00:00.000Z',
       frequency: 2,
@@ -335,7 +336,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter(ACTIVE_CENTER, [{ id: 3, title: WEEKLY_COLLECTION }]);
 
-    dialog.open.and.resolveTo({
+    dialog.open.mockResolvedValue({
       title: 'Fortnightly collection',
       startDate: '2026-04-06T00:00:00.000Z',
       frequency: 1,
@@ -358,7 +359,7 @@ describe('CenterViewComponent', () => {
     create();
     flushCenter();
 
-    dialog.open.and.resolveTo(undefined);
+    dialog.open.mockResolvedValue(undefined);
     await component.onAction('close');
     await component.onAssignStaff();
     await component.onManageGroups('add');
