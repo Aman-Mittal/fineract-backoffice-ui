@@ -17,14 +17,15 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { NotificationService } from '../../core/services/notification.service';
 import { provideIonicTesting } from '../../testing/ionic-testing';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { ReportExecutionService, ReportParameter, ReportResult } from './report-execution.service';
 import { RunReportComponent } from './run-report.component';
 
@@ -35,7 +36,7 @@ describe('RunReportComponent', () => {
   const REPORT_TABLE = '[data-testid="report-table"]';
   let component: RunReportComponent;
   let fixture: ComponentFixture<RunReportComponent>;
-  let reportExecutionSpy: jasmine.SpyObj<ReportExecutionService>;
+  let reportExecutionSpy: SpyObj<ReportExecutionService>;
 
   const parameter = (
     variable: string,
@@ -68,7 +69,7 @@ describe('RunReportComponent', () => {
   const accountNumber = parameter('accountNo', 'Account Number', 'text');
 
   beforeEach(async () => {
-    reportExecutionSpy = jasmine.createSpyObj('ReportExecutionService', [
+    reportExecutionSpy = createSpyObj([
       'getReportParameters',
       'runReport',
       'downloadCsv',
@@ -76,13 +77,14 @@ describe('RunReportComponent', () => {
     ]);
 
     await TestBed.configureTestingModule({
-      imports: [RunReportComponent, TranslateModule.forRoot()],
+      imports: [RunReportComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ReportExecutionService, useValue: reportExecutionSpy },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         {
           provide: NotificationService,
-          useValue: jasmine.createSpyObj('NotificationService', ['error']),
+          useValue: createSpyObj(['error']),
         },
         {
           provide: ActivatedRoute,
@@ -107,7 +109,7 @@ describe('RunReportComponent', () => {
         queryParamMap: of(convertToParamMap(queryParams)),
       },
     });
-    reportExecutionSpy.getReportParameters.and.returnValue(of(parameters));
+    reportExecutionSpy.getReportParameters.mockReturnValue(of(parameters));
     fixture = TestBed.createComponent(RunReportComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -124,7 +126,7 @@ describe('RunReportComponent', () => {
 
     expect(component).toBeTruthy();
     expect(component.reportName()).toBe(REPORT_NAME);
-    expect(reportExecutionSpy.getReportParameters).toHaveBeenCalledOnceWith(REPORT_NAME);
+    expect(reportExecutionSpy.getReportParameters).toHaveBeenCalledExactlyOnceWith(REPORT_NAME);
   });
 
   it('renders all five declared visible parameters using their display types', () => {
@@ -133,7 +135,7 @@ describe('RunReportComponent', () => {
     const controls = fixture.nativeElement.querySelectorAll(
       'ion-item[data-testid^="report-parameter-"]',
     );
-    expect(controls).toHaveSize(5);
+    expect(controls).toHaveLength(5);
     expect(
       fixture.nativeElement.querySelector('[data-testid="report-parameter-officeId"]'),
     ).not.toBeNull();
@@ -150,30 +152,30 @@ describe('RunReportComponent', () => {
 
     expect(
       fixture.nativeElement.querySelectorAll('[data-testid="report-parameter-officeId"]'),
-    ).toHaveSize(1);
+    ).toHaveLength(1);
     expect(
       fixture.nativeElement.querySelectorAll('ion-item[data-testid^="report-parameter-"]'),
-    ).toHaveSize(1);
+    ).toHaveLength(1);
   });
 
   it('passes hidden defaults without rendering a control', () => {
     const hidden = parameter('tenantScope', 'Tenant Scope', 'none');
-    reportExecutionSpy.runReport.and.returnValue(of({ columnHeaders: [], data: [] }));
+    reportExecutionSpy.runReport.mockReturnValue(of({ columnHeaders: [], data: [] }));
     create([hidden]);
 
     expect(
       fixture.nativeElement.querySelector('[data-testid="report-parameter-tenantScope"]'),
     ).toBeNull();
-    expect(component.canRun()).toBeTrue();
+    expect(component.canRun()).toBe(true);
     component.onRun();
-    expect(reportExecutionSpy.runReport).toHaveBeenCalledOnceWith(REPORT_NAME, {
+    expect(reportExecutionSpy.runReport).toHaveBeenCalledExactlyOnceWith(REPORT_NAME, {
       R_tenantScope: 'hidden-value',
     });
   });
 
   it('passes the full collected value map to the report call', () => {
     const result: ReportResult = { columnHeaders: [], data: [] };
-    reportExecutionSpy.runReport.and.returnValue(of(result));
+    reportExecutionSpy.runReport.mockReturnValue(of(result));
     create([office, loanOfficer, fromDate, toDate, accountNumber]);
 
     component.setParameterValue(office, 1);
@@ -183,7 +185,7 @@ describe('RunReportComponent', () => {
     component.setParameterValue(accountNumber, '000123');
     component.onRun();
 
-    expect(reportExecutionSpy.runReport).toHaveBeenCalledOnceWith(REPORT_NAME, {
+    expect(reportExecutionSpy.runReport).toHaveBeenCalledExactlyOnceWith(REPORT_NAME, {
       R_officeId: 1,
       R_loanOfficerId: 42,
       R_fromDate: '2026-08-01',
@@ -195,7 +197,7 @@ describe('RunReportComponent', () => {
   it('blocks a report that declares an unsupported display type', () => {
     create([parameter('customFilter', 'Custom Filter', 'range')]);
 
-    expect(component.canRun()).toBeFalse();
+    expect(component.canRun()).toBe(false);
     expect(
       fixture.nativeElement.querySelector('[data-testid="report-parameters-unsupported"]')
         .textContent,
@@ -218,8 +220,8 @@ describe('RunReportComponent', () => {
     it('disables a dependent control until its parent has a value', () => {
       create([currency, product]);
 
-      expect(viewOf('loanProductId').disabled).toBeTrue();
-      expect(viewOf('loanProductId').waitingForParent).toBeTrue();
+      expect(viewOf('loanProductId').disabled).toBe(true);
+      expect(viewOf('loanProductId').waitingForParent).toBe(true);
       expect(
         fixture.nativeElement.querySelector(
           '[data-testid="report-parameter-loanProductId-waiting"]',
@@ -230,19 +232,19 @@ describe('RunReportComponent', () => {
     });
 
     it('scopes the child lookup by the parent parameter that carries the value', () => {
-      reportExecutionSpy.getDependentOptions.and.returnValue(of(usdProducts));
+      reportExecutionSpy.getDependentOptions.mockReturnValue(of(usdProducts));
       create([currency, product]);
 
       component.setParameterValue(currency, 'USD');
       fixture.detectChanges();
 
-      expect(reportExecutionSpy.getDependentOptions).toHaveBeenCalledOnceWith(
+      expect(reportExecutionSpy.getDependentOptions).toHaveBeenCalledExactlyOnceWith(
         product,
         'R_currencyId',
         'USD',
       );
       expect(viewOf('loanProductId').options).toEqual(usdProducts);
-      expect(viewOf('loanProductId').disabled).toBeFalse();
+      expect(viewOf('loanProductId').disabled).toBe(false);
     });
 
     /**
@@ -250,27 +252,27 @@ describe('RunReportComponent', () => {
      * filters the report to something the user did not ask for.
      */
     it('clears the child selection when the parent changes, rather than only refetching', () => {
-      reportExecutionSpy.getDependentOptions.and.returnValue(of(usdProducts));
+      reportExecutionSpy.getDependentOptions.mockReturnValue(of(usdProducts));
       create([currency, product]);
 
       component.setParameterValue(currency, 'USD');
       component.setParameterValue(product, 7);
       expect(component.parameterValue(product)).toBe(7);
 
-      reportExecutionSpy.getDependentOptions.and.returnValue(of(eurProducts));
+      reportExecutionSpy.getDependentOptions.mockReturnValue(of(eurProducts));
       component.setParameterValue(currency, 'EUR');
       fixture.detectChanges();
 
       expect(component.parameterValue(product)).toBeUndefined();
       expect(viewOf('loanProductId').options).toEqual(eurProducts);
-      expect(component.canRun()).toBeFalse();
+      expect(component.canRun()).toBe(false);
     });
 
     it('clears a grandchild when the top of the chain changes', () => {
       const purpose = parameter('loanPurposeId', 'Purpose', 'select', [], {
         parentParameterName: product.name,
       });
-      reportExecutionSpy.getDependentOptions.and.returnValue(of(usdProducts));
+      reportExecutionSpy.getDependentOptions.mockReturnValue(of(usdProducts));
       create([currency, product, purpose]);
 
       component.setParameterValue(currency, 'USD');
@@ -288,13 +290,13 @@ describe('RunReportComponent', () => {
      * lookup fails outright on PostgreSQL. An empty dropdown would read as "no products exist".
      */
     it('shows an error state on a failed lookup instead of an empty dropdown', () => {
-      reportExecutionSpy.getDependentOptions.and.returnValue(throwError(() => new Error('boom')));
+      reportExecutionSpy.getDependentOptions.mockReturnValue(throwError(() => new Error('boom')));
       create([currency, product]);
 
       component.setParameterValue(currency, 'USD');
       fixture.detectChanges();
 
-      expect(viewOf('loanProductId').failed).toBeTrue();
+      expect(viewOf('loanProductId').failed).toBe(true);
       expect(
         fixture.nativeElement.querySelector('[data-testid="report-parameter-loanProductId-error"]'),
       ).not.toBeNull();
@@ -307,14 +309,14 @@ describe('RunReportComponent', () => {
       const strict = parameter('branchId', 'Branch', 'select', [], {
         parentParameterName: currency.name,
       });
-      reportExecutionSpy.getDependentOptions.and.returnValue(throwError(() => new Error('boom')));
+      reportExecutionSpy.getDependentOptions.mockReturnValue(throwError(() => new Error('boom')));
       create([currency, strict]);
 
       component.setParameterValue(currency, 'USD');
       fixture.detectChanges();
 
       expect(viewOf('branchId').options).toEqual([]);
-      expect(component.canRun()).toBeFalse();
+      expect(component.canRun()).toBe(false);
     });
   });
 
@@ -328,22 +330,22 @@ describe('RunReportComponent', () => {
     };
 
     it('renders a bar chart for a chart report rather than a table', () => {
-      reportExecutionSpy.runReport.and.returnValue(of(chartResult));
+      reportExecutionSpy.runReport.mockReturnValue(of(chartResult));
       create([], { type: 'Chart', subType: 'Bar' });
 
       component.onRun();
       fixture.detectChanges();
 
       expect(component.chartSeries()).toEqual([
-        { label: HEAD_OFFICE, value: 58, color: jasmine.any(String) },
-        { label: 'Branch', value: 2, color: jasmine.any(String) },
+        { label: HEAD_OFFICE, value: 58, color: expect.any(String) },
+        { label: 'Branch', value: 2, color: expect.any(String) },
       ]);
       expect(fixture.nativeElement.querySelector(BAR_CHART)).not.toBeNull();
       expect(fixture.nativeElement.querySelector(REPORT_TABLE)).toBeNull();
     });
 
     it('renders the pie sub-type through the donut chart', () => {
-      reportExecutionSpy.runReport.and.returnValue(of(chartResult));
+      reportExecutionSpy.runReport.mockReturnValue(of(chartResult));
       create([], { type: 'Chart', subType: 'Pie' });
 
       component.onRun();
@@ -356,7 +358,7 @@ describe('RunReportComponent', () => {
     });
 
     it('keeps rendering a table for a table report', () => {
-      reportExecutionSpy.runReport.and.returnValue(of(chartResult));
+      reportExecutionSpy.runReport.mockReturnValue(of(chartResult));
       create([], { type: 'Table' });
 
       component.onRun();
@@ -369,7 +371,7 @@ describe('RunReportComponent', () => {
 
     /** A definition can claim to be a chart and return nothing plottable. */
     it('falls back to the table, and says why, when a chart report has no numeric column', () => {
-      reportExecutionSpy.runReport.and.returnValue(
+      reportExecutionSpy.runReport.mockReturnValue(
         of({
           columnHeaders: [
             { columnName: 'Office', columnDisplayType: 'STRING' },
@@ -383,7 +385,7 @@ describe('RunReportComponent', () => {
       component.onRun();
       fixture.detectChanges();
 
-      expect(component.chartUnavailable()).toBeTrue();
+      expect(component.chartUnavailable()).toBe(true);
       expect(
         fixture.nativeElement.querySelector('[data-testid="report-chart-unavailable"]'),
       ).not.toBeNull();

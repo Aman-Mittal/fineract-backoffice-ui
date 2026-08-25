@@ -18,7 +18,7 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 import { ViewPayloadDialogComponent } from './view-payload-dialog.component';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
@@ -30,8 +30,8 @@ describe('ViewPayloadDialogComponent', () => {
 
   async function setup(payload: string): Promise<ViewPayloadDialogComponent> {
     await TestBed.configureTestingModule({
-      imports: [ViewPayloadDialogComponent, TranslateModule.forRoot()],
-      providers: [provideIonicTesting()],
+      imports: [ViewPayloadDialogComponent],
+      providers: [...provideTranslateTesting(), provideIonicTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ViewPayloadDialogComponent);

@@ -189,11 +189,6 @@
       "count": 1
     }
   },
-  "src/app/features/centers/center-form.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/centers/center-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -360,11 +355,6 @@
     }
   },
   "src/app/features/collection-sheet/collection-sheet.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/dashboard/system-status.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1062,11 +1052,6 @@
       "count": 1
     }
   },
-  "src/app/features/profile/user-profile.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/profile/user-profile.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1082,10 +1067,7 @@
       "count": 1
     }
   },
-  "src/app/features/reporting/run-report.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    },
+  "src/app/features/reporting/run-report.component.test.ts": {
     "unicorn/no-object-as-default-parameter": {
       "count": 1
     }
@@ -1096,11 +1078,6 @@
     }
   },
   "src/app/features/search/global-search.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/security/audit-logs/audit-logs-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1117,11 +1094,6 @@
     }
   },
   "src/app/features/security/roles/role-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/security/roles/roles-list.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1389,11 +1361,6 @@
       "count": 1
     }
   },
-  "src/app/features/tasks/checker-inbox/view-payload-dialog.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/tasks/checker-inbox/view-payload-dialog.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -1419,22 +1386,12 @@
       "count": 1
     }
   },
-  "src/app/features/transfers/account-transfer-form.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/transfers/account-transfer-form.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
   "src/app/features/transfers/account-transfers-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/transfers/standing-instruction-form.component.spec.ts": {
     "no-restricted-imports": {
       "count": 1
     }

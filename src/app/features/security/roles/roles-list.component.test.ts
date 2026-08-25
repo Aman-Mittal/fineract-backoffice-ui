@@ -17,29 +17,31 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RolesListComponent } from './roles-list.component';
 import { RolesService, GetRolesResponse } from '../../../api';
 import { Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('RolesListComponent', () => {
   let component: RolesListComponent;
   let fixture: ComponentFixture<RolesListComponent>;
-  let rolesServiceSpy: jasmine.SpyObj<RolesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let rolesServiceSpy: SpyObj<RolesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    rolesServiceSpy = jasmine.createSpyObj('RolesService', ['getRoles']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    rolesServiceSpy = createSpyObj(['getRoles']);
+    routerSpy = createSpyObj(['navigate']);
 
-    rolesServiceSpy.getRoles.and.returnValue(of([]) as unknown as Observable<never>);
+    rolesServiceSpy.getRoles.mockReturnValue(of([]) as unknown as Observable<never>);
 
     await TestBed.configureTestingModule({
-      imports: [RolesListComponent, TranslateModule.forRoot()],
+      imports: [RolesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: RolesService, useValue: rolesServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
@@ -55,7 +57,7 @@ describe('RolesListComponent', () => {
       { id: 1, name: 'Admin', description: 'Administrator' },
       { id: 2, name: 'User', description: 'Regular User' },
     ];
-    rolesServiceSpy.getRoles.and.returnValue(of(mockRoles) as unknown as Observable<never>);
+    rolesServiceSpy.getRoles.mockReturnValue(of(mockRoles) as unknown as Observable<never>);
 
     fixture.detectChanges();
 
@@ -65,15 +67,15 @@ describe('RolesListComponent', () => {
   });
 
   it('should handle error when loading roles', () => {
-    rolesServiceSpy.getRoles.and.returnValue(
+    rolesServiceSpy.getRoles.mockReturnValue(
       throwError(() => new Error('Error')) as unknown as Observable<never>,
     );
-    spyOn(console, 'error');
+    vi.spyOn(console, 'error');
 
     fixture.detectChanges();
 
     expect(component.roles()).toEqual([]);
-    expect(console.error).toHaveBeenCalledWith('Failed to load roles', jasmine.any(Error));
+    expect(console.error).toHaveBeenCalledWith('Failed to load roles', expect.any(Error));
   });
 
   it('should navigate to create role page', () => {

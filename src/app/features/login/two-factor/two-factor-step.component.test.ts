@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
@@ -36,20 +37,16 @@ describe('TwoFactorStepComponent', () => {
 
   let fixture: ComponentFixture<TwoFactorStepComponent>;
   let host: HTMLElement;
-  let twoFactorSpy: jasmine.SpyObj<TwoFactorAuthService>;
-  let authSpy: jasmine.SpyObj<AuthService>;
+  let twoFactorSpy: SpyObj<TwoFactorAuthService>;
+  let authSpy: SpyObj<AuthService>;
 
   const el = (id: string) => host.querySelector<HTMLElement>(`[data-testid="${CSS.escape(id)}"]`);
 
   async function render(methods = [EMAIL]): Promise<void> {
     TestBed.resetTestingModule();
-    twoFactorSpy = jasmine.createSpyObj('TwoFactorAuthService', [
-      'deliveryMethods',
-      'requestToken',
-      'validate',
-    ]);
-    twoFactorSpy.deliveryMethods.and.returnValue(of(methods));
-    twoFactorSpy.requestToken.and.returnValue(
+    twoFactorSpy = createSpyObj(['deliveryMethods', 'requestToken', 'validate']);
+    twoFactorSpy.deliveryMethods.mockReturnValue(of(methods));
+    twoFactorSpy.requestToken.mockReturnValue(
       of({
         requestTime: 0,
         tokenLiveTimeInSec: 300,
@@ -57,9 +54,9 @@ describe('TwoFactorStepComponent', () => {
         deliveryMethod: methods[0] ?? EMAIL,
       }),
     );
-    twoFactorSpy.validate.and.returnValue(of({ token: 'tfa-token-123', validFrom: 0, validTo: 1 }));
+    twoFactorSpy.validate.mockReturnValue(of({ token: 'tfa-token-123', validFrom: 0, validTo: 1 }));
 
-    authSpy = jasmine.createSpyObj('AuthService', ['completeTwoFactorAuthentication', 'logout']);
+    authSpy = createSpyObj(['completeTwoFactorAuthentication', 'logout']);
 
     await TestBed.configureTestingModule({
       imports: [TwoFactorStepComponent],
@@ -117,7 +114,7 @@ describe('TwoFactorStepComponent', () => {
   describe('entering the code', () => {
     it('records the validated token and reports completion', async () => {
       await render();
-      const completed = jasmine.createSpy('completed');
+      const completed = vi.fn();
       fixture.componentInstance.completed.subscribe(completed);
 
       enterCode('NMKH4');
@@ -138,7 +135,7 @@ describe('TwoFactorStepComponent', () => {
 
     it("shows the platform's own reason when the code is refused", async () => {
       await render();
-      twoFactorSpy.validate.and.returnValue(
+      twoFactorSpy.validate.mockReturnValue(
         throwError(
           () =>
             new HttpErrorResponse({
@@ -161,7 +158,7 @@ describe('TwoFactorStepComponent', () => {
     it('keeps the user on the step and clears the field after a refusal', async () => {
       // `ngModel` writes back to the DOM on a microtask, so the assertion has to wait for it.
       await render();
-      twoFactorSpy.validate.and.returnValue(
+      twoFactorSpy.validate.mockReturnValue(
         throwError(() => new HttpErrorResponse({ status: 403, error: {} })),
       );
 
@@ -178,7 +175,7 @@ describe('TwoFactorStepComponent', () => {
 
     it('sends another code on request', async () => {
       await render();
-      twoFactorSpy.requestToken.calls.reset();
+      twoFactorSpy.requestToken.mockClear();
 
       el('two-factor-resend')!.click();
       fixture.detectChanges();
@@ -189,13 +186,9 @@ describe('TwoFactorStepComponent', () => {
 
   describe('when the code cannot be sent', () => {
     it('returns to the choice rather than stranding the user on an empty form', async () => {
-      twoFactorSpy = jasmine.createSpyObj('TwoFactorAuthService', [
-        'deliveryMethods',
-        'requestToken',
-        'validate',
-      ]);
+      twoFactorSpy = createSpyObj(['deliveryMethods', 'requestToken', 'validate']);
       await render([EMAIL, SMS]);
-      twoFactorSpy.requestToken.and.returnValue(
+      twoFactorSpy.requestToken.mockReturnValue(
         throwError(() => new HttpErrorResponse({ status: 500 })),
       );
 
@@ -216,7 +209,7 @@ describe('TwoFactorStepComponent', () => {
 
     it('signs the half-established session out when the user backs out', async () => {
       await render();
-      const cancelled = jasmine.createSpy('cancelled');
+      const cancelled = vi.fn();
       fixture.componentInstance.cancelled.subscribe(cancelled);
 
       el('two-factor-cancel')!.click();

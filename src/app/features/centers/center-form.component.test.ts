@@ -17,33 +17,31 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CenterFormComponent } from './center-form.component';
 import { CentersService, OfficesService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 describe('CenterFormComponent', () => {
   let component: CenterFormComponent;
   let fixture: ComponentFixture<CenterFormComponent>;
-  let centersServiceSpy: jasmine.SpyObj<CentersService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let centersServiceSpy: SpyObj<CentersService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    centersServiceSpy = jasmine.createSpyObj('CentersService', [
-      'getCentersCenterId',
-      'postCenters',
-      'putCentersCenterId',
-    ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    centersServiceSpy = createSpyObj(['getCentersCenterId', 'postCenters', 'putCentersCenterId']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot()],
+      imports: [CenterFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
@@ -58,7 +56,7 @@ describe('CenterFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    officesServiceSpy.getOffices.and.returnValue(of([]) as any);
+    officesServiceSpy.getOffices.mockReturnValue(of([]) as any);
     fixture = TestBed.createComponent(CenterFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -79,11 +77,11 @@ describe('CenterFormComponent', () => {
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    centersServiceSpy.postCenters.and.returnValue(of({}) as any);
+    centersServiceSpy.postCenters.mockReturnValue(of({}) as any);
 
     component.onSubmit();
 
-    const expectedPayload = jasmine.objectContaining({
+    const expectedPayload = expect.objectContaining({
       name: 'Test Center',
       officeId: 1,
       active: true,
@@ -100,19 +98,20 @@ describe('CenterFormComponent', () => {
   it('should handle error on submit', () => {
     component.isEditMode.set(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    centersServiceSpy.postCenters.and.returnValue(throwError(() => new Error('API Error')) as any);
+    centersServiceSpy.postCenters.mockReturnValue(throwError(() => new Error('API Error')) as any);
 
     component.onSubmit();
 
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
   });
 
   it('should navigate to edit mode if id is present in route', () => {
     // Re-configure for edit mode test
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [CenterFormComponent, TranslateModule.forRoot()],
+      imports: [CenterFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
         { provide: OfficesService, useValue: officesServiceSpy },
@@ -128,15 +127,15 @@ describe('CenterFormComponent', () => {
 
     const mockCenter = { id: 123, name: 'Existing Center', officeId: 1, active: true };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    centersServiceSpy.getCentersCenterId.and.returnValue(of(mockCenter) as any);
+    centersServiceSpy.getCentersCenterId.mockReturnValue(of(mockCenter) as any);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    officesServiceSpy.getOffices.and.returnValue(of([]) as any);
+    officesServiceSpy.getOffices.mockReturnValue(of([]) as any);
 
     const editFixture = TestBed.createComponent(CenterFormComponent);
     const editComponent = editFixture.componentInstance;
     editFixture.detectChanges();
 
-    expect(editComponent.isEditMode()).toBeTrue();
+    expect(editComponent.isEditMode()).toBe(true);
     expect(editComponent.centerId).toBe(123);
     expect(centersServiceSpy.getCentersCenterId).toHaveBeenCalledWith(123);
   });

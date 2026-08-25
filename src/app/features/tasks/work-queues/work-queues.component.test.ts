@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -37,28 +38,28 @@ import { provideFakeAdapters } from '../../../testing/adapters';
 describe('WorkQueuesComponent', () => {
   let component: WorkQueuesComponent;
   let fixture: ComponentFixture<WorkQueuesComponent>;
-  let loansSpy: jasmine.SpyObj<LoansService>;
-  let clientsSpy: jasmine.SpyObj<ClientService>;
-  let batchSpy: jasmine.SpyObj<BatchAPIService>;
-  let dialogSpy: jasmine.SpyObj<DialogService>;
-  let notificationsSpy: jasmine.SpyObj<NotificationService>;
+  let loansSpy: SpyObj<LoansService>;
+  let clientsSpy: SpyObj<ClientService>;
+  let batchSpy: SpyObj<BatchAPIService>;
+  let dialogSpy: SpyObj<DialogService>;
+  let notificationsSpy: SpyObj<NotificationService>;
   let adapters: ReturnType<typeof provideFakeAdapters>;
 
   beforeEach(async () => {
-    loansSpy = jasmine.createSpyObj('LoansService', ['getLoans']);
-    clientsSpy = jasmine.createSpyObj('ClientService', ['getClients']);
-    batchSpy = jasmine.createSpyObj('BatchAPIService', ['postBatches']);
-    dialogSpy = jasmine.createSpyObj('DialogService', ['confirm']);
-    notificationsSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
-    const rescheduleSpy = jasmine.createSpyObj('RescheduleLoansService', ['getRescheduleloans']);
-    rescheduleSpy.getRescheduleloans.and.returnValue(of([]) as never);
+    loansSpy = createSpyObj(['getLoans']);
+    clientsSpy = createSpyObj(['getClients']);
+    batchSpy = createSpyObj(['postBatches']);
+    dialogSpy = createSpyObj(['confirm']);
+    notificationsSpy = createSpyObj(['success', 'error']);
+    const rescheduleSpy = createSpyObj(['getRescheduleloans']);
+    rescheduleSpy.getRescheduleloans.mockReturnValue(of([]) as never);
 
-    const officesSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    officesSpy.getOffices.and.returnValue(
+    const officesSpy = createSpyObj(['getOffices']);
+    officesSpy.getOffices.mockReturnValue(
       of([{ id: 1, name: 'Head Office' }]) as unknown as Observable<never>,
     );
 
-    loansSpy.getLoans.and.returnValue(
+    loansSpy.getLoans.mockReturnValue(
       of({
         pageItems: [
           {
@@ -80,7 +81,7 @@ describe('WorkQueuesComponent', () => {
         ],
       }) as unknown as Observable<never>,
     );
-    clientsSpy.getClients.and.returnValue(
+    clientsSpy.getClients.mockReturnValue(
       of({
         pageItems: [{ id: 9, displayName: 'Pending Applicant', officeName: 'Head Office' }],
       }) as never,
@@ -104,7 +105,7 @@ describe('WorkQueuesComponent', () => {
         { provide: BatchAPIService, useValue: batchSpy },
         { provide: DialogService, useValue: dialogSpy },
         { provide: NotificationService, useValue: notificationsSpy },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         ...adapters.providers,
         provideNoopAnimations(),
       ],
@@ -117,22 +118,22 @@ describe('WorkQueuesComponent', () => {
 
   it('asks the loans endpoint for the numeric status it insists on', () => {
     // The ninth argument is `status`; the name form answers 500 with a NumberFormatException.
-    expect(loansSpy.getLoans.calls.mostRecent().args[8]).toBe('100');
+    expect(loansSpy.getLoans.mock.lastCall![8]).toBe('100');
 
     component.onQueueChange('loanDisbursal');
-    expect(loansSpy.getLoans.calls.mostRecent().args[8]).toBe('200');
+    expect(loansSpy.getLoans.mock.lastCall![8]).toBe('200');
   });
 
   it('asks the clients endpoint for the name form it insists on, in the right position', () => {
     component.onQueueChange('clientActivation');
 
     // Sixth argument, lowercase name: this endpoint rejects the numeric id with a 400.
-    expect(clientsSpy.getClients.calls.mostRecent().args[5]).toBe('pending');
+    expect(clientsSpy.getClients.mock.lastCall![5]).toBe('pending');
   });
 
   it('sends one batch entry per selected record, with the command in the relative url', async () => {
-    dialogSpy.confirm.and.resolveTo(true);
-    batchSpy.postBatches.and.returnValue(
+    dialogSpy.confirm.mockResolvedValue(true);
+    batchSpy.postBatches.mockReturnValue(
       of([
         { requestId: 1, statusCode: 200 },
         { requestId: 2, statusCode: 200 },
@@ -142,8 +143,8 @@ describe('WorkQueuesComponent', () => {
 
     await component.onRun();
 
-    const requests = batchSpy.postBatches.calls.mostRecent().args[0];
-    expect(requests).toHaveSize(2);
+    const requests = batchSpy.postBatches.mock.lastCall![0];
+    expect(requests).toHaveLength(2);
     expect(requests[0].relativeUrl).toBe('loans/2?command=approve');
     expect(requests[1].relativeUrl).toBe('loans/3?command=approve');
     expect(requests[0].method).toBe('POST');
@@ -151,8 +152,8 @@ describe('WorkQueuesComponent', () => {
   });
 
   it('names the records the platform refused instead of reporting a clean success', async () => {
-    dialogSpy.confirm.and.resolveTo(true);
-    batchSpy.postBatches.and.returnValue(
+    dialogSpy.confirm.mockResolvedValue(true);
+    batchSpy.postBatches.mockReturnValue(
       of([
         { requestId: 1, statusCode: 200 },
         { requestId: 2, statusCode: 403 },
@@ -168,7 +169,7 @@ describe('WorkQueuesComponent', () => {
   });
 
   it('does nothing when the confirmation is declined', async () => {
-    dialogSpy.confirm.and.resolveTo(false);
+    dialogSpy.confirm.mockResolvedValue(false);
     component.onSelectAll(true);
 
     await component.onRun();
@@ -190,7 +191,7 @@ describe('WorkQueuesComponent', () => {
   });
 
   it('groups loans by the office resolved from clientOfficeId', () => {
-    expect(component.isGroupedQueue()).toBeTrue();
+    expect(component.isGroupedQueue()).toBe(true);
     expect(component.groupedRows()).toEqual([
       { officeName: 'Head Office', rows: component.rows() },
     ]);
@@ -198,20 +199,20 @@ describe('WorkQueuesComponent', () => {
 
   it('does not group the reschedule queue, which carries no office of its own', () => {
     component.onQueueChange('rescheduleApproval');
-    expect(component.isGroupedQueue()).toBeFalse();
+    expect(component.isGroupedQueue()).toBe(false);
   });
 
   it('sends the reject command and a rejectedOnDate when rejecting reschedule requests', async () => {
     component.onQueueChange('rescheduleApproval');
     component.rows.set([{ id: 5, primary: '5', secondary: '', selected: true }]);
-    dialogSpy.confirm.and.resolveTo(true);
-    batchSpy.postBatches.and.returnValue(
+    dialogSpy.confirm.mockResolvedValue(true);
+    batchSpy.postBatches.mockReturnValue(
       of([{ requestId: 1, statusCode: 200 }]) as unknown as Observable<never>,
     );
 
     await component.onRun('reject');
 
-    const requests = batchSpy.postBatches.calls.mostRecent().args[0];
+    const requests = batchSpy.postBatches.mock.lastCall![0];
     expect(requests[0].relativeUrl).toBe('rescheduleloans/5?command=reject');
     const body = JSON.parse(requests[0].body as string);
     expect(body.rejectedOnDate).toBeTruthy();
