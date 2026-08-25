@@ -25,12 +25,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../core/services/dialog.service';
 
 describe('MeetingsListComponent', () => {
   let component: MeetingsListComponent;
   let fixture: ComponentFixture<MeetingsListComponent>;
   let serviceSpy: SpyObj<MeetingsService>;
   let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = createSpyObj([
@@ -38,6 +40,8 @@ describe('MeetingsListComponent', () => {
       'deleteEntityTypeEntityIdMeetingsMeetingId',
     ]);
     routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
     serviceSpy.getEntityTypeEntityIdMeetings.mockReturnValue(
       of([{ id: 1, meetingDate: '2026-01-15' }]) as unknown as ReturnType<
         MeetingsService['getEntityTypeEntityIdMeetings']
@@ -50,6 +54,7 @@ describe('MeetingsListComponent', () => {
         ...provideTranslateTesting(),
         { provide: MeetingsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -76,13 +81,14 @@ describe('MeetingsListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/meetings', 'groups', 1, 'edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+  it('should delete after confirmation and reload', async () => {
+    dialogService.confirm.mockResolvedValue(true);
     serviceSpy.deleteEntityTypeEntityIdMeetingsMeetingId.mockReturnValue(
       of({}) as unknown as ReturnType<MeetingsService['deleteEntityTypeEntityIdMeetingsMeetingId']>,
     );
 
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteEntityTypeEntityIdMeetingsMeetingId).toHaveBeenCalledWith(
       'groups',
@@ -92,9 +98,10 @@ describe('MeetingsListComponent', () => {
     expect(serviceSpy.getEntityTypeEntityIdMeetings).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
     expect(serviceSpy.deleteEntityTypeEntityIdMeetingsMeetingId).not.toHaveBeenCalled();
   });
 });

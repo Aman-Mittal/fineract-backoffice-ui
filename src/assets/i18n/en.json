@@ -1947,7 +1947,9 @@
     "EDIT": "Edit Meeting",
     "MEETING_DATE": "Meeting Date",
     "PRESENT_COUNT": "Attendance Recorded",
-    "CALENDAR_ID": "Calendar"
+    "CALENDAR_ID": "Calendar",
+    "DELETE": "Delete",
+    "CONFIRM_DELETE": "Delete meeting on \"{{name}}\"?"
   },
   "CALENDARS": {
     "TITLE": "Calendars",
