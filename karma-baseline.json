@@ -1,7 +1,9 @@
 {
   "license": "Apache-2.0",
   "$comment": "Specs still on the deprecated Karma runner. Written by scripts/check-test-runner.mjs; files may leave this list, never join it. See DOCS/adr/0004-vitest-migration.md.",
-  "grandfathered": ["src/app/features/tasks/checker-inbox/checker-inbox.component.spec.ts"],
+  "grandfathered": [
+    "src/app/features/tasks/checker-inbox/checker-inbox.component.spec.ts"
+  ],
   "specs": [
     "projects/fineract-mfe/src/app/app.spec.ts",
     "src/app/app.component.spec.ts",
@@ -46,7 +48,6 @@
     "src/app/features/loans/post-dated-checks/post-dated-check-form.component.spec.ts",
     "src/app/features/loans/post-dated-checks/post-dated-checks-list.component.spec.ts",
     "src/app/features/loans/tabs/loan-delinquency-tab.component.spec.ts",
-    "src/app/features/login/login.component.spec.ts",
     "src/app/features/products/account-action-form.component.spec.ts",
     "src/app/features/products/accounting/advanced-accounting-mappings.component.spec.ts",
     "src/app/features/products/accounting/product-accounting-section.component.spec.ts",

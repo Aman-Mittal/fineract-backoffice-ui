@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
@@ -24,42 +25,41 @@ import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
-import { TranslateModule } from '@ngx-translate/core';
 import { WritableSignal, signal } from '@angular/core';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let configServiceSpy: jasmine.SpyObj<ConfigService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let authServiceSpy: SpyObj<AuthService>;
+  let configServiceSpy: SpyObj<ConfigService>;
+  let routerSpy: SpyObj<Router>;
   const mockApiUrl = 'https://localhost:8443/fineract-provider/api/v1';
 
   /** Configures the TestBed with the query parameters the login route was reached with. */
   async function setup(queryParams: Record<string, string> = {}) {
-    authServiceSpy = jasmine.createSpyObj('AuthService', [
-      'login',
-      'currentTenantId',
-      'twoFactorPending',
-      'logout',
-    ]);
-    authServiceSpy.currentTenantId.and.returnValue('default');
+    authServiceSpy = createSpyObj(['login', 'currentTenantId', 'twoFactorPending', 'logout']);
+    authServiceSpy.currentTenantId.mockReturnValue('default');
     // No second factor: what every deployment without `fineract.security.2fa.enabled` sees.
-    authServiceSpy.twoFactorPending.and.returnValue(false);
+    authServiceSpy.twoFactorPending.mockReturnValue(false);
 
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['setApiUrl', 'isAllowedApiUrl'], {
-      apiUrl: mockApiUrl,
-      // The component reads the allow-list to build the endpoint picker.
-      config: signal({ allowedApiOrigins: [] }),
-    });
-    configServiceSpy.setApiUrl.and.returnValue(true);
-    configServiceSpy.isAllowedApiUrl.and.returnValue(true);
+    configServiceSpy = Object.assign(
+      createSpyObj<ConfigService>(['setApiUrl', 'isAllowedApiUrl']),
+      {
+        apiUrl: mockApiUrl,
+        // The component reads the allow-list to build the endpoint picker.
+        config: signal({ allowedApiOrigins: [] }),
+      },
+    );
+    configServiceSpy.setApiUrl.mockReturnValue(true);
+    configServiceSpy.isAllowedApiUrl.mockReturnValue(true);
 
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, TranslateModule.forRoot(), LoginComponent],
+      imports: [ReactiveFormsModule, LoginComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ConfigService, useValue: configServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -84,11 +84,11 @@ describe('LoginComponent', () => {
   });
 
   it('should be invalid when empty', () => {
-    expect(component['loginForm'].valid).toBeFalse();
+    expect(component['loginForm'].valid).toBe(false);
   });
 
   it('should call login and navigate on success', () => {
-    authServiceSpy.login.and.returnValue(of({} as UserSession));
+    authServiceSpy.login.mockReturnValue(of({} as UserSession));
 
     component['loginForm'].setValue({
       serverUrl: mockApiUrl,
@@ -106,7 +106,7 @@ describe('LoginComponent', () => {
   });
 
   it('should set error on login failure', () => {
-    authServiceSpy.login.and.returnValue(
+    authServiceSpy.login.mockReturnValue(
       throwError(() => ({ error: { defaultUserMessage: 'Failed' } })),
     );
 
@@ -124,9 +124,9 @@ describe('LoginComponent', () => {
     expect((component as unknown as { error: WritableSignal<string | null> }).error()).toBe(
       'Failed',
     );
-    expect(
-      (component as unknown as { isLoading: WritableSignal<boolean> }).isLoading(),
-    ).toBeFalse();
+    expect((component as unknown as { isLoading: WritableSignal<boolean> }).isLoading()).toBe(
+      false,
+    );
   });
 
   describe('session expiry notice', () => {
