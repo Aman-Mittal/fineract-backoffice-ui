@@ -1057,7 +1057,7 @@
       "count": 1
     }
   },
-  "src/app/features/reporting/report-execution.service.spec.ts": {
+  "src/app/features/reporting/report-execution.service.test.ts": {
     "unicorn/no-array-sort": {
       "count": 1
     }

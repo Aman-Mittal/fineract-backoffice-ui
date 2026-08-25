@@ -79,7 +79,6 @@
     "src/app/features/products/tax-components/tax-components-list.component.spec.ts",
     "src/app/features/products/tax-groups/tax-group-form.component.spec.ts",
     "src/app/features/products/tax-groups/tax-groups-list.component.spec.ts",
-    "src/app/features/reporting/report-execution.service.spec.ts",
     "src/app/layout/header.component.spec.ts",
     "src/app/layout/main-layout.component.spec.ts",
     "src/app/shared/components/client-search/client-search.component.spec.ts",
