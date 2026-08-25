@@ -25,12 +25,14 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { DialogService } from '../../core/services/dialog.service';
 
 describe('CalendarsListComponent', () => {
   let component: CalendarsListComponent;
   let fixture: ComponentFixture<CalendarsListComponent>;
   let serviceSpy: SpyObj<CalendarService>;
   let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = createSpyObj([
@@ -38,6 +40,8 @@ describe('CalendarsListComponent', () => {
       'deleteEntityTypeEntityIdCalendarsCalendarId',
     ]);
     routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
     serviceSpy.getEntityTypeEntityIdCalendars.mockReturnValue(
       of([{ id: 1, title: 'Weekly Meeting', startDate: '2026-01-15' }]) as unknown as ReturnType<
         CalendarService['getEntityTypeEntityIdCalendars']
@@ -50,6 +54,7 @@ describe('CalendarsListComponent', () => {
         ...provideTranslateTesting(),
         { provide: CalendarService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DialogService, useValue: dialogService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -76,8 +81,8 @@ describe('CalendarsListComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/calendars', 'centers', 2, 'edit', 3]);
   });
 
-  it('should delete after confirmation and reload', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+  it('should delete after confirmation and reload', async () => {
+    dialogService.confirm.mockResolvedValue(true);
     serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId.mockReturnValue(
       of({}) as unknown as ReturnType<
         CalendarService['deleteEntityTypeEntityIdCalendarsCalendarId']
@@ -85,6 +90,7 @@ describe('CalendarsListComponent', () => {
     );
 
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
 
     expect(serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId).toHaveBeenCalledWith(
       'centers',
@@ -94,9 +100,10 @@ describe('CalendarsListComponent', () => {
     expect(serviceSpy.getEntityTypeEntityIdCalendars).toHaveBeenCalledTimes(2);
   });
 
-  it('should not delete when cancelled', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
+  it('should not delete when cancelled', async () => {
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5 });
+    await fixture.whenStable();
     expect(serviceSpy.deleteEntityTypeEntityIdCalendarsCalendarId).not.toHaveBeenCalled();
   });
 

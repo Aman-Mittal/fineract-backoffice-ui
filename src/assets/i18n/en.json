@@ -1955,7 +1955,9 @@
     "CREATE": "Create Calendar",
     "EDIT": "Edit Calendar",
     "START_DATE": "Start Date",
-    "TYPE": "Type"
+    "TYPE": "Type",
+    "DELETE": "Delete",
+    "CONFIRM_DELETE": "Delete calendar \"{{name}}\"?"
   },
   "GROUP_LEVELS": {
     "LEVEL_NAME": "Level Name",
