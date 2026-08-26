@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -29,10 +30,10 @@ import { provideFakeAdapters } from '../../../testing/adapters';
 describe('GroupAccountsTabComponent', () => {
   let component: GroupAccountsTabComponent;
   let fixture: ComponentFixture<GroupAccountsTabComponent>;
-  let groupsSpy: jasmine.SpyObj<GroupsService>;
+  let groupsSpy: SpyObj<GroupsService>;
 
   function build(response: unknown) {
-    groupsSpy.getGroupsGroupIdAccounts.and.returnValue(
+    groupsSpy.getGroupsGroupIdAccounts.mockReturnValue(
       of(response) as unknown as Observable<never>,
     );
     fixture = TestBed.createComponent(GroupAccountsTabComponent);
@@ -42,13 +43,13 @@ describe('GroupAccountsTabComponent', () => {
   }
 
   beforeEach(async () => {
-    groupsSpy = jasmine.createSpyObj('GroupsService', ['getGroupsGroupIdAccounts']);
+    groupsSpy = createSpyObj(['getGroupsGroupIdAccounts']);
 
     await TestBed.configureTestingModule({
       imports: [GroupAccountsTabComponent],
       providers: [
         { provide: GroupsService, useValue: groupsSpy },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         ...provideFakeAdapters().providers,
         provideNoopAnimations(),
       ],
@@ -61,7 +62,7 @@ describe('GroupAccountsTabComponent', () => {
 
     expect(component.loanAccounts()).toEqual([]);
     expect(component.savingsAccounts()).toEqual([]);
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBe(false);
   });
 
   it('reads the collections that are present', () => {
@@ -70,7 +71,7 @@ describe('GroupAccountsTabComponent', () => {
       loanAccounts: [{ id: 4, accountNo: '000000004', productName: 'Group Loan' }],
     });
 
-    expect(component.savingsAccounts()).toHaveSize(1);
-    expect(component.loanAccounts()).toHaveSize(1);
+    expect(component.savingsAccounts()).toHaveLength(1);
+    expect(component.loanAccounts()).toHaveLength(1);
   });
 });

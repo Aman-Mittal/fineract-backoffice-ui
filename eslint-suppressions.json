@@ -374,7 +374,7 @@
       "count": 1
     }
   },
-  "src/app/features/groups/group-form.component.spec.ts": {
+  "src/app/features/groups/group-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
