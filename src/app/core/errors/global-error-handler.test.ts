@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
@@ -25,11 +26,11 @@ import { GlobalErrorHandler } from './global-error-handler';
 
 describe('GlobalErrorHandler', () => {
   let handler: GlobalErrorHandler;
-  let notificationsSpy: jasmine.SpyObj<NotificationService>;
+  let notificationsSpy: SpyObj<NotificationService>;
 
   beforeEach(() => {
-    notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', ['error']);
-    notificationsSpy.error.and.resolveTo();
+    notificationsSpy = createSpyObj<NotificationService>(['error']);
+    notificationsSpy.error.mockResolvedValue();
 
     TestBed.configureTestingModule({
       providers: [
@@ -43,7 +44,7 @@ describe('GlobalErrorHandler', () => {
     });
 
     handler = TestBed.inject(GlobalErrorHandler);
-    spyOn(console, 'error');
+    vi.spyOn(console, 'error');
   });
 
   it('should tell the user when an uncaught error breaks an action', () => {
@@ -74,7 +75,9 @@ describe('GlobalErrorHandler', () => {
   });
 
   it('should not rethrow when reporting itself fails, which would loop', () => {
-    notificationsSpy.error.and.throwError('toast controller unavailable');
+    notificationsSpy.error.mockImplementation(() => {
+      throw new Error('toast controller unavailable');
+    });
 
     expect(() => handler.handleError(new Error('boom'))).not.toThrow();
   });
