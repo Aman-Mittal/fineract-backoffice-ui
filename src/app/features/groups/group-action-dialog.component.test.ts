@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
@@ -40,7 +41,7 @@ const ACTIVATE: GroupActionDialogData['title'] = 'GROUPS.ACTIVATE';
 describe('GroupActionDialogComponent', () => {
   let fixture: ComponentFixture<GroupActionDialogComponent>;
   let component: GroupActionDialogComponent;
-  let businessDateService: jasmine.SpyObj<BusinessDateManagementService>;
+  let businessDateService: SpyObj<BusinessDateManagementService>;
 
   /** A date relative to the browser's today, as the ISO string the dialog compares. */
   function offsetFromToday(days: number): string {
@@ -55,15 +56,13 @@ describe('GroupActionDialogComponent', () => {
   }
 
   async function setup(data: GroupActionDialogData, businessDate?: number[]): Promise<void> {
-    businessDateService = jasmine.createSpyObj('BusinessDateManagementService', [
-      'getBusinessdate',
-    ]);
-    businessDateService.getBusinessdate.and.returnValue(
+    businessDateService = createSpyObj(['getBusinessdate']);
+    businessDateService.getBusinessdate.mockReturnValue(
       of(businessDate ? [{ type: 'BUSINESS_DATE', date: businessDate }] : []) as never,
     );
 
-    const groupsService = jasmine.createSpyObj('GroupsService', ['getGroupsTemplate']);
-    groupsService.getGroupsTemplate.and.returnValue(of({ closureReasons: [] }) as never);
+    const groupsService = createSpyObj(['getGroupsTemplate']);
+    groupsService.getGroupsTemplate.mockReturnValue(of({ closureReasons: [] }) as never);
 
     await TestBed.configureTestingModule({
       imports: [GroupActionDialogComponent],

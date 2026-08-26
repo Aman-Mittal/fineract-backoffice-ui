@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GroupFormComponent } from './group-form.component';
 import { GroupsService, OfficesService } from '../../api';
@@ -28,18 +29,14 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('GroupFormComponent', () => {
   let component: GroupFormComponent;
   let fixture: ComponentFixture<GroupFormComponent>;
-  let groupsServiceSpy: jasmine.SpyObj<GroupsService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let groupsServiceSpy: SpyObj<GroupsService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    groupsServiceSpy = jasmine.createSpyObj('GroupsService', [
-      'getGroupsGroupId',
-      'postGroups',
-      'putGroupsGroupId',
-    ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    groupsServiceSpy = createSpyObj(['getGroupsGroupId', 'postGroups', 'putGroupsGroupId']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [GroupFormComponent, TranslateModule.forRoot()],
@@ -58,7 +55,7 @@ describe('GroupFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    officesServiceSpy.getOffices.and.returnValue(of([]) as any);
+    officesServiceSpy.getOffices.mockReturnValue(of([]) as any);
     fixture = TestBed.createComponent(GroupFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -79,11 +76,11 @@ describe('GroupFormComponent', () => {
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    groupsServiceSpy.postGroups.and.returnValue(of({}) as any);
+    groupsServiceSpy.postGroups.mockReturnValue(of({}) as any);
 
     component.onSubmit();
 
-    const expectedPayload = jasmine.objectContaining({
+    const expectedPayload = expect.objectContaining({
       name: 'Test Group',
       officeId: 1,
       active: true,
@@ -100,10 +97,10 @@ describe('GroupFormComponent', () => {
   it('should handle error on submit', () => {
     component.isEditMode.set(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    groupsServiceSpy.postGroups.and.returnValue(throwError(() => new Error('API Error')) as any);
+    groupsServiceSpy.postGroups.mockReturnValue(throwError(() => new Error('API Error')) as any);
 
     component.onSubmit();
 
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
   });
 });
