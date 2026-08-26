@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { BrowserDownloadAdapter } from './browser-download.adapter';
 
@@ -26,7 +27,7 @@ const REPORT_CSV = 'report.csv';
 describe('BrowserDownloadAdapter', () => {
   let adapter: BrowserDownloadAdapter;
   let anchor: HTMLAnchorElement;
-  let click: jasmine.Spy;
+  let click: Mock;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
@@ -35,12 +36,12 @@ describe('BrowserDownloadAdapter', () => {
     // A real anchor, with only the navigation suppressed: the specs assert on `download`,
     // which the browser itself normalises, so a plain object would test the wrong thing.
     anchor = document.createElement('a');
-    click = spyOn(anchor, 'click');
-    spyOn(document, 'createElement').and.returnValue(anchor);
+    click = vi.spyOn(anchor, 'click');
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
   });
 
   it('clicks an anchor pointing at an object URL for the blob', () => {
-    const revoke = spyOn(URL, 'revokeObjectURL').and.callThrough();
+    const revoke = vi.spyOn(URL, 'revokeObjectURL');
 
     adapter.save(new Blob(['x']), REPORT_CSV);
 
@@ -52,7 +53,7 @@ describe('BrowserDownloadAdapter', () => {
   it('removes the anchor from the document again', () => {
     adapter.save(new Blob(['x']), REPORT_CSV);
 
-    expect(anchor.isConnected).toBeFalse();
+    expect(anchor.isConnected).toBe(false);
   });
 
   /*
@@ -60,8 +61,10 @@ describe('BrowserDownloadAdapter', () => {
    * only, so a failure part-way through leaked the blob for the life of the document.
    */
   it('releases the object URL even when the click throws', () => {
-    const revoke = spyOn(URL, 'revokeObjectURL');
-    click.and.throwError('popup blocked');
+    const revoke = vi.spyOn(URL, 'revokeObjectURL');
+    click.mockImplementationOnce(() => {
+      throw new Error('popup blocked');
+    });
 
     expect(() => adapter.save(new Blob(['x']), REPORT_CSV)).toThrow();
     expect(revoke).toHaveBeenCalled();
@@ -92,7 +95,7 @@ describe('BrowserDownloadAdapter', () => {
       const result = savedNameFor(name);
 
       expect(result.length).toBeLessThanOrEqual(200);
-      expect(result.endsWith('.csv')).toBeTrue();
+      expect(result.endsWith('.csv')).toBe(true);
     });
   });
 });
