@@ -52,7 +52,7 @@ describe('ReportExecutionService', () => {
     let discovered = false;
     service.getReportParameters('Portfolio at Risk').subscribe((parameters) => {
       discovered = true;
-      expect(parameters).toHaveSize(2);
+      expect(parameters).toHaveLength(2);
       expect(parameters[0].queryParameter).toBe('R_officeId');
       expect(parameters[0].options).toEqual([
         { id: 1, name: HEAD_OFFICE },
@@ -100,12 +100,12 @@ describe('ReportExecutionService', () => {
     );
     expect(lookup.request.params.get('parameterType')).toBe('true');
     lookup.flush({ data: [{ row: [1, HEAD_OFFICE] }] });
-    expect(discovered).toBeTrue();
+    expect(discovered).toBe(true);
   });
 
   it('keeps cascading selects empty until their parent has a value', () => {
     service.getReportParameters('Active Loans - Summary').subscribe((parameters) => {
-      expect(parameters).toHaveSize(2);
+      expect(parameters).toHaveLength(2);
       expect(parameters[0].options).toEqual([{ id: 1, name: HEAD_OFFICE }]);
       expect(parameters[1].queryParameter).toBe('R_loanOfficerId');
       expect(parameters[1].parentParameterName).toBe('OfficeIdSelectOne');
@@ -153,12 +153,12 @@ describe('ReportExecutionService', () => {
 
   it('isolates a failed lookup instead of dropping the parameter form', () => {
     service.getReportParameters('Tenant Report').subscribe((parameters) => {
-      expect(parameters).toHaveSize(2);
+      expect(parameters).toHaveLength(2);
       expect(parameters[0].options).toEqual([]);
       // Recorded, so the field can distinguish "no offices" from "offices unknown".
-      expect(parameters[0].optionsFailed).toBeTrue();
+      expect(parameters[0].optionsFailed).toBe(true);
       expect(parameters[1].options).toEqual([{ id: 'USD', name: 'US Dollar' }]);
-      expect(parameters[1].optionsFailed).toBeFalse();
+      expect(parameters[1].optionsFailed).toBe(false);
     });
 
     http
@@ -318,10 +318,12 @@ describe('ReportExecutionService', () => {
   it('skips malformed template rows without dropping valid parameters', () => {
     service.getReportParameters('Tenant Report').subscribe({
       next: (parameters) => {
-        expect(parameters).toHaveSize(1);
+        expect(parameters).toHaveLength(1);
         expect(parameters[0].queryParameter).toBe('R_startDate');
       },
-      error: fail,
+      error: (error) => {
+        throw error;
+      },
     });
 
     http

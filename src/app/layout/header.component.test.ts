@@ -17,37 +17,38 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HeaderComponent } from './header.component';
 import { AuthService } from '../core/services/auth.service';
 import { NavigationConfigService } from '../core/services/navigation-config.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ViewportService } from '../core/services/viewport.service';
-import { EMPTY } from 'rxjs';
+import { EMPTY, of } from 'rxjs';
 import { WritableSignal, signal } from '@angular/core';
+import { provideTranslateTesting } from '../testing/i18n-testing';
+import { BusinessDateManagementService } from '../api';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let navigationConfigSpy: jasmine.SpyObj<NavigationConfigService>;
-  let translateService: TranslateService;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let authServiceSpy: SpyObj<AuthService>;
+  let navigationConfigSpy: SpyObj<NavigationConfigService>;
+  let routerSpy: SpyObj<Router>;
   let isMobile: WritableSignal<boolean>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['logout'], {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['logout']), {
       username: signal('mifos'),
       officeName: signal('Head Office'),
     });
-    navigationConfigSpy = jasmine.createSpyObj('NavigationConfigService', ['searchRoutes']);
-    navigationConfigSpy.searchRoutes.and.returnValue([]);
+    navigationConfigSpy = createSpyObj(['searchRoutes']);
+    navigationConfigSpy.searchRoutes.mockReturnValue([]);
     // `routerState` and `events` are properties, not methods, so createSpyObj needs them in the
     // property bag. The header reads the route tree for the phone header's page title, the same
     // way BreadcrumbComponent does; without them it throws in ngOnInit.
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl'], {
+    routerSpy = Object.assign(createSpyObj<Router>(['navigate', 'navigateByUrl']), {
       routerState: { snapshot: { root: { url: [], routeConfig: null, firstChild: null } } },
       events: EMPTY,
     });
@@ -60,10 +61,12 @@ describe('HeaderComponent', () => {
     isMobile = signal(false);
 
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), HeaderComponent],
+      imports: [HeaderComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: NavigationConfigService, useValue: navigationConfigSpy },
+        { provide: BusinessDateManagementService, useValue: { getBusinessdate: () => of([]) } },
         { provide: Router, useValue: routerSpy },
         { provide: ViewportService, useValue: { isMobile } },
       ],
@@ -71,7 +74,6 @@ describe('HeaderComponent', () => {
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
-    translateService = TestBed.inject(TranslateService);
     fixture.detectChanges();
   });
 
@@ -104,9 +106,11 @@ describe('HeaderComponent', () => {
   });
 
   it('should switch language', () => {
-    spyOn(translateService, 'use');
+    const translate = (component as unknown as { translate: { use(language: string): unknown } })
+      .translate;
+    const useSpy = vi.spyOn(translate, 'use');
     component.switchLanguage('hi');
-    expect(translateService.use).toHaveBeenCalledWith('hi');
+    expect(useSpy).toHaveBeenCalledWith('hi');
   });
 
   it('navigates to a page result via navigateByUrl', () => {
@@ -136,7 +140,7 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     const item = fixture.debugElement.query(By.css('ion-item'));
-    const event = jasmine.createSpyObj('MouseEvent', ['preventDefault']);
+    const event = createSpyObj(['preventDefault']);
     item.triggerEventHandler('mousedown', event);
 
     expect(event.preventDefault).toHaveBeenCalled();

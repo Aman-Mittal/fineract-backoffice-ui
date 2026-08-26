@@ -17,13 +17,16 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MainLayoutComponent } from './main-layout.component';
 import { AuthService, UserSession } from '../core/services/auth.service';
 import { GuidanceService } from '../core/services/guidance.service';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterModule } from '@angular/router';
 import { signal } from '@angular/core';
+import { provideTranslateTesting } from '../testing/i18n-testing';
+import { BusinessDateManagementService } from '../api';
+import { of } from 'rxjs';
 
 function keydown(overrides: Partial<KeyboardEvent> & { target: EventTarget }): KeyboardEvent {
   return {
@@ -31,7 +34,7 @@ function keydown(overrides: Partial<KeyboardEvent> & { target: EventTarget }): K
     altKey: false,
     ctrlKey: false,
     shiftKey: false,
-    preventDefault: jasmine.createSpy('preventDefault'),
+    preventDefault: vi.fn(),
     ...overrides,
   } as unknown as KeyboardEvent;
 }
@@ -39,7 +42,7 @@ function keydown(overrides: Partial<KeyboardEvent> & { target: EventTarget }): K
 describe('MainLayoutComponent', () => {
   let component: MainLayoutComponent;
   let fixture: ComponentFixture<MainLayoutComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let authServiceSpy: SpyObj<AuthService>;
 
   beforeEach(async () => {
     const mockSession: UserSession = {
@@ -52,16 +55,20 @@ describe('MainLayoutComponent', () => {
       permissions: ['ALL_FUNCTIONS'],
     };
 
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
       username: signal('mifos'),
       officeName: signal('Head Office'),
       currentUser: signal<UserSession | null>(mockSession),
     });
-    authServiceSpy.hasPermission.and.returnValue(true);
+    authServiceSpy.hasPermission.mockReturnValue(true);
 
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), RouterModule.forRoot([]), MainLayoutComponent],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      imports: [RouterModule.forRoot([]), MainLayoutComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: BusinessDateManagementService, useValue: { getBusinessdate: () => of([]) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MainLayoutComponent);
@@ -81,7 +88,7 @@ describe('MainLayoutComponent', () => {
 
   describe('global keyboard shortcuts', () => {
     it('navigates to the bound route on a shortcut keydown', () => {
-      const navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate');
 
       component.onKeydown(keydown({ key: 'c', altKey: true, target: document.body }));
 
@@ -89,8 +96,8 @@ describe('MainLayoutComponent', () => {
     });
 
     it('starts the guidance tour for the current route on the help shortcut', () => {
-      spyOnProperty(TestBed.inject(Router), 'url').and.returnValue('/dashboard');
-      const startTourSpy = spyOn(TestBed.inject(GuidanceService), 'startTour');
+      vi.spyOn(TestBed.inject(Router), 'url', 'get').mockReturnValue('/dashboard');
+      const startTourSpy = vi.spyOn(TestBed.inject(GuidanceService), 'startTour');
 
       component.onKeydown(keydown({ key: 'h', altKey: true, target: document.body }));
 
@@ -98,7 +105,7 @@ describe('MainLayoutComponent', () => {
     });
 
     it('ignores keydown events while typing into a form control', () => {
-      const navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate');
       const input = document.createElement('input');
 
       component.onKeydown(keydown({ key: 'c', altKey: true, target: input }));
@@ -107,7 +114,7 @@ describe('MainLayoutComponent', () => {
     });
 
     it('ignores unbound key combinations', () => {
-      const navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
+      const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate');
 
       component.onKeydown(keydown({ key: 'z', altKey: true, target: document.body }));
 
