@@ -200,19 +200,14 @@
             "port": 0
           }
         },
-        "test": {
-          "builder": "@angular/build:karma",
+        "unit-test": {
+          "builder": "@angular/build:unit-test",
           "options": {
-            "polyfills": ["zone.js", "zone.js/testing"],
+            "buildTarget": "fineract-mfe:esbuild:development",
             "tsConfig": "projects/fineract-mfe/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/fineract-mfe/public"
-              }
-            ],
-            "styles": ["projects/fineract-mfe/src/styles.scss"]
+            "runner": "vitest",
+            "include": ["**/*.test.ts"],
+            "runnerConfig": "vitest.config.ts"
           }
         },
         "lint": {

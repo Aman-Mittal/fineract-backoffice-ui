@@ -171,10 +171,10 @@ ran, and because the run passed, nothing pointed at it.
 
 A suite that silently tests nothing is worse than no suite, so treat the printed
 total as the check: the app run ends in `TOTAL: 775 SUCCESS`-order numbers, not
-`TOTAL: 2`. `npm run test:mfe` runs the placeholder.
+`TOTAL: 2`.
 
-> `jest.config.ts`, `setup-jest.ts` and a `vitest` devDependency all exist in the
-> repo but nothing runs them. Karma is the real runner.
+`npm run test:mfe` runs the microfrontend placeholder's two tests on Vitest. It has its own
+unit-test target because Angular scopes each target to one workspace project.
 
 ### `api-client-drift`
 

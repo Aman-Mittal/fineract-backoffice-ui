@@ -3,8 +3,6 @@
   "$comment": "Specs still on the deprecated Karma runner. Written by scripts/check-test-runner.mjs; files may leave this list, never join it. See DOCS/adr/0004-vitest-migration.md.",
   "grandfathered": ["src/app/features/tasks/checker-inbox/checker-inbox.component.spec.ts"],
   "specs": [
-    "projects/fineract-mfe/src/app/app.spec.ts",
-    "src/app/app.component.spec.ts",
     "src/app/app.config.spec.ts",
     "src/app/core/adapters/download/browser-download.adapter.spec.ts",
     "src/app/core/adapters/storage/web-storage.adapter.spec.ts",

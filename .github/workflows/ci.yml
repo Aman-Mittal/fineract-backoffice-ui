@@ -237,6 +237,8 @@ jobs:
       # build has to mean both are green, or a migrated spec could rot unnoticed.
       - name: Run migrated tests on Vitest
         run: npm run test:unit
+      - name: Run microfrontend tests on Vitest
+        run: npm run test:mfe
       - name: Upload Coverage Report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
