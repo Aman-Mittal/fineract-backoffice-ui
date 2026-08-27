@@ -93,7 +93,9 @@ describe('WebStorageAdapter', () => {
   });
 
   it('degrades to no-op when storage is unavailable', () => {
-    spyOn(Storage.prototype, 'setItem').and.throwError('QuotaExceededError');
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
 
     expect(() => adapter.write('tenant', 'x')).not.toThrow();
   });

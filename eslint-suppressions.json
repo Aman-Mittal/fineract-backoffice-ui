@@ -9,7 +9,7 @@
       "count": 1
     }
   },
-  "src/app/core/errors/global-error-handler.spec.ts": {
+  "src/app/core/errors/global-error-handler.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
