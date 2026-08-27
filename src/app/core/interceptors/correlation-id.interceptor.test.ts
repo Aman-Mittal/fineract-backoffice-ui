@@ -20,7 +20,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpRequest, HttpHandlerFn, HttpResponse } from '@angular/common/http';
 import { correlationIdInterceptor } from './correlation-id.interceptor';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 
 describe('correlationIdInterceptor', () => {
   const testUrl = '/test';
@@ -31,7 +31,7 @@ describe('correlationIdInterceptor', () => {
 
   const CORRELATION_ID_HEADER = 'X-Correlation-ID';
 
-  it('should add X-Correlation-ID header to requests', (done) => {
+  it('should add X-Correlation-ID header to requests', async () => {
     const request = new HttpRequest('GET', testUrl);
     const next: HttpHandlerFn = (req) => {
       const headerVal = req.headers.get(CORRELATION_ID_HEADER);
@@ -43,12 +43,12 @@ describe('correlationIdInterceptor', () => {
       return of(new HttpResponse({ status: 200 }));
     };
 
-    TestBed.runInInjectionContext(() => {
-      correlationIdInterceptor(request, next).subscribe(() => done());
-    });
+    await TestBed.runInInjectionContext(() =>
+      firstValueFrom(correlationIdInterceptor(request, next)),
+    );
   });
 
-  it('should generate a unique X-Correlation-ID for each request', (done) => {
+  it('should generate a unique X-Correlation-ID for each request', async () => {
     const request1 = new HttpRequest('GET', testUrl);
     const request2 = new HttpRequest('GET', testUrl);
     let id1 = '';
@@ -64,15 +64,15 @@ describe('correlationIdInterceptor', () => {
       return of(new HttpResponse({ status: 200 }));
     };
 
-    TestBed.runInInjectionContext(() => {
-      correlationIdInterceptor(request1, next1).subscribe(() => {
-        correlationIdInterceptor(request2, next2).subscribe(() => {
-          expect(id1).toBeTruthy();
-          expect(id2).toBeTruthy();
-          expect(id1).not.toBe(id2);
-          done();
-        });
-      });
-    });
+    await TestBed.runInInjectionContext(() =>
+      firstValueFrom(correlationIdInterceptor(request1, next1)),
+    );
+    await TestBed.runInInjectionContext(() =>
+      firstValueFrom(correlationIdInterceptor(request2, next2)),
+    );
+
+    expect(id1).toBeTruthy();
+    expect(id2).toBeTruthy();
+    expect(id1).not.toBe(id2);
   });
 });
