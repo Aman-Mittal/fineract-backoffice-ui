@@ -17,16 +17,17 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { HttpHeaders, HttpRequest, HttpHandlerFn, HttpResponse } from '@angular/common/http';
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { provideTestConfig } from '../../testing/config';
 
 describe('authInterceptor', () => {
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let authServiceSpy: SpyObj<AuthService>;
   const testUrl = '/test';
   const MOCK_TOKEN = 'mock-token';
   const BASIC_HEADER = `Basic ${MOCK_TOKEN}`;
@@ -36,7 +37,7 @@ describe('authInterceptor', () => {
   const TENANT_HEADER = 'Fineract-Platform-TenantId';
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['getAuthToken', 'getTfaToken'], {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['getAuthToken', 'getTfaToken']), {
       currentTenantId: signal(testTenant),
     });
 
@@ -45,9 +46,9 @@ describe('authInterceptor', () => {
     });
   });
 
-  it('should add tenant headers to all requests', (done) => {
-    authServiceSpy.getTfaToken.and.returnValue(null);
-    authServiceSpy.getAuthToken.and.returnValue(null);
+  it('should add tenant headers to all requests', async () => {
+    authServiceSpy.getTfaToken.mockReturnValue(null);
+    authServiceSpy.getAuthToken.mockReturnValue(null);
     const request = new HttpRequest('GET', testUrl);
     const next: HttpHandlerFn = (req) => {
       expect(req.headers.get(TENANT_HEADER)).toBe(testTenant);
@@ -55,26 +56,22 @@ describe('authInterceptor', () => {
       return of(new HttpResponse({ status: 200 }));
     };
 
-    TestBed.runInInjectionContext(() => {
-      authInterceptor(request, next).subscribe(() => done());
-    });
+    await TestBed.runInInjectionContext(() => firstValueFrom(authInterceptor(request, next)));
   });
 
-  it('should add Authorization header when token is present', (done) => {
-    authServiceSpy.getAuthToken.and.returnValue(MOCK_TOKEN);
+  it('should add Authorization header when token is present', async () => {
+    authServiceSpy.getAuthToken.mockReturnValue(MOCK_TOKEN);
     const request = new HttpRequest('GET', testUrl);
     const next: HttpHandlerFn = (req) => {
       expect(req.headers.get('Authorization')).toBe(BASIC_HEADER);
       return of(new HttpResponse({ status: 200 }));
     };
 
-    TestBed.runInInjectionContext(() => {
-      authInterceptor(request, next).subscribe(() => done());
-    });
+    await TestBed.runInInjectionContext(() => firstValueFrom(authInterceptor(request, next)));
   });
 
-  it('should not overwrite tenant headers when the request already specifies them', (done) => {
-    authServiceSpy.getAuthToken.and.returnValue(null);
+  it('should not overwrite tenant headers when the request already specifies them', async () => {
+    authServiceSpy.getAuthToken.mockReturnValue(null);
     const loginTenant = 'from-login-form';
     const request = new HttpRequest(
       'POST',
@@ -93,9 +90,7 @@ describe('authInterceptor', () => {
       return of(new HttpResponse({ status: 200 }));
     };
 
-    TestBed.runInInjectionContext(() => {
-      authInterceptor(request, next).subscribe(() => done());
-    });
+    await TestBed.runInInjectionContext(() => firstValueFrom(authInterceptor(request, next)));
   });
 
   /**
@@ -104,9 +99,9 @@ describe('authInterceptor', () => {
    * `HttpClient` would otherwise ship a Basic header carrying banking credentials to it.
    */
   describe('two-factor token', () => {
-    it('attaches it once a second factor has been validated', (done) => {
-      authServiceSpy.getAuthToken.and.returnValue(MOCK_TOKEN);
-      authServiceSpy.getTfaToken.and.returnValue('tfa-abc');
+    it('attaches it once a second factor has been validated', async () => {
+      authServiceSpy.getAuthToken.mockReturnValue(MOCK_TOKEN);
+      authServiceSpy.getTfaToken.mockReturnValue('tfa-abc');
 
       const next: HttpHandlerFn = (req) => {
         expect(req.headers.get(TFA_HEADER)).toBe('tfa-abc');
@@ -115,43 +110,42 @@ describe('authInterceptor', () => {
         return of(new HttpResponse({ status: 200 }));
       };
 
-      TestBed.runInInjectionContext(() => {
-        authInterceptor(new HttpRequest('GET', testUrl), next).subscribe(() => done());
-      });
+      await TestBed.runInInjectionContext(() =>
+        firstValueFrom(authInterceptor(new HttpRequest('GET', testUrl), next)),
+      );
     });
 
-    it('omits it where there is none', (done) => {
-      authServiceSpy.getAuthToken.and.returnValue(MOCK_TOKEN);
-      authServiceSpy.getTfaToken.and.returnValue(null);
+    it('omits it where there is none', async () => {
+      authServiceSpy.getAuthToken.mockReturnValue(MOCK_TOKEN);
+      authServiceSpy.getTfaToken.mockReturnValue(null);
 
       const next: HttpHandlerFn = (req) => {
-        expect(req.headers.has(TFA_HEADER)).toBeFalse();
+        expect(req.headers.has(TFA_HEADER)).toBe(false);
         return of(new HttpResponse({ status: 200 }));
       };
 
-      TestBed.runInInjectionContext(() => {
-        authInterceptor(new HttpRequest('GET', testUrl), next).subscribe(() => done());
-      });
+      await TestBed.runInInjectionContext(() =>
+        firstValueFrom(authInterceptor(new HttpRequest('GET', testUrl), next)),
+      );
     });
 
-    it('does not send it to a foreign origin', (done) => {
+    it('does not send it to a foreign origin', async () => {
       // Same rule as the Basic credential: a second-factor token is a session credential and
       // must not leave the API's origin.
-      authServiceSpy.getAuthToken.and.returnValue(MOCK_TOKEN);
-      authServiceSpy.getTfaToken.and.returnValue('tfa-abc');
+      authServiceSpy.getAuthToken.mockReturnValue(MOCK_TOKEN);
+      authServiceSpy.getTfaToken.mockReturnValue('tfa-abc');
 
       const next: HttpHandlerFn = (req) => {
-        expect(req.headers.has(TFA_HEADER)).toBeFalse();
-        expect(req.headers.has('Authorization')).toBeFalse();
+        expect(req.headers.has(TFA_HEADER)).toBe(false);
+        expect(req.headers.has('Authorization')).toBe(false);
         return of(new HttpResponse({ status: 200 }));
       };
 
-      TestBed.runInInjectionContext(() => {
-        authInterceptor(
-          new HttpRequest('GET', 'https://analytics.example.com/collect'),
-          next,
-        ).subscribe(() => done());
-      });
+      await TestBed.runInInjectionContext(() =>
+        firstValueFrom(
+          authInterceptor(new HttpRequest('GET', 'https://analytics.example.com/collect'), next),
+        ),
+      );
     });
   });
 
@@ -161,7 +155,7 @@ describe('authInterceptor', () => {
     const token = 'fake-token-for-tests';
 
     function headersFor(url: string): Promise<HttpHeaders> {
-      authServiceSpy.getAuthToken.and.returnValue(token);
+      authServiceSpy.getAuthToken.mockReturnValue(token);
       const request = new HttpRequest('GET', url);
       return new Promise((resolve) => {
         const next: HttpHandlerFn = (req) => {
