@@ -1,5 +1,5 @@
 {
-  "src/app/app.component.spec.ts": {
+  "src/app/app.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }

@@ -13,7 +13,7 @@
     "build:sandbox": "ng build --configuration sandbox",
     "watch": "ng build --watch --configuration development",
     "test": "ng test fineract-backoffice-ui",
-    "test:mfe": "ng test fineract-mfe",
+    "test:mfe": "ng run fineract-mfe:unit-test",
     "test:unit": "ng run fineract-backoffice-ui:unit-test",
     "test:e2e": "playwright test",
     "test:e2e:mobile": "playwright test --project=mobile",

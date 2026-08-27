@@ -24,10 +24,11 @@ import { RouterModule } from '@angular/router';
 import { IdleService } from './core/services/idle.service';
 
 describe('AppComponent', () => {
-  let idleServiceSpy: jasmine.SpyObj<IdleService>;
-
   beforeEach(async () => {
-    idleServiceSpy = jasmine.createSpyObj('IdleService', ['startMonitoring', 'stopMonitoring']);
+    const idleServiceSpy = {
+      startMonitoring: vi.fn(),
+      stopMonitoring: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [AppComponent, TranslateModule.forRoot(), RouterModule.forRoot([])],
