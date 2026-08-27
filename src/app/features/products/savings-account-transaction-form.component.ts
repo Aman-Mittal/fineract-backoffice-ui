@@ -41,7 +41,7 @@ import {
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import { toIsoDate } from '../../core/utils/date-formatter';
+import { formatArrayDate, toIsoDate } from '../../core/utils/date-formatter';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   SavingsAccountTransactionsService,
@@ -233,9 +233,7 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
           const data = typeof template === 'string' ? JSON.parse(template) : template;
           this.paymentTypeOptions.set(data.paymentTypeOptions || []);
           if (data.date) {
-            this.transactionDate.set(
-              toIsoDate(new Date(data.date[0], data.date[1] - 1, data.date[2])),
-            );
+            this.transactionDate.set(formatArrayDate(data.date));
           }
         },
         error: () => {
