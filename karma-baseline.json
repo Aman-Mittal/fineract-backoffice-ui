@@ -3,8 +3,6 @@
   "$comment": "Specs still on the deprecated Karma runner. Written by scripts/check-test-runner.mjs; files may leave this list, never join it. See DOCS/adr/0004-vitest-migration.md.",
   "grandfathered": ["src/app/features/tasks/checker-inbox/checker-inbox.component.spec.ts"],
   "specs": [
-    "src/app/app.config.spec.ts",
-    "src/app/core/guards/auth.guard.spec.ts",
     "src/app/core/interceptors/auth.interceptor.spec.ts",
     "src/app/core/interceptors/correlation-id.interceptor.spec.ts",
     "src/app/core/interceptors/error.interceptor.spec.ts",
@@ -70,9 +68,7 @@
     "src/app/features/products/tax-groups/tax-group-form.component.spec.ts",
     "src/app/features/products/tax-groups/tax-groups-list.component.spec.ts",
     "src/app/shared/components/client-search/client-search.component.spec.ts",
-    "src/app/shared/components/guidance-tour/guidance-tour.component.spec.ts",
     "src/app/shared/components/search-filter/search-filter.component.spec.ts",
-    "src/app/shared/directives/has-permission.directive.spec.ts",
     "src/app/shared/directives/tooltip.directive.spec.ts"
   ]
 }

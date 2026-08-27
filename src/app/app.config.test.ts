@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj } from './testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { initializeApp, appConfig } from './app.config';
 import { BASE_PATH } from './api/variables';
@@ -29,9 +30,9 @@ describe('AppConfig', () => {
   it('loads the config and applies branding before the app starts', async () => {
     // `initializeApp` resolves its own dependencies with `inject`, so it has to run inside an
     // injection context rather than being handed them as arguments.
-    const configServiceSpy = jasmine.createSpyObj('ConfigService', ['loadConfig']);
-    configServiceSpy.loadConfig.and.returnValue(Promise.resolve());
-    const brandingSpy = jasmine.createSpyObj('BrandingService', ['apply']);
+    const configServiceSpy = createSpyObj<ConfigService>(['loadConfig']);
+    configServiceSpy.loadConfig.mockReturnValue(Promise.resolve());
+    const brandingSpy = createSpyObj<BrandingService>(['apply']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -54,7 +55,7 @@ describe('AppConfig', () => {
 
     expect(basePathProvider).toBeTruthy();
 
-    const configServiceSpy = jasmine.createSpyObj('ConfigService', [], {
+    const configServiceSpy = Object.assign(createSpyObj<ConfigService>([]), {
       apiUrl: `${API_URL}/v1`,
     });
     const result = (basePathProvider!['useFactory'] as (...args: unknown[]) => unknown)(
@@ -68,7 +69,7 @@ describe('AppConfig', () => {
       (p) => p && p['provide'] === BASE_PATH,
     );
 
-    const configServiceSpy = jasmine.createSpyObj('ConfigService', [], {
+    const configServiceSpy = Object.assign(createSpyObj<ConfigService>([]), {
       apiUrl: API_URL,
     });
     const result = (basePathProvider!['useFactory'] as (...args: unknown[]) => unknown)(

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { GuidanceTourComponent } from './guidance-tour.component';
@@ -27,12 +28,11 @@ import { signal } from '@angular/core';
 describe('GuidanceTourComponent', () => {
   let component: GuidanceTourComponent;
   let fixture: ComponentFixture<GuidanceTourComponent>;
-  let guidanceServiceSpy: jasmine.SpyObj<GuidanceService>;
+  let guidanceServiceSpy: SpyObj<GuidanceService>;
 
   beforeEach(async () => {
-    guidanceServiceSpy = jasmine.createSpyObj(
-      'GuidanceService',
-      ['nextStep', 'previousStep', 'endTour'],
+    guidanceServiceSpy = Object.assign(
+      createSpyObj<GuidanceService>(['nextStep', 'previousStep', 'endTour']),
       {
         isPlaying: signal(true),
         currentStepIndex: signal(0),
@@ -89,9 +89,8 @@ describe('GuidanceTourComponent', () => {
   });
 
   it('renders the Next label translation key on a step that is not the last', async () => {
-    guidanceServiceSpy = jasmine.createSpyObj(
-      'GuidanceService',
-      ['nextStep', 'previousStep', 'endTour'],
+    guidanceServiceSpy = Object.assign(
+      createSpyObj<GuidanceService>(['nextStep', 'previousStep', 'endTour']),
       {
         isPlaying: signal(true),
         currentStepIndex: signal(0),

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { authGuard } from './auth.guard';
@@ -24,14 +25,14 @@ import { AuthService } from '../services/auth.service';
 import { signal } from '@angular/core';
 
 describe('authGuard', () => {
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let authServiceSpy: SpyObj<AuthService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', [], {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>([]), {
       isAuthenticated: signal(false),
     });
-    routerSpy = jasmine.createSpyObj('Router', ['parseUrl']);
+    routerSpy = createSpyObj<Router>(['parseUrl']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -48,7 +49,7 @@ describe('authGuard', () => {
     const result = TestBed.runInInjectionContext(() =>
       authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
     );
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
   });
 
   it('should redirect to login if user is not authenticated', () => {
@@ -56,7 +57,7 @@ describe('authGuard', () => {
     Object.defineProperty(authServiceSpy, 'isAuthenticated', { get: () => isAuthenticatedSignal });
 
     const loginUrlTree = {} as UrlTree;
-    routerSpy.parseUrl.and.returnValue(loginUrlTree);
+    routerSpy.parseUrl.mockReturnValue(loginUrlTree);
 
     const result = TestBed.runInInjectionContext(() =>
       authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
