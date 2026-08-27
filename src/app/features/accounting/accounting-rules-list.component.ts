@@ -20,6 +20,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { TranslatePipe } from '../../core/adapters';
 import { AccountingRulesService } from '../../api/api/accountingRules.service';
 import { AccountingRuleData } from '../../api/model/models';
@@ -37,6 +39,8 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
   template: `
     <div class="container">
       <app-data-table
+        [hasError]="hasError()"
+        (retry)="onRetry()"
         title="nav.accountingRules"
         [data]="rules()"
         [columns]="columns"
@@ -85,6 +89,8 @@ export class AccountingRulesListComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly rules = signal<AccountingRuleData[]>([]);
+  /** True when the last load failed, so the table offers a retry instead of an empty list. */
+  readonly hasError = signal(false);
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
     { key: 'officeName', label: 'COMMON.OFFICE', sortable: true },
@@ -98,9 +104,20 @@ export class AccountingRulesListComponent implements OnInit {
   }
 
   loadRules() {
-    this.accountingRulesService.getAccountingrules().subscribe((rules) => {
-      this.rules.set(rules);
-    });
+    this.accountingRulesService
+      .getAccountingrules()
+      .pipe(
+        tap(() => this.hasError.set(false)),
+        catchError(() => {
+          this.hasError.set(true);
+          return of([] as AccountingRuleData[]);
+        }),
+      )
+      .subscribe((rules) => this.rules.set(rules ?? []));
+  }
+
+  onRetry(): void {
+    this.loadRules();
   }
 
   onCreate() {
