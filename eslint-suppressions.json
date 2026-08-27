@@ -1565,7 +1565,7 @@
       "count": 1
     }
   },
-  "src/app/shared/components/guidance-tour/guidance-tour.component.spec.ts": {
+  "src/app/shared/components/guidance-tour/guidance-tour.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
