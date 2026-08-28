@@ -19,13 +19,14 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
 import { MeetingsService, MeetingData } from '../../api';
 import { formatArrayDate } from '../../core/utils/date-formatter';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { DialogService } from '../../core/services/dialog.service';
 
 /**
  * Lists the meetings recorded against a single group or center. The entity type
@@ -88,6 +89,8 @@ export class MeetingsListComponent implements OnInit {
   private readonly meetingsService = inject(MeetingsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   readonly columns: ColumnDef[] = [
     { key: 'meetingDate', label: 'MEETINGS.MEETING_DATE', sortable: false },
@@ -133,12 +136,23 @@ export class MeetingsListComponent implements OnInit {
   }
 
   onDelete(row: MeetingData): void {
-    if (!row.id || !window.confirm('Delete this meeting?')) return;
-    this.meetingsService
-      .deleteEntityTypeEntityIdMeetingsMeetingId(this.entityType, this.entityId, row.id)
-      .subscribe({
-        next: () => this.load(),
-        error: (err: unknown) => console.error('Failed to delete meeting', err),
+    if (!row.id) return;
+
+    void this.dialogService
+      .confirm({
+        title: this.translate.instant('MEETINGS.DELETE'),
+        message: this.translate.instant('MEETINGS.CONFIRM_DELETE', {
+          name: this.formatDate(row.meetingDate),
+        }),
+        destructive: true,
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.meetingsService
+          .deleteEntityTypeEntityIdMeetingsMeetingId(this.entityType, this.entityId, row.id!)
+          .subscribe({
+            next: () => this.load(),
+          });
       });
   }
 }

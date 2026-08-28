@@ -1947,7 +1947,9 @@
     "EDIT": "Edit Meeting",
     "MEETING_DATE": "Meeting Date",
     "PRESENT_COUNT": "Attendance Recorded",
-    "CALENDAR_ID": "Calendar"
+    "CALENDAR_ID": "Calendar",
+    "DELETE": "Delete",
+    "CONFIRM_DELETE": "Delete meeting on \"{{name}}\"?"
   },
   "CALENDARS": {
     "TITLE": "Calendars",
@@ -1955,7 +1957,9 @@
     "CREATE": "Create Calendar",
     "EDIT": "Edit Calendar",
     "START_DATE": "Start Date",
-    "TYPE": "Type"
+    "TYPE": "Type",
+    "DELETE": "Delete",
+    "CONFIRM_DELETE": "Delete calendar \"{{name}}\"?"
   },
   "GROUP_LEVELS": {
     "LEVEL_NAME": "Level Name",

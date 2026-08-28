@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
@@ -28,6 +28,7 @@ import { CalendarService, CalendarData } from '../../api';
 import { formatArrayDate } from '../../core/utils/date-formatter';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { DialogService } from '../../core/services/dialog.service';
 
 /**
  * Lists the calendars (meeting schedules) attached to a single group or center.
@@ -89,6 +90,8 @@ export class CalendarsListComponent implements OnInit {
   private readonly calendarService = inject(CalendarService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   readonly columns: ColumnDef[] = [
     { key: 'title', label: 'CALENDARS.TITLE_FIELD', sortable: true },
@@ -140,12 +143,21 @@ export class CalendarsListComponent implements OnInit {
   }
 
   onDelete(row: CalendarData): void {
-    if (!row.id || !window.confirm('Delete this calendar?')) return;
-    this.calendarService
-      .deleteEntityTypeEntityIdCalendarsCalendarId(this.entityType, this.entityId, row.id)
-      .subscribe({
-        next: () => this.load(),
-        error: (err: unknown) => console.error('Failed to delete calendar', err),
+    if (!row.id) return;
+
+    void this.dialogService
+      .confirm({
+        title: this.translate.instant('CALENDARS.DELETE'),
+        message: this.translate.instant('CALENDARS.CONFIRM_DELETE', { name: row.title }),
+        destructive: true,
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.calendarService
+          .deleteEntityTypeEntityIdCalendarsCalendarId(this.entityType, this.entityId, row.id!)
+          .subscribe({
+            next: () => this.load(),
+          });
       });
   }
 }
