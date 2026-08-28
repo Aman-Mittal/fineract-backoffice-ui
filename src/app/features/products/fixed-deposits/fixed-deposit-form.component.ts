@@ -50,6 +50,7 @@ import {
   PutFixedDepositAccountsAccountIdRequest,
 } from '../../../api';
 import {
+  formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -412,9 +413,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
       next: (data: GetFixedDepositAccountsAccountIdResponse) => {
         const dateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (dateArray) {
-          this.submittedOnDate.set(
-            toIsoDate(new Date(dateArray[0], dateArray[1] - 1, dateArray[2])),
-          );
+          this.submittedOnDate.set(formatArrayDate(dateArray));
         }
         this.account.set({
           clientId: data.clientId,
