@@ -54,14 +54,14 @@ describe('TooltipDirective', () => {
     TestBed.configureTestingModule({ imports: [TestComponent] });
     fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
-    jasmine.clock().install();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     // Directives destroyed by the fixture already clean up after themselves; this only
     // catches anything a failing assertion left behind, so later specs start from zero.
     document.querySelectorAll(TOOLTIP_SELECTOR).forEach((el) => el.remove());
-    jasmine.clock().uninstall();
+    vi.useRealTimers();
   });
 
   function host(id: string): HTMLElement {
@@ -73,7 +73,7 @@ describe('TooltipDirective', () => {
 
     el.dispatchEvent(new Event('mouseenter'));
     el.dispatchEvent(new Event('focusin'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
 
     expect(tooltipCount()).toBe(1);
   });
@@ -82,7 +82,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
     expect(tooltipCount()).toBe(1);
 
     el.dispatchEvent(new Event('mouseleave'));
@@ -94,13 +94,13 @@ describe('TooltipDirective', () => {
     const second = host('#second');
 
     first.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
     expect(tooltipCount()).toBe(1);
 
     // The pointer moves to the second host without the first ever reporting mouseleave —
     // e.g. focus lands there via keyboard while the mouse is still over the first element.
     second.dispatchEvent(new Event('focusin'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
 
     expect(tooltipCount()).toBe(1);
     expect(document.querySelector(TOOLTIP_SELECTOR)?.textContent).toBe('Second host');
@@ -110,7 +110,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
     expect(tooltipCount()).toBe(1);
 
     fixture.destroy();
@@ -122,10 +122,10 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY - 1);
+    vi.advanceTimersByTime(SHOW_DELAY - 1);
     expect(tooltipCount()).toBe(0);
 
-    jasmine.clock().tick(1);
+    vi.advanceTimersByTime(1);
     expect(tooltipCount()).toBe(1);
   });
 
@@ -133,7 +133,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
 
     const bubble = tooltip();
     expect(bubble).not.toBeNull();
@@ -146,7 +146,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('focusin'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
 
     expect(tooltip()?.textContent).toBe('First host');
   });
@@ -159,7 +159,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
 
     expect(el.getAttribute(DESCRIBED_BY)).toBeTruthy();
     expect(el.getAttribute('aria-label')).toBeNull();
@@ -169,7 +169,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
     el.dispatchEvent(new Event('mouseleave'));
 
     expect(tooltipCount()).toBe(0);
@@ -180,7 +180,7 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
     el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(tooltipCount()).toBe(0);
@@ -190,9 +190,9 @@ describe('TooltipDirective', () => {
     const el = host('#first');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY - 100);
+    vi.advanceTimersByTime(SHOW_DELAY - 100);
     el.dispatchEvent(new Event('mouseleave'));
-    jasmine.clock().tick(SHOW_DELAY);
+    vi.advanceTimersByTime(SHOW_DELAY);
 
     // A passing hover must not leave a tooltip behind after the timer would have fired.
     expect(tooltipCount()).toBe(0);
@@ -204,7 +204,7 @@ describe('TooltipDirective', () => {
     const el = host('#variable');
 
     el.dispatchEvent(new Event('mouseenter'));
-    jasmine.clock().tick(SHOW_DELAY + 1);
+    vi.advanceTimersByTime(SHOW_DELAY + 1);
 
     expect(tooltipCount()).toBe(0);
   });
