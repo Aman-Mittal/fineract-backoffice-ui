@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SearchFilterComponent } from './search-filter.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
@@ -40,8 +40,11 @@ describe('SearchFilterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit searchChange with debounced value', fakeAsync(() => {
-    spyOn(component.searchChange, 'emit');
+  afterEach(() => vi.useRealTimers());
+
+  it('should emit searchChange with debounced value', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component.searchChange, 'emit');
 
     const inputElement = fixture.nativeElement.querySelector('input');
 
@@ -53,13 +56,14 @@ describe('SearchFilterComponent', () => {
     expect(component.searchChange.emit).not.toHaveBeenCalled();
 
     // Wait for debounceTime (400ms)
-    tick(400);
+    vi.advanceTimersByTime(400);
 
     expect(component.searchChange.emit).toHaveBeenCalledWith('test');
-  }));
+  });
 
-  it('should trim the input value before emitting', fakeAsync(() => {
-    spyOn(component.searchChange, 'emit');
+  it('should trim the input value before emitting', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component.searchChange, 'emit');
 
     const inputElement = fixture.nativeElement.querySelector('input');
 
@@ -68,28 +72,29 @@ describe('SearchFilterComponent', () => {
     inputElement.dispatchEvent(new Event('input'));
 
     // Wait for debounceTime (400ms)
-    tick(400);
+    vi.advanceTimersByTime(400);
 
     expect(component.searchChange.emit).toHaveBeenCalledWith('test value');
-  }));
+  });
 
-  it('should not emit if the trimmed value is identical to the previous one', fakeAsync(() => {
-    spyOn(component.searchChange, 'emit');
+  it('should not emit if the trimmed value is identical to the previous one', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component.searchChange, 'emit');
 
     const inputElement = fixture.nativeElement.querySelector('input');
 
     // First emission
     inputElement.value = 'test';
     inputElement.dispatchEvent(new Event('input'));
-    tick(400);
+    vi.advanceTimersByTime(400);
     expect(component.searchChange.emit).toHaveBeenCalledTimes(1);
 
     // Second emission with same value
     inputElement.value = 'test  ';
     inputElement.dispatchEvent(new Event('input'));
-    tick(400);
+    vi.advanceTimersByTime(400);
 
     // Should still be called only once
     expect(component.searchChange.emit).toHaveBeenCalledTimes(1);
-  }));
+  });
 });
