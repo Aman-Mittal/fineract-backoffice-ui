@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors, HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -27,11 +28,11 @@ import { skipLoading } from '../http/http-context';
 describe('loadingInterceptor', () => {
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
-  let loadingServiceSpy: jasmine.SpyObj<LoadingService>;
+  let loadingServiceSpy: SpyObj<LoadingService>;
   const testUrl = '/api/test';
 
   beforeEach(() => {
-    loadingServiceSpy = jasmine.createSpyObj('LoadingService', ['setLoading']);
+    loadingServiceSpy = createSpyObj(['setLoading']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -69,7 +70,7 @@ describe('loadingInterceptor', () => {
 
     const req = httpTestingController.expectOne('/api/test-skip-context');
     // Context is client-side only: nothing about the opt-out reaches the server.
-    expect(req.request.headers.has('X-Skip-Loading')).toBeFalse();
+    expect(req.request.headers.has('X-Skip-Loading')).toBe(false);
     req.flush({});
   });
 
@@ -86,8 +87,10 @@ describe('loadingInterceptor', () => {
   it('should set loading to false even if request errors', () => {
     const errorUrl = '/api/test-error';
     httpClient.get(errorUrl).subscribe({
-      next: () => fail('expected an error'),
-      error: () => expect().nothing(),
+      next: () => {
+        throw new Error('expected an error');
+      },
+      error: () => undefined,
     });
 
     expect(loadingServiceSpy.setLoading).toHaveBeenCalledWith(true, errorUrl);

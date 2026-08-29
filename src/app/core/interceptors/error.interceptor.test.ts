@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors, HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -30,9 +31,9 @@ import { skipErrorToast } from '../http/http-context';
 describe('errorInterceptor', () => {
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
-  let notificationsSpy: jasmine.SpyObj<NotificationService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let authSpy: jasmine.SpyObj<AuthService>;
+  let notificationsSpy: SpyObj<NotificationService>;
+  let routerSpy: SpyObj<Router>;
+  let authSpy: SpyObj<AuthService>;
   const testUrl = '/api/test';
   const expectedErrorMsg = 'expected an error';
 
@@ -40,21 +41,17 @@ describe('errorInterceptor', () => {
   const authorized = { headers: new HttpHeaders({ Authorization: 'Basic abc123' }) };
 
   beforeEach(() => {
-    notificationsSpy = jasmine.createSpyObj<NotificationService>('NotificationService', [
-      'success',
-      'error',
-      'show',
-    ]);
-    notificationsSpy.error.and.resolveTo();
+    notificationsSpy = createSpyObj<NotificationService>(['success', 'error', 'show']);
+    notificationsSpy.error.mockResolvedValue();
 
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
-    routerSpy.navigate.and.resolveTo(true);
+    routerSpy = createSpyObj<Router>(['navigate']);
+    routerSpy.navigate.mockResolvedValue(true);
 
-    authSpy = jasmine.createSpyObj<AuthService>('AuthService', ['logout', 'isAuthenticated']);
-    authSpy.isAuthenticated.and.returnValue(true);
+    authSpy = createSpyObj<AuthService>(['logout', 'isAuthenticated']);
+    authSpy.isAuthenticated.mockReturnValue(true);
     // `logout()` flips the signal synchronously in the real service; the burst-dedupe in the
     // interceptor depends on that, so the double is wired to behave the same way.
-    authSpy.logout.and.callFake(() => authSpy.isAuthenticated.and.returnValue(false));
+    authSpy.logout.mockImplementation(() => authSpy.isAuthenticated.mockReturnValue(false));
 
     TestBed.configureTestingModule({
       providers: [
@@ -90,7 +87,9 @@ describe('errorInterceptor', () => {
     const errorEvent = new ErrorEvent('Network error', { message: 'Failed to connect' });
 
     httpClient.get(testUrl).subscribe({
-      next: () => fail(expectedErrorMsg),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
       error: (error) => {
         expect(error.status).toBe(0);
       },
@@ -112,8 +111,10 @@ describe('errorInterceptor', () => {
     };
 
     httpClient.get(testUrl).subscribe({
-      next: () => fail(expectedErrorMsg),
-      error: () => expect().nothing(),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
+      error: () => undefined,
     });
 
     const req = httpTestingController.expectOne(testUrl);
@@ -126,8 +127,10 @@ describe('errorInterceptor', () => {
 
   it('should handle single developerMessage or defaultUserMessage', () => {
     httpClient.get(testUrl).subscribe({
-      next: () => fail(expectedErrorMsg),
-      error: () => expect().nothing(),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
+      error: () => undefined,
     });
 
     const req = httpTestingController.expectOne(testUrl);
@@ -139,11 +142,13 @@ describe('errorInterceptor', () => {
     expect(notificationsSpy.error).toHaveBeenCalledWith('Custom dev message');
 
     // Reset spy
-    notificationsSpy.error.calls.reset();
+    notificationsSpy.error.mockClear();
 
     httpClient.get('/api/test2').subscribe({
-      next: () => fail(expectedErrorMsg),
-      error: () => expect().nothing(),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
+      error: () => undefined,
     });
 
     const req2 = httpTestingController.expectOne('/api/test2');
@@ -157,8 +162,10 @@ describe('errorInterceptor', () => {
 
   it('should handle status 0 when no message is present', () => {
     httpClient.get(testUrl).subscribe({
-      next: () => fail(expectedErrorMsg),
-      error: () => expect().nothing(),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
+      error: () => undefined,
     });
 
     const req = httpTestingController.expectOne(testUrl);
@@ -169,20 +176,24 @@ describe('errorInterceptor', () => {
 
   it('should fallback to status code and message description for other errors', () => {
     httpClient.get(testUrl).subscribe({
-      next: () => fail(expectedErrorMsg),
-      error: () => expect().nothing(),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
+      error: () => undefined,
     });
 
     const req = httpTestingController.expectOne(testUrl);
     req.flush('Plain error body', { status: 503, statusText: 'Service Unavailable' });
 
-    expect(notificationsSpy.error).toHaveBeenCalledWith(jasmine.stringMatching(/Error Code: 503/));
+    expect(notificationsSpy.error).toHaveBeenCalledWith(expect.stringMatching(/Error Code: 503/));
   });
 
   it('should not toast when the SKIP_ERROR_TOAST context is set, but still rethrow', () => {
     let received: unknown = null;
     httpClient.get(testUrl, { context: skipErrorToast() }).subscribe({
-      next: () => fail(expectedErrorMsg),
+      next: () => {
+        throw new Error(expectedErrorMsg);
+      },
       error: (err) => (received = err),
     });
 
@@ -198,7 +209,9 @@ describe('errorInterceptor', () => {
     it('should end the session and redirect when a credentialed request is rejected', () => {
       let received: unknown = null;
       httpClient.get(testUrl, authorized).subscribe({
-        next: () => fail(expectedErrorMsg),
+        next: () => {
+          throw new Error(expectedErrorMsg);
+        },
         error: (err) => (received = err),
       });
 
@@ -219,7 +232,7 @@ describe('errorInterceptor', () => {
     it('should redirect once when several in-flight requests are rejected together', () => {
       const urls = ['/api/a', '/api/b', '/api/c'];
       for (const url of urls) {
-        httpClient.get(url, authorized).subscribe({ error: () => expect().nothing() });
+        httpClient.get(url, authorized).subscribe({ error: () => undefined });
       }
       for (const url of urls) {
         httpTestingController
@@ -232,10 +245,10 @@ describe('errorInterceptor', () => {
     });
 
     it('should not end a session that never existed when sign-in credentials are rejected', () => {
-      authSpy.isAuthenticated.and.returnValue(false);
+      authSpy.isAuthenticated.mockReturnValue(false);
 
       // No Authorization header: this is the login POST, the one request that legitimately 401s.
-      httpClient.post('/api/authentication', {}).subscribe({ error: () => expect().nothing() });
+      httpClient.post('/api/authentication', {}).subscribe({ error: () => undefined });
 
       httpTestingController
         .expectOne('/api/authentication')
@@ -254,7 +267,7 @@ describe('errorInterceptor', () => {
   describe('403', () => {
     const FORBIDDEN_MESSAGE = 'COMMON.ERRORS.FORBIDDEN';
     it("should report a permission failure in the user's terms, keeping the session", () => {
-      httpClient.get(testUrl, authorized).subscribe({ error: () => expect().nothing() });
+      httpClient.get(testUrl, authorized).subscribe({ error: () => undefined });
 
       httpTestingController
         .expectOne(testUrl)
@@ -270,9 +283,7 @@ describe('errorInterceptor', () => {
     });
 
     it('should stay silent when the caller opts out', () => {
-      httpClient
-        .get(testUrl, { context: skipErrorToast() })
-        .subscribe({ error: () => expect().nothing() });
+      httpClient.get(testUrl, { context: skipErrorToast() }).subscribe({ error: () => undefined });
 
       httpTestingController
         .expectOne(testUrl)
@@ -286,7 +297,7 @@ describe('errorInterceptor', () => {
       // group that still has members is the first, and the reason exists only in this body —
       // reporting it as a permission failure sends the user to an administrator to ask for a
       // right they already hold, and leaves the actual remedy unsaid.
-      httpClient.get(testUrl, authorized).subscribe({ error: () => expect().nothing() });
+      httpClient.get(testUrl, authorized).subscribe({ error: () => undefined });
 
       httpTestingController.expectOne(testUrl).flush(
         {
@@ -304,7 +315,7 @@ describe('errorInterceptor', () => {
         { status: 403, statusText: 'Forbidden' },
       );
 
-      const [message] = notificationsSpy.error.calls.mostRecent().args as [string];
+      const [message] = notificationsSpy.error.mock.lastCall! as [string];
       expect(message).toContain('Group cannot be closed because of active clients');
       expect(message).not.toContain(FORBIDDEN_MESSAGE);
     });
@@ -312,7 +323,7 @@ describe('errorInterceptor', () => {
     it('should recognise a domain-rule violation by its errors array alone', () => {
       // Not every state-machine refusal carries the globalisation code, but they all populate
       // `errors[]` — and an authorization refusal has nothing to put in it.
-      httpClient.get(testUrl, authorized).subscribe({ error: () => expect().nothing() });
+      httpClient.get(testUrl, authorized).subscribe({ error: () => undefined });
 
       httpTestingController.expectOne(testUrl).flush(
         {
@@ -321,14 +332,14 @@ describe('errorInterceptor', () => {
         { status: 403, statusText: 'Forbidden' },
       );
 
-      const [message] = notificationsSpy.error.calls.mostRecent().args as [string];
+      const [message] = notificationsSpy.error.mock.lastCall! as [string];
       expect(message).toContain('Loan is not in a state where it can be disbursed.');
     });
 
     it('should keep the permission message when the errors array is empty', () => {
       // Deliberately conservative: anything that is not recognisably a domain-rule violation
       // behaves exactly as it did before.
-      httpClient.get(testUrl, authorized).subscribe({ error: () => expect().nothing() });
+      httpClient.get(testUrl, authorized).subscribe({ error: () => undefined });
 
       httpTestingController
         .expectOne(testUrl)
