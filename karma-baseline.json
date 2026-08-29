@@ -18,7 +18,6 @@
     "src/app/features/clients/kyc/client-note-form.component.spec.ts",
     "src/app/features/clients/tabs/client-documents-list.component.spec.ts",
     "src/app/features/clients/transactions/client-transactions-list.component.spec.ts",
-    "src/app/features/groups/group-members-dialog.component.spec.ts",
     "src/app/features/loans/bulk-reassignment/bulk-reassignment.component.spec.ts",
     "src/app/features/loans/collateral/collateral-form.component.spec.ts",
     "src/app/features/loans/collateral/collateral-list.component.spec.ts",
