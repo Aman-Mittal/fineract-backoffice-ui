@@ -62,7 +62,6 @@
     "src/app/features/products/tax-components/tax-components-list.component.spec.ts",
     "src/app/features/products/tax-groups/tax-group-form.component.spec.ts",
     "src/app/features/products/tax-groups/tax-groups-list.component.spec.ts",
-    "src/app/shared/components/client-search/client-search.component.spec.ts",
     "src/app/shared/components/search-filter/search-filter.component.spec.ts",
     "src/app/shared/directives/tooltip.directive.spec.ts"
   ]
