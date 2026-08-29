@@ -17,24 +17,26 @@
  * under the License.
  */
 
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { IdleService } from './idle.service';
 import { AuthService } from './auth.service';
 import { DialogService } from './dialog.service';
 import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 
 describe('IdleService', () => {
   let service: IdleService;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let authServiceSpy: SpyObj<AuthService>;
+  let routerSpy: SpyObj<Router>;
   let routerEvents: Subject<unknown>;
   let overlay: FakeOverlayAdapter;
 
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['logout', 'isAuthenticated']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    vi.useFakeTimers();
+    authServiceSpy = createSpyObj<AuthService>(['logout', 'isAuthenticated']);
+    routerSpy = createSpyObj<Router>(['navigate']);
     routerEvents = new Subject<unknown>();
     // `Router.events` is a real Observable, not a spied method — the constructor subscribes
     // to it directly, so the double has to supply one rather than leave it undefined.
@@ -52,34 +54,36 @@ describe('IdleService', () => {
       ],
     });
 
-    authServiceSpy.isAuthenticated.and.returnValue(false);
+    authServiceSpy.isAuthenticated.mockReturnValue(false);
   });
+
+  afterEach(() => vi.useRealTimers());
 
   it('should be created', () => {
     service = TestBed.inject(IdleService);
     expect(service).toBeTruthy();
   });
 
-  it('should show warning dialog before timeout', fakeAsync(() => {
-    authServiceSpy.isAuthenticated.and.returnValue(true);
+  it('should show warning dialog before timeout', () => {
+    authServiceSpy.isAuthenticated.mockReturnValue(true);
     overlay.nextModalResult = true;
 
     service = TestBed.inject(IdleService);
 
     // Total 15m, Warning at 13m. Advance to 13m
-    tick(13 * 60 * 1000 + 1000);
+    vi.advanceTimersByTime(13 * 60 * 1000 + 1000);
 
-    expect(overlay.modals).toHaveSize(1);
+    expect(overlay.modals).toHaveLength(1);
     // Ignoring the warning has to fall through to the logout timer, so neither the backdrop
     // nor Escape may take it down.
     expect(overlay.lastModal!.dismissible).toBe(false);
     service.ngOnDestroy();
-  }));
+  });
 
-  it('should logout if user does not respond to warning', fakeAsync(() => {
-    authServiceSpy.isAuthenticated.and.returnValue(true);
+  it('should logout if user does not respond to warning', () => {
+    authServiceSpy.isAuthenticated.mockReturnValue(true);
     // The user never answers the warning, so the hard logout timer must fire.
-    spyOn(overlay, 'presentModal').and.resolveTo({
+    vi.spyOn(overlay, 'presentModal').mockResolvedValue({
       result: new Promise(() => undefined),
       dismiss: () => Promise.resolve(),
     });
@@ -87,20 +91,20 @@ describe('IdleService', () => {
     service = TestBed.inject(IdleService);
 
     // Advance to 13m (warning shows)
-    tick(13 * 60 * 1000 + 1000);
+    vi.advanceTimersByTime(13 * 60 * 1000 + 1000);
     expect(overlay.presentModal).toHaveBeenCalled();
 
     // Advance remaining 2m
-    tick(2 * 60 * 1000 + 1000);
+    vi.advanceTimersByTime(2 * 60 * 1000 + 1000);
 
     expect(authServiceSpy.logout).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalled();
 
     service.ngOnDestroy();
-  }));
+  });
 
-  it('keeps the hard logout timer running when activity is reported while the warning is still being presented', fakeAsync(() => {
-    authServiceSpy.isAuthenticated.and.returnValue(true);
+  it('keeps the hard logout timer running when activity is reported while the warning is still being presented', async () => {
+    authServiceSpy.isAuthenticated.mockReturnValue(true);
 
     // Simulates the window between the warning timer firing and `dialogService.present()`
     // actually resolving — the exact gap in which `dialogRef` used to sit unset, making the
@@ -112,7 +116,7 @@ describe('IdleService', () => {
       result: Promise<unknown>;
       dismiss: () => Promise<void>;
     }) => void;
-    spyOn(overlay, 'presentModal').and.returnValue(
+    vi.spyOn(overlay, 'presentModal').mockReturnValue(
       new Promise((resolve) => {
         resolvePresent = resolve;
       }),
@@ -120,48 +124,51 @@ describe('IdleService', () => {
 
     service = TestBed.inject(IdleService);
 
-    tick(13 * 60 * 1000 + 1000);
+    vi.advanceTimersByTime(13 * 60 * 1000 + 1000);
     expect(overlay.presentModal).toHaveBeenCalledTimes(1);
 
     // An activity event lands before the modal has actually presented.
     window.dispatchEvent(new Event('mousemove'));
-    tick(1);
+    vi.advanceTimersByTime(1);
 
     // The modal now presents, and the user never answers it.
     resolvePresent({ result: new Promise(() => undefined), dismiss: () => Promise.resolve() });
-    tick();
+    await Promise.resolve();
 
     // If the stray activity event had reset the timer, this would not be enough time to
     // reach the hard logout — it would take another ~13 minutes instead.
-    tick(2 * 60 * 1000 + 1000);
+    vi.advanceTimersByTime(2 * 60 * 1000 + 1000);
 
     expect(authServiceSpy.logout).toHaveBeenCalled();
     expect(overlay.presentModal).toHaveBeenCalledTimes(1);
 
     service.ngOnDestroy();
-  }));
+  });
 
-  it('closes the warning dialog once navigation actually lands on the login page', fakeAsync(() => {
-    authServiceSpy.isAuthenticated.and.returnValue(true);
+  it('closes the warning dialog once navigation actually lands on the login page', async () => {
+    authServiceSpy.isAuthenticated.mockReturnValue(true);
     // The user never answers, so nothing else would close this dialog before the hard
     // logout timer does — the router subscription below has to be what closes it instead.
-    const dismissSpy = jasmine.createSpy('dismiss').and.resolveTo(undefined);
-    spyOn(overlay, 'presentModal').and.resolveTo({
+    const dismissSpy = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(overlay, 'presentModal').mockResolvedValue({
       result: new Promise(() => undefined),
       dismiss: dismissSpy,
     });
 
     service = TestBed.inject(IdleService);
 
-    tick(13 * 60 * 1000 + 1000);
+    vi.advanceTimersByTime(13 * 60 * 1000 + 1000);
     expect(overlay.presentModal).toHaveBeenCalled();
     expect(dismissSpy).not.toHaveBeenCalled();
+    // `presentModal()` resolves on a native promise. Let the dialog handle become available
+    // before the router event asks the service to close it.
+    await Promise.resolve();
 
     routerEvents.next(new NavigationEnd(1, '/login?reason=inactivity', '/login?reason=inactivity'));
-    tick();
+    await Promise.resolve();
 
     expect(dismissSpy).toHaveBeenCalled();
 
     service.ngOnDestroy();
-  }));
+  });
 });

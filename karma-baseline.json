@@ -3,7 +3,6 @@
   "$comment": "Specs still on the deprecated Karma runner. Written by scripts/check-test-runner.mjs; files may leave this list, never join it. See DOCS/adr/0004-vitest-migration.md.",
   "grandfathered": ["src/app/features/tasks/checker-inbox/checker-inbox.component.spec.ts"],
   "specs": [
-    "src/app/core/services/idle.service.spec.ts",
     "src/app/features/clients/charges/client-charge-form.component.spec.ts",
     "src/app/features/clients/charges/client-charges-list.component.spec.ts",
     "src/app/features/clients/client-action-dialog.component.spec.ts",
