@@ -26,25 +26,26 @@ import { AuthService } from '../../core/services/auth.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
+import { createSpyObj, SpyObj } from '../../testing/mocks';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 
 describe('SavingsAccountViewComponent', () => {
   let component: SavingsAccountViewComponent;
   let fixture: ComponentFixture<SavingsAccountViewComponent>;
-  let savingsServiceSpy: jasmine.SpyObj<SavingsAccountService>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogServiceSpy: jasmine.SpyObj<DialogService>;
+  let savingsServiceSpy: SpyObj<SavingsAccountService>;
+  let authServiceSpy: SpyObj<AuthService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogServiceSpy: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    savingsServiceSpy = jasmine.createSpyObj('SavingsAccountService', [
+    savingsServiceSpy = createSpyObj<SavingsAccountService>([
       'getSavingsaccountsAccountId',
       'postSavingsaccountsAccountId',
     ]);
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
       currentUser: signal({
         username: 'mifos',
         base64EncodedAuthenticationKey: 'key',
@@ -55,14 +56,15 @@ describe('SavingsAccountViewComponent', () => {
         permissions: ['ALL_FUNCTIONS'],
       }),
     });
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogServiceSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
+    routerSpy = createSpyObj<Router>(['navigate']);
+    dialogServiceSpy = createSpyObj<DialogService>(['open', 'confirm']);
 
     await TestBed.configureTestingModule({
-      imports: [SavingsAccountViewComponent, TranslateModule.forRoot()],
+      imports: [SavingsAccountViewComponent],
       providers: [
         provideIonicTesting(),
         provideNoopAnimations(),
+        ...provideTranslateTesting(),
         { provide: SavingsAccountService, useValue: savingsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
@@ -78,11 +80,11 @@ describe('SavingsAccountViewComponent', () => {
       ],
     }).compileComponents();
 
-    savingsServiceSpy.postSavingsaccountsAccountId.and.returnValue(
+    savingsServiceSpy.postSavingsaccountsAccountId.mockReturnValue(
       of({}) as unknown as ReturnType<SavingsAccountService['postSavingsaccountsAccountId']>,
     );
 
-    savingsServiceSpy.getSavingsaccountsAccountId.and.returnValue(
+    savingsServiceSpy.getSavingsaccountsAccountId.mockReturnValue(
       of({
         id: 789,
         accountNo: 'SA000789',
@@ -132,9 +134,9 @@ describe('SavingsAccountViewComponent', () => {
     it('reports no block on a healthy account', () => {
       withSubStatus({ block: false, blockDebit: false, blockCredit: false });
 
-      expect(component.isBlocked()).toBeFalse();
-      expect(component.isDebitBlocked()).toBeFalse();
-      expect(component.isCreditBlocked()).toBeFalse();
+      expect(component.isBlocked()).toBe(false);
+      expect(component.isDebitBlocked()).toBe(false);
+      expect(component.isCreditBlocked()).toBe(false);
       expect(component.blockLabelKey()).toBeNull();
     });
 
@@ -170,7 +172,7 @@ describe('SavingsAccountViewComponent', () => {
 
       // Fineract reports "unassigned" as 0 rather than omitting the field, so a plain
       // truthiness check on the id would be right by accident and a `!= null` check wrong.
-      expect(component.hasOfficer()).toBeFalse();
+      expect(component.hasOfficer()).toBe(false);
     });
 
     it('reports an officer once one is assigned', () => {
@@ -180,7 +182,7 @@ describe('SavingsAccountViewComponent', () => {
         fieldOfficerId: 7,
       } as never);
 
-      expect(component.hasOfficer()).toBeTrue();
+      expect(component.hasOfficer()).toBe(true);
     });
   });
 
@@ -208,10 +210,10 @@ describe('SavingsAccountViewComponent', () => {
     const release = { id: 5, reversed: false, transactionType: { amountRelease: true } };
 
     it('offers undo only on a live money movement', () => {
-      expect(component.canUndo(deposit as any)).toBeTrue();
-      expect(component.canUndo(reversedDeposit as any)).toBeFalse();
-      expect(component.canUndo(openHold as any)).toBeFalse();
-      expect(component.canUndo(release as any)).toBeFalse();
+      expect(component.canUndo(deposit as any)).toBe(true);
+      expect(component.canUndo(reversedDeposit as any)).toBe(false);
+      expect(component.canUndo(openHold as any)).toBe(false);
+      expect(component.canUndo(release as any)).toBe(false);
     });
 
     /**
@@ -219,9 +221,9 @@ describe('SavingsAccountViewComponent', () => {
      * check would report every open hold as already released.
      */
     it('offers release only on a hold that still ties up money', () => {
-      expect(component.canRelease(openHold as any)).toBeTrue();
-      expect(component.canRelease(releasedHold as any)).toBeFalse();
-      expect(component.canRelease(deposit as any)).toBeFalse();
+      expect(component.canRelease(openHold as any)).toBe(true);
+      expect(component.canRelease(releasedHold as any)).toBe(false);
+      expect(component.canRelease(deposit as any)).toBe(false);
     });
   });
 
@@ -233,7 +235,7 @@ describe('SavingsAccountViewComponent', () => {
    */
   describe('undo approval', () => {
     it('sends an empty body when the dialog is confirmed with no note', async () => {
-      dialogServiceSpy.open.and.resolveTo({});
+      dialogServiceSpy.open.mockResolvedValue({});
 
       component.onUndoApproval();
       await Promise.resolve();
@@ -246,7 +248,7 @@ describe('SavingsAccountViewComponent', () => {
     });
 
     it('sends only the note when the dialog is confirmed with one', async () => {
-      dialogServiceSpy.open.and.resolveTo({ note: 'Approved amount was wrong' });
+      dialogServiceSpy.open.mockResolvedValue({ note: 'Approved amount was wrong' });
 
       component.onUndoApproval();
       await Promise.resolve();
@@ -259,7 +261,7 @@ describe('SavingsAccountViewComponent', () => {
     });
 
     it('does nothing when the dialog is dismissed without a result', async () => {
-      dialogServiceSpy.open.and.resolveTo(undefined);
+      dialogServiceSpy.open.mockResolvedValue(undefined);
 
       component.onUndoApproval();
       await Promise.resolve();

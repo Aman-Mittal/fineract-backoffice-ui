@@ -42,7 +42,6 @@
     "src/app/features/products/rates/rate-form.component.spec.ts",
     "src/app/features/products/rates/rates-list.component.spec.ts",
     "src/app/features/products/recurring-deposit-transactions/recurring-deposit-transaction-form.component.spec.ts",
-    "src/app/features/products/savings-account-view.component.spec.ts",
     "src/app/features/products/savings-charges/savings-charge-form.component.spec.ts",
     "src/app/features/products/share-dividends/share-dividend-form.component.spec.ts",
     "src/app/features/products/shares/share-account-form.component.spec.ts",
