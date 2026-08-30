@@ -682,7 +682,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/accounting/product-accounting-section.component.spec.ts": {
+  "src/app/features/products/accounting/product-accounting-section.component.test.ts": {
     "unicorn/no-array-sort": {
       "count": 4
     }
