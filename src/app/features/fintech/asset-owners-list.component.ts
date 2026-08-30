@@ -43,7 +43,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     <app-data-table
       [hasError]="hasError()"
       (retry)="onRetry()"
-      title="External Asset Owners"
+      title="ASSET_OWNERS.TITLE"
       helpTextKey="HELP.ASSET_OWNERS_DESC"
       [columns]="columns"
       [data]="transfers()"
