@@ -802,7 +802,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/loan-originators/loan-originator-form.component.spec.ts": {
+  "src/app/features/products/loan-originators/loan-originator-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }

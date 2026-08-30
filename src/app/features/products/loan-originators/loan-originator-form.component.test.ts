@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoanOriginatorFormComponent } from './loan-originator-form.component';
 import { LoanOriginatorsService } from '../../../api';
@@ -28,18 +29,18 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('LoanOriginatorFormComponent', () => {
   let component: LoanOriginatorFormComponent;
   let fixture: ComponentFixture<LoanOriginatorFormComponent>;
-  let serviceSpy: jasmine.SpyObj<LoanOriginatorsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<LoanOriginatorsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('LoanOriginatorsService', [
+    serviceSpy = createSpyObj([
       'getLoanOriginatorsTemplate',
       'getLoanOriginatorsOriginatorId',
       'postLoanOriginators',
       'putLoanOriginatorsOriginatorId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getLoanOriginatorsTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getLoanOriginatorsTemplate.mockReturnValue(
       of({
         originatorTypeOptions: [{ id: 1, name: 'Broker' }],
         channelTypeOptions: [{ id: 2, name: 'Online' }],
@@ -65,13 +66,13 @@ describe('LoanOriginatorFormComponent', () => {
   it('should load template options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getLoanOriginatorsTemplate).toHaveBeenCalled();
-    expect(component.originatorTypeOptions()).toHaveSize(1);
-    expect(component.channelTypeOptions()).toHaveSize(1);
-    expect(component.statusOptions()).toHaveSize(2);
+    expect(component.originatorTypeOptions()).toHaveLength(1);
+    expect(component.channelTypeOptions()).toHaveLength(1);
+    expect(component.statusOptions()).toHaveLength(2);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postLoanOriginators.and.returnValue(
+    serviceSpy.postLoanOriginators.mockReturnValue(
       of({}) as unknown as ReturnType<LoanOriginatorsService['postLoanOriginators']>,
     );
     component.originator.set({ name: 'New', originatorTypeId: 1 });
