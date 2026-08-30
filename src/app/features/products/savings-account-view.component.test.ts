@@ -30,7 +30,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { createSpyObj, SpyObj } from '../../testing/mocks';
-import { provideTranslateTesting } from '../../testing/i18n-testing';
+import { provideFakeAdapters } from '../../testing/adapters';
 
 describe('SavingsAccountViewComponent', () => {
   let component: SavingsAccountViewComponent;
@@ -64,7 +64,7 @@ describe('SavingsAccountViewComponent', () => {
       providers: [
         provideIonicTesting(),
         provideNoopAnimations(),
-        ...provideTranslateTesting(),
+        ...provideFakeAdapters().providers,
         { provide: SavingsAccountService, useValue: savingsServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
