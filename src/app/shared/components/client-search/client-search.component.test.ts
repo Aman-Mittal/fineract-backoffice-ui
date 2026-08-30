@@ -17,30 +17,35 @@
  * under the License.
  */
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientSearchComponent } from './client-search.component';
 import { ClientService, GetClientsResponse } from '../../../api';
 import { Observable, of } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { TranslateModule } from '@ngx-translate/core';
 import { HttpEvent } from '@angular/common/http';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('ClientSearchComponent', () => {
   let component: ClientSearchComponent;
   let fixture: ComponentFixture<ClientSearchComponent>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
+  let clientServiceSpy: SpyObj<ClientService>;
 
   beforeEach(async () => {
-    clientServiceSpy = jasmine.createSpyObj('ClientService', ['getClients', 'getClientsClientId']);
+    clientServiceSpy = createSpyObj<ClientService>(['getClients', 'getClientsClientId']);
 
     // Provide a default return value for all calls to retrieveAll21
-    clientServiceSpy.getClients.and.returnValue(
+    clientServiceSpy.getClients.mockReturnValue(
       of({ pageItems: [] }) as unknown as Observable<HttpEvent<GetClientsResponse>>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [ClientSearchComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), { provide: ClientService, useValue: clientServiceSpy }],
+      imports: [ClientSearchComponent],
+      providers: [
+        provideNoopAnimations(),
+        ...provideTranslateTesting(),
+        { provide: ClientService, useValue: clientServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClientSearchComponent);
@@ -52,24 +57,27 @@ describe('ClientSearchComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should search for clients when input changes', fakeAsync(() => {
+  afterEach(() => vi.useRealTimers());
+
+  it('should search for clients when input changes', () => {
+    vi.useFakeTimers();
     const mockResponse = {
       pageItems: [{ id: 1, displayName: 'John Doe', accountNo: '001' }],
     };
 
     // Set mock BEFORE detectChanges to catch initial startWith call if needed,
     // but we specifically want to test the change to 'John'.
-    clientServiceSpy.getClients.and.returnValue(
+    clientServiceSpy.getClients.mockReturnValue(
       of(mockResponse) as unknown as Observable<HttpEvent<GetClientsResponse>>,
     );
 
     fixture.detectChanges(); // Trigger ngOnInit
-    tick(300); // Handle initial startWith('') call
+    vi.advanceTimersByTime(300); // Handle initial startWith('') call
 
-    clientServiceSpy.getClients.calls.reset();
+    clientServiceSpy.getClients.mockClear();
 
     component.searchControl.setValue('John');
-    tick(300); // Debounce time
+    vi.advanceTimersByTime(300); // Debounce time
 
     expect(clientServiceSpy.getClients).toHaveBeenCalledWith(
       undefined,
@@ -82,13 +90,13 @@ describe('ClientSearchComponent', () => {
       0,
       20,
     );
-    expect(component.filteredClients()).toHaveSize(1);
+    expect(component.filteredClients()).toHaveLength(1);
     expect(component.filteredClients()[0]['displayName']).toBe('John Doe');
-  }));
+  });
 
   it('should emit selected client id', () => {
     fixture.detectChanges();
-    spyOn(component.clientSelected, 'emit');
+    vi.spyOn(component.clientSelected, 'emit');
     const mockClient = { id: 123, displayName: 'Test Client' };
 
     component.onSelected(mockClient as unknown as Record<string, unknown>);

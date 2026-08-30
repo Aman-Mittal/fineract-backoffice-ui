@@ -3,8 +3,6 @@
   "$comment": "Specs still on the deprecated Karma runner. Written by scripts/check-test-runner.mjs; files may leave this list, never join it. See DOCS/adr/0004-vitest-migration.md.",
   "grandfathered": ["src/app/features/tasks/checker-inbox/checker-inbox.component.spec.ts"],
   "specs": [
-    "src/app/core/interceptors/retry.interceptor.spec.ts",
-    "src/app/core/services/idle.service.spec.ts",
     "src/app/features/clients/charges/client-charge-form.component.spec.ts",
     "src/app/features/clients/charges/client-charges-list.component.spec.ts",
     "src/app/features/clients/client-action-dialog.component.spec.ts",
@@ -18,7 +16,6 @@
     "src/app/features/clients/kyc/client-note-form.component.spec.ts",
     "src/app/features/clients/tabs/client-documents-list.component.spec.ts",
     "src/app/features/clients/transactions/client-transactions-list.component.spec.ts",
-    "src/app/features/groups/group-members-dialog.component.spec.ts",
     "src/app/features/loans/bulk-reassignment/bulk-reassignment.component.spec.ts",
     "src/app/features/loans/collateral/collateral-form.component.spec.ts",
     "src/app/features/loans/collateral/collateral-list.component.spec.ts",
@@ -62,9 +59,6 @@
     "src/app/features/products/tax-components/tax-component-form.component.spec.ts",
     "src/app/features/products/tax-components/tax-components-list.component.spec.ts",
     "src/app/features/products/tax-groups/tax-group-form.component.spec.ts",
-    "src/app/features/products/tax-groups/tax-groups-list.component.spec.ts",
-    "src/app/shared/components/client-search/client-search.component.spec.ts",
-    "src/app/shared/components/search-filter/search-filter.component.spec.ts",
-    "src/app/shared/directives/tooltip.directive.spec.ts"
+    "src/app/features/products/tax-groups/tax-groups-list.component.spec.ts"
   ]
 }
