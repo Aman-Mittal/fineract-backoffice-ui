@@ -687,7 +687,7 @@
       "count": 4
     }
   },
-  "src/app/features/products/collateral-management/collateral-management-form.component.spec.ts": {
+  "src/app/features/products/collateral-management/collateral-management-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
