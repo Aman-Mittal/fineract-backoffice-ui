@@ -672,7 +672,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/account-action-form.component.spec.ts": {
+  "src/app/features/products/account-action-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
