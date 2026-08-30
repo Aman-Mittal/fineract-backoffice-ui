@@ -55,20 +55,20 @@ describe('loan schedule type', () => {
 
   describe('isProgressiveScheduleType', () => {
     it('recognises only the progressive code', () => {
-      expect(isProgressiveScheduleType(LOAN_SCHEDULE_TYPE.PROGRESSIVE)).toBeTrue();
-      expect(isProgressiveScheduleType(LOAN_SCHEDULE_TYPE.CUMULATIVE)).toBeFalse();
-      expect(isProgressiveScheduleType('progressive')).toBeFalse();
-      expect(isProgressiveScheduleType(undefined)).toBeFalse();
+      expect(isProgressiveScheduleType(LOAN_SCHEDULE_TYPE.PROGRESSIVE)).toBe(true);
+      expect(isProgressiveScheduleType(LOAN_SCHEDULE_TYPE.CUMULATIVE)).toBe(false);
+      expect(isProgressiveScheduleType('progressive')).toBe(false);
+      expect(isProgressiveScheduleType(undefined)).toBe(false);
     });
   });
 
   describe('isAdvancedPaymentAllocationStrategy', () => {
     it('recognises only the advanced allocation code', () => {
-      expect(isAdvancedPaymentAllocationStrategy(ADVANCED_PAYMENT_ALLOCATION_STRATEGY)).toBeTrue();
-      expect(
-        isAdvancedPaymentAllocationStrategy(DEFAULT_TRANSACTION_PROCESSING_STRATEGY),
-      ).toBeFalse();
-      expect(isAdvancedPaymentAllocationStrategy(null)).toBeFalse();
+      expect(isAdvancedPaymentAllocationStrategy(ADVANCED_PAYMENT_ALLOCATION_STRATEGY)).toBe(true);
+      expect(isAdvancedPaymentAllocationStrategy(DEFAULT_TRANSACTION_PROCESSING_STRATEGY)).toBe(
+        false,
+      );
+      expect(isAdvancedPaymentAllocationStrategy(null)).toBe(false);
     });
   });
 
