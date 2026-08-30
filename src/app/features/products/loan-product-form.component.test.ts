@@ -19,6 +19,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -122,25 +123,23 @@ const TEMPLATE = {
 describe('LoanProductFormComponent', () => {
   let component: LoanProductFormComponent;
   let fixture: ComponentFixture<LoanProductFormComponent>;
-  let productServiceSpy: jasmine.SpyObj<LoanProductsService>;
+  let productServiceSpy: SpyObj<LoanProductsService>;
 
   async function setup(productId: string | null = null): Promise<void> {
     TestBed.resetTestingModule();
 
-    productServiceSpy = jasmine.createSpyObj('LoanProductsService', [
+    productServiceSpy = createSpyObj([
       'getLoanproductsTemplate',
       'getLoanproductsProductId',
       'postLoanproducts',
       'putLoanproductsProductId',
     ]);
-    productServiceSpy.getLoanproductsTemplate.and.returnValue(of(TEMPLATE) as any);
+    productServiceSpy.getLoanproductsTemplate.mockReturnValue(of(TEMPLATE) as any);
 
-    const fundsSpy = jasmine.createSpyObj('FundsService', ['getFunds']);
-    fundsSpy.getFunds.and.returnValue(of([]) as any);
-    const delinquencySpy = jasmine.createSpyObj('DelinquencyRangeAndBucketsManagementService', [
-      'getDelinquencyBuckets',
-    ]);
-    delinquencySpy.getDelinquencyBuckets.and.returnValue(of([]) as any);
+    const fundsSpy = createSpyObj(['getFunds']);
+    fundsSpy.getFunds.mockReturnValue(of([]) as any);
+    const delinquencySpy = createSpyObj(['getDelinquencyBuckets']);
+    delinquencySpy.getDelinquencyBuckets.mockReturnValue(of([]) as any);
 
     await TestBed.configureTestingModule({
       imports: [LoanProductFormComponent, TranslateModule.forRoot()],
@@ -153,7 +152,7 @@ describe('LoanProductFormComponent', () => {
           provide: DelinquencyRangeAndBucketsManagementService,
           useValue: delinquencySpy,
         },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         {
           provide: ActivatedRoute,
           useValue: { paramMap: of({ get: () => productId }) },
@@ -173,7 +172,7 @@ describe('LoanProductFormComponent', () => {
   it('creates, defaulting to a cumulative product', () => {
     expect(component).toBeTruthy();
     expect(component.product().loanScheduleType).toBe(LOAN_SCHEDULE_TYPE.CUMULATIVE);
-    expect(component.isProgressive()).toBeFalse();
+    expect(component.isProgressive()).toBe(false);
   });
 
   describe('down payment', () => {
@@ -232,7 +231,7 @@ describe('LoanProductFormComponent', () => {
 
       component.onMultiDisburseChange(false);
 
-      expect(component.product().multiDisburseLoan).toBeFalse();
+      expect(component.product().multiDisburseLoan).toBe(false);
       expect(component.product().maxTrancheCount).toBeUndefined();
       expect(component.product().disallowExpectedDisbursements).toBeUndefined();
       // Only ever reachable through multi-disbursement, so it must not outlive it.
@@ -253,7 +252,7 @@ describe('LoanProductFormComponent', () => {
     });
 
     it('is available regardless of schedule type', () => {
-      expect(component.isProgressive()).toBeFalse();
+      expect(component.isProgressive()).toBe(false);
       expect(
         fixture.nativeElement.querySelector('[data-testid="loan-product-multi-disburse"]'),
       ).not.toBeNull();
@@ -291,7 +290,7 @@ describe('LoanProductFormComponent', () => {
       component.onEnableIncomeCapitalizationChange(true);
 
       const product = component.product();
-      expect(product.enableIncomeCapitalization).toBeTrue();
+      expect(product.enableIncomeCapitalization).toBe(true);
       expect(product.capitalizedIncomeType).toBe('FEE');
       expect(product.capitalizedIncomeCalculationType).toBe('FLAT');
       expect(product.capitalizedIncomeStrategy).toBe('EQUAL_AMORTIZATION');
@@ -323,8 +322,8 @@ describe('LoanProductFormComponent', () => {
       expect(product.enableBuyDownFee).toBeUndefined();
       expect(product.buyDownFeeIncomeType).toBeUndefined();
       expect(product.buyDownFeeStrategy).toBeUndefined();
-      expect(component.incomeCapitalizationEnabled()).toBeFalse();
-      expect(component.buyDownFeeEnabled()).toBeFalse();
+      expect(component.incomeCapitalizationEnabled()).toBe(false);
+      expect(component.buyDownFeeEnabled()).toBe(false);
     });
 
     it('reveals the buy-down detail fields only once it is on', () => {
@@ -358,7 +357,7 @@ describe('LoanProductFormComponent', () => {
       component.onInterestRecalculationChange(true);
 
       const product = component.product();
-      expect(product.isInterestRecalculationEnabled).toBeTrue();
+      expect(product.isInterestRecalculationEnabled).toBe(true);
       expect(product.interestRecalculationCompoundingMethod).toBe(0);
       expect(product.rescheduleStrategyMethod).toBe(1);
       expect(product.recalculationRestFrequencyType).toBe(1);
@@ -368,11 +367,11 @@ describe('LoanProductFormComponent', () => {
       component.onInterestRecalculationChange(true);
       component.onRestFrequencyTypeChange(1); // same as repayment period
 
-      expect(component.restIntervalApplies()).toBeFalse();
+      expect(component.restIntervalApplies()).toBe(false);
 
       component.onRestFrequencyTypeChange(2); // daily
 
-      expect(component.restIntervalApplies()).toBeTrue();
+      expect(component.restIntervalApplies()).toBe(true);
     });
 
     it('drops a rest interval that no longer applies', () => {
@@ -388,10 +387,10 @@ describe('LoanProductFormComponent', () => {
     it('treats a "none" compounding method as no compounding', () => {
       component.onInterestRecalculationChange(true);
       component.onCompoundingMethodChange(0);
-      expect(component.compoundingSelected()).toBeFalse();
+      expect(component.compoundingSelected()).toBe(false);
 
       component.onCompoundingMethodChange(1);
-      expect(component.compoundingSelected()).toBeTrue();
+      expect(component.compoundingSelected()).toBe(true);
     });
 
     it('drops the compounding settings when the method goes back to none', () => {
@@ -411,10 +410,10 @@ describe('LoanProductFormComponent', () => {
       component.onCompoundingMethodChange(1);
 
       component.onCompoundingFrequencyTypeChange(1);
-      expect(component.compoundingIntervalApplies()).toBeFalse();
+      expect(component.compoundingIntervalApplies()).toBe(false);
 
       component.onCompoundingFrequencyTypeChange(2);
-      expect(component.compoundingIntervalApplies()).toBeTrue();
+      expect(component.compoundingIntervalApplies()).toBe(true);
     });
 
     it('clears the whole group when it is switched off', () => {
@@ -426,13 +425,13 @@ describe('LoanProductFormComponent', () => {
       component.onInterestRecalculationChange(false);
 
       const product = component.product();
-      expect(product.isInterestRecalculationEnabled).toBeFalse();
+      expect(product.isInterestRecalculationEnabled).toBe(false);
       expect(product.interestRecalculationCompoundingMethod).toBeUndefined();
       expect(product.rescheduleStrategyMethod).toBeUndefined();
       expect(product.recalculationRestFrequencyType).toBeUndefined();
       expect(product.recalculationCompoundingFrequencyType).toBeUndefined();
       expect(product.preClosureInterestCalculationStrategy).toBeUndefined();
-      expect(component.interestRecalculationEnabled()).toBeFalse();
+      expect(component.interestRecalculationEnabled()).toBe(false);
     });
 
     /**
@@ -477,10 +476,10 @@ describe('LoanProductFormComponent', () => {
   describe('option lists', () => {
     /** These come from the product template; an earlier revision held them as local constants. */
     it('takes the income-recognition options from the template', () => {
-      expect(component.capitalizedIncomeTypeOptions()).toHaveSize(2);
+      expect(component.capitalizedIncomeTypeOptions()).toHaveLength(2);
       expect(component.capitalizedIncomeStrategyOptions()[0].value).toBe(EQUAL_AMORTIZATION_LABEL);
-      expect(component.chargeOffBehaviourOptions()).toHaveSize(2);
-      expect(component.repaymentStartDateTypeOptions()).toHaveSize(1);
+      expect(component.chargeOffBehaviourOptions()).toHaveLength(2);
+      expect(component.repaymentStartDateTypeOptions()).toHaveLength(1);
     });
   });
 
@@ -492,7 +491,7 @@ describe('LoanProductFormComponent', () => {
      */
     it('carries the disbursement and down payment settings through the load', async () => {
       await setup('7');
-      productServiceSpy.getLoanproductsProductId.and.returnValue(
+      productServiceSpy.getLoanproductsProductId.mockReturnValue(
         of({
           name: 'Asset Finance',
           shortName: 'AF',
@@ -523,21 +522,21 @@ describe('LoanProductFormComponent', () => {
       component.loadProductData();
 
       const product = component.product();
-      expect(product.multiDisburseLoan).toBeTrue();
+      expect(product.multiDisburseLoan).toBe(true);
       expect(product.maxTrancheCount).toBe(3);
-      expect(product.disallowExpectedDisbursements).toBeTrue();
-      expect(product.allowFullTermForTranche).toBeTrue();
-      expect(product.enableDownPayment).toBeTrue();
+      expect(product.disallowExpectedDisbursements).toBe(true);
+      expect(product.allowFullTermForTranche).toBe(true);
+      expect(product.enableDownPayment).toBe(true);
       expect(product.disbursedAmountPercentageForDownPayment).toBe(20);
-      expect(product.enableAutoRepaymentForDownPayment).toBeTrue();
+      expect(product.enableAutoRepaymentForDownPayment).toBe(true);
       // The response wraps these as `{ code, value }`; the request takes the bare code.
-      expect(product.enableIncomeCapitalization).toBeTrue();
+      expect(product.enableIncomeCapitalization).toBe(true);
       expect(product.capitalizedIncomeType).toBe('INTEREST');
       expect(product.capitalizedIncomeStrategy).toBe('EQUAL_AMORTIZATION');
-      expect(product.enableBuyDownFee).toBeTrue();
+      expect(product.enableBuyDownFee).toBe(true);
       expect(product.buyDownFeeIncomeType).toBe('FEE');
-      expect(component.incomeCapitalizationEnabled()).toBeTrue();
-      expect(component.buyDownFeeEnabled()).toBeTrue();
+      expect(component.incomeCapitalizationEnabled()).toBe(true);
+      expect(component.buyDownFeeEnabled()).toBe(true);
     });
   });
   describe('accounting', () => {
@@ -571,28 +570,22 @@ describe('LoanProductFormComponent', () => {
     });
 
     it('submits no mapping keys under NONE', () => {
-      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      productServiceSpy.postLoanproducts.mockReturnValue(of({}) as never);
 
       component.onSubmit();
 
-      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
-        string,
-        unknown
-      >;
+      const body = productServiceSpy.postLoanproducts.mock.lastCall![0] as Record<string, unknown>;
       expect(body['accountingRule']).toBe(ACCOUNTING_RULE.NONE);
       expect(Object.keys(body).filter((key) => key.endsWith('AccountId'))).toEqual([]);
     });
 
     it('submits the nine slots cash accounting requires', () => {
-      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      productServiceSpy.postLoanproducts.mockReturnValue(of({}) as never);
       fillMappings(ACCOUNTING_RULE.CASH);
 
       component.onSubmit();
 
-      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
-        string,
-        unknown
-      >;
+      const body = productServiceSpy.postLoanproducts.mock.lastCall![0] as Record<string, unknown>;
       expect(body['fundSourceAccountId']).toBe(11);
       expect(body['overpaymentLiabilityAccountId']).toBe(12);
       expect(body['incomeFromRecoveryAccountId']).toBe(13);
@@ -601,22 +594,19 @@ describe('LoanProductFormComponent', () => {
     });
 
     it('adds the receivables under accrual', () => {
-      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      productServiceSpy.postLoanproducts.mockReturnValue(of({}) as never);
       fillMappings(ACCOUNTING_RULE.ACCRUAL_PERIODIC);
 
       component.onSubmit();
 
-      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
-        string,
-        unknown
-      >;
+      const body = productServiceSpy.postLoanproducts.mock.lastCall![0] as Record<string, unknown>;
       expect(body['receivableInterestAccountId']).toBe(11);
       expect(body['receivableFeeAccountId']).toBe(11);
       expect(body['receivablePenaltyAccountId']).toBe(11);
     });
 
     it('does not send the down-payment auto-repayment flag while down payment is off', () => {
-      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      productServiceSpy.postLoanproducts.mockReturnValue(of({}) as never);
       component.product().enableDownPayment = false;
       component.product().enableAutoRepaymentForDownPayment = false;
 
@@ -624,30 +614,24 @@ describe('LoanProductFormComponent', () => {
 
       // The platform refuses the pair outright on update, which made every loan product without
       // down payment unsaveable from the edit screen.
-      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
-        string,
-        unknown
-      >;
+      const body = productServiceSpy.postLoanproducts.mock.lastCall![0] as Record<string, unknown>;
       expect('enableAutoRepaymentForDownPayment' in body).toBe(false);
     });
 
     it('keeps the flag once down payment is on', () => {
-      productServiceSpy.postLoanproducts.and.returnValue(of({}) as never);
+      productServiceSpy.postLoanproducts.mockReturnValue(of({}) as never);
       component.product().enableDownPayment = true;
       component.product().enableAutoRepaymentForDownPayment = true;
 
       component.onSubmit();
 
-      const body = productServiceSpy.postLoanproducts.calls.mostRecent().args[0] as Record<
-        string,
-        unknown
-      >;
+      const body = productServiceSpy.postLoanproducts.mock.lastCall![0] as Record<string, unknown>;
       expect(body['enableAutoRepaymentForDownPayment']).toBe(true);
     });
 
     it('populates the mappings of a product opened for editing', async () => {
       await setup('7');
-      productServiceSpy.getLoanproductsProductId.and.returnValue(
+      productServiceSpy.getLoanproductsProductId.mockReturnValue(
         of({
           name: 'Configured',
           currency: { code: 'USD', decimalPlaces: 2 },
@@ -671,7 +655,7 @@ describe('LoanProductFormComponent', () => {
 
     it("carries a configured product's mappings back out on save", async () => {
       await setup('7');
-      productServiceSpy.getLoanproductsProductId.and.returnValue(
+      productServiceSpy.getLoanproductsProductId.mockReturnValue(
         of({
           name: 'Configured',
           currency: { code: 'USD', decimalPlaces: 2 },
@@ -690,18 +674,18 @@ describe('LoanProductFormComponent', () => {
         }) as never,
       );
       component.loadProductData();
-      productServiceSpy.putLoanproductsProductId.and.returnValue(of({}) as never);
+      productServiceSpy.putLoanproductsProductId.mockReturnValue(of({}) as never);
 
       // Opening a product, changing one unrelated field and saving must not blank the ledger.
       component.product().name = 'Renamed';
       component.onSubmit();
 
-      const body = productServiceSpy.putLoanproductsProductId.calls.mostRecent().args[1] as Record<
+      const body = productServiceSpy.putLoanproductsProductId.mock.lastCall![1] as Record<
         string,
         unknown
       >;
       expect(body['name']).toBe('Renamed');
-      expect(Object.keys(body).filter((key) => key.endsWith('AccountId'))).toHaveSize(9);
+      expect(Object.keys(body).filter((key) => key.endsWith('AccountId'))).toHaveLength(9);
       expect(body['fundSourceAccountId']).toBe(11);
     });
   });
