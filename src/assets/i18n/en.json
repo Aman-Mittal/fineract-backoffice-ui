@@ -2393,6 +2393,7 @@
     "DESCRIPTION": "Description"
   },
   "ASSET_OWNERS": {
+    "TITLE": "External Asset Owners",
     "LOAN_PRODUCT_ATTRIBUTES": "Loan Product Attributes",
     "ATTRIBUTE_KEY": "Key",
     "ATTRIBUTE_VALUE": "Value"

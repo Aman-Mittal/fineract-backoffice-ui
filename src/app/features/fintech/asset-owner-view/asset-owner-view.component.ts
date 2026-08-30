@@ -139,7 +139,7 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
 
         @if (activeTab() === TAB.details) {
           <app-data-table
-            title="Journal Entries"
+            title="nav.journalEntries"
             [columns]="journalColumns"
             [data]="(journalEntries$ | async) || []"
             [showSearch]="false"
