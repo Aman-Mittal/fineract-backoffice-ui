@@ -519,7 +519,7 @@
       "count": 1
     }
   },
-  "src/app/features/loans/loan-view.component.spec.ts": {
+  "src/app/features/loans/loan-view.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
