@@ -17,56 +17,58 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TaxComponentsListComponent } from './tax-components-list.component';
-import { TaxComponentsService } from '../../../api';
+import { TaxGroupsListComponent } from './tax-groups-list.component';
+import { TaxGroupService, GetTaxesGroupResponse } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('TaxComponentsListComponent', () => {
-  let component: TaxComponentsListComponent;
-  let fixture: ComponentFixture<TaxComponentsListComponent>;
-  let serviceSpy: jasmine.SpyObj<TaxComponentsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('TaxGroupsListComponent', () => {
+  let component: TaxGroupsListComponent;
+  let fixture: ComponentFixture<TaxGroupsListComponent>;
+  let serviceSpy: SpyObj<TaxGroupService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('TaxComponentsService', ['getTaxesComponent']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getTaxesComponent.and.returnValue(
-      of([{ id: 1, name: 'VAT', percentage: 15 }]) as unknown as ReturnType<
-        TaxComponentsService['getTaxesComponent']
-      >,
+    serviceSpy = createSpyObj(['getTaxesGroup']);
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getTaxesGroup.mockReturnValue(
+      of([
+        { id: 1, name: 'Standard', taxAssociations: [{ taxComponent: { id: 1, name: 'VAT' } }] },
+      ]) as unknown as ReturnType<TaxGroupService['getTaxesGroup']>,
     );
 
     await TestBed.configureTestingModule({
-      imports: [TaxComponentsListComponent, TranslateModule.forRoot()],
+      imports: [TaxGroupsListComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: TaxComponentsService, useValue: serviceSpy },
+        { provide: TaxGroupService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TaxComponentsListComponent);
+    fixture = TestBed.createComponent(TaxGroupsListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should load tax components on init', () => {
+  it('should load tax groups on init', () => {
     expect(component).toBeTruthy();
-    expect(serviceSpy.getTaxesComponent).toHaveBeenCalled();
-    expect(component.components()).toHaveSize(1);
+    expect(serviceSpy.getTaxesGroup).toHaveBeenCalled();
+    expect(component.groups()).toHaveLength(1);
   });
 
-  it('should format array dates', () => {
-    expect(component.formatDate([2026, 1, 5])).toBe('2026-01-05');
-    expect(component.formatDate(null)).toBe('-');
-  });
-
-  it('should navigate to create', () => {
-    component.onCreate();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/tax-components/create']);
+  it('should join component names for display', () => {
+    expect(
+      component.componentNames({
+        taxAssociations: [
+          { taxComponent: { name: 'VAT' } },
+          { taxComponent: { name: 'Cess' } },
+        ] as unknown as GetTaxesGroupResponse['taxAssociations'],
+      }),
+    ).toBe('VAT, Cess');
   });
 });

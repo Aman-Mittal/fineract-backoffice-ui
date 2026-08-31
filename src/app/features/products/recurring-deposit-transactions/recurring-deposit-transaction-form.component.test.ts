@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RecurringDepositTransactionFormComponent } from './recurring-deposit-transaction-form.component';
 import { RecurringDepositAccountTransactionsService } from '../../../api';
@@ -28,18 +29,18 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('RecurringDepositTransactionFormComponent', () => {
   let component: RecurringDepositTransactionFormComponent;
   let fixture: ComponentFixture<RecurringDepositTransactionFormComponent>;
-  let serviceSpy: jasmine.SpyObj<RecurringDepositAccountTransactionsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<RecurringDepositAccountTransactionsService>;
+  let routerSpy: SpyObj<Router>;
   let commandParam: 'deposit' | 'withdrawal';
 
   beforeEach(async () => {
     commandParam = 'deposit';
-    serviceSpy = jasmine.createSpyObj('RecurringDepositAccountTransactionsService', [
+    serviceSpy = createSpyObj([
       'getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate',
       'postRecurringdepositaccountsRecurringDepositAccountIdTransactions',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate.mockReturnValue(
       of({ paymentTypeOptions: [1, 2] }) as unknown as ReturnType<
         RecurringDepositAccountTransactionsService['getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate']
       >,
@@ -78,12 +79,12 @@ describe('RecurringDepositTransactionFormComponent', () => {
     expect(
       serviceSpy.getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate,
     ).toHaveBeenCalledWith(1);
-    expect(component.paymentTypeOptions()).toHaveSize(2);
+    expect(component.paymentTypeOptions()).toHaveLength(2);
   });
 
   it('should post a deposit and navigate to the transactions list', () => {
     createComponent();
-    serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions.and.returnValue(
+    serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions.mockReturnValue(
       of({}) as unknown as ReturnType<
         RecurringDepositAccountTransactionsService['postRecurringdepositaccountsRecurringDepositAccountIdTransactions']
       >,
@@ -95,7 +96,7 @@ describe('RecurringDepositTransactionFormComponent', () => {
       serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions,
     ).toHaveBeenCalledWith(
       1,
-      jasmine.objectContaining({ transactionAmount: 500, paymentTypeId: 1 }),
+      expect.objectContaining({ transactionAmount: 500, paymentTypeId: 1 }),
       'deposit',
     );
     expect(routerSpy.navigate).toHaveBeenCalledWith([
@@ -108,7 +109,7 @@ describe('RecurringDepositTransactionFormComponent', () => {
   it('should post a withdrawal command from the route', () => {
     commandParam = 'withdrawal';
     createComponent();
-    serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions.and.returnValue(
+    serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions.mockReturnValue(
       of({}) as unknown as ReturnType<
         RecurringDepositAccountTransactionsService['postRecurringdepositaccountsRecurringDepositAccountIdTransactions']
       >,
@@ -120,6 +121,6 @@ describe('RecurringDepositTransactionFormComponent', () => {
     expect(component.command()).toBe('withdrawal');
     expect(
       serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions,
-    ).toHaveBeenCalledWith(1, jasmine.objectContaining({ transactionAmount: 200 }), 'withdrawal');
+    ).toHaveBeenCalledWith(1, expect.objectContaining({ transactionAmount: 200 }), 'withdrawal');
   });
 });

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareDividendFormComponent } from './share-dividend-form.component';
 import { SelfDividendService } from '../../../api';
@@ -28,12 +29,12 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ShareDividendFormComponent', () => {
   let component: ShareDividendFormComponent;
   let fixture: ComponentFixture<ShareDividendFormComponent>;
-  let serviceSpy: jasmine.SpyObj<SelfDividendService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<SelfDividendService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SelfDividendService', ['postShareproductProductIdDividend']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    serviceSpy = createSpyObj(['postShareproductProductIdDividend']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ShareDividendFormComponent, TranslateModule.forRoot()],
@@ -59,7 +60,7 @@ describe('ShareDividendFormComponent', () => {
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postShareproductProductIdDividend.and.returnValue(
+    serviceSpy.postShareproductProductIdDividend.mockReturnValue(
       of('') as unknown as ReturnType<SelfDividendService['postShareproductProductIdDividend']>,
     );
     component.dividendAmount = 100;
@@ -68,7 +69,7 @@ describe('ShareDividendFormComponent', () => {
     component.onSubmit();
 
     expect(serviceSpy.postShareproductProductIdDividend).toHaveBeenCalled();
-    const [productId, body] = serviceSpy.postShareproductProductIdDividend.calls.mostRecent().args;
+    const [productId, body] = serviceSpy.postShareproductProductIdDividend.mock.lastCall!;
     expect(productId).toBe(1);
     const parsed = JSON.parse(body as string);
     expect(parsed.dividendAmount).toBe(100);

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RateFormComponent } from './rate-form.component';
 import { RateService } from '../../../api';
@@ -28,16 +29,12 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('RateFormComponent', () => {
   let component: RateFormComponent;
   let fixture: ComponentFixture<RateFormComponent>;
-  let serviceSpy: jasmine.SpyObj<RateService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<RateService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('RateService', [
-      'getRatesRateId',
-      'postRates',
-      'putRatesRateId',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    serviceSpy = createSpyObj(['getRatesRateId', 'postRates', 'putRatesRateId']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [RateFormComponent, TranslateModule.forRoot()],
@@ -56,11 +53,11 @@ describe('RateFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode()).toBeFalse();
+    expect(component.isEditMode()).toBe(false);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postRates.and.returnValue(of({}) as unknown as ReturnType<RateService['postRates']>);
+    serviceSpy.postRates.mockReturnValue(of({}) as unknown as ReturnType<RateService['postRates']>);
     component.rate.set({ name: 'New', percentage: 7, active: true });
     component.onSubmit();
     expect(serviceSpy.postRates).toHaveBeenCalled();
@@ -68,7 +65,7 @@ describe('RateFormComponent', () => {
   });
 
   it('should put on edit and navigate to the list', () => {
-    serviceSpy.putRatesRateId.and.returnValue(
+    serviceSpy.putRatesRateId.mockReturnValue(
       of({}) as unknown as ReturnType<RateService['putRatesRateId']>,
     );
     component.rateId = 9;

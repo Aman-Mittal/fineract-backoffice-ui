@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositAccountsListComponent } from './fixed-deposits-list.component';
 import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
@@ -28,14 +30,12 @@ import { Router } from '@angular/router';
 describe('FixedDepositAccountsListComponent', () => {
   let component: FixedDepositAccountsListComponent;
   let fixture: ComponentFixture<FixedDepositAccountsListComponent>;
-  let fixedDepositServiceSpy: jasmine.SpyObj<FixedDepositAccountService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let fixedDepositServiceSpy: SpyObj<FixedDepositAccountService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    fixedDepositServiceSpy = jasmine.createSpyObj('FixedDepositAccountService', [
-      'getFixeddepositaccounts',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    fixedDepositServiceSpy = createSpyObj(['getFixeddepositaccounts']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [FixedDepositAccountsListComponent, TranslateModule.forRoot()],
@@ -51,7 +51,7 @@ describe('FixedDepositAccountsListComponent', () => {
   });
 
   it('should create', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccounts as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccounts as Mock).mockReturnValue(
       of([] as GetFixedDepositAccountsResponse[]),
     );
     fixture.detectChanges();
@@ -62,20 +62,18 @@ describe('FixedDepositAccountsListComponent', () => {
     const mockAccounts = [
       { id: 1, accountNo: 1001, clientName: 'John Doe' } as GetFixedDepositAccountsResponse,
     ];
-    (fixedDepositServiceSpy.getFixeddepositaccounts as jasmine.Spy).and.returnValue(
-      of(mockAccounts),
-    );
+    (fixedDepositServiceSpy.getFixeddepositaccounts as Mock).mockReturnValue(of(mockAccounts));
 
     fixture.detectChanges();
 
     expect(fixedDepositServiceSpy.getFixeddepositaccounts).toHaveBeenCalled();
-    expect(component.accounts()).toHaveSize(1);
+    expect(component.accounts()).toHaveLength(1);
     expect(component.accounts()[0].accountNo).toBe(1001);
   });
 
   it('should handle error when loading accounts', () => {
-    spyOn(console, 'error');
-    (fixedDepositServiceSpy.getFixeddepositaccounts as jasmine.Spy).and.returnValue(
+    vi.spyOn(console, 'error');
+    (fixedDepositServiceSpy.getFixeddepositaccounts as Mock).mockReturnValue(
       throwError(() => new Error('API Error')),
     );
 

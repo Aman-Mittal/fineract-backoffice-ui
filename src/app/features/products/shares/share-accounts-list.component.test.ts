@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareAccountsListComponent } from './share-accounts-list.component';
 import {
@@ -34,12 +35,12 @@ import { PageEvent } from '../../../shared/models/table.model';
 describe('ShareAccountsListComponent', () => {
   let component: ShareAccountsListComponent;
   let fixture: ComponentFixture<ShareAccountsListComponent>;
-  let shareServiceSpy: jasmine.SpyObj<ShareAccountService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let shareServiceSpy: SpyObj<ShareAccountService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    shareServiceSpy = jasmine.createSpyObj('ShareAccountService', ['getAccountsType']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    shareServiceSpy = createSpyObj(['getAccountsType']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ShareAccountsListComponent, TranslateModule.forRoot()],
@@ -50,7 +51,7 @@ describe('ShareAccountsListComponent', () => {
       ],
     }).compileComponents();
 
-    shareServiceSpy.getAccountsType.and.returnValue(
+    shareServiceSpy.getAccountsType.mockReturnValue(
       of({ pageItems: [], totalFilteredRecords: 0 }) as unknown as Observable<
         HttpEvent<GetAccountsTypeResponse>
       >,

@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositProductFormComponent } from './fixed-deposit-product-form.component';
 import {
@@ -32,22 +34,22 @@ import { ActivatedRoute, Router } from '@angular/router';
 describe('FixedDepositProductFormComponent', () => {
   let component: FixedDepositProductFormComponent;
   let fixture: ComponentFixture<FixedDepositProductFormComponent>;
-  let productServiceSpy: jasmine.SpyObj<FixedDepositProductService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let productServiceSpy: SpyObj<FixedDepositProductService>;
+  let routerSpy: SpyObj<Router>;
 
   const PRODUCTS_FIXED_PATH = '/products/fixed';
   const API_ERROR = 'API Error';
 
   beforeEach(async () => {
-    productServiceSpy = jasmine.createSpyObj('FixedDepositProductService', [
+    productServiceSpy = createSpyObj([
       'getFixeddepositproductsProductId',
       'getFixeddepositproductsTemplate',
       'postFixeddepositproducts',
       'putFixeddepositproductsProductId',
     ]);
     // The accounting section reads its rule labels and account options from the template.
-    productServiceSpy.getFixeddepositproductsTemplate.and.returnValue(of({}) as never);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    productServiceSpy.getFixeddepositproductsTemplate.mockReturnValue(of({}) as never);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [FixedDepositProductFormComponent, TranslateModule.forRoot()],
@@ -82,9 +84,7 @@ describe('FixedDepositProductFormComponent', () => {
       minDepositTerm: 6,
       minDepositTermType: { id: 2 },
     } as GetFixedDepositProductsProductIdResponse;
-    (productServiceSpy.getFixeddepositproductsProductId as jasmine.Spy).and.returnValue(
-      of(mockProduct),
-    );
+    (productServiceSpy.getFixeddepositproductsProductId as Mock).mockReturnValue(of(mockProduct));
     component.productId = 1;
     component.isEditMode.set(true);
 
@@ -96,7 +96,7 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should create product on submit', () => {
-    (productServiceSpy.postFixeddepositproducts as jasmine.Spy).and.returnValue(
+    (productServiceSpy.postFixeddepositproducts as Mock).mockReturnValue(
       of({} as PostFixedDepositProductsResponse),
     );
     component.product.set({
@@ -113,7 +113,7 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should update product on submit in edit mode', () => {
-    (productServiceSpy.putFixeddepositproductsProductId as jasmine.Spy).and.returnValue(
+    (productServiceSpy.putFixeddepositproductsProductId as Mock).mockReturnValue(
       of({} as PostFixedDepositProductsResponse),
     );
     component.productId = 123;
@@ -130,11 +130,11 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should handle submission error', () => {
-    (productServiceSpy.postFixeddepositproducts as jasmine.Spy).and.returnValue(
+    (productServiceSpy.postFixeddepositproducts as Mock).mockReturnValue(
       throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositProductsResponse>,
     );
     component.onSubmit();
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
   });
 
   it('should navigate on cancel', () => {

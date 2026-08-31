@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RatesListComponent } from './rates-list.component';
 import { RateService } from '../../../api';
@@ -28,13 +29,13 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('RatesListComponent', () => {
   let component: RatesListComponent;
   let fixture: ComponentFixture<RatesListComponent>;
-  let serviceSpy: jasmine.SpyObj<RateService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<RateService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('RateService', ['getRates']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getRates.and.returnValue(
+    serviceSpy = createSpyObj(['getRates']);
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getRates.mockReturnValue(
       of([{ id: 1, name: 'Base Rate', percentage: 5, active: true }]) as unknown as ReturnType<
         RateService['getRates']
       >,
@@ -57,7 +58,7 @@ describe('RatesListComponent', () => {
   it('should load rates on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getRates).toHaveBeenCalled();
-    expect(component.rates()).toHaveSize(1);
+    expect(component.rates()).toHaveLength(1);
   });
 
   it('should navigate to create', () => {

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SavingsChargeFormComponent } from './savings-charge-form.component';
 import { SavingsChargesService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('SavingsChargeFormComponent', () => {
   let component: SavingsChargeFormComponent;
   let fixture: ComponentFixture<SavingsChargeFormComponent>;
-  let serviceSpy: jasmine.SpyObj<SavingsChargesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<SavingsChargesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('SavingsChargesService', [
+    serviceSpy = createSpyObj([
       'getSavingsaccountsSavingsAccountIdChargesTemplate',
       'postSavingsaccountsSavingsAccountIdCharges',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getSavingsaccountsSavingsAccountIdChargesTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getSavingsaccountsSavingsAccountIdChargesTemplate.mockReturnValue(
       of({
         chargeOptions: [{ id: 1, name: 'Withdrawal Fee' }],
       }) as unknown as ReturnType<
@@ -66,11 +67,11 @@ describe('SavingsChargeFormComponent', () => {
   it('should load charge options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSavingsaccountsSavingsAccountIdChargesTemplate).toHaveBeenCalledWith(1);
-    expect(component.chargeOptions()).toHaveSize(1);
+    expect(component.chargeOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postSavingsaccountsSavingsAccountIdCharges.and.returnValue(
+    serviceSpy.postSavingsaccountsSavingsAccountIdCharges.mockReturnValue(
       of({}) as unknown as ReturnType<
         SavingsChargesService['postSavingsaccountsSavingsAccountIdCharges']
       >,
@@ -79,7 +80,7 @@ describe('SavingsChargeFormComponent', () => {
     component.onSubmit();
     expect(serviceSpy.postSavingsaccountsSavingsAccountIdCharges).toHaveBeenCalled();
     const [accountId, request] =
-      serviceSpy.postSavingsaccountsSavingsAccountIdCharges.calls.mostRecent().args;
+      serviceSpy.postSavingsaccountsSavingsAccountIdCharges.mock.lastCall!;
     expect(accountId).toBe(1);
     expect(request.chargeId).toBe(1);
     expect(request.amount).toBe(10);
