@@ -672,7 +672,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/account-action-form.component.spec.ts": {
+  "src/app/features/products/account-action-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -682,12 +682,12 @@
       "count": 1
     }
   },
-  "src/app/features/products/accounting/product-accounting-section.component.spec.ts": {
+  "src/app/features/products/accounting/product-accounting-section.component.test.ts": {
     "unicorn/no-array-sort": {
       "count": 4
     }
   },
-  "src/app/features/products/collateral-management/collateral-management-form.component.spec.ts": {
+  "src/app/features/products/collateral-management/collateral-management-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -802,7 +802,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/loan-originators/loan-originator-form.component.spec.ts": {
+  "src/app/features/products/loan-originators/loan-originator-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -817,7 +817,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/loan-product-form.component.spec.ts": {
+  "src/app/features/products/loan-product-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -918,16 +918,6 @@
     }
   },
   "src/app/features/products/savings-account-transaction-form.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/savings-account-view.component.spec.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/savings-account-view.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountActionFormComponent } from './account-action-form.component';
 import {
@@ -40,14 +41,14 @@ describe('AccountActionFormComponent', () => {
   let component: AccountActionFormComponent;
   let fixture: ComponentFixture<AccountActionFormComponent>;
 
-  let savingsSpy: jasmine.SpyObj<SavingsAccountService>;
-  let fixedSpy: jasmine.SpyObj<FixedDepositAccountService>;
-  let recurringSpy: jasmine.SpyObj<RecurringDepositAccountService>;
-  let loansSpy: jasmine.SpyObj<LoansService>;
-  let staffSpy: jasmine.SpyObj<StaffService>;
-  let chargesSpy: jasmine.SpyObj<ChargesService>;
-  let loanChargesSpy: jasmine.SpyObj<LoanChargesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let savingsSpy: SpyObj<SavingsAccountService>;
+  let fixedSpy: SpyObj<FixedDepositAccountService>;
+  let recurringSpy: SpyObj<RecurringDepositAccountService>;
+  let loansSpy: SpyObj<LoansService>;
+  let staffSpy: SpyObj<StaffService>;
+  let chargesSpy: SpyObj<ChargesService>;
+  let loanChargesSpy: SpyObj<LoanChargesService>;
+  let routerSpy: SpyObj<Router>;
 
   let routeParams: Record<string, string>;
 
@@ -58,26 +59,23 @@ describe('AccountActionFormComponent', () => {
       ['command']: 'approve',
     };
 
-    savingsSpy = jasmine.createSpyObj('SavingsAccountService', [
-      'getSavingsaccountsAccountId',
-      'postSavingsaccountsAccountId',
-    ]);
-    fixedSpy = jasmine.createSpyObj('FixedDepositAccountService', [
+    savingsSpy = createSpyObj(['getSavingsaccountsAccountId', 'postSavingsaccountsAccountId']);
+    fixedSpy = createSpyObj([
       'getFixeddepositaccountsAccountId',
       'postFixeddepositaccountsAccountId',
     ]);
-    recurringSpy = jasmine.createSpyObj('RecurringDepositAccountService', [
+    recurringSpy = createSpyObj([
       'getRecurringdepositaccountsAccountId',
       'postRecurringdepositaccountsAccountId',
     ]);
-    loansSpy = jasmine.createSpyObj('LoansService', ['getLoansLoanId', 'postLoansLoanId']);
-    staffSpy = jasmine.createSpyObj('StaffService', ['getStaff']);
-    chargesSpy = jasmine.createSpyObj('ChargesService', ['getCharges']);
-    loanChargesSpy = jasmine.createSpyObj('LoanChargesService', ['postLoansLoanIdCharges']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    loansSpy = createSpyObj(['getLoansLoanId', 'postLoansLoanId']);
+    staffSpy = createSpyObj(['getStaff']);
+    chargesSpy = createSpyObj(['getCharges']);
+    loanChargesSpy = createSpyObj(['postLoansLoanIdCharges']);
+    routerSpy = createSpyObj(['navigate']);
 
     // Mock initial returns
-    loansSpy.getLoansLoanId.and.returnValue(
+    loansSpy.getLoansLoanId.mockReturnValue(
       of({
         id: 123,
         accountNo: 'L001',
@@ -88,20 +86,20 @@ describe('AccountActionFormComponent', () => {
         },
       }) as unknown as Observable<never>,
     );
-    savingsSpy.getSavingsaccountsAccountId.and.returnValue(
+    savingsSpy.getSavingsaccountsAccountId.mockReturnValue(
       of({ id: 123, accountNo: 'S001' }) as unknown as Observable<never>,
     );
-    fixedSpy.getFixeddepositaccountsAccountId.and.returnValue(
+    fixedSpy.getFixeddepositaccountsAccountId.mockReturnValue(
       of({ id: 123, accountNo: 'F001' }) as unknown as Observable<never>,
     );
-    recurringSpy.getRecurringdepositaccountsAccountId.and.returnValue(
+    recurringSpy.getRecurringdepositaccountsAccountId.mockReturnValue(
       of({ id: 123, accountNo: 'R001' }) as unknown as Observable<never>,
     );
 
-    staffSpy.getStaff.and.returnValue(
+    staffSpy.getStaff.mockReturnValue(
       of([{ id: 1, displayName: 'John Staff' }]) as unknown as Observable<never>,
     );
-    chargesSpy.getCharges.and.returnValue(
+    chargesSpy.getCharges.mockReturnValue(
       of([
         {
           id: 5,
@@ -183,7 +181,7 @@ describe('AccountActionFormComponent', () => {
   });
 
   it('should submit approve loan action successfully', () => {
-    loansSpy.postLoansLoanId.and.returnValue(of({}) as unknown as Observable<never>);
+    loansSpy.postLoansLoanId.mockReturnValue(of({}) as unknown as Observable<never>);
     createComponent();
 
     component.note = 'Approving loan';
@@ -196,7 +194,7 @@ describe('AccountActionFormComponent', () => {
 
   it('should submit disburse loan action successfully', () => {
     routeParams['command'] = 'disburse';
-    loansSpy.postLoansLoanId.and.returnValue(of({}) as unknown as Observable<never>);
+    loansSpy.postLoansLoanId.mockReturnValue(of({}) as unknown as Observable<never>);
     createComponent();
 
     component.note = 'Disbursing';
@@ -210,9 +208,9 @@ describe('AccountActionFormComponent', () => {
     createComponent();
 
     expect(staffSpy.getStaff).toHaveBeenCalled();
-    expect(component.staffOptions()).toHaveSize(1);
+    expect(component.staffOptions()).toHaveLength(1);
 
-    loansSpy.postLoansLoanId.and.returnValue(of({}) as unknown as Observable<never>);
+    loansSpy.postLoansLoanId.mockReturnValue(of({}) as unknown as Observable<never>);
     component.toLoanOfficerId = 1;
     component.onSubmit();
     expect(loansSpy.postLoansLoanId).toHaveBeenCalled();
@@ -220,7 +218,7 @@ describe('AccountActionFormComponent', () => {
 
   it('should submit unassignloanofficer successfully', () => {
     routeParams['command'] = 'unassignloanofficer';
-    loansSpy.postLoansLoanId.and.returnValue(of({}) as unknown as Observable<never>);
+    loansSpy.postLoansLoanId.mockReturnValue(of({}) as unknown as Observable<never>);
     createComponent();
 
     component.onSubmit();
@@ -229,7 +227,7 @@ describe('AccountActionFormComponent', () => {
 
   it('should load charge options and submit applycharges successfully', () => {
     routeParams['command'] = 'applycharges';
-    loanChargesSpy.postLoansLoanIdCharges.and.returnValue(of({}) as unknown as Observable<never>);
+    loanChargesSpy.postLoansLoanIdCharges.mockReturnValue(of({}) as unknown as Observable<never>);
     createComponent();
 
     expect(chargesSpy.getCharges).toHaveBeenCalled();
@@ -244,7 +242,7 @@ describe('AccountActionFormComponent', () => {
   it('should submit deposit account actions for savings, fixed and recurring', () => {
     routeParams['accountType'] = 'savings';
     routeParams['command'] = 'approve';
-    savingsSpy.postSavingsaccountsAccountId.and.returnValue(of({}) as unknown as Observable<never>);
+    savingsSpy.postSavingsaccountsAccountId.mockReturnValue(of({}) as unknown as Observable<never>);
 
     createComponent();
     expect(savingsSpy.getSavingsaccountsAccountId).toHaveBeenCalledWith(123);
@@ -257,7 +255,7 @@ describe('AccountActionFormComponent', () => {
   it('should submit fixed deposit approve action successfully', () => {
     routeParams['accountType'] = 'fixed';
     routeParams['command'] = 'approve';
-    fixedSpy.postFixeddepositaccountsAccountId.and.returnValue(
+    fixedSpy.postFixeddepositaccountsAccountId.mockReturnValue(
       of({}) as unknown as Observable<never>,
     );
 
@@ -272,7 +270,7 @@ describe('AccountActionFormComponent', () => {
   it('should submit recurring deposit approve action successfully', () => {
     routeParams['accountType'] = 'recurring';
     routeParams['command'] = 'approve';
-    recurringSpy.postRecurringdepositaccountsAccountId.and.returnValue(
+    recurringSpy.postRecurringdepositaccountsAccountId.mockReturnValue(
       of({}) as unknown as Observable<never>,
     );
 
@@ -287,14 +285,14 @@ describe('AccountActionFormComponent', () => {
   it('should handle API errors and toggle isSaving flag', () => {
     routeParams['accountType'] = 'savings';
     routeParams['command'] = 'approve';
-    savingsSpy.postSavingsaccountsAccountId.and.returnValue(
+    savingsSpy.postSavingsaccountsAccountId.mockReturnValue(
       throwError(() => new Error('API Error')) as unknown as Observable<never>,
     );
 
     createComponent();
     component.onSubmit();
 
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
   });
 
   it('should extract currency code and frequency value safely', () => {

@@ -20,8 +20,7 @@
 import { computed, inject, signal, Component, OnInit } from '@angular/core';
 import { from } from 'rxjs';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TranslatePipe } from '../../core/adapters';
+import { I18N, TranslatePipe } from '../../core/adapters';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
   SavingsAccountService,
@@ -106,7 +105,6 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
     EntityDatatablesComponent,
     SavingsStandingInstructionsTabComponent,
     RouterModule,
-    TranslateModule,
     TranslatePipe,
     CdkTableModule,
     StatusBadgeComponent,
@@ -150,7 +148,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   ></app-status-badge>
                   @if (blockLabelKey(); as blockKey) {
                     <ion-chip color="warning" highlighted data-testid="savings-blocked-chip">
-                      {{ blockKey | translate }}
+                      {{ blockKey | appTranslate }}
                     </ion-chip>
                   }
                 </div>
@@ -162,10 +160,10 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   color="secondary"
                   appRequiresPermission="APPROVE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('approve')"
-                  [appTooltip]="'SAVINGS.APPROVE' | translate"
+                  [appTooltip]="'SAVINGS.APPROVE' | appTranslate"
                 >
                   <ion-icon name="checkmark-circle-outline"></ion-icon>
-                  {{ 'SAVINGS.APPROVE' | translate }}
+                  {{ 'SAVINGS.APPROVE' | appTranslate }}
                 </ion-button>
               }
               @if (account()?.status?.submittedAndPendingApproval) {
@@ -177,7 +175,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   (click)="onDatedCommand('reject', 'rejectedOnDate')"
                 >
                   <ion-icon name="close-circle-outline"></ion-icon>
-                  {{ 'SAVINGS.REJECT' | translate }}
+                  {{ 'SAVINGS.REJECT' | appTranslate }}
                 </ion-button>
                 <ion-button
                   color="medium"
@@ -187,7 +185,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   (click)="onDatedCommand('withdrawnByApplicant', 'withdrawnOnDate')"
                 >
                   <ion-icon name="arrow-undo-outline"></ion-icon>
-                  {{ 'SAVINGS.WITHDRAWN_BY_APPLICANT' | translate }}
+                  {{ 'SAVINGS.WITHDRAWN_BY_APPLICANT' | appTranslate }}
                 </ion-button>
               }
               @if (account()?.status?.approved) {
@@ -195,10 +193,10 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   color="primary"
                   appRequiresPermission="ACTIVATE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('activate')"
-                  [appTooltip]="'SAVINGS.ACTIVATE' | translate"
+                  [appTooltip]="'SAVINGS.ACTIVATE' | appTranslate"
                 >
                   <ion-icon name="play-circle-outline"></ion-icon>
-                  {{ 'SAVINGS.ACTIVATE' | translate }}
+                  {{ 'SAVINGS.ACTIVATE' | appTranslate }}
                 </ion-button>
                 <ion-button
                   color="medium"
@@ -217,34 +215,34 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   color="danger"
                   appRequiresPermission="CLOSE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('close')"
-                  [appTooltip]="'SAVINGS.CLOSE' | translate"
+                  [appTooltip]="'SAVINGS.CLOSE' | appTranslate"
                 >
                   <ion-icon name="power-outline"></ion-icon>
-                  {{ 'SAVINGS.CLOSE' | translate }}
+                  {{ 'SAVINGS.CLOSE' | appTranslate }}
                 </ion-button>
               }
               <ion-button
                 color="primary"
                 appRequiresPermission="DEPOSIT_SAVINGSACCOUNT"
                 (click)="onTransaction('deposit')"
-                [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
+                [appTooltip]="'SAVINGS.DEPOSIT_CASH' | appTranslate"
               >
                 <ion-icon name="add-circle-outline"></ion-icon>
-                {{ 'SAVINGS.DEPOSIT' | translate }}
+                {{ 'SAVINGS.DEPOSIT' | appTranslate }}
               </ion-button>
               <ion-button
                 color="danger"
                 appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
                 (click)="onTransaction('withdrawal')"
-                [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
+                [appTooltip]="'SAVINGS.WITHDRAW_CASH' | appTranslate"
               >
                 <ion-icon name="remove-circle-outline"></ion-icon>
-                {{ 'SAVINGS.WITHDRAW' | translate }}
+                {{ 'SAVINGS.WITHDRAW' | appTranslate }}
               </ion-button>
               @if (isActive()) {
                 <ion-button color="primary" id="savingsMenu-trigger" data-testid="savings-actions">
                   <ion-icon name="caret-down-outline"></ion-icon>
-                  {{ 'COMMON.ACTIONS' | translate }}
+                  {{ 'COMMON.ACTIONS' | appTranslate }}
                 </ion-button>
                 <ion-popover trigger="savingsMenu-trigger" [dismissOnSelect]="true">
                   <ng-template>
@@ -255,7 +253,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                         (click)="onSimpleCommand('calculateInterest')"
                       >
                         <ion-icon slot="start" name="calculator-outline"></ion-icon>
-                        <ion-label>{{ 'SAVINGS.CALCULATE_INTEREST' | translate }}</ion-label>
+                        <ion-label>{{ 'SAVINGS.CALCULATE_INTEREST' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -264,7 +262,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                         (click)="onSimpleCommand('postInterest')"
                       >
                         <ion-icon slot="start" name="trending-up-outline"></ion-icon>
-                        <ion-label>{{ 'SAVINGS.POST_INTEREST' | translate }}</ion-label>
+                        <ion-label>{{ 'SAVINGS.POST_INTEREST' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -282,7 +280,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                         (click)="onSimpleCommand('applyAnnualFees')"
                       >
                         <ion-icon slot="start" name="pricetag-outline"></ion-icon>
-                        <ion-label>{{ 'SAVINGS.APPLY_ANNUAL_FEES' | translate }}</ion-label>
+                        <ion-label>{{ 'SAVINGS.APPLY_ANNUAL_FEES' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -291,7 +289,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                         (click)="onAssignOfficer()"
                       >
                         <ion-icon slot="start" name="person-add-outline"></ion-icon>
-                        <ion-label>{{ 'SAVINGS.ASSIGN_OFFICER' | translate }}</ion-label>
+                        <ion-label>{{ 'SAVINGS.ASSIGN_OFFICER' | appTranslate }}</ion-label>
                       </ion-item>
 
                       @if (hasOfficer()) {
@@ -301,13 +299,13 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                           (click)="onDatedCommand('unassignSavingsOfficer', 'unassignedDate')"
                         >
                           <ion-icon slot="start" name="person-remove-outline"></ion-icon>
-                          <ion-label>{{ 'SAVINGS.UNASSIGN_OFFICER' | translate }}</ion-label>
+                          <ion-label>{{ 'SAVINGS.UNASSIGN_OFFICER' | appTranslate }}</ion-label>
                         </ion-item>
                       }
 
                       <ion-item button data-testid="savings-hold-amount" (click)="onHoldAmount()">
                         <ion-icon slot="start" name="pause-circle-outline"></ion-icon>
-                        <ion-label>{{ 'SAVINGS.HOLD_AMOUNT' | translate }}</ion-label>
+                        <ion-label>{{ 'SAVINGS.HOLD_AMOUNT' | appTranslate }}</ion-label>
                       </ion-item>
 
                       @if (!isBlocked()) {
@@ -319,7 +317,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                         >
                           <ion-icon slot="start" color="danger" name="lock-closed-outline">
                           </ion-icon>
-                          <ion-label>{{ 'SAVINGS.BLOCK' | translate }}</ion-label>
+                          <ion-label>{{ 'SAVINGS.BLOCK' | appTranslate }}</ion-label>
                         </ion-item>
 
                         @if (!isDebitBlocked()) {
@@ -329,7 +327,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                             (click)="onBlockCommand('blockDebit')"
                           >
                             <ion-icon slot="start" name="arrow-up-circle-outline"></ion-icon>
-                            <ion-label>{{ 'SAVINGS.BLOCK_DEBIT' | translate }}</ion-label>
+                            <ion-label>{{ 'SAVINGS.BLOCK_DEBIT' | appTranslate }}</ion-label>
                           </ion-item>
                         }
                         @if (!isCreditBlocked()) {
@@ -339,7 +337,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                             (click)="onBlockCommand('blockCredit')"
                           >
                             <ion-icon slot="start" name="arrow-down-circle-outline"></ion-icon>
-                            <ion-label>{{ 'SAVINGS.BLOCK_CREDIT' | translate }}</ion-label>
+                            <ion-label>{{ 'SAVINGS.BLOCK_CREDIT' | appTranslate }}</ion-label>
                           </ion-item>
                         }
                       }
@@ -353,7 +351,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                           (click)="onSimpleCommand('unblock')"
                         >
                           <ion-icon slot="start" name="lock-open-outline"></ion-icon>
-                          <ion-label>{{ 'SAVINGS.UNBLOCK' | translate }}</ion-label>
+                          <ion-label>{{ 'SAVINGS.UNBLOCK' | appTranslate }}</ion-label>
                         </ion-item>
                       }
                       @if (isDebitBlocked()) {
@@ -363,7 +361,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                           (click)="onSimpleCommand('unblockDebit')"
                         >
                           <ion-icon slot="start" name="lock-open-outline"></ion-icon>
-                          <ion-label>{{ 'SAVINGS.UNBLOCK_DEBIT' | translate }}</ion-label>
+                          <ion-label>{{ 'SAVINGS.UNBLOCK_DEBIT' | appTranslate }}</ion-label>
                         </ion-item>
                       }
                       @if (isCreditBlocked()) {
@@ -373,7 +371,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                           (click)="onSimpleCommand('unblockCredit')"
                         >
                           <ion-icon slot="start" name="lock-open-outline"></ion-icon>
-                          <ion-label>{{ 'SAVINGS.UNBLOCK_CREDIT' | translate }}</ion-label>
+                          <ion-label>{{ 'SAVINGS.UNBLOCK_CREDIT' | appTranslate }}</ion-label>
                         </ion-item>
                       }
                     </ion-list>
@@ -382,7 +380,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
               }
               <ion-button fill="clear" (click)="onBack()">
                 <ion-icon name="arrow-back-outline"></ion-icon>
-                {{ 'COMMON.BACK' | translate }}
+                {{ 'COMMON.BACK' | appTranslate }}
               </ion-button>
             </div>
           </ion-card-content>
@@ -394,25 +392,25 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
             <ion-label>Overview</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.transactions" data-testid="savings-tab-transactions">
-            <ion-label>{{ 'COMMON.TRANSACTIONS' | translate }}</ion-label>
+            <ion-label>{{ 'COMMON.TRANSACTIONS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.charges">
-            <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.CHARGES' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.notes" data-testid="savings-tab-notes">
-            <ion-label>{{ 'SAVINGS.NOTES' | translate }}</ion-label>
+            <ion-label>{{ 'SAVINGS.NOTES' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.documents" data-testid="savings-tab-documents">
-            <ion-label>{{ 'SAVINGS.DOCUMENTS' | translate }}</ion-label>
+            <ion-label>{{ 'SAVINGS.DOCUMENTS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button
             [value]="TAB.standingInstructions"
             data-testid="savings-tab-standing-instructions"
           >
-            <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
+            <ion-label>{{ 'SAVINGS.STANDING_INSTRUCTIONS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.customFields" data-testid="savings-tab-custom-fields">
-            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
@@ -487,22 +485,24 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                 @if (transactions().length > 0) {
                   <table cdk-table [dataSource]="transactions()" class="full-width-table">
                     <ng-container cdkColumnDef="id">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="date">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let tx">{{ formatDate(tx.date) }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="type">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="amount">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.AMOUNT' | appTranslate }}
+                      </th>
                       <td cdk-cell *cdkCellDef="let tx">
                         <span
                           [ngClass]="{
@@ -519,7 +519,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
 
                     <ng-container cdkColumnDef="runningBalance">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'COMMON.RUNNING_BALANCE' | translate }}
+                        {{ 'COMMON.RUNNING_BALANCE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let tx">
                         {{ account()?.currency?.displaySymbol }}
@@ -528,14 +528,16 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                     </ng-container>
 
                     <ng-container cdkColumnDef="actions">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.ACTIONS' | appTranslate }}
+                      </th>
                       <td cdk-cell *cdkCellDef="let tx">
                         @if (canRelease(tx)) {
                           <ion-button
                             fill="clear"
                             size="small"
                             [attr.data-testid]="'savings-tx-release-' + tx.id"
-                            [attr.aria-label]="'ACTIONS.RELEASE_AMOUNT' | translate"
+                            [attr.aria-label]="'ACTIONS.RELEASE_AMOUNT' | appTranslate"
                             (click)="onReleaseAmount(tx)"
                           >
                             <ion-icon name="lock-open-outline"></ion-icon>
@@ -546,14 +548,14 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                             color="danger"
                             size="small"
                             [attr.data-testid]="'savings-tx-undo-' + tx.id"
-                            [attr.aria-label]="'ACTIONS.UNDO_TRANSACTION' | translate"
+                            [attr.aria-label]="'ACTIONS.UNDO_TRANSACTION' | appTranslate"
                             (click)="onUndoTransaction(tx)"
                           >
                             <ion-icon name="arrow-undo-outline"></ion-icon>
                           </ion-button>
                         } @else if (tx.reversed) {
                           <span class="reversed-marker" data-testid="savings-tx-reversed">
-                            {{ 'COMMON.REVERSED' | translate }}
+                            {{ 'COMMON.REVERSED' | appTranslate }}
                           </span>
                         }
                       </td>
@@ -565,7 +567,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                 } @else {
                   <div class="empty-state">
                     <ion-icon name="receipt-outline"></ion-icon>
-                    <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
+                    <p>{{ 'LOANS.NO_TRANSACTIONS' | appTranslate }}</p>
                   </div>
                 }
               </ion-card-content>
@@ -579,12 +581,14 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                 @if (charges().length > 0) {
                   <table cdk-table [dataSource]="charges()" class="full-width-table">
                     <ng-container cdkColumnDef="name">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="amount">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.AMOUNT' | appTranslate }}
+                      </th>
                       <td cdk-cell *cdkCellDef="let c">
                         {{ account()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
                       </td>
@@ -592,7 +596,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
 
                     <ng-container cdkColumnDef="outstanding">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let c">
                         {{ account()?.currency?.displaySymbol }}
@@ -606,7 +610,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                 } @else {
                   <div class="empty-state">
                     <ion-icon name="cash-outline"></ion-icon>
-                    <p>{{ 'SAVINGS.NO_CHARGES' | translate }}</p>
+                    <p>{{ 'SAVINGS.NO_CHARGES' | appTranslate }}</p>
                   </div>
                 }
               </ion-card-content>
@@ -816,7 +820,7 @@ export class SavingsAccountViewComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
   private readonly dialogService = inject(DialogService);
-  private readonly translate = inject(TranslateService);
+  private readonly i18n = inject(I18N);
 
   accountId = 0;
   readonly account = signal<SavingsAccountData | null>(null);
@@ -911,8 +915,8 @@ export class SavingsAccountViewComponent implements OnInit {
     const titleKey = `SAVINGS.${command.replaceAll(/([A-Z])/g, '_$1').toUpperCase()}`;
     from(
       this.dialogService.confirm({
-        title: this.translate.instant(titleKey),
-        message: this.translate.instant(
+        title: this.i18n.translate(titleKey),
+        message: this.i18n.translate(
           `SAVINGS.CONFIRM_${command.replaceAll(/([A-Z])/g, '_$1').toUpperCase()}`,
         ),
       }),
@@ -953,8 +957,8 @@ export class SavingsAccountViewComponent implements OnInit {
     const key = command.replaceAll(/([A-Z])/g, '_$1').toUpperCase();
     from(
       this.dialogService.confirm({
-        title: this.translate.instant(`SAVINGS.${key}`),
-        message: this.translate.instant(`SAVINGS.CONFIRM_${key}`),
+        title: this.i18n.translate(`SAVINGS.${key}`),
+        message: this.i18n.translate(`SAVINGS.CONFIRM_${key}`),
         destructive: command === 'reject',
       }),
     ).subscribe((confirmed) => {
@@ -1073,8 +1077,8 @@ export class SavingsAccountViewComponent implements OnInit {
   onReleaseAmount(transaction: SavingsAccountTransactionData): void {
     void this.dialogService
       .confirm({
-        title: this.translate.instant('ACTIONS.RELEASE_AMOUNT'),
-        message: this.translate.instant('ACTIONS.CONFIRM_RELEASE_AMOUNT'),
+        title: this.i18n.translate('ACTIONS.RELEASE_AMOUNT'),
+        message: this.i18n.translate('ACTIONS.CONFIRM_RELEASE_AMOUNT'),
       })
       .then((confirmed) => {
         if (!confirmed) return;
@@ -1091,8 +1095,8 @@ export class SavingsAccountViewComponent implements OnInit {
   onUndoTransaction(transaction: SavingsAccountTransactionData): void {
     void this.dialogService
       .confirm({
-        title: this.translate.instant('ACTIONS.UNDO_TRANSACTION'),
-        message: this.translate.instant('ACTIONS.CONFIRM_UNDO_TRANSACTION'),
+        title: this.i18n.translate('ACTIONS.UNDO_TRANSACTION'),
+        message: this.i18n.translate('ACTIONS.CONFIRM_UNDO_TRANSACTION'),
         destructive: true,
       })
       .then((confirmed) => {
@@ -1125,12 +1129,12 @@ export class SavingsAccountViewComponent implements OnInit {
   }
 
   private afterCommand(): void {
-    this.notifications.success(this.translate.instant('COMMON.SUCCESS'));
+    this.notifications.success(this.i18n.translate('COMMON.SUCCESS'));
     this.loadAccountData();
   }
 
   private commandFailed(): void {
-    this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED'));
+    this.notifications.error(this.i18n.translate('COMMON.ERRORS.UNEXPECTED'));
   }
 
   onBlockCommand(command: 'block' | 'blockDebit' | 'blockCredit'): void {

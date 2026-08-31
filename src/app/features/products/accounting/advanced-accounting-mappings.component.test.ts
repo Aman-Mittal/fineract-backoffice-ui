@@ -69,7 +69,7 @@ describe('AdvancedAccountingMappingsComponent', () => {
     fixture.componentRef.setInput('accountingRule', ACCOUNTING_RULE.NONE);
     fixture.detectChanges();
 
-    expect(component.visible()).toBeFalse();
+    expect(component.visible()).toBe(false);
     expect(fixture.nativeElement.querySelector('[data-testid="payment-channel-add"]')).toBeNull();
   });
 
@@ -103,7 +103,7 @@ describe('AdvancedAccountingMappingsComponent', () => {
 
     component.addPaymentChannel();
     component.setPaymentChannel(1, 'paymentTypeId', 2);
-    expect(component.canAddPaymentChannel()).toBeFalse();
+    expect(component.canAddPaymentChannel()).toBe(false);
   });
 
   /**
@@ -151,9 +151,9 @@ describe('advanced mapping payloads', () => {
 
     const request = advancedMappingsForRequest(ACCOUNTING_RULE.CASH, mappings);
 
-    expect('paymentChannelToFundSourceMappings' in request).toBeFalse();
+    expect('paymentChannelToFundSourceMappings' in request).toBe(false);
     expect(request['feeToIncomeAccountMappings']).toEqual([{ chargeId: 10, incomeAccountId: 3 }]);
-    expect('penaltyToIncomeAccountMappings' in request).toBeFalse();
+    expect('penaltyToIncomeAccountMappings' in request).toBe(false);
   });
 
   it('sends nothing at all under a rule that posts nothing', () => {

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CollateralManagementFormComponent } from './collateral-management-form.component';
 import { CollateralManagementService } from '../../../api';
@@ -28,18 +29,18 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('CollateralManagementFormComponent', () => {
   let component: CollateralManagementFormComponent;
   let fixture: ComponentFixture<CollateralManagementFormComponent>;
-  let serviceSpy: jasmine.SpyObj<CollateralManagementService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<CollateralManagementService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('CollateralManagementService', [
+    serviceSpy = createSpyObj([
       'getCollateralManagementTemplate',
       'getCollateralManagementCollateralId',
       'postCollateralManagement',
       'putCollateralManagementCollateralId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getCollateralManagementTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getCollateralManagementTemplate.mockReturnValue(
       of([{ code: 'USD', name: 'US Dollar' }]) as unknown as ReturnType<
         CollateralManagementService['getCollateralManagementTemplate']
       >,
@@ -63,11 +64,11 @@ describe('CollateralManagementFormComponent', () => {
   it('should load currency options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getCollateralManagementTemplate).toHaveBeenCalled();
-    expect(component.currencyOptions()).toHaveSize(1);
+    expect(component.currencyOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postCollateralManagement.and.returnValue(
+    serviceSpy.postCollateralManagement.mockReturnValue(
       of({}) as unknown as ReturnType<CollateralManagementService['postCollateralManagement']>,
     );
     component.collateral.set({
