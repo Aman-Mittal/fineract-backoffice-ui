@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientCollateralFormComponent } from './client-collateral-form.component';
 import { ClientCollateralManagementService } from '../../../api';
@@ -28,18 +29,18 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ClientCollateralFormComponent', () => {
   let component: ClientCollateralFormComponent;
   let fixture: ComponentFixture<ClientCollateralFormComponent>;
-  let serviceSpy: jasmine.SpyObj<ClientCollateralManagementService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<ClientCollateralManagementService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ClientCollateralManagementService', [
+    serviceSpy = createSpyObj([
       'getClientsClientIdCollateralsTemplate',
       'getClientsClientIdCollateralsClientCollateralId',
       'postClientsClientIdCollaterals',
       'putClientsClientIdCollateralsCollateralId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getClientsClientIdCollateralsTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getClientsClientIdCollateralsTemplate.mockReturnValue(
       of([{ collateralId: 1, name: 'Gold', quantity: 1 }]) as unknown as ReturnType<
         ClientCollateralManagementService['getClientsClientIdCollateralsTemplate']
       >,
@@ -66,11 +67,11 @@ describe('ClientCollateralFormComponent', () => {
   it('should load collateral product options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdCollateralsTemplate).toHaveBeenCalledWith(1);
-    expect(component.collateralProductOptions()).toHaveSize(1);
+    expect(component.collateralProductOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postClientsClientIdCollaterals.and.returnValue(
+    serviceSpy.postClientsClientIdCollaterals.mockReturnValue(
       of({}) as unknown as ReturnType<
         ClientCollateralManagementService['postClientsClientIdCollaterals']
       >,

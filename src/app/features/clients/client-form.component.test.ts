@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientFormComponent } from './client-form.component';
 import { ClientService, OfficesService } from '../../api';
@@ -32,26 +33,22 @@ describe('ClientFormComponent', () => {
 
   let component: ClientFormComponent;
   let fixture: ComponentFixture<ClientFormComponent>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
-  let officesServiceSpy: jasmine.SpyObj<OfficesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogSpy: jasmine.SpyObj<DialogService>;
+  let clientServiceSpy: SpyObj<ClientService>;
+  let officesServiceSpy: SpyObj<OfficesService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogSpy: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    clientServiceSpy = jasmine.createSpyObj('ClientService', [
-      'getClientsClientId',
-      'postClients',
-      'putClientsClientId',
-    ]);
-    officesServiceSpy = jasmine.createSpyObj('OfficesService', ['getOffices']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open', 'confirm']);
-    dialogSpy.open.and.resolveTo(undefined);
+    clientServiceSpy = createSpyObj(['getClientsClientId', 'postClients', 'putClientsClientId']);
+    officesServiceSpy = createSpyObj(['getOffices']);
+    routerSpy = createSpyObj(['navigate']);
+    dialogSpy = createSpyObj<DialogService>(['open', 'confirm']);
+    dialogSpy.open.mockResolvedValue(undefined);
 
-    officesServiceSpy.getOffices.and.returnValue(
+    officesServiceSpy.getOffices.mockReturnValue(
       of([{ id: 1, name: HEAD_OFFICE }]) as unknown as Observable<never>,
     );
-    clientServiceSpy.getClientsClientId.and.returnValue(
+    clientServiceSpy.getClientsClientId.mockReturnValue(
       of({
         id: 10,
         firstname: 'John',
@@ -101,16 +98,16 @@ describe('ClientFormComponent', () => {
     it('should create and load offices', () => {
       expect(component).toBeTruthy();
       expect(officesServiceSpy.getOffices).toHaveBeenCalled();
-      expect(component.isEditMode()).toBeFalse();
+      expect(component.isEditMode()).toBe(false);
     });
 
     it('should open create office dialog and add new office', async () => {
-      dialogSpy.open.and.resolveTo(2);
+      dialogSpy.open.mockResolvedValue(2);
 
       // Initially offices has 1 office.
       component.offices.set([{ id: 1, name: HEAD_OFFICE }]);
       // After addOffice, getOffices should be called again and we can make it return 2 offices.
-      officesServiceSpy.getOffices.and.returnValue(
+      officesServiceSpy.getOffices.mockReturnValue(
         of([
           { id: 1, name: HEAD_OFFICE },
           { id: 2, name: 'Branch Office' },
@@ -120,12 +117,12 @@ describe('ClientFormComponent', () => {
       await component.addOffice();
 
       expect(dialogSpy.open).toHaveBeenCalled();
-      expect(component.offices()).toHaveSize(2);
+      expect(component.offices()).toHaveLength(2);
       expect(component.client().officeId).toBe(2);
     });
 
     it('should submit client create request successfully', () => {
-      clientServiceSpy.postClients.and.returnValue(
+      clientServiceSpy.postClients.mockReturnValue(
         of({ clientId: 10 }) as unknown as Observable<never>,
       );
       component.client.set({
@@ -150,14 +147,14 @@ describe('ClientFormComponent', () => {
     });
 
     it('shows the wizard stepper and only the first step initially', () => {
-      expect(component.showWizard()).toBeTrue();
+      expect(component.showWizard()).toBe(true);
       expect(component.currentStep()).toBe(0);
 
       const el: HTMLElement = fixture.nativeElement;
       expect(el.querySelector('app-stepper')).not.toBeNull();
 
       const steps = el.querySelectorAll('.form-grid');
-      expect(steps).toHaveSize(3);
+      expect(steps).toHaveLength(3);
       expect(steps[0].classList).not.toContain('hidden');
       expect(steps[1].classList).toContain('hidden');
       expect(steps[2].classList).toContain('hidden');
@@ -219,14 +216,14 @@ describe('ClientFormComponent', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.isEditMode()).toBeTrue();
+      expect(component.isEditMode()).toBe(true);
       expect(component.clientId).toBe(10);
       expect(clientServiceSpy.getClientsClientId).toHaveBeenCalledWith(10);
       expect(component.submittedOnDate()).toBe('2026-06-16');
       expect(component.activationDate()).toBe('2026-06-17');
       expect(component.dateOfBirth()).toBe('1990-01-05');
 
-      clientServiceSpy.putClientsClientId.and.returnValue(of({}) as unknown as Observable<never>);
+      clientServiceSpy.putClientsClientId.mockReturnValue(of({}) as unknown as Observable<never>);
       component.onSubmit();
 
       expect(clientServiceSpy.putClientsClientId).toHaveBeenCalled();
@@ -264,13 +261,13 @@ describe('ClientFormComponent', () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component.showWizard()).toBeFalse();
+      expect(component.showWizard()).toBe(false);
 
       const el: HTMLElement = fixture.nativeElement;
       expect(el.querySelector('app-stepper')).toBeNull();
 
       const steps = el.querySelectorAll('.form-grid');
-      expect(steps).toHaveSize(3);
+      expect(steps).toHaveLength(3);
       steps.forEach((step) => expect(step.classList).not.toContain('hidden'));
     });
   });

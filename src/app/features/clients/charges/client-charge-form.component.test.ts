@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientChargeFormComponent } from './client-charge-form.component';
 import { ClientChargesService } from '../../../api';
@@ -28,16 +29,13 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ClientChargeFormComponent', () => {
   let component: ClientChargeFormComponent;
   let fixture: ComponentFixture<ClientChargeFormComponent>;
-  let serviceSpy: jasmine.SpyObj<ClientChargesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<ClientChargesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ClientChargesService', [
-      'getClientsClientIdChargesTemplate',
-      'postClientsClientIdCharges',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getClientsClientIdChargesTemplate.and.returnValue(
+    serviceSpy = createSpyObj(['getClientsClientIdChargesTemplate', 'postClientsClientIdCharges']);
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getClientsClientIdChargesTemplate.mockReturnValue(
       of({ chargeOptions: [{ id: 1, name: 'Fee', amount: 100 }] }) as unknown as ReturnType<
         ClientChargesService['getClientsClientIdChargesTemplate']
       >,
@@ -64,11 +62,11 @@ describe('ClientChargeFormComponent', () => {
   it('should load charge options on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdChargesTemplate).toHaveBeenCalledWith(1);
-    expect(component.chargeOptions()).toHaveSize(1);
+    expect(component.chargeOptions()).toHaveLength(1);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postClientsClientIdCharges.and.returnValue(
+    serviceSpy.postClientsClientIdCharges.mockReturnValue(
       of({}) as unknown as ReturnType<ClientChargesService['postClientsClientIdCharges']>,
     );
     component.charge = { chargeId: 1, amount: 100 };
