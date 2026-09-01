@@ -17,51 +17,57 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FloatingRatesListComponent } from './floating-rates-list.component';
-import { FloatingRatesService } from '../../../api';
+import { TaxComponentsListComponent } from './tax-components-list.component';
+import { TaxComponentsService } from '../../../api';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-describe('FloatingRatesListComponent', () => {
-  let component: FloatingRatesListComponent;
-  let fixture: ComponentFixture<FloatingRatesListComponent>;
-  let serviceSpy: jasmine.SpyObj<FloatingRatesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+describe('TaxComponentsListComponent', () => {
+  let component: TaxComponentsListComponent;
+  let fixture: ComponentFixture<TaxComponentsListComponent>;
+  let serviceSpy: SpyObj<TaxComponentsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('FloatingRatesService', ['getFloatingrates']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getFloatingrates.and.returnValue(
-      of([
-        { id: 1, name: 'BLR', isBaseLendingRate: true, isActive: true },
-      ]) as unknown as ReturnType<FloatingRatesService['getFloatingrates']>,
+    serviceSpy = createSpyObj(['getTaxesComponent']);
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getTaxesComponent.mockReturnValue(
+      of([{ id: 1, name: 'VAT', percentage: 15 }]) as unknown as ReturnType<
+        TaxComponentsService['getTaxesComponent']
+      >,
     );
 
     await TestBed.configureTestingModule({
-      imports: [FloatingRatesListComponent, TranslateModule.forRoot()],
+      imports: [TaxComponentsListComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: FloatingRatesService, useValue: serviceSpy },
+        { provide: TaxComponentsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FloatingRatesListComponent);
+    fixture = TestBed.createComponent(TaxComponentsListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should load floating rates on init', () => {
+  it('should load tax components on init', () => {
     expect(component).toBeTruthy();
-    expect(serviceSpy.getFloatingrates).toHaveBeenCalled();
-    expect(component.rates()).toHaveSize(1);
+    expect(serviceSpy.getTaxesComponent).toHaveBeenCalled();
+    expect(component.components()).toHaveLength(1);
   });
 
-  it('should navigate to edit with the rate id', () => {
-    component.onEdit({ id: 3, name: 'R' });
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/floating-rates/edit', 3]);
+  it('should format array dates', () => {
+    expect(component.formatDate([2026, 1, 5])).toBe('2026-01-05');
+    expect(component.formatDate(null)).toBe('-');
+  });
+
+  it('should navigate to create', () => {
+    component.onCreate();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/tax-components/create']);
   });
 });

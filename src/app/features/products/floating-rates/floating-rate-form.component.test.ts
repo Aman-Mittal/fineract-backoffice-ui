@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FloatingRateFormComponent } from './floating-rate-form.component';
 import { FloatingRatesService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('FloatingRateFormComponent', () => {
   let component: FloatingRateFormComponent;
   let fixture: ComponentFixture<FloatingRateFormComponent>;
-  let serviceSpy: jasmine.SpyObj<FloatingRatesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<FloatingRatesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('FloatingRatesService', [
+    serviceSpy = createSpyObj([
       'getFloatingratesFloatingRateId',
       'postFloatingrates',
       'putFloatingratesFloatingRateId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [FloatingRateFormComponent, TranslateModule.forRoot()],
@@ -56,20 +57,20 @@ describe('FloatingRateFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode()).toBeFalse();
+    expect(component.isEditMode()).toBe(false);
   });
 
   it('should add and remove rate periods', () => {
-    expect(component.periods()).toHaveSize(0);
+    expect(component.periods()).toHaveLength(0);
     component.addPeriod();
     component.addPeriod();
-    expect(component.periods()).toHaveSize(2);
+    expect(component.periods()).toHaveLength(2);
     component.removePeriod(0);
-    expect(component.periods()).toHaveSize(1);
+    expect(component.periods()).toHaveLength(1);
   });
 
   it('should post a floating rate with mapped rate periods', () => {
-    serviceSpy.postFloatingrates.and.returnValue(
+    serviceSpy.postFloatingrates.mockReturnValue(
       of({}) as unknown as ReturnType<FloatingRatesService['postFloatingrates']>,
     );
     component.rate.set({ name: 'BLR', isBaseLendingRate: true, isActive: true });
@@ -79,7 +80,7 @@ describe('FloatingRateFormComponent', () => {
 
     component.onSubmit();
 
-    const arg = serviceSpy.postFloatingrates.calls.mostRecent().args[0];
+    const arg = serviceSpy.postFloatingrates.mock.lastCall![0];
     expect(arg.name).toBe('BLR');
     expect(arg.ratePeriods?.length).toBe(1);
     expect(arg.ratePeriods?.[0].interestRate).toBe(9.5);

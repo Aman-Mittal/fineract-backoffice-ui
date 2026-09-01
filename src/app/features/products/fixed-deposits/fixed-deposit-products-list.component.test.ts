@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositProductsListComponent } from './fixed-deposit-products-list.component';
 import { FixedDepositProductService, GetFixedDepositProductsResponse } from '../../../api';
@@ -28,14 +30,12 @@ import { Router } from '@angular/router';
 describe('FixedDepositProductsListComponent', () => {
   let component: FixedDepositProductsListComponent;
   let fixture: ComponentFixture<FixedDepositProductsListComponent>;
-  let productServiceSpy: jasmine.SpyObj<FixedDepositProductService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let productServiceSpy: SpyObj<FixedDepositProductService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    productServiceSpy = jasmine.createSpyObj('FixedDepositProductService', [
-      'getFixeddepositproducts',
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    productServiceSpy = createSpyObj(['getFixeddepositproducts']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [FixedDepositProductsListComponent, TranslateModule.forRoot()],
@@ -51,7 +51,7 @@ describe('FixedDepositProductsListComponent', () => {
   });
 
   it('should create', () => {
-    (productServiceSpy.getFixeddepositproducts as jasmine.Spy).and.returnValue(
+    (productServiceSpy.getFixeddepositproducts as Mock).mockReturnValue(
       of([] as GetFixedDepositProductsResponse[]),
     );
     fixture.detectChanges();
@@ -62,24 +62,24 @@ describe('FixedDepositProductsListComponent', () => {
     const mockProducts = [
       { id: 1, name: 'Product A', shortName: 'PA' } as GetFixedDepositProductsResponse,
     ];
-    (productServiceSpy.getFixeddepositproducts as jasmine.Spy).and.returnValue(of(mockProducts));
+    (productServiceSpy.getFixeddepositproducts as Mock).mockReturnValue(of(mockProducts));
 
     fixture.detectChanges();
 
     expect(productServiceSpy.getFixeddepositproducts).toHaveBeenCalled();
-    expect(component.products()).toHaveSize(1);
-    expect(component.isLoading()).toBeFalse();
+    expect(component.products()).toHaveLength(1);
+    expect(component.isLoading()).toBe(false);
   });
 
   it('should handle error when loading products', () => {
-    (productServiceSpy.getFixeddepositproducts as jasmine.Spy).and.returnValue(
+    (productServiceSpy.getFixeddepositproducts as Mock).mockReturnValue(
       throwError(() => new Error('API Error')),
     );
 
     fixture.detectChanges();
 
     expect(component.products()).toEqual([]);
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBe(false);
   });
 
   it('should navigate to create product form', () => {

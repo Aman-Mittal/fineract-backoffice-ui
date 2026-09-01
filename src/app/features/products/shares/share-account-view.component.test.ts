@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -41,8 +42,8 @@ const ACTIVE = { id: 300, value: 'Active', active: true, submittedAndPendingAppr
 describe('ShareAccountViewComponent', () => {
   let fixture: ComponentFixture<ShareAccountViewComponent>;
   let component: ShareAccountViewComponent;
-  let shareService: jasmine.SpyObj<ShareAccountService>;
-  let dialogService: jasmine.SpyObj<DialogService>;
+  let shareService: SpyObj<ShareAccountService>;
+  let dialogService: SpyObj<DialogService>;
 
   function account(status: object, timeline: object = { submittedOnDate: [2026, 8, 9] }): object {
     return {
@@ -60,15 +61,12 @@ describe('ShareAccountViewComponent', () => {
   async function setup(data: object): Promise<void> {
     TestBed.resetTestingModule();
 
-    shareService = jasmine.createSpyObj('ShareAccountService', [
-      'getAccountsTypeAccountId',
-      'postAccountsTypeAccountId',
-    ]);
-    shareService.getAccountsTypeAccountId.and.returnValue(of(data) as never);
-    shareService.postAccountsTypeAccountId.and.returnValue(of({}) as never);
+    shareService = createSpyObj(['getAccountsTypeAccountId', 'postAccountsTypeAccountId']);
+    shareService.getAccountsTypeAccountId.mockReturnValue(of(data) as never);
+    shareService.postAccountsTypeAccountId.mockReturnValue(of({}) as never);
 
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm', 'open']);
-    dialogService.confirm.and.resolveTo(true);
+    dialogService = createSpyObj(['confirm', 'open']);
+    dialogService.confirm.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [ShareAccountViewComponent],
@@ -90,7 +88,7 @@ describe('ShareAccountViewComponent', () => {
 
   /** The command name and body of the most recent post. */
   function lastCommand(): { command: string; body: Record<string, unknown> } {
-    const args = shareService.postAccountsTypeAccountId.calls.mostRecent().args;
+    const args = shareService.postAccountsTypeAccountId.mock.lastCall!;
     return { body: args[2] as Record<string, unknown>, command: args[3] as string };
   }
 
@@ -154,7 +152,7 @@ describe('ShareAccountViewComponent', () => {
 
   it('applies for more shares with the quantity the dialog collected', async () => {
     await setup(account(ACTIVE, { activatedDate: [2026, 1, 1] }));
-    dialogService.open.and.resolveTo({ requestedShares: 25 });
+    dialogService.open.mockResolvedValue({ requestedShares: 25 });
 
     await component.onApplyShares();
 
@@ -166,7 +164,7 @@ describe('ShareAccountViewComponent', () => {
 
   it('redeems shares through the same command shape', async () => {
     await setup(account(ACTIVE, { activatedDate: [2026, 1, 1] }));
-    dialogService.open.and.resolveTo({ requestedShares: 5 });
+    dialogService.open.mockResolvedValue({ requestedShares: 5 });
 
     await component.onRedeemShares();
 
@@ -176,7 +174,7 @@ describe('ShareAccountViewComponent', () => {
 
   it('sends nothing when the quantity dialog is dismissed', async () => {
     await setup(account(ACTIVE));
-    dialogService.open.and.resolveTo(undefined);
+    dialogService.open.mockResolvedValue(undefined);
 
     await component.onRedeemShares();
 
@@ -185,11 +183,8 @@ describe('ShareAccountViewComponent', () => {
 
   it('surfaces a failed load rather than rendering an empty screen', async () => {
     TestBed.resetTestingModule();
-    shareService = jasmine.createSpyObj('ShareAccountService', [
-      'getAccountsTypeAccountId',
-      'postAccountsTypeAccountId',
-    ]);
-    shareService.getAccountsTypeAccountId.and.returnValue(
+    shareService = createSpyObj(['getAccountsTypeAccountId', 'postAccountsTypeAccountId']);
+    shareService.getAccountsTypeAccountId.mockReturnValue(
       new (class {
         subscribe(handlers: { error: () => void }) {
           handlers.error();
@@ -206,7 +201,7 @@ describe('ShareAccountViewComponent', () => {
         { provide: ShareAccountService, useValue: shareService },
         {
           provide: DialogService,
-          useValue: jasmine.createSpyObj('DialogService', ['confirm', 'open']),
+          useValue: createSpyObj(['confirm', 'open']),
         },
         { provide: Router, useValue: { navigate: () => undefined } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '7' } } } },

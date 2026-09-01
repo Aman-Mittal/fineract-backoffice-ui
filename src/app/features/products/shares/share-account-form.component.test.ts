@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareAccountFormComponent } from './share-account-form.component';
 import { ShareAccountService, AccountRequest, ClientService } from '../../../api';
@@ -28,19 +29,19 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ShareAccountFormComponent', () => {
   let component: ShareAccountFormComponent;
   let fixture: ComponentFixture<ShareAccountFormComponent>;
-  let shareServiceSpy: jasmine.SpyObj<ShareAccountService>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let shareServiceSpy: SpyObj<ShareAccountService>;
+  let clientServiceSpy: SpyObj<ClientService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    shareServiceSpy = jasmine.createSpyObj('ShareAccountService', [
+    shareServiceSpy = createSpyObj([
       'postAccountsType',
       'putAccountsTypeAccountId',
       'getAccountsTypeTemplate',
       'getAccountsTypeAccountId',
     ]);
-    clientServiceSpy = jasmine.createSpyObj('ClientService', ['getClients', 'getClientsClientId']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    clientServiceSpy = createSpyObj(['getClients', 'getClientsClientId']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ShareAccountFormComponent, TranslateModule.forRoot()],
@@ -60,9 +61,9 @@ describe('ShareAccountFormComponent', () => {
     }).compileComponents();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    shareServiceSpy.getAccountsTypeTemplate.and.returnValue(of({ productOptions: [] }) as any);
+    shareServiceSpy.getAccountsTypeTemplate.mockReturnValue(of({ productOptions: [] }) as any);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    clientServiceSpy.getClients.and.returnValue(of({ pageItems: [] }) as any);
+    clientServiceSpy.getClients.mockReturnValue(of({ pageItems: [] }) as any);
     fixture = TestBed.createComponent(ShareAccountFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -78,11 +79,11 @@ describe('ShareAccountFormComponent', () => {
     component.applicationDate.set(new Date(2026, 4, 15));
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    shareServiceSpy.postAccountsType.and.returnValue(of({}) as any);
+    shareServiceSpy.postAccountsType.mockReturnValue(of({}) as any);
 
     component.onSubmit();
 
-    const expectedPayload = jasmine.objectContaining({
+    const expectedPayload = expect.objectContaining({
       clientId: 1,
       productId: 1,
       requestedShares: 100,

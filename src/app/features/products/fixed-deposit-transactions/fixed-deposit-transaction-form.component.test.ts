@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -30,8 +31,8 @@ import { provideTranslateTesting } from '../../../testing/i18n-testing';
 describe('FixedDepositTransactionFormComponent', () => {
   let component: FixedDepositTransactionFormComponent;
   let fixture: ComponentFixture<FixedDepositTransactionFormComponent>;
-  let serviceSpy: jasmine.SpyObj<FixedDepositAccountTransactionsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<FixedDepositAccountTransactionsService>;
+  let routerSpy: SpyObj<Router>;
 
   type PostReturn = ReturnType<
     FixedDepositAccountTransactionsService['postFixeddepositaccountsFixedDepositAccountIdTransactions']
@@ -41,11 +42,11 @@ describe('FixedDepositTransactionFormComponent', () => {
   >;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('FixedDepositAccountTransactionsService', [
+    serviceSpy = createSpyObj([
       'getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate',
       'postFixeddepositaccountsFixedDepositAccountIdTransactions',
     ]);
-    serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate.and.returnValue(
+    serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate.mockReturnValue(
       of({
         paymentTypeOptions: [
           { id: 1, name: 'Money Transfer' },
@@ -53,10 +54,10 @@ describe('FixedDepositTransactionFormComponent', () => {
         ],
       }) as unknown as TemplateReturn,
     );
-    serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.and.returnValue(
+    serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
       of({}) as unknown as PostReturn,
     );
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [FixedDepositTransactionFormComponent],
@@ -103,11 +104,11 @@ describe('FixedDepositTransactionFormComponent', () => {
     component.onSubmit();
 
     const args =
-      serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.calls.mostRecent().args;
+      serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.mock.lastCall!;
     expect(args[0]).toBe(7);
     expect(args[1]).toBe('deposit');
     expect(JSON.parse(args[2] as string)).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         transactionAmount: 500,
         paymentTypeId: 2,
         transactionDate: '09 August 2026',
@@ -124,14 +125,14 @@ describe('FixedDepositTransactionFormComponent', () => {
   });
 
   it('re-enables the form when the post fails', () => {
-    serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.and.returnValue(
+    serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
       throwError(() => new Error('rejected')) as unknown as PostReturn,
     );
     component.transactionAmount = 100;
 
     component.onSubmit();
 
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 });

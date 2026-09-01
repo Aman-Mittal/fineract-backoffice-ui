@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TaxComponentFormComponent } from './tax-component-form.component';
 import { TaxComponentsService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('TaxComponentFormComponent', () => {
   let component: TaxComponentFormComponent;
   let fixture: ComponentFixture<TaxComponentFormComponent>;
-  let serviceSpy: jasmine.SpyObj<TaxComponentsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<TaxComponentsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('TaxComponentsService', [
+    serviceSpy = createSpyObj([
       'getTaxesComponentTaxComponentId',
       'postTaxesComponent',
       'putTaxesComponentTaxComponentId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [TaxComponentFormComponent, TranslateModule.forRoot()],
@@ -56,11 +57,11 @@ describe('TaxComponentFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode()).toBeFalse();
+    expect(component.isEditMode()).toBe(false);
   });
 
   it('should post a tax component with a start date on create', () => {
-    serviceSpy.postTaxesComponent.and.returnValue(
+    serviceSpy.postTaxesComponent.mockReturnValue(
       of({}) as unknown as ReturnType<TaxComponentsService['postTaxesComponent']>,
     );
     component.component.set({ name: 'GST', percentage: 18 });
@@ -69,9 +70,9 @@ describe('TaxComponentFormComponent', () => {
     component.onSubmit();
 
     expect(serviceSpy.postTaxesComponent).toHaveBeenCalledWith(
-      jasmine.objectContaining({ name: 'GST', percentage: 18, locale: 'en' }),
+      expect.objectContaining({ name: 'GST', percentage: 18, locale: 'en' }),
     );
-    const arg = serviceSpy.postTaxesComponent.calls.mostRecent().args[0];
+    const arg = serviceSpy.postTaxesComponent.mock.lastCall![0];
     expect(arg.startDate).toBeTruthy();
   });
 });

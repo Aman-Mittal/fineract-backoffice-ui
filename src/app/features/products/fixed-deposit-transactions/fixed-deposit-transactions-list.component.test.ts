@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositTransactionsListComponent } from './fixed-deposit-transactions-list.component';
 import { FixedDepositAccountTransactionsService } from '../../../api';
@@ -28,13 +29,11 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('FixedDepositTransactionsListComponent', () => {
   let component: FixedDepositTransactionsListComponent;
   let fixture: ComponentFixture<FixedDepositTransactionsListComponent>;
-  let serviceSpy: jasmine.SpyObj<FixedDepositAccountTransactionsService>;
+  let serviceSpy: SpyObj<FixedDepositAccountTransactionsService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('FixedDepositAccountTransactionsService', [
-      'getFixeddepositaccountsFixedDepositAccountIdTransactions',
-    ]);
-    serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactions.and.returnValue(
+    serviceSpy = createSpyObj(['getFixeddepositaccountsFixedDepositAccountIdTransactions']);
+    serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
       of([
         { id: 1, date: '01 January 2024', amount: 1000, transactionType: { code: 'deposit' } },
       ]) as unknown as ReturnType<
@@ -64,6 +63,6 @@ describe('FixedDepositTransactionsListComponent', () => {
     expect(
       serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactions,
     ).toHaveBeenCalledWith(1);
-    expect(component.transactions()).toHaveSize(1);
+    expect(component.transactions()).toHaveLength(1);
   });
 });

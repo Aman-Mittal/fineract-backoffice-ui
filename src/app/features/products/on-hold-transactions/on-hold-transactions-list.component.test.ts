@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OnHoldTransactionsListComponent } from './on-hold-transactions-list.component';
 import { DepositAccountOnHoldFundTransactionsService } from '../../../api';
@@ -28,13 +29,11 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('OnHoldTransactionsListComponent', () => {
   let component: OnHoldTransactionsListComponent;
   let fixture: ComponentFixture<OnHoldTransactionsListComponent>;
-  let serviceSpy: jasmine.SpyObj<DepositAccountOnHoldFundTransactionsService>;
+  let serviceSpy: SpyObj<DepositAccountOnHoldFundTransactionsService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('DepositAccountOnHoldFundTransactionsService', [
-      'getSavingsaccountsSavingsIdOnholdtransactions',
-    ]);
-    serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions.and.returnValue(
+    serviceSpy = createSpyObj(['getSavingsaccountsSavingsIdOnholdtransactions']);
+    serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions.mockReturnValue(
       of(
         JSON.stringify([
           {
@@ -70,7 +69,7 @@ describe('OnHoldTransactionsListComponent', () => {
   it('should load and parse on-hold transactions on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions).toHaveBeenCalledWith(1);
-    expect(component.transactions()).toHaveSize(1);
+    expect(component.transactions()).toHaveLength(1);
     expect(component.transactions()[0].loanClientName).toBe('John Doe');
   });
 });

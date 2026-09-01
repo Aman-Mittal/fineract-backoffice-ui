@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import type { Mock } from 'vitest';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositAccountFormComponent } from './fixed-deposit-form.component';
 import {
@@ -36,8 +38,8 @@ const SUBMITTED_ON = '2026-06-11';
 describe('FixedDepositAccountFormComponent', () => {
   let component: FixedDepositAccountFormComponent;
   let fixture: ComponentFixture<FixedDepositAccountFormComponent>;
-  let fixedDepositServiceSpy: jasmine.SpyObj<FixedDepositAccountService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let fixedDepositServiceSpy: SpyObj<FixedDepositAccountService>;
+  let routerSpy: SpyObj<Router>;
   let activatedRouteStub: {
     queryParams: Observable<Record<string, unknown>>;
     paramMap: Observable<{ get: (key: string) => string | null }>;
@@ -47,13 +49,13 @@ describe('FixedDepositAccountFormComponent', () => {
   const API_ERROR = 'API Error';
 
   beforeEach(async () => {
-    fixedDepositServiceSpy = jasmine.createSpyObj('FixedDepositAccountService', [
+    fixedDepositServiceSpy = createSpyObj([
       'getFixeddepositaccountsTemplate',
       'getFixeddepositaccountsAccountId',
       'postFixeddepositaccounts',
       'putFixeddepositaccountsAccountId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
     activatedRouteStub = {
       queryParams: of({}),
       paramMap: of({ get: () => null }),
@@ -74,7 +76,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should create', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
     fixture.detectChanges();
@@ -83,7 +85,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should initialize with clientId from query parameters', () => {
     activatedRouteStub.queryParams = of({ clientId: '123' });
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
 
@@ -97,7 +99,7 @@ describe('FixedDepositAccountFormComponent', () => {
     const productOptions = new Set<GetFixedDepositAccountsProductOptions>([
       { id: 1, name: 'Product 1' } as GetFixedDepositAccountsProductOptions,
     ]);
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       of({
         productOptions,
       } as GetFixedDepositAccountsTemplateResponse),
@@ -107,11 +109,11 @@ describe('FixedDepositAccountFormComponent', () => {
 
     expect(component.account()['clientId']).toBe(456);
     expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(456);
-    expect(component.products()).toHaveSize(1);
+    expect(component.products()).toHaveLength(1);
   });
 
   it('should handle missing product options in template', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
 
@@ -127,7 +129,7 @@ describe('FixedDepositAccountFormComponent', () => {
       depositPeriodFrequency: { id: 2 },
       nominalAnnualInterestRate: 5.5,
     };
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       of(mockTemplate as unknown as GetFixedDepositAccountsTemplateResponse),
     );
     component.account()['clientId'] = 1;
@@ -146,8 +148,8 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should handle error when loading product defaults', () => {
-    spyOn(console, 'error');
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    vi.spyOn(console, 'error');
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       throwError(() => new Error(API_ERROR)),
     );
     component.account()['clientId'] = 1;
@@ -169,7 +171,7 @@ describe('FixedDepositAccountFormComponent', () => {
         submittedOnDate: [2026, 6, 11] as unknown as string,
       },
     };
-    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as Mock).mockReturnValue(
       of(mockAccount as unknown as GetFixedDepositAccountsAccountIdResponse),
     );
     component.accountId = 123;
@@ -185,8 +187,8 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should handle error when loading account data', () => {
-    spyOn(console, 'error');
-    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as jasmine.Spy).and.returnValue(
+    vi.spyOn(console, 'error');
+    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as Mock).mockReturnValue(
       throwError(() => new Error(API_ERROR)),
     );
     component.accountId = 123;
@@ -197,10 +199,10 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should submit application in create mode', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
       of({} as GetFixedDepositAccountsTemplateResponse),
     );
-    (fixedDepositServiceSpy.postFixeddepositaccounts as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.postFixeddepositaccounts as Mock).mockReturnValue(
       of({} as PostFixedDepositAccountsResponse),
     );
     fixture.detectChanges();
@@ -222,7 +224,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should update application in edit mode', () => {
-    (fixedDepositServiceSpy.putFixeddepositaccountsAccountId as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.putFixeddepositaccountsAccountId as Mock).mockReturnValue(
       of({} as PostFixedDepositAccountsResponse),
     );
     component.accountId = 123;
@@ -239,17 +241,17 @@ describe('FixedDepositAccountFormComponent', () => {
 
     expect(fixedDepositServiceSpy.putFixeddepositaccountsAccountId).toHaveBeenCalledWith(
       123,
-      jasmine.any(Object),
+      expect.any(Object),
     );
     expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
   });
 
   it('should handle submission error', () => {
-    (fixedDepositServiceSpy.postFixeddepositaccounts as jasmine.Spy).and.returnValue(
+    (fixedDepositServiceSpy.postFixeddepositaccounts as Mock).mockReturnValue(
       throwError(() => new Error(API_ERROR)),
     );
     component.onSubmit();
-    expect(component.isSaving()).toBeFalse();
+    expect(component.isSaving()).toBe(false);
   });
 
   it('should navigate on cancel', () => {

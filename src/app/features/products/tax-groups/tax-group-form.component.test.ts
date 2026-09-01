@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TaxGroupFormComponent } from './tax-group-form.component';
 import { TaxGroupService } from '../../../api';
@@ -28,18 +29,18 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('TaxGroupFormComponent', () => {
   let component: TaxGroupFormComponent;
   let fixture: ComponentFixture<TaxGroupFormComponent>;
-  let serviceSpy: jasmine.SpyObj<TaxGroupService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<TaxGroupService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('TaxGroupService', [
+    serviceSpy = createSpyObj([
       'getTaxesGroupTemplate',
       'getTaxesGroupTaxGroupId',
       'postTaxesGroup',
       'putTaxesGroupTaxGroupId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    serviceSpy.getTaxesGroupTemplate.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    serviceSpy.getTaxesGroupTemplate.mockReturnValue(
       of({ taxComponents: [{ id: 1, name: 'VAT' }] }) as unknown as ReturnType<
         TaxGroupService['getTaxesGroupTemplate']
       >,
@@ -63,11 +64,11 @@ describe('TaxGroupFormComponent', () => {
   it('should load the component template on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getTaxesGroupTemplate).toHaveBeenCalled();
-    expect(component.availableComponents()).toHaveSize(1);
+    expect(component.availableComponents()).toHaveLength(1);
   });
 
   it('should post a tax group with selected components as an array', () => {
-    serviceSpy.postTaxesGroup.and.returnValue(
+    serviceSpy.postTaxesGroup.mockReturnValue(
       of({}) as unknown as ReturnType<TaxGroupService['postTaxesGroup']>,
     );
     component.name.set('Standard');
@@ -75,7 +76,7 @@ describe('TaxGroupFormComponent', () => {
 
     component.onSubmit();
 
-    const arg = serviceSpy.postTaxesGroup.calls.mostRecent().args[0] as Record<string, unknown>;
+    const arg = serviceSpy.postTaxesGroup.mock.lastCall![0] as Record<string, unknown>;
     expect(arg['name']).toBe('Standard');
     expect(arg['taxComponents']).toEqual([{ taxComponentId: 1 }, { taxComponentId: 2 }]);
   });

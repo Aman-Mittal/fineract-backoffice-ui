@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InterestRateChartFormComponent } from './interest-rate-chart-form.component';
 import { InterestRateChartService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('InterestRateChartFormComponent', () => {
   let component: InterestRateChartFormComponent;
   let fixture: ComponentFixture<InterestRateChartFormComponent>;
-  let serviceSpy: jasmine.SpyObj<InterestRateChartService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let serviceSpy: SpyObj<InterestRateChartService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('InterestRateChartService', [
+    serviceSpy = createSpyObj([
       'getInterestratechartsChartId',
       'postInterestratecharts',
       'putInterestratechartsChartId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [InterestRateChartFormComponent, TranslateModule.forRoot()],
@@ -56,11 +57,11 @@ describe('InterestRateChartFormComponent', () => {
 
   it('should create in create mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode()).toBeFalse();
+    expect(component.isEditMode()).toBe(false);
   });
 
   it('should post on create and navigate to the list', () => {
-    serviceSpy.postInterestratecharts.and.returnValue(
+    serviceSpy.postInterestratecharts.mockReturnValue(
       of({}) as unknown as ReturnType<InterestRateChartService['postInterestratecharts']>,
     );
     component.name.set('New Chart');
@@ -72,7 +73,7 @@ describe('InterestRateChartFormComponent', () => {
   });
 
   it('should put on edit and navigate to the list', () => {
-    serviceSpy.putInterestratechartsChartId.and.returnValue(
+    serviceSpy.putInterestratechartsChartId.mockReturnValue(
       of({}) as unknown as ReturnType<InterestRateChartService['putInterestratechartsChartId']>,
     );
     component.chartId = 4;
